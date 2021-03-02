@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec python -B -m ahriman.application.ahriman "$@"

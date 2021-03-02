@@ -1,0 +1,7 @@
+[Unit]
+Description=ArcHlinux ReposItory MANager
+
+[Service]
+ExecStart=/usr/bin/ahriman update
+User=ahriman
+Group=ahriman
