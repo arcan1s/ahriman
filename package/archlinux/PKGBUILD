@@ -9,7 +9,9 @@ url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
 depends=('devtools' 'python-aur' 'python-srcinfo')
 makedepends=('python-pip')
-optdepends=('gnupg: package and repository sign support')
+optdepends=('aws-cli: sync to s3'
+            'gnupg: package and repository sign'
+            'rsync: sync by using rsync')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
         'ahriman.sudoers'
         'ahriman.sysusers'

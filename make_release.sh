@@ -4,7 +4,7 @@ set -e
 
 VERSION="$1"
 ARCHIVE="ahriman"
-FILES="package src setup.py"
+FILES="COPYING README.md package src setup.py"
 IGNORELIST="build .idea package/archlinux package/*src.tar.xz"
 
 # set version

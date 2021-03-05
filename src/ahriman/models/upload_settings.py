@@ -17,23 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import subprocess
+from __future__ import annotations
 
-from logging import Logger
-from typing import Optional
+from enum import Enum, auto
+from typing import Type
+
+from ahriman.core.exceptions import InvalidOptionException
 
 
-def check_output(*args: str, exception: Optional[Exception],
-                 cwd = None, stderr: int = subprocess.STDOUT,
-                 logger: Optional[Logger] = None) -> str:
-    try:
-        result = subprocess.check_output(args, cwd=cwd, stderr=stderr).decode('utf8').strip()
-        if logger is not None:
-            for line in result.splitlines():
-                logger.debug(line)
-    except subprocess.CalledProcessError as e:
-        if e.output is not None and logger is not None:
-            for line in e.output.decode('utf8').splitlines():
-                logger.debug(line)
-        raise exception or e
-    return result
+class UploadSettings(Enum):
+    Disabled = auto()
+    Rsync = auto()
+    S3 = auto()
+
+    @classmethod
+    def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
+        if value.lower() in ('no', 'disabled'):
+            return cls.Disabled
+        elif value.lower() in ('rsync',):
+            return cls.Rsync
+        elif value.lower() in ('s3',):
+            return cls.S3
+        raise InvalidOptionException(value)

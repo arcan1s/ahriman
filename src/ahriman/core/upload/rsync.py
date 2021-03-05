@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2021 Evgenii Alekseev.
 #
-# This file is part of ahriman 
+# This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,25 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
-from enum import Enum, auto
-from typing import Type
-
-from ahriman.core.exceptions import InvalidOptionException
+from ahriman.core.configuration import Configuration
+from ahriman.core.upload.uploader import Uploader
+from ahriman.core.util import check_output
 
 
-class SignSettings(Enum):
-    Disabled = auto()
-    SignPackages = auto()
-    SignRepository = auto()
+class Rsync(Uploader):
 
-    @classmethod
-    def from_option(cls: Type[SignSettings], value: str) -> SignSettings:
-        if value.lower() in ('no', 'disabled'):
-            return cls.Disabled
-        elif value.lower() in ('package', 'packages', 'sign-package'):
-            return cls.SignPackages
-        elif value.lower() in ('repository', 'sign-repository'):
-            return cls.SignRepository
-        raise InvalidOptionException(value)
+    def __init__(self, config: Configuration) -> None:
+        Uploader.__init__(self, config)
+        self.remote = self.config.get('rsync', 'remote')
+
+    def sync(self, path: str) -> None:
+        check_output('rsync', '--archive', '--verbose', '--compress', '--partial', '--progress', '--delete', path, self.remote,
+                     exception=None,
+                     logger=self.logger)

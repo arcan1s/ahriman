@@ -1,3 +1,22 @@
+#
+# Copyright (c) 2021 Evgenii Alekseev.
+#
+# This file is part of ahriman 
+# (see https://github.com/arcan1s/ahriman).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 import os
 import logging
 import shutil
@@ -19,10 +38,10 @@ class Task:
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = config.get('build', 'archbuild_flags').split()
-        self.extra_build = config.get('build', 'extra_build')
-        self.makepkg_flags = config.get('build', 'makepkg_flags').split()
-        self.multilib_build = config.get('build', 'multilib_build')
+        self.archbuild_flags = config.get('build_tools', 'archbuild_flags').split()
+        self.extra_build = config.get('build_tools', 'extra_build')
+        self.makepkg_flags = config.get('build_tools', 'makepkg_flags').split()
+        self.multilib_build = config.get('build_tools', 'multilib_build')
 
     @property
     def git_path(self) -> str:
