@@ -31,8 +31,8 @@ class Uploader:
         self.logger = logging.getLogger('builder')
 
     @staticmethod
-    def run(config: Configuration, path: str) -> None:
-        provider = UploadSettings.from_option(config.get('upload', 'enabled'))
+    def run(config: Configuration, target: str, path: str) -> None:
+        provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
             uploader: Uploader = Rsync(config)
@@ -46,7 +46,7 @@ class Uploader:
         try:
             uploader.sync(path)
         except Exception as e:
-            raise SyncFailed from e
+            raise SyncFailed(e) from e
 
     def sync(self, path: str) -> None:
         raise NotImplementedError

@@ -40,6 +40,11 @@ class MissingConfiguration(Exception):
         Exception.__init__(self, f'No section `{name}` found')
 
 
+class ReportFailed(Exception):
+    def __init__(self, cause: Exception) -> None:
+        Exception.__init__(self, f'Report failed with reason {cause}')
+
+
 class SyncFailed(Exception):
     def __init__(self, cause: Exception) -> None:
         Exception.__init__(self, f'Sync failed with reason {cause}')

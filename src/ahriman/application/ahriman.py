@@ -51,12 +51,17 @@ def remove(args: argparse.Namespace) -> None:
     _get_app(args).remove(args.package)
 
 
+def report(args: argparse.Namespace) -> None:
+    _get_app(args).report(args.target)
+
+
 def sync(args: argparse.Namespace) -> None:
-    _get_app(args).sync()
+    _get_app(args).sync(args.target)
 
 
 def update(args: argparse.Namespace) -> None:
-    _get_app(args).update(args.sync)
+    check_only = (args.command == 'check')
+    _get_app(args).update(check_only)
 
 
 if __name__ == '__main__':
@@ -65,21 +70,28 @@ if __name__ == '__main__':
     parser.add_argument('--force', help='force run, remove file lock', action='store_true')
     parser.add_argument('--lock', help='lock file', default='/tmp/ahriman.lock')
     parser.add_argument('-v', '--version', action='version', version=version.__version__)
-    subparsers = parser.add_subparsers(title='commands')
+    subparsers = parser.add_subparsers(title='command')
 
     add_parser = subparsers.add_parser('add', description='add package')
     add_parser.add_argument('package', help='package name', nargs='+')
     add_parser.set_defaults(fn=add)
 
+    check_parser = subparsers.add_parser('check', description='check for updates')
+    check_parser.set_defaults(fn=update)
+
     remove_parser = subparsers.add_parser('remove', description='remove package')
     remove_parser.add_argument('package', help='package name', nargs='+')
     remove_parser.set_defaults(fn=remove)
 
+    report_parser = subparsers.add_parser('report', description='generate report')
+    report_parser.add_argument('target', help='target to generate report', nargs='*')
+    report_parser.set_defaults(fn=report)
+
     sync_parser = subparsers.add_parser('sync', description='sync packages to remote server')
+    sync_parser.add_argument('target', help='target to sync', nargs='*')
     sync_parser.set_defaults(fn=sync)
 
     update_parser = subparsers.add_parser('update', description='run updates')
-    update_parser.add_argument('-s', '--sync', help='sync packages to remote server', action='store_true')
     update_parser.set_defaults(fn=update)
 
     args = parser.parse_args()

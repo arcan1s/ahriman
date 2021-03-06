@@ -26,15 +26,12 @@ from ahriman.core.exceptions import InvalidOptionException
 
 
 class UploadSettings(Enum):
-    Disabled = auto()
     Rsync = auto()
     S3 = auto()
 
     @classmethod
     def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
-        if value.lower() in ('no', 'disabled'):
-            return cls.Disabled
-        elif value.lower() in ('rsync',):
+        if value.lower() in ('rsync',):
             return cls.Rsync
         elif value.lower() in ('s3',):
             return cls.S3

@@ -37,10 +37,6 @@ class Package:
     version: str
     url: str
 
-    @property
-    def is_multilib(self) -> bool:
-        return self.name.startswith('lib32-')
-
     @classmethod
     def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
         name, version = check_output('expac', '-p', '%n %v', path, exception=None).split()

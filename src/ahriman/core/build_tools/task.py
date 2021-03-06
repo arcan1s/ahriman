@@ -25,7 +25,7 @@ from typing import List, Optional
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
-from ahriman.core.util import check_output
+from ahriman.core.util import check_output, options_list
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -38,22 +38,20 @@ class Task:
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = config.get('build_tools', 'archbuild_flags').split()
-        self.extra_build = config.get('build_tools', 'extra_build')
-        self.makepkg_flags = config.get('build_tools', 'makepkg_flags').split()
-        self.multilib_build = config.get('build_tools', 'multilib_build')
+        self.archbuild_flags = options_list(config, 'build', 'archbuild_flags')
+        self.build_command = config.get('build', 'build_command')
+        self.makepkg_flags = options_list(config, 'build', 'makepkg_flags')
+        self.makechrootpkg_flags = options_list(config, 'build', 'makechrootpkg_flags')
 
     @property
     def git_path(self) -> str:
         return os.path.join(self.paths.sources, self.package.name)
 
     def build(self) -> List[str]:
-        build_tool = self.multilib_build if self.package.is_multilib else self.extra_build
-
-        cmd = [build_tool, '-r', self.paths.chroot]
+        cmd = [self.build_command, '-r', self.paths.chroot]
         cmd.extend(self.archbuild_flags)
-        if self.makepkg_flags:
-            cmd.extend(['--', '--'] + self.makepkg_flags)
+        cmd.extend(['--'] + self.makechrootpkg_flags)
+        cmd.extend(['--'] + self.makepkg_flags)
         self.logger.info(f'using {cmd} for {self.package.name}')
 
         check_output(

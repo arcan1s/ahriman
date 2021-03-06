@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import logging
 import os
 
-from typing import List
+from typing import List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -30,6 +31,7 @@ from ahriman.models.package import Package
 class Application:
 
     def __init__(self, config: Configuration) -> None:
+        self.logger = logging.getLogger('root')
         self.config = config
         self.repository = Repository(config)
 
@@ -42,12 +44,25 @@ class Application:
     def remove(self, names: List[str]) -> None:
         self.repository.process_remove(names)
 
-    def sync(self) -> None:
-        self.repository.process_sync()
+    def report(self, target: Optional[List[str]] = None) -> None:
+        targets = target or None
+        self.repository.process_report(targets)
 
-    def update(self, sync: bool) -> None:
+    def sync(self, target: Optional[List[str]] = None) -> None:
+        targets = target or None
+        self.repository.process_sync(targets)
+
+    def update(self, dry_run: bool) -> None:
         updates = self.repository.updates()
+        log_fn = print if dry_run else self.logger.info
+        for package in updates:
+            log_fn(f'{package.name} = {package.version}')  # type: ignore
+
+        if dry_run:
+            return
+
         packages = self.repository.process_build(updates)
         self.repository.process_update(packages)
-        if sync:
-            self.sync()
+
+        self.report()
+        self.sync()

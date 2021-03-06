@@ -17,19 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import logging
+
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+from ahriman.core.exceptions import ReportFailed
+from ahriman.models.report_settings import ReportSettings
 
 
-class S3(Uploader):
+class Report:
 
     def __init__(self, config: Configuration) -> None:
-        Uploader.__init__(self, config)
-        self.bucket = self.config.get('s3', 'bucket')
+        self.config = config
+        self.logger = logging.getLogger('builder')
 
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+    @staticmethod
+    def run(config: Configuration, target: str, path: str) -> None:
+        provider = ReportSettings.from_option(target)
+        if provider == ReportSettings.HTML:
+            from ahriman.core.report.html import HTML
+            report: Report = HTML(config)
+        else:
+            from ahriman.core.report.dummy import Dummy
+            report = Dummy(config)
+
+        try:
+            report.generate(path)
+        except Exception as e:
+            raise ReportFailed(e) from e
+
+    def generate(self, path: str) -> None:
+        raise NotImplementedError

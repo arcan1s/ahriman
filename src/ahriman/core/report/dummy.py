@@ -17,19 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+from ahriman.core.report.report import Report
 
 
-class S3(Uploader):
+class Dummy(Report):
 
-    def __init__(self, config: Configuration) -> None:
-        Uploader.__init__(self, config)
-        self.bucket = self.config.get('s3', 'bucket')
-
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+    def generate(self, path: str) -> None:
+        pass

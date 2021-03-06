@@ -1,0 +1,67 @@
+# ahriman configuration
+
+## `settings` group
+
+Base configuration settings:
+
+* `include` - path to directory with configuration files overrides, string, required.
+* `logging` - path to logging configuration, string, required. Check `logging.ini` for reference.
+
+## `aur` group
+
+AUR related configuration:
+
+* `url` - base url for AUR, string, required.
+
+## `build` group
+
+Build related configuration:
+
+* `archbuild_flags` - additional flags passed to `archbuild` command, space separated list of strings, optional.
+* `build_command` - default build command, string, required.
+* `makepkg_flags` - additional flags passed to `makepkg` command, space separated list of strings, optional.
+* `makechrootpkg_flags` - additional flags passed to `makechrootpkg` command, space separated list of strings, optional.
+
+## `repository` group
+
+Base repository settings:
+
+* `name` - repository name, string, required.
+* `root` - root path for application, string, required.
+
+## `sign` group
+
+Settings for signing packages or repository:
+
+* `enabled` - configuration flag to enable signing, string, required. Allowed values are `disabled`, `package` (sign each package separately), `repository` (sign repository database file).
+* `key` - PGP key, string, optional.
+
+## `report` group
+
+Report generation settings:
+
+* `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`.
+
+### `html` group
+
+* `path` - path to html report file, string, required.
+* `css_path` - path to CSS to include in HTML, string, optional.
+* `link_path` - prefix for HTML links, string, required.
+
+## `upload` group
+
+Remote synchronization settings:
+
+* `target` - list of synchronizations to be used, space separated list of strings, optional. Allowed values are `rsync`, `s3`.
+
+### `s3`
+
+Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
+
+* `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
+
+### `rsync`
+
+Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+
+* `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.

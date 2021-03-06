@@ -20,7 +20,9 @@
 import subprocess
 
 from logging import Logger
-from typing import Optional
+from typing import List, Optional
+
+from ahriman.core.configuration import Configuration
 
 
 def check_output(*args: str, exception: Optional[Exception],
@@ -37,3 +39,10 @@ def check_output(*args: str, exception: Optional[Exception],
                 logger.debug(line)
         raise exception or e
     return result
+
+
+def options_list(config: Configuration, section: str, key: str) -> List[str]:
+    raw = config.get(section, key, fallback=None)
+    if not raw:  # empty string or none
+        return []
+    return raw.split()

@@ -21,13 +21,15 @@ import logging
 import os
 import shutil
 
-from typing import List
+from typing import List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.repo.repo_wrapper import RepoWrapper
-from ahriman.core.sign.sign import Sign
+from ahriman.core.report.report import Report
+from ahriman.core.sign.gpg_wrapper import GPGWrapper
 from ahriman.core.upload.uploader import Uploader
+from ahriman.core.util import options_list
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -44,7 +46,7 @@ class Repository:
         self.paths = RepositoryPaths(config.get('repository', 'root'))
         self.paths.create_tree()
 
-        self.sign = Sign(config)
+        self.sign = GPGWrapper(config)
         self.wrapper = RepoWrapper(self.name, self.paths)
 
     def _clear_build(self) -> None:
@@ -96,8 +98,17 @@ class Repository:
         self.sign.sign_repository(self.wrapper.repo_path)
         return self.wrapper.repo_path
 
-    def process_sync(self) -> None:
-        return Uploader.run(self.config, self.paths.repository)
+    def process_report(self, targets: Optional[List[str]]) -> None:
+        if targets is None:
+            targets = options_list(self.config, 'report', 'target')
+        for target in targets:
+            Report.run(self.config, target, self.paths.repository)
+
+    def process_sync(self, targets: Optional[List[str]]) -> None:
+        if targets is None:
+            targets = options_list(self.config, 'upload', 'target')
+        for target in targets:
+            Uploader.run(self.config, target, self.paths.repository)
 
     def process_update(self, packages: List[str]) -> str:
         for package in packages:
