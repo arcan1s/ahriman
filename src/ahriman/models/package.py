@@ -39,13 +39,13 @@ class Package:
 
     @classmethod
     def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
-        name, version = check_output('expac', '-p', '%n %v', path, exception=None).split()
+        name, version = check_output('expac', '-p', '%e %v', path, exception=None).split()
         return cls(name, version, f'{aur_url}/{name}.git')
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
         package = aur.info(name)
-        return cls(package.name, package.version, f'{aur_url}/{name}.git')
+        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git')
 
     @classmethod
     def from_build(cls: Type[Package], path: str) -> Package:

@@ -21,6 +21,7 @@ Build related configuration. Group name must refer to architecture, e.g. it shou
 
 * `archbuild_flags` - additional flags passed to `archbuild` command, space separated list of strings, optional.
 * `build_command` - default build command, string, required.
+* `ignore_packages` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
 * `makepkg_flags` - additional flags passed to `makepkg` command, space separated list of strings, optional.
 * `makechrootpkg_flags` - additional flags passed to `makechrootpkg` command, space separated list of strings, optional.
 

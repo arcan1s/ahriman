@@ -144,6 +144,8 @@ class Repository:
 
     def updates_aur(self, checked: List[str]) -> List[Package]:
         result: List[Package] = []
+        ignore_list = self.config.get_list(
+            self.config.get_section_name('build', self.architecture), 'ignore_packages')
 
         for fn in os.listdir(self.paths.repository):
             if '.pkg.' not in fn:
@@ -156,6 +158,8 @@ class Repository:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
             if local.name in checked:
+                continue
+            if local.name in ignore_list:
                 continue
 
             if local.is_outdated(remote):
