@@ -36,26 +36,7 @@ class Application:
         self.architecture = architecture
         self.repository = Repository(architecture, config)
 
-    def add(self, names: List[str]) -> None:
-        for name in names:
-            package = Package.load(name, self.config.get('aur', 'url'))
-            task = Task(package, self.architecture, self.config, self.repository.paths)
-            task.fetch(os.path.join(self.repository.paths.manual, package.name))
-
-    def remove(self, names: List[str]) -> None:
-        self.repository.process_remove(names)
-
-    def report(self, target: Optional[List[str]] = None) -> None:
-        targets = target or None
-        self.repository.process_report(targets)
-
-    def sync(self, target: Optional[List[str]] = None) -> None:
-        targets = target or None
-        self.repository.process_sync(targets)
-
-    def update(self, updates: List[Package]) -> None:
-        packages = self.repository.process_build(updates)
-        self.repository.process_update(packages)
+    def _finalize(self) -> None:
         self.report()
         self.sync()
 
@@ -72,3 +53,27 @@ class Application:
             log_fn(f'{package.name} = {package.version}')
 
         return updates
+
+    def add(self, names: List[str]) -> None:
+        for name in names:
+            package = Package.load(name, self.config.get('aur', 'url'))
+            task = Task(package, self.architecture, self.config, self.repository.paths)
+            task.fetch(os.path.join(self.repository.paths.manual, package.name))
+
+    def remove(self, names: List[str]) -> None:
+        self.repository.process_remove(names)
+        self._finalize()
+
+    def report(self, target: Optional[List[str]] = None) -> None:
+        targets = target or None
+        self.repository.process_report(targets)
+
+    def sync(self, target: Optional[List[str]] = None) -> None:
+        targets = target or None
+        self.repository.process_sync(targets)
+
+    def update(self, updates: List[Package]) -> None:
+        packages = self.repository.process_build(updates)
+        self.repository.process_update(packages)
+        self._finalize()
+

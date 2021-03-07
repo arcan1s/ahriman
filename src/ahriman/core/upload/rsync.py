@@ -24,9 +24,10 @@ from ahriman.core.util import check_output
 
 class Rsync(Uploader):
 
-    def __init__(self, config: Configuration) -> None:
-        Uploader.__init__(self, config)
-        self.remote = self.config.get('rsync', 'remote')
+    def __init__(self, architecture: str, config: Configuration) -> None:
+        Uploader.__init__(self, architecture, config)
+        section = self.config.get_section_name('rsync', self.architecture)
+        self.remote = self.config.get(section, 'remote')
 
     def sync(self, path: str) -> None:
         check_output('rsync', '--archive', '--verbose', '--compress', '--partial', '--progress', '--delete', path, self.remote,

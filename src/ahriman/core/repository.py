@@ -29,7 +29,6 @@ from ahriman.core.repo.repo_wrapper import RepoWrapper
 from ahriman.core.report.report import Report
 from ahriman.core.sign.gpg_wrapper import GPGWrapper
 from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import options_list
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -120,15 +119,15 @@ class Repository:
 
     def process_report(self, targets: Optional[List[str]]) -> None:
         if targets is None:
-            targets = options_list(self.config, 'report', 'target')
+            targets = self.config.get_list('report', 'target')
         for target in targets:
-            Report.run(self.config, target, self.paths.repository)
+            Report.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_sync(self, targets: Optional[List[str]]) -> None:
         if targets is None:
-            targets = options_list(self.config, 'upload', 'target')
+            targets = self.config.get_list('upload', 'target')
         for target in targets:
-            Uploader.run(self.config, target, self.paths.repository)
+            Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_update(self, packages: List[str]) -> str:
         for package in packages:

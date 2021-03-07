@@ -26,19 +26,20 @@ from ahriman.models.report_settings import ReportSettings
 
 class Report:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, architecture: str, config: Configuration) -> None:
+        self.architecture = architecture
         self.config = config
         self.logger = logging.getLogger('builder')
 
     @staticmethod
-    def run(config: Configuration, target: str, path: str) -> None:
+    def run(architecture: str, config: Configuration, target: str, path: str) -> None:
         provider = ReportSettings.from_option(target)
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
-            report: Report = HTML(config)
+            report: Report = HTML(architecture, config)
         else:
             from ahriman.core.report.dummy import Dummy
-            report = Dummy(config)
+            report = Dummy(architecture, config)
 
         try:
             report.generate(path)

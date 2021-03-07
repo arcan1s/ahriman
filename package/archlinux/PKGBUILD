@@ -16,7 +16,7 @@ source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$
         'ahriman.sudoers'
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('392e6f5f0ed9b333896f20ff4fa4f1a2ee1a43efe74eff8b63672419bc31ec2b9e2df100586a1dfd4eca89e53d131187532191c163d3420695e0361c335f3fe3'
+sha512sums=('db4409942e3189da01fa41f5432e634c8a3ce4013cd19ef15d63cb1123010702c2f5636fb25ba43e64cdf198b082f8d54dfd448f30288b2fc96e7b30ea213258'
             '8c9b5b63ac3f7b4d9debaf801a1e9c060877c33d3ecafe18010fcca778e5fa2f2e46909d3d0ff1b229ff8aa978445d8243fd36e1fc104117ed678d5e21901167'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')

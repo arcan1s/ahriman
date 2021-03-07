@@ -1,5 +1,7 @@
 # ahriman configuration
 
+Some groups can be specified for each architecture separately with default values. E.g. if there are `build` and `build_x86_64` groups it will use the `build_x86_64` for the `x86_64` architecture and `build` for any other.
+
 ## `settings` group
 
 Base configuration settings:
@@ -42,7 +44,9 @@ Report generation settings:
 
 * `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`.
 
-### `html` group
+### `html_*` group
+
+Group name must refer to architecture, e.g. it should be `html_x86_64` for x86_64 architecture.
 
 * `path` - path to html report file, string, required.
 * `css_path` - path to CSS to include in HTML, string, optional.
@@ -54,14 +58,14 @@ Remote synchronization settings:
 
 * `target` - list of synchronizations to be used, space separated list of strings, optional. Allowed values are `rsync`, `s3`.
 
-### `s3`
+### `s3_*` group
 
-Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
+Group name must refer to architecture, e.g. it should be `s3_x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
 
 * `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
 
-### `rsync`
+### `rsync_*` group
 
-Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+Group name must refer to architecture, e.g. it should be `rsync_x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
 
 * `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.

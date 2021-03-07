@@ -26,22 +26,23 @@ from ahriman.models.upload_settings import UploadSettings
 
 class Uploader:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, architecture: str, config: Configuration) -> None:
+        self.architecture = architecture
         self.config = config
         self.logger = logging.getLogger('builder')
 
     @staticmethod
-    def run(config: Configuration, target: str, path: str) -> None:
+    def run(architecture: str, config: Configuration, target: str, path: str) -> None:
         provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
-            uploader: Uploader = Rsync(config)
+            uploader: Uploader = Rsync(architecture, config)
         elif provider == UploadSettings.S3:
             from ahriman.core.upload.s3 import S3
-            uploader = S3(config)
+            uploader = S3(architecture, config)
         else:
             from ahriman.core.upload.dummy import Dummy
-            uploader = Dummy(config)
+            uploader = Dummy(architecture, config)
 
         try:
             uploader.sync(path)

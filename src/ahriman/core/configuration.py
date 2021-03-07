@@ -21,9 +21,7 @@ import configparser
 import os
 
 from logging.config import fileConfig
-from typing import Dict, Optional
-
-from ahriman.core.exceptions import MissingConfiguration
+from typing import List, Optional
 
 
 # built-in configparser extension
@@ -36,6 +34,16 @@ class Configuration(configparser.RawConfigParser):
     @property
     def include(self) -> str:
         return self.get('settings', 'include')
+
+    def get_list(self, section: str, key: str) -> List[str]:
+        raw = self.get(section, key, fallback=None)
+        if not raw:  # empty string or none
+            return []
+        return raw.split()
+
+    def get_section_name(self, prefix: str, suffix: str) -> str:
+        probe = f'{prefix}_{suffix}'
+        return probe if self.has_section(probe) else prefix
 
     def load(self, path: str) -> None:
         self.path = path

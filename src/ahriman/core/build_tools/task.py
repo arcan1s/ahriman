@@ -25,7 +25,7 @@ from typing import List, Optional
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
-from ahriman.core.util import check_output, options_list
+from ahriman.core.util import check_output
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -38,11 +38,11 @@ class Task:
         self.package = package
         self.paths = paths
 
-        section = f'build_{architecture}'
-        self.archbuild_flags = options_list(config, section, 'archbuild_flags')
+        section = config.get_section_name('build', architecture)
+        self.archbuild_flags = config.get_list(section, 'archbuild_flags')
         self.build_command = config.get(section, 'build_command')
-        self.makepkg_flags = options_list(config, section, 'makepkg_flags')
-        self.makechrootpkg_flags = options_list(config, section, 'makechrootpkg_flags')
+        self.makepkg_flags = config.get_list(section, 'makepkg_flags')
+        self.makechrootpkg_flags = config.get_list(section, 'makechrootpkg_flags')
 
     @property
     def git_path(self) -> str:

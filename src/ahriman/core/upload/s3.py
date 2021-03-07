@@ -24,12 +24,13 @@ from ahriman.core.util import check_output
 
 class S3(Uploader):
 
-    def __init__(self, config: Configuration) -> None:
-        Uploader.__init__(self, config)
-        self.bucket = self.config.get('s3', 'bucket')
+    def __init__(self, architecture: str, config: Configuration) -> None:
+        Uploader.__init__(self, architecture, config)
+        section = self.config.get_section_name('s3', self.architecture)
+        self.bucket = self.config.get(section, 'bucket')
 
     def sync(self, path: str) -> None:
         # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', path, self.bucket,
+        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
                      exception=None,
                      logger=self.logger)

@@ -25,11 +25,12 @@ from ahriman.core.report.report import Report
 
 class HTML(Report):
 
-    def __init__(self, config: Configuration) -> None:
-        Report.__init__(self, config)
-        self.report_path = config.get('html', 'path')
-        self.css_path = config.get('html', 'css_path')
-        self.link_path = config.get('html', 'link_path')
+    def __init__(self, architecture: str, config: Configuration) -> None:
+        Report.__init__(self, architecture, config)
+        section = self.config.get_section_name('html', self.architecture)
+        self.report_path = config.get(section, 'path')
+        self.css_path = config.get(section, 'css_path')
+        self.link_path = config.get(section, 'link_path')
         self.title = config.get('repository', 'name')
 
     def generate(self, path: str) -> None:
