@@ -19,6 +19,7 @@
 #
 import logging
 import os
+import shutil
 
 from typing import Callable, List, Optional
 
@@ -55,10 +56,20 @@ class Application:
         return updates
 
     def add(self, names: List[str]) -> None:
-        for name in names:
+        def add_manual(name: str) -> None:
             package = Package.load(name, self.config.get('aur', 'url'))
             task = Task(package, self.architecture, self.config, self.repository.paths)
             task.fetch(os.path.join(self.repository.paths.manual, package.name))
+
+        def add_archive(src: str) -> None:
+            dst = os.path.join(self.repository.paths.packages, os.path.basename(src))
+            shutil.move(src, dst)
+
+        for name in names:
+            if os.path.isfile(name):
+                add_archive(name)
+            else:
+                add_manual(name)
 
     def remove(self, names: List[str]) -> None:
         self.repository.process_remove(names)

@@ -71,7 +71,7 @@ def update(args: argparse.Namespace) -> None:
     packages = app.get_updates(args.no_aur, args.no_manual, log_fn)
     if args.dry_run:
         return
-    app.update(packages)  # type: ignore
+    app.update(packages)
 
 
 if __name__ == '__main__':
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(title='command')
 
     add_parser = subparsers.add_parser('add', description='add package')
-    add_parser.add_argument('package', help='package name', nargs='+')
+    add_parser.add_argument('package', help='package name or archive path', nargs='+')
     add_parser.set_defaults(fn=add)
 
     check_parser = subparsers.add_parser('check', description='check for updates')
