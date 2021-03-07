@@ -48,7 +48,7 @@ class Application:
         if not no_aur:
             updates.extend(self.repository.updates_aur(checked))
         if not no_manual:
-            updates.extend(self.repository.updates_aur(checked))
+            updates.extend(self.repository.updates_manual(checked))
 
         for package in updates:
             log_fn(f'{package.name} = {package.version}')

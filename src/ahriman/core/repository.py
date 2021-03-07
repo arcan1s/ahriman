@@ -47,7 +47,7 @@ class Repository:
         self.paths.create_tree()
 
         self.sign = GPGWrapper(config)
-        self.wrapper = RepoWrapper(self.name, self.paths)
+        self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_key)
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
@@ -114,7 +114,6 @@ class Repository:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
 
-        self.sign.sign_repository(self.wrapper.repo_path)
         return self.wrapper.repo_path
 
     def process_report(self, targets: Optional[List[str]]) -> None:
@@ -139,7 +138,6 @@ class Repository:
             self.wrapper.add(package_fn)
         self._clear_packages()
 
-        self.sign.sign_repository(self.wrapper.repo_path)
         return self.wrapper.repo_path
 
     def updates_aur(self, checked: List[str]) -> List[Package]:

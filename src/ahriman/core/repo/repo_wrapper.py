@@ -20,6 +20,8 @@
 import logging
 import os
 
+from typing import List, Optional
+
 from ahriman.core.exceptions import BuildFailed
 from ahriman.core.util import check_output
 from ahriman.models.repository_paths import RepositoryPaths
@@ -27,18 +29,23 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 class RepoWrapper:
 
-    def __init__(self, name: str, paths: RepositoryPaths) -> None:
+    def __init__(self, name: str, paths: RepositoryPaths, pgp_key: Optional[str]) -> None:
         self.logger = logging.getLogger('build_details')
         self.name = name
         self.paths = paths
+        self.pgp_key = pgp_key
 
     @property
     def repo_path(self) -> str:
         return os.path.join(self.paths.repository, f'{self.name}.db.tar.gz')
 
+    def _with_sign(self, cmd: List[str]) -> List[str]:
+        return (cmd + ['-s', '-k', self.pgp_key]) if self.pgp_key else cmd
+
     def add(self, path: str) -> None:
+        cmd = self._with_sign(['repo-add'])
         check_output(
-            'repo-add', '-R', self.repo_path, path,
+            *cmd, '-R', self.repo_path, path,
             exception=BuildFailed(path),
             cwd=self.paths.repository,
             logger=self.logger)
@@ -48,8 +55,9 @@ class RepoWrapper:
         sign_path = f'{path}.sig'
         if os.path.exists(sign_path):
             os.remove(sign_path)
+        cmd = self._with_sign(['repo-remove'])
         check_output(
-            'repo-remove', self.repo_path, package,
+            *cmd, self.repo_path, package,
             exception=BuildFailed(path),
             cwd=self.paths.repository,
             logger=self.logger)
