@@ -13,9 +13,9 @@ AUR related configuration:
 
 * `url` - base url for AUR, string, required.
 
-## `build` group
+## `build_*` groups
 
-Build related configuration:
+Build related configuration. Group name must refer to architecture, e.g. it should be `build_x86_64` for x86_64 architecture.
 
 * `archbuild_flags` - additional flags passed to `archbuild` command, space separated list of strings, optional.
 * `build_command` - default build command, string, required.

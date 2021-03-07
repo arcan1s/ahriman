@@ -25,6 +25,7 @@ from dataclasses import dataclass
 @dataclass
 class RepositoryPaths:
     root: str
+    architecture: str
 
     @property
     def chroot(self) -> str:
@@ -40,7 +41,7 @@ class RepositoryPaths:
 
     @property
     def repository(self) -> str:
-        return os.path.join(self.root, 'repository')
+        return os.path.join(self.root, 'repository', self.architecture)
 
     @property
     def sources(self) -> str:

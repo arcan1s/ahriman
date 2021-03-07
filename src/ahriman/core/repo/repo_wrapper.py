@@ -19,7 +19,6 @@
 #
 import logging
 import os
-import shutil
 
 from ahriman.core.exceptions import BuildFailed
 from ahriman.core.util import check_output
@@ -45,8 +44,10 @@ class RepoWrapper:
             logger=self.logger)
 
     def remove(self, path: str, package: str) -> None:
-        shutil.rmtree(path, ignore_errors=True)
-        shutil.rmtree(f'{path}.sig', ignore_errors=True)  # sign if any
+        os.remove(path)
+        sign_path = f'{path}.sig'
+        if os.path.exists(sign_path):
+            os.remove(sign_path)
         check_output(
             'repo-remove', self.repo_path, package,
             exception=BuildFailed(path),

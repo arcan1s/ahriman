@@ -11,7 +11,8 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
     * create build command if required, e.g. `ln -s /usr/bin/archbuild /usr/local/bin/custom-x86_64-build` (you can choose any name for command);
     * create configuration file, e.g. `cp /usr/share/devtools/pacman-{extra,custom}.conf`;
     * change configuration file: add your own repository, add multilib repository;
-    * set `build.build_command` to point to your command.
+    * set `build.build_command` to point to your command;
+    * configure `/etc/sudoers.d/ahriman` to allow to run command without password.
 * Start and enable `ahriman.timer` via `systemctl`.
 * Add packages by using `ahriman add {package}` command.
 

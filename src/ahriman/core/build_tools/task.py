@@ -32,16 +32,17 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 class Task:
 
-    def __init__(self, package: Package, config: Configuration, paths: RepositoryPaths) -> None:
+    def __init__(self, package: Package, architecture: str, config: Configuration, paths: RepositoryPaths) -> None:
         self.logger = logging.getLogger('builder')
         self.build_logger = logging.getLogger('build_details')
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = options_list(config, 'build', 'archbuild_flags')
-        self.build_command = config.get('build', 'build_command')
-        self.makepkg_flags = options_list(config, 'build', 'makepkg_flags')
-        self.makechrootpkg_flags = options_list(config, 'build', 'makechrootpkg_flags')
+        section = f'build_{architecture}'
+        self.archbuild_flags = options_list(config, section, 'archbuild_flags')
+        self.build_command = config.get(section, 'build_command')
+        self.makepkg_flags = options_list(config, section, 'makepkg_flags')
+        self.makechrootpkg_flags = options_list(config, section, 'makechrootpkg_flags')
 
     @property
     def git_path(self) -> str:
@@ -67,5 +68,5 @@ class Task:
 
     def fetch(self, path: Optional[str] = None) -> None:
         git_path = path or self.git_path
-        shutil.rmtree(git_path, ignore_errors=True)
+        shutil.rmtree(git_path, ignore_errors=True)  # remote in case if file exists
         check_output('git', 'clone', self.package.url, git_path, exception=None)

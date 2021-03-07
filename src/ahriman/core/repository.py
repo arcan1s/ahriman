@@ -21,7 +21,7 @@ import logging
 import os
 import shutil
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -36,14 +36,15 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 class Repository:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, architecture: str, config: Configuration) -> None:
         self.logger = logging.getLogger('builder')
+        self.architecture = architecture
         self.config = config
 
         self.aur_url = config.get('aur', 'url')
         self.name = config.get('repository', 'name')
 
-        self.paths = RepositoryPaths(config.get('repository', 'root'))
+        self.paths = RepositoryPaths(config.get('repository', 'root'), self.architecture)
         self.paths.create_tree()
 
         self.sign = GPGWrapper(config)
@@ -51,27 +52,46 @@ class Repository:
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
-            shutil.rmtree(os.path.join(self.paths.sources, package), ignore_errors=True)
+            shutil.rmtree(os.path.join(self.paths.sources, package))
 
     def _clear_manual(self) -> None:
         for package in os.listdir(self.paths.manual):
-            shutil.rmtree(os.path.join(self.paths.manual, package), ignore_errors=True)
+            shutil.rmtree(os.path.join(self.paths.manual, package))
 
     def _clear_packages(self) -> None:
         for package in os.listdir(self.paths.packages):
-            shutil.rmtree(os.path.join(self.paths.packages, package), ignore_errors=True)
+            os.remove(os.path.join(self.paths.packages, package))
+
+    def packages(self) -> List[Package]:
+        result: Dict[str, Package] = {}
+        for fn in os.listdir(self.paths.repository):
+            if '.pkg.' not in fn:
+                continue
+            full_path = os.path.join(self.paths.repository, fn)
+            try:
+                local = Package.load(full_path, self.aur_url)
+                if local.name in result:
+                    continue
+                result[local.name] = local
+            except Exception:
+                self.logger.exception(f'could not load package from {fn}', exc_info=True)
+                continue
+        return list(result.values())
 
     def process_build(self, updates: List[Package]) -> List[str]:
+        def build_single(package: Package) -> None:
+            task = Task(package, self.architecture, self.config, self.paths)
+            task.fetch()
+            built = task.build()
+            for src in built:
+                dst = os.path.join(self.paths.packages, os.path.basename(src))
+                shutil.move(src, dst)
+
         for package in updates:
             try:
-                task = Task(package, self.config, self.paths)
-                task.fetch()
-                built = task.build()
-                for src in built:
-                    dst = os.path.join(self.paths.packages, os.path.basename(src))
-                    shutil.move(src, dst)
+                build_single(package)
             except Exception:
-                self.logger.exception(f'{package.name} build exception', exc_info=True)
+                self.logger.exception(f'{package.name} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
 
@@ -123,11 +143,9 @@ class Repository:
         self.sign.sign_repository(self.wrapper.repo_path)
         return self.wrapper.repo_path
 
-    def updates(self) -> List[Package]:
+    def updates_aur(self, checked: List[str]) -> List[Package]:
         result: List[Package] = []
-        checked_base: List[str] = []
 
-        # repository updates
         for fn in os.listdir(self.paths.repository):
             if '.pkg.' not in fn:
                 continue
@@ -138,20 +156,24 @@ class Repository:
             except Exception:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
-            if local.name in checked_base:
+            if local.name in checked:
                 continue
 
             if local.is_outdated(remote):
                 result.append(remote)
-            checked_base.append(local.name)
+            checked.append(local.name)
 
-        # manual updates
+        return result
+
+    def updates_manual(self, checked: List[str]) -> List[Package]:
+        result: List[Package] = []
+
         for fn in os.listdir(self.paths.manual):
             local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
-            if local.name in checked_base:
+            if local.name in checked:
                 continue
             result.append(local)
-            checked_base.append(local.name)
+            checked.append(local.name)
         self._clear_manual()
 
         return result

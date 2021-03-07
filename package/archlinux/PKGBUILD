@@ -7,7 +7,7 @@ pkgdesc="ArcHlinux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools' 'python-aur' 'python-srcinfo')
+depends=('devtools' 'expac' 'git' 'python-aur' 'python-srcinfo')
 makedepends=('python-pip')
 optdepends=('aws-cli: sync to s3'
             'gnupg: package and repository sign'
@@ -16,7 +16,7 @@ source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$
         'ahriman.sudoers'
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('d42d779279493c0de86f8e6880cd644a2d549d61cf6c03c27706a155ca4350158d9a309ac77377de13002071727f2e8532144fb3aa1f2ff95811bd9f3cffd9f3'
+sha512sums=('392e6f5f0ed9b333896f20ff4fa4f1a2ee1a43efe74eff8b63672419bc31ec2b9e2df100586a1dfd4eca89e53d131187532191c163d3420695e0361c335f3fe3'
             '8c9b5b63ac3f7b4d9debaf801a1e9c060877c33d3ecafe18010fcca778e5fa2f2e46909d3d0ff1b229ff8aa978445d8243fd36e1fc104117ed678d5e21901167'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')

@@ -20,7 +20,7 @@
 import logging
 import os
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -30,15 +30,16 @@ from ahriman.models.package import Package
 
 class Application:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, architecture: str, config: Configuration) -> None:
         self.logger = logging.getLogger('root')
         self.config = config
-        self.repository = Repository(config)
+        self.architecture = architecture
+        self.repository = Repository(architecture, config)
 
     def add(self, names: List[str]) -> None:
         for name in names:
             package = Package.load(name, self.config.get('aur', 'url'))
-            task = Task(package, self.config, self.repository.paths)
+            task = Task(package, self.architecture, self.config, self.repository.paths)
             task.fetch(os.path.join(self.repository.paths.manual, package.name))
 
     def remove(self, names: List[str]) -> None:
@@ -52,17 +53,22 @@ class Application:
         targets = target or None
         self.repository.process_sync(targets)
 
-    def update(self, dry_run: bool) -> None:
-        updates = self.repository.updates()
-        log_fn = print if dry_run else self.logger.info
-        for package in updates:
-            log_fn(f'{package.name} = {package.version}')  # type: ignore
-
-        if dry_run:
-            return
-
+    def update(self, updates: List[Package]) -> None:
         packages = self.repository.process_build(updates)
         self.repository.process_update(packages)
-
         self.report()
         self.sync()
+
+    def get_updates(self, no_aur: bool, no_manual: bool, log_fn: Callable[[str], None]) -> List[Package]:
+        updates = []
+        checked: List[str] = []
+
+        if not no_aur:
+            updates.extend(self.repository.updates_aur(checked))
+        if not no_manual:
+            updates.extend(self.repository.updates_aur(checked))
+
+        for package in updates:
+            log_fn(f'{package.name} = {package.version}')
+
+        return updates

@@ -19,7 +19,6 @@
 #
 import argparse
 import os
-import shutil
 
 import ahriman.version as version
 
@@ -29,7 +28,7 @@ from ahriman.core.configuration import Configuration
 
 def _get_app(args: argparse.Namespace) -> Application:
     config = _get_config(args.config)
-    return Application(config)
+    return Application(args.architecture, config)
 
 
 def _get_config(config_path: str) -> Configuration:
@@ -40,11 +39,18 @@ def _get_config(config_path: str) -> Configuration:
 
 
 def _remove_lock(path: str) -> None:
-    shutil.rmtree(path, ignore_errors=True)
+    if os.path.exists(path):
+        os.remove(path)
 
 
 def add(args: argparse.Namespace) -> None:
     _get_app(args).add(args.package)
+
+
+def rebuild(args: argparse.Namespace) -> None:
+    app = _get_app(args)
+    packages = app.repository.packages()
+    app.update(packages)
 
 
 def remove(args: argparse.Namespace) -> None:
@@ -60,12 +66,17 @@ def sync(args: argparse.Namespace) -> None:
 
 
 def update(args: argparse.Namespace) -> None:
-    check_only = (args.command == 'check')
-    _get_app(args).update(check_only)
+    app = _get_app(args)
+    log_fn = lambda line: print(line) if args.dry_run else app.logger.info(line)
+    packages = app.get_updates(args.no_aur, args.no_manual, log_fn)
+    if args.dry_run:
+        return
+    app.update(packages)  # type: ignore
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='ArcHlinux ReposItory MANager')
+    parser = argparse.ArgumentParser(prog='ahriman', description='ArcHlinux ReposItory MANager')
+    parser.add_argument('-a', '--architecture', help='target architecture', required=True)
     parser.add_argument('-c', '--config', help='configuration path', default='/etc/ahriman.ini')
     parser.add_argument('--force', help='force run, remove file lock', action='store_true')
     parser.add_argument('--lock', help='lock file', default='/tmp/ahriman.lock')
@@ -77,7 +88,10 @@ if __name__ == '__main__':
     add_parser.set_defaults(fn=add)
 
     check_parser = subparsers.add_parser('check', description='check for updates')
-    check_parser.set_defaults(fn=update)
+    check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=False)
+
+    rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
+    rebuild_parser.set_defaults(fn=rebuild)
 
     remove_parser = subparsers.add_parser('remove', description='remove package')
     remove_parser.add_argument('package', help='package name', nargs='+')
@@ -92,6 +106,9 @@ if __name__ == '__main__':
     sync_parser.set_defaults(fn=sync)
 
     update_parser = subparsers.add_parser('update', description='run updates')
+    update_parser.add_argument('--dry-run', help='just perform check for updates, same as check command', action='store_true')
+    update_parser.add_argument('--no-aur', help='do not check for AUR updates', action='store_true')
+    update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
     update_parser.set_defaults(fn=update)
 
     args = parser.parse_args()
