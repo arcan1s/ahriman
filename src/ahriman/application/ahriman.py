@@ -68,7 +68,7 @@ def sync(args: argparse.Namespace) -> None:
 def update(args: argparse.Namespace) -> None:
     app = _get_app(args)
     log_fn = lambda line: print(line) if args.dry_run else app.logger.info(line)
-    packages = app.get_updates(args.no_aur, args.no_manual, log_fn)
+    packages = app.get_updates(args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
     app.update(packages)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     add_parser.set_defaults(fn=add)
 
     check_parser = subparsers.add_parser('check', description='check for updates')
-    check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=False)
+    check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, no_vcs=False, dry_run=True)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
     rebuild_parser.set_defaults(fn=rebuild)
@@ -109,6 +109,7 @@ if __name__ == '__main__':
     update_parser.add_argument('--dry-run', help='just perform check for updates, same as check command', action='store_true')
     update_parser.add_argument('--no-aur', help='do not check for AUR updates', action='store_true')
     update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
+    update_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
     update_parser.set_defaults(fn=update)
 
     args = parser.parse_args()

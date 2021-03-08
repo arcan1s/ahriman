@@ -41,12 +41,13 @@ class Application:
         self.report()
         self.sync()
 
-    def get_updates(self, no_aur: bool, no_manual: bool, log_fn: Callable[[str], None]) -> List[Package]:
+    def get_updates(self, no_aur: bool, no_manual: bool, no_vcs: bool,
+                    log_fn: Callable[[str], None]) -> List[Package]:
         updates = []
         checked: List[str] = []
 
         if not no_aur:
-            updates.extend(self.repository.updates_aur(checked))
+            updates.extend(self.repository.updates_aur(no_vcs, checked))
         if not no_manual:
             updates.extend(self.repository.updates_manual(checked))
 
@@ -58,8 +59,7 @@ class Application:
     def add(self, names: List[str]) -> None:
         def add_manual(name: str) -> None:
             package = Package.load(name, self.config.get('aur', 'url'))
-            task = Task(package, self.architecture, self.config, self.repository.paths)
-            task.fetch(os.path.join(self.repository.paths.manual, package.name))
+            Task.fetch(os.path.join(self.repository.paths.manual, package.name), package.url)
 
         def add_archive(src: str) -> None:
             dst = os.path.join(self.repository.paths.packages, os.path.basename(src))

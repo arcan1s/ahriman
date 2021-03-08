@@ -80,7 +80,7 @@ class Repository:
     def process_build(self, updates: List[Package]) -> List[str]:
         def build_single(package: Package) -> None:
             task = Task(package, self.architecture, self.config, self.paths)
-            task.fetch()
+            task.clone()
             built = task.build()
             for src in built:
                 dst = os.path.join(self.paths.packages, os.path.basename(src))
@@ -140,7 +140,7 @@ class Repository:
 
         return self.wrapper.repo_path
 
-    def updates_aur(self, checked: List[str]) -> List[Package]:
+    def updates_aur(self, no_vcs: bool, checked: List[str]) -> List[Package]:
         result: List[Package] = []
         ignore_list = self.config.get_list(
             self.config.get_section_name('build', self.architecture), 'ignore_packages')
@@ -158,6 +158,8 @@ class Repository:
             if local.name in checked:
                 continue
             if local.name in ignore_list:
+                continue
+            if local.is_vcs and no_vcs:
                 continue
 
             if local.is_outdated(remote):

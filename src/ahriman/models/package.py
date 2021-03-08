@@ -19,8 +19,11 @@
 #
 from __future__ import annotations
 
+import shutil
+
 import aur
 import os
+import tempfile
 
 from configparser import RawConfigParser
 from dataclasses import dataclass
@@ -36,16 +39,48 @@ class Package:
     name: str
     version: str
     url: str
+    remote: bool
+
+    @property
+    def is_vcs(self) -> bool:
+        return self.name.endswith('-bzr') \
+               or self.name.endswith('-csv')\
+               or self.name.endswith('-darcs')\
+               or self.name.endswith('-git')\
+               or self.name.endswith('-hg')\
+               or self.name.endswith('-svn')
+
+    # additional method to handle vcs versions
+    def actual_version(self) -> str:
+        if not self.is_vcs:
+            return self.version
+
+        from ahriman.core.build_tools.task import Task
+        clone_dir = tempfile.mkdtemp()
+        try:
+            Task.fetch(clone_dir, self.url)
+            # update pkgver first
+            check_output('makepkg', '--nodeps', '--noprepare', '--nobuild',
+                         exception=None, cwd=clone_dir)
+            # generate new .SRCINFO and put it to parser
+            src_info_source = check_output('makepkg', '--printsrcinfo',
+                                           exception=None, cwd=clone_dir)
+            src_info, errors = parse_srcinfo(src_info_source)
+            if errors:
+                raise InvalidPackageInfo(errors)
+            return f'{src_info["pkgver"]}-{src_info["pkgrel"]}'
+        finally:
+            shutil.rmtree(clone_dir, ignore_errors=True)
 
     @classmethod
     def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
         name, version = check_output('expac', '-p', '%e %v', path, exception=None).split()
-        return cls(name, version, f'{aur_url}/{name}.git')
+        return cls(name, version, f'{aur_url}/{name}.git', False)
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
         package = aur.info(name)
-        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git')
+        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git', True)
 
     @classmethod
     def from_build(cls: Type[Package], path: str) -> Package:
@@ -58,7 +93,7 @@ class Package:
             raise InvalidPackageInfo(errors)
 
         return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}',
-                   git_config.get('remote "origin"', 'url'))
+                   git_config.get('remote "origin"', 'url'), False)
 
     @classmethod
     def load(cls: Type[Package], path: str, aur_url: str) -> Package:
@@ -76,5 +111,6 @@ class Package:
             raise InvalidPackageInfo(str(e))
 
     def is_outdated(self, remote: Package) -> bool:
-        result = check_output('vercmp', self.version, remote.version, exception=None)
+        remote_version = remote.actual_version()  # either normal version or updated VCS
+        result = check_output('vercmp', self.version, remote_version, exception=None)
         return True if int(result) < 0 else False

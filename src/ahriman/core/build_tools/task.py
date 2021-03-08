@@ -48,6 +48,11 @@ class Task:
     def git_path(self) -> str:
         return os.path.join(self.paths.sources, self.package.name)
 
+    @staticmethod
+    def fetch(local: str, remote: str) -> None:
+        shutil.rmtree(local, ignore_errors=True)  # remove in case if file exists
+        check_output('git', 'clone', remote, local, exception=None)
+
     def build(self) -> List[str]:
         cmd = [self.build_command, '-r', self.paths.chroot]
         cmd.extend(self.archbuild_flags)
@@ -66,7 +71,6 @@ class Task:
                             exception=BuildFailed(self.package.name),
                             cwd=self.git_path).splitlines()
 
-    def fetch(self, path: Optional[str] = None) -> None:
+    def clone(self, path: Optional[str] = None) -> None:
         git_path = path or self.git_path
-        shutil.rmtree(git_path, ignore_errors=True)  # remote in case if file exists
-        check_output('git', 'clone', self.package.url, git_path, exception=None)
+        return Task.fetch(git_path, self.package.url)
