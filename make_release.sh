@@ -29,7 +29,7 @@ find . -type f -name '*src.tar.xz' -not -name "*$VERSION-src.tar.xz" -exec rm -f
 
 read -p "Publish release? [Ny] " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  git add package/archlinux/PKGBUILD
+  git add package/archlinux/PKGBUILD src/ahriman/version.py
   git commit -m "Release $VERSION" && git push
   git tag "$VERSION" && git push --tags
 fi
