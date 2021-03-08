@@ -50,8 +50,9 @@ Report generation settings:
 Group name must refer to architecture, e.g. it should be `html_x86_64` for x86_64 architecture.
 
 * `path` - path to html report file, string, required.
-* `css_path` - path to CSS to include in HTML, string, optional.
+* `homepage` - link to homepage, string, optional.
 * `link_path` - prefix for HTML links, string, required.
+* `template_path` - path to Jinja2 template, string, required.
 
 ## `upload` group
 

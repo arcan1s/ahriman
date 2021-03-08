@@ -10,13 +10,18 @@ license=('GPL3')
 depends=('devtools' 'expac' 'git' 'python-aur' 'python-srcinfo')
 makedepends=('python-pip')
 optdepends=('aws-cli: sync to s3'
+            'breezy: -bzr packages support'
+            'darcs: -darcs packages support'
             'gnupg: package and repository sign'
-            'rsync: sync by using rsync')
+            'mercurial: -hg packages support'
+            'python-jinja: html report generation'
+            'rsync: sync by using rsync'
+            'subversion: -svn packages support')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
         'ahriman.sudoers'
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('67a6b6432ca8985491e398b8f2b374cf7cfd40bb69ad844913d9d45d3b510fba2910dfc21fd33a4faf4f2035bb005909cf815523180436c3a30e512757c268e7'
+sha512sums=('f77b434f5174b2e7a8817bdcc1883e9ded3bd57c30be09b438ec55b65aa83bcd1326f1241ad9ca86552b5fb71f9a15637af7997b37636db9d9ee61c24d235c5c'
             '8c9b5b63ac3f7b4d9debaf801a1e9c060877c33d3ecafe18010fcca778e5fa2f2e46909d3d0ff1b229ff8aa978445d8243fd36e1fc104117ed678d5e21901167'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')

@@ -17,7 +17,7 @@ setup(
 
     author='arcanis',
     author_email='',
-    url='',
+    url='https://github.com/arcan1s/ahriman',
 
     license='GPL3',
 
@@ -39,7 +39,7 @@ setup(
 
     include_package_data=True,
     scripts=[
-        'package/bin/ahriman'
+        'package/bin/ahriman',
     ],
     data_files=[
         ('/etc', ['package/etc/ahriman.ini']),
@@ -47,10 +47,12 @@ setup(
         ('lib/systemd/system', [
             'package/lib/systemd/system/ahriman.service',
             'package/lib/systemd/system/ahriman.timer'
-        ])
+        ]),
+        ('share/ahriman', ['package/share/ahriman/index.jinja2']),
     ],
 
     extras_require={
+        'html-templates': ['Jinja2'],
         'test': ['coverage', 'pytest'],
     },
 )

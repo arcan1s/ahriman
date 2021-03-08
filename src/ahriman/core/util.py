@@ -37,3 +37,7 @@ def check_output(*args: str, exception: Optional[Exception],
                 logger.debug(line)
         raise exception or e
     return result
+
+
+def package_like(filename: str) -> bool:
+    return '.pkg.' in filename and not filename.endswith('.sig')

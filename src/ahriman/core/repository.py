@@ -29,6 +29,7 @@ from ahriman.core.repo.repo_wrapper import RepoWrapper
 from ahriman.core.report.report import Report
 from ahriman.core.sign.gpg_wrapper import GPGWrapper
 from ahriman.core.upload.uploader import Uploader
+from ahriman.core.util import package_like
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -64,7 +65,7 @@ class Repository:
     def packages(self) -> List[Package]:
         result: Dict[str, Package] = {}
         for fn in os.listdir(self.paths.repository):
-            if '.pkg.' not in fn:
+            if not package_like(fn):
                 continue
             full_path = os.path.join(self.paths.repository, fn)
             try:
@@ -101,7 +102,7 @@ class Repository:
 
     def process_remove(self, packages: List[str]) -> str:
         for fn in os.listdir(self.paths.repository):
-            if '.pkg.' not in fn:
+            if not package_like(fn):
                 continue
 
             full_path = os.path.join(self.paths.repository, fn)
@@ -146,7 +147,7 @@ class Repository:
             self.config.get_section_name('build', self.architecture), 'ignore_packages')
 
         for fn in os.listdir(self.paths.repository):
-            if '.pkg.' not in fn:
+            if not package_like(fn):
                 continue
 
             try:
