@@ -20,7 +20,7 @@
 import logging
 import os
 
-from typing import List, Optional
+from typing import List
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
@@ -37,8 +37,10 @@ class GPGWrapper:
         self.sign = SignSettings.from_option(config.get('sign', 'enabled'))
 
     @property
-    def repository_sign_key(self) -> Optional[str]:
-        return self.key if self.sign == SignSettings.SignRepository else None
+    def repository_sign_args(self) -> List[str]:
+        if self.sign != SignSettings.SignRepository:
+            return []
+        return ['--sign', '--key', self.key] if self.key else ['--sign']
 
     def process(self, path: str) -> List[str]:
         check_output(

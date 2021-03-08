@@ -47,7 +47,7 @@ class Repository:
         self.paths.create_tree()
 
         self.sign = GPGWrapper(config)
-        self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_key)
+        self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_args)
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
