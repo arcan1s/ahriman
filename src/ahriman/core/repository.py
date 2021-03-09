@@ -70,9 +70,7 @@ class Repository:
             full_path = os.path.join(self.paths.repository, fn)
             try:
                 local = Package.load(full_path, self.aur_url)
-                if local.name in result:
-                    continue
-                result[local.name] = local
+                result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
@@ -91,7 +89,7 @@ class Repository:
             try:
                 build_single(package)
             except Exception:
-                self.logger.exception(f'{package.name} ({self.architecture}) build exception', exc_info=True)
+                self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
 
@@ -101,19 +99,21 @@ class Repository:
         ]
 
     def process_remove(self, packages: List[str]) -> str:
-        for fn in os.listdir(self.paths.repository):
-            if not package_like(fn):
-                continue
-
-            full_path = os.path.join(self.paths.repository, fn)
+        def remove_single(package: str) -> None:
             try:
-                local = Package.load(full_path, self.aur_url)
-                if local.name not in packages:
-                    continue
-                self.wrapper.remove(full_path, local.name)
+                self.wrapper.remove(package, package)
             except Exception:
-                self.logger.exception(f'could not load package from {fn}', exc_info=True)
-                continue
+                self.logger.exception(f'could not remove {package}', exc_info=True)
+
+        for local in self.packages():
+            if local.base in packages:
+                to_remove = local.packages
+            elif local.packages.intersection(packages):
+                to_remove = local.packages.intersection(packages)
+            else:
+                to_remove = set()
+            for package in to_remove:
+                remove_single(package)
 
         return self.wrapper.repo_path
 
@@ -141,43 +141,33 @@ class Repository:
 
         return self.wrapper.repo_path
 
-    def updates_aur(self, no_vcs: bool, checked: List[str]) -> List[Package]:
+    def updates_aur(self, no_vcs: bool) -> List[Package]:
         result: List[Package] = []
         ignore_list = self.config.get_list(
             self.config.get_section_name('build', self.architecture), 'ignore_packages')
 
-        for fn in os.listdir(self.paths.repository):
-            if not package_like(fn):
-                continue
-
-            try:
-                local = Package.load(os.path.join(self.paths.repository, fn), self.aur_url)
-                remote = Package.load(local.name, self.aur_url)
-            except Exception:
-                self.logger.exception(f'could not load package from {fn}', exc_info=True)
-                continue
-            if local.name in checked:
-                continue
-            if local.name in ignore_list:
+        for local in self.packages():
+            if local.base in ignore_list:
                 continue
             if local.is_vcs and no_vcs:
                 continue
 
-            if local.is_outdated(remote):
-                result.append(remote)
-            checked.append(local.name)
+            try:
+                remote = Package.load(local.base, self.aur_url)
+                if local.is_outdated(remote):
+                    result.append(remote)
+            except Exception:
+                self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
+                continue
 
         return result
 
-    def updates_manual(self, checked: List[str]) -> List[Package]:
+    def updates_manual(self) -> List[Package]:
         result: List[Package] = []
 
         for fn in os.listdir(self.paths.manual):
             local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
-            if local.name in checked:
-                continue
             result.append(local)
-            checked.append(local.name)
         self._clear_manual()
 
         return result

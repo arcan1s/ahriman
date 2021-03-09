@@ -26,9 +26,9 @@ import os
 import tempfile
 
 from configparser import RawConfigParser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from srcinfo.parse import parse_srcinfo
-from typing import Type
+from typing import Set, Type
 
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
@@ -36,19 +36,19 @@ from ahriman.core.util import check_output
 
 @dataclass
 class Package:
-    name: str
+    base: str
     version: str
     url: str
-    remote: bool
+    packages: Set[str] = field(default_factory=set)
 
     @property
     def is_vcs(self) -> bool:
-        return self.name.endswith('-bzr') \
-               or self.name.endswith('-csv')\
-               or self.name.endswith('-darcs')\
-               or self.name.endswith('-git')\
-               or self.name.endswith('-hg')\
-               or self.name.endswith('-svn')
+        return self.base.endswith('-bzr') \
+               or self.base.endswith('-csv')\
+               or self.base.endswith('-darcs')\
+               or self.base.endswith('-git')\
+               or self.base.endswith('-hg')\
+               or self.base.endswith('-svn')
 
     # additional method to handle vcs versions
     def actual_version(self) -> str:
@@ -74,13 +74,14 @@ class Package:
 
     @classmethod
     def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
-        name, version = check_output('expac', '-p', '%e %v', path, exception=None).split()
-        return cls(name, version, f'{aur_url}/{name}.git', False)
+        package, base, version = check_output('expac', '-p', '%n %e %v', path, exception=None).split()
+        return cls(base, version, f'{aur_url}/{base}.git', packages={package})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
         package = aur.info(name)
-        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git', True)
+        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git',
+                   packages={package.name})
 
     @classmethod
     def from_build(cls: Type[Package], path: str) -> Package:
@@ -91,9 +92,10 @@ class Package:
             src_info, errors = parse_srcinfo(fn.read())
         if errors:
             raise InvalidPackageInfo(errors)
+        packages = set(src_info['packages'].keys())
 
         return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}',
-                   git_config.get('remote "origin"', 'url'), False)
+                   git_config.get('remote "origin"', 'url'), packages-packages)
 
     @classmethod
     def load(cls: Type[Package], path: str, aur_url: str) -> Package:

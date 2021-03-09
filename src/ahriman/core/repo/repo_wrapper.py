@@ -46,13 +46,12 @@ class RepoWrapper:
             cwd=self.paths.repository,
             logger=self.logger)
 
-    def remove(self, path: str, package: str) -> None:
-        os.remove(path)
-        sign_path = f'{path}.sig'
-        if os.path.exists(sign_path):
-            os.remove(sign_path)
+    def remove(self, prefix: str, package: str) -> None:
+        for fn in filter(lambda f: f.startswith(prefix), os.listdir(self.paths.repository)):
+            full_path = os.path.join(self.paths.repository, fn)
+            os.remove(full_path)
         check_output(
             'repo-remove', *self.sign_args, self.repo_path, package,
-            exception=BuildFailed(path),
+            exception=BuildFailed(package),
             cwd=self.paths.repository,
             logger=self.logger)

@@ -46,7 +46,7 @@ class Task:
 
     @property
     def git_path(self) -> str:
-        return os.path.join(self.paths.sources, self.package.name)
+        return os.path.join(self.paths.sources, self.package.base)
 
     @staticmethod
     def fetch(local: str, remote: str) -> None:
@@ -58,17 +58,17 @@ class Task:
         cmd.extend(self.archbuild_flags)
         cmd.extend(['--'] + self.makechrootpkg_flags)
         cmd.extend(['--'] + self.makepkg_flags)
-        self.logger.info(f'using {cmd} for {self.package.name}')
+        self.logger.info(f'using {cmd} for {self.package.base}')
 
         check_output(
             *cmd,
-            exception=BuildFailed(self.package.name),
+            exception=BuildFailed(self.package.base),
             cwd=self.git_path,
             logger=self.build_logger)
 
         # well it is not actually correct, but we can deal with it
         return check_output('makepkg', '--packagelist',
-                            exception=BuildFailed(self.package.name),
+                            exception=BuildFailed(self.package.base),
                             cwd=self.git_path).splitlines()
 
     def clone(self, path: Optional[str] = None) -> None:

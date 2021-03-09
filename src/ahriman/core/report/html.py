@@ -40,7 +40,7 @@ class HTML(Report):
 
         # base template vars
         if SignSettings.from_option(config.get('sign', 'enabled')) != SignSettings.Disabled:
-            self.pgp_key = config.get('sign', 'key')
+            self.pgp_key = config.get('sign', 'key', fallback=None)
         else:
             self.pgp_key = None
         self.homepage = config.get(section, 'homepage', fallback=None)
