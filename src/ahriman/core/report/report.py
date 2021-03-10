@@ -38,8 +38,7 @@ class Report:
             from ahriman.core.report.html import HTML
             report: Report = HTML(architecture, config)
         else:
-            from ahriman.core.report.dummy import Dummy
-            report = Dummy(architecture, config)
+            report = Report(architecture, config)
 
         try:
             report.generate(path)
@@ -47,4 +46,4 @@ class Report:
             raise ReportFailed(e) from e
 
     def generate(self, path: str) -> None:
-        raise NotImplementedError
+        pass

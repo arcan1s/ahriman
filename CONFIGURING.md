@@ -36,8 +36,8 @@ Base repository settings:
 
 Settings for signing packages or repository:
 
-* `enabled` - configuration flag to enable signing, string, required. Allowed values are `disabled`, `package` (sign each package separately), `repository` (sign repository database file).
-* `key` - PGP key, string, optional.
+* `target` - configuration flag to enable signing, space separated list of strings, required. Allowed values are `package` (sign each package separately), `repository` (sign repository database file).
+* `key` - PGP key, string, required.
 
 ## `report` group
 

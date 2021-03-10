@@ -41,8 +41,7 @@ class Uploader:
             from ahriman.core.upload.s3 import S3
             uploader = S3(architecture, config)
         else:
-            from ahriman.core.upload.dummy import Dummy
-            uploader = Dummy(architecture, config)
+            uploader = Uploader(architecture, config)
 
         try:
             uploader.sync(path)
@@ -50,4 +49,4 @@ class Uploader:
             raise SyncFailed(e) from e
 
     def sync(self, path: str) -> None:
-        raise NotImplementedError
+        pass

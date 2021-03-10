@@ -39,10 +39,8 @@ class HTML(Report):
         self.template_path = config.get(section, 'template_path')
 
         # base template vars
-        if SignSettings.from_option(config.get('sign', 'enabled')) != SignSettings.Disabled:
-            self.pgp_key = config.get('sign', 'key', fallback=None)
-        else:
-            self.pgp_key = None
+        self.sign_targets = [SignSettings.from_option(opt) for opt in config.get_list('sign', 'target')]
+        self.pgp_key = config.get('sign', 'key', fallback=None)
         self.homepage = config.get(section, 'homepage', fallback=None)
         self.repository = config.get('repository', 'name')
 
@@ -62,6 +60,8 @@ class HTML(Report):
         html = template.render(
             homepage=self.homepage,
             link_path=self.link_path,
+            has_package_signed=SignSettings.SignPackages in self.sign_targets,
+            has_repo_signed=SignSettings.SignRepository in self.sign_targets,
             packages=packages,
             pgp_key=self.pgp_key,
             repository=self.repository)

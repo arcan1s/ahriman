@@ -25,15 +25,12 @@ from ahriman.core.exceptions import InvalidOptionException
 
 
 class SignSettings(Enum):
-    Disabled = auto()
     SignPackages = auto()
     SignRepository = auto()
 
     @staticmethod
     def from_option(value: str) -> SignSettings:
-        if value.lower() in ('no', 'disabled'):
-            return SignSettings.Disabled
-        elif value.lower() in ('package', 'packages', 'sign-package'):
+        if value.lower() in ('package', 'packages', 'sign-package'):
             return SignSettings.SignPackages
         elif value.lower() in ('repository', 'sign-repository'):
             return SignSettings.SignRepository

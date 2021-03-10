@@ -5,16 +5,17 @@
     </head>
 
     <body>
-        <h1>{{ repository|e }} ArchLinux custom repository</h1>
+        <h1>ArchLinux custom repository</h1>
 
         {% if pgp_key is not none %}
-            <p>All packages are signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}" title="key search">{{ pgp_key|e }}</a>.</p>
+            <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}" title="key search">{{ pgp_key|e }}</a>.</p>
         {% endif %}
 
         <code>
             $ cat /etc/pacman.conf<br>
             [{{ repository|e }}]<br>
-            Server = {{ link_path|e }}
+            Server = {{ link_path|e }}<br>
+            SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
         </code>
 
         <p>Packages:</p>

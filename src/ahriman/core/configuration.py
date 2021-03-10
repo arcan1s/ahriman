@@ -21,7 +21,7 @@ import configparser
 import os
 
 from logging.config import fileConfig
-from typing import List, Optional
+from typing import List, Optional, Set
 
 
 # built-in configparser extension

@@ -33,12 +33,12 @@ class GPGWrapper:
     def __init__(self, config: Configuration) -> None:
         self.logger = logging.getLogger('build_details')
 
-        self.key = config.get('sign', 'key', fallback=None)
-        self.sign = SignSettings.from_option(config.get('sign', 'enabled'))
+        self.target = [SignSettings.from_option(opt) for opt in config.get_list('sign', 'target')]
+        self.key = config.get('sign', 'key') if self.target else None
 
     @property
     def repository_sign_args(self) -> List[str]:
-        if self.sign != SignSettings.SignRepository:
+        if SignSettings.SignRepository not in self.target:
             return []
         return ['--sign', '--key', self.key] if self.key else ['--sign']
 
@@ -58,11 +58,11 @@ class GPGWrapper:
         return cmd
 
     def sign_package(self, path: str) -> List[str]:
-        if self.sign != SignSettings.SignPackages:
+        if SignSettings.SignPackages not in self.target:
             return [path]
         return self.process(path)
 
     def sign_repository(self, path: str) -> List[str]:
-        if self.sign != SignSettings.SignRepository:
+        if SignSettings.SignRepository not in self.target:
             return [path]
         return self.process(path)
