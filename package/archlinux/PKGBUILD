@@ -1,7 +1,7 @@
 # Maintainer: Evgeniy Alekseev
 
 pkgname='ahriman'
-pkgver=0.9.1
+pkgver=0.10.0
 pkgrel=1
 pkgdesc="ArcHlinux ReposItory MANager"
 arch=('any')
@@ -24,7 +24,7 @@ source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$
         'ahriman.sudoers'
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('c9d270fd1f9474071fe1e1b3e1a2ca5e1cff50460af269ce9bc33c228d93b8ed2faa57e6f08c38360da3ccdec0eb48715583c5d69499373ebfdaef5facb0f6d6'
+sha512sums=('2c811060106aea6f8826cc6beac9f5733370386a43448b359051ea377e233218aae0c5ec3ef7b1ec399fa6a53c02059015b7398b0d88b5a2e7129f167d025539'
             '8c9b5b63ac3f7b4d9debaf801a1e9c060877c33d3ecafe18010fcca778e5fa2f2e46909d3d0ff1b229ff8aa978445d8243fd36e1fc104117ed678d5e21901167'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')
