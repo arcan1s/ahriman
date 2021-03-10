@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>{{ repository|e }}</title>
+    </head>
+
+    <body>
+        <h1>{{ repository|e }} ArchLinux custom repository</h1>
+
+        {% if pgp_key is not none %}
+            <p>All packages are signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}" title="key search">{{ pgp_key|e }}</a>.</p>
+        {% endif %}
+
+        <code>
+            $ cat /etc/pacman.conf<br>
+            [{{ repository|e }}]<br>
+            Server = {{ link_path|e }}
+        </code>
+
+        <p>Packages:</p>
+        <ul>
+            {% for package, package_url in packages.items() %}
+                <li><a href="{{ package_url|e }}" title="{{ package|e }}">{{ package|e }}</a></li>
+            {% endfor %}
+        </ul>
+
+        {% if homepage is not none %}
+            <footer><a href="{{ homepage|e }}" title="homepage">Homepage</a></footer>
+        {% endif %}
+    </body>
+</html>

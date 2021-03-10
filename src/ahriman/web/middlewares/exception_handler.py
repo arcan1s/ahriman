@@ -17,20 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+from aiohttp.web import middleware, Request, Response
+from logging import Logger
+from typing import Callable
+
+from aiohttp.web_exceptions import HTTPClientError
 
 
-class S3(Uploader):
+def exception_handler(logger: Logger) -> Callable:
+    @middleware
+    async def handle(request: Request, handler: Callable) -> Response:
+        try:
+            return await handler(request)
+        except HTTPClientError:
+            raise
+        except Exception:
+            logger.exception(f'exception during performing request to {request.path}', exc_info=True)
+            raise
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
-        Uploader.__init__(self, architecture, config)
-        section = self.config.get_section_name('s3', self.architecture)
-        self.bucket = self.config.get(section, 'bucket')
-
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+    return handle

@@ -17,20 +17,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+from aiohttp.web import HTTPOk, Response
+
+from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.package import Package
+from ahriman.web.views.base import BaseView
 
 
-class S3(Uploader):
+class PackageView(BaseView):
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
-        Uploader.__init__(self, architecture, config)
-        section = self.config.get_section_name('s3', self.architecture)
-        self.bucket = self.config.get(section, 'bucket')
+    async def delete(self) -> Response:
+        base = self.request.match_info['package']
+        self.service.remove(base)
 
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+        return HTTPOk()
+
+    async def post(self) -> Response:
+        base = self.request.match_info['package']
+        data = await self.request.json()
+
+        package = Package(**data['package']) if 'package' in data else None
+        status = BuildStatusEnum(data.get('status', 'unknown'))
+        self.service.update(base, status, package)
+
+        return HTTPOk()

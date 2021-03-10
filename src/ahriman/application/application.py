@@ -58,7 +58,7 @@ class Application:
     def add(self, names: List[str]) -> None:
         def add_manual(name: str) -> None:
             package = Package.load(name, self.config.get('aur', 'url'))
-            Task.fetch(os.path.join(self.repository.paths.manual, package.base), package.url)
+            Task.fetch(os.path.join(self.repository.paths.manual, package.base), package.git_url)
 
         def add_archive(src: str) -> None:
             dst = os.path.join(self.repository.paths.packages, os.path.basename(src))

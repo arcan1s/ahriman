@@ -25,6 +25,11 @@ class BuildFailed(Exception):
         Exception.__init__(self, f'Package {package} build failed, check logs for details')
 
 
+class InitializeException(Exception):
+    def __init__(self) -> None:
+        Exception.__init__(self, 'Could not load service')
+
+
 class InvalidOptionException(Exception):
     def __init__(self, value: Any) -> None:
         Exception.__init__(self, f'Invalid or unknown option value `{value}`')

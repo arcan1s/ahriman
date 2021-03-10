@@ -2,30 +2,83 @@
 <html lang="en">
     <head>
         <title>{{ repository|e }}</title>
+
+        <style>
+            :root {
+                --color-building: 250, 255, 146;
+                --color-failed: 255, 94, 94;
+                --color-pending: 250, 255, 146;
+                --color-success: 121, 255, 94;
+                --color-unknown: 197, 197, 197;
+            }
+
+            @keyframes blink-building {
+                0% { background-color: rgba(var(--color-building), 1.0); }
+                10% { background-color: rgba(var(--color-building), 0.9); }
+                20% { background-color: rgba(var(--color-building), 0.8); }
+                30% { background-color: rgba(var(--color-building), 0.7); }
+                40% { background-color: rgba(var(--color-building), 0.6); }
+                50% { background-color: rgba(var(--color-building), 0.5); }
+                60% { background-color: rgba(var(--color-building), 0.4); }
+                70% { background-color: rgba(var(--color-building), 0.3); }
+                80% { background-color: rgba(var(--color-building), 0.2); }
+                90% { background-color: rgba(var(--color-building), 0.1); }
+                100% { background-color: rgba(var(--color-building), 0.0); }
+            }
+
+            table, th, td {
+                padding: 5px;
+            }
+            td.package {
+                font-weight: bolder;
+            }
+            td.package-unknown {
+                background-color: rgba(var(--color-unknown), 1.0);
+            }
+            td.package-pending {
+                background-color: rgba(var(--color-pending), 1.0);
+            }
+            td.package-building {
+                background-color: rgba(var(--color-building), 1.0);
+                animation-name: blink-building;
+                animation-duration: 1s;
+                animation-timing-function: linear;
+                animation-iteration-count: infinite;
+                animation-direction: alternate;
+            }
+            td.package-failed {
+                background-color: rgba(var(--color-failed), 1.0);
+            }
+            td.package-success {
+                background-color: rgba(var(--color-success), 1.0);
+            }
+        </style>
+
+        <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
     </head>
 
     <body>
-        <h1>{{ repository|e }} ArchLinux custom repository</h1>
+        <table class="sortable" id="builds">
+            <tr>
+                <th>package base</th>
+                <th>packages</th>
+                <th>version</th>
+                <th>architecture</th>
+                <th>timestamp</th>
+                <th>status</th>
+            </tr>
 
-        {% if pgp_key is not none %}
-            <p>All packages are signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}" title="key search">{{ pgp_key|e }}</a>.</p>
-        {% endif %}
-
-        <code>
-            $ cat /etc/pacman.conf<br>
-            [{{ repository|e }}]<br>
-            Server = {{ link_path|e }}
-        </code>
-
-        <p>Packages:</p>
-        <ul>
-            {% for package, package_url in packages.items() %}
-                <li><a href="{{ package_url|e }}" title="{{ package|e }}">{{ package|e }}</a></li>
+            {% for package in packages %}
+                <tr>
+                    <td class="package"><a href="{{ package.web_url|e }}" title="{{ package.base|e }}">{{ package.base|e }}</a></td>
+                    <td>{{ package.packages|join("<br>"|safe) }}</td>
+                    <td>{{ package.version|e }}</td>
+                    <td>{{ architecture|e }}</td>
+                    <td>{{ package.timestamp|e }}</td>
+                    <td class="package-{{ package.status|e }}">{{ package.status|e }}</td>
+                </tr>
             {% endfor %}
-        </ul>
-
-        {% if homepage is not none %}
-            <footer><a href="{{ homepage|e }}" title="homepage">Homepage</a></footer>
-        {% endif %}
+        </table>
     </body>
+
 </html>

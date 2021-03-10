@@ -17,20 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+from aiohttp.web import Application
+
+from ahriman.web.views.index import IndexView
+from ahriman.web.views.package import PackageView
+from ahriman.web.views.packages import PackagesView
 
 
-class S3(Uploader):
+def setup_routes(app: Application) -> None:
+    app.router.add_get('/', IndexView)
+    app.router.add_get('/index.html', IndexView)
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
-        Uploader.__init__(self, architecture, config)
-        section = self.config.get_section_name('s3', self.architecture)
-        self.bucket = self.config.get(section, 'bucket')
+    app.router.add_post('/api/v1/packages', PackagesView)
 
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+    app.router.add_delete('/api/v1/packages/{package}', PackageView)
+    app.router.add_post('/api/v1/packages/{package}', PackageView)

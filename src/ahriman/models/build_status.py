@@ -17,20 +17,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
-from ahriman.core.util import check_output
+import datetime
+
+from enum import Enum
+from typing import Optional, Union
 
 
-class S3(Uploader):
+class BuildStatusEnum(Enum):
+    Unknown = 'unknown'
+    Pending = 'pending'
+    Building = 'building'
+    Failed = 'failed'
+    Success = 'success'
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
-        Uploader.__init__(self, architecture, config)
-        section = self.config.get_section_name('s3', self.architecture)
-        self.bucket = self.config.get(section, 'bucket')
 
-    def sync(self, path: str) -> None:
-        # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+class BuildStatus:
+
+    def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
+                 timestamp: Optional[datetime.datetime] = None) -> None:
+        self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
+        self._timestamp = timestamp or datetime.datetime.utcnow()
+
+    @property
+    def timestamp(self) -> str:
+        return self._timestamp.strftime('%Y-%m-%d %H:%M:%S')

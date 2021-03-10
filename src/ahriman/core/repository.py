@@ -30,6 +30,8 @@ from ahriman.core.report.report import Report
 from ahriman.core.sign.gpg_wrapper import GPGWrapper
 from ahriman.core.upload.uploader import Uploader
 from ahriman.core.util import package_like
+from ahriman.core.watcher.client import Client
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -49,6 +51,8 @@ class Repository:
 
         self.sign = GPGWrapper(config)
         self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_args)
+
+        self.web_report = Client.load(config)
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
@@ -78,6 +82,7 @@ class Repository:
 
     def process_build(self, updates: List[Package]) -> List[str]:
         def build_single(package: Package) -> None:
+            self.web_report.update(package.base, BuildStatusEnum.Building)
             task = Task(package, self.architecture, self.config, self.paths)
             task.clone()
             built = task.build()
@@ -89,6 +94,7 @@ class Repository:
             try:
                 build_single(package)
             except Exception:
+                self.web_report.update(package.base, BuildStatusEnum.Failed)
                 self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
@@ -112,6 +118,7 @@ class Repository:
                 to_remove = local.packages.intersection(packages)
             else:
                 to_remove = set()
+            self.web_report.remove(local.base, to_remove)
             for package in to_remove:
                 remove_single(package)
 
@@ -131,12 +138,18 @@ class Repository:
 
     def process_update(self, packages: List[str]) -> str:
         for package in packages:
-            files = self.sign.sign_package(package)
-            for src in files:
-                dst = os.path.join(self.paths.repository, os.path.basename(src))
-                shutil.move(src, dst)
-            package_fn = os.path.join(self.paths.repository, os.path.basename(package))
-            self.wrapper.add(package_fn)
+            local = Package.load(package, self.aur_url)  # we will use it for status reports
+            try:
+                files = self.sign.sign_package(package)
+                for src in files:
+                    dst = os.path.join(self.paths.repository, os.path.basename(src))
+                    shutil.move(src, dst)
+                package_fn = os.path.join(self.paths.repository, os.path.basename(package))
+                self.wrapper.add(package_fn)
+                self.web_report.add(local, BuildStatusEnum.Success)
+            except Exception:
+                self.logger.exception(f'could not process {package}', exc_info=True)
+                self.web_report.update(local.base, BuildStatusEnum.Failed)
         self._clear_packages()
 
         return self.wrapper.repo_path
@@ -156,7 +169,9 @@ class Repository:
                 remote = Package.load(local.base, self.aur_url)
                 if local.is_outdated(remote):
                     result.append(remote)
+                    self.web_report.update(local.base, BuildStatusEnum.Pending)
             except Exception:
+                self.web_report.update(local.base, BuildStatusEnum.Failed)
                 self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
                 continue
 
@@ -166,8 +181,12 @@ class Repository:
         result: List[Package] = []
 
         for fn in os.listdir(self.paths.manual):
-            local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
-            result.append(local)
+            try:
+                local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
+                result.append(local)
+                self.web_report.add(local, BuildStatusEnum.Unknown)
+            except Exception:
+                self.logger.exception(f'could not add package from {fn}', exc_info=True)
         self._clear_manual()
 
         return result

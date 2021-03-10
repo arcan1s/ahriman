@@ -74,6 +74,13 @@ def update(args: argparse.Namespace) -> None:
     app.update(packages)
 
 
+def web(args: argparse.Namespace) -> None:
+    from ahriman.web.web import run_server, setup_service
+    config = _get_config(args.config)
+    app = setup_service(args.architecture, config)
+    run_server(app)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='ahriman', description='ArcHlinux ReposItory MANager')
     parser.add_argument('-a', '--architecture', help='target architecture', required=True)
@@ -111,6 +118,9 @@ if __name__ == '__main__':
     update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
     update_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
     update_parser.set_defaults(fn=update)
+
+    web_parser = subparsers.add_parser('web', description='start web server')
+    web_parser.set_defaults(fn=web, lock='/tmp/ahriman-web.lock')
 
     args = parser.parse_args()
 

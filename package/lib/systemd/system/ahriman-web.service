@@ -1,0 +1,11 @@
+[Unit]
+Description=ArcHlinux ReposItory MANager web server
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ahriman --architecture x86_64 web
+User=ahriman
+Group=ahriman
+
+[Install]
+WantedBy=multi-user.target

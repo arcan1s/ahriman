@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Type
 
 from ahriman.core.exceptions import InvalidOptionException
 
@@ -30,12 +29,12 @@ class SignSettings(Enum):
     SignPackages = auto()
     SignRepository = auto()
 
-    @classmethod
-    def from_option(cls: Type[SignSettings], value: str) -> SignSettings:
+    @staticmethod
+    def from_option(value: str) -> SignSettings:
         if value.lower() in ('no', 'disabled'):
-            return cls.Disabled
+            return SignSettings.Disabled
         elif value.lower() in ('package', 'packages', 'sign-package'):
-            return cls.SignPackages
+            return SignSettings.SignPackages
         elif value.lower() in ('repository', 'sign-repository'):
-            return cls.SignRepository
+            return SignSettings.SignRepository
         raise InvalidOptionException(value)

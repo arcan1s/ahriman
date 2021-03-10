@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2021 Evgenii Alekseev.
 #
-# This file is part of ahriman
+# This file is part of ahriman 
 # (see https://github.com/arcan1s/ahriman).
 #
 # This program is free software: you can redistribute it and/or modify

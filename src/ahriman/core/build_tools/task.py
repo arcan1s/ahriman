@@ -73,4 +73,4 @@ class Task:
 
     def clone(self, path: Optional[str] = None) -> None:
         git_path = path or self.git_path
-        return Task.fetch(git_path, self.package.url)
+        return Task.fetch(git_path, self.package.git_url)

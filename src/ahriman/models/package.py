@@ -25,7 +25,6 @@ import aur
 import os
 import tempfile
 
-from configparser import RawConfigParser
 from dataclasses import dataclass, field
 from srcinfo.parse import parse_srcinfo
 from typing import Set, Type
@@ -38,8 +37,12 @@ from ahriman.core.util import check_output
 class Package:
     base: str
     version: str
-    url: str
+    aur_url: str
     packages: Set[str] = field(default_factory=set)
+
+    @property
+    def git_url(self) -> str:
+        return f'{self.aur_url}/{self.base}.git'
 
     @property
     def is_vcs(self) -> bool:
@@ -50,6 +53,10 @@ class Package:
                or self.base.endswith('-hg')\
                or self.base.endswith('-svn')
 
+    @property
+    def web_url(self) -> str:
+        return f'{self.aur_url}/packages/{self.base}'
+
     # additional method to handle vcs versions
     def actual_version(self) -> str:
         if not self.is_vcs:
@@ -58,7 +65,7 @@ class Package:
         from ahriman.core.build_tools.task import Task
         clone_dir = tempfile.mkdtemp()
         try:
-            Task.fetch(clone_dir, self.url)
+            Task.fetch(clone_dir, self.git_url)
             # update pkgver first
             check_output('makepkg', '--nodeps', '--noprepare', '--nobuild',
                          exception=None, cwd=clone_dir)
@@ -75,37 +82,32 @@ class Package:
     @classmethod
     def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
         package, base, version = check_output('expac', '-p', '%n %e %v', path, exception=None).split()
-        return cls(base, version, f'{aur_url}/{base}.git', packages={package})
+        return cls(base, version, aur_url, {package})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
         package = aur.info(name)
-        return cls(package.package_base, package.version, f'{aur_url}/{package.package_base}.git',
-                   packages={package.name})
+        return cls(package.package_base, package.version, aur_url, {package.name})
 
     @classmethod
-    def from_build(cls: Type[Package], path: str) -> Package:
-        git_config = RawConfigParser()
-        git_config.read(os.path.join(path, '.git', 'config'))
-
+    def from_build(cls: Type[Package], path: str, aur_url: str) -> Package:
         with open(os.path.join(path, '.SRCINFO')) as fn:
             src_info, errors = parse_srcinfo(fn.read())
         if errors:
             raise InvalidPackageInfo(errors)
         packages = set(src_info['packages'].keys())
 
-        return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}',
-                   git_config.get('remote "origin"', 'url'), packages-packages)
+        return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}', aur_url, packages)
 
-    @classmethod
-    def load(cls: Type[Package], path: str, aur_url: str) -> Package:
+    @staticmethod
+    def load(path: str, aur_url: str) -> Package:
         try:
             if os.path.isdir(path):
-                package: Package = cls.from_build(path)
+                package: Package = Package.from_build(path, aur_url)
             elif os.path.exists(path):
-                package = cls.from_archive(path, aur_url)
+                package = Package.from_archive(path, aur_url)
             else:
-                package = cls.from_aur(path, aur_url)
+                package = Package.from_aur(path, aur_url)
             return package
         except InvalidPackageInfo:
             raise

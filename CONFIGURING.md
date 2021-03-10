@@ -60,14 +60,22 @@ Remote synchronization settings:
 
 * `target` - list of synchronizations to be used, space separated list of strings, optional. Allowed values are `rsync`, `s3`.
 
+### `rsync_*` group
+
+Group name must refer to architecture, e.g. it should be `rsync_x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+
+* `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.
+
 ### `s3_*` group
 
 Group name must refer to architecture, e.g. it should be `s3_x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
 
 * `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
 
-### `rsync_*` group
+## `web` group
 
-Group name must refer to architecture, e.g. it should be `rsync_x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+Web server settings. If any of `host`/`port` is not set, web intergration will be disabled.
 
-* `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.
+* `host` - host to bind, string, optional.
+* `port` - port to bind, int, optional.
+* `templates` - path to templates directory, string, required.

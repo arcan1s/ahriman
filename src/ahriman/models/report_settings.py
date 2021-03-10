@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Type
 
 from ahriman.core.exceptions import InvalidOptionException
 
@@ -28,8 +27,8 @@ from ahriman.core.exceptions import InvalidOptionException
 class ReportSettings(Enum):
     HTML = auto()
 
-    @classmethod
-    def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
+    @staticmethod
+    def from_option(value: str) -> ReportSettings:
         if value.lower() in ('html',):
-            return cls.HTML
+            return ReportSettings.HTML
         raise InvalidOptionException(value)
