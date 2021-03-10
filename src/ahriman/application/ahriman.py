@@ -20,6 +20,8 @@
 import argparse
 import os
 
+from typing import Optional
+
 import ahriman.version as version
 
 from ahriman.application.application import Application
@@ -38,7 +40,22 @@ def _get_config(config_path: str) -> Configuration:
     return config
 
 
-def _remove_lock(path: str) -> None:
+def _lock_check(path: Optional[str]) -> None:
+    if path is None:
+        return
+    if os.path.exists(args.lock):
+        raise RuntimeError('Another application instance is run')
+
+
+def _lock_create(path: Optional[str]) -> None:
+    if path is None:
+        return
+    open(path, 'w').close()
+
+
+def _lock_remove(path: Optional[str]) -> None:
+    if path is None:
+        return
     if os.path.exists(path):
         os.remove(path)
 
@@ -120,22 +137,21 @@ if __name__ == '__main__':
     update_parser.set_defaults(fn=update)
 
     web_parser = subparsers.add_parser('web', description='start web server')
-    web_parser.set_defaults(fn=web, lock='/tmp/ahriman-web.lock')
+    web_parser.set_defaults(fn=web, lock=None)
 
     args = parser.parse_args()
 
     if args.force:
-        _remove_lock(args.lock)
-    if os.path.exists(args.lock):
-        raise RuntimeError('Another application instance is run')
+        _lock_remove(args.lock)
+    _lock_check(args.lock)
 
     if 'fn' not in args:
         parser.print_help()
         exit(1)
 
     try:
-        open(args.lock, 'w').close()
+        _lock_create(args.lock)
         args.fn(args)
     finally:
-        _remove_lock(args.lock)
+        _lock_remove(args.lock)
 

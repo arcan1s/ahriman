@@ -2,6 +2,14 @@
 
 Wrapper for managing custom repository inspired by [repo-scripts](https://github.com/arcan1s/repo-scripts).
 
+## Features
+
+* Install-configure-forget manager for own repository
+* VCS packages support
+* Sign support with gpg
+* Synchronization to remote services and report generation 
+* Repository status interface
+
 ## Installation and run
 
 * Install package as usual.
