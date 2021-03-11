@@ -114,13 +114,18 @@ class Application:
         self.repository.process_sync(targets)
 
     def update(self, updates: Iterable[Package]) -> None:
-        def process_single(portion: Iterable[Package]):
-            packages = self.repository.process_build(portion)
-            self.repository.process_update(packages)
+        def process_update(paths: Iterable[str]) -> None:
+            self.repository.process_update(paths)
             self._finalize()
 
+        # process built packages
+        packages = self.repository.packages_built()
+        process_update(packages)
+
+        # process manual packages
         tree = Tree()
         tree.load(updates)
         for num, level in enumerate(tree.levels()):
             self.logger.info(f'processing level #{num} {[package.base for package in level]}')
-            process_single(level)
+            packages = self.repository.process_build(level)
+            process_update(packages)

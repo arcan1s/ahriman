@@ -63,8 +63,8 @@ class Repository:
             shutil.rmtree(os.path.join(self.paths.manual, package))
 
     def _clear_packages(self) -> None:
-        for package in os.listdir(self.paths.packages):
-            os.remove(os.path.join(self.paths.packages, package))
+        for package in self.packages_built():
+            os.remove(package)
 
     def packages(self) -> List[Package]:
         result: Dict[str, Package] = {}
@@ -79,6 +79,12 @@ class Repository:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
         return list(result.values())
+
+    def packages_built(self) -> List[str]:
+        return [
+            os.path.join(self.paths.packages, fn)
+            for fn in os.listdir(self.paths.packages)
+        ]
 
     def process_build(self, updates: Iterable[Package]) -> List[str]:
         def build_single(package: Package) -> None:
@@ -99,10 +105,7 @@ class Repository:
                 continue
         self._clear_build()
 
-        return [
-            os.path.join(self.paths.packages, fn)
-            for fn in os.listdir(self.paths.packages)
-        ]
+        return self.packages_built()
 
     def process_remove(self, packages: Iterable[str]) -> str:
         def remove_single(package: str) -> None:
