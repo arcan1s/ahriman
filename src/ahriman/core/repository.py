@@ -138,7 +138,7 @@ class Repository:
         for package in packages:
             local = Package.load(package, self.aur_url)  # we will use it for status reports
             try:
-                files = self.sign.sign_package(package)
+                files = self.sign.sign_package(package, local.base)
                 for src in files:
                     dst = os.path.join(self.paths.repository, os.path.basename(src))
                     shutil.move(src, dst)

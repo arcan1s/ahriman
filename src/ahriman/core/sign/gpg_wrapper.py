@@ -32,37 +32,38 @@ class GPGWrapper:
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         self.logger = logging.getLogger('build_details')
-        section = config.get_section_name('sign', architecture)
-        self.target = [SignSettings.from_option(opt) for opt in config.getlist(section, 'target')]
-        self.key = config.get(section, 'key') if self.target else None
+        self.config = config
+        self.section = config.get_section_name('sign', architecture)
+        self.target = [SignSettings.from_option(opt) for opt in config.getlist(self.section, 'target')]
+        self.default_key = config.get(self.section, 'key') if self.target else ''
 
     @property
     def repository_sign_args(self) -> List[str]:
         if SignSettings.SignRepository not in self.target:
             return []
-        return ['--sign', '--key', self.key] if self.key else ['--sign']
+        return ['--sign', '--key', self.default_key]
 
-    def process(self, path: str) -> List[str]:
+    def process(self, path: str, key: str) -> List[str]:
         check_output(
-            *self.sign_cmd(path),
+            *self.sign_cmd(path, key),
             exception=BuildFailed(path),
             cwd=os.path.dirname(path),
             logger=self.logger)
         return [path, f'{path}.sig']
 
-    def sign_cmd(self, path: str) -> List[str]:
+    def sign_cmd(self, path: str, key: str) -> List[str]:
         cmd = ['gpg']
-        if self.key is not None:
-            cmd.extend(['-u', self.key])
+        cmd.extend(['-u', key])
         cmd.extend(['-b', path])
         return cmd
 
-    def sign_package(self, path: str) -> List[str]:
+    def sign_package(self, path: str, base: str) -> List[str]:
         if SignSettings.SignPackages not in self.target:
             return [path]
-        return self.process(path)
+        key = self.config.get(self.section, f'key_{base}', fallback=self.default_key)
+        return self.process(path, key)
 
     def sign_repository(self, path: str) -> List[str]:
         if SignSettings.SignRepository not in self.target:
             return [path]
-        return self.process(path)
+        return self.process(path, self.default_key)
