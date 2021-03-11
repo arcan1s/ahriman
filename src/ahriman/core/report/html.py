@@ -32,14 +32,14 @@ class HTML(Report):
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         Report.__init__(self, architecture, config)
-        section = self.config.get_section_name('html', self.architecture)
+        section = config.get_section_name('html', architecture)
         self.report_path = config.get(section, 'path')
 
         self.link_path = config.get(section, 'link_path')
         self.template_path = config.get(section, 'template_path')
 
         # base template vars
-        self.sign_targets = [SignSettings.from_option(opt) for opt in config.get_list('sign', 'target')]
+        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist('sign', 'target')]
         self.pgp_key = config.get('sign', 'key', fallback=None)
         self.homepage = config.get(section, 'homepage', fallback=None)
         self.repository = config.get('repository', 'name')

@@ -22,6 +22,7 @@ from aiohttp.web import View
 from ahriman.core.watcher.watcher import Watcher
 
 
+# special class to make it typed
 class BaseView(View):
 
     @property

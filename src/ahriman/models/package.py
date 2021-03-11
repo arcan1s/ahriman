@@ -19,10 +19,9 @@
 #
 from __future__ import annotations
 
-import shutil
-
 import aur
 import os
+import shutil
 import tempfile
 
 from dataclasses import dataclass, field

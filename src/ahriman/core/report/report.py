@@ -27,9 +27,9 @@ from ahriman.models.report_settings import ReportSettings
 class Report:
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        self.logger = logging.getLogger('builder')
         self.architecture = architecture
         self.config = config
-        self.logger = logging.getLogger('builder')
 
     @staticmethod
     def run(architecture: str, config: Configuration, target: str, path: str) -> None:
@@ -42,8 +42,9 @@ class Report:
 
         try:
             report.generate(path)
-        except Exception as e:
-            raise ReportFailed(e) from e
+        except Exception:
+            report.logger.exception('report generation failed', exc_info=True)
+            raise ReportFailed()
 
     def generate(self, path: str) -> None:
         pass

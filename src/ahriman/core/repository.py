@@ -31,7 +31,6 @@ from ahriman.core.sign.gpg_wrapper import GPGWrapper
 from ahriman.core.upload.uploader import Uploader
 from ahriman.core.util import package_like
 from ahriman.core.watcher.client import Client
-from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -46,13 +45,12 @@ class Repository:
         self.aur_url = config.get('aur', 'url')
         self.name = config.get('repository', 'name')
 
-        self.paths = RepositoryPaths(config.get('repository', 'root'), self.architecture)
+        self.paths = RepositoryPaths(config.get('repository', 'root'), architecture)
         self.paths.create_tree()
 
-        self.sign = GPGWrapper(config)
+        self.sign = GPGWrapper(architecture, config)
         self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_args)
-
-        self.web_report = Client.load(config)
+        self.web_report = Client.load(architecture, config)
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
@@ -82,7 +80,7 @@ class Repository:
 
     def process_build(self, updates: List[Package]) -> List[str]:
         def build_single(package: Package) -> None:
-            self.web_report.update(package.base, BuildStatusEnum.Building)
+            self.web_report.set_building(package.base)
             task = Task(package, self.architecture, self.config, self.paths)
             task.clone()
             built = task.build()
@@ -94,7 +92,7 @@ class Repository:
             try:
                 build_single(package)
             except Exception:
-                self.web_report.update(package.base, BuildStatusEnum.Failed)
+                self.web_report.set_failed(package.base)
                 self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
@@ -126,13 +124,13 @@ class Repository:
 
     def process_report(self, targets: Optional[List[str]]) -> None:
         if targets is None:
-            targets = self.config.get_list('report', 'target')
+            targets = self.config.getlist('report', 'target')
         for target in targets:
             Report.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_sync(self, targets: Optional[List[str]]) -> None:
         if targets is None:
-            targets = self.config.get_list('upload', 'target')
+            targets = self.config.getlist('upload', 'target')
         for target in targets:
             Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
@@ -146,18 +144,19 @@ class Repository:
                     shutil.move(src, dst)
                 package_fn = os.path.join(self.paths.repository, os.path.basename(package))
                 self.wrapper.add(package_fn)
-                self.web_report.add(local, BuildStatusEnum.Success)
+                self.web_report.set_success(local)
             except Exception:
                 self.logger.exception(f'could not process {package}', exc_info=True)
-                self.web_report.update(local.base, BuildStatusEnum.Failed)
+                self.web_report.set_failed(local.base)
         self._clear_packages()
 
         return self.wrapper.repo_path
 
     def updates_aur(self, no_vcs: bool) -> List[Package]:
         result: List[Package] = []
-        ignore_list = self.config.get_list(
-            self.config.get_section_name('build', self.architecture), 'ignore_packages')
+
+        build_section = self.config.get_section_name('build', self.architecture)
+        ignore_list = self.config.getlist(build_section, 'ignore_packages')
 
         for local in self.packages():
             if local.base in ignore_list:
@@ -169,9 +168,9 @@ class Repository:
                 remote = Package.load(local.base, self.aur_url)
                 if local.is_outdated(remote):
                     result.append(remote)
-                    self.web_report.update(local.base, BuildStatusEnum.Pending)
+                    self.web_report.set_pending(local.base)
             except Exception:
-                self.web_report.update(local.base, BuildStatusEnum.Failed)
+                self.web_report.set_failed(local.base)
                 self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
                 continue
 
@@ -184,7 +183,7 @@ class Repository:
             try:
                 local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
                 result.append(local)
-                self.web_report.add(local, BuildStatusEnum.Unknown)
+                self.web_report.set_unknown(local)
             except Exception:
                 self.logger.exception(f'could not add package from {fn}', exc_info=True)
         self._clear_manual()

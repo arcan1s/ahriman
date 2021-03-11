@@ -1,0 +1,15 @@
+[Unit]
+Description=ArcHlinux ReposItory MANager web server (%I architecture)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ahriman --architecture %i web
+User=ahriman
+Group=ahriman
+
+KillSignal=SIGQUIT
+SuccessExitStatus=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target

@@ -49,12 +49,12 @@ setup(
             'package/etc/ahriman.ini.d/logging.ini',
         ]),
         ('lib/systemd/system', [
-            'package/lib/systemd/system/ahriman.service',
-            'package/lib/systemd/system/ahriman.timer',
-            'package/lib/systemd/system/ahriman-web.service',
+            'package/lib/systemd/system/ahriman@.service',
+            'package/lib/systemd/system/ahriman@.timer',
+            'package/lib/systemd/system/ahriman-web@.service',
         ]),
         ('share/ahriman', [
-            'package/share/ahriman/index.jinja2',
+            'package/share/ahriman/build-status.jinja2',
             'package/share/ahriman/repo-index.jinja2',
         ]),
     ],

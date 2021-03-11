@@ -17,18 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any, Dict
-
 from aiohttp_jinja2 import template
+from typing import Any, Dict
 
 from ahriman.web.views.base import BaseView
 
 
 class IndexView(BaseView):
 
-    @template("index.jinja2")
+    @template("build-status.jinja2")
     async def get(self) -> Dict[str, Any]:
-        # some magic to make it jinja-readable
+        # some magic to make it jinja-friendly
         packages = [
             {
                 'base': package.base,

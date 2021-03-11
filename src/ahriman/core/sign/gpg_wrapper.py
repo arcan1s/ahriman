@@ -30,11 +30,11 @@ from ahriman.models.sign_settings import SignSettings
 
 class GPGWrapper:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, architecture: str, config: Configuration) -> None:
         self.logger = logging.getLogger('build_details')
-
-        self.target = [SignSettings.from_option(opt) for opt in config.get_list('sign', 'target')]
-        self.key = config.get('sign', 'key') if self.target else None
+        section = config.get_section_name('sign', architecture)
+        self.target = [SignSettings.from_option(opt) for opt in config.getlist(section, 'target')]
+        self.key = config.get(section, 'key') if self.target else None
 
     @property
     def repository_sign_args(self) -> List[str]:

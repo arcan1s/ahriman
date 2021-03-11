@@ -1,7 +1,0 @@
-[Unit]
-Description=ArcHlinux ReposItory MANager
-
-[Service]
-ExecStart=/usr/bin/ahriman --architecture x86_64 update
-User=ahriman
-Group=ahriman

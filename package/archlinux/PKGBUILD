@@ -21,11 +21,9 @@ optdepends=('aws-cli: sync to s3'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
-        'ahriman.sudoers'
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('2c811060106aea6f8826cc6beac9f5733370386a43448b359051ea377e233218aae0c5ec3ef7b1ec399fa6a53c02059015b7398b0d88b5a2e7129f167d025539'
-            '8c9b5b63ac3f7b4d9debaf801a1e9c060877c33d3ecafe18010fcca778e5fa2f2e46909d3d0ff1b229ff8aa978445d8243fd36e1fc104117ed678d5e21901167'
+sha512sums=('941821639fe4410152a21251d9b0fe5f96ee3a60b88e2067ea4a83ef04b5d1393828152ef4843575449bdef8d44ad6a69f9e41e82516d4d1850bd14f17822785'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')
 backup=('etc/ahriman.ini'
@@ -42,7 +40,6 @@ package() {
 
   python setup.py install --root="$pkgdir"
 
-  install -Dm400 "$srcdir/$pkgname.sudoers" "$pkgdir/etc/sudoers.d/$pkgname"
   install -Dm644 "$srcdir/$pkgname.sysusers" "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
   install -Dm644 "$srcdir/$pkgname.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
 }

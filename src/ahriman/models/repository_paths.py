@@ -29,22 +29,37 @@ class RepositoryPaths:
 
     @property
     def chroot(self) -> str:
+        '''
+        :return: directory for devtools chroot
+        '''
         return os.path.join(self.root, 'chroot')
 
     @property
     def manual(self) -> str:
+        '''
+        :return: directory for manual updates (i.e. from add command)
+        '''
         return os.path.join(self.root, 'manual')
 
     @property
     def packages(self) -> str:
+        '''
+        :return: directory for built packages
+        '''
         return os.path.join(self.root, 'packages')
 
     @property
     def repository(self) -> str:
+        '''
+        :return: repository directory
+        '''
         return os.path.join(self.root, 'repository', self.architecture)
 
     @property
     def sources(self) -> str:
+        '''
+        :return: directory for downloaded PKGBUILDs for current build
+        '''
         return os.path.join(self.root, 'sources')
 
     def create_tree(self) -> None:

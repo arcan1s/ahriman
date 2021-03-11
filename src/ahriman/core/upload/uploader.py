@@ -27,9 +27,9 @@ from ahriman.models.upload_settings import UploadSettings
 class Uploader:
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        self.logger = logging.getLogger('builder')
         self.architecture = architecture
         self.config = config
-        self.logger = logging.getLogger('builder')
 
     @staticmethod
     def run(architecture: str, config: Configuration, target: str, path: str) -> None:
@@ -45,8 +45,9 @@ class Uploader:
 
         try:
             uploader.sync(path)
-        except Exception as e:
-            raise SyncFailed(e) from e
+        except Exception:
+            uploader.logger.exception('remote sync failed', exc_info=True)
+            raise SyncFailed()
 
     def sync(self, path: str) -> None:
         pass

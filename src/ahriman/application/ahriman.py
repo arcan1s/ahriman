@@ -18,72 +18,38 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import os
-
-from typing import Optional
 
 import ahriman.version as version
 
 from ahriman.application.application import Application
+from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 
 
-def _get_app(args: argparse.Namespace) -> Application:
-    config = _get_config(args.config)
-    return Application(args.architecture, config)
-
-
-def _get_config(config_path: str) -> Configuration:
-    config = Configuration()
-    config.load(config_path)
-    config.load_logging()
-    return config
-
-
-def _lock_check(path: Optional[str]) -> None:
-    if path is None:
-        return
-    if os.path.exists(args.lock):
-        raise RuntimeError('Another application instance is run')
-
-
-def _lock_create(path: Optional[str]) -> None:
-    if path is None:
-        return
-    open(path, 'w').close()
-
-
-def _lock_remove(path: Optional[str]) -> None:
-    if path is None:
-        return
-    if os.path.exists(path):
-        os.remove(path)
-
-
 def add(args: argparse.Namespace) -> None:
-    _get_app(args).add(args.package)
+    Application.from_args(args).add(args.package)
 
 
 def rebuild(args: argparse.Namespace) -> None:
-    app = _get_app(args)
+    app = Application.from_args(args)
     packages = app.repository.packages()
     app.update(packages)
 
 
 def remove(args: argparse.Namespace) -> None:
-    _get_app(args).remove(args.package)
+    Application.from_args(args).remove(args.package)
 
 
 def report(args: argparse.Namespace) -> None:
-    _get_app(args).report(args.target)
+    Application.from_args(args).report(args.target)
 
 
 def sync(args: argparse.Namespace) -> None:
-    _get_app(args).sync(args.target)
+    Application.from_args(args).sync(args.target)
 
 
 def update(args: argparse.Namespace) -> None:
-    app = _get_app(args)
+    app = Application.from_args(args)
     log_fn = lambda line: print(line) if args.dry_run else app.logger.info(line)
     packages = app.get_updates(args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
@@ -93,9 +59,9 @@ def update(args: argparse.Namespace) -> None:
 
 def web(args: argparse.Namespace) -> None:
     from ahriman.web.web import run_server, setup_service
-    config = _get_config(args.config)
+    config = Configuration.from_path(args.config)
     app = setup_service(args.architecture, config)
-    run_server(app)
+    run_server(app, args.architecture)
 
 
 if __name__ == '__main__':
@@ -140,18 +106,9 @@ if __name__ == '__main__':
     web_parser.set_defaults(fn=web, lock=None)
 
     args = parser.parse_args()
-
-    if args.force:
-        _lock_remove(args.lock)
-    _lock_check(args.lock)
-
     if 'fn' not in args:
         parser.print_help()
         exit(1)
 
-    try:
-        _lock_create(args.lock)
+    with Lock(args.lock, args.force):
         args.fn(args)
-    finally:
-        _lock_remove(args.lock)
-

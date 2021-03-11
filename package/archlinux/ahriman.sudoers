@@ -1,4 +1,0 @@
-# Used by ArcHlinux ReposItory MANager with default settings
-
-Cmnd_Alias ARCHBUILD_CMD = /usr/bin/extra-x86_64-build *, /usr/bin/multilib-build *
-ahriman ALL=(ALL) NOPASSWD: ARCHBUILD_CMD

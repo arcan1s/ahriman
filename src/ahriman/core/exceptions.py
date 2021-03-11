@@ -25,6 +25,11 @@ class BuildFailed(Exception):
         Exception.__init__(self, f'Package {package} build failed, check logs for details')
 
 
+class DuplicateRun(Exception):
+    def __init__(self) -> None:
+        Exception.__init__(self, 'Another application instance is run')
+
+
 class InitializeException(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, 'Could not load service')
@@ -40,16 +45,11 @@ class InvalidPackageInfo(Exception):
         Exception.__init__(self, f'There are errors during reading package information: `{details}`')
 
 
-class MissingConfiguration(Exception):
-    def __init__(self, name: str) -> None:
-        Exception.__init__(self, f'No section `{name}` found')
-
-
 class ReportFailed(Exception):
-    def __init__(self, cause: Exception) -> None:
-        Exception.__init__(self, f'Report failed with reason {cause}')
+    def __init__(self) -> None:
+        Exception.__init__(self, 'Report failed')
 
 
 class SyncFailed(Exception):
-    def __init__(self, cause: Exception) -> None:
-        Exception.__init__(self, f'Sync failed with reason {cause}')
+    def __init__(self) -> None:
+        Exception.__init__(self, 'Sync failed')

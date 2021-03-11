@@ -26,8 +26,8 @@ class S3(Uploader):
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         Uploader.__init__(self, architecture, config)
-        section = self.config.get_section_name('s3', self.architecture)
-        self.bucket = self.config.get(section, 'bucket')
+        section = config.get_section_name('s3', architecture)
+        self.bucket = config.get(section, 'bucket')
 
     def sync(self, path: str) -> None:
         # TODO rewrite to boto, but it is bullshit

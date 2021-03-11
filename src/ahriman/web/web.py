@@ -38,17 +38,19 @@ async def on_startup(app: web.Application) -> None:
     app.logger.info('server started')
     try:
         app['watcher'].load()
-    except Exception as e:
+    except Exception:
         app.logger.exception('could not load packages', exc_info=True)
-        raise InitializeException() from e
+        raise InitializeException()
 
 
-def run_server(app: web.Application) -> None:
+def run_server(app: web.Application, architecture: str) -> None:
     app.logger.info('start server')
-    web.run_app(app,
-                host=app['config'].get('web', 'host'),
-                port=app['config'].getint('web', 'port'),
-                handle_signals=False)
+
+    section = app['config'].get_section_name('web', architecture)
+    host = app['config'].get(section, 'host')
+    port = app['config'].getint(section, 'port')
+
+    web.run_app(app, host=host, port=port, handle_signals=False)
 
 
 def setup_service(architecture: str, config: Configuration) -> web.Application:

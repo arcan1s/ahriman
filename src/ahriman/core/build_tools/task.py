@@ -39,10 +39,10 @@ class Task:
         self.paths = paths
 
         section = config.get_section_name('build', architecture)
-        self.archbuild_flags = config.get_list(section, 'archbuild_flags')
+        self.archbuild_flags = config.getlist(section, 'archbuild_flags')
         self.build_command = config.get(section, 'build_command')
-        self.makepkg_flags = config.get_list(section, 'makepkg_flags')
-        self.makechrootpkg_flags = config.get_list(section, 'makechrootpkg_flags')
+        self.makepkg_flags = config.getlist(section, 'makepkg_flags')
+        self.makechrootpkg_flags = config.getlist(section, 'makechrootpkg_flags')
 
     @property
     def git_path(self) -> str:

@@ -18,10 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import middleware, Request, Response
+from aiohttp.web_exceptions import HTTPClientError
 from logging import Logger
 from typing import Callable
-
-from aiohttp.web_exceptions import HTTPClientError
 
 
 def exception_handler(logger: Logger) -> Callable:

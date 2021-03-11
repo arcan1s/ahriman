@@ -39,10 +39,26 @@ class Client:
     def update(self, base: str, status: BuildStatusEnum) -> None:
         pass
 
+    def set_building(self, base: str) -> None:
+        return self.update(base, BuildStatusEnum.Building)
+
+    def set_failed(self, base: str) -> None:
+        return self.update(base, BuildStatusEnum.Failed)
+
+    def set_pending(self, base: str) -> None:
+        return self.update(base, BuildStatusEnum.Pending)
+
+    def set_success(self, package: Package) -> None:
+        return self.add(package, BuildStatusEnum.Success)
+
+    def set_unknown(self, package: Package) -> None:
+        return self.add(package, BuildStatusEnum.Unknown)
+
     @staticmethod
-    def load(config: Configuration) -> Client:
-        host = config.get('web', 'host', fallback=None)
-        port = config.getint('web', 'port', fallback=None)
+    def load(architecture: str, config: Configuration) -> Client:
+        section = config.get_section_name('web', architecture)
+        host = config.get(section, 'host', fallback=None)
+        port = config.getint(section, 'port', fallback=None)
         if host is None or port is None:
             return Client()
         return WebClient(host, port)

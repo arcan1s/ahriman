@@ -17,11 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
+import argparse
 import logging
 import os
 import shutil
 
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Type
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -36,6 +39,11 @@ class Application:
         self.config = config
         self.architecture = architecture
         self.repository = Repository(architecture, config)
+
+    @classmethod
+    def from_args(cls: Type[Application], args: argparse.Namespace) -> Application:
+        config = Configuration.from_path(args.config)
+        return cls(args.architecture, config)
 
     def _finalize(self) -> None:
         self.report()

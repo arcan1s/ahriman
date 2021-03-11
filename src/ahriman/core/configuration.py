@@ -17,11 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import configparser
 import os
 
 from logging.config import fileConfig
-from typing import List, Optional, Set
+from typing import List, Optional, Type
 
 
 # built-in configparser extension
@@ -35,7 +37,14 @@ class Configuration(configparser.RawConfigParser):
     def include(self) -> str:
         return self.get('settings', 'include')
 
-    def get_list(self, section: str, key: str) -> List[str]:
+    @classmethod
+    def from_path(cls: Type[Configuration], path: str) -> Configuration:
+        config = cls()
+        config.load(path)
+        config.load_logging()
+        return config
+
+    def getlist(self, section: str, key: str) -> List[str]:
         raw = self.get(section, key, fallback=None)
         if not raw:  # empty string or none
             return []
@@ -52,8 +61,7 @@ class Configuration(configparser.RawConfigParser):
 
     def load_includes(self) -> None:
         try:
-            include_dir = self.include
-            for conf in filter(lambda p: p.endswith('.ini'), sorted(os.listdir(include_dir))):
+            for conf in filter(lambda p: p.endswith('.ini'), sorted(os.listdir(self.include))):
                 self.read(os.path.join(self.include, conf))
         except (FileNotFoundError, configparser.NoOptionError):
             pass
