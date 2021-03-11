@@ -37,7 +37,7 @@ class PackageView(BaseView):
         data = await self.request.json()
 
         package = Package(**data['package']) if 'package' in data else None
-        status = BuildStatusEnum(data.get('status', 'unknown'))
+        status = BuildStatusEnum(data['status'])
         self.service.update(base, status, package)
 
         return HTTPOk()

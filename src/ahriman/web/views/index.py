@@ -20,6 +20,8 @@
 from aiohttp_jinja2 import template
 from typing import Any, Dict
 
+import ahriman.version as version
+
 from ahriman.web.views.base import BaseView
 
 
@@ -43,4 +45,5 @@ class IndexView(BaseView):
             'architecture': self.service.architecture,
             'packages': packages,
             'repository': self.service.repository.name,
+            'version': version.__version__,
         }

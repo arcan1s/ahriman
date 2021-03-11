@@ -79,10 +79,12 @@ class WebClient(Client):
 
         payload: Dict[str, Any] = {
             'status': status.value,
-            'base': package.base,
-            'packages': [p for p in package.packages],
-            'version': package.version,
-            'url': package.web_url
+            'package': {
+                'base': package.base,
+                'packages': [p for p in package.packages],
+                'version': package.version,
+                'aur_url': package.aur_url
+            }
         }
 
         try:
