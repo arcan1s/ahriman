@@ -9,11 +9,14 @@ Base configuration settings.
 * `include` - path to directory with configuration files overrides, string, required.
 * `logging` - path to logging configuration, string, required. Check `logging.ini` for reference.
 
-## `aur` group
+## `alpm` group
 
-AUR related configuration.
+libalpm and AUR related configuration.
 
-* `url` - base url for AUR, string, required.
+* `aur_url` - base url for AUR, string, required.
+* `database` - path to pacman local database cache, string, required.
+* `repositories` - list of pacman repositories, space separated list of strings, required.
+* `root` - root for alpm library, string, required.
 
 ## `build_*` groups
 

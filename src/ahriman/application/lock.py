@@ -39,7 +39,6 @@ class Lock:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.remove()
-        return True
 
     def check(self) -> None:
         if self.path is None:

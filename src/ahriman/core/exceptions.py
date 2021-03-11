@@ -35,7 +35,7 @@ class InitializeException(Exception):
         Exception.__init__(self, 'Could not load service')
 
 
-class InvalidOptionException(Exception):
+class InvalidOption(Exception):
     def __init__(self, value: Any) -> None:
         Exception.__init__(self, f'Invalid or unknown option value `{value}`')
 

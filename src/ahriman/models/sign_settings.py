@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from enum import Enum, auto
 
-from ahriman.core.exceptions import InvalidOptionException
+from ahriman.core.exceptions import InvalidOption
 
 
 class SignSettings(Enum):
@@ -34,4 +34,4 @@ class SignSettings(Enum):
             return SignSettings.SignPackages
         elif value.lower() in ('repository', 'sign-repository'):
             return SignSettings.SignRepository
-        raise InvalidOptionException(value)
+        raise InvalidOption(value)

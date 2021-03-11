@@ -25,9 +25,11 @@ import shutil
 import tempfile
 
 from dataclasses import dataclass, field
+from pyalpm import Handle
 from srcinfo.parse import parse_srcinfo
-from typing import Set, Type
+from typing import List, Set, Type
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
 
@@ -79,9 +81,9 @@ class Package:
             shutil.rmtree(clone_dir, ignore_errors=True)
 
     @classmethod
-    def from_archive(cls: Type[Package], path: str, aur_url: str) -> Package:
-        package, base, version = check_output('expac', '-p', '%n %e %v', path, exception=None).split()
-        return cls(base, version, aur_url, {package})
+    def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
+        package = pacman.handle.load_pkg(path)
+        return cls(package.base, package.version, aur_url, {package.name})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
@@ -99,12 +101,27 @@ class Package:
         return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}', aur_url, packages)
 
     @staticmethod
-    def load(path: str, aur_url: str) -> Package:
+    def dependencies(path: str) -> Set[str]:
+        with open(os.path.join(path, '.SRCINFO')) as fn:
+            src_info, errors = parse_srcinfo(fn.read())
+        if errors:
+            raise InvalidPackageInfo(errors)
+        makedepends = src_info['makedepends']
+        # sum over each package
+        depends: List[str] = src_info.get('depends', [])
+        for package in src_info['packages'].values():
+            depends.extend(package.get('depends', []))
+        # we are not interested in dependencies inside pkgbase
+        packages = set(src_info['packages'].keys())
+        return set(depends + makedepends) - packages
+
+    @staticmethod
+    def load(path: str, pacman: Pacman, aur_url: str) -> Package:
         try:
             if os.path.isdir(path):
                 package: Package = Package.from_build(path, aur_url)
             elif os.path.exists(path):
-                package = Package.from_archive(path, aur_url)
+                package = Package.from_archive(path, pacman, aur_url)
             else:
                 package = Package.from_aur(path, aur_url)
             return package

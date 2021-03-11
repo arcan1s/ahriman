@@ -28,7 +28,7 @@ from ahriman.core.util import check_output
 from ahriman.models.sign_settings import SignSettings
 
 
-class GPGWrapper:
+class GPG:
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         self.logger = logging.getLogger('build_details')

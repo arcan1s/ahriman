@@ -8,7 +8,8 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * Multi-architecture support
 * VCS packages support
 * Sign support with gpg (repository, package, per package settings)
-* Synchronization to remote services (rsync, s3) and report generation (html) 
+* Synchronization to remote services (rsync, s3) and report generation (html)
+* Dependency manager
 * Repository status interface
 
 ## Installation and run
@@ -24,7 +25,3 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
     * configure `/etc/sudoers.d/ahriman` to allow running command without password.
 * Start and enable `ahriman.timer` via `systemctl`.
 * Add packages by using `ahriman add {package}` command.
-
-## Limitations
-
-* It does not manage dependencies, so you have to add them before main package.

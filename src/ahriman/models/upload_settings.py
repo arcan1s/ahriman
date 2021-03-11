@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from enum import Enum, auto
 
-from ahriman.core.exceptions import InvalidOptionException
+from ahriman.core.exceptions import InvalidOption
 
 
 class UploadSettings(Enum):
@@ -34,4 +34,4 @@ class UploadSettings(Enum):
             return UploadSettings.Rsync
         elif value.lower() in ('s3',):
             return UploadSettings.S3
-        raise InvalidOptionException(value)
+        raise InvalidOption(value)

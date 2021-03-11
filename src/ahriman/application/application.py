@@ -24,11 +24,12 @@ import logging
 import os
 import shutil
 
-from typing import Callable, List, Optional, Type
+from typing import Callable, Iterable, List, Optional, Set, Type
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
+from ahriman.core.tree import Tree
 from ahriman.models.package import Package
 
 
@@ -44,6 +45,14 @@ class Application:
     def from_args(cls: Type[Application], args: argparse.Namespace) -> Application:
         config = Configuration.from_path(args.config)
         return cls(args.architecture, config)
+
+    def _known_packages(self) -> Set[str]:
+        known_packages = set()
+        # local set
+        for package in self.repository.packages():
+            known_packages.update(package.packages)
+        known_packages.update(self.repository.pacman.all_packages())
+        return known_packages
 
     def _finalize(self) -> None:
         self.report()
@@ -63,35 +72,55 @@ class Application:
 
         return updates
 
-    def add(self, names: List[str]) -> None:
-        def add_manual(name: str) -> None:
-            package = Package.load(name, self.config.get('aur', 'url'))
-            Task.fetch(os.path.join(self.repository.paths.manual, package.base), package.git_url)
+    def add(self, names: Iterable[str], without_dependencies: bool) -> None:
+        known_packages = self._known_packages()
+
+        def add_manual(name: str) -> str:
+            package = Package.load(name, self.repository.pacman, self.config.get('alpm', 'aur_url'))
+            path = os.path.join(self.repository.paths.manual, package.base)
+            Task.fetch(path, package.git_url)
+            return path
 
         def add_archive(src: str) -> None:
             dst = os.path.join(self.repository.paths.packages, os.path.basename(src))
             shutil.move(src, dst)
 
-        for name in names:
-            if os.path.isfile(name):
-                add_archive(name)
-            else:
-                add_manual(name)
+        def process_dependencies(path: str) -> None:
+            if without_dependencies:
+                return
+            dependencies = Package.dependencies(path)
+            self.add(dependencies.difference(known_packages), without_dependencies)
 
-    def remove(self, names: List[str]) -> None:
+        def process_single(name: str) -> None:
+            if not os.path.isfile(name):
+                path = add_manual(name)
+                process_dependencies(path)
+            else:
+                add_archive(name)
+
+        for name in names:
+            process_single(name)
+
+    def remove(self, names: Iterable[str]) -> None:
         self.repository.process_remove(names)
         self._finalize()
 
-    def report(self, target: Optional[List[str]] = None) -> None:
+    def report(self, target: Optional[Iterable[str]] = None) -> None:
         targets = target or None
         self.repository.process_report(targets)
 
-    def sync(self, target: Optional[List[str]] = None) -> None:
+    def sync(self, target: Optional[Iterable[str]] = None) -> None:
         targets = target or None
         self.repository.process_sync(targets)
 
-    def update(self, updates: List[Package]) -> None:
-        packages = self.repository.process_build(updates)
-        self.repository.process_update(packages)
-        self._finalize()
+    def update(self, updates: Iterable[Package]) -> None:
+        def process_single(portion: Iterable[Package]):
+            packages = self.repository.process_build(portion)
+            self.repository.process_update(packages)
+            self._finalize()
 
+        tree = Tree()
+        tree.load(updates)
+        for num, level in enumerate(tree.levels()):
+            self.logger.info(f'processing level #{num} {[package.base for package in level]}')
+            process_single(level)

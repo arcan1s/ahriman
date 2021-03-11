@@ -17,18 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
+from pyalpm import Handle
+from typing import List, Set
 
-from enum import Enum, auto
-
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.configuration import Configuration
 
 
-class ReportSettings(Enum):
-    HTML = auto()
+class Pacman:
 
-    @staticmethod
-    def from_option(value: str) -> ReportSettings:
-        if value.lower() in ('html',):
-            return ReportSettings.HTML
-        raise InvalidOption(value)
+    def __init__(self, config: Configuration) -> None:
+        root = config.get('alpm', 'root')
+        pacman_root = config.get('alpm', 'database')
+        self.handle = Handle(root, pacman_root)
+        for repository in config.getlist('alpm', 'repositories'):
+            self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
+
+    def all_packages(self) -> List[str]:
+        result: Set[str] = set()
+        for database in self.handle.get_syncdbs():
+            result.update({package.name for package in database.pkgcache})
+
+        return list(result)

@@ -28,6 +28,7 @@ setup(
     ],
     install_requires=[
         'aur',
+        'pyalpm',
         'srcinfo',
     ],
     setup_requires=[

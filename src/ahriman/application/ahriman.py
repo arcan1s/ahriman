@@ -27,7 +27,7 @@ from ahriman.core.configuration import Configuration
 
 
 def add(args: argparse.Namespace) -> None:
-    Application.from_args(args).add(args.package)
+    Application.from_args(args).add(args.package, args.without_dependencies)
 
 
 def rebuild(args: argparse.Namespace) -> None:
@@ -75,6 +75,7 @@ if __name__ == '__main__':
 
     add_parser = subparsers.add_parser('add', description='add package')
     add_parser.add_argument('package', help='package name or archive path', nargs='+')
+    add_parser.add_argument('--without-dependencies', help='do not add dependencies', action='store_true')
     add_parser.set_defaults(fn=add)
 
     check_parser = subparsers.add_parser('check', description='check for updates')

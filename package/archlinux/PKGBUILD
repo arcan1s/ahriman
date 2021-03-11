@@ -7,7 +7,7 @@ pkgdesc="ArcHlinux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools' 'expac' 'git' 'python-aur' 'python-srcinfo')
+depends=('devtools' 'git' 'pyalpm' 'python-aur' 'python-srcinfo')
 makedepends=('python-pip')
 optdepends=('aws-cli: sync to s3'
             'breezy: -bzr packages support'
@@ -23,7 +23,7 @@ optdepends=('aws-cli: sync to s3'
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('941821639fe4410152a21251d9b0fe5f96ee3a60b88e2067ea4a83ef04b5d1393828152ef4843575449bdef8d44ad6a69f9e41e82516d4d1850bd14f17822785'
+sha512sums=('ddbae1368359c93e4a00a196b06e003895fe5bd36f763f2313c2cdc1cf37db96f258807be087a8aceebb8d608c332cd88695600fd28a728af17187f1568711b4'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')
 backup=('etc/ahriman.ini'

@@ -21,13 +21,14 @@ import logging
 import os
 import shutil
 
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
+from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.repo import Repo
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
-from ahriman.core.repo.repo_wrapper import RepoWrapper
 from ahriman.core.report.report import Report
-from ahriman.core.sign.gpg_wrapper import GPGWrapper
+from ahriman.core.sign.gpg import GPG
 from ahriman.core.upload.uploader import Uploader
 from ahriman.core.util import package_like
 from ahriman.core.watcher.client import Client
@@ -42,15 +43,16 @@ class Repository:
         self.architecture = architecture
         self.config = config
 
-        self.aur_url = config.get('aur', 'url')
+        self.aur_url = config.get('alpm', 'aur_url')
         self.name = config.get('repository', 'name')
 
         self.paths = RepositoryPaths(config.get('repository', 'root'), architecture)
         self.paths.create_tree()
 
-        self.sign = GPGWrapper(architecture, config)
-        self.wrapper = RepoWrapper(self.name, self.paths, self.sign.repository_sign_args)
-        self.web_report = Client.load(architecture, config)
+        self.pacman = Pacman(config)
+        self.sign = GPG(architecture, config)
+        self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
+        self.web = Client.load(architecture, config)
 
     def _clear_build(self) -> None:
         for package in os.listdir(self.paths.sources):
@@ -71,16 +73,16 @@ class Repository:
                 continue
             full_path = os.path.join(self.paths.repository, fn)
             try:
-                local = Package.load(full_path, self.aur_url)
+                local = Package.load(full_path, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
                 self.logger.exception(f'could not load package from {fn}', exc_info=True)
                 continue
         return list(result.values())
 
-    def process_build(self, updates: List[Package]) -> List[str]:
+    def process_build(self, updates: Iterable[Package]) -> List[str]:
         def build_single(package: Package) -> None:
-            self.web_report.set_building(package.base)
+            self.web.set_building(package.base)
             task = Task(package, self.architecture, self.config, self.paths)
             task.clone()
             built = task.build()
@@ -92,7 +94,7 @@ class Repository:
             try:
                 build_single(package)
             except Exception:
-                self.web_report.set_failed(package.base)
+                self.web.set_failed(package.base)
                 self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
@@ -102,10 +104,10 @@ class Repository:
             for fn in os.listdir(self.paths.packages)
         ]
 
-    def process_remove(self, packages: List[str]) -> str:
+    def process_remove(self, packages: Iterable[str]) -> str:
         def remove_single(package: str) -> None:
             try:
-                self.wrapper.remove(package, package)
+                self.repo.remove(package, package)
             except Exception:
                 self.logger.exception(f'could not remove {package}', exc_info=True)
 
@@ -116,41 +118,41 @@ class Repository:
                 to_remove = local.packages.intersection(packages)
             else:
                 to_remove = set()
-            self.web_report.remove(local.base, to_remove)
+            self.web.remove(local.base, to_remove)
             for package in to_remove:
                 remove_single(package)
 
-        return self.wrapper.repo_path
+        return self.repo.repo_path
 
-    def process_report(self, targets: Optional[List[str]]) -> None:
+    def process_report(self, targets: Optional[Iterable[str]]) -> None:
         if targets is None:
             targets = self.config.getlist('report', 'target')
         for target in targets:
             Report.run(self.architecture, self.config, target, self.paths.repository)
 
-    def process_sync(self, targets: Optional[List[str]]) -> None:
+    def process_sync(self, targets: Optional[Iterable[str]]) -> None:
         if targets is None:
             targets = self.config.getlist('upload', 'target')
         for target in targets:
             Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
-    def process_update(self, packages: List[str]) -> str:
+    def process_update(self, packages: Iterable[str]) -> str:
         for package in packages:
-            local = Package.load(package, self.aur_url)  # we will use it for status reports
+            local = Package.load(package, self.pacman, self.aur_url)  # we will use it for status reports
             try:
                 files = self.sign.sign_package(package, local.base)
                 for src in files:
                     dst = os.path.join(self.paths.repository, os.path.basename(src))
                     shutil.move(src, dst)
                 package_fn = os.path.join(self.paths.repository, os.path.basename(package))
-                self.wrapper.add(package_fn)
-                self.web_report.set_success(local)
+                self.repo.add(package_fn)
+                self.web.set_success(local)
             except Exception:
                 self.logger.exception(f'could not process {package}', exc_info=True)
-                self.web_report.set_failed(local.base)
+                self.web.set_failed(local.base)
         self._clear_packages()
 
-        return self.wrapper.repo_path
+        return self.repo.repo_path
 
     def updates_aur(self, no_vcs: bool) -> List[Package]:
         result: List[Package] = []
@@ -165,12 +167,12 @@ class Repository:
                 continue
 
             try:
-                remote = Package.load(local.base, self.aur_url)
+                remote = Package.load(local.base, self.pacman, self.aur_url)
                 if local.is_outdated(remote):
                     result.append(remote)
-                    self.web_report.set_pending(local.base)
+                    self.web.set_pending(local.base)
             except Exception:
-                self.web_report.set_failed(local.base)
+                self.web.set_failed(local.base)
                 self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
                 continue
 
@@ -181,9 +183,9 @@ class Repository:
 
         for fn in os.listdir(self.paths.manual):
             try:
-                local = Package.load(os.path.join(self.paths.manual, fn), self.aur_url)
+                local = Package.load(os.path.join(self.paths.manual, fn), self.pacman, self.aur_url)
                 result.append(local)
-                self.web_report.set_unknown(local)
+                self.web.set_unknown(local)
             except Exception:
                 self.logger.exception(f'could not add package from {fn}', exc_info=True)
         self._clear_manual()

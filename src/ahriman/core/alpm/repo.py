@@ -27,7 +27,7 @@ from ahriman.core.util import check_output
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-class RepoWrapper:
+class Repo:
 
     def __init__(self, name: str, paths: RepositoryPaths, sign_args: List[str]) -> None:
         self.logger = logging.getLogger('build_details')
