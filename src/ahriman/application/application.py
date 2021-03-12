@@ -58,12 +58,12 @@ class Application:
         self.report()
         self.sync()
 
-    def get_updates(self, no_aur: bool, no_manual: bool, no_vcs: bool,
+    def get_updates(self, filter_packages: List[str], no_aur: bool, no_manual: bool, no_vcs: bool,
                     log_fn: Callable[[str], None]) -> List[Package]:
         updates = []
 
         if not no_aur:
-            updates.extend(self.repository.updates_aur(no_vcs))
+            updates.extend(self.repository.updates_aur(filter_packages, no_vcs))
         if not no_manual:
             updates.extend(self.repository.updates_manual())
 

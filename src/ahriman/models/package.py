@@ -25,9 +25,8 @@ import shutil
 import tempfile
 
 from dataclasses import dataclass, field
-from pyalpm import Handle
 from srcinfo.parse import parse_srcinfo
-from typing import List, Set, Type
+from typing import List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
@@ -76,7 +75,7 @@ class Package:
             src_info, errors = parse_srcinfo(src_info_source)
             if errors:
                 raise InvalidPackageInfo(errors)
-            return f'{src_info["pkgver"]}-{src_info["pkgrel"]}'
+            return self.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
         finally:
             shutil.rmtree(clone_dir, ignore_errors=True)
 
@@ -97,8 +96,9 @@ class Package:
         if errors:
             raise InvalidPackageInfo(errors)
         packages = set(src_info['packages'].keys())
+        version = cls.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
 
-        return cls(src_info['pkgbase'], f'{src_info["pkgver"]}-{src_info["pkgrel"]}', aur_url, packages)
+        return cls(src_info['pkgbase'], version, aur_url, packages)
 
     @staticmethod
     def dependencies(path: str) -> Set[str]:
@@ -114,6 +114,11 @@ class Package:
         # we are not interested in dependencies inside pkgbase
         packages = set(src_info['packages'].keys())
         return set(depends + makedepends) - packages
+
+    @staticmethod
+    def full_version(epoch: Optional[str], pkgver: str, pkgrel: str) -> str:
+        prefix = f'{epoch}:' if epoch else ''
+        return f'{prefix}{pkgver}-{pkgrel}'
 
     @staticmethod
     def load(path: str, pacman: Pacman, aur_url: str) -> Package:

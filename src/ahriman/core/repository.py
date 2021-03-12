@@ -157,7 +157,7 @@ class Repository:
 
         return self.repo.repo_path
 
-    def updates_aur(self, no_vcs: bool) -> List[Package]:
+    def updates_aur(self, filter_packages: Iterable[str], no_vcs: bool) -> List[Package]:
         result: List[Package] = []
 
         build_section = self.config.get_section_name('build', self.architecture)
@@ -167,6 +167,8 @@ class Repository:
             if local.base in ignore_list:
                 continue
             if local.is_vcs and no_vcs:
+                continue
+            if filter_packages and local.base not in filter_packages:
                 continue
 
             try:
