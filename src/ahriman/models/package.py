@@ -68,7 +68,7 @@ class Package:
         try:
             Task.fetch(clone_dir, self.git_url)
             # update pkgver first
-            check_output('makepkg', '--nodeps', '--noprepare', '--nobuild',
+            check_output('makepkg', '--nodeps', '--nobuild',
                          exception=None, cwd=clone_dir)
             # generate new .SRCINFO and put it to parser
             src_info_source = check_output('makepkg', '--printsrcinfo',
