@@ -32,7 +32,6 @@ class HTML(Report):
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         Report.__init__(self, architecture, config)
-        self.architecture = architecture
         section = config.get_section_name('html', architecture)
         self.report_path = config.get(section, 'path')
         self.link_path = config.get(section, 'link_path')
@@ -63,7 +62,6 @@ class HTML(Report):
         comparator: Callable[[Dict[str, str]], str] = lambda item: item['filename']
 
         html = template.render(
-            architecture=self.architecture,
             homepage=self.homepage,
             link_path=self.link_path,
             has_package_signed=SignSettings.SignPackages in self.sign_targets,

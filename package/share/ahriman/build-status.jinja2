@@ -11,7 +11,7 @@
 
     <body>
         <div class="root">
-            <h1>ahriman {{ version|e }}</h1>
+            <h1>ahriman {{ version|e }} ({{ architecture|e }})</h1>
 
             {% include "search-line.jinja2" %}
 
@@ -21,7 +21,6 @@
                         <th>package base</th>
                         <th>packages</th>
                         <th>version</th>
-                        <th>architecture</th>
                         <th>last update</th>
                         <th>status</th>
                     </tr>
@@ -31,7 +30,6 @@
                             <td class="include-search"><a href="{{ package.web_url|e }}" title="{{ package.base|e }}">{{ package.base|e }}</a></td>
                             <td class="include-search">{{ package.packages|join("<br>"|safe) }}</td>
                             <td>{{ package.version|e }}</td>
-                            <td>{{ architecture|e }}</td>
                             <td>{{ package.timestamp|e }}</td>
                             <td class="package-{{ package.status|e }}">{{ package.status|e }}</td>
                         </tr>

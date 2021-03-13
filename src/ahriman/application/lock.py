@@ -30,7 +30,7 @@ from ahriman.core.exceptions import DuplicateRun
 class Lock:
 
     def __init__(self, path: Optional[str], architecture: str, force: bool) -> None:
-        self.path: Optional[str] = f'{path}_{architecture}' if self.path is not None else None
+        self.path = f'{path}_{architecture}' if path is not None else None
         self.force = force
 
     def __enter__(self) -> Lock:
