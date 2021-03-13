@@ -68,7 +68,7 @@ class HTML(Report):
             link_path=self.link_path,
             has_package_signed=SignSettings.SignPackages in self.sign_targets,
             has_repo_signed=SignSettings.SignRepository in self.sign_targets,
-            packages=content,
+            packages= sorted(content, key=lambda item: item['filename']),
             pgp_key=self.pgp_key,
             repository=self.repository)
 
