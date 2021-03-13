@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp_jinja2 import template
+import aiohttp_jinja2  # type: ignore
+
 from typing import Any, Dict
 
 import ahriman.version as version
@@ -27,7 +28,7 @@ from ahriman.web.views.base import BaseView
 
 class IndexView(BaseView):
 
-    @template("build-status.jinja2")
+    @aiohttp_jinja2.template("build-status.jinja2")  # type: ignore
     async def get(self) -> Dict[str, Any]:
         # some magic to make it jinja-friendly
         packages = [

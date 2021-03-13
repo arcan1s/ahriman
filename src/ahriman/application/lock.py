@@ -17,28 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import os
 
-from typing import Optional
+from types import TracebackType
+from typing import Literal, Optional, Type
 
 from ahriman.core.exceptions import DuplicateRun
 
 
 class Lock:
 
-    def __init__(self, path: Optional[str], force: bool) -> None:
-        self.path = path
+    def __init__(self, path: Optional[str], architecture: str, force: bool) -> None:
+        self.path: Optional[str] = f'{path}_{architecture}' if self.path is not None else None
         self.force = force
 
-    def __enter__(self):
+    def __enter__(self) -> Lock:
         if self.force:
             self.remove()
         self.check()
         self.create()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
+                 exc_tb: TracebackType) -> Literal[False]:
         self.remove()
+        return False
 
     def check(self) -> None:
         if self.path is None:

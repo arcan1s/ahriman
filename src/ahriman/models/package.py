@@ -19,13 +19,14 @@
 #
 from __future__ import annotations
 
-import aur
+import aur  # type: ignore
 import os
 import shutil
 import tempfile
 
 from dataclasses import dataclass
-from srcinfo.parse import parse_srcinfo
+from pyalpm import vercmp  # type: ignore
+from srcinfo.parse import parse_srcinfo  # type: ignore
 from typing import Dict, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
@@ -137,5 +138,5 @@ class Package:
 
     def is_outdated(self, remote: Package) -> bool:
         remote_version = remote.actual_version()  # either normal version or updated VCS
-        result = check_output('vercmp', self.version, remote_version, exception=None)
-        return True if int(result) < 0 else False
+        result: int = vercmp(self.version, remote_version)
+        return result < 0

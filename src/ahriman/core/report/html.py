@@ -20,11 +20,10 @@
 import jinja2
 import os
 
-from typing import Dict, Iterable
+from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
-from ahriman.core.util import package_like
 from ahriman.models.package import Package
 from ahriman.models.sign_settings import SignSettings
 
@@ -61,6 +60,7 @@ class HTML(Report):
                 'version': base.version
             } for base in packages for package, filename in base.packages.items()
         ]
+        comparator: Callable[[Dict[str, str]], str] = lambda item: item['filename']
 
         html = template.render(
             architecture=self.architecture,
@@ -68,7 +68,7 @@ class HTML(Report):
             link_path=self.link_path,
             has_package_signed=SignSettings.SignPackages in self.sign_targets,
             has_repo_signed=SignSettings.SignRepository in self.sign_targets,
-            packages= sorted(content, key=lambda item: item['filename']),
+            packages=sorted(content, key=comparator),
             pgp_key=self.pgp_key,
             repository=self.repository)
 

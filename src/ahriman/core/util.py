@@ -24,7 +24,7 @@ from typing import Optional
 
 
 def check_output(*args: str, exception: Optional[Exception],
-                 cwd = None, stderr: int = subprocess.STDOUT,
+                 cwd: Optional[str] = None, stderr: int = subprocess.STDOUT,
                  logger: Optional[Logger] = None) -> str:
     try:
         result = subprocess.check_output(args, cwd=cwd, stderr=stderr).decode('utf8').strip()

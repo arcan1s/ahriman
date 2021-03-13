@@ -113,5 +113,5 @@ if __name__ == '__main__':
         parser.print_help()
         exit(1)
 
-    with Lock(args.lock, args.force):
+    with Lock(args.lock, args.architecture, args.force):
         args.fn(args)

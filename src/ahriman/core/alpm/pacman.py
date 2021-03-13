@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from pyalpm import Handle
+from pyalpm import Handle  # type: ignore
 from typing import List, Set
 
 from ahriman.core.configuration import Configuration

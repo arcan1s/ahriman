@@ -27,4 +27,5 @@ class BaseView(View):
 
     @property
     def service(self) -> Watcher:
-        return self.request.app['watcher']
+        watcher: Watcher = self.request.app['watcher']
+        return watcher

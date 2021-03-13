@@ -56,13 +56,17 @@ class Leaf:
         self.package = package
         self.dependencies: Set[str] = set()
 
+    @property
+    def items(self) -> Iterable[str]:
+        return self.package.packages.keys()
+
     def is_root(self, packages: Iterable[Leaf]) -> bool:
         '''
         :param packages:
         :return: true if any of packages is dependency of the leaf, false otherwise
         '''
         for leaf in packages:
-            if self.dependencies.intersection(leaf.package.packages.keys()):
+            if self.dependencies.intersection(leaf.items):
                 return False
         return True
 

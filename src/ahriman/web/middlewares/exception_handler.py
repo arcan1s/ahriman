@@ -17,15 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import middleware, Request, Response
+from aiohttp.web import middleware, Request
 from aiohttp.web_exceptions import HTTPClientError
+from aiohttp.web_response import StreamResponse
 from logging import Logger
-from typing import Callable
+from typing import Awaitable, Callable
 
 
-def exception_handler(logger: Logger) -> Callable:
+HandlerType = Callable[[Request], Awaitable[StreamResponse]]
+
+
+def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaitable[StreamResponse]]:
     @middleware
-    async def handle(request: Request, handler: Callable) -> Response:
+    async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:
             return await handler(request)
         except HTTPClientError:
