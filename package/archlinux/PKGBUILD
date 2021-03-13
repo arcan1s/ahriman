@@ -1,7 +1,7 @@
 # Maintainer: Evgeniy Alekseev
 
 pkgname='ahriman'
-pkgver=0.11.5
+pkgver=0.11.6
 pkgrel=1
 pkgdesc="ArcHlinux ReposItory MANager"
 arch=('any')
@@ -23,7 +23,7 @@ optdepends=('aws-cli: sync to s3'
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('1e962492929504e655aa93a943a3bc166583cac2d62db095cbf6b26c80528fd98af04925527f8d683603fc6aece50af8eefe716d5f243d821a5ffec596f96891'
+sha512sums=('89860693f9a3e6aeb675f571f19366712d65d124879745d89696f8c3d642ef3a468dd0f4a508800dead1c14705c52324c61dad09b7d9e6b9030baa6ee0f86a11'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')
 backup=('etc/ahriman.ini'
