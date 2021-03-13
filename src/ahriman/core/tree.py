@@ -61,8 +61,8 @@ class Leaf:
         :param packages:
         :return: true if any of packages is dependency of the leaf, false otherwise
         '''
-        for package in packages:
-            if package.package.packages.intersection(self.dependencies):
+        for leaf in packages:
+            if self.dependencies.intersection(leaf.package.packages.keys()):
                 return False
         return True
 

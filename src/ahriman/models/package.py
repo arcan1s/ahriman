@@ -24,9 +24,9 @@ import os
 import shutil
 import tempfile
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from srcinfo.parse import parse_srcinfo
-from typing import List, Optional, Set, Type
+from typing import Dict, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
@@ -38,7 +38,7 @@ class Package:
     base: str
     version: str
     aur_url: str
-    packages: Set[str] = field(default_factory=set)
+    packages: Dict[str, str]  # map of package name to archive name
 
     @property
     def git_url(self) -> str:
@@ -82,12 +82,12 @@ class Package:
     @classmethod
     def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
         package = pacman.handle.load_pkg(path)
-        return cls(package.base, package.version, aur_url, {package.name})
+        return cls(package.base, package.version, aur_url, {package.name: os.path.basename(path)})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
         package = aur.info(name)
-        return cls(package.package_base, package.version, aur_url, {package.name})
+        return cls(package.package_base, package.version, aur_url, {package.name: ''})
 
     @classmethod
     def from_build(cls: Type[Package], path: str, aur_url: str) -> Package:
@@ -95,7 +95,7 @@ class Package:
             src_info, errors = parse_srcinfo(fn.read())
         if errors:
             raise InvalidPackageInfo(errors)
-        packages = set(src_info['packages'].keys())
+        packages = {key: '' for key in src_info['packages'].keys()}
         version = cls.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
 
         return cls(src_info['pkgbase'], version, aur_url, packages)

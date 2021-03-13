@@ -19,8 +19,11 @@
 #
 import logging
 
+from typing import Iterable
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportFailed
+from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
 
 
@@ -32,7 +35,7 @@ class Report:
         self.config = config
 
     @staticmethod
-    def run(architecture: str, config: Configuration, target: str, path: str) -> None:
+    def run(architecture: str, config: Configuration, target: str, packages: Iterable[Package]) -> None:
         provider = ReportSettings.from_option(target)
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
@@ -41,10 +44,10 @@ class Report:
             report = Report(architecture, config)
 
         try:
-            report.generate(path)
+            report.generate(packages)
         except Exception:
             report.logger.exception('report generation failed', exc_info=True)
             raise ReportFailed()
 
-    def generate(self, path: str) -> None:
+    def generate(self, packages: Iterable[Package]) -> None:
         pass

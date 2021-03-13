@@ -47,10 +47,10 @@ class Application:
         return cls(args.architecture, config)
 
     def _known_packages(self) -> Set[str]:
-        known_packages = set()
+        known_packages: Set[str] = set()
         # local set
         for package in self.repository.packages():
-            known_packages.update(package.packages)
+            known_packages.update(package.packages.keys())
         known_packages.update(self.repository.pacman.all_packages())
         return known_packages
 

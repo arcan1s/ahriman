@@ -114,11 +114,12 @@ class Repository:
             except Exception:
                 self.logger.exception(f'could not remove {package}', exc_info=True)
 
+        requested = set(packages)
         for local in self.packages():
             if local.base in packages:
-                to_remove = local.packages
-            elif local.packages.intersection(packages):
-                to_remove = local.packages.intersection(packages)
+                to_remove = set(local.packages.keys())
+            elif requested.intersection(local.packages.keys()):
+                to_remove = requested.intersection(local.packages.keys())
             else:
                 to_remove = set()
             self.web.remove(local.base, to_remove)
@@ -131,7 +132,7 @@ class Repository:
         if targets is None:
             targets = self.config.getlist('report', 'target')
         for target in targets:
-            Report.run(self.architecture, self.config, target, self.paths.repository)
+            Report.run(self.architecture, self.config, target, self.packages())
 
     def process_sync(self, targets: Optional[Iterable[str]]) -> None:
         if targets is None:

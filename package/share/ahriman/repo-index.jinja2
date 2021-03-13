@@ -2,31 +2,53 @@
 <html lang="en">
     <head>
         <title>{{ repository|e }}</title>
+
+        {% include "style.jinja2" %}
+
+        {% include "sorttable.jinja2" %}
+        {% include "search.jinja2" %}
     </head>
 
     <body>
-        <h1>Archlinux custom repository</h1>
+        <div class="root">
+            <h1>Archlinux user repository</h1>
 
-        {% if pgp_key is not none %}
-            <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}" title="key search">{{ pgp_key|e }}</a>.</p>
-        {% endif %}
+            <section class="element">
+                {% if pgp_key is not none %}
+                    <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}&fingerprint=on&op=index" title="key search">{{ pgp_key|e }}</a> by default.</p>
+                {% endif %}
 
-        <code>
-            $ cat /etc/pacman.conf<br>
-            [{{ repository|e }}]<br>
-            Server = {{ link_path|e }}<br>
-            SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
-        </code>
+                <code>
+                    $ cat /etc/pacman.conf<br>
+                    [{{ repository|e }}]<br>
+                    Server = {{ link_path|e }}<br>
+                    SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
+                </code>
+            </section>
 
-        <p>Packages:</p>
-        <ul>
-            {% for package, package_url in packages.items() %}
-                <li><a href="{{ package_url|e }}" title="{{ package|e }}">{{ package|e }}</a></li>
-            {% endfor %}
-        </ul>
+            {% include "search-line.jinja2" %}
 
-        {% if homepage is not none %}
-            <footer><a href="{{ homepage|e }}" title="homepage">Homepage</a></footer>
-        {% endif %}
+            <section class="element">
+                <table class="sortable search-table">
+                    <tr class="header">
+                        <th>package</th>
+                        <th>version</th>
+                        <th>architecture</th>
+                    </tr>
+
+                    {% for package in packages %}
+                        <tr class="package">
+                            <td class="include-search"><a href="{{ link_path|e }}/{{ package.filename|e }}" title="{{ package.name|e }}">{{ package.name|e }}</a></td>
+                            <td>{{ package.version|e }}</td>
+                            <td>{{ architecture|e }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </section>
+
+            {% if homepage is not none %}
+                <footer><a href="{{ homepage|e }}" title="homepage">Homepage</a></footer>
+            {% endif %}
+        </div>
     </body>
 </html>

@@ -1,0 +1,74 @@
+<style>
+    :root {
+        --color-building: 250, 255, 146;
+        --color-failed: 255, 94, 94;
+        --color-pending: 250, 255, 146;
+        --color-success: 121, 255, 94;
+        --color-unknown: 197, 197, 197;
+    }
+
+    @keyframes blink-building {
+        0% { background-color: rgba(var(--color-building), 1.0); }
+        10% { background-color: rgba(var(--color-building), 0.9); }
+        20% { background-color: rgba(var(--color-building), 0.8); }
+        30% { background-color: rgba(var(--color-building), 0.7); }
+        40% { background-color: rgba(var(--color-building), 0.6); }
+        50% { background-color: rgba(var(--color-building), 0.5); }
+        60% { background-color: rgba(var(--color-building), 0.4); }
+        70% { background-color: rgba(var(--color-building), 0.3); }
+        80% { background-color: rgba(var(--color-building), 0.2); }
+        90% { background-color: rgba(var(--color-building), 0.1); }
+        100% { background-color: rgba(var(--color-building), 0.0); }
+    }
+
+    div.root {
+        width: 70%;
+        padding: 15px 15% 0;
+    }
+
+    section.element {
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    code, input, table {
+        width: inherit;
+    }
+
+    th, td {
+        padding: 5px;
+    }
+
+    tr.package:nth-child(odd) {
+        background-color: rgba(255, 255, 255, 1);
+    }
+
+    tr.package:nth-child(even) {
+        background-color: rgba(235, 235, 255, 1);
+    }
+
+    tr.header, tr.package:hover {
+        background-color: rgba(200, 200, 255, 1);
+    }
+
+    td.package-unknown {
+        background-color: rgba(var(--color-unknown), 1.0);
+    }
+    td.package-pending {
+        background-color: rgba(var(--color-pending), 1.0);
+    }
+    td.package-building {
+        background-color: rgba(var(--color-building), 1.0);
+        animation-name: blink-building;
+        animation-duration: 1s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+    }
+    td.package-failed {
+        background-color: rgba(var(--color-failed), 1.0);
+    }
+    td.package-success {
+        background-color: rgba(var(--color-success), 1.0);
+    }
+</style>

@@ -20,11 +20,12 @@
 import jinja2
 import os
 
-from typing import Dict
+from typing import Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
 from ahriman.core.util import package_like
+from ahriman.models.package import Package
 from ahriman.models.sign_settings import SignSettings
 
 
@@ -32,37 +33,42 @@ class HTML(Report):
 
     def __init__(self, architecture: str, config: Configuration) -> None:
         Report.__init__(self, architecture, config)
+        self.architecture = architecture
         section = config.get_section_name('html', architecture)
         self.report_path = config.get(section, 'path')
-
         self.link_path = config.get(section, 'link_path')
         self.template_path = config.get(section, 'template_path')
 
         # base template vars
-        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist('sign', 'target')]
-        self.pgp_key = config.get('sign', 'key', fallback=None)
         self.homepage = config.get(section, 'homepage', fallback=None)
         self.repository = config.get('repository', 'name')
 
-    def generate(self, path: str) -> None:
+        sign_section = config.get_section_name('sign', architecture)
+        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist(sign_section, 'target')]
+        self.pgp_key = config.get(sign_section, 'key') if self.sign_targets else None
+
+    def generate(self, packages: Iterable[Package]) -> None:
         # idea comes from https://stackoverflow.com/a/38642558
         templates_dir, template_name = os.path.split(self.template_path)
         loader = jinja2.FileSystemLoader(searchpath=templates_dir)
         environment = jinja2.Environment(loader=loader)
         template = environment.get_template(template_name)
 
-        packages: Dict[str, str] = {}
-        for fn in sorted(os.listdir(path)):
-            if not package_like(fn):
-                continue
-            packages[fn] = f'{self.link_path}/{fn}'
+        content = [
+            {
+                'filename': filename,
+                'name': package,
+                'version': base.version
+            } for base in packages for package, filename in base.packages.items()
+        ]
 
         html = template.render(
+            architecture=self.architecture,
             homepage=self.homepage,
             link_path=self.link_path,
             has_package_signed=SignSettings.SignPackages in self.sign_targets,
             has_repo_signed=SignSettings.SignRepository in self.sign_targets,
-            packages=packages,
+            packages=content,
             pgp_key=self.pgp_key,
             repository=self.repository)
 
