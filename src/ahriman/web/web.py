@@ -30,30 +30,49 @@ from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
-async def on_shutdown(app: web.Application) -> None:
-    app.logger.warning('server terminated')
+async def on_shutdown(application: web.Application) -> None:
+    '''
+    web application shutdown handler
+    :param application: web application instance
+    '''
+    application.logger.warning('server terminated')
 
 
-async def on_startup(app: web.Application) -> None:
-    app.logger.info('server started')
+async def on_startup(application: web.Application) -> None:
+    '''
+    web application start handler
+    :param application: web application instance
+    '''
+    application.logger.info('server started')
     try:
-        app['watcher'].load()
+        application['watcher'].load()
     except Exception:
-        app.logger.exception('could not load packages', exc_info=True)
+        application.logger.exception('could not load packages', exc_info=True)
         raise InitializeException()
 
 
-def run_server(app: web.Application, architecture: str) -> None:
-    app.logger.info('start server')
+def run_server(application: web.Application, architecture: str) -> None:
+    '''
+    run web application
+    :param application: web application instance
+    :param architecture: repository architecture
+    '''
+    application.logger.info('start server')
 
-    section = app['config'].get_section_name('web', architecture)
-    host = app['config'].get(section, 'host')
-    port = app['config'].getint(section, 'port')
+    section = application['config'].get_section_name('web', architecture)
+    host = application['config'].get(section, 'host')
+    port = application['config'].getint(section, 'port')
 
-    web.run_app(app, host=host, port=port, handle_signals=False)
+    web.run_app(application, host=host, port=port, handle_signals=False)
 
 
 def setup_service(architecture: str, config: Configuration) -> web.Application:
+    '''
+    create web application
+    :param architecture: repository architecture
+    :param config: configuration instance
+    :return: web application instance
+    '''
     app = web.Application(logger=logging.getLogger('http'))
     app.on_shutdown.append(on_shutdown)
     app.on_startup.append(on_startup)

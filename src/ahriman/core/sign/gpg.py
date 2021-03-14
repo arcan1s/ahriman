@@ -29,8 +29,21 @@ from ahriman.models.sign_settings import SignSettings
 
 
 class GPG:
+    '''
+    gnupg wrapper
+    :ivar architecture: repository architecture
+    :ivar config: configuration instance
+    :ivar default_key: default PGP key ID to use
+    :ivar logger: class logger
+    :ivar target: list of targets to sign (repository, package etc)
+    '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        '''
+        default constructor
+        :param architecture: repository architecture
+        :param config: configuration instance
+        '''
         self.logger = logging.getLogger('build_details')
         self.config = config
         self.section = config.get_section_name('sign', architecture)
@@ -39,11 +52,20 @@ class GPG:
 
     @property
     def repository_sign_args(self) -> List[str]:
+        '''
+        :return: command line arguments for repo-add command to sign database
+        '''
         if SignSettings.SignRepository not in self.target:
             return []
         return ['--sign', '--key', self.default_key]
 
     def process(self, path: str, key: str) -> List[str]:
+        '''
+        gpg command wrapper
+        :param path: path to file to sign
+        :param key: PGP key ID
+        :return: list of generated files including original file
+        '''
         check_output(
             *self.sign_cmd(path, key),
             exception=BuildFailed(path),
@@ -52,18 +74,33 @@ class GPG:
         return [path, f'{path}.sig']
 
     def sign_cmd(self, path: str, key: str) -> List[str]:
-        cmd = ['gpg']
-        cmd.extend(['-u', key])
-        cmd.extend(['-b', path])
-        return cmd
+        '''
+        gpg command to run
+        :param path: path to file to sign
+        :param key: PGP key ID
+        :return: gpg command with all required arguments
+        '''
+        return ['gpg', '-u', key, '-b', path]
 
     def sign_package(self, path: str, base: str) -> List[str]:
+        '''
+        sign package if required by configuration
+        :param path: path to file to sign
+        :param base: package base required to check for key overrides
+        :return: list of generated files including original file
+        '''
         if SignSettings.SignPackages not in self.target:
             return [path]
         key = self.config.get(self.section, f'key_{base}', fallback=self.default_key)
         return self.process(path, key)
 
     def sign_repository(self, path: str) -> List[str]:
+        '''
+        sign repository if required by configuration
+        :note: more likely you just want to pass `repository_sign_args` to repo wrapper
+        :param path: path to repository database
+        :return: list of generated files including original file
+        '''
         if SignSettings.SignRepository not in self.target:
             return [path]
         return self.process(path, self.default_key)

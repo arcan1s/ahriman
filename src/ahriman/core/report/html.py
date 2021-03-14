@@ -29,8 +29,34 @@ from ahriman.models.sign_settings import SignSettings
 
 
 class HTML(Report):
+    '''
+    html report generator
+
+    It uses jinja2 templates for report generation, the following variables are allowed:
+
+        homepage - link to homepage, string, optional
+        link_path - prefix fo packages to download, string, required
+        has_package_signed - True in case if package sign enabled, False otherwise, required
+        has_repo_signed - True in case if repository database sign enabled, False otherwise, required
+        packages - sorted list of packages properties: filename, name, version. Required
+        pgp_key - default PGP key ID, string, optional
+        repository - repository name, string, required
+
+    :ivar homepage: homepage link if any (for footer)
+    :ivar link_path: prefix fo packages to download
+    :ivar name: repository name
+    :ivar pgp_key: default PGP key
+    :ivar report_path: output path to html report
+    :ivar sign_targets: targets to sign enabled in configuration
+    :ivar tempate_path: path to directory with jinja templates
+    '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        '''
+        default constructor
+        :param architecture: repository architecture
+        :param config: configuration instance
+        '''
         Report.__init__(self, architecture, config)
         section = config.get_section_name('html', architecture)
         self.report_path = config.get(section, 'path')
@@ -39,13 +65,17 @@ class HTML(Report):
 
         # base template vars
         self.homepage = config.get(section, 'homepage', fallback=None)
-        self.repository = config.get('repository', 'name')
+        self.name = config.get('repository', 'name')
 
         sign_section = config.get_section_name('sign', architecture)
         self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist(sign_section, 'target')]
         self.pgp_key = config.get(sign_section, 'key') if self.sign_targets else None
 
     def generate(self, packages: Iterable[Package]) -> None:
+        '''
+        generate report for the specified packages
+        :param packages: list of packages to generate report
+        '''
         # idea comes from https://stackoverflow.com/a/38642558
         templates_dir, template_name = os.path.split(self.template_path)
         loader = jinja2.FileSystemLoader(searchpath=templates_dir)
@@ -68,7 +98,7 @@ class HTML(Report):
             has_repo_signed=SignSettings.SignRepository in self.sign_targets,
             packages=sorted(content, key=comparator),
             pgp_key=self.pgp_key,
-            repository=self.repository)
+            repository=self.name)
 
         with open(self.report_path, 'w') as out:
             out.write(html)

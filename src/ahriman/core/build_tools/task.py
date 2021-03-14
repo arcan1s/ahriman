@@ -31,8 +31,22 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Task:
+    '''
+    base package build task
+    :ivar build_logger: logger for build process
+    :ivar logger: class logger
+    :ivar package: package definitions
+    :ivar paths: repository paths instance
+    '''
 
     def __init__(self, package: Package, architecture: str, config: Configuration, paths: RepositoryPaths) -> None:
+        '''
+        default constructor
+        :param package: package definitions
+        :param architecture: repository architecture
+        :param config: configuration instance
+        :param paths: repository paths instance
+        '''
         self.logger = logging.getLogger('builder')
         self.build_logger = logging.getLogger('build_details')
         self.package = package
@@ -46,14 +60,26 @@ class Task:
 
     @property
     def git_path(self) -> str:
+        '''
+        :return: path to clone package from git
+        '''
         return os.path.join(self.paths.sources, self.package.base)
 
     @staticmethod
     def fetch(local: str, remote: str) -> None:
+        '''
+        fetch package from git
+        :param local: local path to fetch
+        :param remote: remote target (from where to fetch)
+        '''
         shutil.rmtree(local, ignore_errors=True)  # remove in case if file exists
         check_output('git', 'clone', remote, local, exception=None)
 
     def build(self) -> List[str]:
+        '''
+        run package build
+        :return: paths of produced packages
+        '''
         cmd = [self.build_command, '-r', self.paths.chroot]
         cmd.extend(self.archbuild_flags)
         cmd.extend(['--'] + self.makechrootpkg_flags)
@@ -72,5 +98,9 @@ class Task:
                             cwd=self.git_path).splitlines()
 
     def clone(self, path: Optional[str] = None) -> None:
+        '''
+        fetch package from git
+        :param path: optional local path to fetch. If not set default path will be used
+        '''
         git_path = path or self.git_path
         return Task.fetch(git_path, self.package.git_url)

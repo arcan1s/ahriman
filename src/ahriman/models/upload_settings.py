@@ -25,11 +25,22 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class UploadSettings(Enum):
+    '''
+    remote synchronization targets enumeration
+    :ivar Rsync: sync via rsync
+    :ivar S3: sync to Amazon S3
+    '''
+
     Rsync = auto()
     S3 = auto()
 
     @staticmethod
     def from_option(value: str) -> UploadSettings:
+        '''
+        construct value from configuration
+        :param value: configuration value
+        :return: parsed value
+        '''
         if value.lower() in ('rsync',):
             return UploadSettings.Rsync
         elif value.lower() in ('s3',):

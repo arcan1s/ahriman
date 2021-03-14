@@ -28,8 +28,21 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Repo:
+    '''
+    repo-add and repo-remove wrapper
+    :ivar logger: class logger
+    :ivar name: repository name
+    :ivar paths: repository paths instance
+    :ivar sign_args: additional args which have to be used to sign repository archive
+    '''
 
     def __init__(self, name: str, paths: RepositoryPaths, sign_args: List[str]) -> None:
+        '''
+        default constructor
+        :param name: repository name
+        :param paths: repository paths instance
+        :param sign_args: additional args which have to be used to sign repository archive
+        '''
         self.logger = logging.getLogger('build_details')
         self.name = name
         self.paths = paths
@@ -37,19 +50,32 @@ class Repo:
 
     @property
     def repo_path(self) -> str:
+        '''
+        :return: path to repository database
+        '''
         return os.path.join(self.paths.repository, f'{self.name}.db.tar.gz')
 
     def add(self, path: str) -> None:
+        '''
+        add new package to repository
+        :param path: path to archive to add
+        '''
         check_output(
             'repo-add', *self.sign_args, '-R', self.repo_path, path,
             exception=BuildFailed(path),
             cwd=self.paths.repository,
             logger=self.logger)
 
-    def remove(self, prefix: str, package: str) -> None:
-        for fn in filter(lambda f: f.startswith(prefix), os.listdir(self.paths.repository)):
+    def remove(self, package: str) -> None:
+        '''
+        remove package from repository
+        :param package: package name to remove
+        '''
+        # remove package and signature (if any) from filesystem
+        for fn in filter(lambda f: f.startswith(package), os.listdir(self.paths.repository)):
             full_path = os.path.join(self.paths.repository, fn)
             os.remove(full_path)
+        # remove package from registry
         check_output(
             'repo-remove', *self.sign_args, self.repo_path, package,
             exception=BuildFailed(package),

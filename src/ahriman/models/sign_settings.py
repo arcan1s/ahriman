@@ -25,11 +25,22 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class SignSettings(Enum):
+    '''
+    sign targets enumeration
+    :ivar SignPackages: sign each package
+    :ivar SignRepository: sign repository database file
+    '''
+
     SignPackages = auto()
     SignRepository = auto()
 
     @staticmethod
     def from_option(value: str) -> SignSettings:
+        '''
+        construct value from configuration
+        :param value: configuration value
+        :return: parsed value
+        '''
         if value.lower() in ('package', 'packages', 'sign-package'):
             return SignSettings.SignPackages
         elif value.lower() in ('repository', 'sign-repository'):

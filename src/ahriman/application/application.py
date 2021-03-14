@@ -34,8 +34,20 @@ from ahriman.models.package import Package
 
 
 class Application:
+    '''
+    base application class
+    :ivar architecture: repository architecture
+    :ivar config: configuration instance
+    :ivar logger: application logger
+    :ivar repository: repository instance
+    '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        '''
+        default constructor
+        :param architecture: repository architecture
+        :param config: configuration instance
+        '''
         self.logger = logging.getLogger('root')
         self.config = config
         self.architecture = architecture
@@ -43,10 +55,19 @@ class Application:
 
     @classmethod
     def from_args(cls: Type[Application], args: argparse.Namespace) -> Application:
+        '''
+        constructor which has to be used to build instance from command line args
+        :param args: command line args
+        :return: application instance
+        '''
         config = Configuration.from_path(args.config)
         return cls(args.architecture, config)
 
     def _known_packages(self) -> Set[str]:
+        '''
+        load packages from repository and pacman repositories
+        :return: list of known packages
+        '''
         known_packages: Set[str] = set()
         # local set
         for package in self.repository.packages():
@@ -55,11 +76,23 @@ class Application:
         return known_packages
 
     def _finalize(self) -> None:
+        '''
+        generate report and sync to remote server
+        '''
         self.report()
         self.sync()
 
     def get_updates(self, filter_packages: List[str], no_aur: bool, no_manual: bool, no_vcs: bool,
                     log_fn: Callable[[str], None]) -> List[Package]:
+        '''
+        get list of packages to run update process
+        :param filter_packages: do not check every package just specified in the list
+        :param no_aur: do not check for aur updates
+        :param no_manual: do not check for manual updates
+        :param no_vcs: do not check VCS packages
+        :param log_fn: logger function to log updates
+        :return: list of out-of-dated packages
+        '''
         updates = []
 
         if not no_aur:
@@ -73,6 +106,11 @@ class Application:
         return updates
 
     def add(self, names: Iterable[str], without_dependencies: bool) -> None:
+        '''
+        add packages for the next build
+        :param names: list of package bases to add
+        :param without_dependencies: if set, dependency check will be disabled
+        '''
         known_packages = self._known_packages()
 
         def add_manual(name: str) -> str:
@@ -102,18 +140,34 @@ class Application:
             process_single(name)
 
     def remove(self, names: Iterable[str]) -> None:
+        '''
+        remove packages from repository
+        :param names: list of packages (either base or name) to remove
+        '''
         self.repository.process_remove(names)
         self._finalize()
 
     def report(self, target: Optional[Iterable[str]] = None) -> None:
+        '''
+        generate report
+        :param target: list of targets to run (e.g. html)
+        '''
         targets = target or None
         self.repository.process_report(targets)
 
     def sync(self, target: Optional[Iterable[str]] = None) -> None:
+        '''
+        sync to remote server
+        :param target: list of targets to run (e.g. s3)
+        '''
         targets = target or None
         self.repository.process_sync(targets)
 
     def update(self, updates: Iterable[Package]) -> None:
+        '''
+        run package updates
+        :param updates: list of packages to update
+        '''
         def process_update(paths: Iterable[str]) -> None:
             self.repository.process_update(paths)
             self._finalize()

@@ -24,6 +24,15 @@ from typing import Optional, Union
 
 
 class BuildStatusEnum(Enum):
+    '''
+    build status enumeration
+    :cvar Unknown: build status is unknown
+    :cvar Pending: package is out-of-dated and will be built soon
+    :cvar Building: package is building right now
+    :cvar Failed: package build failed
+    :cvar Success: package has been built without errors
+    '''
+
     Unknown = 'unknown'
     Pending = 'pending'
     Building = 'building'
@@ -32,12 +41,25 @@ class BuildStatusEnum(Enum):
 
 
 class BuildStatus:
+    '''
+    build status holder
+    :ivar status: build status
+    :ivar _timestamp: build status update time
+    '''
 
     def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
                  timestamp: Optional[datetime.datetime] = None) -> None:
+        '''
+        default constructor
+        :param status: current build status if known. `BuildStatusEnum.Unknown` will be used if not set
+        :param timestamp: build status timestamp. Current timestamp will be used if not set
+        '''
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
         self._timestamp = timestamp or datetime.datetime.utcnow()
 
     @property
     def timestamp(self) -> str:
+        '''
+        :return: string representation of build status timestamp
+        '''
         return self._timestamp.strftime('%Y-%m-%d %H:%M:%S')

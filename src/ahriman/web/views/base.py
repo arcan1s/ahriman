@@ -22,10 +22,15 @@ from aiohttp.web import View
 from ahriman.core.watcher.watcher import Watcher
 
 
-# special class to make it typed
 class BaseView(View):
+    '''
+    base web view to make things typed
+    '''
 
     @property
     def service(self) -> Watcher:
+        '''
+        :return: build status watcher instance
+        '''
         watcher: Watcher = self.request.app['watcher']
         return watcher

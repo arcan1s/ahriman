@@ -27,9 +27,24 @@ from ahriman.web.views.base import BaseView
 
 
 class IndexView(BaseView):
+    '''
+    root view
+
+    It uses jinja2 templates for report generation, the following variables are allowed:
+
+        architecture - repository architecture, string, required
+        packages - sorted list of packages properties: base, packages (sorted list), status,
+                   timestamp, version, web_url. Required
+        repository - repository name, string, required
+        version - ahriman version, string, required
+    '''
 
     @aiohttp_jinja2.template("build-status.jinja2")  # type: ignore
     async def get(self) -> Dict[str, Any]:
+        '''
+        process get request. No parameters supported here
+        :return: parameters for jinja template
+        '''
         # some magic to make it jinja-friendly
         packages = [
             {

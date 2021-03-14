@@ -28,6 +28,11 @@ HandlerType = Callable[[Request], Awaitable[StreamResponse]]
 
 
 def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaitable[StreamResponse]]:
+    '''
+    exception handler middleware. Just log any exception (except for client ones)
+    :param logger: class logger
+    :return: built middleware
+    '''
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:

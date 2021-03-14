@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPOk, Response
+from aiohttp.web import HTTPBadRequest, HTTPOk, Response
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
@@ -25,19 +25,45 @@ from ahriman.web.views.base import BaseView
 
 
 class PackageView(BaseView):
+    '''
+    package base specific web view
+    '''
 
     async def delete(self) -> Response:
+        '''
+        delete package base from status page
+        :return: 200 on success
+        '''
         base = self.request.match_info['package']
         self.service.remove(base)
 
         return HTTPOk()
 
     async def post(self) -> Response:
+        '''
+        update package build status
+
+        JSON body must be supplied, the following model is used:
+        {
+            "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
+            "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
+                           # Must be supplied in case if package base is unknown
+        }
+
+        :return: 200 on success
+        '''
         base = self.request.match_info['package']
         data = await self.request.json()
 
-        package = Package(**data['package']) if 'package' in data else None
-        status = BuildStatusEnum(data['status'])
-        self.service.update(base, status, package)
+        try:
+            package = Package(**data['package']) if 'package' in data else None
+            status = BuildStatusEnum(data['status'])
+        except Exception as e:
+            raise HTTPBadRequest(text=str(e))
+
+        try:
+            self.service.update(base, status, package)
+        except KeyError:
+            raise HTTPBadRequest(text=f'Package {base} is unknown, but no package body set')
 
         return HTTPOk()

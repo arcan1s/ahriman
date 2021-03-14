@@ -19,98 +19,87 @@
 #
 from __future__ import annotations
 
-import logging
-
-from typing import Any, Dict, Set
-
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 
 
 class Client:
+    '''
+    base build status reporter client
+    '''
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
+        '''
+        add new package with status
+        :param package: package properties
+        :param status: current package build status
+        '''
         pass
 
-    def remove(self, base: str, packages: Set[str]) -> None:
+    def remove(self, base: str) -> None:
+        '''
+        remove packages from watcher
+        :param base: basename to remove
+        '''
         pass
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
+        '''
+        update package build status. Unlike `add` it does not update package properties
+        :param base: package base to update
+        :param status: current package build status
+        '''
         pass
 
     def set_building(self, base: str) -> None:
+        '''
+        set package status to building
+        :param base: package base to update
+        '''
         return self.update(base, BuildStatusEnum.Building)
 
     def set_failed(self, base: str) -> None:
+        '''
+        set package status to failed
+        :param base: package base to update
+        '''
         return self.update(base, BuildStatusEnum.Failed)
 
     def set_pending(self, base: str) -> None:
+        '''
+        set package status to pending
+        :param base: package base to update
+        '''
         return self.update(base, BuildStatusEnum.Pending)
 
     def set_success(self, package: Package) -> None:
+        '''
+        set package status to success
+        :param package: current package properties
+        '''
         return self.add(package, BuildStatusEnum.Success)
 
     def set_unknown(self, package: Package) -> None:
+        '''
+        set package status to unknown
+        :param package: current package properties
+        '''
         return self.add(package, BuildStatusEnum.Unknown)
 
     @staticmethod
     def load(architecture: str, config: Configuration) -> Client:
+        '''
+        load client from settings
+        :param architecture: repository architecture
+        :param config: configuration instance
+        :return: client according to current settings
+        '''
         section = config.get_section_name('web', architecture)
         host = config.get(section, 'host', fallback=None)
         port = config.getint(section, 'port', fallback=None)
         if host is None or port is None:
             return Client()
+
+        from ahriman.core.watcher.web_client import WebClient
         return WebClient(host, port)
-
-
-class WebClient(Client):
-
-    def __init__(self, host: str, port: int) -> None:
-        self.logger = logging.getLogger('http')
-        self.host = host
-        self.port = port
-
-    def _url(self, base: str) -> str:
-        return f'http://{self.host}:{self.port}/api/v1/packages/{base}'
-
-    def add(self, package: Package, status: BuildStatusEnum) -> None:
-        import requests
-
-        payload: Dict[str, Any] = {
-            'status': status.value,
-            'package': {
-                'base': package.base,
-                'packages': [p for p in package.packages],
-                'version': package.version,
-                'aur_url': package.aur_url
-            }
-        }
-
-        try:
-            response = requests.post(self._url(package.base), json=payload)
-            response.raise_for_status()
-        except:
-            self.logger.exception(f'could not add {package.base}', exc_info=True)
-
-    def remove(self, base: str, packages: Set[str]) -> None:
-        if not packages:
-            return
-        import requests
-
-        try:
-            response = requests.delete(self._url(base))
-            response.raise_for_status()
-        except:
-            self.logger.exception(f'could not delete {base}', exc_info=True)
-
-    def update(self, base: str, status: BuildStatusEnum) -> None:
-        import requests
-
-        payload: Dict[str, Any] = {'status': status.value}
-
-        try:
-            response = requests.post(self._url(base), json=payload)
-            response.raise_for_status()
-        except:
-            self.logger.exception(f'could not update {base}', exc_info=True)

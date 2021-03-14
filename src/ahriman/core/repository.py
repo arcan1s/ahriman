@@ -37,8 +37,26 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Repository:
+    '''
+    base repository control class
+    :ivar architecture: repository architecture
+    :ivar aur_url: base AUR url
+    :ivar config: configuration instance
+    :ivar logger: class logger
+    :ivar name: repository name
+    :ivar pacman: alpm wrapper instance
+    :ivar paths: repository paths instance
+    :ivar repo: repo commands wrapper instance
+    :ivar reporter: build status reporter instance
+    :ivar sign: GPG wrapper instance
+    '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        '''
+        default constructor
+        :param architecture: repository architecture
+        :param config: configuration instance
+        '''
         self.logger = logging.getLogger('builder')
         self.architecture = architecture
         self.config = config
@@ -52,21 +70,34 @@ class Repository:
         self.pacman = Pacman(config)
         self.sign = GPG(architecture, config)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.web = Client.load(architecture, config)
+        self.reporter = Client.load(architecture, config)
 
     def _clear_build(self) -> None:
+        '''
+        clear sources directory
+        '''
         for package in os.listdir(self.paths.sources):
             shutil.rmtree(os.path.join(self.paths.sources, package))
 
     def _clear_manual(self) -> None:
+        '''
+        clear directory with manual package updates
+        '''
         for package in os.listdir(self.paths.manual):
             shutil.rmtree(os.path.join(self.paths.manual, package))
 
     def _clear_packages(self) -> None:
+        '''
+        clear directory with built packages (NOT repository itself)
+        '''
         for package in self.packages_built():
             os.remove(package)
 
     def packages(self) -> List[Package]:
+        '''
+        generate list of repository packages
+        :return: list of packages properties
+        '''
         result: Dict[str, Package] = {}
         for fn in os.listdir(self.paths.repository):
             if not package_like(fn):
@@ -81,14 +112,23 @@ class Repository:
         return list(result.values())
 
     def packages_built(self) -> List[str]:
+        '''
+        get list of files in built packages directory
+        :return: list of filenames from the directory
+        '''
         return [
             os.path.join(self.paths.packages, fn)
             for fn in os.listdir(self.paths.packages)
         ]
 
     def process_build(self, updates: Iterable[Package]) -> List[str]:
+        '''
+        build packages
+        :param updates: list of packages properties to build
+        :return: `packages_built`
+        '''
         def build_single(package: Package) -> None:
-            self.web.set_building(package.base)
+            self.reporter.set_building(package.base)
             task = Task(package, self.architecture, self.config, self.paths)
             task.clone()
             built = task.build()
@@ -100,7 +140,7 @@ class Repository:
             try:
                 build_single(package)
             except Exception:
-                self.web.set_failed(package.base)
+                self.reporter.set_failed(package.base)
                 self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
         self._clear_build()
@@ -108,9 +148,14 @@ class Repository:
         return self.packages_built()
 
     def process_remove(self, packages: Iterable[str]) -> str:
+        '''
+        remove packages from list
+        :param packages: list of package names or bases to rmeove
+        :return: path to repository database
+        '''
         def remove_single(package: str) -> None:
             try:
-                self.repo.remove(package, package)
+                self.repo.remove(package)
             except Exception:
                 self.logger.exception(f'could not remove {package}', exc_info=True)
 
@@ -118,29 +163,42 @@ class Repository:
         for local in self.packages():
             if local.base in packages:
                 to_remove = set(local.packages.keys())
+                self.reporter.remove(local.base)  # we only update status page in case of base removal
             elif requested.intersection(local.packages.keys()):
                 to_remove = requested.intersection(local.packages.keys())
             else:
                 to_remove = set()
-            self.web.remove(local.base, to_remove)
             for package in to_remove:
                 remove_single(package)
 
         return self.repo.repo_path
 
     def process_report(self, targets: Optional[Iterable[str]]) -> None:
+        '''
+        generate reports
+        :param targets: list of targets to generate reports. Configuration option will be used if it is not set
+        '''
         if targets is None:
             targets = self.config.getlist('report', 'target')
         for target in targets:
             Report.run(self.architecture, self.config, target, self.packages())
 
     def process_sync(self, targets: Optional[Iterable[str]]) -> None:
+        '''
+        process synchronization to remote servers
+        :param targets: list of targets to sync. Configuration option will be used if it is not set
+        '''
         if targets is None:
             targets = self.config.getlist('upload', 'target')
         for target in targets:
             Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_update(self, packages: Iterable[str]) -> str:
+        '''
+        sign packages, add them to repository and update repository database
+        :param packages: list of filenames to run
+        :return: path to repository database
+        '''
         for package in packages:
             local = Package.load(package, self.pacman, self.aur_url)  # we will use it for status reports
             try:
@@ -150,15 +208,21 @@ class Repository:
                     shutil.move(src, dst)
                 package_fn = os.path.join(self.paths.repository, os.path.basename(package))
                 self.repo.add(package_fn)
-                self.web.set_success(local)
+                self.reporter.set_success(local)
             except Exception:
                 self.logger.exception(f'could not process {package}', exc_info=True)
-                self.web.set_failed(local.base)
+                self.reporter.set_failed(local.base)
         self._clear_packages()
 
         return self.repo.repo_path
 
     def updates_aur(self, filter_packages: Iterable[str], no_vcs: bool) -> List[Package]:
+        '''
+        check AUR for updates
+        :param filter_packages: do not check every package just specified in the list
+        :param no_vcs: do not check VCS packages
+        :return: list of packages which are out-of-dated
+        '''
         result: List[Package] = []
 
         build_section = self.config.get_section_name('build', self.architecture)
@@ -176,22 +240,26 @@ class Repository:
                 remote = Package.load(local.base, self.pacman, self.aur_url)
                 if local.is_outdated(remote):
                     result.append(remote)
-                    self.web.set_pending(local.base)
+                    self.reporter.set_pending(local.base)
             except Exception:
-                self.web.set_failed(local.base)
+                self.reporter.set_failed(local.base)
                 self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
                 continue
 
         return result
 
     def updates_manual(self) -> List[Package]:
+        '''
+        check for packages for which manual update has been requested
+        :return: list of packages which are out-of-dated
+        '''
         result: List[Package] = []
 
         for fn in os.listdir(self.paths.manual):
             try:
                 local = Package.load(os.path.join(self.paths.manual, fn), self.pacman, self.aur_url)
                 result.append(local)
-                self.web.set_unknown(local)
+                self.reporter.set_unknown(local)
             except Exception:
                 self.logger.exception(f'could not add package from {fn}', exc_info=True)
         self._clear_manual()

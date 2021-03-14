@@ -26,6 +26,15 @@ from typing import Optional
 def check_output(*args: str, exception: Optional[Exception],
                  cwd: Optional[str] = None, stderr: int = subprocess.STDOUT,
                  logger: Optional[Logger] = None) -> str:
+    '''
+    subprocess wrapper
+    :param args: command line arguments
+    :param exception: exception which has to be reraised instead of default subprocess exception
+    :param cwd: current working directory
+    :param stderr: standard error output mode
+    :param logger: logger to log command result if required
+    :return: command output
+    '''
     try:
         result = subprocess.check_output(args, cwd=cwd, stderr=stderr).decode('utf8').strip()
         if logger is not None:
@@ -40,4 +49,9 @@ def check_output(*args: str, exception: Optional[Exception],
 
 
 def package_like(filename: str) -> bool:
+    '''
+    check if file looks like package
+    :param filename: name of file to check
+    :return: True in case if name contains `.pkg.` and not signature, False otherwise
+    '''
     return '.pkg.' in filename and not filename.endswith('.sig')

@@ -23,8 +23,15 @@ from ahriman.web.views.base import BaseView
 
 
 class PackagesView(BaseView):
+    '''
+    global watcher view
+    '''
 
     async def post(self) -> Response:
+        '''
+        reload all packages from repository. No parameters supported here
+        :return: 200 on success
+        '''
         self.service.load()
 
         return HTTPOk()

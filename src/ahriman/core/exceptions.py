@@ -21,35 +21,87 @@ from typing import Any
 
 
 class BuildFailed(Exception):
+    '''
+    base exception for failed builds
+    '''
+
     def __init__(self, package: str) -> None:
+        '''
+        default constructor
+        :param package: package base raised exception
+        '''
         Exception.__init__(self, f'Package {package} build failed, check logs for details')
 
 
 class DuplicateRun(Exception):
+    '''
+    exception which will be raised if there is another application instance
+    '''
+
     def __init__(self) -> None:
+        '''
+        default constructor
+        '''
         Exception.__init__(self, 'Another application instance is run')
 
 
 class InitializeException(Exception):
+    '''
+    base service initialization exception
+    '''
+
     def __init__(self) -> None:
+        '''
+        default constructor
+        '''
         Exception.__init__(self, 'Could not load service')
 
 
 class InvalidOption(Exception):
+    '''
+    exception which will be raised on configuration errors
+    '''
+
     def __init__(self, value: Any) -> None:
+        '''
+        default constructor
+        :param value: option value
+        '''
         Exception.__init__(self, f'Invalid or unknown option value `{value}`')
 
 
 class InvalidPackageInfo(Exception):
+    '''
+    exception which will be raised on package load errors
+    '''
+
     def __init__(self, details: Any) -> None:
+        '''
+        default constructor
+        :param details: error details
+        '''
         Exception.__init__(self, f'There are errors during reading package information: `{details}`')
 
 
 class ReportFailed(Exception):
+    '''
+    report generation exception
+    '''
+
     def __init__(self) -> None:
+        '''
+        default constructor
+        '''
         Exception.__init__(self, 'Report failed')
 
 
 class SyncFailed(Exception):
+    '''
+    remote synchronization exception
+    '''
+
     def __init__(self) -> None:
+        '''
+        default constructor
+        '''
         Exception.__init__(self, 'Sync failed')

@@ -24,6 +24,12 @@ from dataclasses import dataclass
 
 @dataclass
 class RepositoryPaths:
+    '''
+    repository paths holder
+    :ivar root: repository root (i.e. ahriman home)
+    :ivar architecture: repository architecture
+    '''
+
     root: str
     architecture: str
 
@@ -63,6 +69,9 @@ class RepositoryPaths:
         return os.path.join(self.root, 'sources')
 
     def create_tree(self) -> None:
+        '''
+        create ahriman working tree
+        '''
         os.makedirs(self.chroot, mode=0o755, exist_ok=True)
         os.makedirs(self.manual, mode=0o755, exist_ok=True)
         os.makedirs(self.packages, mode=0o755, exist_ok=True)

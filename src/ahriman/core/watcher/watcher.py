@@ -26,8 +26,19 @@ from ahriman.models.package import Package
 
 
 class Watcher:
+    '''
+    package status watcher
+    :ivar architecture: repository architecture
+    :ivar known: list of known packages. For the most cases `packages` should be used instead
+    :ivar repository: repository object
+    '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
+        '''
+        default constructor
+        :param architecture: repository architecture
+        :param config: configuration instance
+        '''
         self.architecture = architecture
         self.repository = Repository(architecture, config)
 
@@ -35,9 +46,15 @@ class Watcher:
 
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
+        '''
+        :return: list of packages together with their statuses
+        '''
         return [pair for pair in self.known.values()]
 
     def load(self) -> None:
+        '''
+        load packages from local repository. In case if last status is known, it will use it
+        '''
         for package in self.repository.packages():
             # get status of build or assign unknown
             current = self.known.get(package.base)
@@ -48,9 +65,19 @@ class Watcher:
             self.known[package.base] = (package, status)
 
     def remove(self, base: str) -> None:
+        '''
+        remove package base from known list if any
+        :param base: package base
+        '''
         self.known.pop(base, None)
 
     def update(self, base: str, status: BuildStatusEnum, package: Optional[Package]) -> None:
+        '''
+        update package status and description
+        :param base: package base to update
+        :param status: new build status
+        :param package: optional new package description. In case if not set current properties will be used
+        '''
         if package is None:
             package, _ = self.known[base]
         full_status = BuildStatus(status)

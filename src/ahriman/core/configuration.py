@@ -26,40 +26,73 @@ from logging.config import fileConfig
 from typing import List, Optional, Type
 
 
-# built-in configparser extension
 class Configuration(configparser.RawConfigParser):
+    '''
+    extension for built-in configuration parser
+    :ivar path: path to root configuration file
+    '''
 
     def __init__(self) -> None:
+        '''
+        default constructor
+        '''
         configparser.RawConfigParser.__init__(self, allow_no_value=True)
         self.path: Optional[str] = None
 
     @property
     def include(self) -> str:
+        '''
+        :return: path to directory with configuration includes
+        '''
         return self.get('settings', 'include')
 
     @classmethod
     def from_path(cls: Type[Configuration], path: str) -> Configuration:
+        '''
+        constructor with full object initialization
+        :param path: path to root configuration file
+        :return: configuration instance
+        '''
         config = cls()
         config.load(path)
         config.load_logging()
         return config
 
     def getlist(self, section: str, key: str) -> List[str]:
+        '''
+        get space separated string list option
+        :param section: section name
+        :param key: key name
+        :return: list of string if option is set, empty list otherwise
+        '''
         raw = self.get(section, key, fallback=None)
         if not raw:  # empty string or none
             return []
         return raw.split()
 
     def get_section_name(self, prefix: str, suffix: str) -> str:
+        '''
+        check if there is `prefix`_`suffix` section and return it on success. Return `prefix` otherwise
+        :param prefix: section name prefix
+        :param suffix: section name suffix (e.g. architecture name)
+        :return: found section name
+        '''
         probe = f'{prefix}_{suffix}'
         return probe if self.has_section(probe) else prefix
 
     def load(self, path: str) -> None:
+        '''
+        fully load configuration
+        :param path: path to root configuration file
+        '''
         self.path = path
         self.read(self.path)
         self.load_includes()
 
     def load_includes(self) -> None:
+        '''
+        load configuration includes
+        '''
         try:
             for conf in filter(lambda p: p.endswith('.ini'), sorted(os.listdir(self.include))):
                 self.read(os.path.join(self.include, conf))
@@ -67,4 +100,7 @@ class Configuration(configparser.RawConfigParser):
             pass
 
     def load_logging(self) -> None:
+        '''
+        setup logging settings from configuration
+        '''
         fileConfig(self.get('settings', 'logging'))

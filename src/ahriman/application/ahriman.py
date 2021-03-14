@@ -27,29 +27,54 @@ from ahriman.core.configuration import Configuration
 
 
 def add(args: argparse.Namespace) -> None:
+    '''
+    add packages callback
+    :param args: command line args
+    '''
     Application.from_args(args).add(args.package, args.without_dependencies)
 
 
 def rebuild(args: argparse.Namespace) -> None:
+    '''
+    world rebuild callback
+    :param args: command line args
+    '''
     app = Application.from_args(args)
     packages = app.repository.packages()
     app.update(packages)
 
 
 def remove(args: argparse.Namespace) -> None:
+    '''
+    remove packages callback
+    :param args: command line args
+    '''
     Application.from_args(args).remove(args.package)
 
 
 def report(args: argparse.Namespace) -> None:
+    '''
+    generate report callback
+    :param args: command line args
+    '''
     Application.from_args(args).report(args.target)
 
 
 def sync(args: argparse.Namespace) -> None:
+    '''
+    sync to remote server callback
+    :param args: command line args
+    '''
     Application.from_args(args).sync(args.target)
 
 
 def update(args: argparse.Namespace) -> None:
+    '''
+    update packages callback
+    :param args: command line args
+    '''
     app = Application.from_args(args)
+    # typing workaround
     log_fn = lambda line: print(line) if args.dry_run else app.logger.info(line)
     packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
@@ -58,6 +83,10 @@ def update(args: argparse.Namespace) -> None:
 
 
 def web(args: argparse.Namespace) -> None:
+    '''
+    web server callback
+    :param args: command line args
+    '''
     from ahriman.web.web import run_server, setup_service
     config = Configuration.from_path(args.config)
     app = setup_service(args.architecture, config)

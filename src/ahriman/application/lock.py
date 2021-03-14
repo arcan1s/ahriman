@@ -28,12 +28,29 @@ from ahriman.core.exceptions import DuplicateRun
 
 
 class Lock:
+    '''
+    wrapper for application lock file
+    :ivar force: remove lock file on start if any
+    :ivar path: path to lock file if any
+    '''
 
     def __init__(self, path: Optional[str], architecture: str, force: bool) -> None:
+        '''
+        default constructor
+        :param path: optional path to lock file, if empty no file lock will be used
+        :param architecture: repository architecture
+        :param force: remove lock file on start if any
+        '''
         self.path = f'{path}_{architecture}' if path is not None else None
         self.force = force
 
     def __enter__(self) -> Lock:
+        '''
+        default workflow is the following
+        * remove lock file if force flag is set
+        * check if there is lock file
+        * create lock file
+        '''
         if self.force:
             self.remove()
         self.check()
@@ -42,21 +59,37 @@ class Lock:
 
     def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
                  exc_tb: TracebackType) -> Literal[False]:
+        '''
+        remove lock file when done
+        :param exc_type: exception type name if any
+        :param exc_val: exception raised if any
+        :param exc_tb: exception traceback if any
+        :return: always False (do not suppress any exception)
+        '''
         self.remove()
         return False
 
     def check(self) -> None:
+        '''
+        check if lock file exists, raise exception if it does
+        '''
         if self.path is None:
             return
         if os.path.exists(self.path):
             raise DuplicateRun()
 
     def create(self) -> None:
+        '''
+        create lock file
+        '''
         if self.path is None:
             return
         open(self.path, 'w').close()
 
     def remove(self) -> None:
+        '''
+        remove lock file
+        '''
         if self.path is None:
             return
         if os.path.exists(self.path):
