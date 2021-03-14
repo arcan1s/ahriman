@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2021 Evgenii Alekseev.
 #
-# This file is part of ahriman 
+# This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -62,11 +62,11 @@ class Package:
         :return: True in case if package base looks like VCS package and false otherwise
         '''
         return self.base.endswith('-bzr') \
-               or self.base.endswith('-csv')\
-               or self.base.endswith('-darcs')\
-               or self.base.endswith('-git')\
-               or self.base.endswith('-hg')\
-               or self.base.endswith('-svn')
+            or self.base.endswith('-csv')\
+            or self.base.endswith('-darcs')\
+            or self.base.endswith('-git')\
+            or self.base.endswith('-hg')\
+            or self.base.endswith('-svn')
 
     @property
     def web_url(self) -> str:
@@ -113,7 +113,7 @@ class Package:
         return cls(package.base, package.version, aur_url, {package.name: os.path.basename(path)})
 
     @classmethod
-    def from_aur(cls: Type[Package], name: str, aur_url: str)-> Package:
+    def from_aur(cls: Type[Package], name: str, aur_url: str) -> Package:
         '''
         construct package properties from AUR page
         :param name: package name (either base or normal name)

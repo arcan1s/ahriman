@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2021 Evgenii Alekseev.
 #
-# This file is part of ahriman 
+# This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -73,9 +73,11 @@ def update(args: argparse.Namespace) -> None:
     update packages callback
     :param args: command line args
     '''
-    app = Application.from_args(args)
     # typing workaround
-    log_fn = lambda line: print(line) if args.dry_run else app.logger.info(line)
+    def log_fn(line: str) -> None:
+        return print(line) if args.dry_run else app.logger.info(line)
+
+    app = Application.from_args(args)
     packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
@@ -128,7 +130,8 @@ if __name__ == '__main__':
 
     update_parser = subparsers.add_parser('update', description='run updates')
     update_parser.add_argument('package', help='filter check by packages', nargs='*')
-    update_parser.add_argument('--dry-run', help='just perform check for updates, same as check command', action='store_true')
+    update_parser.add_argument(
+        '--dry-run', help='just perform check for updates, same as check command', action='store_true')
     update_parser.add_argument('--no-aur', help='do not check for AUR updates', action='store_true')
     update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
     update_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
