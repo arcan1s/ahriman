@@ -81,6 +81,7 @@ def update(args: argparse.Namespace) -> None:
     packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
+
     app.update(packages)
 
 

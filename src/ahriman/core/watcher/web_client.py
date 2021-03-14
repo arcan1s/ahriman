@@ -68,7 +68,7 @@ class WebClient(Client):
         try:
             response = requests.post(self._url(package.base), json=payload)
             response.raise_for_status()
-        except:
+        except Exception:
             self.logger.exception(f'could not add {package.base}', exc_info=True)
 
     def remove(self, base: str) -> None:
@@ -79,7 +79,7 @@ class WebClient(Client):
         try:
             response = requests.delete(self._url(base))
             response.raise_for_status()
-        except:
+        except Exception:
             self.logger.exception(f'could not delete {base}', exc_info=True)
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
@@ -93,5 +93,5 @@ class WebClient(Client):
         try:
             response = requests.post(self._url(base), json=payload)
             response.raise_for_status()
-        except:
+        except Exception:
             self.logger.exception(f'could not update {base}', exc_info=True)
