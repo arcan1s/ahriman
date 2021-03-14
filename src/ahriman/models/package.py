@@ -107,7 +107,7 @@ class Package:
             src_info, errors = parse_srcinfo(fn.read())
         if errors:
             raise InvalidPackageInfo(errors)
-        makedepends = src_info['makedepends']
+        makedepends = src_info.get('makedepends', [])
         # sum over each package
         depends: List[str] = src_info.get('depends', [])
         for package in src_info['packages'].values():
