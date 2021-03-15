@@ -130,7 +130,7 @@ class Repository:
         def build_single(package: Package) -> None:
             self.reporter.set_building(package.base)
             task = Task(package, self.architecture, self.config, self.paths)
-            task.clone()
+            task.init()
             built = task.build()
             for src in built:
                 dst = os.path.join(self.paths.packages, os.path.basename(src))
@@ -238,7 +238,7 @@ class Repository:
 
             try:
                 remote = Package.load(local.base, self.pacman, self.aur_url)
-                if local.is_outdated(remote):
+                if local.is_outdated(remote, self.paths):
                     result.append(remote)
                     self.reporter.set_pending(local.base)
             except Exception:

@@ -59,6 +59,13 @@ class Task:
         self.makechrootpkg_flags = config.getlist(section, 'makechrootpkg_flags')
 
     @property
+    def cache_path(self) -> str:
+        '''
+        :return: path to cached packages
+        '''
+        return os.path.join(self.paths.cache, self.package.base)
+
+    @property
     def git_path(self) -> str:
         '''
         :return: path to clone package from git
@@ -66,14 +73,19 @@ class Task:
         return os.path.join(self.paths.sources, self.package.base)
 
     @staticmethod
-    def fetch(local: str, remote: str) -> None:
+    def fetch(local: str, remote: str, branch: str = 'master') -> None:
         '''
-        fetch package from git
+        either clone repository or update it to origin/`branch`
         :param local: local path to fetch
         :param remote: remote target (from where to fetch)
+        :param branch: branch name to checkout, master by default
         '''
-        shutil.rmtree(local, ignore_errors=True)  # remove in case if file exists
-        check_output('git', 'clone', remote, local, exception=None)
+        if os.path.isdir(local):
+            check_output('git', 'fetch', 'origin', branch, cwd=local, exception=None)
+        else:
+            check_output('git', 'clone', remote, local, exception=None)
+        # and now force reset to our branch
+        check_output('git', 'reset', '--hard', f'origin/{branch}', cwd=local, exception=None)
 
     def build(self) -> List[str]:
         '''
@@ -97,10 +109,13 @@ class Task:
                             exception=BuildFailed(self.package.base),
                             cwd=self.git_path).splitlines()
 
-    def clone(self, path: Optional[str] = None) -> None:
+    def init(self, path: Optional[str] = None) -> None:
         '''
         fetch package from git
         :param path: optional local path to fetch. If not set default path will be used
         '''
         git_path = path or self.git_path
+        if os.path.isdir(self.cache_path):
+            # no need to clone whole repository, just copy from cache first
+            shutil.copytree(self.cache_path, git_path)
         return Task.fetch(git_path, self.package.git_url)

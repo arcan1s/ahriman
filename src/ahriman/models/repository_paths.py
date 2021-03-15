@@ -34,6 +34,13 @@ class RepositoryPaths:
     architecture: str
 
     @property
+    def cache(self) -> str:
+        '''
+        :return: directory for packages cache (mainly used for VCS packages)
+        '''
+        return os.path.join(self.root, 'cache')
+
+    @property
     def chroot(self) -> str:
         '''
         :return: directory for devtools chroot
@@ -73,6 +80,7 @@ class RepositoryPaths:
         '''
         create ahriman working tree
         '''
+        os.makedirs(self.cache, mode=0o755, exist_ok=True)
         os.makedirs(self.chroot, mode=0o755, exist_ok=True)
         os.makedirs(self.manual, mode=0o755, exist_ok=True)
         os.makedirs(self.packages, mode=0o755, exist_ok=True)

@@ -21,8 +21,6 @@ from __future__ import annotations
 
 import aur  # type: ignore
 import os
-import shutil
-import tempfile
 
 from dataclasses import dataclass
 from pyalpm import vercmp  # type: ignore
@@ -33,6 +31,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
 from ahriman.models.package_desciption import PackageDescription
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 @dataclass
@@ -76,30 +75,28 @@ class Package:
         '''
         return f'{self.aur_url}/packages/{self.base}'
 
-    def actual_version(self) -> str:
+    def actual_version(self, paths: RepositoryPaths) -> str:
         '''
         additional method to handle VCS package versions
+        :param paths: repository paths instance
         :return: package version if package is not VCS and current version according to VCS otherwise
         '''
         if not self.is_vcs:
             return self.version
 
         from ahriman.core.build_tools.task import Task
-        clone_dir = tempfile.mkdtemp()
-        try:
-            Task.fetch(clone_dir, self.git_url)
-            # update pkgver first
-            check_output('makepkg', '--nodeps', '--nobuild',
-                         exception=None, cwd=clone_dir)
-            # generate new .SRCINFO and put it to parser
-            src_info_source = check_output('makepkg', '--printsrcinfo',
-                                           exception=None, cwd=clone_dir)
-            src_info, errors = parse_srcinfo(src_info_source)
-            if errors:
-                raise InvalidPackageInfo(errors)
-            return self.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
-        finally:
-            shutil.rmtree(clone_dir, ignore_errors=True)
+        clone_dir = os.path.join(paths.cache, self.base)
+
+        Task.fetch(clone_dir, self.git_url)
+        # update pkgver first
+        check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir)
+        # generate new .SRCINFO and put it to parser
+        src_info_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir)
+        src_info, errors = parse_srcinfo(src_info_source)
+        if errors:
+            raise InvalidPackageInfo(errors)
+
+        return self.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
 
     @classmethod
     def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
@@ -196,12 +193,13 @@ class Package:
         except Exception as e:
             raise InvalidPackageInfo(str(e))
 
-    def is_outdated(self, remote: Package) -> bool:
+    def is_outdated(self, remote: Package, paths: RepositoryPaths) -> bool:
         '''
         check if package is out-of-dated
         :param remote: package properties from remote source
+        :param paths: repository paths instance. Required for VCS packages cache
         :return: True if the package is out-of-dated and False otherwise
         '''
-        remote_version = remote.actual_version()  # either normal version or updated VCS
+        remote_version = remote.actual_version(paths)  # either normal version or updated VCS
         result: int = vercmp(self.version, remote_version)
         return result < 0
