@@ -70,11 +70,4 @@ class BuildStatus:
         :param timestamp: build status timestamp. Current timestamp will be used if not set
         '''
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
-        self._timestamp = timestamp or datetime.datetime.utcnow()
-
-    @property
-    def timestamp(self) -> str:
-        '''
-        :return: string representation of build status timestamp
-        '''
-        return self._timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        self.timestamp = timestamp or datetime.datetime.utcnow()

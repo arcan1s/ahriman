@@ -27,8 +27,8 @@ from ahriman.core.exceptions import InvalidOption
 class SignSettings(Enum):
     '''
     sign targets enumeration
-    :ivar SignPackages: sign each package
-    :ivar SignRepository: sign repository database file
+    :cvar SignPackages: sign each package
+    :cvar SignRepository: sign repository database file
     '''
 
     SignPackages = auto()

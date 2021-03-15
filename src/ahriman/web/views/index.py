@@ -23,6 +23,7 @@ from typing import Any, Dict
 
 import ahriman.version as version
 
+from ahriman.core.util import pretty_datetime
 from ahriman.web.views.base import BaseView
 
 
@@ -52,7 +53,7 @@ class IndexView(BaseView):
                 'base': package.base,
                 'packages': [p for p in sorted(package.packages)],
                 'status': status.status.value,
-                'timestamp': status.timestamp,
+                'timestamp': pretty_datetime(status.timestamp),
                 'version': package.version,
                 'web_url': package.web_url
             } for package, status in sorted(self.service.packages, key=lambda item: item[0].base)
@@ -60,7 +61,7 @@ class IndexView(BaseView):
         service = {
             'status': self.service.status.status.value,
             'status_color': self.service.status.status.badges_color(),
-            'timestamp': self.service.status.timestamp
+            'timestamp': pretty_datetime(self.service.status.timestamp)
         }
 
         return {

@@ -27,7 +27,7 @@ from ahriman.core.exceptions import InvalidOption
 class ReportSettings(Enum):
     '''
     report targets enumeration
-    :ivar HTML: html report generation
+    :cvar HTML: html report generation
     '''
 
     HTML = auto()

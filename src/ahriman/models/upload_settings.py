@@ -27,8 +27,8 @@ from ahriman.core.exceptions import InvalidOption
 class UploadSettings(Enum):
     '''
     remote synchronization targets enumeration
-    :ivar Rsync: sync via rsync
-    :ivar S3: sync to Amazon S3
+    :cvar Rsync: sync via rsync
+    :cvar S3: sync to Amazon S3
     '''
 
     Rsync = auto()

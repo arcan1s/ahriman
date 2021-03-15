@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import datetime
 import subprocess
 
 from logging import Logger
 from typing import Optional
+
+from ahriman.core.exceptions import InvalidOption
 
 
 def check_output(*args: str, exception: Optional[Exception],
@@ -55,3 +58,37 @@ def package_like(filename: str) -> bool:
     :return: True in case if name contains `.pkg.` and not signature, False otherwise
     '''
     return '.pkg.' in filename and not filename.endswith('.sig')
+
+
+def pretty_datetime(timestamp: Optional[datetime.datetime]) -> str:
+    '''
+    convert datetime object to string
+    :param timestamp: datetime to convert
+    :return: pretty printable datetime as string
+    '''
+    return '' if timestamp is None else timestamp.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def pretty_size(size: Optional[float], level: int = 0) -> str:
+    '''
+    convert size to string
+    :param size: size to convert
+    :param level: represents current units, 0 is B, 1 is KiB etc
+    :return: pretty printable size as string
+    '''
+    def str_level() -> str:
+        if level == 0:
+            return 'B'
+        elif level == 1:
+            return 'KiB'
+        elif level == 2:
+            return 'MiB'
+        elif level == 3:
+            return 'GiB'
+        raise InvalidOption(level)  # I hope it will not be more than 1024 GiB
+
+    if size is None:
+        return ''
+    elif size < 1024:
+        return f'{round(size, 2)} {str_level()}'
+    return pretty_size(size / 1024, level + 1)

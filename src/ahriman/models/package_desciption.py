@@ -17,41 +17,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import datetime
+
 from dataclasses import dataclass
 from typing import Optional
-
-from ahriman.core.exceptions import InvalidOption
 
 
 @dataclass
 class PackageDescription:
     '''
     package specific properties
+    :ivar archive_size: package archive size
+    :ivar build_date: package build date
+    :ivar filename: package archive name
+    :ivar installed_size: package installed size
     '''
+
+    archive_size: Optional[int] = None
+    build_date: Optional[datetime.datetime] = None
     filename: Optional[str] = None
     installed_size: Optional[int] = None
-
-    @staticmethod
-    def size_to_str(size: Optional[float], level: int = 0) -> str:
-        '''
-        convert size to string
-        :param size: size to convert
-        :param level: represents current units, 0 is B, 1 is KiB etc
-        :return: pretty printable size as string
-        '''
-        def str_level() -> str:
-            if level == 0:
-                return 'B'
-            elif level == 1:
-                return 'KiB'
-            elif level == 2:
-                return 'MiB'
-            elif level == 3:
-                return 'GiB'
-            raise InvalidOption(level)
-
-        if size is None:
-            return ''
-        elif size < 1024:
-            return f'{round(size, 2)} {str_level()}'
-        return PackageDescription.size_to_str(size / 1024, level + 1)

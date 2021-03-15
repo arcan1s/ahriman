@@ -17,13 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import logging
 import os
 import shutil
 
-from typing import Callable, Iterable, List, Optional, Set, Type
+from typing import Callable, Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration

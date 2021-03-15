@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import aur  # type: ignore
+import datetime
 import os
 
 from dataclasses import dataclass
@@ -108,7 +109,8 @@ class Package:
         :return: package properties
         '''
         package = pacman.handle.load_pkg(path)
-        properties = PackageDescription(os.path.basename(path), package.isize)
+        build_date = datetime.datetime.fromtimestamp(package.builddate)
+        properties = PackageDescription(package.size, build_date, os.path.basename(path), package.isize)
         return cls(package.base, package.version, aur_url, {package.name: properties})
 
     @classmethod
