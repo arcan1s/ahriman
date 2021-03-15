@@ -19,6 +19,7 @@
 #
 from aiohttp.web import Application
 
+from ahriman.web.views.ahriman import AhrimanView
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.package import PackageView
 from ahriman.web.views.packages import PackagesView
@@ -44,6 +45,8 @@ def setup_routes(application: Application) -> None:
     '''
     application.router.add_get('/', IndexView)
     application.router.add_get('/index.html', IndexView)
+
+    application.router.add_post('/api/v1/ahriman', AhrimanView)
 
     application.router.add_post('/api/v1/packages', PackagesView)
 
