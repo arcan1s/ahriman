@@ -79,6 +79,20 @@ class Repository:
         for package in os.listdir(self.paths.sources):
             shutil.rmtree(os.path.join(self.paths.sources, package))
 
+    def _clear_cache(self) -> None:
+        '''
+        clear cache directory
+        '''
+        for package in os.listdir(self.paths.cache):
+            shutil.rmtree(os.path.join(self.paths.cache, package))
+
+    def _clear_chroot(self) -> None:
+        '''
+        clear cache directory. Warning: this method is architecture independent and will clear every chroot
+        '''
+        for chroot in os.listdir(self.paths.chroot):
+            shutil.rmtree(os.path.join(self.paths.chroot, chroot))
+
     def _clear_manual(self) -> None:
         '''
         clear directory with manual package updates

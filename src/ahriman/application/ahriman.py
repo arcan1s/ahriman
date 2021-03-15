@@ -49,6 +49,16 @@ def add(args: argparse.Namespace, architecture: str, config: Configuration) -> N
     Application(architecture, config).add(args.package, args.without_dependencies)
 
 
+def clean(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    '''
+    clean caches callback
+    :param args: command line args
+    :param architecture: repository architecture
+    :param config: configuration instance
+    '''
+    Application(architecture, config).clean()
+
+
 def rebuild(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     world rebuild callback
@@ -140,6 +150,9 @@ if __name__ == '__main__':
     check_parser.add_argument('package', help='filter check by packages', nargs='*')
     check_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
     check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=True)
+
+    clean_parser = subparsers.add_parser('clean', description='clear all local caches')
+    clean_parser.set_defaults(fn=clean)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
     rebuild_parser.set_defaults(fn=rebuild)

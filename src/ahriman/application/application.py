@@ -128,6 +128,16 @@ class Application:
         for name in names:
             process_single(name)
 
+    def clean(self) -> None:
+        '''
+        run all clean methods
+        '''
+        self.repository._clear_build()
+        self.repository._clear_cache()
+        self.repository._clear_chroot()
+        self.repository._clear_manual()
+        self.repository._clear_packages()
+
     def remove(self, names: Iterable[str]) -> None:
         '''
         remove packages from repository
