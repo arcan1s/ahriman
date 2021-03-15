@@ -19,7 +19,6 @@
 #
 from __future__ import annotations
 
-import argparse
 import logging
 import os
 import shutil
@@ -52,16 +51,6 @@ class Application:
         self.config = config
         self.architecture = architecture
         self.repository = Repository(architecture, config)
-
-    @classmethod
-    def from_args(cls: Type[Application], args: argparse.Namespace, config: Configuration) -> Application:
-        '''
-        constructor which has to be used to build instance from command line args
-        :param args: command line args
-        :param config: configuration instance
-        :return: application instance
-        '''
-        return cls(args.architecture, config)
 
     def _known_packages(self) -> Set[str]:
         '''

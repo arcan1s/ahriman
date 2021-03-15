@@ -19,6 +19,8 @@
 #
 import argparse
 
+from multiprocessing import Pool
+
 import ahriman.version as version
 
 from ahriman.application.application import Application
@@ -26,64 +28,81 @@ from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 
 
-def add(args: argparse.Namespace, config: Configuration) -> None:
+def _call(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    '''
+    additional function to wrap all calls for multiprocessing library
+    :param args: command line args
+    :param architecture: repository architecture
+    :param config: configuration instance
+    '''
+    with Lock(args.lock, architecture, args.force, config):
+        args.fn(args, architecture, config)
+
+
+def add(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     add packages callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
-    Application.from_args(args, config).add(args.package, args.without_dependencies)
+    Application(architecture, config).add(args.package, args.without_dependencies)
 
 
-def rebuild(args: argparse.Namespace, config: Configuration) -> None:
+def rebuild(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     world rebuild callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
-    app = Application.from_args(args, config)
+    app = Application(architecture, config)
     packages = app.repository.packages()
     app.update(packages)
 
 
-def remove(args: argparse.Namespace, config: Configuration) -> None:
+def remove(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     remove packages callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
-    Application.from_args(args, config).remove(args.package)
+    Application(architecture, config).remove(args.package)
 
 
-def report(args: argparse.Namespace, config: Configuration) -> None:
+def report(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     generate report callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
-    Application.from_args(args, config).report(args.target)
+    Application(architecture, config).report(args.target)
 
 
-def sync(args: argparse.Namespace, config: Configuration) -> None:
+def sync(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     sync to remote server callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
-    Application.from_args(args, config).sync(args.target)
+    Application(architecture, config).sync(args.target)
 
 
-def update(args: argparse.Namespace, config: Configuration) -> None:
+def update(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     update packages callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
     # typing workaround
     def log_fn(line: str) -> None:
         return print(line) if args.dry_run else app.logger.info(line)
 
-    app = Application.from_args(args, config)
+    app = Application(architecture, config)
     packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
@@ -91,20 +110,21 @@ def update(args: argparse.Namespace, config: Configuration) -> None:
     app.update(packages)
 
 
-def web(args: argparse.Namespace, config: Configuration) -> None:
+def web(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     web server callback
     :param args: command line args
+    :param architecture: repository architecture
     :param config: configuration instance
     '''
     from ahriman.web.web import run_server, setup_service
-    app = setup_service(args.architecture, config)
-    run_server(app, args.architecture)
+    app = setup_service(architecture, config)
+    run_server(app, architecture)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='ahriman', description='ArcHlinux ReposItory MANager')
-    parser.add_argument('-a', '--architecture', help='target architecture', required=True)
+    parser.add_argument('-a', '--architecture', help='target architectures', action='append')
     parser.add_argument('-c', '--config', help='configuration path', default='/etc/ahriman.ini')
     parser.add_argument('--force', help='force run, remove file lock', action='store_true')
     parser.add_argument('--lock', help='lock file', default='/tmp/ahriman.lock')
@@ -118,7 +138,8 @@ if __name__ == '__main__':
 
     check_parser = subparsers.add_parser('check', description='check for updates')
     check_parser.add_argument('package', help='filter check by packages', nargs='*')
-    check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, no_vcs=False, dry_run=True)
+    check_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
+    check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=True)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
     rebuild_parser.set_defaults(fn=rebuild)
@@ -153,5 +174,5 @@ if __name__ == '__main__':
         exit(1)
 
     config = Configuration.from_path(args.config)
-    with Lock(args.lock, args.architecture, args.force, config):
-        args.fn(args, config)
+    with Pool(len(args.architecture)) as pool:
+        pool.starmap(_call, [(args, architecture, config) for architecture in args.architecture])

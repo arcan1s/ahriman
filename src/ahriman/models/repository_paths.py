@@ -25,7 +25,7 @@ from dataclasses import dataclass
 @dataclass
 class RepositoryPaths:
     '''
-    repository paths holder
+    repository paths holder. For the most operations with paths you want to use this object
     :ivar root: repository root (i.e. ahriman home)
     :ivar architecture: repository architecture
     '''
@@ -38,6 +38,7 @@ class RepositoryPaths:
         '''
         :return: directory for devtools chroot
         '''
+        # for the chroot directory devtools will create own tree and we don't have to specify architecture here
         return os.path.join(self.root, 'chroot')
 
     @property
@@ -45,14 +46,14 @@ class RepositoryPaths:
         '''
         :return: directory for manual updates (i.e. from add command)
         '''
-        return os.path.join(self.root, 'manual')
+        return os.path.join(self.root, 'manual', self.architecture)
 
     @property
     def packages(self) -> str:
         '''
         :return: directory for built packages
         '''
-        return os.path.join(self.root, 'packages')
+        return os.path.join(self.root, 'packages', self.architecture)
 
     @property
     def repository(self) -> str:
@@ -66,7 +67,7 @@ class RepositoryPaths:
         '''
         :return: directory for downloaded PKGBUILDs for current build
         '''
-        return os.path.join(self.root, 'sources')
+        return os.path.join(self.root, 'sources', self.architecture)
 
     def create_tree(self) -> None:
         '''
