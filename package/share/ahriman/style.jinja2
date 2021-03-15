@@ -75,4 +75,26 @@
     td.package-success {
         background-color: rgba(var(--color-success), 1.0);
     }
+
+    sup.service-unknown {
+        font-weight: lighter;
+        background-color: rgba(var(--color-unknown), 1.0);
+    }
+    sup.service-building {
+        font-weight: lighter;
+        background-color: rgba(var(--color-building), 1.0);
+        animation-name: blink-building;
+        animation-duration: 1s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+    }
+    sup.service-failed {
+        font-weight: lighter;
+        background-color: rgba(var(--color-failed), 1.0);
+    }
+    sup.service-success {
+        font-weight: lighter;
+        background-color: rgba(var(--color-success), 1.0);
+    }
 </style>

@@ -36,6 +36,7 @@ class IndexView(BaseView):
         packages - sorted list of packages properties: base, packages (sorted list), status,
                    timestamp, version, web_url. Required
         repository - repository name, string, required
+        service - service status properties: status, timestamp. Required
         version - ahriman version, string, required
     '''
 
@@ -56,10 +57,15 @@ class IndexView(BaseView):
                 'web_url': package.web_url
             } for package, status in sorted(self.service.packages, key=lambda item: item[0].base)
         ]
+        service = {
+            'status': self.service.status.status.value,
+            'timestamp': self.service.status.timestamp
+        }
 
         return {
             'architecture': self.service.architecture,
             'packages': packages,
             'repository': self.service.repository.name,
+            'service': service,
             'version': version.__version__,
         }

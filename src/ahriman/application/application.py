@@ -54,13 +54,13 @@ class Application:
         self.repository = Repository(architecture, config)
 
     @classmethod
-    def from_args(cls: Type[Application], args: argparse.Namespace) -> Application:
+    def from_args(cls: Type[Application], args: argparse.Namespace, config: Configuration) -> Application:
         '''
         constructor which has to be used to build instance from command line args
         :param args: command line args
+        :param config: configuration instance
         :return: application instance
         '''
-        config = Configuration.from_path(args.config)
         return cls(args.architecture, config)
 
     def _known_packages(self) -> Set[str]:

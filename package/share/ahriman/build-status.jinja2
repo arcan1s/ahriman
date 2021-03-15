@@ -11,7 +11,7 @@
 
     <body>
         <div class="root">
-            <h1>ahriman {{ version|e }} ({{ architecture|e }})</h1>
+            <h1>ahriman {{ version|e }} ({{ architecture|e }})<sup class="service-{{ service.status|e }}" title="{{ service.timestamp }}">{{ service.status|e }}</sup></h1>
 
             {% include "search-line.jinja2" %}
 

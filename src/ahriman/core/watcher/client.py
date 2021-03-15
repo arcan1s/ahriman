@@ -52,6 +52,13 @@ class Client:
         '''
         pass
 
+    def update_self(self, status: BuildStatusEnum) -> None:
+        '''
+        update ahriman status itself
+        :param status: current ahriman status
+        '''
+        pass
+
     def set_building(self, base: str) -> None:
         '''
         set package status to building

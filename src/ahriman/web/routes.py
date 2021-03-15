@@ -33,6 +33,8 @@ def setup_routes(application: Application) -> None:
         GET /                           get build status page
         GET /index.html                 same as above
 
+        POST /api/v1/ahriman            update service status
+
         POST /api/v1/packages           force update every package from repository
 
         POST /api/v1/package/:base      update package base status

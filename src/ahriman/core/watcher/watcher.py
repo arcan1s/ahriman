@@ -43,6 +43,7 @@ class Watcher:
         self.repository = Repository(architecture, config)
 
         self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
+        self.status = BuildStatus()
 
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
@@ -82,3 +83,10 @@ class Watcher:
             package, _ = self.known[base]
         full_status = BuildStatus(status)
         self.known[base] = (package, full_status)
+
+    def update_self(self, status: BuildStatusEnum) -> None:
+        '''
+        update service status
+        :param status: new service status
+        '''
+        self.status = BuildStatus(status)

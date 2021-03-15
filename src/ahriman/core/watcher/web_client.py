@@ -46,7 +46,14 @@ class WebClient(Client):
         self.host = host
         self.port = port
 
-    def _url(self, base: str) -> str:
+    def _ahriman_url(self) -> str:
+        '''
+        url generator
+        :return: full url for web service for ahriman service itself
+        '''
+        return f'http://{self.host}:{self.port}/api/v1/ahriman'
+
+    def _package_url(self, base: str) -> str:
         '''
         url generator
         :param base: package base to generate url
@@ -66,7 +73,7 @@ class WebClient(Client):
         }
 
         try:
-            response = requests.post(self._url(package.base), json=payload)
+            response = requests.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
         except Exception:
             self.logger.exception(f'could not add {package.base}', exc_info=True)
@@ -77,7 +84,7 @@ class WebClient(Client):
         :param base: basename to remove
         '''
         try:
-            response = requests.delete(self._url(base))
+            response = requests.delete(self._package_url(base))
             response.raise_for_status()
         except Exception:
             self.logger.exception(f'could not delete {base}', exc_info=True)
@@ -91,7 +98,20 @@ class WebClient(Client):
         payload: Dict[str, Any] = {'status': status.value}
 
         try:
-            response = requests.post(self._url(base), json=payload)
+            response = requests.post(self._package_url(base), json=payload)
             response.raise_for_status()
         except Exception:
             self.logger.exception(f'could not update {base}', exc_info=True)
+
+    def update_self(self, status: BuildStatusEnum) -> None:
+        '''
+        update ahriman status itself
+        :param status: current ahriman status
+        '''
+        payload: Dict[str, Any] = {'status': status.value}
+
+        try:
+            response = requests.post(self._ahriman_url(), json=payload)
+            response.raise_for_status()
+        except Exception:
+            self.logger.exception(f'could not update service status', exc_info=True)

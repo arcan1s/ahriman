@@ -26,58 +26,64 @@ from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 
 
-def add(args: argparse.Namespace) -> None:
+def add(args: argparse.Namespace, config: Configuration) -> None:
     '''
     add packages callback
     :param args: command line args
+    :param config: configuration instance
     '''
-    Application.from_args(args).add(args.package, args.without_dependencies)
+    Application.from_args(args, config).add(args.package, args.without_dependencies)
 
 
-def rebuild(args: argparse.Namespace) -> None:
+def rebuild(args: argparse.Namespace, config: Configuration) -> None:
     '''
     world rebuild callback
     :param args: command line args
+    :param config: configuration instance
     '''
-    app = Application.from_args(args)
+    app = Application.from_args(args, config)
     packages = app.repository.packages()
     app.update(packages)
 
 
-def remove(args: argparse.Namespace) -> None:
+def remove(args: argparse.Namespace, config: Configuration) -> None:
     '''
     remove packages callback
     :param args: command line args
+    :param config: configuration instance
     '''
-    Application.from_args(args).remove(args.package)
+    Application.from_args(args, config).remove(args.package)
 
 
-def report(args: argparse.Namespace) -> None:
+def report(args: argparse.Namespace, config: Configuration) -> None:
     '''
     generate report callback
     :param args: command line args
+    :param config: configuration instance
     '''
-    Application.from_args(args).report(args.target)
+    Application.from_args(args, config).report(args.target)
 
 
-def sync(args: argparse.Namespace) -> None:
+def sync(args: argparse.Namespace, config: Configuration) -> None:
     '''
     sync to remote server callback
     :param args: command line args
+    :param config: configuration instance
     '''
-    Application.from_args(args).sync(args.target)
+    Application.from_args(args, config).sync(args.target)
 
 
-def update(args: argparse.Namespace) -> None:
+def update(args: argparse.Namespace, config: Configuration) -> None:
     '''
     update packages callback
     :param args: command line args
+    :param config: configuration instance
     '''
     # typing workaround
     def log_fn(line: str) -> None:
         return print(line) if args.dry_run else app.logger.info(line)
 
-    app = Application.from_args(args)
+    app = Application.from_args(args, config)
     packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
@@ -85,13 +91,13 @@ def update(args: argparse.Namespace) -> None:
     app.update(packages)
 
 
-def web(args: argparse.Namespace) -> None:
+def web(args: argparse.Namespace, config: Configuration) -> None:
     '''
     web server callback
     :param args: command line args
+    :param config: configuration instance
     '''
     from ahriman.web.web import run_server, setup_service
-    config = Configuration.from_path(args.config)
     app = setup_service(args.architecture, config)
     run_server(app, args.architecture)
 
@@ -146,5 +152,6 @@ if __name__ == '__main__':
         parser.print_help()
         exit(1)
 
-    with Lock(args.lock, args.architecture, args.force):
-        args.fn(args)
+    config = Configuration.from_path(args.config)
+    with Lock(args.lock, args.architecture, args.force, config):
+        args.fn(args, config)
