@@ -32,6 +32,7 @@ from typing import Dict, List, Optional, Set, Type
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
+from ahriman.models.package_desciption import PackageDescription
 
 
 @dataclass
@@ -40,14 +41,14 @@ class Package:
     package properties representation
     :ivar aurl_url: AUR root url
     :ivar base: package base name
-    :ivar packages: map of package names to archive name
+    :ivar packages: map of package names to their properties. Filled only on load from archive
     :ivar version: package full version
     '''
 
     base: str
     version: str
     aur_url: str
-    packages: Dict[str, str]
+    packages: Dict[str, PackageDescription]
 
     @property
     def git_url(self) -> str:
@@ -110,7 +111,8 @@ class Package:
         :return: package properties
         '''
         package = pacman.handle.load_pkg(path)
-        return cls(package.base, package.version, aur_url, {package.name: os.path.basename(path)})
+        properties = PackageDescription(os.path.basename(path), package.isize)
+        return cls(package.base, package.version, aur_url, {package.name: properties})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str) -> Package:
@@ -121,7 +123,7 @@ class Package:
         :return: package properties
         '''
         package = aur.info(name)
-        return cls(package.package_base, package.version, aur_url, {package.name: ''})
+        return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
 
     @classmethod
     def from_build(cls: Type[Package], path: str, aur_url: str) -> Package:
@@ -135,7 +137,7 @@ class Package:
             src_info, errors = parse_srcinfo(fn.read())
         if errors:
             raise InvalidPackageInfo(errors)
-        packages = {key: '' for key in src_info['packages'].keys()}
+        packages = {key: PackageDescription() for key in src_info['packages'].keys()}
         version = cls.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
 
         return cls(src_info['pkgbase'], version, aur_url, packages)

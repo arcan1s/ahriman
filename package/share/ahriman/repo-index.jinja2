@@ -33,12 +33,14 @@
                     <tr class="header">
                         <th>package</th>
                         <th>version</th>
+                        <th>installed size</th>
                     </tr>
 
                     {% for package in packages %}
                         <tr class="package">
                             <td class="include-search"><a href="{{ link_path|e }}/{{ package.filename|e }}" title="{{ package.name|e }}">{{ package.name|e }}</a></td>
                             <td>{{ package.version|e }}</td>
+                            <td>{{ package.installed_size|e }}</td>
                         </tr>
                     {% endfor %}
                 </table>

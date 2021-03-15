@@ -25,6 +25,7 @@ from typing import Callable, Dict, Iterable
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
 from ahriman.models.package import Package
+from ahriman.models.package_desciption import PackageDescription
 from ahriman.models.sign_settings import SignSettings
 
 
@@ -38,7 +39,7 @@ class HTML(Report):
         link_path - prefix fo packages to download, string, required
         has_package_signed - True in case if package sign enabled, False otherwise, required
         has_repo_signed - True in case if repository database sign enabled, False otherwise, required
-        packages - sorted list of packages properties: filename, name, version. Required
+        packages - sorted list of packages properties: filename, installed_size, name, version. Required
         pgp_key - default PGP key ID, string, optional
         repository - repository name, string, required
 
@@ -84,10 +85,11 @@ class HTML(Report):
 
         content = [
             {
-                'filename': filename,
+                'filename': properties.filename,
+                'installed_size': PackageDescription.size_to_str(properties.installed_size),
                 'name': package,
                 'version': base.version
-            } for base in packages for package, filename in base.packages.items()
+            } for base in packages for package, properties in base.packages.items()
         ]
         comparator: Callable[[Dict[str, str]], str] = lambda item: item['filename']
 
