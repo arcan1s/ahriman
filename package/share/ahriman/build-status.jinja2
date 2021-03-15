@@ -11,7 +11,11 @@
 
     <body>
         <div class="root">
-            <h1>ahriman {{ version|e }} ({{ architecture|e }})</h1>
+            <h1>ahriman
+                <img src="https://img.shields.io/badge/version-{{ version|e }}-informational" alt="{{ version|e }}">
+                <img src="https://img.shields.io/badge/architecture-{{ architecture|e }}-informational" alt="{{ architecture|e }}">
+                <img src="https://img.shields.io/badge/service%20status-{{ service.status|e }}-{{ service.status_color|e }}" alt="{{ service.status|e }}" title="{{ service.timestamp|e }}">
+            </h1>
 
             {% include "search-line.jinja2" %}
 
@@ -39,8 +43,6 @@
 
             <footer>
                 <ul class="navigation">
-                    <li class="status" style="text-align: left; padding-right: 32px;">Service status</li>
-                    <li class="status service-{{ service.status|e }}" title="last update at {{ service.timestamp|e }}">{{ service.status|e }}</li>
                     <li><a href="https://github.com/arcan1s/ahriman" title="sources">ahriman</a></li>
                     <li><a href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
                     <li><a href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>

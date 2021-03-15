@@ -46,9 +46,13 @@
                 </table>
             </section>
 
-            {% if homepage is not none %}
-                <footer><a href="{{ homepage|e }}" title="homepage">Homepage</a></footer>
-            {% endif %}
+            <footer>
+                <ul class="navigation">
+                    {% if homepage is not none %}
+                        <li><a href="{{ homepage|e }}" title="homepage">Homepage</a></li>
+                    {% endif %}
+                </ul>
+            </footer>
         </div>
     </body>
 </html>

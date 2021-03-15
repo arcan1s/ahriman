@@ -39,6 +39,21 @@ class BuildStatusEnum(Enum):
     Failed = 'failed'
     Success = 'success'
 
+    def badges_color(self) -> str:
+        '''
+        convert itself to shield.io badges color
+        :return: shields.io color
+        '''
+        if self == BuildStatusEnum.Pending:
+            return 'yellow'
+        elif self == BuildStatusEnum.Building:
+            return 'yellow'
+        elif self == BuildStatusEnum.Failed:
+            return 'critical'
+        elif self == BuildStatusEnum.Success:
+            return 'success'
+        return 'inactive'
+
 
 class BuildStatus:
     '''

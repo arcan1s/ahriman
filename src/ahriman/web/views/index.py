@@ -36,7 +36,7 @@ class IndexView(BaseView):
         packages - sorted list of packages properties: base, packages (sorted list), status,
                    timestamp, version, web_url. Required
         repository - repository name, string, required
-        service - service status properties: status, timestamp. Required
+        service - service status properties: status, status_color, timestamp. Required
         version - ahriman version, string, required
     '''
 
@@ -59,6 +59,7 @@ class IndexView(BaseView):
         ]
         service = {
             'status': self.service.status.status.value,
+            'status_color': self.service.status.status.badges_color(),
             'timestamp': self.service.status.timestamp
         }
 
