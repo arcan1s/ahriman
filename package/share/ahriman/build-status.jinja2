@@ -11,7 +11,7 @@
 
     <body>
         <div class="root">
-            <h1>ahriman {{ version|e }} ({{ architecture|e }})<sup class="service-{{ service.status|e }}" title="{{ service.timestamp }}">{{ service.status|e }}</sup></h1>
+            <h1>ahriman {{ version|e }} ({{ architecture|e }})</h1>
 
             {% include "search-line.jinja2" %}
 
@@ -31,11 +31,21 @@
                             <td class="include-search">{{ package.packages|join("<br>"|safe) }}</td>
                             <td>{{ package.version|e }}</td>
                             <td>{{ package.timestamp|e }}</td>
-                            <td class="package-{{ package.status|e }}">{{ package.status|e }}</td>
+                            <td class="status package-{{ package.status|e }}">{{ package.status|e }}</td>
                         </tr>
                     {% endfor %}
                 </table>
             </section>
+
+            <footer>
+                <ul class="navigation">
+                    <li class="status" style="text-align: left; padding-right: 32px;">Service status</li>
+                    <li class="status service-{{ service.status|e }}" title="last update at {{ service.timestamp|e }}">{{ service.status|e }}</li>
+                    <li><a href="https://github.com/arcan1s/ahriman" title="sources">ahriman</a></li>
+                    <li><a href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
+                    <li><a href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
+                </ul>
+            </footer>
         </div>
     </body>
 
