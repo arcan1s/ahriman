@@ -68,6 +68,21 @@ def clean(args: argparse.Namespace, architecture: str, config: Configuration) ->
                                             args.no_manual, args.no_packages)
 
 
+def dump_config(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    '''
+    configuration dump callback
+    :param args: command line args
+    :param architecture: repository architecture
+    :param config: configuration instance
+    '''
+    result = config.dump(architecture)
+    for section, values in sorted(result.items()):
+        print(f'[{section}]')
+        for key, value in sorted(values.items()):
+            print(f'{key} = {value}')
+        print()
+
+
 def rebuild(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
     '''
     world rebuild callback
@@ -119,14 +134,14 @@ def update(args: argparse.Namespace, architecture: str, config: Configuration) -
     '''
     # typing workaround
     def log_fn(line: str) -> None:
-        return print(line) if args.dry_run else app.logger.info(line)
+        return print(line) if args.dry_run else application.logger.info(line)
 
-    app = Application(architecture, config)
-    packages = app.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
+    application = Application(architecture, config)
+    packages = application.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
     if args.dry_run:
         return
 
-    app.update(packages)
+    application.update(packages)
 
 
 def web(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
@@ -137,8 +152,8 @@ def web(args: argparse.Namespace, architecture: str, config: Configuration) -> N
     :param config: configuration instance
     '''
     from ahriman.web.web import run_server, setup_service
-    app = setup_service(architecture, config)
-    run_server(app, architecture)
+    application = setup_service(architecture, config)
+    run_server(application, architecture)
 
 
 if __name__ == '__main__':
@@ -175,6 +190,9 @@ if __name__ == '__main__':
         action='store_true')
     clean_parser.add_argument('--no-packages', help='do not clear directory with built packages', action='store_true')
     clean_parser.set_defaults(fn=clean)
+
+    config_parser = subparsers.add_parser('config', description='dump configuration for specified architecture')
+    config_parser.set_defaults(fn=dump_config)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
     rebuild_parser.set_defaults(fn=rebuild)

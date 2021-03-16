@@ -74,22 +74,22 @@ def setup_service(architecture: str, config: Configuration) -> web.Application:
     :param config: configuration instance
     :return: web application instance
     '''
-    app = web.Application(logger=logging.getLogger('http'))
-    app.on_shutdown.append(on_shutdown)
-    app.on_startup.append(on_startup)
+    application = web.Application(logger=logging.getLogger('http'))
+    application.on_shutdown.append(on_shutdown)
+    application.on_startup.append(on_startup)
 
-    app.middlewares.append(web.normalize_path_middleware(append_slash=False, remove_slash=True))
-    app.middlewares.append(exception_handler(app.logger))
+    application.middlewares.append(web.normalize_path_middleware(append_slash=False, remove_slash=True))
+    application.middlewares.append(exception_handler(application.logger))
 
-    app.logger.info('setup routes')
-    setup_routes(app)
-    app.logger.info('setup templates')
-    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(config.get('web', 'templates')))
+    application.logger.info('setup routes')
+    setup_routes(application)
+    application.logger.info('setup templates')
+    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.get('web', 'templates')))
 
-    app.logger.info('setup configuration')
-    app['config'] = config
+    application.logger.info('setup configuration')
+    application['config'] = config
 
-    app.logger.info('setup watcher')
-    app['watcher'] = Watcher(architecture, config)
+    application.logger.info('setup watcher')
+    application['watcher'] = Watcher(architecture, config)
 
-    return app
+    return application

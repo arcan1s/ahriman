@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import datetime
-
 from dataclasses import dataclass
 from typing import Optional
 
@@ -34,6 +32,6 @@ class PackageDescription:
     '''
 
     archive_size: Optional[int] = None
-    build_date: Optional[datetime.datetime] = None
+    build_date: Optional[int] = None
     filename: Optional[str] = None
     installed_size: Optional[int] = None

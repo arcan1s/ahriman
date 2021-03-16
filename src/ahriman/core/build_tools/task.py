@@ -81,7 +81,8 @@ class Task:
         :param branch: branch name to checkout, master by default
         '''
         logger = logging.getLogger('build_details')
-        if os.path.isdir(local):
+        # local directory exists and there is .git directory
+        if os.path.isdir(os.path.join(local, '.git')):
             check_output('git', 'fetch', 'origin', branch, exception=None, cwd=local, logger=logger)
         else:
             check_output('git', 'clone', remote, local, exception=None, logger=logger)

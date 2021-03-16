@@ -63,11 +63,11 @@ class BuildStatus:
     '''
 
     def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
-                 timestamp: Optional[datetime.datetime] = None) -> None:
+                 timestamp: Optional[int] = None) -> None:
         '''
         default constructor
         :param status: current build status if known. `BuildStatusEnum.Unknown` will be used if not set
         :param timestamp: build status timestamp. Current timestamp will be used if not set
         '''
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
-        self.timestamp = timestamp or datetime.datetime.utcnow()
+        self.timestamp = timestamp or int(datetime.datetime.utcnow().timestamp())

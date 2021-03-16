@@ -60,13 +60,13 @@ def package_like(filename: str) -> bool:
     return '.pkg.' in filename and not filename.endswith('.sig')
 
 
-def pretty_datetime(timestamp: Optional[datetime.datetime]) -> str:
+def pretty_datetime(timestamp: Optional[int]) -> str:
     '''
     convert datetime object to string
     :param timestamp: datetime to convert
     :return: pretty printable datetime as string
     '''
-    return '' if timestamp is None else timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    return '' if timestamp is None else datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def pretty_size(size: Optional[float], level: int = 0) -> str:

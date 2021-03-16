@@ -24,19 +24,24 @@ import logging
 import os
 
 from logging.config import fileConfig
-from typing import List, Optional, Type
+from typing import Dict, List, Optional, Type
 
 
 class Configuration(configparser.RawConfigParser):
     '''
     extension for built-in configuration parser
     :ivar path: path to root configuration file
+    :cvar ARCHITECTURE_SPECIFIC_SECTIONS: known sections which can be architecture specific (required by dump)
     :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
     :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
+    :cvar STATIC_SECTIONS: known sections which are not architecture specific (required by dump)
     '''
 
     DEFAULT_LOG_FORMAT = '%(asctime)s : %(levelname)s : %(funcName)s : %(message)s'
     DEFAULT_LOG_LEVEL = logging.DEBUG
+
+    STATIC_SECTIONS = ['alpm', 'report', 'repository', 'settings', 'upload']
+    ARCHITECTURE_SPECIFIC_SECTIONS = ['build', 'html', 'rsync', 's3', 'sign', 'web']
 
     def __init__(self) -> None:
         '''
@@ -63,6 +68,25 @@ class Configuration(configparser.RawConfigParser):
         config.load(path)
         config.load_logging()
         return config
+
+    def dump(self, architecture: str) -> Dict[str, Dict[str, str]]:
+        '''
+        dump configuration to dictionary
+        :param architecture: repository architecture
+        :return: configuration dump for specific architecture
+        '''
+        result: Dict[str, Dict[str, str]] = {}
+        for section in Configuration.STATIC_SECTIONS:
+            if not self.has_section(section):
+                continue
+            result[section] = dict(self[section])
+        for group in Configuration.ARCHITECTURE_SPECIFIC_SECTIONS:
+            section = self.get_section_name(group, architecture)
+            if not self.has_section(section):
+                continue
+            result[section] = dict(self[section])
+
+        return result
 
     def getlist(self, section: str, key: str) -> List[str]:
         '''
@@ -103,7 +127,7 @@ class Configuration(configparser.RawConfigParser):
             for conf in filter(lambda p: p.endswith('.ini'), sorted(os.listdir(self.include))):
                 self.read(os.path.join(self.include, conf))
         except (FileNotFoundError, configparser.NoOptionError):
-            passDEFAULT_LOG_LEVEL
+            pass
 
     def load_logging(self) -> None:
         '''
