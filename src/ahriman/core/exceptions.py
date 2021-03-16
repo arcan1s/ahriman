@@ -105,3 +105,19 @@ class SyncFailed(Exception):
         default constructor
         '''
         Exception.__init__(self, 'Sync failed')
+
+
+class UnsafeRun(Exception):
+    '''
+    exception which will be raised in case if user is not owner of repository
+    '''
+
+    def __init__(self, current_uid: int, root_uid: int) -> None:
+        '''
+        default constructor
+        '''
+        Exception.__init__(
+            self,
+            f'''Current UID {current_uid} differs from root owner {root_uid}.
+Note that for the most actions it is unsafe to run application as different user.
+If you are 100% sure that it must be there try --unsafe option''')

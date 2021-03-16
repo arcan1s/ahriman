@@ -19,6 +19,8 @@
 #
 from __future__ import annotations
 
+import logging
+
 import aur  # type: ignore
 import datetime
 import os
@@ -86,13 +88,15 @@ class Package:
             return self.version
 
         from ahriman.core.build_tools.task import Task
-        clone_dir = os.path.join(paths.cache, self.base)
 
+        clone_dir = os.path.join(paths.cache, self.base)
+        logger = logging.getLogger('build_details')
         Task.fetch(clone_dir, self.git_url)
+
         # update pkgver first
-        check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir)
+        check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir, logger=logger)
         # generate new .SRCINFO and put it to parser
-        src_info_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir)
+        src_info_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir, logger=logger)
         src_info, errors = parse_srcinfo(src_info_source)
         if errors:
             raise InvalidPackageInfo(errors)

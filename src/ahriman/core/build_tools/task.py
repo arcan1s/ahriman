@@ -80,12 +80,13 @@ class Task:
         :param remote: remote target (from where to fetch)
         :param branch: branch name to checkout, master by default
         '''
+        logger = logging.getLogger('build_details')
         if os.path.isdir(local):
-            check_output('git', 'fetch', 'origin', branch, cwd=local, exception=None)
+            check_output('git', 'fetch', 'origin', branch, exception=None, cwd=local, logger=logger)
         else:
-            check_output('git', 'clone', remote, local, exception=None)
+            check_output('git', 'clone', remote, local, exception=None, logger=logger)
         # and now force reset to our branch
-        check_output('git', 'reset', '--hard', f'origin/{branch}', cwd=local, exception=None)
+        check_output('git', 'reset', '--hard', f'origin/{branch}', exception=None, cwd=local, logger=logger)
 
     def build(self) -> List[str]:
         '''
@@ -107,7 +108,8 @@ class Task:
         # well it is not actually correct, but we can deal with it
         return check_output('makepkg', '--packagelist',
                             exception=BuildFailed(self.package.base),
-                            cwd=self.git_path).splitlines()
+                            cwd=self.git_path,
+                            logger=self.build_logger).splitlines()
 
     def init(self, path: Optional[str] = None) -> None:
         '''

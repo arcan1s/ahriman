@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import configparser
+import logging
 import os
 
 from logging.config import fileConfig
@@ -30,7 +31,12 @@ class Configuration(configparser.RawConfigParser):
     '''
     extension for built-in configuration parser
     :ivar path: path to root configuration file
+    :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
+    :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
     '''
+
+    DEFAULT_LOG_FORMAT = '%(asctime)s : %(levelname)s : %(funcName)s : %(message)s'
+    DEFAULT_LOG_LEVEL = logging.DEBUG
 
     def __init__(self) -> None:
         '''
@@ -97,10 +103,15 @@ class Configuration(configparser.RawConfigParser):
             for conf in filter(lambda p: p.endswith('.ini'), sorted(os.listdir(self.include))):
                 self.read(os.path.join(self.include, conf))
         except (FileNotFoundError, configparser.NoOptionError):
-            pass
+            passDEFAULT_LOG_LEVEL
 
     def load_logging(self) -> None:
         '''
         setup logging settings from configuration
         '''
-        fileConfig(self.get('settings', 'logging'))
+        try:
+            fileConfig(self.get('settings', 'logging'))
+        except PermissionError:
+            logging.basicConfig(filename=None, format=Configuration.DEFAULT_LOG_FORMAT,
+                                level=Configuration.DEFAULT_LOG_LEVEL)
+            logging.error('could not create logfile, fallback to stderr', exc_info=True)

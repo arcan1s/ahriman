@@ -18,6 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import logging
+import sys
 
 from multiprocessing import Pool
 
@@ -28,15 +30,21 @@ from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 
 
-def _call(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+def _call(args: argparse.Namespace, architecture: str, config: Configuration) -> bool:
     '''
     additional function to wrap all calls for multiprocessing library
     :param args: command line args
     :param architecture: repository architecture
     :param config: configuration instance
+    :return: True on success, False otherwise
     '''
-    with Lock(args.lock, architecture, args.force, config):
-        args.fn(args, architecture, config)
+    try:
+        with Lock(args.lock, architecture, args.force, args.unsafe, config):
+            args.fn(args, architecture, config)
+        return True
+    except Exception:
+        logging.getLogger('root').exception('process exception', exc_info=True)
+        return False
 
 
 def add(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
@@ -56,7 +64,8 @@ def clean(args: argparse.Namespace, architecture: str, config: Configuration) ->
     :param architecture: repository architecture
     :param config: configuration instance
     '''
-    Application(architecture, config).clean()
+    Application(architecture, config).clean(args.no_build, args.no_cache, args.no_chroot,
+                                            args.no_manual, args.no_packages)
 
 
 def rebuild(args: argparse.Namespace, architecture: str, config: Configuration) -> None:
@@ -134,10 +143,15 @@ def web(args: argparse.Namespace, architecture: str, config: Configuration) -> N
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='ahriman', description='ArcHlinux ReposItory MANager')
-    parser.add_argument('-a', '--architecture', help='target architectures', action='append')
+    parser.add_argument(
+        '-a',
+        '--architecture',
+        help='target architectures (can be used multiple times)',
+        action='append')
     parser.add_argument('-c', '--config', help='configuration path', default='/etc/ahriman.ini')
     parser.add_argument('--force', help='force run, remove file lock', action='store_true')
     parser.add_argument('--lock', help='lock file', default='/tmp/ahriman.lock')
+    parser.add_argument('--unsafe', help='allow to run ahriman as non-ahriman user', action='store_true')
     parser.add_argument('-v', '--version', action='version', version=version.__version__)
     subparsers = parser.add_subparsers(title='command')
 
@@ -152,6 +166,14 @@ if __name__ == '__main__':
     check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=True)
 
     clean_parser = subparsers.add_parser('clean', description='clear all local caches')
+    clean_parser.add_argument('--no-build', help='do not clear directory with package sources', action='store_true')
+    clean_parser.add_argument('--no-cache', help='do not clear directory with package caches', action='store_true')
+    clean_parser.add_argument('--no-chroot', help='do not clear build chroot', action='store_true')
+    clean_parser.add_argument(
+        '--no-manual',
+        help='do not clear directory with manually added packages',
+        action='store_true')
+    clean_parser.add_argument('--no-packages', help='do not clear directory with built packages', action='store_true')
     clean_parser.set_defaults(fn=clean)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
@@ -188,4 +210,6 @@ if __name__ == '__main__':
 
     config = Configuration.from_path(args.config)
     with Pool(len(args.architecture)) as pool:
-        pool.starmap(_call, [(args, architecture, config) for architecture in args.architecture])
+        result = pool.starmap(_call, [(args, architecture, config) for architecture in args.architecture])
+
+    sys.exit(0 if all(result) else 1)

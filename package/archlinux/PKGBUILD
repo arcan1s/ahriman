@@ -23,7 +23,7 @@ optdepends=('aws-cli: sync to s3'
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
         'ahriman.sysusers'
         'ahriman.tmpfiles')
-sha512sums=('b835d745fb77e400ca31ba4d93547b7db8e9dfe5d6c04b60e3953efeeaa7f561a1c60b2ade2684d3c7ba9a87e470c65610f33340315f192661c1676746b91298'
+sha512sums=('d7c4c0808eef7a1ebd7a137777e4855eebd4666304e18ea6ece9499f1ed8cf459299561d9ec4917f6c454e5fff7eee0b97e1d6efcc80be7308aac75141584cd5'
             '13718afec2c6786a18f0b223ef8e58dccf0688bca4cdbe203f14071f5031ed20120eb0ce38b52c76cfd6e8b6581a9c9eaa2743eb11abbaca637451a84c33f075'
             '55b20f6da3d66e7bbf2add5d95a3b60632df121717d25a993e56e737d14f51fe063eb6f1b38bd81cc32e05db01c0c1d80aaa720c45cde87f238d8b46cdb8cbc4')
 backup=('etc/ahriman.ini'

@@ -63,7 +63,8 @@ def run_server(application: web.Application, architecture: str) -> None:
     host = application['config'].get(section, 'host')
     port = application['config'].getint(section, 'port')
 
-    web.run_app(application, host=host, port=port, handle_signals=False)
+    web.run_app(application, host=host, port=port, handle_signals=False,
+                access_log=logging.getLogger('http'))
 
 
 def setup_service(architecture: str, config: Configuration) -> web.Application:
