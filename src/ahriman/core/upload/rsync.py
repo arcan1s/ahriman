@@ -43,6 +43,15 @@ class Rsync(Uploader):
         sync data to remote server
         :param path: local path to sync
         '''
-        check_output('rsync', '--archive', '--verbose', '--compress', '--partial', '--progress', '--delete', path, self.remote,
-                     exception=None,
-                     logger=self.logger)
+        check_output(
+            'rsync',
+            '--archive',
+            '--verbose',
+            '--compress',
+            '--partial',
+            '--progress',
+            '--delete',
+            path,
+            self.remote,
+            exception=None,
+            logger=self.logger)

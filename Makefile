@@ -1,4 +1,4 @@
-.PHONY: archive archive_directory archlinux clean directory push version
+.PHONY: archive archive_directory archlinux check clean directory push version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -6,10 +6,6 @@ PROJECT := ahriman
 FILES := COPYING CONFIGURING.md README.md package src setup.py
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
-
-ifndef VERSION
-$(error VERSION is not set)
-endif
 
 $(TARGET_FILES) : $(addprefix $(PROJECT), %) : $(addprefix ., %) directory version
 	@cp -rp $< $@
@@ -28,6 +24,10 @@ archlinux: archive
 	sed -i "/sha512sums=('[0-9A-Fa-f]*/s/[^'][^)]*/sha512sums=('$$(sha512sum $(PROJECT)-$(VERSION)-src.tar.xz | awk '{print $$1}')'/" package/archlinux/PKGBUILD
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
+check:
+	cd src && mypy --strict -p $(PROJECT)
+	cd src && find $(PROJECT) -name '*.py' -execdir autopep8 --max-line-length 120 -aa -i {} +
+
 clean:
 	find . -type f -name '$(PROJECT)-*-src.tar.xz' -delete
 	rm -rf "$(PROJECT)"
@@ -43,4 +43,7 @@ push: archlinux
 	git push --tags
 
 version:
+ifndef VERSION
+	$(error VERSION is required, but not set)
+endif
 	sed -i "/__version__ = '[0-9.]*/s/[^'][^)]*/__version__ = '$(VERSION)'/" src/ahriman/version.py
