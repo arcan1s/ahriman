@@ -224,8 +224,8 @@ class Repository:
                 self.repo.add(package_fn)
                 self.reporter.set_success(local)
             except Exception:
-                self.logger.exception(f'could not process {package}', exc_info=True)
                 self.reporter.set_failed(local.base)
+                self.logger.exception(f'could not process {package}', exc_info=True)
         self._clear_packages()
 
         return self.repo.repo_path
@@ -253,8 +253,8 @@ class Repository:
             try:
                 remote = Package.load(local.base, self.pacman, self.aur_url)
                 if local.is_outdated(remote, self.paths):
-                    result.append(remote)
                     self.reporter.set_pending(local.base)
+                    result.append(remote)
             except Exception:
                 self.reporter.set_failed(local.base)
                 self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
@@ -268,12 +268,16 @@ class Repository:
         :return: list of packages which are out-of-dated
         '''
         result: List[Package] = []
+        known_bases = {package.base for package in self.packages()}
 
         for fn in os.listdir(self.paths.manual):
             try:
                 local = Package.load(os.path.join(self.paths.manual, fn), self.pacman, self.aur_url)
                 result.append(local)
-                self.reporter.set_unknown(local)
+                if local.base not in known_bases:
+                    self.reporter.set_unknown(local)
+                else:
+                    self.reporter.set_pending(local.base)
             except Exception:
                 self.logger.exception(f'could not add package from {fn}', exc_info=True)
         self._clear_manual()
