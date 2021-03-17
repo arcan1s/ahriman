@@ -44,6 +44,6 @@ class S3(Uploader):
         :param path: local path to sync
         '''
         # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--delete', path, self.bucket,
+        check_output('aws', 's3', 'sync', '--quiet', '--delete', path, self.bucket,
                      exception=None,
                      logger=self.logger)
