@@ -52,6 +52,13 @@ class Watcher:
         '''
         return [pair for pair in self.known.values()]
 
+    def get(self, base: str) -> Tuple[Package, BuildStatus]:
+        '''
+        get current package base build status
+        :return: package and its status
+        '''
+        return self.known[base]
+
     def load(self) -> None:
         '''
         load packages from local repository. In case if last status is known, it will use it

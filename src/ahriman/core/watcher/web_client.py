@@ -21,7 +21,6 @@ import logging
 import requests
 
 from dataclasses import asdict
-from typing import Any, Dict
 
 from ahriman.core.watcher.client import Client
 from ahriman.models.build_status import BuildStatusEnum
@@ -67,7 +66,7 @@ class WebClient(Client):
         :param package: package properties
         :param status: current package build status
         '''
-        payload: Dict[str, Any] = {
+        payload = {
             'status': status.value,
             'package': asdict(package)
         }
@@ -95,7 +94,7 @@ class WebClient(Client):
         :param base: package base to update
         :param status: current package build status
         '''
-        payload: Dict[str, Any] = {'status': status.value}
+        payload = {'status': status.value}
 
         try:
             response = requests.post(self._package_url(base), json=payload)
@@ -108,7 +107,7 @@ class WebClient(Client):
         update ahriman status itself
         :param status: current ahriman status
         '''
-        payload: Dict[str, Any] = {'status': status.value}
+        payload = {'status': status.value}
 
         try:
             response = requests.post(self._ahriman_url(), json=payload)

@@ -34,21 +34,27 @@ def setup_routes(application: Application) -> None:
         GET /                           get build status page
         GET /index.html                 same as above
 
+        GET /api/v1/ahriman             get current service status
         POST /api/v1/ahriman            update service status
 
+        GET /api/v1/packages            get all known packages
         POST /api/v1/packages           force update every package from repository
 
-        POST /api/v1/package/:base      update package base status
         DELETE /api/v1/package/:base    delete package base from status page
+        GET /api/v1/package/:base       get package base status
+        POST /api/v1/package/:base      update package base status
 
     :param application: web application instance
     '''
     application.router.add_get('/', IndexView)
     application.router.add_get('/index.html', IndexView)
 
+    application.router.add_get('/api/v1/ahriman', AhrimanView)
     application.router.add_post('/api/v1/ahriman', AhrimanView)
 
+    application.router.add_get('/api/v1/packages', PackagesView)
     application.router.add_post('/api/v1/packages', PackagesView)
 
     application.router.add_delete('/api/v1/packages/{package}', PackageView)
+    application.router.add_get('/api/v1/packages/{package}', PackageView)
     application.router.add_post('/api/v1/packages/{package}', PackageView)

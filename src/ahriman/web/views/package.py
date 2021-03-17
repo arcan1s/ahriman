@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPOk, Response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
@@ -29,15 +29,30 @@ class PackageView(BaseView):
     package base specific web view
     '''
 
+    async def get(self) -> Response:
+        '''
+        get current package base status
+        :return: 200 with package description on success
+        '''
+        base = self.request.match_info['package']
+
+        try:
+            package, status = self.service.get(base)
+        except KeyError:
+            raise HTTPNotFound()
+
+        response = PackageView.package_view(package, status)
+        return json_response(response)
+
     async def delete(self) -> Response:
         '''
         delete package base from status page
-        :return: 200 on success
+        :return: 204 on success
         '''
         base = self.request.match_info['package']
         self.service.remove(base)
 
-        return HTTPOk()
+        return HTTPNoContent()
 
     async def post(self) -> Response:
         '''
@@ -50,7 +65,7 @@ class PackageView(BaseView):
                            # Must be supplied in case if package base is unknown
         }
 
-        :return: 200 on success
+        :return: 204 on success
         '''
         base = self.request.match_info['package']
         data = await self.request.json()
@@ -66,4 +81,4 @@ class PackageView(BaseView):
         except KeyError:
             raise HTTPBadRequest(text=f'Package {base} is unknown, but no package body set')
 
-        return HTTPOk()
+        return HTTPNoContent()

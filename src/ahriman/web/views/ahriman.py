@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPOk, Response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.web.views.base import BaseView
@@ -28,6 +28,13 @@ class AhrimanView(BaseView):
     service status web view
     '''
 
+    async def get(self) -> Response:
+        '''
+        get current service status
+        :return: 200 with service status object
+        '''
+        return json_response(AhrimanView.status_view(self.service.status))
+
     async def post(self) -> Response:
         '''
         update service status
@@ -37,7 +44,7 @@ class AhrimanView(BaseView):
             "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
         }
 
-        :return: 200 on success
+        :return: 204 on success
         '''
         data = await self.request.json()
 
@@ -48,4 +55,4 @@ class AhrimanView(BaseView):
 
         self.service.update_self(status)
 
-        return HTTPOk()
+        return HTTPNoContent()
