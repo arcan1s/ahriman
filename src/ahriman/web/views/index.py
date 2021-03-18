@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_jinja2  # type: ignore
+import aiohttp_jinja2
 
 from typing import Any, Dict
 
@@ -41,7 +41,7 @@ class IndexView(BaseView):
         version - ahriman version, string, required
     '''
 
-    @aiohttp_jinja2.template("build-status.jinja2")  # type: ignore
+    @aiohttp_jinja2.template("build-status.jinja2")
     async def get(self) -> Dict[str, Any]:
         '''
         process get request. No parameters supported here
