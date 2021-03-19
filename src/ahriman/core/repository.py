@@ -72,35 +72,35 @@ class Repository:
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(architecture, config)
 
-    def _clear_build(self) -> None:
+    def clear_build(self) -> None:
         '''
         clear sources directory
         '''
         for package in os.listdir(self.paths.sources):
             shutil.rmtree(os.path.join(self.paths.sources, package))
 
-    def _clear_cache(self) -> None:
+    def clear_cache(self) -> None:
         '''
         clear cache directory
         '''
         for package in os.listdir(self.paths.cache):
             shutil.rmtree(os.path.join(self.paths.cache, package))
 
-    def _clear_chroot(self) -> None:
+    def clear_chroot(self) -> None:
         '''
         clear cache directory. Warning: this method is architecture independent and will clear every chroot
         '''
         for chroot in os.listdir(self.paths.chroot):
             shutil.rmtree(os.path.join(self.paths.chroot, chroot))
 
-    def _clear_manual(self) -> None:
+    def clear_manual(self) -> None:
         '''
         clear directory with manual package updates
         '''
         for package in os.listdir(self.paths.manual):
             shutil.rmtree(os.path.join(self.paths.manual, package))
 
-    def _clear_packages(self) -> None:
+    def clear_packages(self) -> None:
         '''
         clear directory with built packages (NOT repository itself)
         '''
@@ -157,7 +157,7 @@ class Repository:
                 self.reporter.set_failed(package.base)
                 self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
                 continue
-        self._clear_build()
+        self.clear_build()
 
         return self.packages_built()
 
@@ -226,7 +226,7 @@ class Repository:
             except Exception:
                 self.reporter.set_failed(local.base)
                 self.logger.exception(f'could not process {package}', exc_info=True)
-        self._clear_packages()
+        self.clear_packages()
 
         return self.repo.repo_path
 
@@ -280,6 +280,6 @@ class Repository:
                     self.reporter.set_pending(local.base)
             except Exception:
                 self.logger.exception(f'could not add package from {fn}', exc_info=True)
-        self._clear_manual()
+        self.clear_manual()
 
         return result

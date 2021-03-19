@@ -46,11 +46,11 @@ class BuildStatusEnum(Enum):
         '''
         if self == BuildStatusEnum.Pending:
             return 'yellow'
-        elif self == BuildStatusEnum.Building:
+        if self == BuildStatusEnum.Building:
             return 'yellow'
-        elif self == BuildStatusEnum.Failed:
+        if self == BuildStatusEnum.Failed:
             return 'critical'
-        elif self == BuildStatusEnum.Success:
+        if self == BuildStatusEnum.Success:
             return 'success'
         return 'inactive'
 

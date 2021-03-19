@@ -19,9 +19,8 @@
 #
 from __future__ import annotations
 
-import logging
-
 import aur  # type: ignore
+import logging
 import os
 
 from dataclasses import dataclass
@@ -95,12 +94,12 @@ class Package:
         # update pkgver first
         check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir, logger=logger)
         # generate new .SRCINFO and put it to parser
-        src_info_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir, logger=logger)
-        src_info, errors = parse_srcinfo(src_info_source)
+        srcinfo_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir, logger=logger)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise InvalidPackageInfo(errors)
 
-        return self.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
+        return self.full_version(srcinfo.get('epoch'), srcinfo['pkgver'], srcinfo['pkgrel'])
 
     @classmethod
     def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
@@ -134,14 +133,14 @@ class Package:
         :param aur_url: AUR root url
         :return: package properties
         '''
-        with open(os.path.join(path, '.SRCINFO')) as fn:
-            src_info, errors = parse_srcinfo(fn.read())
+        with open(os.path.join(path, '.SRCINFO')) as srcinfo_file:
+            srcinfo, errors = parse_srcinfo(srcinfo_file.read())
         if errors:
             raise InvalidPackageInfo(errors)
-        packages = {key: PackageDescription() for key in src_info['packages'].keys()}
-        version = cls.full_version(src_info.get('epoch'), src_info['pkgver'], src_info['pkgrel'])
+        packages = {key: PackageDescription() for key in srcinfo['packages']}
+        version = cls.full_version(srcinfo.get('epoch'), srcinfo['pkgver'], srcinfo['pkgrel'])
 
-        return cls(src_info['pkgbase'], version, aur_url, packages)
+        return cls(srcinfo['pkgbase'], version, aur_url, packages)
 
     @staticmethod
     def dependencies(path: str) -> Set[str]:
@@ -150,17 +149,17 @@ class Package:
         :param path: path to package sources directory
         :return: list of package dependencies including makedepends array, but excluding packages from this base
         '''
-        with open(os.path.join(path, '.SRCINFO')) as fn:
-            src_info, errors = parse_srcinfo(fn.read())
+        with open(os.path.join(path, '.SRCINFO')) as srcinfo_file:
+            srcinfo, errors = parse_srcinfo(srcinfo_file.read())
         if errors:
             raise InvalidPackageInfo(errors)
-        makedepends = src_info.get('makedepends', [])
+        makedepends = srcinfo.get('makedepends', [])
         # sum over each package
-        depends: List[str] = src_info.get('depends', [])
-        for package in src_info['packages'].values():
+        depends: List[str] = srcinfo.get('depends', [])
+        for package in srcinfo['packages'].values():
             depends.extend(package.get('depends', []))
         # we are not interested in dependencies inside pkgbase
-        packages = set(src_info['packages'].keys())
+        packages = set(srcinfo['packages'].keys())
         return set(depends + makedepends) - packages
 
     @staticmethod

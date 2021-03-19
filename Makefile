@@ -27,6 +27,7 @@ archlinux: archive
 check:
 	cd src && mypy --strict -p $(PROJECT)
 	cd src && find $(PROJECT) -name '*.py' -execdir autopep8 --max-line-length 120 -aa -i {} +
+	cd src && pylint --rcfile=../.pylintrc $(PROJECT)
 
 clean:
 	find . -type f -name '$(PROJECT)-*-src.tar.xz' -delete

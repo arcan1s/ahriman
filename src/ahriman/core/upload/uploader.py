@@ -72,4 +72,3 @@ class Uploader:
         sync data to remote server
         :param path: local path to sync
         '''
-        pass

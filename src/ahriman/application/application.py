@@ -136,15 +136,15 @@ class Application:
         :param no_packages: do not clear directory with built packages
         '''
         if not no_build:
-            self.repository._clear_build()
+            self.repository.clear_build()
         if not no_cache:
-            self.repository._clear_cache()
+            self.repository.clear_cache()
         if not no_chroot:
-            self.repository._clear_chroot()
+            self.repository.clear_chroot()
         if not no_manual:
-            self.repository._clear_manual()
+            self.repository.clear_manual()
         if not no_packages:
-            self.repository._clear_packages()
+            self.repository.clear_packages()
 
     def remove(self, names: Iterable[str]) -> None:
         '''

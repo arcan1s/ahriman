@@ -92,7 +92,7 @@ class Tree:
         '''
         result: List[List[Package]] = []
 
-        unprocessed = [leaf for leaf in self.leaves]
+        unprocessed = self.leaves[:]
         while unprocessed:
             result.append([leaf.package for leaf in unprocessed if leaf.is_root(unprocessed)])
             unprocessed = [leaf for leaf in unprocessed if not leaf.is_root(unprocessed)]

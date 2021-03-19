@@ -19,6 +19,7 @@
 #
 from __future__ import annotations
 
+import argparse
 import os
 
 from types import TracebackType
@@ -40,19 +41,16 @@ class Lock:
     :ivar unsafe: skip user check
     '''
 
-    def __init__(self, path: Optional[str], architecture: str, force: bool, unsafe: bool,
-                 config: Configuration) -> None:
+    def __init__(self, args: argparse.Namespace, architecture: str, config: Configuration) -> None:
         '''
         default constructor
-        :param path: optional path to lock file, if empty no file lock will be used
+        :param args: command line args
         :param architecture: repository architecture
-        :param force: remove lock file on start if any
-        :param unsafe: skip user check
         :param config: configuration instance
         '''
-        self.path = f'{path}_{architecture}' if path is not None else None
-        self.force = force
-        self.unsafe = unsafe
+        self.path = f'{args.lock}_{architecture}' if args.lock is not None else None
+        self.force = args.force
+        self.unsafe = args.unsafe
 
         self.root = config.get('repository', 'root')
         self.reporter = Client.load(architecture, config)

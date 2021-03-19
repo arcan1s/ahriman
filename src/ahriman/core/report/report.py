@@ -72,4 +72,3 @@ class Report:
         generate report for the specified packages
         :param packages: list of packages to generate report
         '''
-        pass

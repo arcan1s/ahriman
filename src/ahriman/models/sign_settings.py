@@ -43,6 +43,6 @@ class SignSettings(Enum):
         '''
         if value.lower() in ('package', 'packages', 'sign-package'):
             return SignSettings.SignPackages
-        elif value.lower() in ('repository', 'sign-repository'):
+        if value.lower() in ('repository', 'sign-repository'):
             return SignSettings.SignRepository
         raise InvalidOption(value)

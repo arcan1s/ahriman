@@ -59,6 +59,16 @@ class GPG:
             return []
         return ['--sign', '--key', self.default_key]
 
+    @staticmethod
+    def sign_cmd(path: str, key: str) -> List[str]:
+        '''
+        gpg command to run
+        :param path: path to file to sign
+        :param key: PGP key ID
+        :return: gpg command with all required arguments
+        '''
+        return ['gpg', '-u', key, '-b', path]
+
     def process(self, path: str, key: str) -> List[str]:
         '''
         gpg command wrapper
@@ -67,20 +77,11 @@ class GPG:
         :return: list of generated files including original file
         '''
         check_output(
-            *self.sign_cmd(path, key),
+            *GPG.sign_cmd(path, key),
             exception=BuildFailed(path),
             cwd=os.path.dirname(path),
             logger=self.logger)
         return [path, f'{path}.sig']
-
-    def sign_cmd(self, path: str, key: str) -> List[str]:
-        '''
-        gpg command to run
-        :param path: path to file to sign
-        :param key: PGP key ID
-        :return: gpg command with all required arguments
-        '''
-        return ['gpg', '-u', key, '-b', path]
 
     def sign_package(self, path: str, base: str) -> List[str]:
         '''

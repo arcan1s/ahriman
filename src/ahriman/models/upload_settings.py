@@ -43,6 +43,6 @@ class UploadSettings(Enum):
         '''
         if value.lower() in ('rsync',):
             return UploadSettings.Rsync
-        elif value.lower() in ('s3',):
+        if value.lower() in ('s3',):
             return UploadSettings.S3
         raise InvalidOption(value)

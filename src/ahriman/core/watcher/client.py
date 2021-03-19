@@ -35,14 +35,12 @@ class Client:
         :param package: package properties
         :param status: current package build status
         '''
-        pass
 
     def remove(self, base: str) -> None:
         '''
         remove packages from watcher
         :param base: basename to remove
         '''
-        pass
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
         '''
@@ -50,14 +48,12 @@ class Client:
         :param base: package base to update
         :param status: current package build status
         '''
-        pass
 
     def update_self(self, status: BuildStatusEnum) -> None:
         '''
         update ahriman status itself
         :param status: current ahriman status
         '''
-        pass
 
     def set_building(self, base: str) -> None:
         '''

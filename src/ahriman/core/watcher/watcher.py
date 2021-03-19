@@ -50,7 +50,7 @@ class Watcher:
         '''
         :return: list of packages together with their statuses
         '''
-        return [pair for pair in self.known.values()]
+        return list(self.known.values())
 
     def get(self, base: str) -> Tuple[Package, BuildStatus]:
         '''

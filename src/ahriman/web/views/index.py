@@ -51,7 +51,7 @@ class IndexView(BaseView):
         packages = [
             {
                 'base': package.base,
-                'packages': [p for p in sorted(package.packages)],
+                'packages': list(sorted(package.packages)),
                 'status': status.status.value,
                 'timestamp': pretty_datetime(status.timestamp),
                 'version': package.version,

@@ -79,16 +79,16 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
     def str_level() -> str:
         if level == 0:
             return 'B'
-        elif level == 1:
+        if level == 1:
             return 'KiB'
-        elif level == 2:
+        if level == 2:
             return 'MiB'
-        elif level == 3:
+        if level == 3:
             return 'GiB'
         raise InvalidOption(level)  # I hope it will not be more than 1024 GiB
 
     if size is None:
         return ''
-    elif size < 1024:
+    if size < 1024:
         return f'{round(size, 2)} {str_level()}'
     return pretty_size(size / 1024, level + 1)

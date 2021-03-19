@@ -39,7 +39,7 @@ def _call(args: argparse.Namespace, architecture: str, config: Configuration) ->
     :return: True on success, False otherwise
     '''
     try:
-        with Lock(args.lock, architecture, args.force, args.unsafe, config):
+        with Lock(args.lock, architecture, config):
             args.fn(args, architecture, config)
         return True
     except Exception:
@@ -75,8 +75,9 @@ def dump_config(args: argparse.Namespace, architecture: str, config: Configurati
     :param architecture: repository architecture
     :param config: configuration instance
     '''
-    result = config.dump(architecture)
-    for section, values in sorted(result.items()):
+    del args
+    config_dump = config.dump(architecture)
+    for section, values in sorted(config_dump.items()):
         print(f'[{section}]')
         for key, value in sorted(values.items()):
             print(f'{key} = {value}')
@@ -90,6 +91,7 @@ def rebuild(args: argparse.Namespace, architecture: str, config: Configuration) 
     :param architecture: repository architecture
     :param config: configuration instance
     '''
+    del args
     app = Application(architecture, config)
     packages = app.repository.packages()
     app.update(packages)
@@ -151,6 +153,7 @@ def web(args: argparse.Namespace, architecture: str, config: Configuration) -> N
     :param architecture: repository architecture
     :param config: configuration instance
     '''
+    del args
     from ahriman.web.web import run_server, setup_service
     application = setup_service(architecture, config)
     run_server(application, architecture)
@@ -221,13 +224,14 @@ if __name__ == '__main__':
     web_parser = subparsers.add_parser('web', description='start web server')
     web_parser.set_defaults(fn=web, lock=None)
 
-    args = parser.parse_args()
-    if 'fn' not in args:
+    cmd_args = parser.parse_args()
+    if 'fn' not in cmd_args:
         parser.print_help()
-        exit(1)
+        sys.exit(1)
 
-    config = Configuration.from_path(args.config)
-    with Pool(len(args.architecture)) as pool:
-        result = pool.starmap(_call, [(args, architecture, config) for architecture in args.architecture])
+    configuration = Configuration.from_path(cmd_args.config)
+    with Pool(len(cmd_args.architecture)) as pool:
+        result = pool.starmap(
+            _call, [(cmd_args, architecture, configuration) for architecture in cmd_args.architecture])
 
     sys.exit(0 if all(result) else 1)

@@ -113,4 +113,4 @@ class WebClient(Client):
             response = requests.post(self._ahriman_url(), json=payload)
             response.raise_for_status()
         except Exception:
-            self.logger.exception(f'could not update service status', exc_info=True)
+            self.logger.exception('could not update service status', exc_info=True)
