@@ -20,7 +20,7 @@
 import datetime
 
 from enum import Enum
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 
 class BuildStatusEnum(Enum):
@@ -71,3 +71,13 @@ class BuildStatus:
         '''
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
         self.timestamp = timestamp or int(datetime.datetime.utcnow().timestamp())
+
+    def view(self) -> Dict[str, Any]:
+        '''
+        generate json status view
+        :return: json-friendly dictionary
+        '''
+        return {
+            'status': self.status.value,
+            'timestamp': self.timestamp
+        }

@@ -41,7 +41,10 @@ class PackageView(BaseView):
         except KeyError:
             raise HTTPNotFound()
 
-        response = PackageView.package_view(package, status)
+        response = {
+            'package': package.view(),
+            'status': status.view()
+        }
         return json_response(response)
 
     async def delete(self) -> Response:
@@ -71,7 +74,7 @@ class PackageView(BaseView):
         data = await self.request.json()
 
         try:
-            package = Package(**data['package']) if 'package' in data else None
+            package = Package.from_json(data['package']) if 'package' in data else None
             status = BuildStatusEnum(data['status'])
         except Exception as e:
             raise HTTPBadRequest(text=str(e))

@@ -33,8 +33,10 @@ class PackagesView(BaseView):
         :return: 200 with package description on success
         '''
         response = [
-            PackagesView.package_view(package, status)
-            for package, status in self.service.packages
+            {
+                'package': package.view(),
+                'status': status.view()
+            } for package, status in self.service.packages
         ]
         return json_response(response)
 

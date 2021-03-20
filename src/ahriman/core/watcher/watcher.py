@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, List, Optional, Tuple
+import json
+import logging
+import os
+
+from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
@@ -30,7 +34,9 @@ class Watcher:
     package status watcher
     :ivar architecture: repository architecture
     :ivar known: list of known packages. For the most cases `packages` should be used instead
+    :ivar logger: class logger
     :ivar repository: repository object
+    :ivar status: daemon status
     '''
 
     def __init__(self, architecture: str, config: Configuration) -> None:
@@ -39,6 +45,8 @@ class Watcher:
         :param architecture: repository architecture
         :param config: configuration instance
         '''
+        self.logger = logging.getLogger('http')
+
         self.architecture = architecture
         self.repository = Repository(architecture, config)
 
@@ -46,11 +54,53 @@ class Watcher:
         self.status = BuildStatus()
 
     @property
+    def cache_path(self) -> str:
+        '''
+        :return: path to dump with json cache
+        '''
+        return os.path.join(self.repository.paths.root, 'cache.json')
+
+    @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
         '''
         :return: list of packages together with their statuses
         '''
         return list(self.known.values())
+
+    def _cache_load(self) -> None:
+        '''
+        update current state from cache
+        '''
+        def parse_single(properties: Dict[str, Any]) -> None:
+            package = Package.from_json(properties['package'])
+            status = BuildStatus(**properties['status'])
+            if package.base in self.known:
+                self.known[package.base] = (package, status)
+
+        if not os.path.isfile(self.cache_path):
+            return
+        with open(self.cache_path) as cache:
+            dump = json.load(cache)
+        for item in dump['packages']:
+            try:
+                parse_single(item)
+            except Exception:
+                self.logger.exception(f'cannot parse item f{item} to package', exc_info=True)
+
+    def _cache_save(self) -> None:
+        '''
+        dump current cache to filesystem
+        '''
+        dump = {
+            'packages': [
+                {
+                    'package': package.view(),
+                    'status': status.view()
+                } for package, status in self.packages
+            ]
+        }
+        with open(self.cache_path, 'w') as cache:
+            json.dump(dump, cache)
 
     def get(self, base: str) -> Tuple[Package, BuildStatus]:
         '''
@@ -71,6 +121,7 @@ class Watcher:
             else:
                 _, status = current
             self.known[package.base] = (package, status)
+        self._cache_load()
 
     def remove(self, base: str) -> None:
         '''
@@ -78,6 +129,7 @@ class Watcher:
         :param base: package base
         '''
         self.known.pop(base, None)
+        self._cache_save()
 
     def update(self, base: str, status: BuildStatusEnum, package: Optional[Package]) -> None:
         '''
@@ -90,6 +142,7 @@ class Watcher:
             package, _ = self.known[base]
         full_status = BuildStatus(status)
         self.known[base] = (package, full_status)
+        self._cache_save()
 
     def update_self(self, status: BuildStatusEnum) -> None:
         '''

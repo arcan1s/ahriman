@@ -33,7 +33,7 @@ class AhrimanView(BaseView):
         get current service status
         :return: 200 with service status object
         '''
-        return json_response(AhrimanView.status_view(self.service.status))
+        return json_response(self.service.status.view())
 
     async def post(self) -> Response:
         '''

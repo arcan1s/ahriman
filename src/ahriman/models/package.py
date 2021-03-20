@@ -23,10 +23,10 @@ import aur  # type: ignore
 import logging
 import os
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
@@ -76,31 +76,6 @@ class Package:
         '''
         return f'{self.aur_url}/packages/{self.base}'
 
-    def actual_version(self, paths: RepositoryPaths) -> str:
-        '''
-        additional method to handle VCS package versions
-        :param paths: repository paths instance
-        :return: package version if package is not VCS and current version according to VCS otherwise
-        '''
-        if not self.is_vcs:
-            return self.version
-
-        from ahriman.core.build_tools.task import Task
-
-        clone_dir = os.path.join(paths.cache, self.base)
-        logger = logging.getLogger('build_details')
-        Task.fetch(clone_dir, self.git_url)
-
-        # update pkgver first
-        check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir, logger=logger)
-        # generate new .SRCINFO and put it to parser
-        srcinfo_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir, logger=logger)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise InvalidPackageInfo(errors)
-
-        return self.full_version(srcinfo.get('epoch'), srcinfo['pkgver'], srcinfo['pkgrel'])
-
     @classmethod
     def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
         '''
@@ -141,6 +116,23 @@ class Package:
         version = cls.full_version(srcinfo.get('epoch'), srcinfo['pkgver'], srcinfo['pkgrel'])
 
         return cls(srcinfo['pkgbase'], version, aur_url, packages)
+
+    @classmethod
+    def from_json(cls: Type[Package], dump: Dict[str, Any]) -> Package:
+        '''
+        construct package properties from json dump
+        :param dump: json dump body
+        :return: package properties
+        '''
+        packages = {
+            key: PackageDescription(**value)
+            for key, value in dump.get('packages', {})
+        }
+        return Package(
+            base=dump['base'],
+            version=dump['version'],
+            aur_url=dump['aur_url'],
+            packages=packages)
 
     @staticmethod
     def dependencies(path: str) -> Set[str]:
@@ -196,6 +188,31 @@ class Package:
         except Exception as e:
             raise InvalidPackageInfo(str(e))
 
+    def actual_version(self, paths: RepositoryPaths) -> str:
+        '''
+        additional method to handle VCS package versions
+        :param paths: repository paths instance
+        :return: package version if package is not VCS and current version according to VCS otherwise
+        '''
+        if not self.is_vcs:
+            return self.version
+
+        from ahriman.core.build_tools.task import Task
+
+        clone_dir = os.path.join(paths.cache, self.base)
+        logger = logging.getLogger('build_details')
+        Task.fetch(clone_dir, self.git_url)
+
+        # update pkgver first
+        check_output('makepkg', '--nodeps', '--nobuild', exception=None, cwd=clone_dir, logger=logger)
+        # generate new .SRCINFO and put it to parser
+        srcinfo_source = check_output('makepkg', '--printsrcinfo', exception=None, cwd=clone_dir, logger=logger)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
+        if errors:
+            raise InvalidPackageInfo(errors)
+
+        return self.full_version(srcinfo.get('epoch'), srcinfo['pkgver'], srcinfo['pkgrel'])
+
     def is_outdated(self, remote: Package, paths: RepositoryPaths) -> bool:
         '''
         check if package is out-of-dated
@@ -206,3 +223,10 @@ class Package:
         remote_version = remote.actual_version(paths)  # either normal version or updated VCS
         result: int = vercmp(self.version, remote_version)
         return result < 0
+
+    def view(self) -> Dict[str, Any]:
+        '''
+        generate json package view
+        :return: json-friendly dictionary
+        '''
+        return asdict(self)
