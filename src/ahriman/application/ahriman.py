@@ -39,7 +39,7 @@ def _call(args: argparse.Namespace, architecture: str, config: Configuration) ->
     :return: True on success, False otherwise
     '''
     try:
-        with Lock(args.lock, architecture, config):
+        with Lock(args, architecture, config):
             args.fn(args, architecture, config)
         return True
     except Exception:
@@ -169,6 +169,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', help='configuration path', default='/etc/ahriman.ini')
     parser.add_argument('--force', help='force run, remove file lock', action='store_true')
     parser.add_argument('--lock', help='lock file', default='/tmp/ahriman.lock')
+    parser.add_argument('--no-log', help='redirect all log messages to stderr', action='store_true')
+    parser.add_argument('--no-report', help='force disable reporting to web service', action='store_true')
     parser.add_argument('--unsafe', help='allow to run ahriman as non-ahriman user', action='store_true')
     parser.add_argument('-v', '--version', action='version', version=version.__version__)
     subparsers = parser.add_subparsers(title='command')
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     add_parser.add_argument('--without-dependencies', help='do not add dependencies', action='store_true')
     add_parser.set_defaults(fn=add)
 
-    check_parser = subparsers.add_parser('check', description='check for updates')
+    check_parser = subparsers.add_parser('check', description='check for updates. Same as update --dry-run --no-manual')
     check_parser.add_argument('package', help='filter check by packages', nargs='*')
     check_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
     check_parser.set_defaults(fn=update, no_aur=False, no_manual=True, dry_run=True)
@@ -216,20 +218,20 @@ if __name__ == '__main__':
     update_parser.add_argument('package', help='filter check by packages', nargs='*')
     update_parser.add_argument(
         '--dry-run', help='just perform check for updates, same as check command', action='store_true')
-    update_parser.add_argument('--no-aur', help='do not check for AUR updates', action='store_true')
+    update_parser.add_argument('--no-aur', help='do not check for AUR updates. Implies --no-vcs', action='store_true')
     update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
     update_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
     update_parser.set_defaults(fn=update)
 
     web_parser = subparsers.add_parser('web', description='start web server')
-    web_parser.set_defaults(fn=web, lock=None)
+    web_parser.set_defaults(fn=web, lock=None, no_report=True)
 
     cmd_args = parser.parse_args()
     if 'fn' not in cmd_args:
         parser.print_help()
         sys.exit(1)
 
-    configuration = Configuration.from_path(cmd_args.config)
+    configuration = Configuration.from_path(cmd_args.config, not cmd_args.no_log)
     with Pool(len(cmd_args.architecture)) as pool:
         result = pool.starmap(
             _call, [(cmd_args, architecture, configuration) for architecture in cmd_args.architecture])

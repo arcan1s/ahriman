@@ -53,7 +53,7 @@ class Lock:
         self.unsafe = args.unsafe
 
         self.root = config.get('repository', 'root')
-        self.reporter = Client.load(architecture, config)
+        self.reporter = Client() if args.no_report else Client.load(architecture, config)
 
     def __enter__(self) -> Lock:
         '''

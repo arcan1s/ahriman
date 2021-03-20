@@ -37,7 +37,7 @@ class Configuration(configparser.RawConfigParser):
     :cvar STATIC_SECTIONS: known sections which are not architecture specific (required by dump)
     '''
 
-    DEFAULT_LOG_FORMAT = '%(asctime)s : %(levelname)s : %(funcName)s : %(message)s'
+    DEFAULT_LOG_FORMAT = '[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d] [%(funcName)s]: %(message)s'
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
     STATIC_SECTIONS = ['alpm', 'report', 'repository', 'settings', 'upload']
@@ -45,7 +45,7 @@ class Configuration(configparser.RawConfigParser):
 
     def __init__(self) -> None:
         '''
-        default constructor
+        default constructor. In the most cases must not be called directly
         '''
         configparser.RawConfigParser.__init__(self, allow_no_value=True)
         self.path: Optional[str] = None
@@ -58,15 +58,16 @@ class Configuration(configparser.RawConfigParser):
         return self.get('settings', 'include')
 
     @classmethod
-    def from_path(cls: Type[Configuration], path: str) -> Configuration:
+    def from_path(cls: Type[Configuration], path: str, logfile: bool) -> Configuration:
         '''
         constructor with full object initialization
         :param path: path to root configuration file
+        :param logfile: use log file to output messages
         :return: configuration instance
         '''
         config = cls()
         config.load(path)
-        config.load_logging()
+        config.load_logging(logfile)
         return config
 
     def dump(self, architecture: str) -> Dict[str, Dict[str, str]]:
@@ -129,13 +130,23 @@ class Configuration(configparser.RawConfigParser):
         except (FileNotFoundError, configparser.NoOptionError):
             pass
 
-    def load_logging(self) -> None:
+    def load_logging(self, logfile: bool) -> None:
         '''
         setup logging settings from configuration
+        :param logfile: use log file to output messages
         '''
-        try:
-            fileConfig(self.get('settings', 'logging'))
-        except PermissionError:
+        def file_logger() -> None:
+            try:
+                fileConfig(self.get('settings', 'logging'))
+            except PermissionError:
+                console_logger()
+                logging.error('could not create logfile, fallback to stderr', exc_info=True)
+
+        def console_logger() -> None:
             logging.basicConfig(filename=None, format=Configuration.DEFAULT_LOG_FORMAT,
                                 level=Configuration.DEFAULT_LOG_LEVEL)
-            logging.error('could not create logfile, fallback to stderr', exc_info=True)
+
+        if logfile:
+            file_logger()
+        else:
+            console_logger()

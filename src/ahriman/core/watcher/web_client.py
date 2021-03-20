@@ -20,8 +20,6 @@
 import logging
 import requests
 
-from dataclasses import asdict
-
 from ahriman.core.watcher.client import Client
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
@@ -68,12 +66,14 @@ class WebClient(Client):
         '''
         payload = {
             'status': status.value,
-            'package': asdict(package)
+            'package': package.view()
         }
 
         try:
             response = requests.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not add {package.base}: {e.response.text}', exc_info=True)
         except Exception:
             self.logger.exception(f'could not add {package.base}', exc_info=True)
 
@@ -85,6 +85,8 @@ class WebClient(Client):
         try:
             response = requests.delete(self._package_url(base))
             response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not delete {base}: {e.response.text}', exc_info=True)
         except Exception:
             self.logger.exception(f'could not delete {base}', exc_info=True)
 
@@ -99,6 +101,8 @@ class WebClient(Client):
         try:
             response = requests.post(self._package_url(base), json=payload)
             response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not update {base}: {e.response.text}', exc_info=True)
         except Exception:
             self.logger.exception(f'could not update {base}', exc_info=True)
 
@@ -112,5 +116,7 @@ class WebClient(Client):
         try:
             response = requests.post(self._ahriman_url(), json=payload)
             response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not update service status: {e.response.text}', exc_info=True)
         except Exception:
             self.logger.exception('could not update service status', exc_info=True)

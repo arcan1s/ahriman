@@ -126,7 +126,7 @@ class Package:
         '''
         packages = {
             key: PackageDescription(**value)
-            for key, value in dump.get('packages', {})
+            for key, value in dump.get('packages', {}).items()
         }
         return Package(
             base=dump['base'],

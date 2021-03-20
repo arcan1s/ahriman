@@ -24,7 +24,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.repository import Repository
+from ahriman.repository.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 
@@ -58,7 +58,7 @@ class Watcher:
         '''
         :return: path to dump with json cache
         '''
-        return os.path.join(self.repository.paths.root, 'cache.json')
+        return os.path.join(self.repository.paths.root, 'status_cache.json')
 
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
@@ -99,8 +99,11 @@ class Watcher:
                 } for package, status in self.packages
             ]
         }
-        with open(self.cache_path, 'w') as cache:
-            json.dump(dump, cache)
+        try:
+            with open(self.cache_path, 'w') as cache:
+                json.dump(dump, cache)
+        except Exception:
+            self.logger.exception('cannot dump cache', exc_info=True)
 
     def get(self, base: str) -> Tuple[Package, BuildStatus]:
         '''
