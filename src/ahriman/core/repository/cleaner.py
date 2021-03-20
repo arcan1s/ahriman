@@ -22,7 +22,7 @@ import shutil
 
 from typing import List
 
-from ahriman.repository.properties import Properties
+from ahriman.core.repository.properties import Properties
 
 
 class Cleaner(Properties):

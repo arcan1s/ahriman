@@ -41,10 +41,12 @@ class PackageView(BaseView):
         except KeyError:
             raise HTTPNotFound()
 
-        response = {
-            'package': package.view(),
-            'status': status.view()
-        }
+        response = [
+            {
+                'package': package.view(),
+                'status': status.view()
+            }
+        ]
         return json_response(response)
 
     async def delete(self) -> Response:

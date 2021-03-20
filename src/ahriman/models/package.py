@@ -58,6 +58,13 @@ class Package:
         return f'{self.aur_url}/{self.base}.git'
 
     @property
+    def is_single_package(self) -> bool:
+        '''
+        :return: true in case if this base has only one package with the same name
+        '''
+        return self.base in self.packages and len(self.packages) == 1
+
+    @property
     def is_vcs(self) -> bool:
         '''
         :return: True in case if package base looks like VCS package and false otherwise
@@ -223,6 +230,14 @@ class Package:
         remote_version = remote.actual_version(paths)  # either normal version or updated VCS
         result: int = vercmp(self.version, remote_version)
         return result < 0
+
+    def pretty_print(self) -> str:
+        '''
+        generate pretty string representation
+        :return: print-friendly string
+        '''
+        details = '' if self.is_single_package else f''' ({' '.join(sorted(self.packages.keys()))})'''
+        return f'{self.base}{details}'
 
     def view(self) -> Dict[str, Any]:
         '''

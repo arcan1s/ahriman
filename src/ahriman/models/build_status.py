@@ -17,10 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import datetime
 
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Type, Union
+
+from ahriman.core.util import pretty_datetime
 
 
 class BuildStatusEnum(Enum):
@@ -72,6 +76,22 @@ class BuildStatus:
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
         self.timestamp = timestamp or int(datetime.datetime.utcnow().timestamp())
 
+    @classmethod
+    def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:
+        '''
+        construct status properties from json dump
+        :param dump: json dump body
+        :return: status properties
+        '''
+        return cls(dump.get('status'), dump.get('timestamp'))
+
+    def pretty_print(self) -> str:
+        '''
+        generate pretty string representation
+        :return: print-friendly string
+        '''
+        return f'{self.status.value} ({pretty_datetime(self.timestamp)})'
+
     def view(self) -> Dict[str, Any]:
         '''
         generate json status view
@@ -81,3 +101,10 @@ class BuildStatus:
             'status': self.status.value,
             'timestamp': self.timestamp
         }
+
+    def __repr__(self) -> str:
+        '''
+        generate string representation of object
+        :return: unique string representation
+        '''
+        return f'BuildStatus(status={self.status.value}, timestamp={self.timestamp})'

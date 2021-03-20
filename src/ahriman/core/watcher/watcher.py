@@ -24,7 +24,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.repository.repository import Repository
+from ahriman.core.repository.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 
@@ -73,7 +73,7 @@ class Watcher:
         '''
         def parse_single(properties: Dict[str, Any]) -> None:
             package = Package.from_json(properties['package'])
-            status = BuildStatus(**properties['status'])
+            status = BuildStatus.from_json(properties['status'])
             if package.base in self.known:
                 self.known[package.base] = (package, status)
 

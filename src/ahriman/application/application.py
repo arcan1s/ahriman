@@ -25,7 +25,7 @@ from typing import Callable, Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
-from ahriman.repository.repository import Repository
+from ahriman.core.repository.repository import Repository
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
 

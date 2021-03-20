@@ -24,9 +24,9 @@ from typing import Dict, Iterable, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.report.report import Report
+from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.upload.uploader import Uploader
 from ahriman.models.package import Package
-from ahriman.repository.cleaner import Cleaner
 
 
 class Executor(Cleaner):

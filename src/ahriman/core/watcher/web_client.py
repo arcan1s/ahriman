@@ -18,10 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
+from typing import List, Optional, Tuple
+
 import requests
 
 from ahriman.core.watcher.client import Client
-from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.build_status import BuildStatusEnum, BuildStatus
 from ahriman.models.package import Package
 
 
@@ -50,7 +52,7 @@ class WebClient(Client):
         '''
         return f'http://{self.host}:{self.port}/api/v1/ahriman'
 
-    def _package_url(self, base: str) -> str:
+    def _package_url(self, base: str = '') -> str:
         '''
         url generator
         :param base: package base to generate url
@@ -76,6 +78,44 @@ class WebClient(Client):
             self.logger.exception(f'could not add {package.base}: {e.response.text}', exc_info=True)
         except Exception:
             self.logger.exception(f'could not add {package.base}', exc_info=True)
+
+    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+        '''
+        get package status
+        :param base: package base to get
+        :return: list of current package description and status if it has been found
+        '''
+        try:
+            response = requests.get(self._package_url(base or ''))
+            response.raise_for_status()
+
+            status_json = response.json()
+            return [
+                (Package.from_json(package['package']), BuildStatus.from_json(package['status']))
+                for package in status_json
+            ]
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not get {base}: {e.response.text}', exc_info=True)
+        except Exception:
+            self.logger.exception(f'could not get {base}', exc_info=True)
+        return []
+
+    def get_self(self) -> BuildStatus:
+        '''
+        get ahriman status itself
+        :return: current ahriman status
+        '''
+        try:
+            response = requests.get(self._ahriman_url())
+            response.raise_for_status()
+
+            status_json = response.json()
+            return BuildStatus.from_json(status_json)
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f'could not get service status: {e.response.text}', exc_info=True)
+        except Exception:
+            self.logger.exception('could not get service status', exc_info=True)
+        return BuildStatus()
 
     def remove(self, base: str) -> None:
         '''

@@ -21,10 +21,10 @@ import os
 
 from typing import Dict, List
 
+from ahriman.core.repository.executor import Executor
+from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
-from ahriman.repository.executor import Executor
-from ahriman.repository.update_handler import UpdateHandler
 
 
 class Repository(Executor, UpdateHandler):

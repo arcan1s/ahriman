@@ -41,7 +41,7 @@ class IndexView(BaseView):
         version - ahriman version, string, required
     '''
 
-    @aiohttp_jinja2.template("build-status.jinja2")
+    @aiohttp_jinja2.template('build-status.jinja2')
     async def get(self) -> Dict[str, Any]:
         '''
         process get request. No parameters supported here

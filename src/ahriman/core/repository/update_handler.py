@@ -21,8 +21,8 @@ import os
 
 from typing import Iterable, List
 
+from ahriman.core.repository.cleaner import Cleaner
 from ahriman.models.package import Package
-from ahriman.repository.cleaner import Cleaner
 
 
 class UpdateHandler(Cleaner):

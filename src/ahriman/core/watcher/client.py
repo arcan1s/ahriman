@@ -19,8 +19,10 @@
 #
 from __future__ import annotations
 
+from typing import List, Optional, Tuple
+
 from ahriman.core.configuration import Configuration
-from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 
 
@@ -36,10 +38,28 @@ class Client:
         :param status: current package build status
         '''
 
+    # pylint: disable=R0201
+    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+        '''
+        get package status
+        :param base: package base to get
+        :return: list of current package description and status if it has been found
+        '''
+        del base
+        return []
+
+    # pylint: disable=R0201
+    def get_self(self) -> BuildStatus:
+        '''
+        get ahriman status itself
+        :return: current ahriman status
+        '''
+        return BuildStatus()
+
     def remove(self, base: str) -> None:
         '''
         remove packages from watcher
-        :param base: basename to remove
+        :param base: package base to remove
         '''
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
