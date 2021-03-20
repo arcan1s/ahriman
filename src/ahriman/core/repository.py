@@ -213,19 +213,31 @@ class Repository:
         :param packages: list of filenames to run
         :return: path to repository database
         '''
-        for package in packages:
-            local = Package.load(package, self.pacman, self.aur_url)  # we will use it for status reports
+        def update_single(fn: Optional[str], base: str) -> None:
+            if fn is None:
+                self.logger.warning(f'received empty package name for base {base}')
+                return  # suppress type checking, it never can be none actually
+            files = self.sign.sign_package(fn, base)
+            for src in files:
+                dst = os.path.join(self.paths.repository, os.path.basename(src))
+                shutil.move(src, dst)
+            package_fn = os.path.join(self.paths.repository, os.path.basename(fn))
+            self.repo.add(package_fn)
+
+        # we are iterating over bases, not single packages
+        updates: Dict[str, Package] = {}
+        for fn in packages:
+            local = Package.load(fn, self.pacman, self.aur_url)
+            updates.setdefault(local.base, local).packages.update(local.packages)
+
+        for local in updates.values():
             try:
-                files = self.sign.sign_package(package, local.base)
-                for src in files:
-                    dst = os.path.join(self.paths.repository, os.path.basename(src))
-                    shutil.move(src, dst)
-                package_fn = os.path.join(self.paths.repository, os.path.basename(package))
-                self.repo.add(package_fn)
+                for description in local.packages.values():
+                    update_single(description.filename, local.base)
                 self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f'could not process {package}', exc_info=True)
+                self.logger.exception(f'could not process {local.base}', exc_info=True)
         self.clear_packages()
 
         return self.repo.repo_path
