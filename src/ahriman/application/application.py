@@ -27,6 +27,7 @@ from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository.repository import Repository
 from ahriman.core.tree import Tree
+from ahriman.core.util import package_like
 from ahriman.models.package import Package
 
 
@@ -100,6 +101,11 @@ class Application:
         '''
         known_packages = self._known_packages()
 
+        def add_directory(path: str) -> None:
+            for package in filter(package_like, os.listdir(path)):
+                full_path = os.path.join(path, package)
+                add_manual(full_path)
+
         def add_manual(name: str) -> str:
             package = Package.load(name, self.repository.pacman, self.config.get('alpm', 'aur_url'))
             path = os.path.join(self.repository.paths.manual, package.base)
@@ -117,11 +123,13 @@ class Application:
             self.add(dependencies.difference(known_packages), without_dependencies)
 
         def process_single(name: str) -> None:
-            if not os.path.isfile(name):
+            if os.path.isdir(name):
+                add_directory(name)
+            elif os.path.isfile(name):
+                add_archive(name)
+            else:
                 path = add_manual(name)
                 process_dependencies(path)
-            else:
-                add_archive(name)
 
         for name in names:
             process_single(name)
