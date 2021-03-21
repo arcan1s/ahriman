@@ -23,13 +23,13 @@ from typing import Optional
 
 @dataclass
 class PackageDescription:
-    '''
+    """
     package specific properties
     :ivar archive_size: package archive size
     :ivar build_date: package build date
     :ivar filename: package archive name
     :ivar installed_size: package installed size
-    '''
+    """
 
     archive_size: Optional[int] = None
     build_date: Optional[int] = None

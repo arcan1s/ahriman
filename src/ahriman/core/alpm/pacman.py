@@ -24,27 +24,27 @@ from ahriman.core.configuration import Configuration
 
 
 class Pacman:
-    '''
+    """
     alpm wrapper
     :ivar handle: pyalpm root `Handle`
-    '''
+    """
 
     def __init__(self, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param config: configuration instance
-        '''
-        root = config.get('alpm', 'root')
-        pacman_root = config.get('alpm', 'database')
+        """
+        root = config.get("alpm", "root")
+        pacman_root = config.get("alpm", "database")
         self.handle = Handle(root, pacman_root)
-        for repository in config.getlist('alpm', 'repositories'):
+        for repository in config.getlist("alpm", "repositories"):
             self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
 
     def all_packages(self) -> List[str]:
-        '''
+        """
         get list of packages known for alpm
         :return: list of package names
-        '''
+        """
         result: Set[str] = set()
         for database in self.handle.get_syncdbs():
             result.update({package.name for package in database.pkgcache})

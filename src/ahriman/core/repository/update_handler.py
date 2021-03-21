@@ -26,28 +26,28 @@ from ahriman.models.package import Package
 
 
 class UpdateHandler(Cleaner):
-    '''
+    """
     trait to get package update list
-    '''
+    """
 
     def packages(self) -> List[Package]:
-        '''
+        """
         generate list of repository packages
         :return: list of packages properties
-        '''
+        """
         raise NotImplementedError
 
     def updates_aur(self, filter_packages: Iterable[str], no_vcs: bool) -> List[Package]:
-        '''
+        """
         check AUR for updates
         :param filter_packages: do not check every package just specified in the list
         :param no_vcs: do not check VCS packages
         :return: list of packages which are out-of-dated
-        '''
+        """
         result: List[Package] = []
 
-        build_section = self.config.get_section_name('build', self.architecture)
-        ignore_list = self.config.getlist(build_section, 'ignore_packages')
+        build_section = self.config.get_section_name("build", self.architecture)
+        ignore_list = self.config.getlist(build_section, "ignore_packages")
 
         for local in self.packages():
             if local.base in ignore_list:
@@ -64,16 +64,16 @@ class UpdateHandler(Cleaner):
                     result.append(remote)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f'could not load remote package {local.base}', exc_info=True)
+                self.logger.exception(f"could not load remote package {local.base}", exc_info=True)
                 continue
 
         return result
 
     def updates_manual(self) -> List[Package]:
-        '''
+        """
         check for packages for which manual update has been requested
         :return: list of packages which are out-of-dated
-        '''
+        """
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}
 
@@ -86,7 +86,7 @@ class UpdateHandler(Cleaner):
                 else:
                     self.reporter.set_pending(local.base)
             except Exception:
-                self.logger.exception(f'could not add package from {fn}', exc_info=True)
+                self.logger.exception(f"could not add package from {fn}", exc_info=True)
         self.clear_manual()
 
         return result

@@ -30,34 +30,34 @@ from ahriman.core.configuration import Configuration
 
 
 class Handler:
-    '''
+    """
     base handler class for command callbacks
-    '''
+    """
 
     @classmethod
     def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> bool:
-        '''
+        """
         additional function to wrap all calls for multiprocessing library
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
         :return: True on success, False otherwise
-        '''
+        """
         try:
             with Lock(args, architecture, config):
                 cls.run(args, architecture, config)
             return True
         except Exception:
-            logging.getLogger('root').exception('process exception', exc_info=True)
+            logging.getLogger("root").exception("process exception", exc_info=True)
             return False
 
     @classmethod
     def execute(cls: Type[Handler], args: argparse.Namespace) -> int:
-        '''
+        """
         execute function for all aru
         :param args: command line args
         :return: 0 on success, 1 otherwise
-        '''
+        """
         configuration = Configuration.from_path(args.config, not args.no_log)
         with Pool(len(args.architecture)) as pool:
             result = pool.starmap(
@@ -66,10 +66,10 @@ class Handler:
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         raise NotImplementedError

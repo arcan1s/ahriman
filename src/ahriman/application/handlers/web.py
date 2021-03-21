@@ -26,18 +26,18 @@ from ahriman.core.configuration import Configuration
 
 
 class Web(Handler):
-    '''
+    """
     web server handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         from ahriman.web.web import run_server, setup_service
         application = setup_service(architecture, config)
         run_server(application, architecture)

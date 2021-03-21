@@ -23,27 +23,29 @@ from ahriman.core.util import check_output
 
 
 class S3(Uploader):
-    '''
+    """
     aws-cli wrapper
     :ivar bucket: full bucket name
-    '''
+    """
+
+    _check_output = check_output
 
     def __init__(self, architecture: str, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         Uploader.__init__(self, architecture, config)
-        section = config.get_section_name('s3', architecture)
-        self.bucket = config.get(section, 'bucket')
+        section = config.get_section_name("s3", architecture)
+        self.bucket = config.get(section, "bucket")
 
     def sync(self, path: str) -> None:
-        '''
+        """
         sync data to remote server
         :param path: local path to sync
-        '''
+        """
         # TODO rewrite to boto, but it is bullshit
-        check_output('aws', 's3', 'sync', '--quiet', '--delete', path, self.bucket,
-                     exception=None,
-                     logger=self.logger)
+        S3._check_output("aws", "s3", "sync", "--quiet", "--delete", path, self.bucket,
+                         exception=None,
+                         logger=self.logger)

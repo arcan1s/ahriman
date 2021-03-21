@@ -23,28 +23,28 @@ from ahriman.web.views.base import BaseView
 
 
 class PackagesView(BaseView):
-    '''
+    """
     global watcher view
-    '''
+    """
 
     async def get(self) -> Response:
-        '''
+        """
         get current packages status
         :return: 200 with package description on success
-        '''
+        """
         response = [
             {
-                'package': package.view(),
-                'status': status.view()
+                "package": package.view(),
+                "status": status.view()
             } for package, status in self.service.packages
         ]
         return json_response(response)
 
     async def post(self) -> Response:
-        '''
+        """
         reload all packages from repository. No parameters supported here
         :return: 204 on success
-        '''
+        """
         self.service.load()
 
         return HTTPNoContent()

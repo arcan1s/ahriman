@@ -24,62 +24,62 @@ from dataclasses import dataclass
 
 @dataclass
 class RepositoryPaths:
-    '''
+    """
     repository paths holder. For the most operations with paths you want to use this object
     :ivar root: repository root (i.e. ahriman home)
     :ivar architecture: repository architecture
-    '''
+    """
 
     root: str
     architecture: str
 
     @property
     def cache(self) -> str:
-        '''
+        """
         :return: directory for packages cache (mainly used for VCS packages)
-        '''
-        return os.path.join(self.root, 'cache')
+        """
+        return os.path.join(self.root, "cache")
 
     @property
     def chroot(self) -> str:
-        '''
+        """
         :return: directory for devtools chroot
-        '''
-        # for the chroot directory devtools will create own tree and we don't have to specify architecture here
-        return os.path.join(self.root, 'chroot')
+        """
+        # for the chroot directory devtools will create own tree and we don"t have to specify architecture here
+        return os.path.join(self.root, "chroot")
 
     @property
     def manual(self) -> str:
-        '''
+        """
         :return: directory for manual updates (i.e. from add command)
-        '''
-        return os.path.join(self.root, 'manual', self.architecture)
+        """
+        return os.path.join(self.root, "manual", self.architecture)
 
     @property
     def packages(self) -> str:
-        '''
+        """
         :return: directory for built packages
-        '''
-        return os.path.join(self.root, 'packages', self.architecture)
+        """
+        return os.path.join(self.root, "packages", self.architecture)
 
     @property
     def repository(self) -> str:
-        '''
+        """
         :return: repository directory
-        '''
-        return os.path.join(self.root, 'repository', self.architecture)
+        """
+        return os.path.join(self.root, "repository", self.architecture)
 
     @property
     def sources(self) -> str:
-        '''
+        """
         :return: directory for downloaded PKGBUILDs for current build
-        '''
-        return os.path.join(self.root, 'sources', self.architecture)
+        """
+        return os.path.join(self.root, "sources", self.architecture)
 
     def create_tree(self) -> None:
-        '''
+        """
         create ahriman working tree
-        '''
+        """
         os.makedirs(self.cache, mode=0o755, exist_ok=True)
         os.makedirs(self.chroot, mode=0o755, exist_ok=True)
         os.makedirs(self.manual, mode=0o755, exist_ok=True)

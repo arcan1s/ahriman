@@ -23,14 +23,14 @@ from ahriman.core.watcher.watcher import Watcher
 
 
 class BaseView(View):
-    '''
+    """
     base web view to make things typed
-    '''
+    """
 
     @property
     def service(self) -> Watcher:
-        '''
+        """
         :return: build status watcher instance
-        '''
-        watcher: Watcher = self.request.app['watcher']
+        """
+        watcher: Watcher = self.request.app["watcher"]
         return watcher

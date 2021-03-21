@@ -27,16 +27,16 @@ from ahriman.core.configuration import Configuration
 
 
 class Remove(Handler):
-    '''
+    """
     remove packages handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         Application(architecture, config).remove(args.package)

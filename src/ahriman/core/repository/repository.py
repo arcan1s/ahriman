@@ -28,15 +28,15 @@ from ahriman.models.package import Package
 
 
 class Repository(Executor, UpdateHandler):
-    '''
+    """
     base repository control class
-    '''
+    """
 
     def packages(self) -> List[Package]:
-        '''
+        """
         generate list of repository packages
         :return: list of packages properties
-        '''
+        """
         result: Dict[str, Package] = {}
         for fn in os.listdir(self.paths.repository):
             if not package_like(fn):
@@ -46,15 +46,15 @@ class Repository(Executor, UpdateHandler):
                 local = Package.load(full_path, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
-                self.logger.exception(f'could not load package from {fn}', exc_info=True)
+                self.logger.exception(f"could not load package from {fn}", exc_info=True)
                 continue
         return list(result.values())
 
     def packages_built(self) -> List[str]:
-        '''
+        """
         get list of files in built packages directory
         :return: list of filenames from the directory
-        '''
+        """
         return [
             os.path.join(self.paths.packages, fn)
             for fn in os.listdir(self.paths.packages)

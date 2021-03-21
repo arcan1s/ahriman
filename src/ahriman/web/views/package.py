@@ -25,16 +25,16 @@ from ahriman.web.views.base import BaseView
 
 
 class PackageView(BaseView):
-    '''
+    """
     package base specific web view
-    '''
+    """
 
     async def get(self) -> Response:
-        '''
+        """
         get current package base status
         :return: 200 with package description on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
 
         try:
             package, status = self.service.get(base)
@@ -43,24 +43,24 @@ class PackageView(BaseView):
 
         response = [
             {
-                'package': package.view(),
-                'status': status.view()
+                "package": package.view(),
+                "status": status.view()
             }
         ]
         return json_response(response)
 
     async def delete(self) -> Response:
-        '''
+        """
         delete package base from status page
         :return: 204 on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
         self.service.remove(base)
 
         return HTTPNoContent()
 
     async def post(self) -> Response:
-        '''
+        """
         update package build status
 
         JSON body must be supplied, the following model is used:
@@ -71,19 +71,19 @@ class PackageView(BaseView):
         }
 
         :return: 204 on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
         data = await self.request.json()
 
         try:
-            package = Package.from_json(data['package']) if 'package' in data else None
-            status = BuildStatusEnum(data['status'])
+            package = Package.from_json(data["package"]) if "package" in data else None
+            status = BuildStatusEnum(data["status"])
         except Exception as e:
             raise HTTPBadRequest(text=str(e))
 
         try:
             self.service.update(base, status, package)
         except KeyError:
-            raise HTTPBadRequest(text=f'Package {base} is unknown, but no package body set')
+            raise HTTPBadRequest(text=f"Package {base} is unknown, but no package body set")
 
         return HTTPNoContent()

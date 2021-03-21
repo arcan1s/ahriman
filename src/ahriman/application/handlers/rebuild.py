@@ -27,18 +27,18 @@ from ahriman.core.configuration import Configuration
 
 
 class Rebuild(Handler):
-    '''
+    """
     make world handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         application = Application(architecture, config)
         packages = application.repository.packages()
         application.update(packages)

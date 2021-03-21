@@ -25,20 +25,20 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class ReportSettings(Enum):
-    '''
+    """
     report targets enumeration
     :cvar HTML: html report generation
-    '''
+    """
 
     HTML = auto()
 
     @staticmethod
     def from_option(value: str) -> ReportSettings:
-        '''
+        """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
-        '''
-        if value.lower() in ('html',):
+        """
+        if value.lower() in ("html",):
             return ReportSettings.HTML
         raise InvalidOption(value)

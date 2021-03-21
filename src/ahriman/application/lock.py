@@ -32,31 +32,31 @@ from ahriman.models.build_status import BuildStatusEnum
 
 
 class Lock:
-    '''
+    """
     wrapper for application lock file
     :ivar force: remove lock file on start if any
     :ivar path: path to lock file if any
     :ivar reporter: build status reporter instance
     :ivar root: repository root (i.e. ahriman home)
     :ivar unsafe: skip user check
-    '''
+    """
 
     def __init__(self, args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
-        self.path = f'{args.lock}_{architecture}' if args.lock is not None else None
+        """
+        self.path = f"{args.lock}_{architecture}" if args.lock is not None else None
         self.force = args.force
         self.unsafe = args.unsafe
 
-        self.root = config.get('repository', 'root')
+        self.root = config.get("repository", "root")
         self.reporter = Client() if args.no_report else Client.load(architecture, config)
 
     def __enter__(self) -> Lock:
-        '''
+        """
         default workflow is the following:
 
             check user UID
@@ -64,7 +64,7 @@ class Lock:
             check if there is lock file
             create lock file
             report to web if enabled
-        '''
+        """
         self.check_user()
         if self.force:
             self.remove()
@@ -75,31 +75,31 @@ class Lock:
 
     def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
                  exc_tb: TracebackType) -> Literal[False]:
-        '''
+        """
         remove lock file when done
         :param exc_type: exception type name if any
         :param exc_val: exception raised if any
         :param exc_tb: exception traceback if any
         :return: always False (do not suppress any exception)
-        '''
+        """
         self.remove()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
         self.reporter.update_self(status)
         return False
 
     def check(self) -> None:
-        '''
+        """
         check if lock file exists, raise exception if it does
-        '''
+        """
         if self.path is None:
             return
         if os.path.exists(self.path):
             raise DuplicateRun()
 
     def check_user(self) -> None:
-        '''
+        """
         check if current user is actually owner of ahriman root
-        '''
+        """
         if self.unsafe:
             return
         current_uid = os.getuid()
@@ -108,17 +108,17 @@ class Lock:
             raise UnsafeRun(current_uid, root_uid)
 
     def create(self) -> None:
-        '''
+        """
         create lock file
-        '''
+        """
         if self.path is None:
             return
-        open(self.path, 'w').close()
+        open(self.path, "w").close()
 
     def remove(self) -> None:
-        '''
+        """
         remove lock file
-        '''
+        """
         if self.path is None:
             return
         if os.path.exists(self.path):

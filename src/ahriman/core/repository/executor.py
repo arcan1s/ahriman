@@ -30,23 +30,23 @@ from ahriman.models.package import Package
 
 
 class Executor(Cleaner):
-    '''
+    """
     trait for common repository update processes
-    '''
+    """
 
     def packages(self) -> List[Package]:
-        '''
+        """
         generate list of repository packages
         :return: list of packages properties
-        '''
+        """
         raise NotImplementedError
 
     def process_build(self, updates: Iterable[Package]) -> List[str]:
-        '''
+        """
         build packages
         :param updates: list of packages properties to build
         :return: `packages_built`
-        '''
+        """
         def build_single(package: Package) -> None:
             self.reporter.set_building(package.base)
             task = Task(package, self.architecture, self.config, self.paths)
@@ -61,23 +61,23 @@ class Executor(Cleaner):
                 build_single(package)
             except Exception:
                 self.reporter.set_failed(package.base)
-                self.logger.exception(f'{package.base} ({self.architecture}) build exception', exc_info=True)
+                self.logger.exception(f"{package.base} ({self.architecture}) build exception", exc_info=True)
                 continue
         self.clear_build()
 
         return self.packages_built()
 
     def process_remove(self, packages: Iterable[str]) -> str:
-        '''
+        """
         remove packages from list
         :param packages: list of package names or bases to rmeove
         :return: path to repository database
-        '''
+        """
         def remove_single(package: str) -> None:
             try:
                 self.repo.remove(package)
             except Exception:
-                self.logger.exception(f'could not remove {package}', exc_info=True)
+                self.logger.exception(f"could not remove {package}", exc_info=True)
 
         requested = set(packages)
         for local in self.packages():
@@ -94,34 +94,34 @@ class Executor(Cleaner):
         return self.repo.repo_path
 
     def process_report(self, targets: Optional[Iterable[str]]) -> None:
-        '''
+        """
         generate reports
         :param targets: list of targets to generate reports. Configuration option will be used if it is not set
-        '''
+        """
         if targets is None:
-            targets = self.config.getlist('report', 'target')
+            targets = self.config.getlist("report", "target")
         for target in targets:
             Report.run(self.architecture, self.config, target, self.packages())
 
     def process_sync(self, targets: Optional[Iterable[str]]) -> None:
-        '''
+        """
         process synchronization to remote servers
         :param targets: list of targets to sync. Configuration option will be used if it is not set
-        '''
+        """
         if targets is None:
-            targets = self.config.getlist('upload', 'target')
+            targets = self.config.getlist("upload", "target")
         for target in targets:
             Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_update(self, packages: Iterable[str]) -> str:
-        '''
+        """
         sign packages, add them to repository and update repository database
         :param packages: list of filenames to run
         :return: path to repository database
-        '''
+        """
         def update_single(fn: Optional[str], base: str) -> None:
             if fn is None:
-                self.logger.warning(f'received empty package name for base {base}')
+                self.logger.warning(f"received empty package name for base {base}")
                 return  # suppress type checking, it never can be none actually
             # in theory it might be NOT packages directory, but we suppose it is
             full_path = os.path.join(self.paths.packages, fn)
@@ -145,7 +145,7 @@ class Executor(Cleaner):
                 self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f'could not process {local.base}', exc_info=True)
+                self.logger.exception(f"could not process {local.base}", exc_info=True)
         self.clear_packages()
 
         return self.repo.repo_path

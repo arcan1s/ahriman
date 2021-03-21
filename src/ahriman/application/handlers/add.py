@@ -27,16 +27,16 @@ from ahriman.core.configuration import Configuration
 
 
 class Add(Handler):
-    '''
+    """
     add packages handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         Application(architecture, config).add(args.package, args.without_dependencies)
