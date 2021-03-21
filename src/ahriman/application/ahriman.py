@@ -18,33 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import logging
 import sys
 
-from multiprocessing import Pool
-
-import ahriman.application.functions as functions
+import ahriman.application.handlers as handlers
 import ahriman.version as version
-
-from ahriman.application.lock import Lock
-from ahriman.core.configuration import Configuration
-
-
-def _call(args: argparse.Namespace, architecture: str, config: Configuration) -> bool:
-    '''
-    additional function to wrap all calls for multiprocessing library
-    :param args: command line args
-    :param architecture: repository architecture
-    :param config: configuration instance
-    :return: True on success, False otherwise
-    '''
-    try:
-        with Lock(args, architecture, config):
-            args.fn(args, architecture, config)
-        return True
-    except Exception:
-        logging.getLogger('root').exception('process exception', exc_info=True)
-        return False
 
 
 if __name__ == '__main__':
@@ -66,12 +43,12 @@ if __name__ == '__main__':
     add_parser = subparsers.add_parser('add', description='add package')
     add_parser.add_argument('package', help='package base/name or archive path', nargs='+')
     add_parser.add_argument('--without-dependencies', help='do not add dependencies', action='store_true')
-    add_parser.set_defaults(fn=functions.add)
+    add_parser.set_defaults(handler=handlers.Add)
 
     check_parser = subparsers.add_parser('check', description='check for updates. Same as update --dry-run --no-manual')
     check_parser.add_argument('package', help='filter check by package base', nargs='*')
     check_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
-    check_parser.set_defaults(fn=functions.update, no_aur=False, no_manual=True, dry_run=True)
+    check_parser.set_defaults(handler=handlers.Update, no_aur=False, no_manual=True, dry_run=True)
 
     clean_parser = subparsers.add_parser('clean', description='clear all local caches')
     clean_parser.add_argument('--no-build', help='do not clear directory with package sources', action='store_true')
@@ -82,30 +59,30 @@ if __name__ == '__main__':
         help='do not clear directory with manually added packages',
         action='store_true')
     clean_parser.add_argument('--no-packages', help='do not clear directory with built packages', action='store_true')
-    clean_parser.set_defaults(fn=functions.clean)
+    clean_parser.set_defaults(handler=handlers.Clean)
 
     config_parser = subparsers.add_parser('config', description='dump configuration for specified architecture')
-    config_parser.set_defaults(fn=functions.dump_config, lock=None, no_report=True, unsafe=True)
+    config_parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, unsafe=True)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
-    rebuild_parser.set_defaults(fn=functions.rebuild)
+    rebuild_parser.set_defaults(handler=handlers.Rebuild)
 
     remove_parser = subparsers.add_parser('remove', description='remove package')
     remove_parser.add_argument('package', help='package name or base', nargs='+')
-    remove_parser.set_defaults(fn=functions.remove)
+    remove_parser.set_defaults(handler=handlers.Remove)
 
     report_parser = subparsers.add_parser('report', description='generate report')
     report_parser.add_argument('target', help='target to generate report', nargs='*')
-    report_parser.set_defaults(fn=functions.report)
+    report_parser.set_defaults(handler=handlers.Report)
 
     status_parser = subparsers.add_parser('status', description='request status of the package')
     status_parser.add_argument('--ahriman', help='get service status itself', action='store_true')
     status_parser.add_argument('package', help='filter status by package base', nargs='*')
-    status_parser.set_defaults(fn=functions.status, lock=None, no_report=True, unsafe=True)
+    status_parser.set_defaults(handler=handlers.Status, lock=None, no_report=True, unsafe=True)
 
     sync_parser = subparsers.add_parser('sync', description='sync packages to remote server')
     sync_parser.add_argument('target', help='target to sync', nargs='*')
-    sync_parser.set_defaults(fn=functions.sync)
+    sync_parser.set_defaults(handler=handlers.Sync)
 
     update_parser = subparsers.add_parser('update', description='run updates')
     update_parser.add_argument('package', help='filter check by package base', nargs='*')
@@ -114,19 +91,17 @@ if __name__ == '__main__':
     update_parser.add_argument('--no-aur', help='do not check for AUR updates. Implies --no-vcs', action='store_true')
     update_parser.add_argument('--no-manual', help='do not include manual updates', action='store_true')
     update_parser.add_argument('--no-vcs', help='do not check VCS packages', action='store_true')
-    update_parser.set_defaults(fn=functions.update)
+    update_parser.set_defaults(handler=handlers.Update)
 
     web_parser = subparsers.add_parser('web', description='start web server')
-    web_parser.set_defaults(fn=functions.web, lock=None, no_report=True)
+    web_parser.set_defaults(handler=handlers.Web, lock=None, no_report=True)
 
-    cmd_args = parser.parse_args()
-    if 'fn' not in cmd_args:
+    args = parser.parse_args()
+    if 'handler' not in args:
         parser.print_help()
         sys.exit(1)
 
-    configuration = Configuration.from_path(cmd_args.config, not cmd_args.no_log)
-    with Pool(len(cmd_args.architecture)) as pool:
-        result = pool.starmap(
-            _call, [(cmd_args, architecture, configuration) for architecture in cmd_args.architecture])
+    handler: handlers.Handler = args.handler
+    status = handler.execute(args)
 
-    sys.exit(0 if all(result) else 1)
+    sys.exit(status)

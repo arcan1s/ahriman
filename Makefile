@@ -25,7 +25,7 @@ archlinux: archive
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
 check:
-	cd src && mypy --strict -p $(PROJECT)
+	cd src && mypy --implicit-reexport --strict -p $(PROJECT)
 	cd src && find $(PROJECT) -name '*.py' -execdir autopep8 --max-line-length 120 -aa -i {} +
 	cd src && pylint --rcfile=../.pylintrc $(PROJECT)
 
