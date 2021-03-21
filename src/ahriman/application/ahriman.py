@@ -85,7 +85,7 @@ if __name__ == '__main__':
     clean_parser.set_defaults(fn=functions.clean)
 
     config_parser = subparsers.add_parser('config', description='dump configuration for specified architecture')
-    config_parser.set_defaults(fn=functions.dump_config, lock=None, no_report=True)
+    config_parser.set_defaults(fn=functions.dump_config, lock=None, no_report=True, unsafe=True)
 
     rebuild_parser = subparsers.add_parser('rebuild', description='rebuild whole repository')
     rebuild_parser.set_defaults(fn=functions.rebuild)
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     status_parser = subparsers.add_parser('status', description='request status of the package')
     status_parser.add_argument('--ahriman', help='get service status itself', action='store_true')
     status_parser.add_argument('package', help='filter status by package base', nargs='*')
-    status_parser.set_defaults(fn=functions.status, lock=None, no_report=True)
+    status_parser.set_defaults(fn=functions.status, lock=None, no_report=True, unsafe=True)
 
     sync_parser = subparsers.add_parser('sync', description='sync packages to remote server')
     sync_parser.add_argument('target', help='target to sync', nargs='*')
