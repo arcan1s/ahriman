@@ -73,23 +73,33 @@ class Executor(Cleaner):
         :param packages: list of package names or bases to rmeove
         :return: path to repository database
         """
-        def remove_single(package: str) -> None:
+        def remove_single(package: str, filename: Optional[str]) -> None:
+            if filename is None:
+                self.logger.warning(f"could not remove {package} because no filename set")
+                return
             try:
-                self.repo.remove(package)
+                self.repo.remove(package, filename)
             except Exception:
                 self.logger.exception(f"could not remove {package}", exc_info=True)
 
         requested = set(packages)
         for local in self.packages():
-            if local.base in packages:
-                to_remove = set(local.packages.keys())
+            if local.base in packages or all(package in requested for package in local.packages):
+                to_remove = {
+                    package: properties.filename
+                    for package, properties in local.packages.items()
+                }
                 self.reporter.remove(local.base)  # we only update status page in case of base removal
             elif requested.intersection(local.packages.keys()):
-                to_remove = requested.intersection(local.packages.keys())
+                to_remove = {
+                    package: properties.filename
+                    for package, properties in local.packages.items()
+                    if package in requested
+                }
             else:
-                to_remove = set()
-            for package in to_remove:
-                remove_single(package)
+                to_remove = dict()
+            for package, filename in to_remove.items():
+                remove_single(package, filename)
 
         return self.repo.repo_path
 

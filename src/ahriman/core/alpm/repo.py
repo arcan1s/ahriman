@@ -68,15 +68,17 @@ class Repo:
             cwd=self.paths.repository,
             logger=self.logger)
 
-    def remove(self, package: str) -> None:
+    def remove(self, package: str, filename: str) -> None:
         """
         remove package from repository
         :param package: package name to remove
+        :param filename: package filename to remove
         """
         # remove package and signature (if any) from filesystem
-        for fn in filter(lambda f: f.startswith(package), os.listdir(self.paths.repository)):
+        for fn in filter(lambda f: f.startswith(filename), os.listdir(self.paths.repository)):
             full_path = os.path.join(self.paths.repository, fn)
             os.remove(full_path)
+
         # remove package from registry
         Repo._check_output(
             "repo-remove", *self.sign_args, self.repo_path, package,
