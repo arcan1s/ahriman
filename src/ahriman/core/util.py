@@ -21,13 +21,14 @@ import datetime
 import subprocess
 
 from logging import Logger
+from pathlib import Path
 from typing import Optional
 
 from ahriman.core.exceptions import InvalidOption
 
 
 def check_output(*args: str, exception: Optional[Exception],
-                 cwd: Optional[str] = None, stderr: int = subprocess.STDOUT,
+                 cwd: Optional[Path] = None, stderr: int = subprocess.STDOUT,
                  logger: Optional[Logger] = None) -> str:
     """
     subprocess wrapper

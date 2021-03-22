@@ -22,6 +22,7 @@ from __future__ import annotations
 import shutil
 import tempfile
 
+from pathlib import Path
 from typing import Iterable, List, Set
 
 from ahriman.core.build_tools.task import Task
@@ -65,7 +66,7 @@ class Leaf:
         """
         load dependencies for the leaf
         """
-        clone_dir = tempfile.mkdtemp()
+        clone_dir = Path(tempfile.mkdtemp())
         try:
             Task.fetch(clone_dir, self.package.git_url)
             self.dependencies = Package.dependencies(clone_dir)

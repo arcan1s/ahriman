@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import jinja2
-import os
 
+from pathlib import Path
 from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
@@ -60,9 +60,9 @@ class HTML(Report):
         """
         Report.__init__(self, architecture, config)
         section = config.get_section_name("html", architecture)
-        self.report_path = config.get(section, "path")
+        self.report_path = Path(config.get(section, "path"))
         self.link_path = config.get(section, "link_path")
-        self.template_path = config.get(section, "template_path")
+        self.template_path = Path(config.get(section, "template_path"))
 
         # base template vars
         self.homepage = config.get(section, "homepage", fallback=None)
@@ -78,10 +78,9 @@ class HTML(Report):
         :param packages: list of packages to generate report
         """
         # idea comes from https://stackoverflow.com/a/38642558
-        templates_dir, template_name = os.path.split(self.template_path)
-        loader = jinja2.FileSystemLoader(searchpath=templates_dir)
+        loader = jinja2.FileSystemLoader(searchpath=self.template_path.parent)
         environment = jinja2.Environment(loader=loader)
-        template = environment.get_template(template_name)
+        template = environment.get_template(self.template_path.name)
 
         content = [
             {
@@ -104,5 +103,4 @@ class HTML(Report):
             pgp_key=self.pgp_key,
             repository=self.name)
 
-        with open(self.report_path, "w") as out:
-            out.write(html)
+        self.report_path.write_text(html)

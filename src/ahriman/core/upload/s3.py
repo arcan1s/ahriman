@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from pathlib import Path
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.uploader import Uploader
 from ahriman.core.util import check_output
@@ -40,12 +42,12 @@ class S3(Uploader):
         section = config.get_section_name("s3", architecture)
         self.bucket = config.get(section, "bucket")
 
-    def sync(self, path: str) -> None:
+    def sync(self, path: Path) -> None:
         """
         sync data to remote server
         :param path: local path to sync
         """
         # TODO rewrite to boto, but it is bullshit
-        S3._check_output("aws", "s3", "sync", "--quiet", "--delete", path, self.bucket,
+        S3._check_output("aws", "s3", "sync", "--quiet", "--delete", str(path), self.bucket,
                          exception=None,
                          logger=self.logger)

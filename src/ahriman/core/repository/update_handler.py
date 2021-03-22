@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
-
 from typing import Iterable, List
 
 from ahriman.core.repository.cleaner import Cleaner
@@ -77,9 +75,9 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}
 
-        for fn in os.listdir(self.paths.manual):
+        for fn in self.paths.manual.iterdir():
             try:
-                local = Package.load(os.path.join(self.paths.manual, fn), self.pacman, self.aur_url)
+                local = Package.load(fn, self.pacman, self.aur_url)
                 result.append(local)
                 if local.base not in known_bases:
                     self.reporter.set_unknown(local)

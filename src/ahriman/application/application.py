@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
-import os
 import shutil
 
+from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
@@ -101,32 +101,32 @@ class Application:
         """
         known_packages = self._known_packages()
 
-        def add_directory(path: str) -> None:
-            for package in filter(package_like, os.listdir(path)):
-                full_path = os.path.join(path, package)
-                add_manual(full_path)
+        def add_directory(path: Path) -> None:
+            for full_path in filter(lambda p: package_like(p.name), path.iterdir()):
+                add_archive(full_path)
 
-        def add_manual(name: str) -> str:
+        def add_manual(name: str) -> Path:
             package = Package.load(name, self.repository.pacman, self.config.get("alpm", "aur_url"))
-            path = os.path.join(self.repository.paths.manual, package.base)
+            path = self.repository.paths.manual / package.base
             Task.fetch(path, package.git_url)
             return path
 
-        def add_archive(src: str) -> None:
-            dst = os.path.join(self.repository.paths.packages, os.path.basename(src))
+        def add_archive(src: Path) -> None:
+            dst = self.repository.paths.packages / src.name
             shutil.move(src, dst)
 
-        def process_dependencies(path: str) -> None:
+        def process_dependencies(path: Path) -> None:
             if without_dependencies:
                 return
             dependencies = Package.dependencies(path)
             self.add(dependencies.difference(known_packages), without_dependencies)
 
         def process_single(name: str) -> None:
-            if os.path.isdir(name):
-                add_directory(name)
-            elif os.path.isfile(name):
-                add_archive(name)
+            maybe_path = Path(name)
+            if maybe_path.is_dir():
+                add_directory(maybe_path)
+            elif maybe_path.is_file():
+                add_archive(maybe_path)
             else:
                 path = add_manual(name)
                 process_dependencies(path)
@@ -183,7 +183,7 @@ class Application:
         run package updates
         :param updates: list of packages to update
         """
-        def process_update(paths: Iterable[str]) -> None:
+        def process_update(paths: Iterable[Path]) -> None:
             self.repository.process_update(paths)
             self._finalize()
 

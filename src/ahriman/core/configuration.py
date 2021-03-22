@@ -21,9 +21,9 @@ from __future__ import annotations
 
 import configparser
 import logging
-import os
 
 from logging.config import fileConfig
+from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 
@@ -48,17 +48,17 @@ class Configuration(configparser.RawConfigParser):
         default constructor. In the most cases must not be called directly
         """
         configparser.RawConfigParser.__init__(self, allow_no_value=True)
-        self.path: Optional[str] = None
+        self.path: Optional[Path] = None
 
     @property
-    def include(self) -> str:
+    def include(self) -> Path:
         """
         :return: path to directory with configuration includes
         """
-        return self.get("settings", "include")
+        return Path(self.get("settings", "include"))
 
     @classmethod
-    def from_path(cls: Type[Configuration], path: str, logfile: bool) -> Configuration:
+    def from_path(cls: Type[Configuration], path: Path, logfile: bool) -> Configuration:
         """
         constructor with full object initialization
         :param path: path to root configuration file
@@ -111,7 +111,7 @@ class Configuration(configparser.RawConfigParser):
         probe = f"{prefix}_{suffix}"
         return probe if self.has_section(probe) else prefix
 
-    def load(self, path: str) -> None:
+    def load(self, path: Path) -> None:
         """
         fully load configuration
         :param path: path to root configuration file
@@ -125,8 +125,8 @@ class Configuration(configparser.RawConfigParser):
         load configuration includes
         """
         try:
-            for conf in filter(lambda p: p.endswith(".ini"), sorted(os.listdir(self.include))):
-                self.read(os.path.join(self.include, conf))
+            for path in sorted(self.include.glob(".ini")):
+                self.read(path)
         except (FileNotFoundError, configparser.NoOptionError):
             pass
 

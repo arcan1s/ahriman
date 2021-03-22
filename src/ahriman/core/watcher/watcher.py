@@ -19,8 +19,8 @@
 #
 import json
 import logging
-import os
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
@@ -54,11 +54,11 @@ class Watcher:
         self.status = BuildStatus()
 
     @property
-    def cache_path(self) -> str:
+    def cache_path(self) -> Path:
         """
         :return: path to dump with json cache
         """
-        return os.path.join(self.repository.paths.root, "status_cache.json")
+        return self.repository.paths.root / "status_cache.json"
 
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
@@ -77,9 +77,9 @@ class Watcher:
             if package.base in self.known:
                 self.known[package.base] = (package, status)
 
-        if not os.path.isfile(self.cache_path):
+        if not self.cache_path.is_file():
             return
-        with open(self.cache_path) as cache:
+        with self.cache_path.open() as cache:
             dump = json.load(cache)
         for item in dump["packages"]:
             try:
@@ -100,7 +100,7 @@ class Watcher:
             ]
         }
         try:
-            with open(self.cache_path, "w") as cache:
+            with self.cache_path.open("w") as cache:
                 json.dump(dump, cache)
         except Exception:
             self.logger.exception("cannot dump cache", exc_info=True)

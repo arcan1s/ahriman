@@ -19,6 +19,8 @@
 #
 import logging
 
+from pathlib import Path
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
 from ahriman.models.upload_settings import UploadSettings
@@ -43,7 +45,7 @@ class Uploader:
         self.config = config
 
     @staticmethod
-    def run(architecture: str, config: Configuration, target: str, path: str) -> None:
+    def run(architecture: str, config: Configuration, target: str, path: Path) -> None:
         """
         run remote sync
         :param architecture: repository architecture
@@ -67,7 +69,7 @@ class Uploader:
             uploader.logger.exception("remote sync failed", exc_info=True)
             raise SyncFailed()
 
-    def sync(self, path: str) -> None:
+    def sync(self, path: Path) -> None:
         """
         sync data to remote server
         :param path: local path to sync

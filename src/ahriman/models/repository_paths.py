@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
+from pathlib import Path
 
 from dataclasses import dataclass
 
@@ -30,59 +30,59 @@ class RepositoryPaths:
     :ivar architecture: repository architecture
     """
 
-    root: str
+    root: Path
     architecture: str
 
     @property
-    def cache(self) -> str:
+    def cache(self) -> Path:
         """
         :return: directory for packages cache (mainly used for VCS packages)
         """
-        return os.path.join(self.root, "cache")
+        return self.root / "cache"
 
     @property
-    def chroot(self) -> str:
+    def chroot(self) -> Path:
         """
         :return: directory for devtools chroot
         """
         # for the chroot directory devtools will create own tree and we don"t have to specify architecture here
-        return os.path.join(self.root, "chroot")
+        return self.root / "chroot"
 
     @property
-    def manual(self) -> str:
+    def manual(self) -> Path:
         """
         :return: directory for manual updates (i.e. from add command)
         """
-        return os.path.join(self.root, "manual", self.architecture)
+        return self.root / "manual" / self.architecture
 
     @property
-    def packages(self) -> str:
+    def packages(self) -> Path:
         """
         :return: directory for built packages
         """
-        return os.path.join(self.root, "packages", self.architecture)
+        return self.root / "packages" / self.architecture
 
     @property
-    def repository(self) -> str:
+    def repository(self) -> Path:
         """
         :return: repository directory
         """
-        return os.path.join(self.root, "repository", self.architecture)
+        return self.root / "repository" / self.architecture
 
     @property
-    def sources(self) -> str:
+    def sources(self) -> Path:
         """
         :return: directory for downloaded PKGBUILDs for current build
         """
-        return os.path.join(self.root, "sources", self.architecture)
+        return self.root / "sources" / self.architecture
 
     def create_tree(self) -> None:
         """
         create ahriman working tree
         """
-        os.makedirs(self.cache, mode=0o755, exist_ok=True)
-        os.makedirs(self.chroot, mode=0o755, exist_ok=True)
-        os.makedirs(self.manual, mode=0o755, exist_ok=True)
-        os.makedirs(self.packages, mode=0o755, exist_ok=True)
-        os.makedirs(self.repository, mode=0o755, exist_ok=True)
-        os.makedirs(self.sources, mode=0o755, exist_ok=True)
+        self.cache.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.chroot.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.manual.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.packages.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.repository.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.sources.mkdir(mode=0o755, parents=True, exist_ok=True)

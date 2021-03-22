@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
 import shutil
 
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 from ahriman.core.build_tools.task import Task
@@ -41,7 +41,7 @@ class Executor(Cleaner):
         """
         raise NotImplementedError
 
-    def process_build(self, updates: Iterable[Package]) -> List[str]:
+    def process_build(self, updates: Iterable[Package]) -> List[Path]:
         """
         build packages
         :param updates: list of packages properties to build
@@ -53,7 +53,7 @@ class Executor(Cleaner):
             task.init()
             built = task.build()
             for src in built:
-                dst = os.path.join(self.paths.packages, os.path.basename(src))
+                dst = self.paths.packages / src.name
                 shutil.move(src, dst)
 
         for package in updates:
@@ -67,16 +67,13 @@ class Executor(Cleaner):
 
         return self.packages_built()
 
-    def process_remove(self, packages: Iterable[str]) -> str:
+    def process_remove(self, packages: Iterable[str]) -> Path:
         """
         remove packages from list
-        :param packages: list of package names or bases to rmeove
+        :param packages: list of package names or bases to remove
         :return: path to repository database
         """
-        def remove_single(package: str, filename: Optional[str]) -> None:
-            if filename is None:
-                self.logger.warning(f"could not remove {package} because no filename set")
-                return
+        def remove_single(package: str, filename: Path) -> None:
             try:
                 self.repo.remove(package, filename)
             except Exception:
@@ -86,15 +83,16 @@ class Executor(Cleaner):
         for local in self.packages():
             if local.base in packages or all(package in requested for package in local.packages):
                 to_remove = {
-                    package: properties.filename
+                    package: Path(properties.filename)
                     for package, properties in local.packages.items()
+                    if properties.filename is not None
                 }
                 self.reporter.remove(local.base)  # we only update status page in case of base removal
             elif requested.intersection(local.packages.keys()):
                 to_remove = {
-                    package: properties.filename
+                    package: Path(properties.filename)
                     for package, properties in local.packages.items()
-                    if package in requested
+                    if package in requested and properties.filename is not None
                 }
             else:
                 to_remove = dict()
@@ -123,7 +121,7 @@ class Executor(Cleaner):
         for target in targets:
             Uploader.run(self.architecture, self.config, target, self.paths.repository)
 
-    def process_update(self, packages: Iterable[str]) -> str:
+    def process_update(self, packages: Iterable[Path]) -> Path:
         """
         sign packages, add them to repository and update repository database
         :param packages: list of filenames to run
@@ -134,12 +132,12 @@ class Executor(Cleaner):
                 self.logger.warning(f"received empty package name for base {base}")
                 return  # suppress type checking, it never can be none actually
             # in theory it might be NOT packages directory, but we suppose it is
-            full_path = os.path.join(self.paths.packages, fn)
+            full_path = self.paths.packages / fn
             files = self.sign.sign_package(full_path, base)
             for src in files:
-                dst = os.path.join(self.paths.repository, os.path.basename(src))
+                dst = self.paths.repository / src.name
                 shutil.move(src, dst)
-            package_path = os.path.join(self.paths.repository, fn)
+            package_path = self.paths.repository / fn
             self.repo.add(package_path)
 
         # we are iterating over bases, not single packages

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from pathlib import Path
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.uploader import Uploader
 from ahriman.core.util import check_output
@@ -40,11 +42,19 @@ class Rsync(Uploader):
         section = config.get_section_name("rsync", architecture)
         self.remote = config.get(section, "remote")
 
-    def sync(self, path: str) -> None:
+    def sync(self, path: Path) -> None:
         """
         sync data to remote server
         :param path: local path to sync
         """
-        Rsync._check_output("rsync", "--archive", "--verbose", "--compress", "--partial", "--delete", path, self.remote,
-                            exception=None,
-                            logger=self.logger)
+        Rsync._check_output(
+            "rsync",
+            "--archive",
+            "--verbose",
+            "--compress",
+            "--partial",
+            "--delete",
+            str(path),
+            self.remote,
+            exception=None,
+            logger=self.logger)

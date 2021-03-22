@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import os
 
+from pathlib import Path
 from types import TracebackType
 from typing import Literal, Optional, Type
 
@@ -48,11 +49,11 @@ class Lock:
         :param architecture: repository architecture
         :param config: configuration instance
         """
-        self.path = f"{args.lock}_{architecture}" if args.lock is not None else None
+        self.path = Path(f"{args.lock}_{architecture}") if args.lock is not None else None
         self.force = args.force
         self.unsafe = args.unsafe
 
-        self.root = config.get("repository", "root")
+        self.root = Path(config.get("repository", "root"))
         self.reporter = Client() if args.no_report else Client.load(architecture, config)
 
     def __enter__(self) -> Lock:
@@ -68,7 +69,6 @@ class Lock:
         self.check_user()
         if self.force:
             self.remove()
-        self.check()
         self.create()
         self.reporter.update_self(BuildStatusEnum.Building)
         return self
@@ -87,15 +87,6 @@ class Lock:
         self.reporter.update_self(status)
         return False
 
-    def check(self) -> None:
-        """
-        check if lock file exists, raise exception if it does
-        """
-        if self.path is None:
-            return
-        if os.path.exists(self.path):
-            raise DuplicateRun()
-
     def check_user(self) -> None:
         """
         check if current user is actually owner of ahriman root
@@ -103,7 +94,7 @@ class Lock:
         if self.unsafe:
             return
         current_uid = os.getuid()
-        root_uid = os.stat(self.root).st_uid
+        root_uid = self.root.stat().st_uid
         if current_uid != root_uid:
             raise UnsafeRun(current_uid, root_uid)
 
@@ -113,7 +104,10 @@ class Lock:
         """
         if self.path is None:
             return
-        open(self.path, "w").close()
+        try:
+            self.path.touch()
+        except FileExistsError:
+            raise DuplicateRun()
 
     def remove(self) -> None:
         """
@@ -121,5 +115,4 @@ class Lock:
         """
         if self.path is None:
             return
-        if os.path.exists(self.path):
-            os.remove(self.path)
+        self.path.unlink(missing_ok=True)

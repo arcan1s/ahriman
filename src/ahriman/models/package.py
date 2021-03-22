@@ -21,12 +21,12 @@ from __future__ import annotations
 
 import aur  # type: ignore
 import logging
-import os
 
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, Set, Type, Union
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
@@ -86,7 +86,7 @@ class Package:
         return f"{self.aur_url}/packages/{self.base}"
 
     @classmethod
-    def from_archive(cls: Type[Package], path: str, pacman: Pacman, aur_url: str) -> Package:
+    def from_archive(cls: Type[Package], path: Path, pacman: Pacman, aur_url: str) -> Package:
         """
         construct package properties from package archive
         :param path: path to package archive
@@ -94,8 +94,8 @@ class Package:
         :param aur_url: AUR root url
         :return: package properties
         """
-        package = pacman.handle.load_pkg(path)
-        properties = PackageDescription(package.size, package.builddate, os.path.basename(path), package.isize)
+        package = pacman.handle.load_pkg(str(path))
+        properties = PackageDescription(package.size, package.builddate, path.name, package.isize)
         return cls(package.base, package.version, aur_url, {package.name: properties})
 
     @classmethod
@@ -110,15 +110,14 @@ class Package:
         return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
 
     @classmethod
-    def from_build(cls: Type[Package], path: str, aur_url: str) -> Package:
+    def from_build(cls: Type[Package], path: Path, aur_url: str) -> Package:
         """
         construct package properties from sources directory
         :param path: path to package sources directory
         :param aur_url: AUR root url
         :return: package properties
         """
-        with open(os.path.join(path, ".SRCINFO")) as srcinfo_file:
-            srcinfo, errors = parse_srcinfo(srcinfo_file.read())
+        srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
         if errors:
             raise InvalidPackageInfo(errors)
         packages = {key: PackageDescription() for key in srcinfo["packages"]}
@@ -144,14 +143,13 @@ class Package:
             packages=packages)
 
     @staticmethod
-    def dependencies(path: str) -> Set[str]:
+    def dependencies(path: Path) -> Set[str]:
         """
         load dependencies from package sources
         :param path: path to package sources directory
         :return: list of package dependencies including makedepends array, but excluding packages from this base
         """
-        with open(os.path.join(path, ".SRCINFO")) as srcinfo_file:
-            srcinfo, errors = parse_srcinfo(srcinfo_file.read())
+        srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
         if errors:
             raise InvalidPackageInfo(errors)
         makedepends = srcinfo.get("makedepends", [])
@@ -176,7 +174,7 @@ class Package:
         return f"{prefix}{pkgver}-{pkgrel}"
 
     @staticmethod
-    def load(path: str, pacman: Pacman, aur_url: str) -> Package:
+    def load(path: Union[Path, str], pacman: Pacman, aur_url: str) -> Package:
         """
         package constructor from available sources
         :param path: one of path to sources directory, path to archive or package name/base
@@ -185,12 +183,13 @@ class Package:
         :return: package properties
         """
         try:
-            if os.path.isdir(path):
-                package: Package = Package.from_build(path, aur_url)
-            elif os.path.exists(path):
-                package = Package.from_archive(path, pacman, aur_url)
+            maybe_path = Path(path)
+            if maybe_path.is_dir():
+                package: Package = Package.from_build(maybe_path, aur_url)
+            elif maybe_path.is_file():
+                package = Package.from_archive(maybe_path, pacman, aur_url)
             else:
-                package = Package.from_aur(path, aur_url)
+                package = Package.from_aur(str(path), aur_url)
             return package
         except InvalidPackageInfo:
             raise
@@ -208,7 +207,7 @@ class Package:
 
         from ahriman.core.build_tools.task import Task
 
-        clone_dir = os.path.join(paths.cache, self.base)
+        clone_dir = paths.cache / self.base
         logger = logging.getLogger("build_details")
         Task.fetch(clone_dir, self.git_url)
 
