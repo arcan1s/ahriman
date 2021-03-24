@@ -1,5 +1,7 @@
 import pytest
 
+from pathlib import Path
+
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.package_desciption import PackageDescription
@@ -76,4 +78,4 @@ def package_description_python2_schedule() -> PackageDescription:
 def repository_paths() -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
-        root="/var/lib/ahriman")
+        root=Path("/var/lib/ahriman"))
