@@ -4,7 +4,9 @@ from pathlib import Path
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
+from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
+from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -20,8 +22,10 @@ def pacman(configuration: Configuration) -> Pacman:
 
 
 @pytest.fixture
-def repo(configuration: Configuration) -> Repo:
-    return Repo(
-        configuration.get("repository", "name"),
-        RepositoryPaths(Path(configuration.get("repository", "root")), "x86_64"),
-        [])
+def repo(configuration: Configuration, repository_paths: RepositoryPaths) -> Repo:
+    return Repo(configuration.get("repository", "name"), repository_paths, [])
+
+
+@pytest.fixture
+def task_ahriman(package_ahriman: Package, configuration: Configuration, repository_paths: RepositoryPaths) -> Task:
+    return Task(package_ahriman, "x86_64", configuration, repository_paths)
