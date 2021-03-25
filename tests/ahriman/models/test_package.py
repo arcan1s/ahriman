@@ -71,6 +71,17 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
+def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must load correct list of dependencies with version
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+
+    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+
+    assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
+
+
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
     """
     must return same actual_version as version is

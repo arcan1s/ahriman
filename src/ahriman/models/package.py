@@ -149,6 +149,12 @@ class Package:
         :param path: path to package sources directory
         :return: list of package dependencies including makedepends array, but excluding packages from this base
         """
+        # additional function to remove versions from dependencies
+        def trim_version(name: str) -> str:
+            for symbol in ('<', '=', '>'):
+                name = name.split(symbol)[0]
+            return name
+
         srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
         if errors:
             raise InvalidPackageInfo(errors)
@@ -159,7 +165,8 @@ class Package:
             depends.extend(package.get("depends", []))
         # we are not interested in dependencies inside pkgbase
         packages = set(srcinfo["packages"].keys())
-        return set(depends + makedepends) - packages
+        full_list = set(depends + makedepends) - packages
+        return {trim_version(package_name) for package_name in full_list}
 
     @staticmethod
     def full_version(epoch: Optional[str], pkgver: str, pkgrel: str) -> str:

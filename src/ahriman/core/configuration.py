@@ -125,7 +125,7 @@ class Configuration(configparser.RawConfigParser):
         load configuration includes
         """
         try:
-            for path in sorted(self.include.glob(".ini")):
+            for path in sorted(self.include.glob("*.ini")):
                 self.read(path)
         except (FileNotFoundError, configparser.NoOptionError):
             pass

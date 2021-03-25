@@ -36,6 +36,7 @@ setup(
     ],
     tests_require=[
         "pytest",
+        "pytest-helpers-namespace",
         "pytest-mock",
         "pytest-pspec",
         "pytest-resource-path",
@@ -69,7 +70,7 @@ setup(
 
     extras_require={
         "html-templates": ["Jinja2"],
-        "test": ["coverage", "pytest", "pytest-mock", "pytest-pspec", "pytest-resource-path"],
+        "test": ["coverage", "pytest", "pytest-helpers-namespace", "pytest-mock", "pytest-pspec", "pytest-resource-path"],
         "web": ["Jinja2", "aiohttp", "aiohttp_jinja2", "requests"],
     },
 )
