@@ -49,7 +49,7 @@ class GPG:
         self.logger = logging.getLogger("build_details")
         self.config = config
         self.section = config.get_section_name("sign", architecture)
-        self.target = [SignSettings.from_option(opt) for opt in config.getlist(self.section, "target")]
+        self.target = {SignSettings.from_option(opt) for opt in config.getlist(self.section, "target")}
         self.default_key = config.get(self.section, "key") if self.target else ""
 
     @property

@@ -1,7 +1,6 @@
 from pathlib import Path
-from unittest import mock
-
 from pytest_mock import MockerFixture
+from unittest import mock
 
 from ahriman.core.repository.executor import Executor
 from ahriman.models.package import Package
