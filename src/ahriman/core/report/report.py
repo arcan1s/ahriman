@@ -64,7 +64,7 @@ class Report:
         try:
             report.generate(packages)
         except Exception:
-            report.logger.exception("report generation failed", exc_info=True)
+            report.logger.exception(f"report generation failed for target {provider.name}")
             raise ReportFailed()
 
     def generate(self, packages: Iterable[Package]) -> None:

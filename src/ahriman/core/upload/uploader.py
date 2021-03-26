@@ -66,7 +66,7 @@ class Uploader:
         try:
             uploader.sync(path)
         except Exception:
-            uploader.logger.exception("remote sync failed", exc_info=True)
+            uploader.logger.exception(f"remote sync failed for {provider.name}")
             raise SyncFailed()
 
     def sync(self, path: Path) -> None:

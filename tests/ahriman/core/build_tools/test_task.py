@@ -21,6 +21,9 @@ def test_fetch_existing(mocker: MockerFixture) -> None:
         mock.call("git", "fetch", "origin", "master",
                   exception=pytest.helpers.anyvar(int),
                   cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "checkout", "--force", "master",
+                  exception=pytest.helpers.anyvar(int),
+                  cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "reset", "--hard", "origin/master",
                   exception=pytest.helpers.anyvar(int),
                   cwd=local, logger=pytest.helpers.anyvar(int))
@@ -40,6 +43,9 @@ def test_fetch_new(mocker: MockerFixture) -> None:
         mock.call("git", "clone", "remote", str(local),
                   exception=pytest.helpers.anyvar(int),
                   logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "checkout", "--force", "master",
+                  exception=pytest.helpers.anyvar(int),
+                  cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "reset", "--hard", "origin/master",
                   exception=pytest.helpers.anyvar(int),
                   cwd=local, logger=pytest.helpers.anyvar(int))

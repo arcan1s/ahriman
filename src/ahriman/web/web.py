@@ -47,7 +47,7 @@ async def on_startup(application: web.Application) -> None:
     try:
         application["watcher"].load()
     except Exception:
-        application.logger.exception("could not load packages", exc_info=True)
+        application.logger.exception("could not load packages")
         raise InitializeException()
 
 

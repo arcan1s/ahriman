@@ -85,7 +85,7 @@ class Watcher:
             try:
                 parse_single(item)
             except Exception:
-                self.logger.exception(f"cannot parse item f{item} to package", exc_info=True)
+                self.logger.exception(f"cannot parse item f{item} to package")
 
     def _cache_save(self) -> None:
         """
@@ -103,7 +103,7 @@ class Watcher:
             with self.cache_path.open("w") as cache:
                 json.dump(dump, cache)
         except Exception:
-            self.logger.exception("cannot dump cache", exc_info=True)
+            self.logger.exception("cannot dump cache")
 
     def get(self, base: str) -> Tuple[Package, BuildStatus]:
         """

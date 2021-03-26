@@ -56,13 +56,12 @@ class Executor(Cleaner):
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
 
-        for package in updates:
+        for single in updates:
             try:
-                build_single(package)
+                build_single(single)
             except Exception:
-                self.reporter.set_failed(package.base)
-                self.logger.exception(f"{package.base} ({self.architecture}) build exception", exc_info=True)
-                continue
+                self.reporter.set_failed(single.base)
+                self.logger.exception(f"{single.base} ({self.architecture}) build exception")
         self.clear_build()
 
         return self.packages_built()
@@ -73,11 +72,11 @@ class Executor(Cleaner):
         :param packages: list of package names or bases to remove
         :return: path to repository database
         """
-        def remove_single(package: str, filename: Path) -> None:
+        def remove_single(package: str, fn: Path) -> None:
             try:
-                self.repo.remove(package, filename)
+                self.repo.remove(package, fn)
             except Exception:
-                self.logger.exception(f"could not remove {package}", exc_info=True)
+                self.logger.exception(f"could not remove {package}")
 
         requested = set(packages)
         for local in self.packages():
@@ -142,9 +141,12 @@ class Executor(Cleaner):
 
         # we are iterating over bases, not single packages
         updates: Dict[str, Package] = {}
-        for fn in packages:
-            local = Package.load(fn, self.pacman, self.aur_url)
-            updates.setdefault(local.base, local).packages.update(local.packages)
+        for filename in packages:
+            try:
+                local = Package.load(filename, self.pacman, self.aur_url)
+                updates.setdefault(local.base, local).packages.update(local.packages)
+            except Exception:
+                self.logger.exception(f"could not load package from {filename}")
 
         for local in updates.values():
             try:
@@ -153,7 +155,7 @@ class Executor(Cleaner):
                 self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f"could not process {local.base}", exc_info=True)
+                self.logger.exception(f"could not process {local.base}")
         self.clear_packages()
 
         return self.repo.repo_path

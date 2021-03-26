@@ -44,7 +44,7 @@ class Repository(Executor, UpdateHandler):
                 local = Package.load(full_path, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
-                self.logger.exception(f"could not load package from {full_path}", exc_info=True)
+                self.logger.exception(f"could not load package from {full_path}")
                 continue
         return list(result.values())
 

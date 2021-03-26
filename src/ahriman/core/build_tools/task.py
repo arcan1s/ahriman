@@ -89,6 +89,7 @@ class Task:
         else:
             Task._check_output("git", "clone", remote, str(local), exception=None, logger=logger)
         # and now force reset to our branch
+        Task._check_output("git", "checkout", "--force", branch, exception=None, cwd=local, logger=logger)
         Task._check_output("git", "reset", "--hard", f"origin/{branch}", exception=None, cwd=local, logger=logger)
 
     def build(self) -> List[Path]:

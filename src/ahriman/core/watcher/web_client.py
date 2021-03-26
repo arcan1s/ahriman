@@ -75,9 +75,9 @@ class WebClient(Client):
             response = requests.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not add {package.base}: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not add {package.base}: {e.response.text}")
         except Exception:
-            self.logger.exception(f"could not add {package.base}", exc_info=True)
+            self.logger.exception(f"could not add {package.base}")
 
     def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
@@ -95,9 +95,9 @@ class WebClient(Client):
                 for package in status_json
             ]
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not get {base}: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not get {base}: {e.response.text}")
         except Exception:
-            self.logger.exception(f"could not get {base}", exc_info=True)
+            self.logger.exception(f"could not get {base}")
         return []
 
     def get_self(self) -> BuildStatus:
@@ -112,9 +112,9 @@ class WebClient(Client):
             status_json = response.json()
             return BuildStatus.from_json(status_json)
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not get service status: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not get service status: {e.response.text}")
         except Exception:
-            self.logger.exception("could not get service status", exc_info=True)
+            self.logger.exception("could not get service status")
         return BuildStatus()
 
     def remove(self, base: str) -> None:
@@ -126,9 +126,9 @@ class WebClient(Client):
             response = requests.delete(self._package_url(base))
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not delete {base}: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not delete {base}: {e.response.text}")
         except Exception:
-            self.logger.exception(f"could not delete {base}", exc_info=True)
+            self.logger.exception(f"could not delete {base}")
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
         """
@@ -142,9 +142,9 @@ class WebClient(Client):
             response = requests.post(self._package_url(base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not update {base}: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not update {base}: {e.response.text}")
         except Exception:
-            self.logger.exception(f"could not update {base}", exc_info=True)
+            self.logger.exception(f"could not update {base}")
 
     def update_self(self, status: BuildStatusEnum) -> None:
         """
@@ -157,6 +157,6 @@ class WebClient(Client):
             response = requests.post(self._ahriman_url(), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not update service status: {e.response.text}", exc_info=True)
+            self.logger.exception(f"could not update service status: {e.response.text}")
         except Exception:
-            self.logger.exception("could not update service status", exc_info=True)
+            self.logger.exception("could not update service status")

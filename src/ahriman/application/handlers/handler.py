@@ -48,7 +48,7 @@ class Handler:
                 cls.run(args, architecture, config)
             return True
         except Exception:
-            logging.getLogger("root").exception("process exception", exc_info=True)
+            logging.getLogger("root").exception("process exception")
             return False
 
     @classmethod

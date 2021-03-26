@@ -40,7 +40,7 @@ def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaita
         except HTTPClientError:
             raise
         except Exception:
-            logger.exception(f"exception during performing request to {request.path}", exc_info=True)
+            logger.exception(f"exception during performing request to {request.path}")
             raise
 
     return handle

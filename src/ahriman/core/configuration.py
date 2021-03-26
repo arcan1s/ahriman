@@ -140,7 +140,7 @@ class Configuration(configparser.RawConfigParser):
                 fileConfig(self.get("settings", "logging"))
             except PermissionError:
                 console_logger()
-                logging.error("could not create logfile, fallback to stderr", exc_info=True)
+                logging.exception("could not create logfile, fallback to stderr")
 
         def console_logger() -> None:
             logging.basicConfig(filename=None, format=Configuration.DEFAULT_LOG_FORMAT,
