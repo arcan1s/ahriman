@@ -18,11 +18,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
-from typing import List, Optional, Tuple
-
 import requests
 
-from ahriman.core.watcher.client import Client
+from typing import List, Optional, Tuple
+
+from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatusEnum, BuildStatus
 from ahriman.models.package import Package
 

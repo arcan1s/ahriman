@@ -7,28 +7,28 @@ from ahriman.models.package import Package
 def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
                      mocker: MockerFixture) -> None:
     """
-    must provide updates with status watcher updates
+    must provide updates with status updates
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    watcher_client_mock = mocker.patch("ahriman.core.watcher.client.Client.set_pending")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     assert update_handler.updates_aur([], False) == [package_ahriman]
-    watcher_client_mock.assert_called_once()
+    status_client_mock.assert_called_once()
 
 
 def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Package,
                             mocker: MockerFixture) -> None:
     """
-    must update status watcher via client for failed load
+    must update status via client for failed load
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.load", side_effect=Exception())
-    watcher_client_mock = mocker.patch("ahriman.core.watcher.client.Client.set_failed")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     update_handler.updates_aur([], False)
-    watcher_client_mock.assert_called_once()
+    status_client_mock.assert_called_once()
 
 
 def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Package, package_python_schedule: Package,
@@ -92,10 +92,10 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
     mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    watcher_client_mock = mocker.patch("ahriman.core.watcher.client.Client.set_pending")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     update_handler.updates_manual()
-    watcher_client_mock.assert_called_once()
+    status_client_mock.assert_called_once()
 
 
 def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ahriman: Package,
@@ -106,10 +106,10 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
     mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    watcher_client_mock = mocker.patch("ahriman.core.watcher.client.Client.set_unknown")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     update_handler.updates_manual()
-    watcher_client_mock.assert_called_once()
+    status_client_mock.assert_called_once()
 
 
 def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahriman: Package,

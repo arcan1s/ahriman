@@ -25,7 +25,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.watcher.client import Client
+from ahriman.core.status.client import Client
 from ahriman.models.repository_paths import RepositoryPaths
 
 

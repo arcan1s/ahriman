@@ -28,7 +28,7 @@ from typing import Literal, Optional, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRun, UnsafeRun
-from ahriman.core.watcher.client import Client
+from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatusEnum
 
 
@@ -105,7 +105,7 @@ class Lock:
         if self.path is None:
             return
         try:
-            self.path.touch()
+            self.path.touch(exist_ok=False)
         except FileExistsError:
             raise DuplicateRun()
 

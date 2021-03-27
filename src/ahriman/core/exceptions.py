@@ -107,6 +107,15 @@ class SyncFailed(Exception):
         Exception.__init__(self, "Sync failed")
 
 
+class UnknownPackage(Exception):
+    """
+    exception for status watcher which will be thrown on unknown package
+    """
+
+    def __init__(self, base: str) -> None:
+        Exception.__init__(self, f"Package base {base} is unknown")
+
+
 class UnsafeRun(Exception):
     """
     exception which will be raised in case if user is not owner of repository

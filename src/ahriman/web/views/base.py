@@ -19,7 +19,7 @@
 #
 from aiohttp.web import View
 
-from ahriman.core.watcher.watcher import Watcher
+from ahriman.core.status.watcher import Watcher
 
 
 class BaseView(View):

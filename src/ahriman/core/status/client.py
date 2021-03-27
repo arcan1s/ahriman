@@ -124,5 +124,5 @@ class Client:
         if host is None or port is None:
             return Client()
 
-        from ahriman.core.watcher.web_client import WebClient
+        from ahriman.core.status.web_client import WebClient
         return WebClient(host, port)

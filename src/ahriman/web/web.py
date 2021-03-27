@@ -25,7 +25,7 @@ from aiohttp import web
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
-from ahriman.core.watcher.watcher import Watcher
+from ahriman.core.status.watcher import Watcher
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 

@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import UnknownPackage
 from ahriman.core.repository.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
@@ -80,8 +81,12 @@ class Watcher:
         if not self.cache_path.is_file():
             return
         with self.cache_path.open() as cache:
-            dump = json.load(cache)
-        for item in dump["packages"]:
+            try:
+                dump = json.load(cache)
+            except Exception:
+                self.logger.exception("cannot parse json from file")
+                dump = {}
+        for item in dump.get("packages", []):
             try:
                 parse_single(item)
             except Exception:
@@ -110,7 +115,10 @@ class Watcher:
         get current package base build status
         :return: package and its status
         """
-        return self.known[base]
+        try:
+            return self.known[base]
+        except KeyError:
+            raise UnknownPackage(base)
 
     def load(self) -> None:
         """
@@ -142,7 +150,10 @@ class Watcher:
         :param package: optional new package description. In case if not set current properties will be used
         """
         if package is None:
-            package, _ = self.known[base]
+            try:
+                package, _ = self.known[base]
+            except KeyError:
+                raise UnknownPackage(base)
         full_status = BuildStatus(status)
         self.known[base] = (package, full_status)
         self._cache_save()
