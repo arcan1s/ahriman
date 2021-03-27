@@ -218,20 +218,25 @@ class Package:
         logger = logging.getLogger("build_details")
         Task.fetch(clone_dir, self.git_url)
 
-        # update pkgver first
-        Package._check_output("makepkg", "--nodeps", "--nobuild", exception=None, cwd=clone_dir, logger=logger)
-        # generate new .SRCINFO and put it to parser
-        srcinfo_source = Package._check_output(
-            "makepkg",
-            "--printsrcinfo",
-            exception=None,
-            cwd=clone_dir,
-            logger=logger)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise InvalidPackageInfo(errors)
+        try:
+            # update pkgver first
+            Package._check_output("makepkg", "--nodeps", "--nobuild", exception=None, cwd=clone_dir, logger=logger)
+            # generate new .SRCINFO and put it to parser
+            srcinfo_source = Package._check_output(
+                "makepkg",
+                "--printsrcinfo",
+                exception=None,
+                cwd=clone_dir,
+                logger=logger)
+            srcinfo, errors = parse_srcinfo(srcinfo_source)
+            if errors:
+                raise InvalidPackageInfo(errors)
 
-        return self.full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+            return self.full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+        except Exception:
+            logger.exception("cannot determine version of VCS package, make sure that you have VCS tools installed")
+
+        return self.version
 
     def is_outdated(self, remote: Package, paths: RepositoryPaths) -> bool:
         """
