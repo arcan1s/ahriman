@@ -1,0 +1,27 @@
+# based on https://github.com/actions/starter-workflows/blob/main/ci/python-app.yml
+
+name: ahriman
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: run check and tests in archlinux container
+        run: |
+          docker run \
+          -v  ${{ github.workspace }}:/build -w /build \
+          archlinux:latest \
+          /bin/bash -c "pacman --noconfirm -Syu base-devel python python-pip && \
+          pip install -e .[web] && \
+          pip install -e .[check] && \
+          pip install -e .[test] && \
+          make check tests"

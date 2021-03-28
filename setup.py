@@ -71,8 +71,25 @@ setup(
     ],
 
     extras_require={
-        "html-templates": ["Jinja2"],
-        "test": ["pytest", "pytest-cov", "pytest-helpers-namespace", "pytest-mock", "pytest-pspec", "pytest-resource-path"],
-        "web": ["Jinja2", "aiohttp", "aiohttp_jinja2", "requests"],
+        "check": [
+            "autopep8",
+            "mypy",
+            "pylint",
+        ],
+        "test": [
+            "pytest",
+            "pytest-aiohttp",
+            "pytest-cov",
+            "pytest-helpers-namespace",
+            "pytest-mock",
+            "pytest-pspec",
+            "pytest-resource-path",
+        ],
+        "web": [
+            "Jinja2",
+            "aiohttp",
+            "aiohttp_jinja2",
+            "requests",
+        ],
     },
 )
