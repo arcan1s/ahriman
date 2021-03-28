@@ -3,6 +3,7 @@ import pytest
 from pathlib import Path
 from typing import Any, Type, TypeVar
 
+from ahriman.core.configuration import Configuration
 from ahriman.models.package import Package
 from ahriman.models.package_desciption import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
@@ -21,6 +22,12 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 
 # generic fixtures
+@pytest.fixture
+def configuration(resource_path_root: Path) -> Configuration:
+    path = resource_path_root / "core" / "ahriman.ini"
+    return Configuration.from_path(path=path, logfile=False)
+
+
 @pytest.fixture
 def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     packages = {"ahriman": package_description_ahriman}
