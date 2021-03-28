@@ -1,6 +1,5 @@
 import pytest
 
-from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
