@@ -81,6 +81,10 @@ def _parser() -> argparse.ArgumentParser:
     report_parser.add_argument("target", help="target to generate report", nargs="*")
     report_parser.set_defaults(handler=handlers.Report)
 
+    sign_parser = subparsers.add_parser("sign", description="(re-)sign packages and repository database")
+    sign_parser.add_argument("package", help="sign only specified packages", nargs="*")
+    sign_parser.set_defaults(handler=handlers.Sign)
+
     status_parser = subparsers.add_parser("status", description="request status of the package")
     status_parser.add_argument("--ahriman", help="get service status itself", action="store_true")
     status_parser.add_argument("package", help="filter status by package base", nargs="*")

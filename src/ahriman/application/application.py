@@ -21,7 +21,7 @@ import logging
 import shutil
 
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Set
+from typing import Callable, Iterable, List, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -67,8 +67,8 @@ class Application:
         """
         generate report and sync to remote server
         """
-        self.report()
-        self.sync()
+        self.report([])
+        self.sync([])
 
     def get_updates(self, filter_packages: List[str], no_aur: bool, no_manual: bool, no_vcs: bool,
                     log_fn: Callable[[str], None]) -> List[Package]:
@@ -162,7 +162,7 @@ class Application:
         self.repository.process_remove(names)
         self._finalize()
 
-    def report(self, target: Optional[Iterable[str]] = None) -> None:
+    def report(self, target: Iterable[str]) -> None:
         """
         generate report
         :param target: list of targets to run (e.g. html)
@@ -170,7 +170,29 @@ class Application:
         targets = target or None
         self.repository.process_report(targets)
 
-    def sync(self, target: Optional[Iterable[str]] = None) -> None:
+    def sign(self, packages: Iterable[str]) -> None:
+        """
+        sign packages and repository
+        :param packages: only sign specified packages
+        """
+        # copy to prebuilt directory
+        for package in self.repository.packages():
+            # no one requested this package
+            if packages and package.base not in packages:
+                continue
+            for archive in package.packages.values():
+                if archive.filepath is None:
+                    continue  # avoid mypy warning
+                src = self.repository.paths.repository / archive.filepath
+                dst = self.repository.paths.packages / archive.filepath
+                shutil.copy(src, dst)
+        # run generic update function
+        self.update([])
+        # sign repository database if set
+        self.repository.sign.sign_repository(self.repository.repo.repo_path)
+        self._finalize()
+
+    def sync(self, target: Iterable[str]) -> None:
         """
         sync to remote server
         :param target: list of targets to run (e.g. s3)
