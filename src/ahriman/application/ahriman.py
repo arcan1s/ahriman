@@ -31,12 +31,8 @@ def _parser() -> argparse.ArgumentParser:
     :return: command line parser for the application
     """
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager")
-    parser.add_argument(
-        "-a",
-        "--architecture",
-        help="target architectures (can be used multiple times)",
-        action="append",
-        required=True)
+    parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
+                        action="append", required=True)
     parser.add_argument("-c", "--config", help="configuration path", default="/etc/ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("--lock", help="lock file", default="/tmp/ahriman.lock")
@@ -60,12 +56,10 @@ def _parser() -> argparse.ArgumentParser:
     clean_parser.add_argument("--no-build", help="do not clear directory with package sources", action="store_true")
     clean_parser.add_argument("--no-cache", help="do not clear directory with package caches", action="store_true")
     clean_parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
-    clean_parser.add_argument(
-        "--no-manual",
-        help="do not clear directory with manually added packages",
-        action="store_true")
+    clean_parser.add_argument("--no-manual", help="do not clear directory with manually added packages",
+                              action="store_true")
     clean_parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
-    clean_parser.set_defaults(handler=handlers.Clean)
+    clean_parser.set_defaults(handler=handlers.Clean, unsafe=True)
 
     config_parser = subparsers.add_parser("config", description="dump configuration for specified architecture")
     config_parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, unsafe=True)
@@ -80,6 +74,15 @@ def _parser() -> argparse.ArgumentParser:
     report_parser = subparsers.add_parser("report", description="generate report")
     report_parser.add_argument("target", help="target to generate report", nargs="*")
     report_parser.set_defaults(handler=handlers.Report)
+
+    setup_parser = subparsers.add_parser("setup", description="create initial service configuration, requires root")
+    setup_parser.add_argument("--build-command", help="build command prefix", default="ahriman")
+    setup_parser.add_argument("--from-config", help="path to default devtools pacman configuration",
+                              default="/usr/share/devtools/pacman-extra.conf")
+    setup_parser.add_argument("--no-multilib", help="do not add multilib repository", action="store_true")
+    setup_parser.add_argument("--packager", help="packager name and email", required=True)
+    setup_parser.add_argument("--repository", help="repository name", default="aur-clone")
+    setup_parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, unsafe=True)
 
     sign_parser = subparsers.add_parser("sign", description="(re-)sign packages and repository database")
     sign_parser.add_argument("package", help="sign only specified packages", nargs="*")
@@ -96,8 +99,8 @@ def _parser() -> argparse.ArgumentParser:
 
     update_parser = subparsers.add_parser("update", description="run updates")
     update_parser.add_argument("package", help="filter check by package base", nargs="*")
-    update_parser.add_argument(
-        "--dry-run", help="just perform check for updates, same as check command", action="store_true")
+    update_parser.add_argument("--dry-run", help="just perform check for updates, same as check command",
+                               action="store_true")
     update_parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
     update_parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     update_parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")

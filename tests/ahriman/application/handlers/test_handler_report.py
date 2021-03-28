@@ -6,11 +6,16 @@ from ahriman.application.handlers import Report
 from ahriman.core.configuration import Configuration
 
 
+def _default_args(args: argparse.Namespace) -> argparse.Namespace:
+    args.target = []
+    return args
+
+
 def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
-    args.target = []
+    args = _default_args(args)
     mocker.patch("pathlib.Path.mkdir")
     application_mock = mocker.patch("ahriman.application.application.Application.report")
 
