@@ -15,6 +15,10 @@ def application(configuration: Configuration, mocker: MockerFixture) -> Applicat
 
 
 @pytest.fixture
-def lock(configuration: Configuration) -> Lock:
-    return Lock(argparse.Namespace(lock=None, force=False, unsafe=False, no_report=True),
-                "x86_64", configuration)
+def args() -> argparse.Namespace:
+    return argparse.Namespace(lock=None, force=False, unsafe=False, no_report=True)
+
+
+@pytest.fixture
+def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
+    return Lock(args, "x86_64", configuration)

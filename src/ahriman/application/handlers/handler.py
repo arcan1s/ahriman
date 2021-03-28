@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import argparse
 import logging
-from multiprocessing import Pool
 
+from multiprocessing import Pool
 from typing import Type
 
 from ahriman.application.lock import Lock
