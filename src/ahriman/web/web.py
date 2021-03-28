@@ -51,15 +51,14 @@ async def on_startup(application: web.Application) -> None:
         raise InitializeException()
 
 
-def run_server(application: web.Application, architecture: str) -> None:
+def run_server(application: web.Application) -> None:
     """
     run web application
     :param application: web application instance
-    :param architecture: repository architecture
     """
     application.logger.info("start server")
 
-    section = application["config"].get_section_name("web", architecture)
+    section = application["config"].get_section_name("web", application["architecture"])
     host = application["config"].get(section, "host")
     port = application["config"].getint(section, "port")
 
@@ -88,6 +87,7 @@ def setup_service(architecture: str, config: Configuration) -> web.Application:
 
     application.logger.info("setup configuration")
     application["config"] = config
+    application["architecture"] = architecture
 
     application.logger.info("setup watcher")
     application["watcher"] = Watcher(architecture, config)

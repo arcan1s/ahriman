@@ -1,9 +1,11 @@
 import pytest
 
 from pathlib import Path
+from pytest_mock import MockerFixture
 from typing import Any, Type, TypeVar
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
 from ahriman.models.package_desciption import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
@@ -85,3 +87,9 @@ def repository_paths() -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
         root=Path("/var/lib/ahriman"))
+
+
+@pytest.fixture
+def watcher(configuration: Configuration, mocker: MockerFixture) -> Watcher:
+    mocker.patch("pathlib.Path.mkdir")
+    return Watcher("x86_64", configuration)

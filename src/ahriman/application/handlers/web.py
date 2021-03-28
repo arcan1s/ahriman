@@ -40,4 +40,4 @@ class Web(Handler):
         """
         from ahriman.web.web import run_server, setup_service
         application = setup_service(architecture, config)
-        run_server(application, architecture)
+        run_server(application)

@@ -36,6 +36,7 @@ setup(
     ],
     tests_require=[
         "pytest",
+        "pytest-asyncio",
         "pytest-cov",
         "pytest-helpers-namespace",
         "pytest-mock",
