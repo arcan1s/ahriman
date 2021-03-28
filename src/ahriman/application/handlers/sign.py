@@ -17,16 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.application.handlers.handler import Handler
+import argparse
 
-from ahriman.application.handlers.add import Add
-from ahriman.application.handlers.clean import Clean
-from ahriman.application.handlers.dump import Dump
-from ahriman.application.handlers.rebuild import Rebuild
-from ahriman.application.handlers.remove import Remove
-from ahriman.application.handlers.report import Report
-from ahriman.application.handlers.sign import Sign
-from ahriman.application.handlers.status import Status
-from ahriman.application.handlers.sync import Sync
-from ahriman.application.handlers.update import Update
-from ahriman.application.handlers.web import Web
+from typing import Type
+
+from ahriman.application.application import Application
+from ahriman.application.handlers.handler import Handler
+from ahriman.core.configuration import Configuration
+
+
+class Sign(Handler):
+    """
+    (re-)sign handler
+    """
+
+    @classmethod
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+        """
+        callback for command line
+        :param args: command line args
+        :param architecture: repository architecture
+        :param config: configuration instance
+        """
+        Application(architecture, config).sign(args.package)

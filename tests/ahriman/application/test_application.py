@@ -1,3 +1,6 @@
+import pytest
+
+from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
@@ -205,8 +208,49 @@ def test_report(application: Application, mocker: MockerFixture) -> None:
     must generate report
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_report")
-    application.report(None)
+    application.report([])
     executor_mock.assert_called_once()
+
+
+def test_sign(application: Application, package_ahriman: Package, package_python_schedule: Package,
+              mocker: MockerFixture) -> None:
+    """
+    must sign world
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages",
+                 return_value=[package_ahriman, package_python_schedule])
+    copy_mock = mocker.patch("shutil.copy")
+    update_mock = mocker.patch("ahriman.application.application.Application.update")
+    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.sign_repository")
+    finalize_mock = mocker.patch("ahriman.application.application.Application._finalize")
+
+    application.sign([])
+    copy_mock.assert_has_calls([
+        mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str)),
+        mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str))
+    ])
+    update_mock.assert_called_with([])
+    sign_repository_mock.assert_called_once()
+    finalize_mock.assert_called_once()
+
+
+def test_sign_specific(application: Application, package_ahriman: Package, package_python_schedule: Package,
+                       mocker: MockerFixture) -> None:
+    """
+    must sign only specified packages
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages",
+                 return_value=[package_ahriman, package_python_schedule])
+    copy_mock = mocker.patch("shutil.copy")
+    update_mock = mocker.patch("ahriman.application.application.Application.update")
+    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.sign_repository")
+    finalize_mock = mocker.patch("ahriman.application.application.Application._finalize")
+
+    application.sign([package_ahriman.base])
+    copy_mock.assert_called_once()
+    update_mock.assert_called_with([])
+    sign_repository_mock.assert_called_once()
+    finalize_mock.assert_called_once()
 
 
 def test_sync(application: Application, mocker: MockerFixture) -> None:
@@ -214,7 +258,7 @@ def test_sync(application: Application, mocker: MockerFixture) -> None:
     must sync to remote
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_sync")
-    application.sync(None)
+    application.sync([])
     executor_mock.assert_called_once()
 
 
