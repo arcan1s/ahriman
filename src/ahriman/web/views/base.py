@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -19,18 +19,18 @@
 #
 from aiohttp.web import View
 
-from ahriman.core.watcher.watcher import Watcher
+from ahriman.core.status.watcher import Watcher
 
 
 class BaseView(View):
-    '''
+    """
     base web view to make things typed
-    '''
+    """
 
     @property
     def service(self) -> Watcher:
-        '''
+        """
         :return: build status watcher instance
-        '''
-        watcher: Watcher = self.request.app['watcher']
+        """
+        watcher: Watcher = self.request.app["watcher"]
         return watcher

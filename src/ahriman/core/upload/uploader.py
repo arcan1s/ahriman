@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -19,38 +19,40 @@
 #
 import logging
 
+from pathlib import Path
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
 from ahriman.models.upload_settings import UploadSettings
 
 
 class Uploader:
-    '''
+    """
     base remote sync class
     :ivar architecture: repository architecture
     :ivar config: configuration instance
     :ivar logger: application logger
-    '''
+    """
 
     def __init__(self, architecture: str, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
-        self.logger = logging.getLogger('builder')
+        """
+        self.logger = logging.getLogger("builder")
         self.architecture = architecture
         self.config = config
 
     @staticmethod
-    def run(architecture: str, config: Configuration, target: str, path: str) -> None:
-        '''
+    def run(architecture: str, config: Configuration, target: str, path: Path) -> None:
+        """
         run remote sync
         :param architecture: repository architecture
         :param config: configuration instance
         :param target: target to run sync (e.g. s3)
         :param path: local path to sync
-        '''
+        """
         provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
@@ -64,11 +66,11 @@ class Uploader:
         try:
             uploader.sync(path)
         except Exception:
-            uploader.logger.exception('remote sync failed', exc_info=True)
+            uploader.logger.exception(f"remote sync failed for {provider.name}")
             raise SyncFailed()
 
-    def sync(self, path: str) -> None:
-        '''
+    def sync(self, path: Path) -> None:
+        """
         sync data to remote server
         :param path: local path to sync
-        '''
+        """

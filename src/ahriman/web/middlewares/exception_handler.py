@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -28,11 +28,11 @@ HandlerType = Callable[[Request], Awaitable[StreamResponse]]
 
 
 def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaitable[StreamResponse]]:
-    '''
+    """
     exception handler middleware. Just log any exception (except for client ones)
     :param logger: class logger
     :return: built middleware
-    '''
+    """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:
@@ -40,7 +40,7 @@ def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaita
         except HTTPClientError:
             raise
         except Exception:
-            logger.exception(f'exception during performing request to {request.path}', exc_info=True)
+            logger.exception(f"exception during performing request to {request.path}")
             raise
 
     return handle

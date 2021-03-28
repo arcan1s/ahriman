@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -26,21 +26,21 @@ from ahriman.core.configuration import Configuration
 
 
 class Dump(Handler):
-    '''
+    """
     dump config handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         config_dump = config.dump(architecture)
         for section, values in sorted(config_dump.items()):
-            print(f'[{section}]')
+            print(f"[{section}]")
             for key, value in sorted(values.items()):
-                print(f'{key} = {value}')
+                print(f"{key} = {value}")
             print()

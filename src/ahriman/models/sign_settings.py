@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -25,24 +25,24 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class SignSettings(Enum):
-    '''
+    """
     sign targets enumeration
     :cvar SignPackages: sign each package
     :cvar SignRepository: sign repository database file
-    '''
+    """
 
     SignPackages = auto()
     SignRepository = auto()
 
     @staticmethod
     def from_option(value: str) -> SignSettings:
-        '''
+        """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
-        '''
-        if value.lower() in ('package', 'packages', 'sign-package'):
+        """
+        if value.lower() in ("package", "packages", "sign-package"):
             return SignSettings.SignPackages
-        if value.lower() in ('repository', 'sign-repository'):
+        if value.lower() in ("repository", "sign-repository"):
             return SignSettings.SignRepository
         raise InvalidOption(value)

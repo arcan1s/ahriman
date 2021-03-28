@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -23,12 +23,12 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.watcher.client import Client
+from ahriman.core.status.client import Client
 from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Properties:
-    '''
+    """
     repository internal objects holder
     :ivar architecture: repository architecture
     :ivar aur_url: base AUR url
@@ -40,17 +40,17 @@ class Properties:
     :ivar repo: repo commands wrapper instance
     :ivar reporter: build status reporter instance
     :ivar sign: GPG wrapper instance
-    '''
+    """
 
     def __init__(self, architecture: str, config: Configuration) -> None:
-        self.logger = logging.getLogger('builder')
+        self.logger = logging.getLogger("builder")
         self.architecture = architecture
         self.config = config
 
-        self.aur_url = config.get('alpm', 'aur_url')
-        self.name = config.get('repository', 'name')
+        self.aur_url = config.get("alpm", "aur_url")
+        self.name = config.get("repository", "name")
 
-        self.paths = RepositoryPaths(config.get('repository', 'root'), architecture)
+        self.paths = RepositoryPaths(config.getpath("repository", "root"), architecture)
         self.paths.create_tree()
 
         self.pacman = Pacman(config)

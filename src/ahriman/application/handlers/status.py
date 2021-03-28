@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -29,18 +29,18 @@ from ahriman.models.package import Package
 
 
 class Status(Handler):
-    '''
+    """
     package status handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         application = Application(architecture, config)
         if args.ahriman:
             ahriman = application.repository.reporter.get_self()
@@ -54,5 +54,5 @@ class Status(Handler):
             packages = application.repository.reporter.get(None)
         for package, package_status in sorted(packages, key=lambda item: item[0].base):
             print(package.pretty_print())
-            print(f'\t{package.version}')
-            print(f'\t{package_status.pretty_print()}')
+            print(f"\t{package.version}")
+            print(f"\t{package_status.pretty_print()}")

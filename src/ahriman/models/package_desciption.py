@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -18,20 +18,28 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 
 @dataclass
 class PackageDescription:
-    '''
+    """
     package specific properties
     :ivar archive_size: package archive size
     :ivar build_date: package build date
     :ivar filename: package archive name
     :ivar installed_size: package installed size
-    '''
+    """
 
     archive_size: Optional[int] = None
     build_date: Optional[int] = None
     filename: Optional[str] = None
     installed_size: Optional[int] = None
+
+    @property
+    def filepath(self) -> Optional[Path]:
+        """
+        :return: path object for current filename
+        """
+        return Path(self.filename) if self.filename is not None else None
