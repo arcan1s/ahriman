@@ -8,7 +8,6 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.web.web import on_startup, run_server
 
 
-@pytest.mark.asyncio
 async def test_on_startup(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:
     """
     must call load method
@@ -20,7 +19,6 @@ async def test_on_startup(application: web.Application, watcher: Watcher, mocker
     load_mock.assert_called_once()
 
 
-@pytest.mark.asyncio
 async def test_on_startup_exception(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:
     """
     must throw exception on load error

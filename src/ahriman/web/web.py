@@ -82,8 +82,9 @@ def setup_service(architecture: str, config: Configuration) -> web.Application:
 
     application.logger.info("setup routes")
     setup_routes(application)
+
     application.logger.info("setup templates")
-    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.get("web", "templates")))
+    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.getpath("web", "templates")))
 
     application.logger.info("setup configuration")
     application["config"] = config

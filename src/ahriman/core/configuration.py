@@ -55,8 +55,7 @@ class Configuration(configparser.RawConfigParser):
         """
         :return: path to directory with configuration includes
         """
-        value = Path(self.get("settings", "include"))
-        return self.absolute_path_for(value)
+        return self.getpath("settings", "include")
 
     @classmethod
     def from_path(cls: Type[Configuration], path: Path, logfile: bool) -> Configuration:
@@ -70,16 +69,6 @@ class Configuration(configparser.RawConfigParser):
         config.load(path)
         config.load_logging(logfile)
         return config
-
-    def absolute_path_for(self, path_part: Path) -> Path:
-        """
-        helper to generate absolute configuration path for relative settings value
-        :param path_part: path to generate
-        :return: absolute path according to current path configuration
-        """
-        if self.path is None or path_part.is_absolute():
-            return path_part
-        return self.path.parent / path_part
 
     def dump(self, architecture: str) -> Dict[str, Dict[str, str]]:
         """
@@ -111,6 +100,18 @@ class Configuration(configparser.RawConfigParser):
         if not raw:  # empty string or none
             return []
         return raw.split()
+
+    def getpath(self, section: str, key: str) -> Path:
+        """
+        helper to generate absolute configuration path for relative settings value
+        :param section: section name
+        :param key: key name
+        :return: absolute path according to current path configuration
+        """
+        value = Path(self.get(section, key))
+        if self.path is None or value.is_absolute():
+            return value
+        return self.path.parent / value
 
     def get_section_name(self, prefix: str, suffix: str) -> str:
         """
@@ -148,8 +149,7 @@ class Configuration(configparser.RawConfigParser):
         """
         def file_logger() -> None:
             try:
-                value = Path(self.get("settings", "logging"))
-                config_path = self.absolute_path_for(value)
+                config_path = self.getpath("settings", "logging")
                 fileConfig(config_path)
             except (FileNotFoundError, PermissionError):
                 console_logger()

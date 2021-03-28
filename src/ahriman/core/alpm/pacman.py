@@ -35,8 +35,8 @@ class Pacman:
         :param config: configuration instance
         """
         root = config.get("alpm", "root")
-        pacman_root = config.get("alpm", "database")
-        self.handle = Handle(root, pacman_root)
+        pacman_root = config.getpath("alpm", "database")
+        self.handle = Handle(root, str(pacman_root))
         for repository in config.getlist("alpm", "repositories"):
             self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
 

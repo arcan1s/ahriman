@@ -26,7 +26,8 @@ def test_absolute_path_for_absolute(configuration: Configuration) -> None:
     must not change path for absolute path in settings
     """
     path = Path("/a/b/c")
-    assert configuration.absolute_path_for(path) == path
+    configuration.set("build", "path", str(path))
+    assert configuration.getpath("build", "path") == path
 
 
 def test_absolute_path_for_relative(configuration: Configuration) -> None:
@@ -34,7 +35,8 @@ def test_absolute_path_for_relative(configuration: Configuration) -> None:
     must prepend root path to relative path
     """
     path = Path("a")
-    result = configuration.absolute_path_for(path)
+    configuration.set("build", "path", str(path))
+    result = configuration.getpath("build", "path")
     assert result.is_absolute()
     assert result.parent == configuration.path.parent
     assert result.name == path.name

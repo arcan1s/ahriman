@@ -19,7 +19,6 @@
 #
 import jinja2
 
-from pathlib import Path
 from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
@@ -60,9 +59,9 @@ class HTML(Report):
         """
         Report.__init__(self, architecture, config)
         section = config.get_section_name("html", architecture)
-        self.report_path = Path(config.get(section, "path"))
+        self.report_path = config.getpath(section, "path")
         self.link_path = config.get(section, "link_path")
-        self.template_path = Path(config.get(section, "template_path"))
+        self.template_path = config.getpath(section, "template_path")
 
         # base template vars
         self.homepage = config.get(section, "homepage", fallback=None)

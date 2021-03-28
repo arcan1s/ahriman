@@ -19,8 +19,6 @@
 #
 import logging
 
-from pathlib import Path
-
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
@@ -52,7 +50,7 @@ class Properties:
         self.aur_url = config.get("alpm", "aur_url")
         self.name = config.get("repository", "name")
 
-        self.paths = RepositoryPaths(Path(config.get("repository", "root")), architecture)
+        self.paths = RepositoryPaths(config.getpath("repository", "root"), architecture)
         self.paths.create_tree()
 
         self.pacman = Pacman(config)

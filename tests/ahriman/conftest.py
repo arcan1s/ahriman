@@ -83,10 +83,10 @@ def package_description_python2_schedule() -> PackageDescription:
 
 
 @pytest.fixture
-def repository_paths() -> RepositoryPaths:
+def repository_paths(configuration: Configuration) -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
-        root=Path("/var/lib/ahriman"))
+        root=configuration.getpath("repository", "root"))
 
 
 @pytest.fixture
