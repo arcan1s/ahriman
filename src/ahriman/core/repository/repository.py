@@ -38,7 +38,7 @@ class Repository(Executor, UpdateHandler):
         """
         result: Dict[str, Package] = {}
         for full_path in self.paths.repository.iterdir():
-            if not package_like(full_path.name):
+            if not package_like(full_path):
                 continue
             try:
                 local = Package.load(full_path, self.pacman, self.aur_url)

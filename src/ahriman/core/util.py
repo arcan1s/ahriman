@@ -28,19 +28,17 @@ from ahriman.core.exceptions import InvalidOption
 
 
 def check_output(*args: str, exception: Optional[Exception],
-                 cwd: Optional[Path] = None, stderr: int = subprocess.STDOUT,
-                 logger: Optional[Logger] = None) -> str:
+                 cwd: Optional[Path] = None, logger: Optional[Logger] = None) -> str:
     """
     subprocess wrapper
     :param args: command line arguments
     :param exception: exception which has to be reraised instead of default subprocess exception
     :param cwd: current working directory
-    :param stderr: standard error output mode
     :param logger: logger to log command result if required
     :return: command output
     """
     try:
-        result = subprocess.check_output(args, cwd=cwd, stderr=stderr).decode("utf8").strip()
+        result = subprocess.check_output(args, cwd=cwd, stderr=subprocess.STDOUT).decode("utf8").strip()
         if logger is not None:
             for line in result.splitlines():
                 logger.debug(line)
@@ -52,13 +50,14 @@ def check_output(*args: str, exception: Optional[Exception],
     return result
 
 
-def package_like(filename: str) -> bool:
+def package_like(filename: Path) -> bool:
     """
     check if file looks like package
     :param filename: name of file to check
     :return: True in case if name contains `.pkg.` and not signature, False otherwise
     """
-    return ".pkg." in filename and not filename.endswith(".sig")
+    name = filename.name
+    return ".pkg." in name and not name.endswith(".sig")
 
 
 def pretty_datetime(timestamp: Optional[int]) -> str:
@@ -86,10 +85,10 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
             return "MiB"
         if level == 3:
             return "GiB"
-        raise InvalidOption(level)  # I hope it will not be more than 1024 GiB
+        raise InvalidOption(level)  # must never happen actually
 
     if size is None:
         return ""
-    if size < 1024:
-        return f"{round(size, 2)} {str_level()}"
+    if size < 1024 or level == 3:
+        return f"{size:.1f} {str_level()}"
     return pretty_size(size / 1024, level + 1)

@@ -102,7 +102,7 @@ class Application:
         known_packages = self._known_packages()
 
         def add_directory(path: Path) -> None:
-            for full_path in filter(lambda p: package_like(p.name), path.iterdir()):
+            for full_path in filter(package_like, path.iterdir()):
                 add_archive(full_path)
 
         def add_manual(name: str) -> Path:
@@ -192,8 +192,7 @@ class Application:
         process_update(packages)
 
         # process manual packages
-        tree = Tree()
-        tree.load(updates)
+        tree = Tree.load(updates)
         for num, level in enumerate(tree.levels()):
             self.logger.info(f"processing level #{num} {[package.base for package in level]}")
             packages = self.repository.process_build(level)

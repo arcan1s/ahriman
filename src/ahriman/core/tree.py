@@ -23,7 +23,7 @@ import shutil
 import tempfile
 
 from pathlib import Path
-from typing import Iterable, List, Set
+from typing import Iterable, List, Set, Type
 
 from ahriman.core.build_tools.task import Task
 from ahriman.models.package import Package
@@ -36,13 +36,14 @@ class Leaf:
     :ivar package: leaf package properties
     """
 
-    def __init__(self, package: Package) -> None:
+    def __init__(self, package: Package, dependencies: Set[str]) -> None:
         """
         default constructor
         :param package: package properties
+        :param dependencies: package dependencies
         """
         self.package = package
-        self.dependencies: Set[str] = set()
+        self.dependencies = dependencies
 
     @property
     def items(self) -> Iterable[str]:
@@ -50,6 +51,21 @@ class Leaf:
         :return: packages containing in this leaf
         """
         return self.package.packages.keys()
+
+    @classmethod
+    def load(cls: Type[Leaf], package: Package) -> Leaf:
+        """
+        load leaf from package with dependencies
+        :param package: package properties
+        :return: loaded class
+        """
+        clone_dir = Path(tempfile.mkdtemp())
+        try:
+            Task.fetch(clone_dir, package.git_url)
+            dependencies = Package.dependencies(clone_dir)
+        finally:
+            shutil.rmtree(clone_dir, ignore_errors=True)
+        return cls(package, dependencies)
 
     def is_root(self, packages: Iterable[Leaf]) -> bool:
         """
@@ -62,17 +78,6 @@ class Leaf:
                 return False
         return True
 
-    def load_dependencies(self) -> None:
-        """
-        load dependencies for the leaf
-        """
-        clone_dir = Path(tempfile.mkdtemp())
-        try:
-            Task.fetch(clone_dir, self.package.git_url)
-            self.dependencies = Package.dependencies(clone_dir)
-        finally:
-            shutil.rmtree(clone_dir, ignore_errors=True)
-
 
 class Tree:
     """
@@ -80,11 +85,21 @@ class Tree:
     :ivar leaves: list of tree leaves
     """
 
-    def __init__(self) -> None:
+    def __init__(self, leaves: List[Leaf]) -> None:
         """
         default constructor
+        :param leaves: leaves to build the tree
         """
-        self.leaves: List[Leaf] = []
+        self.leaves = leaves
+
+    @classmethod
+    def load(cls: Type[Tree], packages: Iterable[Package]) -> Tree:
+        """
+        load tree from packages
+        :param packages: packages list
+        :return: loaded class
+        """
+        return cls([Leaf.load(package) for package in packages])
 
     def levels(self) -> List[List[Package]]:
         """
@@ -99,13 +114,3 @@ class Tree:
             unprocessed = [leaf for leaf in unprocessed if not leaf.is_root(unprocessed)]
 
         return result
-
-    def load(self, packages: Iterable[Package]) -> None:
-        """
-        load tree from packages
-        :param packages: packages list
-        """
-        for package in packages:
-            leaf = Leaf(package)
-            leaf.load_dependencies()
-            self.leaves.append(leaf)
