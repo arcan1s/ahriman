@@ -24,13 +24,19 @@ import ahriman.application.handlers as handlers
 import ahriman.version as version
 
 
-if __name__ == "__main__":
+# pylint: disable=too-many-statements
+def _parser() -> argparse.ArgumentParser:
+    """
+    command line parser generator
+    :return: command line parser for the application
+    """
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager")
     parser.add_argument(
         "-a",
         "--architecture",
         help="target architectures (can be used multiple times)",
-        action="append")
+        action="append",
+        required=True)
     parser.add_argument("-c", "--config", help="configuration path", default="/etc/ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("--lock", help="lock file", default="/tmp/ahriman.lock")
@@ -38,7 +44,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
     parser.add_argument("-v", "--version", action="version", version=version.__version__)
-    subparsers = parser.add_subparsers(title="command")
+    subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     add_parser = subparsers.add_parser("add", description="add package")
     add_parser.add_argument("package", help="package base/name or archive path", nargs="+")
@@ -96,10 +102,12 @@ if __name__ == "__main__":
     web_parser = subparsers.add_parser("web", description="start web server")
     web_parser.set_defaults(handler=handlers.Web, lock=None, no_report=True)
 
-    args = parser.parse_args()
-    if "handler" not in args:
-        parser.print_help()
-        sys.exit(1)
+    return parser
+
+
+if __name__ == "__main__":
+    arg_parser = _parser()
+    args = arg_parser.parse_args()
 
     handler: handlers.Handler = args.handler
     status = handler.execute(args)

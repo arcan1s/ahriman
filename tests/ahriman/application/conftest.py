@@ -3,6 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
+from ahriman.application.ahriman import _parser
 from ahriman.application.application import Application
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
@@ -22,3 +23,8 @@ def args() -> argparse.Namespace:
 @pytest.fixture
 def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
     return Lock(args, "x86_64", configuration)
+
+
+@pytest.fixture
+def parser() -> argparse.ArgumentParser:
+    return _parser()

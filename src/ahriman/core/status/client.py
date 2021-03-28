@@ -38,7 +38,7 @@ class Client:
         :param status: current package build status
         """
 
-    # pylint: disable=R0201
+    # pylint: disable=no-self-use
     def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
         get package status
@@ -48,7 +48,7 @@ class Client:
         del base
         return []
 
-    # pylint: disable=R0201
+    # pylint: disable=no-self-use
     def get_self(self) -> BuildStatus:
         """
         get ahriman status itself
