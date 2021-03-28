@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -19,48 +19,49 @@
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
+from ahriman.core.exceptions import UnknownPackage
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.web.views.base import BaseView
 
 
 class PackageView(BaseView):
-    '''
+    """
     package base specific web view
-    '''
+    """
 
     async def get(self) -> Response:
-        '''
+        """
         get current package base status
         :return: 200 with package description on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
 
         try:
             package, status = self.service.get(base)
-        except KeyError:
+        except UnknownPackage:
             raise HTTPNotFound()
 
         response = [
             {
-                'package': package.view(),
-                'status': status.view()
+                "package": package.view(),
+                "status": status.view()
             }
         ]
         return json_response(response)
 
     async def delete(self) -> Response:
-        '''
+        """
         delete package base from status page
         :return: 204 on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
         self.service.remove(base)
 
         return HTTPNoContent()
 
     async def post(self) -> Response:
-        '''
+        """
         update package build status
 
         JSON body must be supplied, the following model is used:
@@ -71,19 +72,19 @@ class PackageView(BaseView):
         }
 
         :return: 204 on success
-        '''
-        base = self.request.match_info['package']
+        """
+        base = self.request.match_info["package"]
         data = await self.request.json()
 
         try:
-            package = Package.from_json(data['package']) if 'package' in data else None
-            status = BuildStatusEnum(data['status'])
+            package = Package.from_json(data["package"]) if "package" in data else None
+            status = BuildStatusEnum(data["status"])
         except Exception as e:
             raise HTTPBadRequest(text=str(e))
 
         try:
             self.service.update(base, status, package)
-        except KeyError:
-            raise HTTPBadRequest(text=f'Package {base} is unknown, but no package body set')
+        except UnknownPackage:
+            raise HTTPBadRequest(text=f"Package {base} is unknown, but no package body set")
 
         return HTTPNoContent()

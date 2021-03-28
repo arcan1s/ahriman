@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -28,83 +28,93 @@ from ahriman.core.util import pretty_datetime
 
 
 class BuildStatusEnum(Enum):
-    '''
+    """
     build status enumeration
     :cvar Unknown: build status is unknown
     :cvar Pending: package is out-of-dated and will be built soon
     :cvar Building: package is building right now
     :cvar Failed: package build failed
     :cvar Success: package has been built without errors
-    '''
+    """
 
-    Unknown = 'unknown'
-    Pending = 'pending'
-    Building = 'building'
-    Failed = 'failed'
-    Success = 'success'
+    Unknown = "unknown"
+    Pending = "pending"
+    Building = "building"
+    Failed = "failed"
+    Success = "success"
 
     def badges_color(self) -> str:
-        '''
+        """
         convert itself to shield.io badges color
         :return: shields.io color
-        '''
+        """
         if self == BuildStatusEnum.Pending:
-            return 'yellow'
+            return "yellow"
         if self == BuildStatusEnum.Building:
-            return 'yellow'
+            return "yellow"
         if self == BuildStatusEnum.Failed:
-            return 'critical'
+            return "critical"
         if self == BuildStatusEnum.Success:
-            return 'success'
-        return 'inactive'
+            return "success"
+        return "inactive"
 
 
 class BuildStatus:
-    '''
+    """
     build status holder
     :ivar status: build status
     :ivar _timestamp: build status update time
-    '''
+    """
 
     def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
                  timestamp: Optional[int] = None) -> None:
-        '''
+        """
         default constructor
         :param status: current build status if known. `BuildStatusEnum.Unknown` will be used if not set
         :param timestamp: build status timestamp. Current timestamp will be used if not set
-        '''
+        """
         self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
         self.timestamp = timestamp or int(datetime.datetime.utcnow().timestamp())
 
     @classmethod
     def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:
-        '''
+        """
         construct status properties from json dump
         :param dump: json dump body
         :return: status properties
-        '''
-        return cls(dump.get('status'), dump.get('timestamp'))
+        """
+        return cls(dump.get("status"), dump.get("timestamp"))
 
     def pretty_print(self) -> str:
-        '''
+        """
         generate pretty string representation
         :return: print-friendly string
-        '''
-        return f'{self.status.value} ({pretty_datetime(self.timestamp)})'
+        """
+        return f"{self.status.value} ({pretty_datetime(self.timestamp)})"
 
     def view(self) -> Dict[str, Any]:
-        '''
+        """
         generate json status view
         :return: json-friendly dictionary
-        '''
+        """
         return {
-            'status': self.status.value,
-            'timestamp': self.timestamp
+            "status": self.status.value,
+            "timestamp": self.timestamp
         }
 
+    def __eq__(self, other: Any) -> bool:
+        """
+        compare object to other
+        :param other: other object to compare
+        :return: True in case if objects are equal
+        """
+        if not isinstance(other, BuildStatus):
+            return False
+        return self.status == other.status and self.timestamp == other.timestamp
+
     def __repr__(self) -> str:
-        '''
+        """
         generate string representation of object
         :return: unique string representation
-        '''
-        return f'BuildStatus(status={self.status.value}, timestamp={self.timestamp})'
+        """
+        return f"BuildStatus(status={self.status.value}, timestamp={self.timestamp})"

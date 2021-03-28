@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -26,7 +26,7 @@ from ahriman.web.views.packages import PackagesView
 
 
 def setup_routes(application: Application) -> None:
-    '''
+    """
     setup all defined routes
 
     Available routes are:
@@ -45,16 +45,16 @@ def setup_routes(application: Application) -> None:
         POST /api/v1/package/:base      update package base status
 
     :param application: web application instance
-    '''
-    application.router.add_get('/', IndexView)
-    application.router.add_get('/index.html', IndexView)
+    """
+    application.router.add_get("/", IndexView)
+    application.router.add_get("/index.html", IndexView)
 
-    application.router.add_get('/api/v1/ahriman', AhrimanView)
-    application.router.add_post('/api/v1/ahriman', AhrimanView)
+    application.router.add_get("/api/v1/ahriman", AhrimanView)
+    application.router.add_post("/api/v1/ahriman", AhrimanView)
 
-    application.router.add_get('/api/v1/packages', PackagesView)
-    application.router.add_post('/api/v1/packages', PackagesView)
+    application.router.add_get("/api/v1/packages", PackagesView)
+    application.router.add_post("/api/v1/packages", PackagesView)
 
-    application.router.add_delete('/api/v1/packages/{package}', PackageView)
-    application.router.add_get('/api/v1/packages/{package}', PackageView)
-    application.router.add_post('/api/v1/packages/{package}', PackageView)
+    application.router.add_delete("/api/v1/packages/{package}", PackageView)
+    application.router.add_get("/api/v1/packages/{package}", PackageView)
+    application.router.add_post("/api/v1/packages/{package}", PackageView)

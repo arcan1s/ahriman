@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -25,20 +25,20 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class ReportSettings(Enum):
-    '''
+    """
     report targets enumeration
     :cvar HTML: html report generation
-    '''
+    """
 
     HTML = auto()
 
     @staticmethod
     def from_option(value: str) -> ReportSettings:
-        '''
+        """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
-        '''
-        if value.lower() in ('html',):
+        """
+        if value.lower() in ("html",):
             return ReportSettings.HTML
         raise InvalidOption(value)

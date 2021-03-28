@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -27,17 +27,17 @@ from ahriman.core.configuration import Configuration
 
 
 class Clean(Handler):
-    '''
+    """
     clean caches handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         Application(architecture, config).clean(args.no_build, args.no_cache, args.no_chroot,
                                                 args.no_manual, args.no_packages)

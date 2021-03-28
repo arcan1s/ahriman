@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -25,71 +25,72 @@ from aiohttp import web
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
-from ahriman.core.watcher.watcher import Watcher
+from ahriman.core.status.watcher import Watcher
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
 async def on_shutdown(application: web.Application) -> None:
-    '''
+    """
     web application shutdown handler
     :param application: web application instance
-    '''
-    application.logger.warning('server terminated')
+    """
+    application.logger.warning("server terminated")
 
 
 async def on_startup(application: web.Application) -> None:
-    '''
+    """
     web application start handler
     :param application: web application instance
-    '''
-    application.logger.info('server started')
+    """
+    application.logger.info("server started")
     try:
-        application['watcher'].load()
+        application["watcher"].load()
     except Exception:
-        application.logger.exception('could not load packages', exc_info=True)
+        application.logger.exception("could not load packages")
         raise InitializeException()
 
 
-def run_server(application: web.Application, architecture: str) -> None:
-    '''
+def run_server(application: web.Application) -> None:
+    """
     run web application
     :param application: web application instance
-    :param architecture: repository architecture
-    '''
-    application.logger.info('start server')
+    """
+    application.logger.info("start server")
 
-    section = application['config'].get_section_name('web', architecture)
-    host = application['config'].get(section, 'host')
-    port = application['config'].getint(section, 'port')
+    section = application["config"].get_section_name("web", application["architecture"])
+    host = application["config"].get(section, "host")
+    port = application["config"].getint(section, "port")
 
     web.run_app(application, host=host, port=port, handle_signals=False,
-                access_log=logging.getLogger('http'))
+                access_log=logging.getLogger("http"))
 
 
 def setup_service(architecture: str, config: Configuration) -> web.Application:
-    '''
+    """
     create web application
     :param architecture: repository architecture
     :param config: configuration instance
     :return: web application instance
-    '''
-    application = web.Application(logger=logging.getLogger('http'))
+    """
+    application = web.Application(logger=logging.getLogger("http"))
     application.on_shutdown.append(on_shutdown)
     application.on_startup.append(on_startup)
 
     application.middlewares.append(web.normalize_path_middleware(append_slash=False, remove_slash=True))
     application.middlewares.append(exception_handler(application.logger))
 
-    application.logger.info('setup routes')
+    application.logger.info("setup routes")
     setup_routes(application)
-    application.logger.info('setup templates')
-    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.get('web', 'templates')))
 
-    application.logger.info('setup configuration')
-    application['config'] = config
+    application.logger.info("setup templates")
+    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.getpath("web", "templates")))
 
-    application.logger.info('setup watcher')
-    application['watcher'] = Watcher(architecture, config)
+    application.logger.info("setup configuration")
+    application["config"] = config
+    application["architecture"] = architecture
+
+    application.logger.info("setup watcher")
+    application["watcher"] = Watcher(architecture, config)
 
     return application

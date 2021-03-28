@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -21,103 +21,112 @@ from typing import Any
 
 
 class BuildFailed(Exception):
-    '''
+    """
     base exception for failed builds
-    '''
+    """
 
     def __init__(self, package: str) -> None:
-        '''
+        """
         default constructor
         :param package: package base raised exception
-        '''
-        Exception.__init__(self, f'Package {package} build failed, check logs for details')
+        """
+        Exception.__init__(self, f"Package {package} build failed, check logs for details")
 
 
 class DuplicateRun(Exception):
-    '''
+    """
     exception which will be raised if there is another application instance
-    '''
+    """
 
     def __init__(self) -> None:
-        '''
+        """
         default constructor
-        '''
-        Exception.__init__(self, 'Another application instance is run')
+        """
+        Exception.__init__(self, "Another application instance is run")
 
 
 class InitializeException(Exception):
-    '''
+    """
     base service initialization exception
-    '''
+    """
 
     def __init__(self) -> None:
-        '''
+        """
         default constructor
-        '''
-        Exception.__init__(self, 'Could not load service')
+        """
+        Exception.__init__(self, "Could not load service")
 
 
 class InvalidOption(Exception):
-    '''
+    """
     exception which will be raised on configuration errors
-    '''
+    """
 
     def __init__(self, value: Any) -> None:
-        '''
+        """
         default constructor
         :param value: option value
-        '''
-        Exception.__init__(self, f'Invalid or unknown option value `{value}`')
+        """
+        Exception.__init__(self, f"Invalid or unknown option value `{value}`")
 
 
 class InvalidPackageInfo(Exception):
-    '''
+    """
     exception which will be raised on package load errors
-    '''
+    """
 
     def __init__(self, details: Any) -> None:
-        '''
+        """
         default constructor
         :param details: error details
-        '''
-        Exception.__init__(self, f'There are errors during reading package information: `{details}`')
+        """
+        Exception.__init__(self, f"There are errors during reading package information: `{details}`")
 
 
 class ReportFailed(Exception):
-    '''
+    """
     report generation exception
-    '''
+    """
 
     def __init__(self) -> None:
-        '''
+        """
         default constructor
-        '''
-        Exception.__init__(self, 'Report failed')
+        """
+        Exception.__init__(self, "Report failed")
 
 
 class SyncFailed(Exception):
-    '''
+    """
     remote synchronization exception
-    '''
+    """
 
     def __init__(self) -> None:
-        '''
+        """
         default constructor
-        '''
-        Exception.__init__(self, 'Sync failed')
+        """
+        Exception.__init__(self, "Sync failed")
+
+
+class UnknownPackage(Exception):
+    """
+    exception for status watcher which will be thrown on unknown package
+    """
+
+    def __init__(self, base: str) -> None:
+        Exception.__init__(self, f"Package base {base} is unknown")
 
 
 class UnsafeRun(Exception):
-    '''
+    """
     exception which will be raised in case if user is not owner of repository
-    '''
+    """
 
     def __init__(self, current_uid: int, root_uid: int) -> None:
-        '''
+        """
         default constructor
-        '''
+        """
         Exception.__init__(
             self,
-            f'''Current UID {current_uid} differs from root owner {root_uid}.
+            f"""Current UID {current_uid} differs from root owner {root_uid}.
 Note that for the most actions it is unsafe to run application as different user.
-If you are 100% sure that it must be there try --unsafe option''')
+If you are 100% sure that it must be there try --unsafe option""")

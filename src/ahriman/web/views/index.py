@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -28,7 +28,7 @@ from ahriman.web.views.base import BaseView
 
 
 class IndexView(BaseView):
-    '''
+    """
     root view
 
     It uses jinja2 templates for report generation, the following variables are allowed:
@@ -39,35 +39,35 @@ class IndexView(BaseView):
         repository - repository name, string, required
         service - service status properties: status, status_color, timestamp. Required
         version - ahriman version, string, required
-    '''
+    """
 
-    @aiohttp_jinja2.template('build-status.jinja2')
+    @aiohttp_jinja2.template("build-status.jinja2")
     async def get(self) -> Dict[str, Any]:
-        '''
+        """
         process get request. No parameters supported here
         :return: parameters for jinja template
-        '''
+        """
         # some magic to make it jinja-friendly
         packages = [
             {
-                'base': package.base,
-                'packages': list(sorted(package.packages)),
-                'status': status.status.value,
-                'timestamp': pretty_datetime(status.timestamp),
-                'version': package.version,
-                'web_url': package.web_url
+                "base": package.base,
+                "packages": list(sorted(package.packages)),
+                "status": status.status.value,
+                "timestamp": pretty_datetime(status.timestamp),
+                "version": package.version,
+                "web_url": package.web_url
             } for package, status in sorted(self.service.packages, key=lambda item: item[0].base)
         ]
         service = {
-            'status': self.service.status.status.value,
-            'status_color': self.service.status.status.badges_color(),
-            'timestamp': pretty_datetime(self.service.status.timestamp)
+            "status": self.service.status.status.value,
+            "status_color": self.service.status.status.badges_color(),
+            "timestamp": pretty_datetime(self.service.status.timestamp)
         }
 
         return {
-            'architecture': self.service.architecture,
-            'packages': packages,
-            'repository': self.service.repository.name,
-            'service': service,
-            'version': version.__version__,
+            "architecture": self.service.architecture,
+            "packages": packages,
+            "repository": self.service.repository.name,
+            "service": service,
+            "version": version.__version__,
         }

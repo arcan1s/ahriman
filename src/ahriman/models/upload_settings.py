@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -25,24 +25,24 @@ from ahriman.core.exceptions import InvalidOption
 
 
 class UploadSettings(Enum):
-    '''
+    """
     remote synchronization targets enumeration
     :cvar Rsync: sync via rsync
     :cvar S3: sync to Amazon S3
-    '''
+    """
 
     Rsync = auto()
     S3 = auto()
 
     @staticmethod
     def from_option(value: str) -> UploadSettings:
-        '''
+        """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
-        '''
-        if value.lower() in ('rsync',):
+        """
+        if value.lower() in ("rsync",):
             return UploadSettings.Rsync
-        if value.lower() in ('s3',):
+        if value.lower() in ("s3",):
             return UploadSettings.S3
         raise InvalidOption(value)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -24,19 +24,19 @@ from ahriman.web.views.base import BaseView
 
 
 class AhrimanView(BaseView):
-    '''
+    """
     service status web view
-    '''
+    """
 
     async def get(self) -> Response:
-        '''
+        """
         get current service status
         :return: 200 with service status object
-        '''
+        """
         return json_response(self.service.status.view())
 
     async def post(self) -> Response:
-        '''
+        """
         update service status
 
         JSON body must be supplied, the following model is used:
@@ -45,11 +45,11 @@ class AhrimanView(BaseView):
         }
 
         :return: 204 on success
-        '''
+        """
         data = await self.request.json()
 
         try:
-            status = BuildStatusEnum(data['status'])
+            status = BuildStatusEnum(data["status"])
         except Exception as e:
             raise HTTPBadRequest(text=str(e))
 

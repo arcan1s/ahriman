@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -28,32 +28,32 @@ from ahriman.models.report_settings import ReportSettings
 
 
 class Report:
-    '''
+    """
     base report generator
     :ivar architecture: repository architecture
     :ivar config: configuration instance
     :ivar logger: class logger
-    '''
+    """
 
     def __init__(self, architecture: str, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
-        self.logger = logging.getLogger('builder')
+        """
+        self.logger = logging.getLogger("builder")
         self.architecture = architecture
         self.config = config
 
     @staticmethod
     def run(architecture: str, config: Configuration, target: str, packages: Iterable[Package]) -> None:
-        '''
+        """
         run report generation
         :param architecture: repository architecture
         :param config: configuration instance
         :param target: target to generate report (e.g. html)
         :param packages: list of packages to generate report
-        '''
+        """
         provider = ReportSettings.from_option(target)
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
@@ -64,11 +64,11 @@ class Report:
         try:
             report.generate(packages)
         except Exception:
-            report.logger.exception('report generation failed', exc_info=True)
+            report.logger.exception(f"report generation failed for target {provider.name}")
             raise ReportFailed()
 
     def generate(self, packages: Iterable[Package]) -> None:
-        '''
+        """
         generate report for the specified packages
         :param packages: list of packages to generate report
-        '''
+        """

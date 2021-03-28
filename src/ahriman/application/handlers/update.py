@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -27,18 +27,18 @@ from ahriman.core.configuration import Configuration
 
 
 class Update(Handler):
-    '''
+    """
     package update handler
-    '''
+    """
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
-        '''
+        """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         # typing workaround
         def log_fn(line: str) -> None:
             return print(line) if args.dry_run else application.logger.info(line)

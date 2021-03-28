@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import jinja2
-import os
 
 from typing import Callable, Dict, Iterable
 
@@ -30,7 +29,7 @@ from ahriman.models.sign_settings import SignSettings
 
 
 class HTML(Report):
-    '''
+    """
     html report generator
 
     It uses jinja2 templates for report generation, the following variables are allowed:
@@ -50,50 +49,49 @@ class HTML(Report):
     :ivar report_path: output path to html report
     :ivar sign_targets: targets to sign enabled in configuration
     :ivar tempate_path: path to directory with jinja templates
-    '''
+    """
 
     def __init__(self, architecture: str, config: Configuration) -> None:
-        '''
+        """
         default constructor
         :param architecture: repository architecture
         :param config: configuration instance
-        '''
+        """
         Report.__init__(self, architecture, config)
-        section = config.get_section_name('html', architecture)
-        self.report_path = config.get(section, 'path')
-        self.link_path = config.get(section, 'link_path')
-        self.template_path = config.get(section, 'template_path')
+        section = config.get_section_name("html", architecture)
+        self.report_path = config.getpath(section, "path")
+        self.link_path = config.get(section, "link_path")
+        self.template_path = config.getpath(section, "template_path")
 
         # base template vars
-        self.homepage = config.get(section, 'homepage', fallback=None)
-        self.name = config.get('repository', 'name')
+        self.homepage = config.get(section, "homepage", fallback=None)
+        self.name = config.get("repository", "name")
 
-        sign_section = config.get_section_name('sign', architecture)
-        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist(sign_section, 'target')]
-        self.pgp_key = config.get(sign_section, 'key') if self.sign_targets else None
+        sign_section = config.get_section_name("sign", architecture)
+        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist(sign_section, "target")]
+        self.pgp_key = config.get(sign_section, "key") if self.sign_targets else None
 
     def generate(self, packages: Iterable[Package]) -> None:
-        '''
+        """
         generate report for the specified packages
         :param packages: list of packages to generate report
-        '''
+        """
         # idea comes from https://stackoverflow.com/a/38642558
-        templates_dir, template_name = os.path.split(self.template_path)
-        loader = jinja2.FileSystemLoader(searchpath=templates_dir)
+        loader = jinja2.FileSystemLoader(searchpath=self.template_path.parent)
         environment = jinja2.Environment(loader=loader)
-        template = environment.get_template(template_name)
+        template = environment.get_template(self.template_path.name)
 
         content = [
             {
-                'archive_size': pretty_size(properties.archive_size),
-                'build_date': pretty_datetime(properties.build_date),
-                'filename': properties.filename,
-                'installed_size': pretty_size(properties.installed_size),
-                'name': package,
-                'version': base.version
+                "archive_size": pretty_size(properties.archive_size),
+                "build_date": pretty_datetime(properties.build_date),
+                "filename": properties.filename,
+                "installed_size": pretty_size(properties.installed_size),
+                "name": package,
+                "version": base.version
             } for base in packages for package, properties in base.packages.items()
         ]
-        comparator: Callable[[Dict[str, str]], str] = lambda item: item['filename']
+        comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
 
         html = template.render(
             homepage=self.homepage,
@@ -104,5 +102,4 @@ class HTML(Report):
             pgp_key=self.pgp_key,
             repository=self.name)
 
-        with open(self.report_path, 'w') as out:
-            out.write(html)
+        self.report_path.write_text(html)

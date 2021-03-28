@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
-
+from pathlib import Path
 from typing import Dict, List
 
 from ahriman.core.repository.executor import Executor
@@ -28,34 +27,30 @@ from ahriman.models.package import Package
 
 
 class Repository(Executor, UpdateHandler):
-    '''
+    """
     base repository control class
-    '''
+    """
 
     def packages(self) -> List[Package]:
-        '''
+        """
         generate list of repository packages
         :return: list of packages properties
-        '''
+        """
         result: Dict[str, Package] = {}
-        for fn in os.listdir(self.paths.repository):
-            if not package_like(fn):
+        for full_path in self.paths.repository.iterdir():
+            if not package_like(full_path):
                 continue
-            full_path = os.path.join(self.paths.repository, fn)
             try:
                 local = Package.load(full_path, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
-                self.logger.exception(f'could not load package from {fn}', exc_info=True)
+                self.logger.exception(f"could not load package from {full_path}")
                 continue
         return list(result.values())
 
-    def packages_built(self) -> List[str]:
-        '''
+    def packages_built(self) -> List[Path]:
+        """
         get list of files in built packages directory
         :return: list of filenames from the directory
-        '''
-        return [
-            os.path.join(self.paths.packages, fn)
-            for fn in os.listdir(self.paths.packages)
-        ]
+        """
+        return list(self.paths.packages.iterdir())

@@ -1,0 +1,17 @@
+pkgbase = tpacpi-bat-git
+        pkgdesc = A Perl script with ACPI calls for recent ThinkPads which are not supported by tp_smapi
+        pkgver = 3.1.r13.g4959b52
+        pkgrel = 1
+        url = https://github.com/teleshoes/tpacpi-bat
+        arch = any
+        license = GPL3
+        makedepends = git
+        depends = perl
+        depends = acpi_call
+        provides = tpacpi-bat
+        conflicts = tpacpi-bat
+        backup = etc/conf.d/tpacpi
+        source = git+https://github.com/teleshoes/tpacpi-bat.git
+        b2sums = SKIP
+
+pkgname = tpacpi-bat-git
