@@ -105,8 +105,8 @@ class Application:
             for full_path in filter(package_like, path.iterdir()):
                 add_archive(full_path)
 
-        def add_manual(name: str) -> Path:
-            package = Package.load(name, self.repository.pacman, self.config.get("alpm", "aur_url"))
+        def add_manual(src: str) -> Path:
+            package = Package.load(src, self.repository.pacman, self.config.get("alpm", "aur_url"))
             path = self.repository.paths.manual / package.base
             Task.fetch(path, package.git_url)
             return path
@@ -121,14 +121,14 @@ class Application:
             dependencies = Package.dependencies(path)
             self.add(dependencies.difference(known_packages), without_dependencies)
 
-        def process_single(name: str) -> None:
-            maybe_path = Path(name)
+        def process_single(src: str) -> None:
+            maybe_path = Path(src)
             if maybe_path.is_dir():
                 add_directory(maybe_path)
             elif maybe_path.is_file():
                 add_archive(maybe_path)
             else:
-                path = add_manual(name)
+                path = add_manual(src)
                 process_dependencies(path)
 
         for name in names:

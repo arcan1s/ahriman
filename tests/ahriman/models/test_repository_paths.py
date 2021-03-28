@@ -1,4 +1,3 @@
-from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
@@ -14,10 +13,10 @@ def test_create_tree(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         for prop in dir(repository_paths)
         if not prop.startswith("_") and prop not in ("architecture", "create_tree", "root")
     }
-    mocker.patch("pathlib.Path.mkdir")
+    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
 
     repository_paths.create_tree()
-    Path.mkdir.assert_has_calls(
+    mkdir_mock.assert_has_calls(
         [
             mock.call(mode=0o755, parents=True, exist_ok=True)
             for _ in paths

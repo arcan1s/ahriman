@@ -57,8 +57,8 @@ def test_init_with_cache(task_ahriman: Task, mocker: MockerFixture) -> None:
     must copy tree instead of fetch
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("shutil.copytree")
     mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    copytree_mock = mocker.patch("shutil.copytree")
 
     task_ahriman.init(None)
-    shutil.copytree.assert_called_once()
+    copytree_mock.assert_called_once()

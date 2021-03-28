@@ -151,7 +151,7 @@ class Package:
         """
         # additional function to remove versions from dependencies
         def trim_version(name: str) -> str:
-            for symbol in ('<', '=', '>'):
+            for symbol in ("<", "=", ">"):
                 name = name.split(symbol)[0]
             return name
 

@@ -67,8 +67,6 @@ class Lock:
             report to web if enabled
         """
         self.check_user()
-        if self.force:
-            self.remove()
         self.create()
         self.reporter.update_self(BuildStatusEnum.Building)
         return self
@@ -105,7 +103,7 @@ class Lock:
         if self.path is None:
             return
         try:
-            self.path.touch(exist_ok=False)
+            self.path.touch(exist_ok=self.force)
         except FileExistsError:
             raise DuplicateRun()
 

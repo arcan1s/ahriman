@@ -20,7 +20,7 @@ def test_repo_add(repo: Repo, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.alpm.repo.Repo._check_output")
 
     repo.add(Path("path"))
-    Repo._check_output.assert_called_once()
+    check_output_mock.assert_called_once()
     assert check_output_mock.call_args[0][0] == "repo-add"
 
 
@@ -32,7 +32,7 @@ def test_repo_remove(repo: Repo, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.alpm.repo.Repo._check_output")
 
     repo.remove("package", Path("package.pkg.tar.xz"))
-    Repo._check_output.assert_called_once()
+    check_output_mock.assert_called_once()
     assert check_output_mock.call_args[0][0] == "repo-remove"
 
 
