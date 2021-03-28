@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Evgenii Alekseev.
+# Copyright (c) 2021 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
