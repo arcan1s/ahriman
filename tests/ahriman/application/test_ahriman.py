@@ -64,6 +64,16 @@ def test_subparsers_status(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
+def test_subparsers_status_update(parser: argparse.ArgumentParser) -> None:
+    """
+    status-update command must imply lock, no_report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "status-update"])
+    assert args.lock is None
+    assert args.no_report
+    assert args.unsafe
+
+
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     """
     web command must imply lock and no_report
