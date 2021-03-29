@@ -1,5 +1,7 @@
 # ArcHlinux ReposItory MANager
 
+![build status](https://github.com/arcan1s/ahriman/actions/workflows/python-app.yml/badge.svg)
+
 Wrapper for managing custom repository inspired by [repo-scripts](https://github.com/arcan1s/repo-scripts).
 
 ## Features
