@@ -40,6 +40,7 @@ class Rsync(Upload):
         """
         Upload.__init__(self, architecture, config)
         section = config.get_section_name("rsync", architecture)
+        self.command = config.getlist(section, "command")
         self.remote = config.get(section, "remote")
 
     def sync(self, path: Path) -> None:
@@ -47,14 +48,4 @@ class Rsync(Upload):
         sync data to remote server
         :param path: local path to sync
         """
-        Rsync._check_output(
-            "rsync",
-            "--archive",
-            "--verbose",
-            "--compress",
-            "--partial",
-            "--delete",
-            str(path),
-            self.remote,
-            exception=None,
-            logger=self.logger)
+        Rsync._check_output(*self.command, str(path), self.remote, exception=None, logger=self.logger)

@@ -68,12 +68,14 @@ Remote synchronization settings.
 
 Group name must refer to architecture, e.g. it should be `rsync_x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
 
+* `command` - rsync command to run, space separated list of string, required.
 * `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.
 
 ### `s3_*` groups
 
 Group name must refer to architecture, e.g. it should be `s3_x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
 
+* `command` - s3 command to run, space separated list of string, required.
 * `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
 
 ## `web_*` groups

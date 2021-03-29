@@ -41,6 +41,7 @@ class S3(Upload):
         Upload.__init__(self, architecture, config)
         section = config.get_section_name("s3", architecture)
         self.bucket = config.get(section, "bucket")
+        self.command = config.getlist(section, "command")
 
     def sync(self, path: Path) -> None:
         """
@@ -48,6 +49,4 @@ class S3(Upload):
         :param path: local path to sync
         """
         # TODO rewrite to boto, but it is bullshit
-        S3._check_output("aws", "s3", "sync", "--quiet", "--delete", str(path), self.bucket,
-                         exception=None,
-                         logger=self.logger)
+        S3._check_output(*self.command, str(path), self.bucket, exception=None, logger=self.logger)
