@@ -23,7 +23,7 @@ from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
-from ahriman.core.util import pretty_size, pretty_datetime
+from ahriman.core.util import pretty_datetime, pretty_size
 from ahriman.models.package import Package
 from ahriman.models.sign_settings import SignSettings
 
@@ -38,7 +38,18 @@ class HTML(Report):
         link_path - prefix fo packages to download, string, required
         has_package_signed - True in case if package sign enabled, False otherwise, required
         has_repo_signed - True in case if repository database sign enabled, False otherwise, required
-        packages - sorted list of packages properties: archive_size, build_date, filename, installed_size, name, version. Required
+        packages - sorted list of packages properties, required
+                   * architecture, string
+                   * archive_size, pretty printed size, string
+                   * build_date, pretty printed datetime, string
+                   * description, string
+                   * filename, string,
+                   * groups, sorted list of strings
+                   * installed_size, pretty printed datetime, string
+                   * licenses, sorted list of strings
+                   * name, string
+                   * url, string
+                   * version, string
         pgp_key - default PGP key ID, string, optional
         repository - repository name, string, required
 
@@ -48,7 +59,7 @@ class HTML(Report):
     :ivar pgp_key: default PGP key
     :ivar report_path: output path to html report
     :ivar sign_targets: targets to sign enabled in configuration
-    :ivar tempate_path: path to directory with jinja templates
+    :ivar template_path: path to directory with jinja templates
     """
 
     def __init__(self, architecture: str, config: Configuration) -> None:
@@ -83,11 +94,16 @@ class HTML(Report):
 
         content = [
             {
+                "architecture": properties.architecture or "",
                 "archive_size": pretty_size(properties.archive_size),
                 "build_date": pretty_datetime(properties.build_date),
+                "description": properties.description or "",
                 "filename": properties.filename,
+                "groups": properties.groups,
                 "installed_size": pretty_size(properties.installed_size),
+                "licenses": properties.licenses,
                 "name": package,
+                "url": properties.url or "",
                 "version": base.version
             } for base in packages for package, properties in base.packages.items()
         ]

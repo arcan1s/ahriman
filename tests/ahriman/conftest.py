@@ -58,28 +58,43 @@ def package_python_schedule(
 @pytest.fixture
 def package_description_ahriman() -> PackageDescription:
     return PackageDescription(
+        architecture="x86_64",
         archive_size=4200,
         build_date=42,
+        description="ArcHlinux ReposItory MANager",
         filename="ahriman-0.12.1-1-any.pkg.tar.zst",
-        installed_size=4200000)
+        groups=[],
+        installed_size=4200000,
+        licenses=["GPL3"],
+        url="https://github.com/arcan1s/ahriman")
 
 
 @pytest.fixture
 def package_description_python_schedule() -> PackageDescription:
     return PackageDescription(
+        architecture="x86_64",
         archive_size=4201,
         build_date=421,
+        description="Python job scheduling for humans.",
         filename="python-schedule-1.0.0-2-any.pkg.tar.zst",
-        installed_size=4200001)
+        groups=[],
+        installed_size=4200001,
+        licenses=["MIT"],
+        url="https://github.com/dbader/schedule")
 
 
 @pytest.fixture
 def package_description_python2_schedule() -> PackageDescription:
     return PackageDescription(
+        architecture="x86_64",
         archive_size=4202,
         build_date=422,
+        description="Python job scheduling for humans.",
         filename="python2-schedule-1.0.0-2-any.pkg.tar.zst",
-        installed_size=4200002)
+        groups=[],
+        installed_size=4200002,
+        licenses=["MIT"],
+        url="https://github.com/dbader/schedule")
 
 
 @pytest.fixture
