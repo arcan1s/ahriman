@@ -26,11 +26,29 @@ def test_subparsers_check(parser: argparse.ArgumentParser) -> None:
     assert args.dry_run
 
 
+def test_subparsers_clean(parser: argparse.ArgumentParser) -> None:
+    """
+    clean command must imply unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "clean"])
+    assert args.unsafe
+
+
 def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     """
     config command must imply lock, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "config"])
+    assert args.lock is None
+    assert args.no_report
+    assert args.unsafe
+
+
+def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
+    """
+    setup command must imply lock, no_report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "setup", "--packager", "John Doe <john@doe.com>"])
     assert args.lock is None
     assert args.no_report
     assert args.unsafe
