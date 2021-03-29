@@ -124,7 +124,7 @@ class Setup(Handler):
         config.set(repository, "SigLevel", "Optional TrustAll")  # we don't care
         config.set(repository, "Server", f"file://{paths.repository}")
 
-        target = source.parent / f"pacman-{prefix}.conf"
+        target = source.parent / f"pacman-{prefix}-{architecture}.conf"
         with target.open("w") as devtools_config:
             config.write(devtools_config)
 
