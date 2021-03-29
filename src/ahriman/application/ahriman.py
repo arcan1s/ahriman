@@ -36,7 +36,8 @@ def _parser() -> argparse.ArgumentParser:
     command line parser generator
     :return: command line parser for the application
     """
-    parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager")
+    parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
                         action="append", required=True)
     parser.add_argument("-c", "--config", help="configuration path", default="/etc/ahriman.ini")
@@ -73,7 +74,8 @@ def _set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("add", description="add package")
+    parser = root.add_parser("add", help="add package", description="add package",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package base/name or archive path", nargs="+")
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
     parser.set_defaults(handler=handlers.Add)
@@ -86,7 +88,9 @@ def _set_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("check", description="check for updates. Same as update --dry-run --no-manual")
+    parser = root.add_parser("check", help="check for updates",
+                             description="check for updates. Same as update --dry-run --no-manual",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
     parser.set_defaults(handler=handlers.Update, no_aur=False, no_manual=True, dry_run=True)
@@ -99,7 +103,8 @@ def _set_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("clean", description="clear all local caches")
+    parser = root.add_parser("clean", help="clean local caches", description="clear local caches",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--no-build", help="do not clear directory with package sources", action="store_true")
     parser.add_argument("--no-cache", help="do not clear directory with package caches", action="store_true")
     parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
@@ -115,7 +120,9 @@ def _set_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("config", description="dump configuration for specified architecture")
+    parser = root.add_parser("config", help="dump configuration",
+                             description="dump configuration for specified architecture",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, unsafe=True)
     return parser
 
@@ -126,7 +133,8 @@ def _set_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("rebuild", description="rebuild whole repository")
+    parser = root.add_parser("rebuild", help="rebuild repository", description="rebuild whole repository",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 
@@ -137,7 +145,8 @@ def _set_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("remove", description="remove package")
+    parser = root.add_parser("remove", help="remove package", description="remove package",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package name or base", nargs="+")
     parser.set_defaults(handler=handlers.Remove)
     return parser
@@ -149,7 +158,8 @@ def _set_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("report", description="generate report")
+    parser = root.add_parser("report", help="generate report", description="generate report",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
     parser.set_defaults(handler=handlers.Report)
     return parser
@@ -161,7 +171,9 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("setup", description="create initial service configuration, requires root")
+    parser = root.add_parser("setup", help="initial service configuration",
+                             description="create initial service configuration, requires root",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-config", help="path to default devtools pacman configuration",
                         default="/usr/share/devtools/pacman-extra.conf")
@@ -178,7 +190,8 @@ def _set_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("sign", description="(re-)sign packages and repository database")
+    parser = root.add_parser("sign", help="sign packages", description="(re-)sign packages and repository database",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
     parser.set_defaults(handler=handlers.Sign)
     return parser
@@ -190,7 +203,8 @@ def _set_status_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("status", description="request status of the package")
+    parser = root.add_parser("status", help="get package status", description="request status of the package",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.set_defaults(handler=handlers.Status, lock=None, no_report=True, unsafe=True)
@@ -203,7 +217,8 @@ def _set_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("status-update", description="request status of the package")
+    parser = root.add_parser("status-update", help="update package status", description="request status of the package",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "package",
         help="set status for specified packages. If no packages supplied, service status will be updated",
@@ -220,7 +235,8 @@ def _set_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("sync", description="sync packages to remote server")
+    parser = root.add_parser("sync", help="sync repository", description="sync packages to remote server",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to sync", nargs="*")
     parser.set_defaults(handler=handlers.Sync)
     return parser
@@ -232,7 +248,8 @@ def _set_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("update", description="run updates")
+    parser = root.add_parser("update", help="update packages", description="run updates",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
     parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
@@ -248,7 +265,8 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("web", description="start web server")
+    parser = root.add_parser("web", help="start web server", description="start web server",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Web, lock=None, no_report=True)
     return parser
 
