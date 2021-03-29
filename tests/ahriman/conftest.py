@@ -7,7 +7,7 @@ from typing import Any, Type, TypeVar
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
-from ahriman.models.package_desciption import PackageDescription
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 
 T = TypeVar("T")

@@ -20,11 +20,11 @@
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload.uploader import Uploader
+from ahriman.core.upload.upload import Upload
 from ahriman.core.util import check_output
 
 
-class Rsync(Uploader):
+class Rsync(Upload):
     """
     rsync wrapper
     :ivar remote: remote address to sync
@@ -38,7 +38,7 @@ class Rsync(Uploader):
         :param architecture: repository architecture
         :param config: configuration instance
         """
-        Uploader.__init__(self, architecture, config)
+        Upload.__init__(self, architecture, config)
         section = config.get_section_name("rsync", architecture)
         self.remote = config.get(section, "remote")
 

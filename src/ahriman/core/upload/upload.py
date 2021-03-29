@@ -26,7 +26,7 @@ from ahriman.core.exceptions import SyncFailed
 from ahriman.models.upload_settings import UploadSettings
 
 
-class Uploader:
+class Upload:
     """
     base remote sync class
     :ivar architecture: repository architecture
@@ -56,17 +56,17 @@ class Uploader:
         provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
-            uploader: Uploader = Rsync(architecture, config)
+            upload: Upload = Rsync(architecture, config)
         elif provider == UploadSettings.S3:
             from ahriman.core.upload.s3 import S3
-            uploader = S3(architecture, config)
+            upload = S3(architecture, config)
         else:
-            uploader = Uploader(architecture, config)
+            upload = Upload(architecture, config)
 
         try:
-            uploader.sync(path)
+            upload.sync(path)
         except Exception:
-            uploader.logger.exception(f"remote sync failed for {provider.name}")
+            upload.logger.exception(f"remote sync failed for {provider.name}")
             raise SyncFailed()
 
     def sync(self, path: Path) -> None:

@@ -30,6 +30,8 @@ class Dump(Handler):
     dump config handler
     """
 
+    _print = print
+
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
         """
@@ -40,7 +42,7 @@ class Dump(Handler):
         """
         config_dump = config.dump(architecture)
         for section, values in sorted(config_dump.items()):
-            print(f"[{section}]")
+            Dump._print(f"[{section}]")
             for key, value in sorted(values.items()):
-                print(f"{key} = {value}")
-            print()
+                Dump._print(f"{key} = {value}")
+            Dump._print()
