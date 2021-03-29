@@ -1,6 +1,10 @@
+import pytest
+
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import MagicMock, PropertyMock
 
+from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -72,6 +76,44 @@ def test_web_url(package_ahriman: Package) -> None:
     assert package_ahriman.base in package_ahriman.web_url
 
 
+def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must construct package from alpm library
+    """
+    mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
+                 return_value=package_ahriman.packages[package_ahriman.base])
+    assert Package.from_archive(Path("path"), pyalpm_handle, package_ahriman.aur_url) == package_ahriman
+
+
+def test_from_aur(package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must construct package from aur
+    """
+    mock = MagicMock()
+    type(mock).name = PropertyMock(return_value=package_ahriman.base)
+    type(mock).package_base = PropertyMock(return_value=package_ahriman.base)
+    type(mock).version = PropertyMock(return_value=package_ahriman.version)
+    mocker.patch("aur.info", return_value=mock)
+
+    package = Package.from_aur(package_ahriman.base, package_ahriman.aur_url)
+    assert package_ahriman.base == package.base
+    assert package_ahriman.version == package.version
+    assert package_ahriman.packages.keys() == package.packages.keys()
+
+
+def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must construct package from srcinfo
+    """
+    srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
+    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+
+    package = Package.from_build(Path("path"), package_ahriman.aur_url)
+    assert package_ahriman.packages.keys() == package.packages.keys()
+    package_ahriman.packages = package.packages  # we are not going to test PackageDescription here
+    assert package_ahriman == package
+
+
 def test_from_json_view_1(package_ahriman: Package) -> None:
     """
     must construct same object from json
@@ -98,10 +140,62 @@ def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Pa
     must load correct list of dependencies with version
     """
     srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-
     mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
 
     assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
+
+
+def test_full_version() -> None:
+    """
+    must construct full version
+    """
+    assert Package.full_version("1", "r2388.d30e3201", "1") == "1:r2388.d30e3201-1"
+    assert Package.full_version(None, "0.12.1", "1") == "0.12.1-1"
+
+
+def test_load_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must load package from package archive
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    load_mock = mocker.patch("ahriman.models.package.Package.from_archive")
+
+    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    load_mock.assert_called_once()
+
+
+def test_load_from_aur(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must load package from AUR
+    """
+    load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
+
+    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    load_mock.assert_called_once()
+
+
+def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must load package from build directory
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    load_mock = mocker.patch("ahriman.models.package.Package.from_build")
+
+    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    load_mock.assert_called_once()
+
+
+def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must raise InvalidPackageInfo on exception
+    """
+    mocker.patch("pathlib.Path.is_dir", side_effect=InvalidPackageInfo("exception!"))
+    with pytest.raises(InvalidPackageInfo):
+        Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+
+    mocker.patch("pathlib.Path.is_dir", side_effect=Exception())
+    with pytest.raises(InvalidPackageInfo):
+        Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
 
 
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
@@ -117,7 +211,6 @@ def test_actual_version_vcs(package_tpacpi_bat_git: Package, repository_paths: R
     must return valid actual_version for VCS package
     """
     srcinfo = (resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo").read_text()
-
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
     mocker.patch("ahriman.core.build_tools.task.Task.fetch")
 

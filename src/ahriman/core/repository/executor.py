@@ -25,7 +25,7 @@ from typing import Dict, Iterable, List, Optional
 from ahriman.core.build_tools.task import Task
 from ahriman.core.report.report import Report
 from ahriman.core.repository.cleaner import Cleaner
-from ahriman.core.upload.uploader import Uploader
+from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
 
 
@@ -118,7 +118,7 @@ class Executor(Cleaner):
         if targets is None:
             targets = self.config.getlist("upload", "target")
         for target in targets:
-            Uploader.run(self.architecture, self.config, target, self.paths.repository)
+            Upload.run(self.architecture, self.config, target, self.paths.repository)
 
     def process_update(self, packages: Iterable[Path]) -> Path:
         """

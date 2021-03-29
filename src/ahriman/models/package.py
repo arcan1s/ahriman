@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional, Set, Type, Union
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
-from ahriman.models.package_desciption import PackageDescription
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 
 
