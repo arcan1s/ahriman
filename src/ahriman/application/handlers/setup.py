@@ -55,8 +55,8 @@ class Setup(Handler):
         Setup.create_makepkg_configuration(args.packager, application.repository.paths)
         Setup.create_executable(args.build_command, architecture)
         Setup.create_devtools_configuration(args.build_command, architecture, Path(args.from_config), args.no_multilib,
-                                            application.repository.name, application.repository.paths)
-        Setup.create_ahriman_configuration(args.build_command, architecture, config.include)
+                                            args.repository, application.repository.paths)
+        Setup.create_ahriman_configuration(args.build_command, architecture, args.repository, config.include)
         Setup.create_sudo_configuration(args.build_command, architecture)
 
     @staticmethod
@@ -70,18 +70,23 @@ class Setup(Handler):
         return Setup.BIN_DIR_PATH / f"{prefix}-{architecture}-build"
 
     @staticmethod
-    def create_ahriman_configuration(prefix: str, architecture: str, include_path: Path) -> None:
+    def create_ahriman_configuration(prefix: str, architecture: str, repository: str, include_path: Path) -> None:
         """
         create service specific configuration
         :param prefix: command prefix in {prefix}-{architecture}-build
         :param architecture: repository architecture
+        :param repository: repository name
         :param include_path: path to directory with configuration includes
         """
-        config = configparser.RawConfigParser()
+        config = configparser.ConfigParser()
+
         config.add_section("build")
         config.set("build", "build_command", str(Setup.build_command(prefix, architecture)))
 
-        target = include_path / "build.ini"
+        config.add_section("repository")
+        config.set("repository", "name", repository)
+
+        target = include_path / "build-overrides.ini"
         with target.open("w") as ahriman_config:
             config.write(ahriman_config)
 
@@ -97,11 +102,16 @@ class Setup(Handler):
         :param repository: repository name
         :param paths: repository paths instance
         """
-        config = configparser.RawConfigParser()
+        config = configparser.ConfigParser()
+        # preserve case
+        # stupid mypy thinks that it is impossible
+        config.optionxform = lambda key: key  # type: ignore
 
-        # include base configuration
-        config.add_section("options")
-        config.set("options", "Include", str(source))
+        # load default configuration first
+        # we cannot use Include here because it will be copied to new chroot, thus no includes there
+        config.read(source)
+
+        # set our architecture now
         config.set("options", "Architecture", architecture)
 
         # add multilib
@@ -145,4 +155,6 @@ class Setup(Handler):
         :param prefix: command prefix in {prefix}-{architecture}-build
         :param architecture: repository architecture
         """
-        Setup.build_command(prefix, architecture).symlink_to(Setup.BIN_DIR_PATH)
+        command = Setup.build_command(prefix, architecture)
+        command.unlink(missing_ok=True)
+        command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)

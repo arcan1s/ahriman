@@ -58,16 +58,22 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
     command = Setup.build_command(args.build_command, "x86_64")
-    Setup.create_ahriman_configuration(args.build_command, "x86_64", configuration.include)
-    add_section_mock.assert_called_once()
-    set_mock.assert_called_with("build", "build_command", str(command))
+    Setup.create_ahriman_configuration(args.build_command, "x86_64", args.repository, configuration.include)
+    add_section_mock.assert_has_calls([
+        mock.call("build"),
+        mock.call("repository"),
+    ])
+    set_mock.assert_has_calls([
+        mock.call("build", "build_command", str(command)),
+        mock.call("repository", "name", args.repository),
+    ])
     write_mock.assert_called_once()
 
 
 def test_create_devtools_configuration(args: argparse.Namespace, repository_paths: RepositoryPaths,
                                        mocker: MockerFixture) -> None:
     """
-    must create configuration for the service
+    must create configuration for the devtools
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.open")
@@ -78,10 +84,26 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_config), args.no_multilib,
                                         args.repository, repository_paths)
     add_section_mock.assert_has_calls([
-        mock.call("options"),
         mock.call("multilib"),
         mock.call(args.repository)
     ])
+    write_mock.assert_called_once()
+
+
+def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, repository_paths: RepositoryPaths,
+                                                   mocker: MockerFixture) -> None:
+    """
+    must create configuration for the devtools without multilib
+    """
+    args = _default_args(args)
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("configparser.RawConfigParser.set")
+    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
+    write_mock = mocker.patch("configparser.RawConfigParser.write")
+
+    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_config), True,
+                                        args.repository, repository_paths)
+    add_section_mock.assert_called_once()
     write_mock.assert_called_once()
 
 
@@ -112,10 +134,12 @@ def test_create_sudo_configuration(args: argparse.Namespace, mocker: MockerFixtu
 
 def test_create_executable(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
-    must create sudo configuration
+    must create executable
     """
     args = _default_args(args)
     symlink_text_mock = mocker.patch("pathlib.Path.symlink_to")
+    unlink_text_mock = mocker.patch("pathlib.Path.unlink")
 
     Setup.create_executable(args.build_command, "x86_64")
     symlink_text_mock.assert_called_once()
+    unlink_text_mock.assert_called_once()

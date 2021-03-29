@@ -19,14 +19,14 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * Create `/var/lib/ahriman/.makepkg.conf` with `makepkg.conf` overrides if required (at least you might want to set `PACKAGER`):
 
     ```shell
-    echo 'PACKAGES="John Doe <john@doe.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
+    echo 'PACKAGER="John Doe <john@doe.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
     ```
 
 * Configure build tools (it is required for correct dependency management system):
 
     * create build command, e.g. `ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build` (you can choose any name for command, basically it should be `{name}-{arch}-build`);
     * create configuration file, e.g. `cp /usr/share/devtools/pacman-{extra,ahriman}.conf` (same as previous `pacman-{name}.conf`);
-    * change configuration file, add your own repository, add multilib repository etc. Hint: you can use `Include` option as well;
+    * change configuration file, add your own repository, add multilib repository etc;
     * set `build_command` option to point to your command;
     * configure `/etc/sudoers.d/ahriman` to allow running command without a password.
 
@@ -66,3 +66,5 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
     ```shell
     sudo -u ahriman ahriman -a x86_64 add yay
     ```
+
+Note that initial service configuration can be done by running `ahriman setup` with specific arguments.

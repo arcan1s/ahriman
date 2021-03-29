@@ -40,6 +40,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
     parser.add_argument("-v", "--version", action="version", version=version.__version__)
+
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     add_parser = subparsers.add_parser("add", description="add package")
@@ -113,8 +114,8 @@ def _parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    arg_parser = _parser()
-    args = arg_parser.parse_args()
+    args_parser = _parser()
+    args = args_parser.parse_args()
 
     handler: handlers.Handler = args.handler
     status = handler.execute(args)
