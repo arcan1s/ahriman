@@ -14,6 +14,17 @@ def test_git_url(package_ahriman: Package) -> None:
     assert package_ahriman.base in package_ahriman.git_url
 
 
+def test_groups(package_ahriman: Package) -> None:
+    """
+    must return list of groups for each package
+    """
+    assert all(
+        all(group in package_ahriman.groups for group in package.groups)
+        for package in package_ahriman.packages.values()
+    )
+    assert sorted(package_ahriman.groups) == package_ahriman.groups
+
+
 def test_is_single_package_false(package_python_schedule: Package) -> None:
     """
     python-schedule must not be single package
@@ -40,6 +51,17 @@ def test_is_vcs_true(package_tpacpi_bat_git: Package) -> None:
     tpacpi-bat-git must be VCS package
     """
     assert package_tpacpi_bat_git.is_vcs
+
+
+def test_licenses(package_ahriman: Package) -> None:
+    """
+    must return list of licenses for each package
+    """
+    assert all(
+        all(lic in package_ahriman.licenses for lic in package.licenses)
+        for package in package_ahriman.packages.values()
+    )
+    assert sorted(package_ahriman.licenses) == package_ahriman.licenses
 
 
 def test_web_url(package_ahriman: Package) -> None:

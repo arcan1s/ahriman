@@ -34,10 +34,20 @@ class IndexView(BaseView):
     It uses jinja2 templates for report generation, the following variables are allowed:
 
         architecture - repository architecture, string, required
-        packages - sorted list of packages properties: base, packages (sorted list), status,
-                   timestamp, version, web_url. Required
+        packages - sorted list of packages properties, required
+                   * base, string
+                   * groups, sorted list of strings
+                   * licenses, sorted list of strings
+                   * packages, sorted list of strings
+                   * status, string based on enum value
+                   * timestamp, pretty printed datetime, string
+                   * version, string
+                   * web_url, string
         repository - repository name, string, required
-        service - service status properties: status, status_color, timestamp. Required
+        service - service status properties, required
+                   * status, string based on enum value
+                   * status_color, string based on enum value
+                   * timestamp, pretty printed datetime, string
         version - ahriman version, string, required
     """
 
@@ -51,6 +61,8 @@ class IndexView(BaseView):
         packages = [
             {
                 "base": package.base,
+                "groups": package.groups,
+                "licenses": package.licenses,
                 "packages": list(sorted(package.packages)),
                 "status": status.status.value,
                 "timestamp": pretty_datetime(status.timestamp),

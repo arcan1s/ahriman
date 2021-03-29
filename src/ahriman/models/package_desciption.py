@@ -17,25 +17,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from pyalpm import Package  # type: ignore
+from typing import List, Optional, Type
 
 
 @dataclass
 class PackageDescription:
     """
     package specific properties
+    :ivar architecture: package architecture
     :ivar archive_size: package archive size
     :ivar build_date: package build date
+    :ivar description: package description
     :ivar filename: package archive name
+    :ivar groups: package groups
     :ivar installed_size: package installed size
+    :ivar licenses: package licenses list
+    :ivar url: package url
     """
 
+    architecture: Optional[str] = None
     archive_size: Optional[int] = None
     build_date: Optional[int] = None
+    description: Optional[str] = None
     filename: Optional[str] = None
+    groups: List[str] = field(default_factory=list)
     installed_size: Optional[int] = None
+    licenses: List[str] = field(default_factory=list)
+    url: Optional[str] = None
 
     @property
     def filepath(self) -> Optional[Path]:
@@ -43,3 +56,22 @@ class PackageDescription:
         :return: path object for current filename
         """
         return Path(self.filename) if self.filename is not None else None
+
+    @classmethod
+    def from_package(cls: Type[PackageDescription], package: Package, path: Path) -> PackageDescription:
+        """
+        construct class from alpm package class
+        :param package: alpm generated object
+        :param path: path to package archive
+        :return: package properties based on tarball
+        """
+        return PackageDescription(
+            architecture=package.arch,
+            archive_size=package.size,
+            build_date=package.builddate,
+            description=package.desc,
+            filename=path.name,
+            groups=package.groups,
+            installed_size=package.isize,
+            licenses=package.licenses,
+            url=package.url)

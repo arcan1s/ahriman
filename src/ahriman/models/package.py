@@ -60,6 +60,13 @@ class Package:
         return f"{self.aur_url}/{self.base}.git"
 
     @property
+    def groups(self) -> List[str]:
+        """
+        :return: sum of groups per each package
+        """
+        return sorted(set(sum([package.groups for package in self.packages.values()], start=[])))
+
+    @property
     def is_single_package(self) -> bool:
         """
         :return: true in case if this base has only one package with the same name
@@ -79,6 +86,13 @@ class Package:
             or self.base.endswith("-svn")
 
     @property
+    def licenses(self) -> List[str]:
+        """
+        :return: sum of licenses per each package
+        """
+        return sorted(set(sum([package.licenses for package in self.packages.values()], start=[])))
+
+    @property
     def web_url(self) -> str:
         """
         :return: package AUR url
@@ -95,8 +109,8 @@ class Package:
         :return: package properties
         """
         package = pacman.handle.load_pkg(str(path))
-        properties = PackageDescription(package.size, package.builddate, path.name, package.isize)
-        return cls(package.base, package.version, aur_url, {package.name: properties})
+        return cls(package.base, package.version, aur_url,
+                   {package.name: PackageDescription.from_package(package, path)})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, aur_url: str) -> Package:
