@@ -6,13 +6,17 @@ from ahriman.application.handlers import Status
 from ahriman.core.configuration import Configuration
 
 
+def _default_args(args: argparse.Namespace) -> argparse.Namespace:
+    args.ahriman = True
+    args.package = []
+    return args
+
+
 def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
-    args.ahriman = True
-    args.package = []
-    args.without_dependencies = False
+    args = _default_args(args)
     mocker.patch("pathlib.Path.mkdir")
     application_mock = mocker.patch("ahriman.core.status.client.Client.get_self")
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get")

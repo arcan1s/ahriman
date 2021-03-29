@@ -6,15 +6,20 @@ from ahriman.application.handlers import Clean
 from ahriman.core.configuration import Configuration
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must run command
-    """
+def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.no_build = False
     args.no_cache = False
     args.no_chroot = False
     args.no_manual = False
     args.no_packages = False
+    return args
+
+
+def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must run command
+    """
+    args = _default_args(args)
     mocker.patch("pathlib.Path.mkdir")
     application_mock = mocker.patch("ahriman.application.application.Application.clean")
 
