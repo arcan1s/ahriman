@@ -84,7 +84,7 @@ class Configuration(configparser.RawConfigParser):
         :param architecture: repository architecture
         :return: correct section name for repository specific section
         """
-        return f"{section}_{architecture}"
+        return f"{section}:{architecture}"
 
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
@@ -183,6 +183,6 @@ class Configuration(configparser.RawConfigParser):
             # remove any arch specific section
             for foreign in self.sections():
                 # we would like to use lambda filter here, but pylint is too dumb
-                if not foreign.startswith(f"{section}_"):
+                if not foreign.startswith(f"{section}:"):
                     continue
                 self.remove_section(foreign)

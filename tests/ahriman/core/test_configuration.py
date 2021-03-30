@@ -25,7 +25,7 @@ def test_section_name(configuration: Configuration) -> None:
     """
     must return architecture specific group
     """
-    assert configuration.section_name("build", "x86_64") == "build_x86_64"
+    assert configuration.section_name("build", "x86_64") == "build:x86_64"
 
 
 def test_absolute_path_for_absolute(configuration: Configuration) -> None:
@@ -60,14 +60,15 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     """
     dump must contain architecture specific settings
     """
-    configuration.add_section("build_x86_64")
-    configuration.set("build_x86_64", "archbuild_flags", "hello flag")
+    section = configuration.section_name("build", "x86_64")
+    configuration.add_section(section)
+    configuration.set(section, "archbuild_flags", "hello flag")
     configuration.merge_sections("x86_64")
 
     dump = configuration.dump()
     assert dump
     assert "build" in dump
-    assert "build_x86_64" not in dump
+    assert section not in dump
     assert dump["build"]["archbuild_flags"] == "hello flag"
 
 
@@ -125,9 +126,10 @@ def test_merge_sections_missing(configuration: Configuration) -> None:
     """
     must merge create section if not exists
     """
+    section = configuration.section_name("build", "x86_64")
     configuration.remove_section("build")
-    configuration.add_section("build_x86_64")
-    configuration.set("build_x86_64", "key", "value")
+    configuration.add_section(section)
+    configuration.set(section, "key", "value")
 
     configuration.merge_sections("x86_64")
     assert configuration.get("build", "key") == "value"
