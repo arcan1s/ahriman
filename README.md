@@ -66,7 +66,7 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * Add packages by using `ahriman add {package}` command:
 
     ```shell
-    sudo -u ahriman ahriman -a x86_64 add yay
+    sudo -u ahriman ahriman -a x86_64 add yay --now
     ```
 
 Note that initial service configuration can be done by running `ahriman setup` with specific arguments.

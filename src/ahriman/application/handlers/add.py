@@ -39,4 +39,10 @@ class Add(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        Application(architecture, configuration).add(args.package, args.without_dependencies)
+        application = Application(architecture, configuration)
+        application.add(args.package, args.without_dependencies)
+        if not args.now:
+            return
+
+        packages = application.get_updates(args.package, True, False, True, application.logger.info)
+        application.update(packages)

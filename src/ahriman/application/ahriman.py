@@ -77,6 +77,7 @@ def _set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("add", help="add package", description="add package",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package base/name or archive path", nargs="+")
+    parser.add_argument("--now", help="run update function after", action="store_true")
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
     parser.set_defaults(handler=handlers.Add)
     return parser
