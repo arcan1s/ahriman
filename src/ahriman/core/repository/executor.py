@@ -49,7 +49,7 @@ class Executor(Cleaner):
         """
         def build_single(package: Package) -> None:
             self.reporter.set_building(package.base)
-            task = Task(package, self.architecture, self.configuration, self.paths)
+            task = Task(package, self.configuration, self.paths)
             task.init()
             built = task.build()
             for src in built:

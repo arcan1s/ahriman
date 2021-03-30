@@ -40,7 +40,7 @@ class Dump(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        dump = configuration.dump(architecture)
+        dump = configuration.dump()
         for section, values in sorted(dump.items()):
             Dump._print(f"[{section}]")
             for key, value in sorted(values.items()):

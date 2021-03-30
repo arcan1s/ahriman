@@ -56,4 +56,4 @@ class Properties:
         self.pacman = Pacman(configuration)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(architecture, configuration)
+        self.reporter = Client.load(configuration)

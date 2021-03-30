@@ -40,8 +40,8 @@ class S3(Upload):
         :param configuration: configuration instance
         """
         Upload.__init__(self, architecture, configuration)
-        self.bucket = configuration.wrap("s3", architecture, "bucket", configuration.get)
-        self.command = configuration.wrap("s3", architecture, "command", configuration.getlist)
+        self.bucket = configuration.get("s3", "bucket")
+        self.command = configuration.getlist("s3", "command")
 
     def sync(self, path: Path) -> None:
         """

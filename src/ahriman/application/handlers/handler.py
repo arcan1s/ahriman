@@ -35,15 +35,15 @@ class Handler:
     """
 
     @classmethod
-    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> bool:
+    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
         :param args: command line args
         :param architecture: repository architecture
-        :param configuration: configuration instance
         :return: True on success, False otherwise
         """
         try:
+            configuration = Configuration.from_path(args.configuration, architecture, not args.no_log)
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration)
             return True
@@ -58,10 +58,9 @@ class Handler:
         :param args: command line args
         :return: 0 on success, 1 otherwise
         """
-        configuration = Configuration.from_path(args.configuration, not args.no_log)
         with Pool(len(args.architecture)) as pool:
             result = pool.starmap(
-                cls._call, [(args, architecture, configuration) for architecture in args.architecture])
+                cls._call, [(args, architecture) for architecture in set(args.architecture)])
         return 0 if all(result) else 1
 
     @classmethod

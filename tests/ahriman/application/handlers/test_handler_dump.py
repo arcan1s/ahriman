@@ -13,7 +13,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("pathlib.Path.mkdir")
     print_mock = mocker.patch("ahriman.application.handlers.dump.Dump._print")
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
-                                    return_value=configuration.dump("x86_64"))
+                                    return_value=configuration.dump())
 
     Dump.run(args, "x86_64", configuration)
     application_mock.assert_called_once()

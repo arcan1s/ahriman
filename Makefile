@@ -24,7 +24,7 @@ archlinux: archive
 	sed -i "/sha512sums=('[0-9A-Fa-f]*/s/[^'][^)]*/sha512sums=('$$(sha512sum $(PROJECT)-$(VERSION)-src.tar.xz | awk '{print $$1}')'/" package/archlinux/PKGBUILD
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
-check:
+check: clean
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 	find "src/$(PROJECT)" tests -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
 	cd src && pylint --rcfile=../.pylintrc "$(PROJECT)"
@@ -43,7 +43,7 @@ push: archlinux
 	git tag "$(VERSION)"
 	git push --tags
 
-tests:
+tests: clean
 	python setup.py test
 
 version:
