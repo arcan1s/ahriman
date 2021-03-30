@@ -24,7 +24,10 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
+
+
+T = TypeVar("T")
 
 
 class Configuration(configparser.RawConfigParser):
@@ -70,6 +73,16 @@ class Configuration(configparser.RawConfigParser):
         config.load_logging(logfile)
         return config
 
+    @staticmethod
+    def section_name(section: str, architecture: str) -> str:
+        """
+        generate section name for architecture specific sections
+        :param section: section name
+        :param architecture: repository architecture
+        :return: correct section name for repository specific section
+        """
+        return f"{section}_{architecture}"
+
     def dump(self, architecture: str) -> Dict[str, Dict[str, str]]:
         """
         dump configuration to dictionary
@@ -81,11 +94,16 @@ class Configuration(configparser.RawConfigParser):
             if not self.has_section(section):
                 continue
             result[section] = dict(self[section])
-        for group in Configuration.ARCHITECTURE_SPECIFIC_SECTIONS:
-            section = self.get_section_name(group, architecture)
-            if not self.has_section(section):
-                continue
-            result[section] = dict(self[section])
+        for section in Configuration.ARCHITECTURE_SPECIFIC_SECTIONS:
+            # get global settings
+            settings = dict(self[section]) if self.has_section(section) else {}
+            # get overrides
+            specific = self.section_name(section, architecture)
+            specific_settings = dict(self[specific]) if self.has_section(specific) else {}
+            # merge
+            settings.update(specific_settings)
+            if settings:  # append only in case if it is not empty
+                result[section] = settings
 
         return result
 
@@ -112,16 +130,6 @@ class Configuration(configparser.RawConfigParser):
         if self.path is None or value.is_absolute():
             return value
         return self.path.parent / value
-
-    def get_section_name(self, prefix: str, suffix: str) -> str:
-        """
-        check if there is `prefix`_`suffix` section and return it on success. Return `prefix` otherwise
-        :param prefix: section name prefix
-        :param suffix: section name suffix (e.g. architecture name)
-        :return: found section name
-        """
-        probe = f"{prefix}_{suffix}"
-        return probe if self.has_section(probe) else prefix
 
     def load(self, path: Path) -> None:
         """
@@ -163,3 +171,18 @@ class Configuration(configparser.RawConfigParser):
             file_logger()
         else:
             console_logger()
+
+    def wrap(self, section: str, architecture: str, key: str, function: Callable[..., T], **kwargs: Any) -> T:
+        """
+        wrapper to get option by either using architecture specific section or generic section
+        :param section: section name
+        :param architecture: repository architecture
+        :param key: key name
+        :param function: function to call, e.g. `Configuration.get`
+        :param kwargs: any other keywords which will be passed to function directly
+        :return: either value from architecture specific section or global value
+        """
+        specific_section = self.section_name(section, architecture)
+        if self.has_option(specific_section, key):
+            return function(specific_section, key, **kwargs)
+        return function(section, key, **kwargs)

@@ -44,8 +44,7 @@ class UpdateHandler(Cleaner):
         """
         result: List[Package] = []
 
-        build_section = self.config.get_section_name("build", self.architecture)
-        ignore_list = self.config.getlist(build_section, "ignore_packages")
+        ignore_list = self.config.wrap("build", self.architecture, "ignore_packages", self.config.getlist)
 
         for local in self.packages():
             if local.base in ignore_list:

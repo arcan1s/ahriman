@@ -23,6 +23,7 @@ from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
+from ahriman.core.sign.gpg import GPG
 from ahriman.core.util import pretty_datetime, pretty_size
 from ahriman.models.package import Package
 from ahriman.models.sign_settings import SignSettings
@@ -56,7 +57,7 @@ class HTML(Report):
     :ivar homepage: homepage link if any (for footer)
     :ivar link_path: prefix fo packages to download
     :ivar name: repository name
-    :ivar pgp_key: default PGP key
+    :ivar default_pgp_key: default PGP key
     :ivar report_path: output path to html report
     :ivar sign_targets: targets to sign enabled in configuration
     :ivar template_path: path to directory with jinja templates
@@ -69,18 +70,15 @@ class HTML(Report):
         :param config: configuration instance
         """
         Report.__init__(self, architecture, config)
-        section = config.get_section_name("html", architecture)
-        self.report_path = config.getpath(section, "path")
-        self.link_path = config.get(section, "link_path")
-        self.template_path = config.getpath(section, "template_path")
+        self.report_path = config.wrap("html", architecture, "path", config.getpath)
+        self.link_path = config.wrap("html", architecture, "link_path", config.get)
+        self.template_path = config.wrap("html", architecture, "template_path", config.getpath)
 
         # base template vars
-        self.homepage = config.get(section, "homepage", fallback=None)
+        self.homepage = config.wrap("html", architecture, "homepage", config.get, fallback=None)
         self.name = config.get("repository", "name")
 
-        sign_section = config.get_section_name("sign", architecture)
-        self.sign_targets = [SignSettings.from_option(opt) for opt in config.getlist(sign_section, "target")]
-        self.pgp_key = config.get(sign_section, "key") if self.sign_targets else None
+        self.sign_targets, self.default_pgp_key = GPG.sign_options(architecture, config)
 
     def generate(self, packages: Iterable[Package]) -> None:
         """
@@ -115,7 +113,7 @@ class HTML(Report):
             has_package_signed=SignSettings.SignPackages in self.sign_targets,
             has_repo_signed=SignSettings.SignRepository in self.sign_targets,
             packages=sorted(content, key=comparator),
-            pgp_key=self.pgp_key,
+            pgp_key=self.default_pgp_key,
             repository=self.name)
 
         self.report_path.write_text(html)

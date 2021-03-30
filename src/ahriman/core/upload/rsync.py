@@ -39,9 +39,8 @@ class Rsync(Upload):
         :param config: configuration instance
         """
         Upload.__init__(self, architecture, config)
-        section = config.get_section_name("rsync", architecture)
-        self.command = config.getlist(section, "command")
-        self.remote = config.get(section, "remote")
+        self.command = config.wrap("rsync", architecture, "command", config.getlist)
+        self.remote = config.wrap("rsync", architecture, "remote", config.get)
 
     def sync(self, path: Path) -> None:
         """

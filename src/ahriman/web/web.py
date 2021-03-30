@@ -58,9 +58,10 @@ def run_server(application: web.Application) -> None:
     """
     application.logger.info("start server")
 
-    section = application["config"].get_section_name("web", application["architecture"])
-    host = application["config"].get(section, "host")
-    port = application["config"].getint(section, "port")
+    architecture: str = application["architecture"]
+    config: Configuration = application["config"]
+    host = config.wrap("web", architecture, "host", config.get)
+    port = config.wrap("web", architecture, "port", config.getint)
 
     web.run_app(application, host=host, port=port, handle_signals=False,
                 access_log=logging.getLogger("http"))
