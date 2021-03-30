@@ -32,7 +32,7 @@ class GPG:
     """
     gnupg wrapper
     :ivar architecture: repository architecture
-    :ivar config: configuration instance
+    :ivar configuration: configuration instance
     :ivar default_key: default PGP key ID to use
     :ivar logger: class logger
     :ivar targets: list of targets to sign (repository, package etc)
@@ -40,16 +40,16 @@ class GPG:
 
     _check_output = check_output
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("build_details")
         self.architecture = architecture
-        self.config = config
-        self.targets, self.default_key = self.sign_options(architecture, config)
+        self.configuration = configuration
+        self.targets, self.default_key = self.sign_options(architecture, configuration)
 
     @property
     def repository_sign_args(self) -> List[str]:
@@ -74,18 +74,18 @@ class GPG:
         return ["gpg", "-u", key, "-b", str(path)]
 
     @staticmethod
-    def sign_options(architecture: str, config: Configuration) -> Tuple[Set[SignSettings], Optional[str]]:
+    def sign_options(architecture: str, configuration: Configuration) -> Tuple[Set[SignSettings], Optional[str]]:
         """
         extract default sign options from configuration
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :return: tuple of sign targets and default PGP key
         """
         targets = {
             SignSettings.from_option(option)
-            for option in config.wrap("sign", architecture, "targets", config.getlist)
+            for option in configuration.wrap("sign", architecture, "targets", configuration.getlist)
         }
-        default_key = config.wrap("sign", architecture, "key", config.get) if targets else None
+        default_key = configuration.wrap("sign", architecture, "key", configuration.get) if targets else None
         return targets, default_key
 
     def process(self, path: Path, key: str) -> List[Path]:
@@ -110,8 +110,8 @@ class GPG:
         """
         if SignSettings.SignPackages not in self.targets:
             return [path]
-        key = self.config.wrap("sign", self.architecture, f"key_{base}",
-                               self.config.get, fallback=self.default_key)
+        key = self.configuration.wrap("sign", self.architecture, f"key_{base}",
+                                      self.configuration.get, fallback=self.default_key)
         if key is None:
             self.logger.error(f"no default key set, skip package {path} sign")
             return [path]

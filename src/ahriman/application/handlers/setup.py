@@ -44,19 +44,19 @@ class Setup(Handler):
     SUDOERS_PATH = Path("/etc/sudoers.d/ahriman")
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        application = Application(architecture, config)
+        application = Application(architecture, configuration)
         Setup.create_makepkg_configuration(args.packager, application.repository.paths)
         Setup.create_executable(args.build_command, architecture)
-        Setup.create_devtools_configuration(args.build_command, architecture, Path(args.from_config), args.no_multilib,
-                                            args.repository, application.repository.paths)
-        Setup.create_ahriman_configuration(args.build_command, architecture, args.repository, config.include)
+        Setup.create_devtools_configuration(args.build_command, architecture, Path(args.from_configuration),
+                                            args.no_multilib, args.repository, application.repository.paths)
+        Setup.create_ahriman_configuration(args.build_command, architecture, args.repository, configuration.include)
         Setup.create_sudo_configuration(args.build_command, architecture)
 
     @staticmethod
@@ -78,17 +78,17 @@ class Setup(Handler):
         :param repository: repository name
         :param include_path: path to directory with configuration includes
         """
-        config = configparser.ConfigParser()
+        configuration = configparser.ConfigParser()
 
-        config.add_section("build")
-        config.set("build", "build_command", str(Setup.build_command(prefix, architecture)))
+        configuration.add_section("build")
+        configuration.set("build", "build_command", str(Setup.build_command(prefix, architecture)))
 
-        config.add_section("repository")
-        config.set("repository", "name", repository)
+        configuration.add_section("repository")
+        configuration.set("repository", "name", repository)
 
         target = include_path / "build-overrides.ini"
-        with target.open("w") as ahriman_config:
-            config.write(ahriman_config)
+        with target.open("w") as ahriman_configuration:
+            configuration.write(ahriman_configuration)
 
     @staticmethod
     def create_devtools_configuration(prefix: str, architecture: str, source: Path,
@@ -102,31 +102,31 @@ class Setup(Handler):
         :param repository: repository name
         :param paths: repository paths instance
         """
-        config = configparser.ConfigParser()
+        configuration = configparser.ConfigParser()
         # preserve case
         # stupid mypy thinks that it is impossible
-        config.optionxform = lambda key: key  # type: ignore
+        configuration.optionxform = lambda key: key  # type: ignore
 
         # load default configuration first
         # we cannot use Include here because it will be copied to new chroot, thus no includes there
-        config.read(source)
+        configuration.read(source)
 
         # set our architecture now
-        config.set("options", "Architecture", architecture)
+        configuration.set("options", "Architecture", architecture)
 
         # add multilib
         if not no_multilib:
-            config.add_section("multilib")
-            config.set("multilib", "Include", str(Setup.MIRRORLIST_PATH))
+            configuration.add_section("multilib")
+            configuration.set("multilib", "Include", str(Setup.MIRRORLIST_PATH))
 
         # add repository itself
-        config.add_section(repository)
-        config.set(repository, "SigLevel", "Optional TrustAll")  # we don't care
-        config.set(repository, "Server", f"file://{paths.repository}")
+        configuration.add_section(repository)
+        configuration.set(repository, "SigLevel", "Optional TrustAll")  # we don't care
+        configuration.set(repository, "Server", f"file://{paths.repository}")
 
         target = source.parent / f"pacman-{prefix}-{architecture}.conf"
-        with target.open("w") as devtools_config:
-            config.write(devtools_config)
+        with target.open("w") as devtools_configuration:
+            configuration.write(devtools_configuration)
 
     @staticmethod
     def create_makepkg_configuration(packager: str, paths: RepositoryPaths) -> None:

@@ -59,19 +59,19 @@ def run_server(application: web.Application) -> None:
     application.logger.info("start server")
 
     architecture: str = application["architecture"]
-    config: Configuration = application["config"]
-    host = config.wrap("web", architecture, "host", config.get)
-    port = config.wrap("web", architecture, "port", config.getint)
+    configuration: Configuration = application["configuration"]
+    host = configuration.wrap("web", architecture, "host", configuration.get)
+    port = configuration.wrap("web", architecture, "port", configuration.getint)
 
     web.run_app(application, host=host, port=port, handle_signals=False,
                 access_log=logging.getLogger("http"))
 
 
-def setup_service(architecture: str, config: Configuration) -> web.Application:
+def setup_service(architecture: str, configuration: Configuration) -> web.Application:
     """
     create web application
     :param architecture: repository architecture
-    :param config: configuration instance
+    :param configuration: configuration instance
     :return: web application instance
     """
     application = web.Application(logger=logging.getLogger("http"))
@@ -85,13 +85,13 @@ def setup_service(architecture: str, config: Configuration) -> web.Application:
     setup_routes(application)
 
     application.logger.info("setup templates")
-    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(config.getpath("web", "templates")))
+    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(configuration.getpath("web", "templates")))
 
     application.logger.info("setup configuration")
-    application["config"] = config
+    application["configuration"] = configuration
     application["architecture"] = architecture
 
     application.logger.info("setup watcher")
-    application["watcher"] = Watcher(architecture, config)
+    application["watcher"] = Watcher(architecture, configuration)
 
     return application

@@ -49,7 +49,7 @@ class Executor(Cleaner):
         """
         def build_single(package: Package) -> None:
             self.reporter.set_building(package.base)
-            task = Task(package, self.architecture, self.config, self.paths)
+            task = Task(package, self.architecture, self.configuration, self.paths)
             task.init()
             built = task.build()
             for src in built:
@@ -106,9 +106,9 @@ class Executor(Cleaner):
         :param targets: list of targets to generate reports. Configuration option will be used if it is not set
         """
         if targets is None:
-            targets = self.config.getlist("report", "target")
+            targets = self.configuration.getlist("report", "target")
         for target in targets:
-            Report.run(self.architecture, self.config, target, self.packages())
+            Report.run(self.architecture, self.configuration, target, self.packages())
 
     def process_sync(self, targets: Optional[Iterable[str]]) -> None:
         """
@@ -116,9 +116,9 @@ class Executor(Cleaner):
         :param targets: list of targets to sync. Configuration option will be used if it is not set
         """
         if targets is None:
-            targets = self.config.getlist("upload", "target")
+            targets = self.configuration.getlist("upload", "target")
         for target in targets:
-            Upload.run(self.architecture, self.config, target, self.paths.repository)
+            Upload.run(self.architecture, self.configuration, target, self.paths.repository)
 
     def process_update(self, packages: Iterable[Path]) -> Path:
         """

@@ -32,12 +32,12 @@ class Clean(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        Application(architecture, config).clean(args.no_build, args.no_cache, args.no_chroot,
-                                                args.no_manual, args.no_packages)
+        Application(architecture, configuration).clean(args.no_build, args.no_cache, args.no_chroot,
+                                                       args.no_manual, args.no_packages)

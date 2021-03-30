@@ -40,7 +40,7 @@ def _parser() -> argparse.ArgumentParser:
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
                         action="append", required=True)
-    parser.add_argument("-c", "--config", help="configuration path", default="/etc/ahriman.ini")
+    parser.add_argument("-c", "--configuration", help="configuration path", default="/etc/ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("--lock", help="lock file", default="/tmp/ahriman.lock")
     parser.add_argument("--no-log", help="redirect all log messages to stderr", action="store_true")
@@ -175,7 +175,7 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="create initial service configuration, requires root",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
-    parser.add_argument("--from-config", help="path to default devtools pacman configuration",
+    parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         default="/usr/share/devtools/pacman-extra.conf")
     parser.add_argument("--no-multilib", help="do not add multilib repository", action="store_true")
     parser.add_argument("--packager", help="packager name and email", required=True)

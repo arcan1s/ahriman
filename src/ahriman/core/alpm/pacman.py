@@ -29,15 +29,15 @@ class Pacman:
     :ivar handle: pyalpm root `Handle`
     """
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        root = config.get("alpm", "root")
-        pacman_root = config.getpath("alpm", "database")
+        root = configuration.get("alpm", "root")
+        pacman_root = configuration.getpath("alpm", "database")
         self.handle = Handle(root, str(pacman_root))
-        for repository in config.getlist("alpm", "repositories"):
+        for repository in configuration.getlist("alpm", "repositories"):
             self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
 
     def all_packages(self) -> List[str]:
