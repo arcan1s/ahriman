@@ -82,7 +82,7 @@ class GPG:
         """
         targets = {
             SignSettings.from_option(option)
-            for option in configuration.getlist("sign", "targets")
+            for option in configuration.getlist("sign", "target")
         }
         default_key = configuration.get("sign", "key") if targets else None
         return targets, default_key
