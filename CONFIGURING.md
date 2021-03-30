@@ -1,6 +1,6 @@
 # ahriman configuration
 
-Some groups can be specified for each architecture separately. E.g. if there are `build` and `build_x86_64` groups it will use the option from `build_x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. 
+Some groups can be specified for each architecture separately. E.g. if there are `build` and `build:x86_64` groups it will use the option from `build:x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. 
 
 ## `settings` group
 
@@ -18,9 +18,9 @@ libalpm and AUR related configuration.
 * `repositories` - list of pacman repositories, space separated list of strings, required.
 * `root` - root for alpm library, string, required.
 
-## `build_*` groups
+## `build:*` groups
 
-Build related configuration. Group name must refer to architecture, e.g. it should be `build_x86_64` for x86_64 architecture.
+Build related configuration. Group name must refer to architecture, e.g. it should be `build:x86_64` for x86_64 architecture.
 
 * `archbuild_flags` - additional flags passed to `archbuild` command, space separated list of strings, optional.
 * `build_command` - default build command, string, required.
@@ -35,9 +35,9 @@ Base repository settings.
 * `name` - repository name, string, required.
 * `root` - root path for application, string, required.
 
-## `sign_*` groups
+## `sign:*` groups
 
-Settings for signing packages or repository. Group name must refer to architecture, e.g. it should be `sign_x86_64` for x86_64 architecture.
+Settings for signing packages or repository. Group name must refer to architecture, e.g. it should be `sign:x86_64` for x86_64 architecture.
 
 * `target` - configuration flag to enable signing, space separated list of strings, required. Allowed values are `package` (sign each package separately), `repository` (sign repository database file).
 * `key` - default PGP key, string, required. This key will also be used for database signing if enabled.
@@ -49,9 +49,9 @@ Report generation settings.
 
 * `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`.
 
-### `html_*` groups
+### `html:*` groups
 
-Group name must refer to architecture, e.g. it should be `html_x86_64` for x86_64 architecture.
+Group name must refer to architecture, e.g. it should be `html:x86_64` for x86_64 architecture.
 
 * `path` - path to html report file, string, required.
 * `homepage` - link to homepage, string, optional.
@@ -64,23 +64,23 @@ Remote synchronization settings.
 
 * `target` - list of synchronizations to be used, space separated list of strings, optional. Allowed values are `rsync`, `s3`.
 
-### `rsync_*` groups
+### `rsync:*` groups
 
-Group name must refer to architecture, e.g. it should be `rsync_x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+Group name must refer to architecture, e.g. it should be `rsync:x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
 
 * `command` - rsync command to run, space separated list of string, required.
 * `remote` - remote server to rsync (e.g. `1.2.3.4:5678:path/to/sync`), string, required.
 
-### `s3_*` groups
+### `s3:*` groups
 
-Group name must refer to architecture, e.g. it should be `s3_x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
+Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
 
 * `command` - s3 command to run, space separated list of string, required.
 * `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
 
-## `web_*` groups
+## `web:*` groups
 
-Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web_x86_64` for x86_64 architecture.
+Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web:x86_64` for x86_64 architecture.
 
 * `host` - host to bind, string, optional.
 * `port` - port to bind, int, optional.
