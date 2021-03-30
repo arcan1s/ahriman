@@ -30,38 +30,38 @@ class Upload:
     """
     base remote sync class
     :ivar architecture: repository architecture
-    :ivar config: configuration instance
+    :ivar configuration: configuration instance
     :ivar logger: application logger
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("builder")
         self.architecture = architecture
-        self.config = config
+        self.config = configuration
 
     @staticmethod
-    def run(architecture: str, config: Configuration, target: str, path: Path) -> None:
+    def run(architecture: str, configuration: Configuration, target: str, path: Path) -> None:
         """
         run remote sync
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :param target: target to run sync (e.g. s3)
         :param path: local path to sync
         """
         provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
-            upload: Upload = Rsync(architecture, config)
+            upload: Upload = Rsync(architecture, configuration)
         elif provider == UploadSettings.S3:
             from ahriman.core.upload.s3 import S3
-            upload = S3(architecture, config)
+            upload = S3(architecture, configuration)
         else:
-            upload = Upload(architecture, config)
+            upload = Upload(architecture, configuration)
 
         try:
             upload.sync(path)

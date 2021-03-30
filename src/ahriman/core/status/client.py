@@ -111,15 +111,15 @@ class Client:
         return self.add(package, BuildStatusEnum.Unknown)
 
     @staticmethod
-    def load(architecture: str, config: Configuration) -> Client:
+    def load(architecture: str, configuration: Configuration) -> Client:
         """
         load client from settings
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :return: client according to current settings
         """
-        host = config.wrap("web", architecture, "host", config.get, fallback=None)
-        port = config.wrap("web", architecture, "port", config.getint, fallback=None)
+        host = configuration.wrap("web", architecture, "host", configuration.get, fallback=None)
+        port = configuration.wrap("web", architecture, "port", configuration.getint, fallback=None)
         if host is None or port is None:
             return Client()
 

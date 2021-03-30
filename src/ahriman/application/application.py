@@ -35,21 +35,21 @@ class Application:
     """
     base application class
     :ivar architecture: repository architecture
-    :ivar config: configuration instance
+    :ivar configuration: configuration instance
     :ivar logger: application logger
     :ivar repository: repository instance
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("root")
-        self.config = config
+        self.configuration = configuration
         self.architecture = architecture
-        self.repository = Repository(architecture, config)
+        self.repository = Repository(architecture, configuration)
 
     def _known_packages(self) -> Set[str]:
         """
@@ -106,7 +106,7 @@ class Application:
                 add_archive(full_path)
 
         def add_manual(src: str) -> Path:
-            package = Package.load(src, self.repository.pacman, self.config.get("alpm", "aur_url"))
+            package = Package.load(src, self.repository.pacman, self.configuration.get("alpm", "aur_url"))
             path = self.repository.paths.manual / package.base
             Task.fetch(path, package.git_url)
             return path

@@ -63,22 +63,22 @@ class HTML(Report):
     :ivar template_path: path to directory with jinja templates
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        Report.__init__(self, architecture, config)
-        self.report_path = config.wrap("html", architecture, "path", config.getpath)
-        self.link_path = config.wrap("html", architecture, "link_path", config.get)
-        self.template_path = config.wrap("html", architecture, "template_path", config.getpath)
+        Report.__init__(self, architecture, configuration)
+        self.report_path = configuration.wrap("html", architecture, "path", configuration.getpath)
+        self.link_path = configuration.wrap("html", architecture, "link_path", configuration.get)
+        self.template_path = configuration.wrap("html", architecture, "template_path", configuration.getpath)
 
         # base template vars
-        self.homepage = config.wrap("html", architecture, "homepage", config.get, fallback=None)
-        self.name = config.get("repository", "name")
+        self.homepage = configuration.wrap("html", architecture, "homepage", configuration.get, fallback=None)
+        self.name = configuration.get("repository", "name")
 
-        self.sign_targets, self.default_pgp_key = GPG.sign_options(architecture, config)
+        self.sign_targets, self.default_pgp_key = GPG.sign_options(architecture, configuration)
 
     def generate(self, packages: Iterable[Package]) -> None:
         """

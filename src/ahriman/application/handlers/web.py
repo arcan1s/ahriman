@@ -31,13 +31,13 @@ class Web(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         from ahriman.web.web import run_server, setup_service
-        application = setup_service(architecture, config)
+        application = setup_service(architecture, configuration)
         run_server(application)

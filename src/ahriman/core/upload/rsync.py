@@ -27,20 +27,21 @@ from ahriman.core.util import check_output
 class Rsync(Upload):
     """
     rsync wrapper
+    :ivar command: command arguments for sync
     :ivar remote: remote address to sync
     """
 
     _check_output = check_output
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        Upload.__init__(self, architecture, config)
-        self.command = config.wrap("rsync", architecture, "command", config.getlist)
-        self.remote = config.wrap("rsync", architecture, "remote", config.get)
+        Upload.__init__(self, architecture, configuration)
+        self.command = configuration.wrap("rsync", architecture, "command", configuration.getlist)
+        self.remote = configuration.wrap("rsync", architecture, "remote", configuration.get)
 
     def sync(self, path: Path) -> None:
         """

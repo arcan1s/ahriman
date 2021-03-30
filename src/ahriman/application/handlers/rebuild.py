@@ -32,13 +32,13 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        application = Application(architecture, config)
+        application = Application(architecture, configuration)
         packages = application.repository.packages()
         application.update(packages)

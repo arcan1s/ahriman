@@ -157,8 +157,8 @@ class Configuration(configparser.RawConfigParser):
         """
         def file_logger() -> None:
             try:
-                config_path = self.getpath("settings", "logging")
-                fileConfig(config_path)
+                path = self.getpath("settings", "logging")
+                fileConfig(path)
             except (FileNotFoundError, PermissionError):
                 console_logger()
                 logging.exception("could not create logfile, fallback to stderr")

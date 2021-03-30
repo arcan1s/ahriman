@@ -36,10 +36,10 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
     """
     host = "localhost"
     port = 8080
-    application["config"].set("web", "host", host)
-    application["config"].set("web", "port", str(port))
-    run_app_mock = mocker.patch("aiohttp.web.run_app")
+    application["configuration"].set("web", "host", host)
+    application["configuration"].set("web", "port", str(port))
+    run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application)
-    run_app_mock.assert_called_with(application, host=host, port=port,
-                                    handle_signals=False, access_log=pytest.helpers.anyvar(int))
+    run_application_mock.assert_called_with(application, host=host, port=port,
+                                            handle_signals=False, access_log=pytest.helpers.anyvar(int))

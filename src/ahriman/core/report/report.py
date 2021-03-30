@@ -31,35 +31,35 @@ class Report:
     """
     base report generator
     :ivar architecture: repository architecture
-    :ivar config: configuration instance
+    :ivar configuration: configuration instance
     :ivar logger: class logger
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("builder")
         self.architecture = architecture
-        self.config = config
+        self.configuration = configuration
 
     @staticmethod
-    def run(architecture: str, config: Configuration, target: str, packages: Iterable[Package]) -> None:
+    def run(architecture: str, configuration: Configuration, target: str, packages: Iterable[Package]) -> None:
         """
         run report generation
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :param target: target to generate report (e.g. html)
         :param packages: list of packages to generate report
         """
         provider = ReportSettings.from_option(target)
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
-            report: Report = HTML(architecture, config)
+            report: Report = HTML(architecture, configuration)
         else:
-            report = Report(architecture, config)
+            report = Report(architecture, configuration)
 
         try:
             report.generate(packages)

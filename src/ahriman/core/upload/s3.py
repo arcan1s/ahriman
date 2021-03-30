@@ -28,19 +28,20 @@ class S3(Upload):
     """
     aws-cli wrapper
     :ivar bucket: full bucket name
+    :ivar command: command arguments for sync
     """
 
     _check_output = check_output
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
-        Upload.__init__(self, architecture, config)
-        self.bucket = config.wrap("s3", architecture, "bucket", config.get)
-        self.command = config.wrap("s3", architecture, "command", config.getlist)
+        Upload.__init__(self, architecture, configuration)
+        self.bucket = configuration.wrap("s3", architecture, "bucket", configuration.get)
+        self.command = configuration.wrap("s3", architecture, "command", configuration.getlist)
 
     def sync(self, path: Path) -> None:
         """

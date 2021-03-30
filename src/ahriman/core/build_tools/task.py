@@ -41,12 +41,13 @@ class Task:
 
     _check_output = check_output
 
-    def __init__(self, package: Package, architecture: str, config: Configuration, paths: RepositoryPaths) -> None:
+    def __init__(self, package: Package, architecture: str, configuration: Configuration,
+                 paths: RepositoryPaths) -> None:
         """
         default constructor
         :param package: package definitions
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :param paths: repository paths instance
         """
         self.logger = logging.getLogger("builder")
@@ -54,10 +55,11 @@ class Task:
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = config.wrap("build", architecture, "archbuild_flags", config.getlist)
-        self.build_command = config.wrap("build", architecture, "build_command", config.get)
-        self.makepkg_flags = config.wrap("build", architecture, "makepkg_flags", config.getlist)
-        self.makechrootpkg_flags = config.wrap("build", architecture, "makechrootpkg_flags", config.getlist)
+        self.archbuild_flags = configuration.wrap("build", architecture, "archbuild_flags", configuration.getlist)
+        self.build_command = configuration.wrap("build", architecture, "build_command", configuration.get)
+        self.makepkg_flags = configuration.wrap("build", architecture, "makepkg_flags", configuration.getlist)
+        self.makechrootpkg_flags = configuration.wrap("build", architecture, "makechrootpkg_flags",
+                                                      configuration.getlist)
 
     @property
     def cache_path(self) -> Path:
@@ -96,14 +98,14 @@ class Task:
         run package build
         :return: paths of produced packages
         """
-        cmd = [self.build_command, "-r", str(self.paths.chroot)]
-        cmd.extend(self.archbuild_flags)
-        cmd.extend(["--"] + self.makechrootpkg_flags)
-        cmd.extend(["--"] + self.makepkg_flags)
-        self.logger.info(f"using {cmd} for {self.package.base}")
+        command = [self.build_command, "-r", str(self.paths.chroot)]
+        command.extend(self.archbuild_flags)
+        command.extend(["--"] + self.makechrootpkg_flags)
+        command.extend(["--"] + self.makepkg_flags)
+        self.logger.info(f"using {command} for {self.package.base}")
 
         Task._check_output(
-            *cmd,
+            *command,
             exception=BuildFailed(self.package.base),
             cwd=self.git_path,
             logger=self.build_logger)

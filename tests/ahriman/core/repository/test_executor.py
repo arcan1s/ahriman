@@ -107,20 +107,20 @@ def test_process_report_auto(executor: Executor, mocker: MockerFixture) -> None:
     """
     must process report in auto mode if no targets supplied
     """
-    config_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
+    configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
 
     executor.process_report(None)
-    config_getlist_mock.assert_called_once()
+    configuration_getlist_mock.assert_called_once()
 
 
 def test_process_sync_auto(executor: Executor, mocker: MockerFixture) -> None:
     """
     must process sync in auto mode if no targets supplied
     """
-    config_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
+    configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
 
     executor.process_sync(None)
-    config_getlist_mock.assert_called_once()
+    configuration_getlist_mock.assert_called_once()
 
 
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

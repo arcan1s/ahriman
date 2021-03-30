@@ -35,17 +35,17 @@ class Handler:
     """
 
     @classmethod
-    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> bool:
+    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         :return: True on success, False otherwise
         """
         try:
-            with Lock(args, architecture, config):
-                cls.run(args, architecture, config)
+            with Lock(args, architecture, configuration):
+                cls.run(args, architecture, configuration)
             return True
         except Exception:
             logging.getLogger("root").exception("process exception")
@@ -58,18 +58,18 @@ class Handler:
         :param args: command line args
         :return: 0 on success, 1 otherwise
         """
-        configuration = Configuration.from_path(args.config, not args.no_log)
+        configuration = Configuration.from_path(args.configuration, not args.no_log)
         with Pool(len(args.architecture)) as pool:
             result = pool.starmap(
                 cls._call, [(args, architecture, configuration) for architecture in args.architecture])
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         raise NotImplementedError

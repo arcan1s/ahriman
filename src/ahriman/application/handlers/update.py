@@ -32,18 +32,18 @@ class Update(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         # typing workaround
         def log_fn(line: str) -> None:
             return print(line) if args.dry_run else application.logger.info(line)
 
-        application = Application(architecture, config)
+        application = Application(architecture, configuration)
         packages = application.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
         if args.dry_run:
             return

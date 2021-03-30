@@ -40,16 +40,16 @@ class Watcher:
     :ivar status: daemon status
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("http")
 
         self.architecture = architecture
-        self.repository = Repository(architecture, config)
+        self.repository = Repository(architecture, configuration)
 
         self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()

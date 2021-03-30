@@ -32,7 +32,7 @@ class Properties:
     repository internal objects holder
     :ivar architecture: repository architecture
     :ivar aur_url: base AUR url
-    :ivar config: configuration instance
+    :ivar configuration: configuration instance
     :ivar logger: class logger
     :ivar name: repository name
     :ivar pacman: alpm wrapper instance
@@ -42,18 +42,18 @@ class Properties:
     :ivar sign: GPG wrapper instance
     """
 
-    def __init__(self, architecture: str, config: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         self.logger = logging.getLogger("builder")
         self.architecture = architecture
-        self.config = config
+        self.configuration = configuration
 
-        self.aur_url = config.get("alpm", "aur_url")
-        self.name = config.get("repository", "name")
+        self.aur_url = configuration.get("alpm", "aur_url")
+        self.name = configuration.get("repository", "name")
 
-        self.paths = RepositoryPaths(config.getpath("repository", "root"), architecture)
+        self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         self.paths.create_tree()
 
-        self.pacman = Pacman(config)
-        self.sign = GPG(architecture, config)
+        self.pacman = Pacman(configuration)
+        self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(architecture, config)
+        self.reporter = Client.load(architecture, configuration)

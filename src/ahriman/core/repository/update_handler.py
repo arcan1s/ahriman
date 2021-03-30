@@ -44,7 +44,7 @@ class UpdateHandler(Cleaner):
         """
         result: List[Package] = []
 
-        ignore_list = self.config.wrap("build", self.architecture, "ignore_packages", self.config.getlist)
+        ignore_list = self.configuration.wrap("build", self.architecture, "ignore_packages", self.configuration.getlist)
 
         for local in self.packages():
             if local.base in ignore_list:

@@ -42,19 +42,19 @@ class Lock:
     :ivar unsafe: skip user check
     """
 
-    def __init__(self, args: argparse.Namespace, architecture: str, config: Configuration) -> None:
+    def __init__(self, args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
         :param args: command line args
         :param architecture: repository architecture
-        :param config: configuration instance
+        :param configuration: configuration instance
         """
         self.path = Path(f"{args.lock}_{architecture}") if args.lock is not None else None
         self.force = args.force
         self.unsafe = args.unsafe
 
-        self.root = Path(config.get("repository", "root"))
-        self.reporter = Client() if args.no_report else Client.load(architecture, config)
+        self.root = Path(configuration.get("repository", "root"))
+        self.reporter = Client() if args.no_report else Client.load(architecture, configuration)
 
     def __enter__(self) -> Lock:
         """

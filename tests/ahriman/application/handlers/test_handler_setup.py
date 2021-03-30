@@ -11,7 +11,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.build_command = "ahriman"
-    args.from_config = "/usr/share/devtools/pacman-extra.conf"
+    args.from_configuration = "/usr/share/devtools/pacman-extra.conf"
     args.no_multilib = False
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
@@ -81,8 +81,8 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_config), args.no_multilib,
-                                        args.repository, repository_paths)
+    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_configuration),
+                                        args.no_multilib, args.repository, repository_paths)
     add_section_mock.assert_has_calls([
         mock.call("multilib"),
         mock.call(args.repository)
@@ -101,8 +101,8 @@ def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, rep
     add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_config), True,
-                                        args.repository, repository_paths)
+    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_configuration),
+                                        True, args.repository, repository_paths)
     add_section_mock.assert_called_once()
     write_mock.assert_called_once()
 
