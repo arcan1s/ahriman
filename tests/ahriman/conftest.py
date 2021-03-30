@@ -27,7 +27,7 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 @pytest.fixture
 def configuration(resource_path_root: Path) -> Configuration:
     path = resource_path_root / "core" / "ahriman.ini"
-    return Configuration.from_path(path=path, logfile=False)
+    return Configuration.from_path(path=path, architecture="x86_64", logfile=False)
 
 
 @pytest.fixture

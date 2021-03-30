@@ -104,7 +104,7 @@ def test_load_dummy_client(configuration: Configuration) -> None:
     """
     must load dummy client if no settings set
     """
-    assert isinstance(Client.load("x86_64", configuration), Client)
+    assert isinstance(Client.load(configuration), Client)
 
 
 def test_load_full_client(configuration: Configuration) -> None:
@@ -113,4 +113,4 @@ def test_load_full_client(configuration: Configuration) -> None:
     """
     configuration.set("web", "host", "localhost")
     configuration.set("web", "port", "8080")
-    assert isinstance(Client.load("x86_64", configuration), WebClient)
+    assert isinstance(Client.load(configuration), WebClient)

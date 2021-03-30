@@ -24,10 +24,7 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
-
-
-T = TypeVar("T")
+from typing import Dict, List, Optional, Type
 
 
 class Configuration(configparser.RawConfigParser):
@@ -37,13 +34,11 @@ class Configuration(configparser.RawConfigParser):
     :cvar ARCHITECTURE_SPECIFIC_SECTIONS: known sections which can be architecture specific (required by dump)
     :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
     :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
-    :cvar STATIC_SECTIONS: known sections which are not architecture specific (required by dump)
     """
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d] [%(funcName)s]: %(message)s"
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
-    STATIC_SECTIONS = ["alpm", "report", "repository", "settings", "upload"]
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "html", "rsync", "s3", "sign", "web"]
 
     def __init__(self) -> None:
@@ -60,16 +55,24 @@ class Configuration(configparser.RawConfigParser):
         """
         return self.getpath("settings", "include")
 
+    @property
+    def logging_path(self) -> Path:
+        """
+        :return: path to logging configuration
+        """
+        return self.getpath("settings", "logging")
+
     @classmethod
-    def from_path(cls: Type[Configuration], path: Path, logfile: bool) -> Configuration:
+    def from_path(cls: Type[Configuration], path: Path, architecture: str, logfile: bool) -> Configuration:
         """
         constructor with full object initialization
         :param path: path to root configuration file
+        :param architecture: repository architecture
         :param logfile: use log file to output messages
         :return: configuration instance
         """
         config = cls()
-        config.load(path)
+        config.load(path, architecture)
         config.load_logging(logfile)
         return config
 
@@ -83,29 +86,15 @@ class Configuration(configparser.RawConfigParser):
         """
         return f"{section}_{architecture}"
 
-    def dump(self, architecture: str) -> Dict[str, Dict[str, str]]:
+    def dump(self) -> Dict[str, Dict[str, str]]:
         """
         dump configuration to dictionary
-        :param architecture: repository architecture
         :return: configuration dump for specific architecture
         """
-        result: Dict[str, Dict[str, str]] = {}
-        for section in Configuration.STATIC_SECTIONS:
-            if not self.has_section(section):
-                continue
-            result[section] = dict(self[section])
-        for section in Configuration.ARCHITECTURE_SPECIFIC_SECTIONS:
-            # get global settings
-            settings = dict(self[section]) if self.has_section(section) else {}
-            # get overrides
-            specific = self.section_name(section, architecture)
-            specific_settings = dict(self[specific]) if self.has_section(specific) else {}
-            # merge
-            settings.update(specific_settings)
-            if settings:  # append only in case if it is not empty
-                result[section] = settings
-
-        return result
+        return {
+            section: dict(self[section])
+            for section in self.sections()
+        }
 
     def getlist(self, section: str, key: str) -> List[str]:
         """
@@ -131,14 +120,16 @@ class Configuration(configparser.RawConfigParser):
             return value
         return self.path.parent / value
 
-    def load(self, path: Path) -> None:
+    def load(self, path: Path, architecture: str) -> None:
         """
         fully load configuration
         :param path: path to root configuration file
+        :param architecture: repository architecture
         """
         self.path = path
         self.read(self.path)
         self.load_includes()
+        self.merge_sections(architecture)
 
     def load_includes(self) -> None:
         """
@@ -146,6 +137,8 @@ class Configuration(configparser.RawConfigParser):
         """
         try:
             for path in sorted(self.include.glob("*.ini")):
+                if path == self.logging_path:
+                    continue  # we don't want to load logging explicitly
                 self.read(path)
         except (FileNotFoundError, configparser.NoOptionError):
             pass
@@ -157,32 +150,33 @@ class Configuration(configparser.RawConfigParser):
         """
         def file_logger() -> None:
             try:
-                path = self.getpath("settings", "logging")
+                path = self.logging_path
                 fileConfig(path)
             except (FileNotFoundError, PermissionError):
                 console_logger()
                 logging.exception("could not create logfile, fallback to stderr")
 
         def console_logger() -> None:
-            logging.basicConfig(filename=None, format=Configuration.DEFAULT_LOG_FORMAT,
-                                level=Configuration.DEFAULT_LOG_LEVEL)
+            logging.basicConfig(filename=None, format=self.DEFAULT_LOG_FORMAT,
+                                level=self.DEFAULT_LOG_LEVEL)
 
         if logfile:
             file_logger()
         else:
             console_logger()
 
-    def wrap(self, section: str, architecture: str, key: str, function: Callable[..., T], **kwargs: Any) -> T:
+    def merge_sections(self, architecture: str) -> None:
         """
-        wrapper to get option by either using architecture specific section or generic section
-        :param section: section name
+        merge architecture specific sections into main configuration
         :param architecture: repository architecture
-        :param key: key name
-        :param function: function to call, e.g. `Configuration.get`
-        :param kwargs: any other keywords which will be passed to function directly
-        :return: either value from architecture specific section or global value
         """
-        specific_section = self.section_name(section, architecture)
-        if self.has_option(specific_section, key):
-            return function(specific_section, key, **kwargs)
-        return function(section, key, **kwargs)
+        for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
+            # get overrides
+            specific = self.section_name(section, architecture)
+            if not self.has_section(specific):
+                continue  # no overrides
+            if not self.has_section(section):
+                self.add_section(section)  # add section if not exists
+            for key, value in self[specific].items():
+                self.set(section, key, value)
+            self.remove_section(specific)  # remove overrides

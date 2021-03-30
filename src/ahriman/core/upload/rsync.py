@@ -40,8 +40,8 @@ class Rsync(Upload):
         :param configuration: configuration instance
         """
         Upload.__init__(self, architecture, configuration)
-        self.command = configuration.wrap("rsync", architecture, "command", configuration.getlist)
-        self.remote = configuration.wrap("rsync", architecture, "remote", configuration.get)
+        self.command = configuration.getlist("rsync", "command")
+        self.remote = configuration.get("rsync", "remote")
 
     def sync(self, path: Path) -> None:
         """

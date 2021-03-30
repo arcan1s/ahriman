@@ -31,4 +31,4 @@ def repo(configuration: Configuration, repository_paths: RepositoryPaths) -> Rep
 
 @pytest.fixture
 def task_ahriman(package_ahriman: Package, configuration: Configuration, repository_paths: RepositoryPaths) -> Task:
-    return Task(package_ahriman, "x86_64", configuration, repository_paths)
+    return Task(package_ahriman, configuration, repository_paths)

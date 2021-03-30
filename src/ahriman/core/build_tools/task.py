@@ -41,12 +41,10 @@ class Task:
 
     _check_output = check_output
 
-    def __init__(self, package: Package, architecture: str, configuration: Configuration,
-                 paths: RepositoryPaths) -> None:
+    def __init__(self, package: Package, configuration: Configuration, paths: RepositoryPaths) -> None:
         """
         default constructor
         :param package: package definitions
-        :param architecture: repository architecture
         :param configuration: configuration instance
         :param paths: repository paths instance
         """
@@ -55,11 +53,10 @@ class Task:
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = configuration.wrap("build", architecture, "archbuild_flags", configuration.getlist)
-        self.build_command = configuration.wrap("build", architecture, "build_command", configuration.get)
-        self.makepkg_flags = configuration.wrap("build", architecture, "makepkg_flags", configuration.getlist)
-        self.makechrootpkg_flags = configuration.wrap("build", architecture, "makechrootpkg_flags",
-                                                      configuration.getlist)
+        self.archbuild_flags = configuration.getlist("build", "archbuild_flags")
+        self.build_command = configuration.get("build", "build_command")
+        self.makepkg_flags = configuration.getlist("build", "makepkg_flags")
+        self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags")
 
     @property
     def cache_path(self) -> Path:

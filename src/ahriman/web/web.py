@@ -58,10 +58,9 @@ def run_server(application: web.Application) -> None:
     """
     application.logger.info("start server")
 
-    architecture: str = application["architecture"]
     configuration: Configuration = application["configuration"]
-    host = configuration.wrap("web", architecture, "host", configuration.get)
-    port = configuration.wrap("web", architecture, "port", configuration.getint)
+    host = configuration.get("web", "host")
+    port = configuration.getint("web", "port")
 
     web.run_app(application, host=host, port=port, handle_signals=False,
                 access_log=logging.getLogger("http"))
@@ -89,7 +88,6 @@ def setup_service(architecture: str, configuration: Configuration) -> web.Applic
 
     application.logger.info("setup configuration")
     application["configuration"] = configuration
-    application["architecture"] = architecture
 
     application.logger.info("setup watcher")
     application["watcher"] = Watcher(architecture, configuration)

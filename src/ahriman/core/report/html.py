@@ -70,15 +70,15 @@ class HTML(Report):
         :param configuration: configuration instance
         """
         Report.__init__(self, architecture, configuration)
-        self.report_path = configuration.wrap("html", architecture, "path", configuration.getpath)
-        self.link_path = configuration.wrap("html", architecture, "link_path", configuration.get)
-        self.template_path = configuration.wrap("html", architecture, "template_path", configuration.getpath)
+        self.report_path = configuration.getpath("html", "path")
+        self.link_path = configuration.get("html", "link_path")
+        self.template_path = configuration.getpath("html", "template_path")
 
         # base template vars
-        self.homepage = configuration.wrap("html", architecture, "homepage", configuration.get, fallback=None)
+        self.homepage = configuration.get("html", "homepage", fallback=None)
         self.name = configuration.get("repository", "name")
 
-        self.sign_targets, self.default_pgp_key = GPG.sign_options(architecture, configuration)
+        self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 
     def generate(self, packages: Iterable[Package]) -> None:
         """

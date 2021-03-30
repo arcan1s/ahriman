@@ -14,7 +14,7 @@ def test_from_path(mocker: MockerFixture) -> None:
     load_logging_mock = mocker.patch("ahriman.core.configuration.Configuration.load_logging")
     path = Path("path")
 
-    config = Configuration.from_path(path, True)
+    config = Configuration.from_path(path, "x86_64", True)
     assert config.path == path
     read_mock.assert_called_with(path)
     load_includes_mock.assert_called_once()
@@ -53,7 +53,7 @@ def test_dump(configuration: Configuration) -> None:
     """
     dump must not be empty
     """
-    assert configuration.dump("x86_64")
+    assert configuration.dump()
 
 
 def test_dump_architecture_specific(configuration: Configuration) -> None:
@@ -62,8 +62,9 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     """
     configuration.add_section("build_x86_64")
     configuration.set("build_x86_64", "archbuild_flags", "hello flag")
+    configuration.merge_sections("x86_64")
 
-    dump = configuration.dump("x86_64")
+    dump = configuration.dump()
     assert dump
     assert "build" in dump
     assert "build_x86_64" not in dump
@@ -118,3 +119,15 @@ def test_load_logging_stderr(configuration: Configuration, mocker: MockerFixture
     logging_mock = mocker.patch("logging.config.fileConfig")
     configuration.load_logging(False)
     logging_mock.assert_not_called()
+
+
+def test_merge_sections_missing(configuration: Configuration) -> None:
+    """
+    must merge create section if not exists
+    """
+    configuration.remove_section("build")
+    configuration.add_section("build_x86_64")
+    configuration.set("build_x86_64", "key", "value")
+
+    configuration.merge_sections("x86_64")
+    assert configuration.get("build", "key") == "value"
