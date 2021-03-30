@@ -39,9 +39,8 @@ class S3(Upload):
         :param config: configuration instance
         """
         Upload.__init__(self, architecture, config)
-        section = config.get_section_name("s3", architecture)
-        self.bucket = config.get(section, "bucket")
-        self.command = config.getlist(section, "command")
+        self.bucket = config.wrap("s3", architecture, "bucket", config.get)
+        self.command = config.wrap("s3", architecture, "command", config.getlist)
 
     def sync(self, path: Path) -> None:
         """

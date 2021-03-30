@@ -54,11 +54,10 @@ class Task:
         self.package = package
         self.paths = paths
 
-        section = config.get_section_name("build", architecture)
-        self.archbuild_flags = config.getlist(section, "archbuild_flags")
-        self.build_command = config.get(section, "build_command")
-        self.makepkg_flags = config.getlist(section, "makepkg_flags")
-        self.makechrootpkg_flags = config.getlist(section, "makechrootpkg_flags")
+        self.archbuild_flags = config.wrap("build", architecture, "archbuild_flags", config.getlist)
+        self.build_command = config.wrap("build", architecture, "build_command", config.get)
+        self.makepkg_flags = config.wrap("build", architecture, "makepkg_flags", config.getlist)
+        self.makechrootpkg_flags = config.wrap("build", architecture, "makechrootpkg_flags", config.getlist)
 
     @property
     def cache_path(self) -> Path:

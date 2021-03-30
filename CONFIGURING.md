@@ -1,6 +1,6 @@
 # ahriman configuration
 
-Some groups can be specified for each architecture separately. E.g. if there are `build` and `build_x86_64` groups it will use the `build_x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority).
+Some groups can be specified for each architecture separately. E.g. if there are `build` and `build_x86_64` groups it will use the option from `build_x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. 
 
 ## `settings` group
 

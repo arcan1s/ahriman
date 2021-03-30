@@ -118,9 +118,8 @@ class Client:
         :param config: configuration instance
         :return: client according to current settings
         """
-        section = config.get_section_name("web", architecture)
-        host = config.get(section, "host", fallback=None)
-        port = config.getint(section, "port", fallback=None)
+        host = config.wrap("web", architecture, "host", config.get, fallback=None)
+        port = config.wrap("web", architecture, "port", config.getint, fallback=None)
         if host is None or port is None:
             return Client()
 

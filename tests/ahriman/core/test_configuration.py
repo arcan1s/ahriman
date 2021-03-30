@@ -21,6 +21,13 @@ def test_from_path(mocker: MockerFixture) -> None:
     load_logging_mock.assert_called_once()
 
 
+def test_section_name(configuration: Configuration) -> None:
+    """
+    must return architecture specific group
+    """
+    assert configuration.section_name("build", "x86_64") == "build_x86_64"
+
+
 def test_absolute_path_for_absolute(configuration: Configuration) -> None:
     """
     must not change path for absolute path in settings
@@ -54,12 +61,13 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     dump must contain architecture specific settings
     """
     configuration.add_section("build_x86_64")
-    configuration.set("build_x86_64", "archbuild_flags", "")
+    configuration.set("build_x86_64", "archbuild_flags", "hello flag")
 
     dump = configuration.dump("x86_64")
     assert dump
-    assert "build" not in dump
-    assert "build_x86_64" in dump
+    assert "build" in dump
+    assert "build_x86_64" not in dump
+    assert dump["build"]["archbuild_flags"] == "hello flag"
 
 
 def test_getlist(configuration: Configuration) -> None:
@@ -85,23 +93,6 @@ def test_getlist_single(configuration: Configuration) -> None:
     """
     configuration.set("build", "test_list", "a")
     assert configuration.getlist("build", "test_list") == ["a"]
-
-
-def test_get_section_name(configuration: Configuration) -> None:
-    """
-    must return architecture specific group
-    """
-    configuration.add_section("build_x86_64")
-    configuration.set("build_x86_64", "archbuild_flags", "")
-    assert configuration.get_section_name("build", "x86_64") == "build_x86_64"
-
-
-def test_get_section_name_missing(configuration: Configuration) -> None:
-    """
-    must return default group if architecture depending group does not exist
-    """
-    assert configuration.get_section_name("prefix", "suffix") == "prefix"
-    assert configuration.get_section_name("build", "x86_64") == "build"
 
 
 def test_load_includes_missing(configuration: Configuration) -> None:
