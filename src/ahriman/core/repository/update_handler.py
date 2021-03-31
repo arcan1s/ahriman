@@ -44,10 +44,8 @@ class UpdateHandler(Cleaner):
         """
         result: List[Package] = []
 
-        ignore_list = self.configuration.getlist("build", "ignore_packages")
-
         for local in self.packages():
-            if local.base in ignore_list:
+            if local.base in self.ignore_list:
                 continue
             if local.is_vcs and no_vcs:
                 continue

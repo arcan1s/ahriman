@@ -50,7 +50,7 @@ def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Pack
     """
     must skip ignore packages
     """
-    mocker.patch("ahriman.core.configuration.Configuration.getlist", return_value=[package_ahriman.base])
+    update_handler.ignore_list = [package_ahriman.base]
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     package_load_mock = mocker.patch("ahriman.models.package.Package.load")
 

@@ -33,6 +33,7 @@ class Properties:
     :ivar architecture: repository architecture
     :ivar aur_url: base AUR url
     :ivar configuration: configuration instance
+    :ivar ignore_list: package bases which will be ignored during auto updates
     :ivar logger: class logger
     :ivar name: repository name
     :ivar pacman: alpm wrapper instance
@@ -53,6 +54,7 @@ class Properties:
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         self.paths.create_tree()
 
+        self.ignore_list = configuration.getlist("build", "ignore_packages")
         self.pacman = Pacman(configuration)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
