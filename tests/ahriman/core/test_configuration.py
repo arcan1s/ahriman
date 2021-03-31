@@ -14,8 +14,8 @@ def test_from_path(mocker: MockerFixture) -> None:
     load_logging_mock = mocker.patch("ahriman.core.configuration.Configuration.load_logging")
     path = Path("path")
 
-    config = Configuration.from_path(path, "x86_64", True)
-    assert config.path == path
+    configuration = Configuration.from_path(path, "x86_64", True)
+    assert configuration.path == path
     read_mock.assert_called_with(path)
     load_includes_mock.assert_called_once()
     load_logging_mock.assert_called_once()

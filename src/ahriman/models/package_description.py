@@ -65,7 +65,7 @@ class PackageDescription:
         :param path: path to package archive
         :return: package properties based on tarball
         """
-        return PackageDescription(
+        return cls(
             architecture=package.arch,
             archive_size=package.size,
             build_date=package.builddate,

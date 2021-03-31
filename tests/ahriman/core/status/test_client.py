@@ -7,6 +7,22 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 
 
+def test_load_dummy_client(configuration: Configuration) -> None:
+    """
+    must load dummy client if no settings set
+    """
+    assert isinstance(Client.load(configuration), Client)
+
+
+def test_load_full_client(configuration: Configuration) -> None:
+    """
+    must load full client if no settings set
+    """
+    configuration.set("web", "host", "localhost")
+    configuration.set("web", "port", "8080")
+    assert isinstance(Client.load(configuration), WebClient)
+
+
 def test_add(client: Client, package_ahriman: Package) -> None:
     """
     must process package addition without errors
@@ -98,19 +114,3 @@ def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFix
     client.set_unknown(package_ahriman)
 
     add_mock.assert_called_with(package_ahriman, BuildStatusEnum.Unknown)
-
-
-def test_load_dummy_client(configuration: Configuration) -> None:
-    """
-    must load dummy client if no settings set
-    """
-    assert isinstance(Client.load(configuration), Client)
-
-
-def test_load_full_client(configuration: Configuration) -> None:
-    """
-    must load full client if no settings set
-    """
-    configuration.set("web", "host", "localhost")
-    configuration.set("web", "port", "8080")
-    assert isinstance(Client.load(configuration), WebClient)

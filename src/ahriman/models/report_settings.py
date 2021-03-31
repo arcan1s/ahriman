@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
+from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
 
@@ -32,13 +33,13 @@ class ReportSettings(Enum):
 
     HTML = auto()
 
-    @staticmethod
-    def from_option(value: str) -> ReportSettings:
+    @classmethod
+    def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
         """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
         """
         if value.lower() in ("html",):
-            return ReportSettings.HTML
+            return cls.HTML
         raise InvalidOption(value)

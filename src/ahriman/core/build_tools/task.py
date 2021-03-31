@@ -123,4 +123,4 @@ class Task:
         if self.cache_path.is_dir():
             # no need to clone whole repository, just copy from cache first
             shutil.copytree(self.cache_path, git_path)
-        return Task.fetch(git_path, self.package.git_url)
+        return self.fetch(git_path, self.package.git_url)

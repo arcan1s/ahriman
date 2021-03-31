@@ -17,9 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import logging
 
 from pathlib import Path
+from typing import Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
@@ -44,29 +47,33 @@ class Upload:
         self.architecture = architecture
         self.config = configuration
 
-    @staticmethod
-    def run(architecture: str, configuration: Configuration, target: str, path: Path) -> None:
+    @classmethod
+    def load(cls: Type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:
         """
-        run remote sync
+        load client from settings
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param target: target to run sync (e.g. s3)
-        :param path: local path to sync
+        :return: client according to current settings
         """
         provider = UploadSettings.from_option(target)
         if provider == UploadSettings.Rsync:
             from ahriman.core.upload.rsync import Rsync
-            upload: Upload = Rsync(architecture, configuration)
-        elif provider == UploadSettings.S3:
+            return Rsync(architecture, configuration)
+        if provider == UploadSettings.S3:
             from ahriman.core.upload.s3 import S3
-            upload = S3(architecture, configuration)
-        else:
-            upload = Upload(architecture, configuration)
+            return S3(architecture, configuration)
+        return cls(architecture, configuration)  # should never happen
 
+    def run(self, path: Path) -> None:
+        """
+        run remote sync
+        :param path: local path to sync
+        """
         try:
-            upload.sync(path)
+            self.sync(path)
         except Exception:
-            upload.logger.exception(f"remote sync failed for {provider.name}")
+            self.logger.exception("remote sync failed")
             raise SyncFailed()
 
     def sync(self, path: Path) -> None:

@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -30,6 +30,20 @@ class Client:
     """
     base build status reporter client
     """
+
+    @classmethod
+    def load(cls: Type[Client], configuration: Configuration) -> Client:
+        """
+        load client from settings
+        :param configuration: configuration instance
+        :return: client according to current settings
+        """
+        host = configuration.get("web", "host", fallback=None)
+        port = configuration.getint("web", "port", fallback=None)
+        if host is not None and port is not None:
+            from ahriman.core.status.web_client import WebClient
+            return WebClient(host, port)
+        return cls()
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -109,18 +123,3 @@ class Client:
         :param package: current package properties
         """
         return self.add(package, BuildStatusEnum.Unknown)
-
-    @staticmethod
-    def load(configuration: Configuration) -> Client:
-        """
-        load client from settings
-        :param configuration: configuration instance
-        :return: client according to current settings
-        """
-        host = configuration.get("web", "host", fallback=None)
-        port = configuration.getint("web", "port", fallback=None)
-        if host is None or port is None:
-            return Client()
-
-        from ahriman.core.status.web_client import WebClient
-        return WebClient(host, port)
