@@ -135,24 +135,6 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
-def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Path) -> None:
-    """
-    must load correct list of dependencies with version
-    """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
-
-    assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
-
-
-def test_full_version() -> None:
-    """
-    must construct full version
-    """
-    assert Package.full_version("1", "r2388.d30e3201", "1") == "1:r2388.d30e3201-1"
-    assert Package.full_version(None, "0.12.1", "1") == "0.12.1-1"
-
-
 def test_load_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
     """
     must load package from package archive
@@ -196,6 +178,24 @@ def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     mocker.patch("pathlib.Path.is_dir", side_effect=Exception())
     with pytest.raises(InvalidPackageInfo):
         Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+
+
+def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must load correct list of dependencies with version
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+
+    assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
+
+
+def test_full_version() -> None:
+    """
+    must construct full version
+    """
+    assert Package.full_version("1", "r2388.d30e3201", "1") == "1:r2388.d30e3201-1"
+    assert Package.full_version(None, "0.12.1", "1") == "0.12.1-1"
 
 
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:

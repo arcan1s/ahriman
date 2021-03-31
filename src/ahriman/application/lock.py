@@ -80,7 +80,7 @@ class Lock:
         :param exc_tb: exception traceback if any
         :return: always False (do not suppress any exception)
         """
-        self.remove()
+        self.clear()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
         self.reporter.update_self(status)
         return False
@@ -96,6 +96,14 @@ class Lock:
         if current_uid != root_uid:
             raise UnsafeRun(current_uid, root_uid)
 
+    def clear(self) -> None:
+        """
+        remove lock file
+        """
+        if self.path is None:
+            return
+        self.path.unlink(missing_ok=True)
+
     def create(self) -> None:
         """
         create lock file
@@ -106,11 +114,3 @@ class Lock:
             self.path.touch(exist_ok=self.force)
         except FileExistsError:
             raise DuplicateRun()
-
-    def remove(self) -> None:
-        """
-        remove lock file
-        """
-        if self.path is None:
-            return
-        self.path.unlink(missing_ok=True)

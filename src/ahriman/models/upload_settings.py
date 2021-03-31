@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
+from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
 
@@ -34,15 +35,15 @@ class UploadSettings(Enum):
     Rsync = auto()
     S3 = auto()
 
-    @staticmethod
-    def from_option(value: str) -> UploadSettings:
+    @classmethod
+    def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
         """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
         """
         if value.lower() in ("rsync",):
-            return UploadSettings.Rsync
+            return cls.Rsync
         if value.lower() in ("s3",):
-            return UploadSettings.S3
+            return cls.S3
         raise InvalidOption(value)

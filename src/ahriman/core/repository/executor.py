@@ -108,7 +108,8 @@ class Executor(Cleaner):
         if targets is None:
             targets = self.configuration.getlist("report", "target")
         for target in targets:
-            Report.run(self.architecture, self.configuration, target, self.packages())
+            runner = Report.load(self.architecture, self.configuration, target)
+            runner.run(self.packages())
 
     def process_sync(self, targets: Optional[Iterable[str]]) -> None:
         """
@@ -118,7 +119,8 @@ class Executor(Cleaner):
         if targets is None:
             targets = self.configuration.getlist("upload", "target")
         for target in targets:
-            Upload.run(self.architecture, self.configuration, target, self.paths.repository)
+            runner = Upload.load(self.architecture, self.configuration, target)
+            runner.run(self.paths.repository)
 
     def process_update(self, packages: Iterable[Path]) -> Path:
         """

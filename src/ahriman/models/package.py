@@ -156,6 +156,27 @@ class Package:
             aur_url=dump["aur_url"],
             packages=packages)
 
+    @classmethod
+    def load(cls: Type[Package], path: Union[Path, str], pacman: Pacman, aur_url: str) -> Package:
+        """
+        package constructor from available sources
+        :param path: one of path to sources directory, path to archive or package name/base
+        :param pacman: alpm wrapper instance (required to load from archive)
+        :param aur_url: AUR root url
+        :return: package properties
+        """
+        try:
+            maybe_path = Path(path)
+            if maybe_path.is_dir():
+                return cls.from_build(maybe_path, aur_url)
+            if maybe_path.is_file():
+                return cls.from_archive(maybe_path, pacman, aur_url)
+            return cls.from_aur(str(path), aur_url)
+        except InvalidPackageInfo:
+            raise
+        except Exception as e:
+            raise InvalidPackageInfo(str(e))
+
     @staticmethod
     def dependencies(path: Path) -> Set[str]:
         """
@@ -193,29 +214,6 @@ class Package:
         """
         prefix = f"{epoch}:" if epoch else ""
         return f"{prefix}{pkgver}-{pkgrel}"
-
-    @staticmethod
-    def load(path: Union[Path, str], pacman: Pacman, aur_url: str) -> Package:
-        """
-        package constructor from available sources
-        :param path: one of path to sources directory, path to archive or package name/base
-        :param pacman: alpm wrapper instance (required to load from archive)
-        :param aur_url: AUR root url
-        :return: package properties
-        """
-        try:
-            maybe_path = Path(path)
-            if maybe_path.is_dir():
-                package: Package = Package.from_build(maybe_path, aur_url)
-            elif maybe_path.is_file():
-                package = Package.from_archive(maybe_path, pacman, aur_url)
-            else:
-                package = Package.from_aur(str(path), aur_url)
-            return package
-        except InvalidPackageInfo:
-            raise
-        except Exception as e:
-            raise InvalidPackageInfo(str(e))
 
     def actual_version(self, paths: RepositoryPaths) -> str:
         """

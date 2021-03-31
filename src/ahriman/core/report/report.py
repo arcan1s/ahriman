@@ -17,9 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import logging
 
-from typing import Iterable
+from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportFailed
@@ -45,30 +47,34 @@ class Report:
         self.architecture = architecture
         self.configuration = configuration
 
-    @staticmethod
-    def run(architecture: str, configuration: Configuration, target: str, packages: Iterable[Package]) -> None:
+    @classmethod
+    def load(cls: Type[Report], architecture: str, configuration: Configuration, target: str) -> Report:
         """
-        run report generation
+        load client from settings
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param target: target to generate report (e.g. html)
-        :param packages: list of packages to generate report
+        :return: client according to current settings
         """
         provider = ReportSettings.from_option(target)
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
-            report: Report = HTML(architecture, configuration)
-        else:
-            report = Report(architecture, configuration)
-
-        try:
-            report.generate(packages)
-        except Exception:
-            report.logger.exception(f"report generation failed for target {provider.name}")
-            raise ReportFailed()
+            return HTML(architecture, configuration)
+        return cls(architecture, configuration)  # should never happen
 
     def generate(self, packages: Iterable[Package]) -> None:
         """
         generate report for the specified packages
         :param packages: list of packages to generate report
         """
+
+    def run(self, packages: Iterable[Package]) -> None:
+        """
+        run report generation
+        :param packages: list of packages to generate report
+        """
+        try:
+            self.generate(packages)
+        except Exception:
+            self.logger.exception("report generation failed")
+            raise ReportFailed()

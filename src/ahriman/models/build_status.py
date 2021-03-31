@@ -63,7 +63,7 @@ class BuildStatus:
     """
     build status holder
     :ivar status: build status
-    :ivar _timestamp: build status update time
+    :ivar timestamp: build status update time
     """
 
     def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
