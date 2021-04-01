@@ -226,6 +226,7 @@ def _set_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
         nargs="*")
     parser.add_argument("--status", help="new status", choices=[value.value for value in BuildStatusEnum],
                         default="success")
+    parser.add_argument("--remove", help="remove package status page", action="store_true")
     parser.set_defaults(handler=handlers.StatusUpdate, lock=None, no_report=True, unsafe=True)
     return parser
 
