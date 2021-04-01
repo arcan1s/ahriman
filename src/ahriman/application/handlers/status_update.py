@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import Type
+from typing import Callable, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
@@ -42,10 +42,11 @@ class StatusUpdate(Handler):
         """
         client = Application(architecture, configuration).repository.reporter
         status = BuildStatusEnum(args.status)
+        callback: Callable[[str], None] = lambda p: client.remove(p) if args.remove else client.update(p, status)
         if args.package:
             # update packages statuses
             for package in args.package:
-                client.update(package, status)
+                callback(package)
         else:
             # update service status
             client.update_self(status)
