@@ -53,4 +53,4 @@ class Repository(Executor, UpdateHandler):
         get list of files in built packages directory
         :return: list of filenames from the directory
         """
-        return list(self.paths.packages.iterdir())
+        return list(filter(package_like, self.paths.packages.iterdir()))

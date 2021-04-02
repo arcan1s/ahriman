@@ -136,6 +136,7 @@ def _set_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("rebuild", help="rebuild repository", description="rebuild whole repository",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package")
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 

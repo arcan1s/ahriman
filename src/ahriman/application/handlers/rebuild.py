@@ -40,5 +40,9 @@ class Rebuild(Handler):
         :param configuration: configuration instance
         """
         application = Application(architecture, configuration)
-        packages = application.repository.packages()
+        packages = [
+            package
+            for package in application.repository.packages()
+            if args.depends_on is None or args.depends_on in package.depends
+        ]  # we have to use explicit list here for testing purpose
         application.update(packages)

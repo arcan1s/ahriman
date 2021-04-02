@@ -42,6 +42,7 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     mock = MagicMock()
     type(mock).arch = PropertyMock(return_value=package_description_ahriman.architecture)
     type(mock).builddate = PropertyMock(return_value=package_description_ahriman.build_date)
+    type(mock).depends = PropertyMock(return_value=package_description_ahriman.depends)
     type(mock).desc = PropertyMock(return_value=package_description_ahriman.description)
     type(mock).groups = PropertyMock(return_value=package_description_ahriman.groups)
     type(mock).isize = PropertyMock(return_value=package_description_ahriman.installed_size)

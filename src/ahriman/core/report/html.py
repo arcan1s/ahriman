@@ -43,6 +43,7 @@ class HTML(Report):
                    * architecture, string
                    * archive_size, pretty printed size, string
                    * build_date, pretty printed datetime, string
+                   * depends, sorted list of strings
                    * description, string
                    * filename, string,
                    * groups, sorted list of strings
@@ -95,6 +96,7 @@ class HTML(Report):
                 "architecture": properties.architecture or "",
                 "archive_size": pretty_size(properties.archive_size),
                 "build_date": pretty_datetime(properties.build_date),
+                "depends": properties.depends,
                 "description": properties.description or "",
                 "filename": properties.filename,
                 "groups": properties.groups,

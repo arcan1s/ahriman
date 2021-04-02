@@ -9,6 +9,16 @@ from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+def test_depends(package_python_schedule: Package) -> None:
+    """
+    must return combined list of dependencies
+    """
+    assert all(
+        set(package_python_schedule.depends).intersection(package.depends)
+        for package in package_python_schedule.packages.values()
+    )
+
+
 def test_git_url(package_ahriman: Package) -> None:
     """
     must generate valid git url
