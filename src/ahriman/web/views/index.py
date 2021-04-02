@@ -36,6 +36,7 @@ class IndexView(BaseView):
         architecture - repository architecture, string, required
         packages - sorted list of packages properties, required
                    * base, string
+                   * depends, sorted list of strings
                    * groups, sorted list of strings
                    * licenses, sorted list of strings
                    * packages, sorted list of strings
@@ -61,6 +62,7 @@ class IndexView(BaseView):
         packages = [
             {
                 "base": package.base,
+                "depends": package.depends,
                 "groups": package.groups,
                 "licenses": package.licenses,
                 "packages": list(sorted(package.packages)),

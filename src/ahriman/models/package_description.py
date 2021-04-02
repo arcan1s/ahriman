@@ -32,6 +32,7 @@ class PackageDescription:
     :ivar architecture: package architecture
     :ivar archive_size: package archive size
     :ivar build_date: package build date
+    :ivar depends: package dependencies list
     :ivar description: package description
     :ivar filename: package archive name
     :ivar groups: package groups
@@ -43,6 +44,7 @@ class PackageDescription:
     architecture: Optional[str] = None
     archive_size: Optional[int] = None
     build_date: Optional[int] = None
+    depends: List[str] = field(default_factory=list)
     description: Optional[str] = None
     filename: Optional[str] = None
     groups: List[str] = field(default_factory=list)
@@ -69,6 +71,7 @@ class PackageDescription:
             architecture=package.arch,
             archive_size=package.size,
             build_date=package.builddate,
+            depends=package.depends,
             description=package.desc,
             filename=path.name,
             groups=package.groups,

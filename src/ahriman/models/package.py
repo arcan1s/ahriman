@@ -53,6 +53,13 @@ class Package:
     _check_output = check_output
 
     @property
+    def depends(self) -> List[str]:
+        """
+        :return: sum of dependencies per arch package
+        """
+        return sorted(set(sum([package.depends for package in self.packages.values()], start=[])))
+
+    @property
     def git_url(self) -> str:
         """
         :return: package git url to clone
