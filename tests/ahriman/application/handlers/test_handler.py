@@ -1,8 +1,10 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
+from ahriman.core.configuration import Configuration
 
 
 def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -27,3 +29,22 @@ def test_call_exception(args: argparse.Namespace, mocker: MockerFixture) -> None
     """
     mocker.patch("ahriman.application.lock.Lock.__enter__", side_effect=Exception())
     assert not Handler._call(args, "x86_64")
+
+
+def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must run execution in multiple processes
+    """
+    args.architecture = ["i686", "x86_64"]
+    starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
+
+    Handler.execute(args)
+    starmap_mock.assert_called_once()
+
+
+def test_packages(args: argparse.Namespace, configuration: Configuration) -> None:
+    """
+    must raise NotImplemented for missing method
+    """
+    with pytest.raises(NotImplementedError):
+        Handler.run(args, "x86_64", configuration)

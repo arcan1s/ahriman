@@ -45,6 +45,15 @@ class WebClient(Client):
         self.host = host
         self.port = port
 
+    @staticmethod
+    def _exception_response_text(exception: requests.exceptions.HTTPError) -> str:
+        """
+        safe response exception text generation
+        :param exception: exception raised
+        :return: text of the response if it is not None and empty string otherwise
+        """
+        return exception.response.text if exception.response is not None else ''
+
     def _ahriman_url(self) -> str:
         """
         url generator
@@ -75,7 +84,7 @@ class WebClient(Client):
             response = requests.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not add {package.base}: {e.response.text}")
+            self.logger.exception(f"could not add {package.base}: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception(f"could not add {package.base}")
 
@@ -95,7 +104,7 @@ class WebClient(Client):
                 for package in status_json
             ]
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not get {base}: {e.response.text}")
+            self.logger.exception(f"could not get {base}: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception(f"could not get {base}")
         return []
@@ -112,7 +121,7 @@ class WebClient(Client):
             status_json = response.json()
             return BuildStatus.from_json(status_json)
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not get service status: {e.response.text}")
+            self.logger.exception(f"could not get service status: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception("could not get service status")
         return BuildStatus()
@@ -126,7 +135,7 @@ class WebClient(Client):
             response = requests.delete(self._package_url(base))
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not delete {base}: {e.response.text}")
+            self.logger.exception(f"could not delete {base}: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception(f"could not delete {base}")
 
@@ -142,7 +151,7 @@ class WebClient(Client):
             response = requests.post(self._package_url(base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not update {base}: {e.response.text}")
+            self.logger.exception(f"could not update {base}: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception(f"could not update {base}")
 
@@ -157,6 +166,6 @@ class WebClient(Client):
             response = requests.post(self._ahriman_url(), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not update service status: {e.response.text}")
+            self.logger.exception(f"could not update service status: {WebClient._exception_response_text(e)}")
         except Exception:
             self.logger.exception("could not update service status")

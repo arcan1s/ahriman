@@ -51,6 +51,21 @@ def test_cache_load_no_file(watcher: Watcher, mocker: MockerFixture) -> None:
     assert not watcher.known
 
 
+def test_cache_load_package_load_error(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must not fail on json errors
+    """
+    response = {"packages": [pytest.helpers.get_package_status_extended(package_ahriman)]}
+
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("ahriman.models.package.Package.from_json", side_effect=Exception())
+    mocker.patch("json.load", return_value=response)
+
+    watcher._cache_load()
+    assert not watcher.known
+
+
 def test_cache_load_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must not load unknown package

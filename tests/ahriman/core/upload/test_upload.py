@@ -18,6 +18,16 @@ def test_upload_failure(configuration: Configuration, mocker: MockerFixture) -> 
         Upload.load("x86_64", configuration, UploadSettings.Rsync.name).run(Path("path"))
 
 
+def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must construct dummy upload class
+    """
+    mocker.patch("ahriman.models.upload_settings.UploadSettings.from_option", return_value=UploadSettings.Disabled)
+    upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.sync")
+    Upload.load("x86_64", configuration, UploadSettings.Disabled.name).run(Path("path"))
+    upload_mock.assert_called_once()
+
+
 def test_upload_rsync(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must upload via rsync

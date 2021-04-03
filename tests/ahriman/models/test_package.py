@@ -124,6 +124,17 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     assert package_ahriman == package
 
 
+def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must raise exception if there are errors during srcinfo load
+    """
+    mocker.patch("pathlib.Path.read_text", return_value="")
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
+
+    with pytest.raises(InvalidPackageInfo):
+        Package.from_build(Path("path"), package_ahriman.aur_url)
+
+
 def test_from_json_view_1(package_ahriman: Package) -> None:
     """
     must construct same object from json
@@ -190,6 +201,17 @@ def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
         Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
 
 
+def test_dependencies_failed(mocker: MockerFixture) -> None:
+    """
+    must raise exception if there are errors during srcinfo load
+    """
+    mocker.patch("pathlib.Path.read_text", return_value="")
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
+
+    with pytest.raises(InvalidPackageInfo):
+        Package.dependencies(Path("path"))
+
+
 def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must load correct list of dependencies with version
@@ -227,12 +249,25 @@ def test_actual_version_vcs(package_tpacpi_bat_git: Package, repository_paths: R
     assert package_tpacpi_bat_git.actual_version(repository_paths) == "3.1.r13.g4959b52-1"
 
 
+def test_actual_version_srcinfo_failed(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
+                                       mocker: MockerFixture) -> None:
+    """
+    must return same version in case if exception occurred
+    """
+    mocker.patch("ahriman.models.package.Package._check_output", side_effect=Exception())
+    mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+
+    assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
+
+
 def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
                                    mocker: MockerFixture) -> None:
     """
     must return same version in case if exception occurred
     """
-    mocker.patch("ahriman.models.package.Package._check_output", side_effect=Exception())
+    mocker.patch("pathlib.Path.read_text", return_value="")
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
+    mocker.patch("ahriman.models.package.Package._check_output")
     mocker.patch("ahriman.core.build_tools.task.Task.fetch")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
@@ -253,3 +288,11 @@ def test_is_outdated_true(package_ahriman: Package, repository_paths: Repository
     other.version = other.version.replace("-1", "-2")
 
     assert package_ahriman.is_outdated(other, repository_paths)
+
+
+def test_build_status_pretty_print(package_ahriman: Package) -> None:
+    """
+    must return string in pretty print function
+    """
+    assert package_ahriman.pretty_print()
+    assert isinstance(package_ahriman.pretty_print(), str)

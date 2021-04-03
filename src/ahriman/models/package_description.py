@@ -19,10 +19,10 @@
 #
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from pyalpm import Package  # type: ignore
-from typing import List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 
 @dataclass
@@ -58,6 +58,18 @@ class PackageDescription:
         :return: path object for current filename
         """
         return Path(self.filename) if self.filename is not None else None
+
+    @classmethod
+    def from_json(cls: Type[PackageDescription], dump: Dict[str, Any]) -> PackageDescription:
+        """
+        construct package properties from json dump
+        :param dump: json dump body
+        :return: package properties
+        """
+        # filter to only known fields
+        known_fields = [pair.name for pair in fields(cls)]
+        dump = {key: value for key, value in dump.items() if key in known_fields}
+        return cls(**dump)
 
     @classmethod
     def from_package(cls: Type[PackageDescription], package: Package, path: Path) -> PackageDescription:

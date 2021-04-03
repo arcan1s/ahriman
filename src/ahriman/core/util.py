@@ -89,6 +89,6 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
 
     if size is None:
         return ""
-    if size < 1024 or level == 3:
+    if size < 1024 or level >= 3:
         return f"{size:.1f} {str_level()}"
     return pretty_size(size / 1024, level + 1)

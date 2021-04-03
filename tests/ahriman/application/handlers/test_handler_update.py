@@ -2,6 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
+from ahriman.application.application import Application
 from ahriman.application.handlers import Update
 from ahriman.core.configuration import Configuration
 
@@ -40,3 +41,12 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
 
     Update.run(args, "x86_64", configuration)
     updates_mock.assert_called_once()
+
+
+def test_log_fn(application: Application, mocker: MockerFixture) -> None:
+    """
+    must print package updates
+    """
+    logger_mock = mocker.patch("logging.Logger.info")
+    Update.log_fn(application, False)("hello")
+    logger_mock.assert_called_once()

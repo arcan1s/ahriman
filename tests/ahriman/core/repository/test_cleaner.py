@@ -1,3 +1,4 @@
+import pytest
 import shutil
 
 from pathlib import Path
@@ -18,6 +19,14 @@ def _mock_clear_check() -> None:
         mock.call(Path("b")),
         mock.call(Path("c"))
     ])
+
+
+def test_packages_built(cleaner: Cleaner) -> None:
+    """
+    must raise NotImplemented for missing method
+    """
+    with pytest.raises(NotImplementedError):
+        cleaner.packages_built()
 
 
 def test_clear_build(cleaner: Cleaner, mocker: MockerFixture) -> None:

@@ -32,6 +32,7 @@ class UploadSettings(Enum):
     :cvar S3: sync to Amazon S3
     """
 
+    Disabled = auto()  # for testing purpose
     Rsync = auto()
     S3 = auto()
 

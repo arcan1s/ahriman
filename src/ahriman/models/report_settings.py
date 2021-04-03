@@ -31,6 +31,7 @@ class ReportSettings(Enum):
     :cvar HTML: html report generation
     """
 
+    Disabled = auto()  # for testing purpose
     HTML = auto()
 
     @classmethod

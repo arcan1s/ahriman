@@ -53,6 +53,24 @@ def test_repository_sign_args_skip_4(gpg: GPG) -> None:
     assert not gpg.repository_sign_args
 
 
+def test_sign_command(gpg_with_key: GPG) -> None:
+    """
+    must generate sign command
+    """
+    assert gpg_with_key.sign_command(Path("a"), gpg_with_key.default_key)
+
+
+def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:
+    """
+    must call process method correctly
+    """
+    result = [Path("a"), Path("a.sig")]
+    check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
+
+    assert gpg_with_key.process(Path("a"), gpg_with_key.default_key) == result
+    check_output_mock.assert_called()
+
+
 def test_sign_package_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
     must sign package

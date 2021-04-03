@@ -154,7 +154,7 @@ class Package:
         :return: package properties
         """
         packages = {
-            key: PackageDescription(**value)
+            key: PackageDescription.from_json(value)
             for key, value in dump.get("packages", {}).items()
         }
         return Package(

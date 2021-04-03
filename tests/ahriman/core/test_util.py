@@ -4,6 +4,7 @@ import subprocess
 
 from pytest_mock import MockerFixture
 
+from ahriman.core.exceptions import InvalidOption
 from ahriman.core.util import check_output, package_like, pretty_datetime, pretty_size
 from ahriman.models.package import Package
 
@@ -122,6 +123,14 @@ def test_pretty_size_pbytes() -> None:
     value, abbrev = pretty_size(42 * 1024 * 1024 * 1024 * 1024).split()
     assert value == "43008.0"
     assert abbrev == "GiB"
+
+
+def test_pretty_size_pbytes_failure() -> None:
+    """
+    must raise exception if level >= 4 supplied
+    """
+    with pytest.raises(InvalidOption):
+        pretty_size(42 * 1024 * 1024 * 1024 * 1024, 4).split()
 
 
 def test_pretty_size_empty() -> None:

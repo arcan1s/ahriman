@@ -51,6 +51,13 @@ class Application:
         self.architecture = architecture
         self.repository = Repository(architecture, configuration)
 
+    def _finalize(self) -> None:
+        """
+        generate report and sync to remote server
+        """
+        self.report([])
+        self.sync([])
+
     def _known_packages(self) -> Set[str]:
         """
         load packages from repository and pacman repositories
@@ -62,13 +69,6 @@ class Application:
             known_packages.update(package.packages.keys())
         known_packages.update(self.repository.pacman.all_packages())
         return known_packages
-
-    def _finalize(self) -> None:
-        """
-        generate report and sync to remote server
-        """
-        self.report([])
-        self.sync([])
 
     def get_updates(self, filter_packages: List[str], no_aur: bool, no_manual: bool, no_vcs: bool,
                     log_fn: Callable[[str], None]) -> List[Package]:
@@ -182,6 +182,7 @@ class Application:
                 continue
             for archive in package.packages.values():
                 if archive.filepath is None:
+                    self.logger.warning(f"filepath is empty for {package.base}")
                     continue  # avoid mypy warning
                 src = self.repository.paths.repository / archive.filepath
                 dst = self.repository.paths.packages / archive.filepath
