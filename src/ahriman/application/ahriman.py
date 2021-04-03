@@ -274,11 +274,18 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-if __name__ == "__main__":
-    args_parser = _parser()
-    args = args_parser.parse_args()
+def run():
+    """
+    run application instance
+    """
+    if __name__ == "__main__":
+        args_parser = _parser()
+        args = args_parser.parse_args()
 
-    handler: handlers.Handler = args.handler
-    status = handler.execute(args)
+        handler: handlers.Handler = args.handler
+        status = handler.execute(args)
 
-    sys.exit(status)
+        sys.exit(status)
+
+
+run()

@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import Type
+from typing import Callable, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
@@ -39,13 +39,22 @@ class Update(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        # typing workaround
-        def log_fn(line: str) -> None:
-            return print(line) if args.dry_run else application.logger.info(line)
-
         application = Application(architecture, configuration)
-        packages = application.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs, log_fn)
+        packages = application.get_updates(args.package, args.no_aur, args.no_manual, args.no_vcs,
+                                           Update.log_fn(application, args.dry_run))
         if args.dry_run:
             return
 
         application.update(packages)
+
+    @staticmethod
+    def log_fn(application: Application, dry_run: bool) -> Callable[[str], None]:
+        """
+        package updates log function
+        :param application: application instance
+        :param dry_run: do not perform update itself
+        :return: in case if dry_run is set it will return print, logger otherwise
+        """
+        def inner(line: str) -> None:
+            return print(line) if dry_run else application.logger.info(line)
+        return inner

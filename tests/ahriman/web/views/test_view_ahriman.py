@@ -1,4 +1,5 @@
 from aiohttp.test_utils import TestClient
+from pytest_mock import MockerFixture
 
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 
@@ -35,3 +36,14 @@ async def test_post_exception(client: TestClient) -> None:
     """
     post_response = await client.post("/api/v1/ahriman", json={})
     assert post_response.status == 400
+
+
+async def test_post_exception_inside(client: TestClient, mocker: MockerFixture) -> None:
+    """
+    exception handler must handle 500 errors
+    """
+    payload = {"status": BuildStatusEnum.Success.value}
+    mocker.patch("ahriman.core.status.watcher.Watcher.update_self", side_effect=Exception())
+
+    post_response = await client.post("/api/v1/ahriman", json=payload)
+    assert post_response.status == 500

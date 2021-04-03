@@ -51,6 +51,15 @@ def test_fetch_new(mocker: MockerFixture) -> None:
     ])
 
 
+def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
+    """
+    must build package
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.task.Task._check_output")
+    task_ahriman.build()
+    check_output_mock.assert_called()
+
+
 def test_init_with_cache(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must copy tree instead of fetch

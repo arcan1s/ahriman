@@ -18,6 +18,16 @@ def test_report_failure(configuration: Configuration, mocker: MockerFixture) -> 
         Report.load("x86_64", configuration, ReportSettings.HTML.name).run(Path("path"))
 
 
+def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must construct dummy report class
+    """
+    mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
+    report_mock = mocker.patch("ahriman.core.report.report.Report.generate")
+    Report.load("x86_64", configuration, ReportSettings.Disabled.name).run(Path("path"))
+    report_mock.assert_called_once()
+
+
 def test_report_html(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must generate html report

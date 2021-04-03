@@ -1,7 +1,17 @@
+import pytest
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.models.package import Package
+
+
+def test_packages(update_handler: UpdateHandler) -> None:
+    """
+    must raise NotImplemented for missing method
+    """
+    with pytest.raises(NotImplementedError):
+        update_handler.packages()
 
 
 def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,

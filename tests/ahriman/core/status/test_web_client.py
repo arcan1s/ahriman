@@ -1,5 +1,6 @@
 import json
 import pytest
+import requests
 
 from pytest_mock import MockerFixture
 from requests import Response
@@ -44,6 +45,14 @@ def test_add_failed(web_client: WebClient, package_ahriman: Package, mocker: Moc
     web_client.add(package_ahriman, BuildStatusEnum.Unknown)
 
 
+def test_add_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during addition
+    """
+    mocker.patch("requests.post", side_effect=requests.exceptions.HTTPError())
+    web_client.add(package_ahriman, BuildStatusEnum.Unknown)
+
+
 def test_get_all(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must return all packages status
@@ -66,6 +75,14 @@ def test_get_failed(web_client: WebClient, mocker: MockerFixture) -> None:
     must suppress any exception happened during status getting
     """
     mocker.patch("requests.get", side_effect=Exception())
+    assert web_client.get(None) == []
+
+
+def test_get_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during status getting
+    """
+    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
     assert web_client.get(None) == []
 
 
@@ -109,6 +126,14 @@ def test_get_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:
     assert web_client.get_self().status == BuildStatusEnum.Unknown
 
 
+def test_get_self_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during service status getting
+    """
+    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
+    assert web_client.get_self().status == BuildStatusEnum.Unknown
+
+
 def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must process package removal
@@ -124,6 +149,14 @@ def test_remove_failed(web_client: WebClient, package_ahriman: Package, mocker: 
     must suppress any exception happened during removal
     """
     mocker.patch("requests.delete", side_effect=Exception())
+    web_client.remove(package_ahriman.base)
+
+
+def test_remove_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during removal
+    """
+    mocker.patch("requests.delete", side_effect=requests.exceptions.HTTPError())
     web_client.remove(package_ahriman.base)
 
 
@@ -145,6 +178,14 @@ def test_update_failed(web_client: WebClient, package_ahriman: Package, mocker: 
     web_client.update(package_ahriman.base, BuildStatusEnum.Unknown)
 
 
+def test_update_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during update
+    """
+    mocker.patch("requests.post", side_effect=requests.exceptions.HTTPError())
+    web_client.update(package_ahriman.base, BuildStatusEnum.Unknown)
+
+
 def test_update_self(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must process service update
@@ -160,4 +201,12 @@ def test_update_self_failed(web_client: WebClient, mocker: MockerFixture) -> Non
     must suppress any exception happened during service update
     """
     mocker.patch("requests.post", side_effect=Exception())
+    web_client.update_self(BuildStatusEnum.Unknown)
+
+
+def test_update_self_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during service update
+    """
+    mocker.patch("requests.post", side_effect=requests.exceptions.HTTPError())
     web_client.update_self(BuildStatusEnum.Unknown)

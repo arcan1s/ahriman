@@ -1,5 +1,9 @@
 import argparse
 
+from pytest_mock import MockerFixture
+
+from ahriman.application.handlers import Handler
+
 
 def test_parser(parser: argparse.ArgumentParser) -> None:
     """
@@ -81,3 +85,19 @@ def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["-a", "x86_64", "web"])
     assert args.lock is None
     assert args.no_report
+
+
+def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    application must be run
+    """
+    args.architecture = "x86_64"
+    args.handler = Handler
+
+    from ahriman.application import ahriman
+    mocker.patch.object(ahriman, "__name__", "__main__")
+    mocker.patch("argparse.ArgumentParser.parse_args", return_value=args)
+    exit_mock = mocker.patch("sys.exit")
+
+    ahriman.run()
+    exit_mock.assert_called_once()

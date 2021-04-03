@@ -20,11 +20,22 @@ def test_finalize(application: Application, mocker: MockerFixture) -> None:
     sync_mock.assert_called_once()
 
 
-def test_get_updates_all(application: Application, mocker: MockerFixture) -> None:
+def test_known_packages(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return not empty list of known packages
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    packages = application._known_packages()
+    assert len(packages) > 1
+    assert package_ahriman.base in packages
+
+
+def test_get_updates_all(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must get updates for all
     """
-    updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur",
+                                    return_value=[package_ahriman])
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
     application.get_updates([], no_aur=False, no_manual=False, no_vcs=False, log_fn=print)
@@ -231,6 +242,17 @@ def test_sign(application: Application, package_ahriman: Package, package_python
     update_mock.assert_called_with([])
     sign_repository_mock.assert_called_once()
     finalize_mock.assert_called_once()
+
+
+def test_sign_skip(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip sign packages with empty filename
+    """
+    package_ahriman.packages[package_ahriman.base].filename = None
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.application.application.Application.update")
+
+    application.sign([])
 
 
 def test_sign_specific(application: Application, package_ahriman: Package, package_python_schedule: Package,
