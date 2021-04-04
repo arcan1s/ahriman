@@ -15,6 +15,12 @@ jobs:
       - name: extract version
         id: version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: create changelog
+        id: changelog
+        uses: jaywcjlove/changelog-generator@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filter: '[R|r]elease[d]\s+[v|V]\d(\.\d+){0,2}'
       - name: create archive
         run: make archive
         env:
@@ -22,8 +28,10 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          body: |
+            ${{ steps.changelog.outputs.compareurl }}
+            ${{ steps.changelog.outputs.changelog }}
           files: ahriman-*-src.tar.xz
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.VERSION }}
