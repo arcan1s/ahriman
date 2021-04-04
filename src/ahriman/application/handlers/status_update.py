@@ -24,7 +24,6 @@ from typing import Callable, Type
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.models.build_status import BuildStatusEnum
 
 
 class StatusUpdate(Handler):
@@ -41,12 +40,11 @@ class StatusUpdate(Handler):
         :param configuration: configuration instance
         """
         client = Application(architecture, configuration).repository.reporter
-        status = BuildStatusEnum(args.status)
-        callback: Callable[[str], None] = lambda p: client.remove(p) if args.remove else client.update(p, status)
+        callback: Callable[[str], None] = lambda p: client.remove(p) if args.remove else client.update(p, args.status)
         if args.package:
             # update packages statuses
             for package in args.package:
                 callback(package)
         else:
             # update service status
-            client.update_self(status)
+            client.update_self(args.status)
