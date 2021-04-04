@@ -56,7 +56,7 @@ class Setup(Handler):
         Setup.create_executable(args.build_command, architecture)
         Setup.create_devtools_configuration(args.build_command, architecture, Path(args.from_configuration),
                                             args.no_multilib, args.repository, application.repository.paths)
-        Setup.create_ahriman_configuration(args.build_command, architecture, args.repository, configuration.include)
+        Setup.create_ahriman_configuration(args, architecture, args.repository, configuration.include)
         Setup.create_sudo_configuration(args.build_command, architecture)
 
     @staticmethod
@@ -70,23 +70,36 @@ class Setup(Handler):
         return Setup.BIN_DIR_PATH / f"{prefix}-{architecture}-build"
 
     @staticmethod
-    def create_ahriman_configuration(prefix: str, architecture: str, repository: str, include_path: Path) -> None:
+    def create_ahriman_configuration(args: argparse.Namespace, architecture: str, repository: str,
+                                     include_path: Path) -> None:
         """
         create service specific configuration
-        :param prefix: command prefix in {prefix}-{architecture}-build
+        :param args: command line args
         :param architecture: repository architecture
         :param repository: repository name
         :param include_path: path to directory with configuration includes
         """
         configuration = configparser.ConfigParser()
 
-        configuration.add_section("build")
-        configuration.set("build", "build_command", str(Setup.build_command(prefix, architecture)))
+        section = Configuration.section_name("build", architecture)
+        configuration.add_section(section)
+        configuration.set(section, "build_command", str(Setup.build_command(args.build_command, architecture)))
 
         configuration.add_section("repository")
         configuration.set("repository", "name", repository)
 
-        target = include_path / "build-overrides.ini"
+        if args.sign_key is not None:
+            section = Configuration.section_name("sign", architecture)
+            configuration.add_section(section)
+            configuration.set(section, "target", " ".join(args.sign_target))
+            configuration.set(section, "key", args.sign_key)
+
+        if args.web_port is not None:
+            section = Configuration.section_name("web", architecture)
+            configuration.add_section(section)
+            configuration.set(section, "port", str(args.web_port))
+
+        target = include_path / "setup-overrides.ini"
         with target.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 

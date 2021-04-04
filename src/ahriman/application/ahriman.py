@@ -28,6 +28,8 @@ from ahriman.models.build_status import BuildStatusEnum
 
 # pylint thinks it is bad idea, but get the fuck off
 # pylint: disable=protected-access
+from ahriman.models.sign_settings import SignSettings
+
 SubParserAction = argparse._SubParsersAction
 
 
@@ -181,7 +183,11 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         default="/usr/share/devtools/pacman-extra.conf")
     parser.add_argument("--no-multilib", help="do not add multilib repository", action="store_true")
     parser.add_argument("--packager", help="packager name and email", required=True)
-    parser.add_argument("--repository", help="repository name", default="aur-clone")
+    parser.add_argument("--repository", help="repository name", required=True)
+    parser.add_argument("--sign-key", help="sign key id")
+    parser.add_argument("--sign-target", help="sign options",
+                        choices=[sign.name.lower() for sign in SignSettings], nargs="*")
+    parser.add_argument("--web-port", help="port of the web service", type=int)
     parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, unsafe=True)
     return parser
 

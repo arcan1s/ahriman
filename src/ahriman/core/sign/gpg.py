@@ -56,7 +56,7 @@ class GPG:
         """
         :return: command line arguments for repo-add command to sign database
         """
-        if SignSettings.SignRepository not in self.targets:
+        if SignSettings.Repository not in self.targets:
             return []
         if self.default_key is None:
             self.logger.error("no default key set, skip repository sign")
@@ -107,7 +107,7 @@ class GPG:
         :param base: package base required to check for key overrides
         :return: list of generated files including original file
         """
-        if SignSettings.SignPackages not in self.targets:
+        if SignSettings.Packages not in self.targets:
             return [path]
         key = self.configuration.get("sign", f"key_{base}", fallback=self.default_key)
         if key is None:
@@ -122,7 +122,7 @@ class GPG:
         :param path: path to repository database
         :return: list of generated files including original file
         """
-        if SignSettings.SignRepository not in self.targets:
+        if SignSettings.Repository not in self.targets:
             return [path]
         if self.default_key is None:
             self.logger.error("no default key set, skip repository sign")

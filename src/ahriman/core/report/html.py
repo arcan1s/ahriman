@@ -112,8 +112,8 @@ class HTML(Report):
         html = template.render(
             homepage=self.homepage,
             link_path=self.link_path,
-            has_package_signed=SignSettings.SignPackages in self.sign_targets,
-            has_repo_signed=SignSettings.SignRepository in self.sign_targets,
+            has_package_signed=SignSettings.Packages in self.sign_targets,
+            has_repo_signed=SignSettings.Repository in self.sign_targets,
             packages=sorted(content, key=comparator),
             pgp_key=self.default_pgp_key,
             repository=self.name)
