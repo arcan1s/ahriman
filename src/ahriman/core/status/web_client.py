@@ -52,7 +52,8 @@ class WebClient(Client):
         :param exception: exception raised
         :return: text of the response if it is not None and empty string otherwise
         """
-        return exception.response.text if exception.response is not None else ''
+        result: str = exception.response.text if exception.response is not None else ''
+        return result
 
     def _ahriman_url(self) -> str:
         """

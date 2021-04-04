@@ -274,7 +274,7 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def run():
+def run() -> None:
     """
     run application instance
     """

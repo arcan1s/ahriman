@@ -43,4 +43,3 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
 
     Status.run(args, "x86_64", configuration)
     packages_mock.assert_called_once()
-
