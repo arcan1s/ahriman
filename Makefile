@@ -1,9 +1,9 @@
-.PHONY: archive archive_directory archlinux changelog check clean directory push tests version
+.PHONY: archive archive_directory archlinux check clean directory push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
 
-FILES := AUTHORS CHANGELOG.md COPYING CONFIGURING.md README.md package src setup.py
+FILES := AUTHORS COPYING CONFIGURING.md README.md package src setup.py
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
@@ -23,12 +23,6 @@ archive_directory: $(TARGET_FILES)
 archlinux: archive
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
-changelog:
-ifndef GITHUB_TOKEN
-	$(error GITHUB_TOKEN is required, but not set)
-endif
-	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator -u arcan1s -p ahriman -t $(GITHUB_TOKEN)
-
 check: clean
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 	find "src/$(PROJECT)" tests -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
@@ -45,10 +39,6 @@ push: archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
-	# cheat to update changelog before push but after tag creation
-	make changelog
-	git add CHANGELOG.md
-	git commit --amend --no-edit
 	git push
 	git push --tags
 
