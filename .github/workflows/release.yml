@@ -1,0 +1,28 @@
+name: create release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  make-release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: extract version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: create archive
+        run: make archive
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ahriman-$VERSION-src.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.VERSION }}

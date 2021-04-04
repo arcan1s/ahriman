@@ -1,6 +1,5 @@
 # based on https://github.com/actions/starter-workflows/blob/main/ci/python-app.yml
-
-name: ahriman
+name: check commit
 
 on:
   push:
@@ -9,7 +8,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  run-tests:
 
     runs-on: ubuntu-latest
 
