@@ -21,7 +21,6 @@ archive_directory: $(TARGET_FILES)
 	find "$(PROJECT)" -depth -type d -name "*.egg-info" -execdir rm -rf {} +
 
 archlinux: archive
-	sed -i "/sha512sums=('[0-9A-Fa-f]*/s/[^'][^)]*/sha512sums=('$$(sha512sum $(PROJECT)-$(VERSION)-src.tar.xz | awk '{print $$1}')'/" package/archlinux/PKGBUILD
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
 changelog:
@@ -42,11 +41,15 @@ clean:
 directory: clean
 	mkdir "$(PROJECT)"
 
-push: archlinux changelog
-	git add package/archlinux/PKGBUILD src/ahriman/version.py CHANGELOG.md
+push: archlinux
+	git add package/archlinux/PKGBUILD src/ahriman/version.py
 	git commit -m "Release $(VERSION)"
-	git push
 	git tag "$(VERSION)"
+	# cheat to update changelog before push but after tag creation
+	make changelog
+	git add CHANGELOG.md
+	git commit --amend --no-edit
+	git push
 	git push --tags
 
 tests: clean
