@@ -1,9 +1,9 @@
-.PHONY: archive archive_directory archlinux check clean directory push tests version
+.PHONY: archive archive_directory archlinux changelog check clean directory push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
 
-FILES := AUTHORS COPYING CONFIGURING.md README.md package src setup.py
+FILES := AUTHORS CHANGELOG.md COPYING CONFIGURING.md README.md package src setup.py
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
@@ -24,6 +24,12 @@ archlinux: archive
 	sed -i "/sha512sums=('[0-9A-Fa-f]*/s/[^'][^)]*/sha512sums=('$$(sha512sum $(PROJECT)-$(VERSION)-src.tar.xz | awk '{print $$1}')'/" package/archlinux/PKGBUILD
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
+changelog:
+ifndef GITHUB_TOKEN
+	$(error GITHUB_TOKEN is required, but not set)
+endif
+	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator -u arcan1s -p ahriman -t $(GITHUB_TOKEN)
+
 check: clean
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 	find "src/$(PROJECT)" tests -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
@@ -36,8 +42,8 @@ clean:
 directory: clean
 	mkdir "$(PROJECT)"
 
-push: archlinux
-	git add package/archlinux/PKGBUILD src/ahriman/version.py
+push: archlinux changelog
+	git add package/archlinux/PKGBUILD src/ahriman/version.py CHANGELOG.md
 	git commit -m "Release $(VERSION)"
 	git push
 	git tag "$(VERSION)"
