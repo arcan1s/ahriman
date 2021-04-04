@@ -1,6 +1,7 @@
 import argparse
 import pytest
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
@@ -11,7 +12,7 @@ def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must call inside lock
     """
-    args.configuration = ""
+    args.configuration = Path("")
     args.no_log = False
     mocker.patch("ahriman.application.handlers.Handler.run")
     mocker.patch("ahriman.core.configuration.Configuration.from_path")

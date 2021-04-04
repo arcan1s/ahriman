@@ -54,7 +54,7 @@ class Setup(Handler):
         application = Application(architecture, configuration)
         Setup.create_makepkg_configuration(args.packager, application.repository.paths)
         Setup.create_executable(args.build_command, architecture)
-        Setup.create_devtools_configuration(args.build_command, architecture, Path(args.from_configuration),
+        Setup.create_devtools_configuration(args.build_command, architecture, args.from_configuration,
                                             args.no_multilib, args.repository, application.repository.paths)
         Setup.create_ahriman_configuration(args, architecture, args.repository, configuration.include)
         Setup.create_sudo_configuration(args.build_command, architecture)
@@ -91,7 +91,7 @@ class Setup(Handler):
         if args.sign_key is not None:
             section = Configuration.section_name("sign", architecture)
             configuration.add_section(section)
-            configuration.set(section, "target", " ".join(args.sign_target))
+            configuration.set(section, "target", " ".join([target.name.lower() for target in args.sign_target]))
             configuration.set(section, "key", args.sign_key)
 
         if args.web_port is not None:

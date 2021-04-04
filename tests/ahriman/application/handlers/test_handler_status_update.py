@@ -9,7 +9,7 @@ from ahriman.models.package import Package
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
-    args.status = BuildStatusEnum.Success.value
+    args.status = BuildStatusEnum.Success
     args.package = None
     args.remove = False
     return args

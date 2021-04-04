@@ -20,16 +20,17 @@
 import argparse
 import sys
 
+from pathlib import Path
+
 import ahriman.application.handlers as handlers
 import ahriman.version as version
 
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.sign_settings import SignSettings
 
 
 # pylint thinks it is bad idea, but get the fuck off
 # pylint: disable=protected-access
-from ahriman.models.sign_settings import SignSettings
-
 SubParserAction = argparse._SubParsersAction
 
 
@@ -42,9 +43,9 @@ def _parser() -> argparse.ArgumentParser:
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
                         action="append", required=True)
-    parser.add_argument("-c", "--configuration", help="configuration path", default="/etc/ahriman.ini")
+    parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
-    parser.add_argument("--lock", help="lock file", default="/tmp/ahriman.lock")
+    parser.add_argument("-l", "--lock", help="lock file", type=Path, default=Path("/tmp/ahriman.lock"))
     parser.add_argument("--no-log", help="redirect all log messages to stderr", action="store_true")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
@@ -180,13 +181,13 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
-                        default="/usr/share/devtools/pacman-extra.conf")
+                        type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
     parser.add_argument("--no-multilib", help="do not add multilib repository", action="store_true")
     parser.add_argument("--packager", help="packager name and email", required=True)
     parser.add_argument("--repository", help="repository name", required=True)
     parser.add_argument("--sign-key", help="sign key id")
-    parser.add_argument("--sign-target", help="sign options",
-                        choices=[sign.name.lower() for sign in SignSettings], nargs="*")
+    parser.add_argument("--sign-target", help="sign options", type=SignSettings.from_option,
+                        choices=SignSettings, nargs="*")
     parser.add_argument("--web-port", help="port of the web service", type=int)
     parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, unsafe=True)
     return parser
@@ -231,8 +232,8 @@ def _set_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
         "package",
         help="set status for specified packages. If no packages supplied, service status will be updated",
         nargs="*")
-    parser.add_argument("--status", help="new status", choices=[value.value for value in BuildStatusEnum],
-                        default="success")
+    parser.add_argument("--status", help="new status", choices=BuildStatusEnum,
+                        type=BuildStatusEnum, default=BuildStatusEnum.Success)
     parser.add_argument("--remove", help="remove package status page", action="store_true")
     parser.set_defaults(handler=handlers.StatusUpdate, lock=None, no_report=True, unsafe=True)
     return parser

@@ -7,16 +7,17 @@ from unittest import mock
 from ahriman.application.handlers import Setup
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.sign_settings import SignSettings
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.build_command = "ahriman"
-    args.from_configuration = "/usr/share/devtools/pacman-extra.conf"
+    args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
     args.no_multilib = False
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
     args.sign_key = "key"
-    args.sign_target = ["packages"]
+    args.sign_target = [SignSettings.Packages]
     args.web_port = 8080
     return args
 
@@ -71,7 +72,8 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     set_mock.assert_has_calls([
         mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         mock.call("repository", "name", args.repository),
-        mock.call(Configuration.section_name("sign", "x86_64"), "target", " ".join(args.sign_target)),
+        mock.call(Configuration.section_name("sign", "x86_64"), "target",
+                  " ".join([target.name.lower() for target in args.sign_target])),
         mock.call(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
         mock.call(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
     ])
@@ -89,7 +91,7 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_configuration),
+    Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
                                         args.no_multilib, args.repository, repository_paths)
     add_section_mock.assert_has_calls([
         mock.call("multilib"),
@@ -109,7 +111,7 @@ def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, rep
     add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", Path(args.from_configuration),
+    Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
                                         True, args.repository, repository_paths)
     add_section_mock.assert_called_once()
     write_mock.assert_called_once()
