@@ -16,11 +16,11 @@ def test_from_option_valid() -> None:
     """
     must return value from valid options
     """
-    assert SignSettings.from_option("package") == SignSettings.SignPackages
-    assert SignSettings.from_option("PACKAGE") == SignSettings.SignPackages
-    assert SignSettings.from_option("packages") == SignSettings.SignPackages
-    assert SignSettings.from_option("sign-package") == SignSettings.SignPackages
+    assert SignSettings.from_option("package") == SignSettings.Packages
+    assert SignSettings.from_option("PACKAGE") == SignSettings.Packages
+    assert SignSettings.from_option("packages") == SignSettings.Packages
+    assert SignSettings.from_option("sign-package") == SignSettings.Packages
 
-    assert SignSettings.from_option("repository") == SignSettings.SignRepository
-    assert SignSettings.from_option("REPOSITORY") == SignSettings.SignRepository
-    assert SignSettings.from_option("sign-repository") == SignSettings.SignRepository
+    assert SignSettings.from_option("repository") == SignSettings.Repository
+    assert SignSettings.from_option("REPOSITORY") == SignSettings.Repository
+    assert SignSettings.from_option("sign-repository") == SignSettings.Repository

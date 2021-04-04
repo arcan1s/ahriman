@@ -15,6 +15,9 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.no_multilib = False
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
+    args.sign_key = "key"
+    args.sign_target = ["packages"]
+    args.web_port = 8080
     return args
 
 
@@ -58,14 +61,19 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     write_mock = mocker.patch("configparser.RawConfigParser.write")
 
     command = Setup.build_command(args.build_command, "x86_64")
-    Setup.create_ahriman_configuration(args.build_command, "x86_64", args.repository, configuration.include)
+    Setup.create_ahriman_configuration(args, "x86_64", args.repository, configuration.include)
     add_section_mock.assert_has_calls([
-        mock.call("build"),
+        mock.call(Configuration.section_name("build", "x86_64")),
         mock.call("repository"),
+        mock.call(Configuration.section_name("sign", "x86_64")),
+        mock.call(Configuration.section_name("web", "x86_64")),
     ])
     set_mock.assert_has_calls([
-        mock.call("build", "build_command", str(command)),
+        mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         mock.call("repository", "name", args.repository),
+        mock.call(Configuration.section_name("sign", "x86_64"), "target", " ".join(args.sign_target)),
+        mock.call(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
+        mock.call(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
     ])
     write_mock.assert_called_once()
 

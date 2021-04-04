@@ -52,7 +52,8 @@ def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
     """
     setup command must imply lock, no_report and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "setup", "--packager", "John Doe <john@doe.com>"])
+    args = parser.parse_args(["-a", "x86_64", "setup", "--packager", "John Doe <john@doe.com>",
+                              "--repository", "aur-clone"])
     assert args.lock is None
     assert args.no_report
     assert args.unsafe
