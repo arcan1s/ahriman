@@ -29,6 +29,7 @@ from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
 from ahriman.core.util import pretty_datetime
 from ahriman.models.package import Package
+from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 
 
 class Email(Report, JinjaTemplate):
@@ -39,7 +40,7 @@ class Email(Report, JinjaTemplate):
     :ivar port: SMTP port to connect
     :ivar receivers: list of receivers emails
     :ivar sender: sender email address
-    :ivar use_tls: use TLS for SMTP connection
+    :ivar ssl: SSL mode for SMTP connection
     :ivar user: username to authenticate via SMTP
     """
 
@@ -58,7 +59,7 @@ class Email(Report, JinjaTemplate):
         self.port = configuration.getint("email", "port")
         self.receivers = configuration.getlist("email", "receivers")
         self.sender = configuration.get("email", "sender")
-        self.use_tls = configuration.getboolean("email", "use_tls", fallback=False)
+        self.ssl = SmtpSSLSettings.from_option(configuration.get("email", "ssl", fallback="disabled"))
         self.user = configuration.get("email", "user", fallback=None)
 
     def _send(self, text: str, attachment: Dict[str, str]) -> None:
@@ -78,9 +79,12 @@ class Email(Report, JinjaTemplate):
             attach.add_header("Content-Disposition", "attachment", filename=filename)
             message.attach(attach)
 
-        session = smtplib.SMTP(self.host, self.port)
-        if self.use_tls:
-            session.starttls()
+        if self.ssl != SmtpSSLSettings.SSL:
+            session = smtplib.SMTP(self.host, self.port)
+            if self.ssl == SmtpSSLSettings.STARTTLS:
+                session.starttls()
+        else:
+            session = smtplib.SMTP_SSL(self.host, self.port)
         if self.user is not None and self.password is not None:
             session.login(self.user, self.password)
         session.sendmail(self.sender, self.receivers, message.as_string())

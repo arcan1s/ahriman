@@ -60,8 +60,8 @@ Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_
 * `port` - SMTP port for sending emails, int, required.
 * `receivers` - SMTP receiver addresses, space separated list of strings, required.
 * `sender` - SMTP sender address, string, required.
+* `ssl` - SSL mode for SMTP connection, one of `ssl`, `starttls`, `disabled`, optional, default `disabled`.
 * `template_path` - path to Jinja2 template, string, required.
-* `use_tls` - use TLS for connection, boolean, optional, default False. 
 * `user` - SMTP user to authenticate, string, optional.
 
 ### `html:*` groups

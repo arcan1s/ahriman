@@ -56,11 +56,26 @@ def test_send_auth_no_user(configuration: Configuration, mocker: MockerFixture) 
     smtp_mock.return_value.login.assert_not_called()
 
 
-def test_send_tls(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> None:
     """
-    must send an email with attachment with tls
+    must send an email with attachment with ssl/tls
     """
-    configuration.set("email", "use_tls", "yes")
+    configuration.set("email", "ssl", "ssl")
+    smtp_mock = mocker.patch("smtplib.SMTP_SSL")
+
+    report = Email("x86_64", configuration)
+    report._send("a text", {"attachment.html": "an attachment"})
+    smtp_mock.return_value.starttls.assert_not_called()
+    smtp_mock.return_value.login.assert_not_called()
+    smtp_mock.return_value.sendmail.assert_called_once()
+    smtp_mock.return_value.quit.assert_called_once()
+
+
+def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must send an email with attachment with starttls
+    """
+    configuration.set("email", "ssl", "starttls")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
     report = Email("x86_64", configuration)
