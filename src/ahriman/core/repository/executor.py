@@ -100,27 +100,29 @@ class Executor(Cleaner):
 
         return self.repo.repo_path
 
-    def process_report(self, targets: Optional[Iterable[str]]) -> None:
+    def process_report(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
         """
         generate reports
         :param targets: list of targets to generate reports. Configuration option will be used if it is not set
+        :param built_packages: list of packages which has just been built
         """
         if targets is None:
             targets = self.configuration.getlist("report", "target")
         for target in targets:
             runner = Report.load(self.architecture, self.configuration, target)
-            runner.run(self.packages())
+            runner.run(self.packages(), built_packages)
 
-    def process_sync(self, targets: Optional[Iterable[str]]) -> None:
+    def process_sync(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
         """
         process synchronization to remote servers
         :param targets: list of targets to sync. Configuration option will be used if it is not set
+        :param built_packages: list of packages which has just been built
         """
         if targets is None:
             targets = self.configuration.getlist("upload", "target")
         for target in targets:
             runner = Upload.load(self.architecture, self.configuration, target)
-            runner.run(self.paths.repository)
+            runner.run(self.paths.repository, built_packages)
 
     def process_update(self, packages: Iterable[Path]) -> Path:
         """

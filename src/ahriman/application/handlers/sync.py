@@ -39,4 +39,4 @@ class Sync(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        Application(architecture, configuration).sync(args.target)
+        Application(architecture, configuration).sync(args.target, [])

@@ -15,7 +15,7 @@ def test_finalize(application: Application, mocker: MockerFixture) -> None:
     report_mock = mocker.patch("ahriman.application.application.Application.report")
     sync_mock = mocker.patch("ahriman.application.application.Application.sync")
 
-    application._finalize()
+    application._finalize([])
     report_mock.assert_called_once()
     sync_mock.assert_called_once()
 
@@ -218,7 +218,7 @@ def test_report(application: Application, mocker: MockerFixture) -> None:
     must generate report
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_report")
-    application.report([])
+    application.report([], [])
     executor_mock.assert_called_once()
 
 
@@ -279,7 +279,7 @@ def test_sync(application: Application, mocker: MockerFixture) -> None:
     must sync to remote
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_sync")
-    application.sync([])
+    application.sync([], [])
     executor_mock.assert_called_once()
 
 
@@ -292,6 +292,7 @@ def test_update(application: Application, package_ahriman: Package, mocker: Mock
 
     mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=paths)
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
     finalize_mock = mocker.patch("ahriman.application.application.Application._finalize")
@@ -299,4 +300,4 @@ def test_update(application: Application, package_ahriman: Package, mocker: Mock
     application.update([package_ahriman])
     build_mock.assert_called_once()
     update_mock.assert_has_calls([mock.call([]), mock.call(paths)])
-    finalize_mock.assert_has_calls([mock.call(), mock.call()])
+    finalize_mock.assert_has_calls([mock.call([]), mock.call([package_ahriman])])

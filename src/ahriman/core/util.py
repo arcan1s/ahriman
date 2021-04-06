@@ -22,7 +22,7 @@ import subprocess
 
 from logging import Logger
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from ahriman.core.exceptions import InvalidOption
 
@@ -60,7 +60,7 @@ def package_like(filename: Path) -> bool:
     return ".pkg." in name and not name.endswith(".sig")
 
 
-def pretty_datetime(timestamp: Optional[int]) -> str:
+def pretty_datetime(timestamp: Optional[Union[float, int]]) -> str:
     """
     convert datetime object to string
     :param timestamp: datetime to convert

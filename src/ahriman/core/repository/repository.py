@@ -37,9 +37,7 @@ class Repository(Executor, UpdateHandler):
         :return: list of packages properties
         """
         result: Dict[str, Package] = {}
-        for full_path in self.paths.repository.iterdir():
-            if not package_like(full_path):
-                continue
+        for full_path in filter(package_like, self.paths.repository.iterdir()):
             try:
                 local = Package.load(full_path, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)

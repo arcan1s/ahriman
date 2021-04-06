@@ -18,10 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
+from typing import Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
 from ahriman.core.util import check_output
+from ahriman.models.package import Package
 
 
 class S3(Upload):
@@ -43,10 +45,11 @@ class S3(Upload):
         self.bucket = configuration.get("s3", "bucket")
         self.command = configuration.getlist("s3", "command")
 
-    def sync(self, path: Path) -> None:
+    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         sync data to remote server
         :param path: local path to sync
+        :param built_packages: list of packages which has just been built
         """
         # TODO rewrite to boto, but it is bullshit
         S3._check_output(*self.command, str(path), self.bucket, exception=None, logger=self.logger)

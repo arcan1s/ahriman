@@ -28,11 +28,14 @@ from ahriman.core.exceptions import InvalidOption
 class ReportSettings(Enum):
     """
     report targets enumeration
+    :cvar Disabled: option which generates no report for testing purpose
     :cvar HTML: html report generation
+    :cvar Email: email report generation
     """
 
     Disabled = auto()  # for testing purpose
     HTML = auto()
+    Email = auto()
 
     @classmethod
     def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
@@ -43,4 +46,6 @@ class ReportSettings(Enum):
         """
         if value.lower() in ("html",):
             return cls.HTML
+        if value.lower() in ("email",):
+            return cls.Email
         raise InvalidOption(value)
