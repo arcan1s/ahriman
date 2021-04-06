@@ -28,9 +28,9 @@
                         SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
                     </code>
                 </section>
+                
+                {% include "search-line.jinja2" %}
             {% endif %}
-
-            {% include "search-line.jinja2" %}
 
             <section class="element">
                 <table class="sortable search-table">
