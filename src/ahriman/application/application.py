@@ -51,12 +51,12 @@ class Application:
         self.architecture = architecture
         self.repository = Repository(architecture, configuration)
 
-    def _finalize(self) -> None:
+    def _finalize(self, built_packages: Iterable[Package]) -> None:
         """
         generate report and sync to remote server
         """
-        self.report([])
-        self.sync([])
+        self.report([], built_packages)
+        self.sync([], built_packages)
 
     def _known_packages(self) -> Set[str]:
         """
@@ -160,15 +160,16 @@ class Application:
         :param names: list of packages (either base or name) to remove
         """
         self.repository.process_remove(names)
-        self._finalize()
+        self._finalize([])
 
-    def report(self, target: Iterable[str]) -> None:
+    def report(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
         """
         generate report
         :param target: list of targets to run (e.g. html)
+        :param built_packages: list of packages which has just been built
         """
         targets = target or None
-        self.repository.process_report(targets)
+        self.repository.process_report(targets, built_packages)
 
     def sign(self, packages: Iterable[str]) -> None:
         """
@@ -191,15 +192,16 @@ class Application:
         self.update([])
         # sign repository database if set
         self.repository.sign.sign_repository(self.repository.repo.repo_path)
-        self._finalize()
+        self._finalize([])
 
-    def sync(self, target: Iterable[str]) -> None:
+    def sync(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
         """
         sync to remote server
         :param target: list of targets to run (e.g. s3)
+        :param built_packages: list of packages which has just been built
         """
         targets = target or None
-        self.repository.process_sync(targets)
+        self.repository.process_sync(targets, built_packages)
 
     def update(self, updates: Iterable[Package]) -> None:
         """
@@ -207,8 +209,9 @@ class Application:
         :param updates: list of packages to update
         """
         def process_update(paths: Iterable[Path]) -> None:
+            updated = [Package.load(path, self.repository.pacman, self.repository.aur_url) for path in paths]
             self.repository.process_update(paths)
-            self._finalize()
+            self._finalize(updated)
 
         # process built packages
         packages = self.repository.packages_built()

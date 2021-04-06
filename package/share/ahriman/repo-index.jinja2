@@ -5,26 +5,30 @@
 
         {% include "style.jinja2" %}
 
-        {% include "sorttable.jinja2" %}
-        {% include "search.jinja2" %}
+        {% if extended_report %}
+            {% include "sorttable.jinja2" %}
+            {% include "search.jinja2" %}
+        {% endif %}
     </head>
 
     <body>
         <div class="root">
-            <h1>Archlinux user repository</h1>
+            {% if extended_report %}
+                <h1>Archlinux user repository</h1>
 
-            <section class="element">
-                {% if pgp_key is not none %}
-                    <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}&fingerprint=on&op=index" title="key search">{{ pgp_key|e }}</a> by default.</p>
-                {% endif %}
+                <section class="element">
+                    {% if pgp_key is not none %}
+                        <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}&fingerprint=on&op=index" title="key search">{{ pgp_key|e }}</a> by default.</p>
+                    {% endif %}
 
-                <code>
-                    $ cat /etc/pacman.conf<br>
-                    [{{ repository|e }}]<br>
-                    Server = {{ link_path|e }}<br>
-                    SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
-                </code>
-            </section>
+                    <code>
+                        $ cat /etc/pacman.conf<br>
+                        [{{ repository|e }}]<br>
+                        Server = {{ link_path|e }}<br>
+                        SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
+                    </code>
+                </section>
+            {% endif %}
 
             {% include "search-line.jinja2" %}
 
@@ -50,13 +54,15 @@
                 </table>
             </section>
 
-            <footer>
-                <ul class="navigation">
-                    {% if homepage is not none %}
-                        <li><a href="{{ homepage|e }}" title="homepage">Homepage</a></li>
-                    {% endif %}
-                </ul>
-            </footer>
+            {% if extended_report %}
+                <footer>
+                    <ul class="navigation">
+                        {% if homepage is not none %}
+                            <li><a href="{{ homepage|e }}" title="homepage">Homepage</a></li>
+                        {% endif %}
+                    </ul>
+                </footer>
+            {% endif %}
         </div>
     </body>
 </html>

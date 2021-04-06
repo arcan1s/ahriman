@@ -60,21 +60,26 @@ class Report:
         if provider == ReportSettings.HTML:
             from ahriman.core.report.html import HTML
             return HTML(architecture, configuration)
+        if provider == ReportSettings.Email:
+            from ahriman.core.report.email import Email
+            return Email(architecture, configuration)
         return cls(architecture, configuration)  # should never happen
 
-    def generate(self, packages: Iterable[Package]) -> None:
+    def generate(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
         """
         generate report for the specified packages
         :param packages: list of packages to generate report
+        :param built_packages: list of packages which has just been built
         """
 
-    def run(self, packages: Iterable[Package]) -> None:
+    def run(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
         """
         run report generation
         :param packages: list of packages to generate report
+        :param built_packages: list of packages which has just been built
         """
         try:
-            self.generate(packages)
+            self.generate(packages, built_packages)
         except Exception:
             self.logger.exception("report generation failed")
             raise ReportFailed()

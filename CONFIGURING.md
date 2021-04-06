@@ -47,7 +47,22 @@ Settings for signing packages or repository. Group name must refer to architectu
 
 Report generation settings.
 
-* `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`.
+* `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`, `email`.
+
+### `email:*` groups
+
+Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_64 architecture.
+
+* `homepage` - link to homepage, string, optional.
+* `host` - SMTP host for sending emails, string, required.
+* `link_path` - prefix for HTML links, string, required.
+* `password` - SMTP password to authenticate, string, optional.
+* `port` - SMTP port for sending emails, int, required.
+* `receivers` - SMTP receiver addresses, space separated list of strings, required.
+* `sender` - SMTP sender address, string, required.
+* `ssl` - SSL mode for SMTP connection, one of `ssl`, `starttls`, `disabled`, optional, default `disabled`.
+* `template_path` - path to Jinja2 template, string, required.
+* `user` - SMTP user to authenticate, string, optional.
 
 ### `html:*` groups
 

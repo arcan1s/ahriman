@@ -22,30 +22,28 @@ from __future__ import annotations
 from enum import Enum, auto
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
 
-
-class ReportSettings(Enum):
+class SmtpSSLSettings(Enum):
     """
-    report targets enumeration
-    :cvar Disabled: option which generates no report for testing purpose
-    :cvar HTML: html report generation
-    :cvar Email: email report generation
+    SMTP SSL mode enumeration
+    :cvar Disabled: no SSL enabled
+    :cvar SSL: use SMTP_SSL instead of normal SMTP client
+    :cvar STARTTLS: use STARTTLS in normal SMTP client
     """
 
-    Disabled = auto()  # for testing purpose
-    HTML = auto()
-    Email = auto()
+    Disabled = auto()
+    SSL = auto()
+    STARTTLS = auto()
 
     @classmethod
-    def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
+    def from_option(cls: Type[SmtpSSLSettings], value: str) -> SmtpSSLSettings:
         """
         construct value from configuration
         :param value: configuration value
         :return: parsed value
         """
-        if value.lower() in ("html",):
-            return cls.HTML
-        if value.lower() in ("email",):
-            return cls.Email
-        raise InvalidOption(value)
+        if value.lower() in ("ssl", "ssl/tls"):
+            return cls.SSL
+        if value.lower() in ("starttls",):
+            return cls.STARTTLS
+        return cls.Disabled

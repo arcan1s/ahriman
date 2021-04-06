@@ -12,5 +12,5 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
     write_mock = mocker.patch("pathlib.Path.write_text")
 
     report = HTML("x86_64", configuration)
-    report.generate([package_ahriman])
+    report.generate([package_ahriman], [])
     write_mock.assert_called_once()

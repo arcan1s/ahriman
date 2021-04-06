@@ -133,7 +133,7 @@ def test_process_report(executor: Executor, package_ahriman: Package, mocker: Mo
     mocker.patch("ahriman.core.report.report.Report.load", return_value=Report("x86_64", executor.configuration))
     report_mock = mocker.patch("ahriman.core.report.report.Report.run")
 
-    executor.process_report(["dummy"])
+    executor.process_report(["dummy"], [])
     report_mock.assert_called_once()
 
 
@@ -143,7 +143,7 @@ def test_process_report_auto(executor: Executor, mocker: MockerFixture) -> None:
     """
     configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
 
-    executor.process_report(None)
+    executor.process_report(None, [])
     configuration_getlist_mock.assert_called_once()
 
 
@@ -154,7 +154,7 @@ def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.core.upload.upload.Upload.load", return_value=Upload("x86_64", executor.configuration))
     upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.run")
 
-    executor.process_sync(["dummy"])
+    executor.process_sync(["dummy"], [])
     upload_mock.assert_called_once()
 
 
@@ -164,7 +164,7 @@ def test_process_upload_auto(executor: Executor, mocker: MockerFixture) -> None:
     """
     configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
 
-    executor.process_sync(None)
+    executor.process_sync(None, [])
     configuration_getlist_mock.assert_called_once()
 
 
