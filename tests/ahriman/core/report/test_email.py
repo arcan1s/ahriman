@@ -117,7 +117,8 @@ def test_generate_no_empty(configuration: Configuration, package_ahriman: Packag
     send_mock.assert_not_called()
 
 
-def test_generate_no_empty_with_built(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_generate_no_empty_with_built(configuration: Configuration, package_ahriman: Package,
+                                      mocker: MockerFixture) -> None:
     """
     must generate report with built packages if no_empty_report is set
     """
