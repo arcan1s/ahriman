@@ -107,8 +107,8 @@ class JinjaTemplate:
         comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
 
         return template.render(
+            extended_report=extended_report,
             homepage=self.homepage,
-            include_pacman_conf=extended_report,
             link_path=self.link_path,
             has_package_signed=SignSettings.Packages in self.sign_targets,
             has_repo_signed=SignSettings.Repository in self.sign_targets,
