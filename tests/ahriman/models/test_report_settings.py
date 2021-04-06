@@ -18,3 +18,6 @@ def test_from_option_valid() -> None:
     """
     assert ReportSettings.from_option("html") == ReportSettings.HTML
     assert ReportSettings.from_option("HTML") == ReportSettings.HTML
+
+    assert ReportSettings.from_option("email") == ReportSettings.Email
+    assert ReportSettings.from_option("EmAil") == ReportSettings.Email

@@ -25,7 +25,7 @@ archlinux: archive
 
 check: clean
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
-	find "src/$(PROJECT)" tests -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
+	find "src/$(PROJECT)" "tests/$(PROJECT)" -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
 	cd src && pylint --rcfile=../.pylintrc "$(PROJECT)"
 
 clean:

@@ -22,10 +22,11 @@ from __future__ import annotations
 import logging
 
 from pathlib import Path
-from typing import Type
+from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
+from ahriman.models.package import Package
 from ahriman.models.upload_settings import UploadSettings
 
 
@@ -65,19 +66,21 @@ class Upload:
             return S3(architecture, configuration)
         return cls(architecture, configuration)  # should never happen
 
-    def run(self, path: Path) -> None:
+    def run(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         run remote sync
         :param path: local path to sync
+        :param built_packages: list of packages which has just been built
         """
         try:
-            self.sync(path)
+            self.sync(path, built_packages)
         except Exception:
             self.logger.exception("remote sync failed")
             raise SyncFailed()
 
-    def sync(self, path: Path) -> None:
+    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         sync data to remote server
         :param path: local path to sync
+        :param built_packages: list of packages which has just been built
         """

@@ -39,4 +39,4 @@ class Report(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        Application(architecture, configuration).report(args.target)
+        Application(architecture, configuration).report(args.target, [])

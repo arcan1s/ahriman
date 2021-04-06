@@ -28,6 +28,7 @@ from ahriman.core.exceptions import InvalidOption
 class UploadSettings(Enum):
     """
     remote synchronization targets enumeration
+    :cvar Disabled: no sync will be performed, required for testing purpose
     :cvar Rsync: sync via rsync
     :cvar S3: sync to Amazon S3
     """
