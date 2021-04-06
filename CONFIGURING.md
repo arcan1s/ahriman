@@ -56,6 +56,7 @@ Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_
 * `homepage` - link to homepage, string, optional.
 * `host` - SMTP host for sending emails, string, required.
 * `link_path` - prefix for HTML links, string, required.
+* `no_empty_report` - skip report generation for empty packages list, boolean, optional, default `yes`.
 * `password` - SMTP password to authenticate, string, optional.
 * `port` - SMTP port for sending emails, int, required.
 * `receivers` - SMTP receiver addresses, space separated list of strings, required.

@@ -36,6 +36,7 @@ class Email(Report, JinjaTemplate):
     """
     email report generator
     :ivar host: SMTP host to connect
+    :ivar no_empty_report: skip empty report generation
     :ivar password: password to authenticate via SMTP
     :ivar port: SMTP port to connect
     :ivar receivers: list of receivers emails
@@ -55,6 +56,7 @@ class Email(Report, JinjaTemplate):
 
         # base smtp settings
         self.host = configuration.get("email", "host")
+        self.no_empty_report = configuration.getboolean("email", "no_empty_report", fallback=True)
         self.password = configuration.get("email", "password", fallback=None)
         self.port = configuration.getint("email", "port")
         self.receivers = configuration.getlist("email", "receivers")
@@ -96,6 +98,8 @@ class Email(Report, JinjaTemplate):
         :param packages: list of packages to generate report
         :param built_packages: list of packages which has just been built
         """
+        if self.no_empty_report and not built_packages:
+            return
         text = self.make_html(built_packages, False)
         attachments = {"index.html": self.make_html(packages, True)}
         self._send(text, attachments)
