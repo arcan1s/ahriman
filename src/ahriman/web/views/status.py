@@ -19,8 +19,9 @@
 #
 from aiohttp.web import Response, json_response
 
-import ahriman.version as version
-
+from ahriman import version
+from ahriman.models.counters import Counters
+from ahriman.models.internal_status import InternalStatus
 from ahriman.web.views.base import BaseView
 
 
@@ -34,16 +35,11 @@ class StatusView(BaseView):
         get current service status
         :return: 200 with service status object
         """
-        packages = self.service.packages
-        per_status = {"total": len(packages)}
-        for _, status in packages:
-            per_status.setdefault(status.status.name, 0)
-            per_status[status.status.name] += 1
+        counters = Counters.from_packages(self.service.packages)
+        status = InternalStatus(
+            architecture=self.service.architecture,
+            packages=counters,
+            repository=self.service.repository.name,
+            version=version.__version__)
 
-        data = {
-            "architecture": self.service.architecture,
-            "packages": per_status,
-            "repository": self.service.repository.name,
-            "version": version.__version__,
-        }
-        return json_response(data)
+        return json_response(status.view())

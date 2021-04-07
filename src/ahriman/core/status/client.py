@@ -23,6 +23,7 @@ from typing import List, Optional, Tuple, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 
 
@@ -61,6 +62,14 @@ class Client:
         """
         del base
         return []
+
+    # pylint: disable=no-self-use
+    def get_internal(self) -> InternalStatus:
+        """
+        get internal service status
+        :return: current internal (web) service status
+        """
+        return InternalStatus()
 
     # pylint: disable=no-self-use
     def get_self(self) -> BuildStatus:
