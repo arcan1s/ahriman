@@ -2,7 +2,10 @@ import pytest
 
 from unittest.mock import MagicMock, PropertyMock
 
+from ahriman import version
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.counters import Counters
+from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 
@@ -10,6 +13,24 @@ from ahriman.models.package_description import PackageDescription
 @pytest.fixture
 def build_status_failed() -> BuildStatus:
     return BuildStatus(BuildStatusEnum.Failed, 42)
+
+
+@pytest.fixture
+def counters() -> Counters:
+    return Counters(total=10,
+                    unknown=1,
+                    pending=2,
+                    building=3,
+                    failed=4,
+                    success=0)
+
+
+@pytest.fixture
+def internal_status(counters: Counters) -> InternalStatus:
+    return InternalStatus(architecture="x86_64",
+                          packages=counters,
+                          version=version.__version__,
+                          repository="aur-clone")
 
 
 @pytest.fixture

@@ -23,6 +23,7 @@ from ahriman.web.views.ahriman import AhrimanView
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.package import PackageView
 from ahriman.web.views.packages import PackagesView
+from ahriman.web.views.status import StatusView
 
 
 def setup_routes(application: Application) -> None:
@@ -44,6 +45,8 @@ def setup_routes(application: Application) -> None:
         GET /api/v1/package/:base       get package base status
         POST /api/v1/package/:base      update package base status
 
+        GET /api/v1/status              get web service status itself
+
     :param application: web application instance
     """
     application.router.add_get("/", IndexView)
@@ -58,3 +61,5 @@ def setup_routes(application: Application) -> None:
     application.router.add_delete("/api/v1/packages/{package}", PackageView)
     application.router.add_get("/api/v1/packages/{package}", PackageView)
     application.router.add_post("/api/v1/packages/{package}", PackageView)
+
+    application.router.add_get("/api/v1/status", StatusView)

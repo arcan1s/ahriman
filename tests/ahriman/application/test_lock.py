@@ -5,9 +5,11 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
+from ahriman import version
 from ahriman.application.lock import Lock
 from ahriman.core.exceptions import DuplicateRun, UnsafeRun
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.internal_status import InternalStatus
 
 
 def test_enter(lock: Lock, mocker: MockerFixture) -> None:
@@ -15,6 +17,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     must process with context manager
     """
     check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
+    check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
     clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     create_mock = mocker.patch("ahriman.application.lock.Lock.create")
     update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
@@ -24,6 +27,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     check_user_mock.assert_called_once()
     clear_mock.assert_called_once()
     create_mock.assert_called_once()
+    check_version_mock.assert_called_once()
     update_status_mock.assert_has_calls([
         mock.call(BuildStatusEnum.Building),
         mock.call(BuildStatusEnum.Success)
@@ -46,6 +50,30 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
         mock.call(BuildStatusEnum.Building),
         mock.call(BuildStatusEnum.Failed)
     ])
+
+
+def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check version correctly
+    """
+    mocker.patch("ahriman.core.status.client.Client.get_internal",
+                 return_value=InternalStatus(version=version.__version__))
+    logging_mock = mocker.patch("logging.Logger.warning")
+
+    lock.check_version()
+    logging_mock.assert_not_called()
+
+
+def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check version correctly
+    """
+    mocker.patch("ahriman.core.status.client.Client.get_internal",
+                 return_value=InternalStatus(version="version"))
+    logging_mock = mocker.patch("logging.Logger.warning")
+
+    lock.check_version()
+    logging_mock.assert_called_once()
 
 
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:

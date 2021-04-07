@@ -20,12 +20,14 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 
 from pathlib import Path
 from types import TracebackType
 from typing import Literal, Optional, Type
 
+from ahriman import version
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRun, UnsafeRun
 from ahriman.core.status.client import Client
@@ -61,12 +63,13 @@ class Lock:
         default workflow is the following:
 
             check user UID
-            remove lock file if force flag is set
             check if there is lock file
+            check web status watcher status
             create lock file
             report to web if enabled
         """
         self.check_user()
+        self.check_version()
         self.create()
         self.reporter.update_self(BuildStatusEnum.Building)
         return self
@@ -84,6 +87,15 @@ class Lock:
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
         self.reporter.update_self(status)
         return False
+
+    def check_version(self) -> None:
+        """
+        check web server version
+        """
+        status = self.reporter.get_internal()
+        if status.version is not None and status.version != version.__version__:
+            logging.getLogger("root").warning(f"status watcher version mismatch, "
+                                              f"our {version.__version__}, their {status.version}")
 
     def check_user(self) -> None:
         """

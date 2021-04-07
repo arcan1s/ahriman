@@ -22,9 +22,8 @@ import sys
 
 from pathlib import Path
 
-import ahriman.application.handlers as handlers
-import ahriman.version as version
-
+from ahriman import version
+from ahriman.application import handlers
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.sign_settings import SignSettings
 

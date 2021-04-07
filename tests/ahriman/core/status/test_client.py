@@ -4,6 +4,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.status.client import Client
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 
 
@@ -36,6 +37,13 @@ def test_get(client: Client, package_ahriman: Package) -> None:
     """
     assert client.get(package_ahriman.base) == []
     assert client.get(None) == []
+
+
+def test_get_internal(client: Client) -> None:
+    """
+    must return dummy status for web service
+    """
+    assert client.get_internal() == InternalStatus()
 
 
 def test_get_self(client: Client) -> None:

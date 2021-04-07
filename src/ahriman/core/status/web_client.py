@@ -24,6 +24,7 @@ from typing import List, Optional, Tuple
 
 from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatusEnum, BuildStatus
+from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 
 
@@ -70,6 +71,13 @@ class WebClient(Client):
         """
         return f"http://{self.host}:{self.port}/api/v1/packages/{base}"
 
+    def _status_url(self) -> str:
+        """
+        url generator
+        :return: full url for web service for status
+        """
+        return f"http://{self.host}:{self.port}/api/v1/status"
+
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
@@ -109,6 +117,23 @@ class WebClient(Client):
         except Exception:
             self.logger.exception(f"could not get {base}")
         return []
+
+    def get_internal(self) -> InternalStatus:
+        """
+        get internal service status
+        :return: current internal (web) service status
+        """
+        try:
+            response = requests.get(self._status_url())
+            response.raise_for_status()
+
+            status_json = response.json()
+            return InternalStatus.from_json(status_json)
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f"could not get web service status: {WebClient._exception_response_text(e)}")
+        except Exception:
+            self.logger.exception("could not get web service status")
+        return InternalStatus()
 
     def get_self(self) -> BuildStatus:
         """

@@ -21,8 +21,7 @@ import aiohttp_jinja2
 
 from typing import Any, Dict
 
-import ahriman.version as version
-
+from ahriman import version
 from ahriman.core.util import pretty_datetime
 from ahriman.web.views.base import BaseView
 

@@ -7,6 +7,7 @@ from requests import Response
 
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 
 
@@ -24,6 +25,14 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
     assert web_client._package_url(package_ahriman.base).startswith(f"http://{web_client.host}:{web_client.port}")
     assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
+
+
+def test_status_url(web_client: WebClient) -> None:
+    """
+    must generate service status url correctly
+    """
+    assert web_client._status_url().startswith(f"http://{web_client.host}:{web_client.port}")
+    assert web_client._status_url().endswith("/api/v1/status")
 
 
 def test_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -101,6 +110,37 @@ def test_get_single(web_client: WebClient, package_ahriman: Package, mocker: Moc
     requests_mock.assert_called_once()
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
+
+
+def test_get_internal(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must return web service status
+    """
+    response_obj = Response()
+    response_obj._content = json.dumps(InternalStatus(architecture="x86_64").view()).encode("utf8")
+    response_obj.status_code = 200
+
+    requests_mock = mocker.patch("requests.get", return_value=response_obj)
+
+    result = web_client.get_internal()
+    requests_mock.assert_called_once()
+    assert result.architecture == "x86_64"
+
+
+def test_get_internal_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during web service status getting
+    """
+    mocker.patch("requests.get", side_effect=Exception())
+    assert web_client.get_internal() == InternalStatus()
+
+
+def test_get_internal_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during web service status getting
+    """
+    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
+    assert web_client.get_internal() == InternalStatus()
 
 
 def test_get_self(web_client: WebClient, mocker: MockerFixture) -> None:
