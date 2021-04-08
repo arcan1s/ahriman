@@ -113,6 +113,14 @@ def test_load_includes_no_option(configuration: Configuration) -> None:
     configuration.load_includes()
 
 
+def test_load_includes_no_section(configuration: Configuration) -> None:
+    """
+    must not fail if no option set
+    """
+    configuration.remove_section("settings")
+    configuration.load_includes()
+
+
 def test_load_logging_fallback(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must fallback to stderr without errors

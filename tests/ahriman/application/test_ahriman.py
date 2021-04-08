@@ -71,6 +71,16 @@ def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
+def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
+    """
+    search command must imply lock, no_report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "search", "ahriman"])
+    assert args.lock is None
+    assert args.no_report
+    assert args.unsafe
+
+
 def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
     """
     setup command must imply lock, no_report and unsafe
