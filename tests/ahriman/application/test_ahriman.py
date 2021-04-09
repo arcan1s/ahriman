@@ -71,6 +71,15 @@ def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
+def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
+    """
+    key-import command must imply lock and no_report
+    """
+    args = parser.parse_args(["-a", "x86_64", "key-import", "key"])
+    assert args.lock is None
+    assert args.no_report
+
+
 def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
     """
     search command must imply lock, no_report and unsafe

@@ -92,7 +92,7 @@ def test_import_key(gpg: GPG, mocker: MockerFixture) -> None:
     gpg.import_key("keys.gnupg.net", "0xE989490C")
     check_output_mock.assert_has_calls([
         mock.call("gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int)),
-        mock.call("gpg", "--lsign-key", "0xE989490C", exception=None, logger=pytest.helpers.anyvar(int))
+        mock.call("gpg", "--quick-lsign-key", "0xE989490C", exception=None, logger=pytest.helpers.anyvar(int))
     ])
 
 
