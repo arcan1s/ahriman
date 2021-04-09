@@ -17,7 +17,6 @@ optdepends=('aws-cli: sync to s3'
             'python-aiohttp: web server'
             'python-aiohttp-jinja2: web server'
             'python-jinja: html report generation'
-            'python-requests: web server'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
