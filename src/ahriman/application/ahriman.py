@@ -59,6 +59,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_rebuild_parser(subparsers)
     _set_remove_parser(subparsers)
     _set_report_parser(subparsers)
+    _set_search_parser(subparsers)
     _set_setup_parser(subparsers)
     _set_sign_parser(subparsers)
     _set_status_parser(subparsers)
@@ -166,6 +167,18 @@ def _set_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
     parser.set_defaults(handler=handlers.Report)
+    return parser
+
+
+def _set_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for search subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("search", help="search for package", description="search for package in AUR using API")
+    parser.add_argument("search", help="search terms, can be specified multiple times", nargs="+")
+    parser.set_defaults(handler=handlers.Search, lock=None, no_report=True, unsafe=True)
     return parser
 
 

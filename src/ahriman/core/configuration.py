@@ -140,7 +140,7 @@ class Configuration(configparser.RawConfigParser):
                 if path == self.logging_path:
                     continue  # we don't want to load logging explicitly
                 self.read(path)
-        except (FileNotFoundError, configparser.NoOptionError):
+        except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 
     def load_logging(self, logfile: bool) -> None:
