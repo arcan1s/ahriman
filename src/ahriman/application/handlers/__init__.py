@@ -25,6 +25,7 @@ from ahriman.application.handlers.dump import Dump
 from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.application.handlers.remove import Remove
 from ahriman.application.handlers.report import Report
+from ahriman.application.handlers.search import Search
 from ahriman.application.handlers.setup import Setup
 from ahriman.application.handlers.sign import Sign
 from ahriman.application.handlers.status import Status
