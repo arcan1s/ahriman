@@ -1,5 +1,9 @@
+import pytest
+import requests
+
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest import mock
 
 from ahriman.core.sign.gpg import GPG
 from ahriman.models.sign_settings import SignSettings
@@ -58,6 +62,38 @@ def test_sign_command(gpg_with_key: GPG) -> None:
     must generate sign command
     """
     assert gpg_with_key.sign_command(Path("a"), gpg_with_key.default_key)
+
+
+def test_download_key(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must download the key from public server
+    """
+    requests_mock = mocker.patch("requests.get")
+    gpg.download_key("keys.gnupg.net", "0xE989490C")
+    requests_mock.assert_called_once()
+
+
+def test_download_key_failure(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must download the key from public server and log error if any (and raise it again)
+    """
+    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
+    with pytest.raises(requests.exceptions.HTTPError):
+        gpg.download_key("keys.gnupg.net", "0xE989490C")
+
+
+def test_import_key(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must import PGP key from the server
+    """
+    mocker.patch("ahriman.core.sign.gpg.GPG.download_key", return_value="key")
+    check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
+
+    gpg.import_key("keys.gnupg.net", "0xE989490C")
+    check_output_mock.assert_has_calls([
+        mock.call("gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int)),
+        mock.call("gpg", "--lsign-key", "0xE989490C", exception=None, logger=pytest.helpers.anyvar(int))
+    ])
 
 
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:

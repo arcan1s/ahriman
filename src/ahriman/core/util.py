@@ -19,6 +19,7 @@
 #
 import datetime
 import subprocess
+import requests
 
 from logging import Logger
 from pathlib import Path
@@ -27,26 +28,39 @@ from typing import Optional, Union
 from ahriman.core.exceptions import InvalidOption
 
 
-def check_output(*args: str, exception: Optional[Exception],
-                 cwd: Optional[Path] = None, logger: Optional[Logger] = None) -> str:
+def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
+                 input_data: Optional[str] = None, logger: Optional[Logger] = None) -> str:
     """
     subprocess wrapper
     :param args: command line arguments
     :param exception: exception which has to be reraised instead of default subprocess exception
     :param cwd: current working directory
+    :param input_data: data which will be written to command stdin
     :param logger: logger to log command result if required
     :return: command output
     """
     try:
-        result = subprocess.check_output(args, cwd=cwd, stderr=subprocess.STDOUT).decode("utf8").strip()
+        # universal_newlines is required to read input from string
+        result: str = subprocess.check_output(args, cwd=cwd, input=input_data, stderr=subprocess.STDOUT,  # type: ignore
+                                              universal_newlines=True).strip()
         if logger is not None:
             for line in result.splitlines():
                 logger.debug(line)
     except subprocess.CalledProcessError as e:
         if e.output is not None and logger is not None:
-            for line in e.output.decode("utf8").splitlines():
+            for line in e.output.splitlines():
                 logger.debug(line)
         raise exception or e
+    return result
+
+
+def exception_response_text(exception: requests.exceptions.HTTPError) -> str:
+    """
+    safe response exception text generation
+    :param exception: exception raised
+    :return: text of the response if it is not None and empty string otherwise
+    """
+    result: str = exception.response.text if exception.response is not None else ""
     return result
 
 
