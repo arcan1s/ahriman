@@ -1,5 +1,4 @@
-# based on https://github.com/actions/starter-workflows/blob/main/ci/python-app.yml
-name: check commit
+name: tests 
 
 on:
   push:
