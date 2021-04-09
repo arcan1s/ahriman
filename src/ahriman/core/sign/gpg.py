@@ -18,13 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
+import requests
 
 from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
-from ahriman.core.util import check_output
+from ahriman.core.util import check_output, exception_response_text
 from ahriman.models.sign_settings import SignSettings
 
 
@@ -86,6 +87,36 @@ class GPG:
         }
         default_key = configuration.get("sign", "key") if targets else None
         return targets, default_key
+
+    def download_key(self, server: str, key: str) -> str:
+        """
+        download key from public PGP server
+        :param server: public PGP server which will be used to download the key
+        :param key: key ID to download
+        :return: key as plain text
+        """
+        key = key if key.startswith("0x") else f"0x{key}"
+        try:
+            response = requests.get(f"http://{server}/pks/lookup", params={
+                "op": "get",
+                "options": "mr",
+                "search": key
+            })
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception(f"could not download key {key} from {server}: {exception_response_text(e)}")
+            raise
+        return response.text
+
+    def import_key(self, server: str, key: str) -> None:
+        """
+        import key to current user and sign it locally
+        :param server: public PGP server which will be used to download the key
+        :param key: key ID to import
+        """
+        key_body = self.download_key(server, key)
+        GPG._check_output("gpg", "--import", input_data=key_body, exception=None, logger=self.logger)
+        GPG._check_output("gpg", "--quick-lsign-key", key, exception=None, logger=self.logger)
 
     def process(self, path: Path, key: str) -> List[Path]:
         """

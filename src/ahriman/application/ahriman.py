@@ -56,6 +56,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_check_parser(subparsers)
     _set_clean_parser(subparsers)
     _set_config_parser(subparsers)
+    _set_key_import_parser(subparsers)
     _set_rebuild_parser(subparsers)
     _set_remove_parser(subparsers)
     _set_report_parser(subparsers)
@@ -128,6 +129,21 @@ def _set_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="dump configuration for specified architecture",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, unsafe=True)
+    return parser
+
+
+def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for key import subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("key-import", help="import PGP key",
+                             description="import PGP key from public sources to repository user",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--key-server", help="key server for key import", default="keys.gnupg.net")
+    parser.add_argument("key", help="PGP key to import from public server")
+    parser.set_defaults(handler=handlers.KeyImport, lock=None, no_report=True)
     return parser
 
 
