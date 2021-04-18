@@ -39,10 +39,12 @@ class Rebuild(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
+        depends_on = set(args.depends_on) if args.depends_on else None
+
         application = Application(architecture, configuration)
         packages = [
             package
             for package in application.repository.packages()
-            if args.depends_on is None or args.depends_on in package.depends
+            if depends_on is None or depends_on.intersection(package.depends)
         ]  # we have to use explicit list here for testing purpose
         application.update(packages)

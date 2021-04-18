@@ -8,7 +8,7 @@ from ahriman.models.package import Package
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
-    args.depends_on = None
+    args.depends_on = []
     return args
 
 
@@ -33,7 +33,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration,
     must run command with depends filter
     """
     args = _default_args(args)
-    args.depends_on = "python-aur"
+    args.depends_on = ["python-aur"]
     mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
