@@ -155,7 +155,7 @@ def _set_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("rebuild", help="rebuild repository", description="rebuild whole repository",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package")
+    parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 
@@ -215,7 +215,7 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--repository", help="repository name", required=True)
     parser.add_argument("--sign-key", help="sign key id")
     parser.add_argument("--sign-target", help="sign options", type=SignSettings.from_option,
-                        choices=SignSettings, nargs="*")
+                        choices=SignSettings, action="append")
     parser.add_argument("--web-port", help="port of the web service", type=int)
     parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, unsafe=True)
     return parser
