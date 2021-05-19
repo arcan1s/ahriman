@@ -56,6 +56,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_check_parser(subparsers)
     _set_clean_parser(subparsers)
     _set_config_parser(subparsers)
+    _set_init_parser(subparsers)
     _set_key_import_parser(subparsers)
     _set_rebuild_parser(subparsers)
     _set_remove_parser(subparsers)
@@ -129,6 +130,19 @@ def _set_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="dump configuration for specified architecture",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, no_log=True, no_report=True, unsafe=True)
+    return parser
+
+
+def _set_init_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for init subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("init", help="create repository tree",
+                             description="create empty repository tree. Optional command for auto architecture support",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.set_defaults(handler=handlers.Init, no_report=True)
     return parser
 
 
