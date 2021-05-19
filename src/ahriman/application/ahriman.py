@@ -115,7 +115,7 @@ def _set_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
     parser.add_argument("--no-manual", help="do not clear directory with manually added packages", action="store_true")
     parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
-    parser.set_defaults(handler=handlers.Clean, unsafe=True)
+    parser.set_defaults(handler=handlers.Clean, no_log=True, unsafe=True)
     return parser
 
 
@@ -128,7 +128,7 @@ def _set_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("config", help="dump configuration",
                              description="dump configuration for specified architecture",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Dump, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
@@ -194,7 +194,7 @@ def _set_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("search", help="search for package", description="search for package in AUR using API")
     parser.add_argument("search", help="search terms, can be specified multiple times", nargs="+")
-    parser.set_defaults(handler=handlers.Search, lock=None, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Search, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
@@ -217,7 +217,7 @@ def _set_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--sign-target", help="sign options", type=SignSettings.from_option,
                         choices=SignSettings, action="append")
     parser.add_argument("--web-port", help="port of the web service", type=int)
-    parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Setup, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
@@ -244,7 +244,7 @@ def _set_status_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
     parser.add_argument("package", help="filter status by package base", nargs="*")
-    parser.set_defaults(handler=handlers.Status, lock=None, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Status, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
@@ -263,7 +263,7 @@ def _set_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--status", help="new status", choices=BuildStatusEnum,
                         type=BuildStatusEnum, default=BuildStatusEnum.Success)
     parser.add_argument("--remove", help="remove package status page", action="store_true")
-    parser.set_defaults(handler=handlers.StatusUpdate, lock=None, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.StatusUpdate, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
