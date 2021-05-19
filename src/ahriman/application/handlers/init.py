@@ -39,4 +39,4 @@ class Init(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        Application(architecture, configuration)
+        Application(architecture, configuration).repository.repo.init()
