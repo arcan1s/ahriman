@@ -55,18 +55,20 @@ def test_subparsers_check(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_clean(parser: argparse.ArgumentParser) -> None:
     """
-    clean command must imply unsafe
+    clean command must imply unsafe and no-log
     """
     args = parser.parse_args(["-a", "x86_64", "clean"])
+    assert args.no_log
     assert args.unsafe
 
 
 def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     """
-    config command must imply lock, no_report and unsafe
+    config command must imply lock, no_log, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "config"])
     assert args.lock is None
+    assert args.no_log
     assert args.no_report
     assert args.unsafe
 
@@ -82,21 +84,23 @@ def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
     """
-    search command must imply lock, no_report and unsafe
+    search command must imply lock, no_log, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "search", "ahriman"])
     assert args.lock is None
+    assert args.no_log
     assert args.no_report
     assert args.unsafe
 
 
 def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
     """
-    setup command must imply lock, no_report and unsafe
+    setup command must imply lock, no_log, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "setup", "--packager", "John Doe <john@doe.com>",
                               "--repository", "aur-clone"])
     assert args.lock is None
+    assert args.no_log
     assert args.no_report
     assert args.unsafe
 
@@ -125,20 +129,22 @@ def test_subparsers_setup_option_sign_target(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_status(parser: argparse.ArgumentParser) -> None:
     """
-    status command must imply lock, no_report and unsafe
+    status command must imply lock, no_log, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "status"])
     assert args.lock is None
+    assert args.no_log
     assert args.no_report
     assert args.unsafe
 
 
 def test_subparsers_status_update(parser: argparse.ArgumentParser) -> None:
     """
-    status-update command must imply lock, no_report and unsafe
+    status-update command must imply lock, no_log, no_report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "status-update"])
     assert args.lock is None
+    assert args.no_log
     assert args.no_report
     assert args.unsafe
 
