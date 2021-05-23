@@ -57,12 +57,18 @@ def test_extract_architectures(args: argparse.Namespace, mocker: MockerFixture) 
     known_architectures_mock.assert_called_once()
 
 
-def test_extract_architectures_specified(args: argparse.Namespace) -> None:
+def test_extract_architectures_empty(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
-    must return architecture list if it has been specified
+    must raise exception if no available architectures found
     """
-    architectures = args.architecture = ["i686", "x86_64"]
-    assert Handler.extract_architectures(args) == architectures
+    args.architecture = []
+    args.command = "config"
+    args.configuration = Path("")
+    mocker.patch("ahriman.core.configuration.Configuration.getpath")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
+
+    with pytest.raises(MissingArchitecture):
+        Handler.extract_architectures(args)
 
 
 def test_extract_architectures_exception(args: argparse.Namespace) -> None:
@@ -73,6 +79,14 @@ def test_extract_architectures_exception(args: argparse.Namespace) -> None:
     args.architecture = None
     with pytest.raises(MissingArchitecture):
         Handler.extract_architectures(args)
+
+
+def test_extract_architectures_specified(args: argparse.Namespace) -> None:
+    """
+    must return architecture list if it has been specified
+    """
+    architectures = args.architecture = ["i686", "x86_64"]
+    assert Handler.extract_architectures(args) == set(architectures)
 
 
 def test_run(args: argparse.Namespace, configuration: Configuration) -> None:

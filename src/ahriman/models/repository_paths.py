@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Type
+from typing import Set, Type
 
 
 @dataclass
@@ -79,18 +79,18 @@ class RepositoryPaths:
         return self.root / "sources" / self.architecture
 
     @classmethod
-    def known_architectures(cls: Type[RepositoryPaths], root: Path) -> List[str]:
+    def known_architectures(cls: Type[RepositoryPaths], root: Path) -> Set[str]:
         """
         get known architectures
         :param root: repository root
         :return: list of architectures for which tree is created
         """
         paths = cls(root, "")
-        return [
+        return {
             path.name
             for path in paths.repository.iterdir()
             if path.is_dir()
-        ]
+        }
 
     def create_tree(self) -> None:
         """
