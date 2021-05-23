@@ -72,7 +72,8 @@ class Configuration(configparser.RawConfigParser):
         :return: configuration instance
         """
         config = cls()
-        config.load(path, architecture)
+        config.load(path)
+        config.merge_sections(architecture)
         config.load_logging(logfile)
         return config
 
@@ -120,16 +121,14 @@ class Configuration(configparser.RawConfigParser):
             return value
         return self.path.parent / value
 
-    def load(self, path: Path, architecture: str) -> None:
+    def load(self, path: Path) -> None:
         """
         fully load configuration
         :param path: path to root configuration file
-        :param architecture: repository architecture
         """
         self.path = path
         self.read(self.path)
         self.load_includes()
-        self.merge_sections(architecture)
 
     def load_includes(self) -> None:
         """

@@ -83,6 +83,19 @@ class InvalidPackageInfo(Exception):
         Exception.__init__(self, f"There are errors during reading package information: `{details}`")
 
 
+class MissingArchitecture(Exception):
+    """
+    exception which will be raised if architecture is required, but missing
+    """
+
+    def __init__(self, command: str) -> None:
+        """
+        default constructor
+        :param command: command name which throws exception
+        """
+        Exception.__init__(self, f"Architecture required for subcommand {command}, but missing")
+
+
 class ReportFailed(Exception):
     """
     report generation exception

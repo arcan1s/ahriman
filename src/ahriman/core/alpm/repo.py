@@ -68,6 +68,16 @@ class Repo:
             cwd=self.paths.repository,
             logger=self.logger)
 
+    def init(self) -> None:
+        """
+        create empty repository database
+        """
+        Repo._check_output(
+            "repo-add", *self.sign_args, str(self.repo_path),
+            exception=None,
+            cwd=self.paths.repository,
+            logger=self.logger)
+
     def remove(self, package: str, filename: Path) -> None:
         """
         remove package from repository

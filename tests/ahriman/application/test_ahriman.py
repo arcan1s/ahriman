@@ -29,9 +29,9 @@ def test_parser_option_lock(parser: argparse.ArgumentParser) -> None:
     """
     must convert lock option to Path instance
     """
-    args = parser.parse_args(["-a", "x86_64", "update"])
+    args = parser.parse_args(["update"])
     assert isinstance(args.lock, Path)
-    args = parser.parse_args(["-a", "x86_64", "-l", "ahriman.lock", "update"])
+    args = parser.parse_args(["-l", "ahriman.lock", "update"])
     assert isinstance(args.lock, Path)
 
 
@@ -43,11 +43,20 @@ def test_multiple_architectures(parser: argparse.ArgumentParser) -> None:
     assert len(args.architecture) == 2
 
 
+def test_subparsers_add(parser: argparse.ArgumentParser) -> None:
+    """
+    add command must imply empty architectures list
+    """
+    args = parser.parse_args(["add", "ahriman"])
+    assert args.architecture == []
+
+
 def test_subparsers_check(parser: argparse.ArgumentParser) -> None:
     """
-    check command must imply no_aur, no_manual and dry_run
+    check command must imply empty architecture list, no-aur, no-manual and dry-run
     """
-    args = parser.parse_args(["-a", "x86_64", "check"])
+    args = parser.parse_args(["check"])
+    assert args.architecture == []
     assert not args.no_aur
     assert args.no_manual
     assert args.dry_run
@@ -55,38 +64,73 @@ def test_subparsers_check(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_clean(parser: argparse.ArgumentParser) -> None:
     """
-    clean command must imply unsafe and no-log
+    clean command must imply empty architectures list, unsafe and no-log
     """
-    args = parser.parse_args(["-a", "x86_64", "clean"])
+    args = parser.parse_args(["clean"])
+    assert args.architecture == []
     assert args.no_log
     assert args.unsafe
 
 
 def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     """
-    config command must imply lock, no_log, no_report and unsafe
+    config command must imply lock, no-log, no-report and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "config"])
+    args = parser.parse_args(["config"])
     assert args.lock is None
     assert args.no_log
     assert args.no_report
     assert args.unsafe
 
 
+def test_subparsers_init(parser: argparse.ArgumentParser) -> None:
+    """
+    init command must imply no_report
+    """
+    args = parser.parse_args(["init"])
+    assert args.no_report
+
+
 def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
     """
-    key-import command must imply lock and no_report
+    key-import command must imply architecture list, lock and no-report
     """
-    args = parser.parse_args(["-a", "x86_64", "key-import", "key"])
+    args = parser.parse_args(["key-import", "key"])
+    assert args.architecture == [""]
     assert args.lock is None
     assert args.no_report
 
 
+def test_subparsers_rebuild(parser: argparse.ArgumentParser) -> None:
+    """
+    rebuild command must imply empty architectures list
+    """
+    args = parser.parse_args(["rebuild"])
+    assert args.architecture == []
+
+
+def test_subparsers_remove(parser: argparse.ArgumentParser) -> None:
+    """
+    remove command must imply empty architectures list
+    """
+    args = parser.parse_args(["remove", "ahriman"])
+    assert args.architecture == []
+
+
+def test_subparsers_report(parser: argparse.ArgumentParser) -> None:
+    """
+    report command must imply empty architectures list
+    """
+    args = parser.parse_args(["report"])
+    assert args.architecture == []
+
+
 def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
     """
-    search command must imply lock, no_log, no_report and unsafe
+    search command must imply architecture list, lock, no-log, no-report and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "search", "ahriman"])
+    args = parser.parse_args(["search", "ahriman"])
+    assert args.architecture == [""]
     assert args.lock is None
     assert args.no_log
     assert args.no_report
@@ -95,7 +139,7 @@ def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
     """
-    setup command must imply lock, no_log, no_report and unsafe
+    setup command must imply lock, no-log, no-report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "setup", "--packager", "John Doe <john@doe.com>",
                               "--repository", "aur-clone"])
@@ -127,9 +171,17 @@ def test_subparsers_setup_option_sign_target(parser: argparse.ArgumentParser) ->
     assert all(isinstance(target, SignSettings) for target in args.sign_target)
 
 
+def test_subparsers_sign(parser: argparse.ArgumentParser) -> None:
+    """
+    sign command must imply empty architectures list
+    """
+    args = parser.parse_args(["sign"])
+    assert args.architecture == []
+
+
 def test_subparsers_status(parser: argparse.ArgumentParser) -> None:
     """
-    status command must imply lock, no_log, no_report and unsafe
+    status command must imply lock, no-log, no-report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "status"])
     assert args.lock is None
@@ -140,7 +192,7 @@ def test_subparsers_status(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_status_update(parser: argparse.ArgumentParser) -> None:
     """
-    status-update command must imply lock, no_log, no_report and unsafe
+    status-update command must imply lock, no-log, no-report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "status-update"])
     assert args.lock is None
@@ -157,6 +209,22 @@ def test_subparsers_status_update_option_status(parser: argparse.ArgumentParser)
     assert isinstance(args.status, BuildStatusEnum)
     args = parser.parse_args(["-a", "x86_64", "status-update", "--status", "failed"])
     assert isinstance(args.status, BuildStatusEnum)
+
+
+def test_subparsers_sync(parser: argparse.ArgumentParser) -> None:
+    """
+    sync command must imply empty architectures list
+    """
+    args = parser.parse_args(["sync"])
+    assert args.architecture == []
+
+
+def test_subparsers_update(parser: argparse.ArgumentParser) -> None:
+    """
+    update command must imply empty architectures list
+    """
+    args = parser.parse_args(["update"])
+    assert args.architecture == []
 
 
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
