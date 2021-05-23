@@ -17,9 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from pathlib import Path
+from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Type
 
 
 @dataclass
@@ -75,6 +77,20 @@ class RepositoryPaths:
         :return: directory for downloaded PKGBUILDs for current build
         """
         return self.root / "sources" / self.architecture
+
+    @classmethod
+    def known_architectures(cls: Type[RepositoryPaths], root: Path) -> List[str]:
+        """
+        get known architectures
+        :param root: repository root
+        :return: list of architectures for which tree is created
+        """
+        paths = cls(root, "")
+        return [
+            path.name
+            for path in paths.repository.iterdir()
+            if path.is_dir()
+        ]
 
     def create_tree(self) -> None:
         """

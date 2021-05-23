@@ -41,7 +41,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
-                        action="append", required=True)
+                        action="append")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("-l", "--lock", help="lock file", type=Path, default=Path("/tmp/ahriman.lock"))
@@ -84,7 +84,7 @@ def _set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="package base/name or archive path", nargs="+")
     parser.add_argument("--now", help="run update function after", action="store_true")
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
-    parser.set_defaults(handler=handlers.Add)
+    parser.set_defaults(handler=handlers.Add, architecture=[])
     return parser
 
 
@@ -99,7 +99,7 @@ def _set_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
-    parser.set_defaults(handler=handlers.Update, no_aur=False, no_manual=True, dry_run=True)
+    parser.set_defaults(handler=handlers.Update, architecture=[], no_aur=False, no_manual=True, dry_run=True)
     return parser
 
 
@@ -116,7 +116,7 @@ def _set_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
     parser.add_argument("--no-manual", help="do not clear directory with manually added packages", action="store_true")
     parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
-    parser.set_defaults(handler=handlers.Clean, no_log=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Clean, architecture=[], no_log=True, unsafe=True)
     return parser
 
 
@@ -157,7 +157,7 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--key-server", help="key server for key import", default="keys.gnupg.net")
     parser.add_argument("key", help="PGP key to import from public server")
-    parser.set_defaults(handler=handlers.KeyImport, lock=None, no_report=True)
+    parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, no_report=True)
     return parser
 
 
@@ -170,7 +170,7 @@ def _set_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("rebuild", help="rebuild repository", description="rebuild whole repository",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
-    parser.set_defaults(handler=handlers.Rebuild)
+    parser.set_defaults(handler=handlers.Rebuild, architecture=[])
     return parser
 
 
@@ -183,7 +183,7 @@ def _set_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("remove", help="remove package", description="remove package",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package name or base", nargs="+")
-    parser.set_defaults(handler=handlers.Remove)
+    parser.set_defaults(handler=handlers.Remove, architecture=[])
     return parser
 
 
@@ -196,7 +196,7 @@ def _set_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("report", help="generate report", description="generate report",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
-    parser.set_defaults(handler=handlers.Report)
+    parser.set_defaults(handler=handlers.Report, architecture=[])
     return parser
 
 
@@ -208,7 +208,7 @@ def _set_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("search", help="search for package", description="search for package in AUR using API")
     parser.add_argument("search", help="search terms, can be specified multiple times", nargs="+")
-    parser.set_defaults(handler=handlers.Search, lock=None, no_log=True, no_report=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 
@@ -244,7 +244,7 @@ def _set_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("sign", help="sign packages", description="(re-)sign packages and repository database",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
-    parser.set_defaults(handler=handlers.Sign)
+    parser.set_defaults(handler=handlers.Sign, architecture=[])
     return parser
 
 
@@ -290,7 +290,7 @@ def _set_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("sync", help="sync repository", description="sync packages to remote server",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to sync", nargs="*")
-    parser.set_defaults(handler=handlers.Sync)
+    parser.set_defaults(handler=handlers.Sync, architecture=[])
     return parser
 
 
@@ -307,7 +307,7 @@ def _set_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
-    parser.set_defaults(handler=handlers.Update)
+    parser.set_defaults(handler=handlers.Update, architecture=[])
     return parser
 
 

@@ -23,10 +23,12 @@ import argparse
 import logging
 
 from multiprocessing import Pool
-from typing import Type
+from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import MissingArchitecture
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Handler:
@@ -58,10 +60,29 @@ class Handler:
         :param args: command line args
         :return: 0 on success, 1 otherwise
         """
-        with Pool(len(args.architecture)) as pool:
+        architectures = cls.extract_architectures(args)
+        with Pool(len(architectures)) as pool:
             result = pool.starmap(
-                cls._call, [(args, architecture) for architecture in set(args.architecture)])
+                cls._call, [(args, architecture) for architecture in set(architectures)])
         return 0 if all(result) else 1
+
+    @classmethod
+    def extract_architectures(cls: Type[Handler], args: argparse.Namespace) -> List[str]:
+        """
+        get known architectures
+        :param args: command line args
+        :return: list of architectures for which tree is created
+        """
+        if args.architecture is None:
+            raise MissingArchitecture(args.command)
+        if args.architecture:
+            architectures: List[str] = args.architecture  # avoid mypy warning
+            return architectures
+
+        config = Configuration()
+        config.load(args.configuration)
+        root = config.getpath("repository", "root")
+        return RepositoryPaths.known_architectures(root)
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
