@@ -23,8 +23,7 @@ archive_directory: $(TARGET_FILES)
 archlinux: archive
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
-check: clean
-	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
+check: clean mypy
 	find "src/$(PROJECT)" "tests/$(PROJECT)" -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
 	cd src && pylint --rcfile=../.pylintrc "$(PROJECT)"
 
@@ -34,6 +33,10 @@ clean:
 
 directory: clean
 	mkdir "$(PROJECT)"
+
+mypy:
+	cd src && echo y | mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types || true
+	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 
 push: archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py
