@@ -41,7 +41,7 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     """
     try:
         # universal_newlines is required to read input from string
-        result: str = subprocess.check_output(args, cwd=cwd, input=input_data, stderr=subprocess.STDOUT,  # type: ignore
+        result: str = subprocess.check_output(args, cwd=cwd, input=input_data, stderr=subprocess.STDOUT,
                                               universal_newlines=True).strip()
         if logger is not None:
             for line in result.splitlines():
