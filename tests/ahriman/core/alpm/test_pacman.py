@@ -8,3 +8,10 @@ def test_all_packages(pacman: Pacman) -> None:
     packages = pacman.all_packages()
     assert packages
     assert "pacman" in packages
+
+
+def test_all_packages_with_provides(pacman: Pacman) -> None:
+    """
+    package list must contain provides packages
+    """
+    assert 'sh' in pacman.all_packages()

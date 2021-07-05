@@ -38,6 +38,7 @@ class PackageDescription:
     :ivar groups: package groups
     :ivar installed_size: package installed size
     :ivar licenses: package licenses list
+    :ivar provides: list of provided packages
     :ivar url: package url
     """
 
@@ -50,6 +51,7 @@ class PackageDescription:
     groups: List[str] = field(default_factory=list)
     installed_size: Optional[int] = None
     licenses: List[str] = field(default_factory=list)
+    provides: List[str] = field(default_factory=list)
     url: Optional[str] = None
 
     @property
@@ -89,4 +91,5 @@ class PackageDescription:
             groups=package.groups,
             installed_size=package.isize,
             licenses=package.licenses,
+            provides=package.provides,
             url=package.url)
