@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pyalpm import Handle  # type: ignore
-from typing import List, Set
+from typing import Set
 
 from ahriman.core.configuration import Configuration
 
@@ -40,13 +40,15 @@ class Pacman:
         for repository in configuration.getlist("alpm", "repositories"):
             self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
 
-    def all_packages(self) -> List[str]:
+    def all_packages(self) -> Set[str]:
         """
         get list of packages known for alpm
         :return: list of package names
         """
         result: Set[str] = set()
         for database in self.handle.get_syncdbs():
-            result.update({package.name for package in database.pkgcache})
+            for package in database.pkgcache:
+                result.add(package.name)  # package itself
+                result.update(package.provides)  # provides list for meta-packages
 
-        return list(result)
+        return result

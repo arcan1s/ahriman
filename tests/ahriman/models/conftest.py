@@ -69,5 +69,6 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     type(mock).isize = PropertyMock(return_value=package_description_ahriman.installed_size)
     type(mock).licenses = PropertyMock(return_value=package_description_ahriman.licenses)
     type(mock).size = PropertyMock(return_value=package_description_ahriman.archive_size)
+    type(mock).provides = PropertyMock(return_value=package_description_ahriman.provides)
     type(mock).url = PropertyMock(return_value=package_description_ahriman.url)
     return mock

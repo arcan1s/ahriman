@@ -65,8 +65,10 @@ class Application:
         """
         known_packages: Set[str] = set()
         # local set
-        for package in self.repository.packages():
-            known_packages.update(package.packages.keys())
+        for base in self.repository.packages():
+            for package, properties in base.packages.items():
+                known_packages.add(package)
+                known_packages.update(properties.provides)
         known_packages.update(self.repository.pacman.all_packages())
         return known_packages
 
