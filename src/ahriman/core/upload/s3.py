@@ -50,6 +50,7 @@ class S3(Upload):
         """
         calculate amazon s3 etag
         credits to https://teppen.io/2018/10/23/aws_s3_verify_etags/
+        For this method we have to define nosec because it is out of any security context and provided by AWS
         :param path: path to local file
         :param chunk_size: read chunk size, which depends on client settings
         :return: calculated entity tag for local file
@@ -57,11 +58,11 @@ class S3(Upload):
         md5s = []
         with path.open("rb") as local_file:
             for chunk in iter(lambda: local_file.read(chunk_size), b""):
-                md5s.append(hashlib.md5(chunk))
+                md5s.append(hashlib.md5(chunk))  # nosec
 
         # in case if there is only one chunk it must be just this checksum
         # and checksum of joined digest otherwise (including empty list)
-        checksum = md5s[0] if len(md5s) == 1 else hashlib.md5(b"".join(md5.digest() for md5 in md5s))
+        checksum = md5s[0] if len(md5s) == 1 else hashlib.md5(b"".join(md5.digest() for md5 in md5s))  # nosec
         # in case if there are more than one chunk it should be appended with amount of chunks
         suffix = f"-{len(md5s)}" if len(md5s) > 1 else ""
         return f"{checksum.hexdigest()}{suffix}"
