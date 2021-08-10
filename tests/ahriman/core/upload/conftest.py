@@ -1,7 +1,6 @@
 import pytest
 
 from collections import namedtuple
-from pytest_mock import MockerFixture
 from typing import List
 from unittest.mock import MagicMock
 

@@ -1,8 +1,7 @@
 from pathlib import Path
-from unittest import mock
-
 from pytest_mock import MockerFixture
 from typing import Any, List
+from unittest import mock
 from unittest.mock import MagicMock
 
 from ahriman.core.upload.s3 import S3
