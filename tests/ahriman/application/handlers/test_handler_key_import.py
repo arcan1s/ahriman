@@ -7,6 +7,11 @@ from ahriman.core.configuration import Configuration
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
+    """
+    default arguments for these test cases
+    :param args: command line arguments fixture
+    :return: generated arguments for these test cases
+    """
     args.key = "0xE989490C"
     args.key_server = "keys.gnupg.net"
     return args

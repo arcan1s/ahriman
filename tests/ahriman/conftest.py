@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 
 from pathlib import Path
@@ -10,6 +12,7 @@ from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 
+
 T = TypeVar("T")
 
 
@@ -17,21 +20,63 @@ T = TypeVar("T")
 # https://stackoverflow.com/a/21611963
 @pytest.helpers.register
 def anyvar(cls: Type[T], strict: bool = False) -> T:
+    """
+    any value helper for mocker calls check
+    :param cls: type class
+    :param strict: if True then check type of supplied argument
+    :return: any wrapper
+    """
     class AnyVar(cls):
+        """
+        any value wrapper
+        """
+
         def __eq__(self, other: Any) -> bool:
+            """
+            compare object to other
+            :param other: other object to compare
+            :return: True in case if objects are equal
+            """
             return not strict or isinstance(other, cls)
+
     return AnyVar()
+
+
+@pytest.helpers.register
+class AsyncMock(MagicMock):
+    """
+    async magic mock object
+    """
+
+    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """
+        async call function
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return MagicMock.__call__(self, *args, **kwargs)
 
 
 # generic fixtures
 @pytest.fixture
 def configuration(resource_path_root: Path) -> Configuration:
+    """
+    configuration fixture
+    :param resource_path_root: resource path root directory
+    :return: configuration test instance
+    """
     path = resource_path_root / "core" / "ahriman.ini"
     return Configuration.from_path(path=path, architecture="x86_64", logfile=False)
 
 
 @pytest.fixture
 def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
+    """
+    package fixture
+    :param package_description_ahriman: description fixture
+    :return: package test instance
+    """
     packages = {"ahriman": package_description_ahriman}
     return Package(
         base="ahriman",
@@ -44,6 +89,12 @@ def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
 def package_python_schedule(
         package_description_python_schedule: PackageDescription,
         package_description_python2_schedule: PackageDescription) -> Package:
+    """
+    multi package fixture
+    :param package_description_python_schedule: description fixture
+    :param package_description_python2_schedule: description fixture
+    :return: multi package test instance
+    """
     packages = {
         "python-schedule": package_description_python_schedule,
         "python2-schedule": package_description_python2_schedule
@@ -57,6 +108,10 @@ def package_python_schedule(
 
 @pytest.fixture
 def package_description_ahriman() -> PackageDescription:
+    """
+    package description fixture
+    :return: package description test instance
+    """
     return PackageDescription(
         architecture="x86_64",
         archive_size=4200,
@@ -72,6 +127,10 @@ def package_description_ahriman() -> PackageDescription:
 
 @pytest.fixture
 def package_description_python_schedule() -> PackageDescription:
+    """
+    package description fixture
+    :return: package description test instance
+    """
     return PackageDescription(
         architecture="x86_64",
         archive_size=4201,
@@ -87,6 +146,10 @@ def package_description_python_schedule() -> PackageDescription:
 
 @pytest.fixture
 def package_description_python2_schedule() -> PackageDescription:
+    """
+    package description fixture
+    :return: package description test instance
+    """
     return PackageDescription(
         architecture="x86_64",
         archive_size=4202,
@@ -102,6 +165,10 @@ def package_description_python2_schedule() -> PackageDescription:
 
 @pytest.fixture
 def repository_paths(configuration: Configuration) -> RepositoryPaths:
+    """
+    repository paths fixture
+    :return: repository paths test instance
+    """
     return RepositoryPaths(
         architecture="x86_64",
         root=configuration.getpath("repository", "root"))
@@ -109,5 +176,11 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
 
 @pytest.fixture
 def watcher(configuration: Configuration, mocker: MockerFixture) -> Watcher:
+    """
+    package status watcher fixture
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: package status watcher test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     return Watcher("x86_64", configuration)

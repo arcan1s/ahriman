@@ -12,12 +12,24 @@ from ahriman.core.repository.update_handler import UpdateHandler
 
 @pytest.fixture
 def cleaner(configuration: Configuration, mocker: MockerFixture) -> Cleaner:
+    """
+    fixture for cleaner
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: cleaner test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     return Cleaner("x86_64", configuration)
 
 
 @pytest.fixture
 def executor(configuration: Configuration, mocker: MockerFixture) -> Executor:
+    """
+    fixture for executor
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: executor test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
@@ -29,17 +41,34 @@ def executor(configuration: Configuration, mocker: MockerFixture) -> Executor:
 
 @pytest.fixture
 def repository(configuration: Configuration, mocker: MockerFixture) -> Repository:
+    """
+    fixture for repository
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: repository test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     return Repository("x86_64", configuration)
 
 
 @pytest.fixture
 def properties(configuration: Configuration) -> Properties:
+    """
+    fixture for properties
+    :param configuration: configuration fixture
+    :return: properties test instance
+    """
     return Properties("x86_64", configuration)
 
 
 @pytest.fixture
 def update_handler(configuration: Configuration, mocker: MockerFixture) -> UpdateHandler:
+    """
+    fixture for update handler
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: update handler test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
