@@ -21,5 +21,6 @@ jobs:
           /bin/bash -c "pacman --noconfirm -Syu base-devel python python-pip && \
           pip install -e .[web] && \
           pip install -e .[check] && \
+          pip install -e .[s3] && \
           pip install -e .[test] && \
           make check tests"

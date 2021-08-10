@@ -89,10 +89,13 @@ Group name must refer to architecture, e.g. it should be `rsync:x86_64` for x86_
 
 ### `s3:*` groups
 
-Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 architecture. Requires `aws-cli` package to be installed. Do not forget to configure it for user `ahriman`.
+Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 architecture.
 
-* `command` - s3 command to run, space separated list of string, required.
-* `bucket` - bucket name (e.g. `s3://bucket/path`), string, required.
+* `access_key` - AWS access key ID, string, required.
+* `bucket` - bucket name (e.g. `bucket`), string, required.
+* `chunk_size` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
+* `region` - bucket region (e.g. `eu-central-1`), string, required.
+* `secret_key` - AWS secret access key, string, required.
 
 ## `web:*` groups
 
