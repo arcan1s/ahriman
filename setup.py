@@ -74,6 +74,7 @@ setup(
     extras_require={
         "check": [
             "autopep8",
+            "bandit",
             "mypy",
             "pylint",
         ],

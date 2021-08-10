@@ -26,6 +26,8 @@ archlinux: archive
 check: clean mypy
 	find "src/$(PROJECT)" "tests/$(PROJECT)" -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
 	cd src && pylint --rcfile=../.pylintrc "$(PROJECT)"
+	cd src && bandit -c ../.bandit.yml -r "$(PROJECT)"
+	cd tests && bandit -c ../.bandit-test.yml -r "$(PROJECT)"
 
 clean:
 	find . -type f -name "$(PROJECT)-*-src.tar.xz" -delete

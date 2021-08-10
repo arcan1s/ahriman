@@ -19,6 +19,7 @@
 #
 import argparse
 import sys
+import tempfile
 
 from pathlib import Path
 
@@ -44,7 +45,14 @@ def _parser() -> argparse.ArgumentParser:
                         action="append")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
-    parser.add_argument("-l", "--lock", help="lock file", type=Path, default=Path("/tmp/ahriman.lock"))
+    parser.add_argument(
+        "-l",
+        "--lock",
+        help="lock file",
+        type=Path,
+        default=Path(
+            tempfile.gettempdir()) /
+        "ahriman.lock")
     parser.add_argument("--no-log", help="redirect all log messages to stderr", action="store_true")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
