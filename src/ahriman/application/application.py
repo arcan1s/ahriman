@@ -211,6 +211,8 @@ class Application:
         :param updates: list of packages to update
         """
         def process_update(paths: Iterable[Path]) -> None:
+            if not paths:
+                return  # don't need to process if no update supplied
             updated = [Package.load(path, self.repository.pacman, self.repository.aur_url) for path in paths]
             self.repository.process_update(paths)
             self._finalize(updated)

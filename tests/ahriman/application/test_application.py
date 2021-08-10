@@ -299,5 +299,5 @@ def test_update(application: Application, package_ahriman: Package, mocker: Mock
 
     application.update([package_ahriman])
     build_mock.assert_called_once()
-    update_mock.assert_has_calls([mock.call([]), mock.call(paths)])
-    finalize_mock.assert_has_calls([mock.call([]), mock.call([package_ahriman])])
+    update_mock.assert_called_with(paths)
+    finalize_mock.assert_called_with([package_ahriman])
