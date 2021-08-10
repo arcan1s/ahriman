@@ -106,7 +106,7 @@ def test_cache_save_load(watcher: Watcher, package_ahriman: Package, mocker: Moc
     """
     must save state to cache which can be loaded later
     """
-    dump_file = Path(tempfile.mktemp())
+    dump_file = Path(tempfile.mktemp())   # nosec
     mocker.patch("ahriman.core.status.watcher.Watcher.cache_path",
                  new_callable=PropertyMock, return_value=dump_file)
     known_current = {package_ahriman.base: (package_ahriman, BuildStatus())}

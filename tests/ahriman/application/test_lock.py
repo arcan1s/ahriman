@@ -111,7 +111,7 @@ def test_clear(lock: Lock) -> None:
     """
     must remove lock file
     """
-    lock.path = Path(tempfile.mktemp())
+    lock.path = Path(tempfile.mktemp())  # nosec
     lock.path.touch()
 
     lock.clear()
@@ -122,7 +122,7 @@ def test_clear_missing(lock: Lock) -> None:
     """
     must not fail on lock removal if file is missing
     """
-    lock.path = Path(tempfile.mktemp())
+    lock.path = Path(tempfile.mktemp())  # nosec
     lock.clear()
 
 
@@ -139,7 +139,7 @@ def test_create(lock: Lock) -> None:
     """
     must create lock
     """
-    lock.path = Path(tempfile.mktemp())
+    lock.path = Path(tempfile.mktemp())  # nosec
 
     lock.create()
     assert lock.path.is_file()
@@ -150,7 +150,7 @@ def test_create_exception(lock: Lock) -> None:
     """
     must raise exception if file already exists
     """
-    lock.path = Path(tempfile.mktemp())
+    lock.path = Path(tempfile.mktemp())  # nosec
     lock.path.touch()
 
     with pytest.raises(DuplicateRun):
@@ -172,7 +172,7 @@ def test_create_unsafe(lock: Lock) -> None:
     must not raise exception if force flag set
     """
     lock.force = True
-    lock.path = Path(tempfile.mktemp())
+    lock.path = Path(tempfile.mktemp())  # nosec
     lock.path.touch()
 
     lock.create()
