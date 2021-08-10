@@ -9,13 +9,13 @@ url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
 depends=('devtools' 'git' 'pyalpm' 'python-aur' 'python-srcinfo')
 makedepends=('python-pip')
-optdepends=('aws-cli: sync to s3'
-            'breezy: -bzr packages support'
+optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
             'gnupg: package and repository sign'
             'mercurial: -hg packages support'
             'python-aiohttp: web server'
             'python-aiohttp-jinja2: web server'
+            'python-boto3: sync to s3'
             'python-jinja: html report generation'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')
