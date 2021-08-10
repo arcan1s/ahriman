@@ -13,17 +13,32 @@ from ahriman.models.package import Package
 
 @pytest.fixture
 def application(configuration: Configuration, mocker: MockerFixture) -> Application:
+    """
+    fixture for application
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: application test instance
+    """
     mocker.patch("pathlib.Path.mkdir")
     return Application("x86_64", configuration)
 
 
 @pytest.fixture
 def args() -> argparse.Namespace:
+    """
+    fixture for command line arguments
+    :return: command line arguments test instance
+    """
     return argparse.Namespace(lock=None, force=False, unsafe=False, no_report=True)
 
 
 @pytest.fixture
 def aur_package_ahriman(package_ahriman: Package) -> aur.Package:
+    """
+    fixture for AUR package
+    :param package_ahriman: package fixture
+    :return: AUR package test instance
+    """
     return aur.Package(
         num_votes=None,
         description=package_ahriman.packages[package_ahriman.base].description,
@@ -44,9 +59,19 @@ def aur_package_ahriman(package_ahriman: Package) -> aur.Package:
 
 @pytest.fixture
 def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
+    """
+    fixture for file lock
+    :param args: command line arguments fixture
+    :param configuration: configuration fixture
+    :return: file lock test instance
+    """
     return Lock(args, "x86_64", configuration)
 
 
 @pytest.fixture
 def parser() -> argparse.ArgumentParser:
+    """
+    fixture for command line arguments parser
+    :return: command line arguments parser test instance
+    """
     return _parser()

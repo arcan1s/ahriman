@@ -9,11 +9,18 @@ from ahriman.core.repository.cleaner import Cleaner
 
 
 def _mock_clear(mocker: MockerFixture) -> None:
+    """
+    mocker helper for clear function
+    :param mocker: mocker object
+    """
     mocker.patch("pathlib.Path.iterdir", return_value=[Path("a"), Path("b"), Path("c")])
     mocker.patch("shutil.rmtree")
 
 
 def _mock_clear_check() -> None:
+    """
+    mocker helper for clear tests
+    """
     shutil.rmtree.assert_has_calls([
         mock.call(Path("a")),
         mock.call(Path("b")),
