@@ -62,10 +62,10 @@ def test_get_remote_objects(s3: S3, s3_remote_objects: List[Any]) -> None:
     """
     must generate list of remote objects by calling boto3 function
     """
-    expected = {Path(item.key): item for item in s3_remote_objects}
+    expected = {Path(item.key).relative_to(s3.architecture): item for item in s3_remote_objects}
 
     s3.bucket = MagicMock()
-    s3.bucket.objects.all.return_value = s3_remote_objects
+    s3.bucket.objects.filter.return_value = s3_remote_objects
 
     assert s3.get_remote_objects() == expected
 
@@ -75,8 +75,13 @@ def test_sync(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> No
     must run sync command
     """
     root = Path("path")
-    local_files = {Path(item.key.replace("a", "d")): item.key.replace("b", "d") for item in s3_remote_objects}
+    local_files = {
+        Path(item.key.replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
+        for item in s3_remote_objects
+    }
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
+    print(local_files)
+    print(remote_objects)
 
     local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files", return_value=local_files)
     remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects", return_value=remote_objects)
@@ -87,7 +92,7 @@ def test_sync(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> No
     local_files_mock.assert_called_once()
     remote_objects_mock.assert_called_once()
     upload_mock.upload_file.assert_has_calls([
-        mock.call(str(root / Path("b")), str(Path("b"))),
-        mock.call(str(root / Path("d")), str(Path("d"))),
+        mock.call(str(root / s3.architecture / "b"), f"{s3.architecture}/{s3.architecture}/b"),
+        mock.call(str(root / s3.architecture / "d"), f"{s3.architecture}/{s3.architecture}/d"),
     ], any_order=True)
-    remote_objects[Path("a")].delete.assert_called_once()
+    remote_objects[Path("x86_64/a")].delete.assert_called_once()

@@ -19,4 +19,4 @@ def s3(configuration: Configuration) -> S3:
 @pytest.fixture
 def s3_remote_objects() -> List[_s3_object]:
     delete_mock = MagicMock()
-    return list(map(lambda item: _s3_object(item, f"\"{item}\"", delete_mock), ["a", "b", "c"]))
+    return list(map(lambda item: _s3_object(f"x86_64/{item}", f"\"{item}\"", delete_mock), ["a", "b", "c"]))

@@ -91,7 +91,7 @@ class S3(Upload):
                 if element.is_dir():
                     yield from walk(element)
                     continue
-                yield element.resolve()
+                yield element
         return {
             local_file.relative_to(path): self.calculate_etag(local_file, self.chunk_size)
             for local_file in walk(path)
@@ -102,8 +102,8 @@ class S3(Upload):
         get all remote objects and their checksums
         :return: map of path object to the remote s3 object
         """
-        objects = self.bucket.objects.all()
-        return {Path(item.key): item for item in objects}
+        objects = self.bucket.objects.filter(Prefix=self.architecture)
+        return {Path(item.key).relative_to(self.architecture): item for item in objects}
 
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
@@ -121,7 +121,8 @@ class S3(Upload):
             remote_checksum = remote_object.e_tag[1:-1] if remote_object is not None else None
             if remote_checksum == checksum:
                 continue
-            self.bucket.upload_file(str(path / local_file), str(local_file))
+            remote_path = Path(self.architecture) / local_file
+            self.bucket.upload_file(str(path / local_file), str(remote_path))
 
         # remove files which were removed locally
         for local_file, remote_object in remote_objects.items():
