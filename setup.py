@@ -77,6 +77,9 @@ setup(
             "mypy",
             "pylint",
         ],
+        "s3": [
+            "boto3",
+        ],
         "test": [
             "pytest",
             "pytest-aiohttp",
