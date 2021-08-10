@@ -5,20 +5,21 @@
         const tables = document.getElementsByClassName("search-table");
 
         for (let i = 0; i < tables.length; i++) {
-            const tr = tables[i].getElementsByTagName("tr");
+            const trs = tables[i].getElementsByTagName("tr");
             // from 1 coz of header
-            for (let i = 1; i < tr.length; i++) {
-                let td = tr[i].getElementsByClassName("include-search");
+            for (let i = 1; i < trs.length; i++) {
+                let tr = trs[i].getElementsByClassName("include-search");
                 let display = "none";
-                for (let j = 0; j < td.length; j++) {
-                    if (td[j].tagName.toLowerCase() === "td") {
-                        if (td[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                for (let j = 0; j < tr.length; j++) {
+                    if (tr[j].tagName.toLowerCase() === "td") {
+                        let contains = (element) => tr[j].innerHTML.toLowerCase().indexOf(element) > -1
+                        if (filter.some(contains)) {
                             display = "";
                             break;
                         }
                     }
                 }
-                tr[i].style.display = display;
+                trs[i].style.display = display;
             }
         }
     }

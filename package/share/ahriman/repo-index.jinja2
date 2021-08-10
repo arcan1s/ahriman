@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <title>{{ repository|e }}</title>
+        <title>{{ repository }}</title>
 
         {% include "style.jinja2" %}
 
@@ -18,13 +18,13 @@
 
                 <section class="element">
                     {% if pgp_key is not none %}
-                        <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key|e }}&fingerprint=on&op=index" title="key search">{{ pgp_key|e }}</a> by default.</p>
+                        <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
                     {% endif %}
 
                     <code>
                         $ cat /etc/pacman.conf<br>
-                        [{{ repository|e }}]<br>
-                        Server = {{ link_path|e }}<br>
+                        [{{ repository }}]<br>
+                        Server = {{ link_path }}<br>
                         SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
                     </code>
                 </section>
@@ -44,11 +44,11 @@
 
                     {% for package in packages %}
                         <tr class="package">
-                            <td class="include-search"><a href="{{ link_path|e }}/{{ package.filename|e }}" title="{{ package.name|e }}">{{ package.name|e }}</a></td>
-                            <td>{{ package.version|e }}</td>
-                            <td>{{ package.archive_size|e }}</td>
-                            <td>{{ package.installed_size|e }}</td>
-                            <td>{{ package.build_date|e }}</td>
+                            <td class="include-search"><a href="{{ link_path }}/{{ package.filename }}" title="{{ package.name }}">{{ package.name }}</a></td>
+                            <td>{{ package.version }}</td>
+                            <td>{{ package.archive_size }}</td>
+                            <td>{{ package.installed_size }}</td>
+                            <td>{{ package.build_date }}</td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -58,7 +58,7 @@
                 <footer>
                     <ul class="navigation">
                         {% if homepage is not none %}
-                            <li><a href="{{ homepage|e }}" title="homepage">Homepage</a></li>
+                            <li><a href="{{ homepage }}" title="homepage">Homepage</a></li>
                         {% endif %}
                     </ul>
                 </footer>

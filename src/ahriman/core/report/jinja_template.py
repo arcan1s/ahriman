@@ -85,7 +85,7 @@ class JinjaTemplate:
         """
         # idea comes from https://stackoverflow.com/a/38642558
         loader = jinja2.FileSystemLoader(searchpath=self.template_path.parent)
-        environment = jinja2.Environment(loader=loader)
+        environment = jinja2.Environment(loader=loader, autoescape=True)
         template = environment.get_template(self.template_path.name)
 
         content = [
