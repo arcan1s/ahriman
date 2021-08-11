@@ -42,22 +42,6 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
     return AnyVar()
 
 
-@pytest.helpers.register
-class AsyncMock(MagicMock):
-    """
-    async magic mock object
-    """
-
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        """
-        async call function
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        return MagicMock.__call__(self, *args, **kwargs)
-
-
 # generic fixtures
 @pytest.fixture
 def configuration(resource_path_root: Path) -> Configuration:
