@@ -24,10 +24,10 @@ archlinux: archive
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
 check: clean mypy
-	find "src/$(PROJECT)" "tests/$(PROJECT)" -name "*.py" -execdir autopep8 --exit-code --max-line-length 120 -aa -i {} +
-	cd src && pylint --rcfile=../.pylintrc "$(PROJECT)"
-	cd src && bandit -c ../.bandit.yml -r "$(PROJECT)"
-	cd tests && bandit -c ../.bandit-test.yml -r "$(PROJECT)"
+	autopep8 --exit-code --max-line-length 120 -aa -i -j 0 -r "src/$(PROJECT)" "tests/$(PROJECT)"
+	pylint --rcfile=.pylintrc "src/$(PROJECT)"
+	bandit -c .bandit.yml -r "src/$(PROJECT)"
+	bandit -c .bandit-test.yml -r "tests/$(PROJECT)"
 
 clean:
 	find . -type f -name "$(PROJECT)-*-src.tar.xz" -delete
@@ -37,7 +37,7 @@ directory: clean
 	mkdir "$(PROJECT)"
 
 mypy:
-	cd src && echo y | mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types || true
+	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types --non-interactive || true
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 
 push: archlinux
