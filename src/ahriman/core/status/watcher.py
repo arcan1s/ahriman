@@ -90,7 +90,7 @@ class Watcher:
             try:
                 parse_single(item)
             except Exception:
-                self.logger.exception(f"cannot parse item f{item} to package")
+                self.logger.exception("cannot parse item %s to package", item)
 
     def _cache_save(self) -> None:
         """

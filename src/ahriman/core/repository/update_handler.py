@@ -59,7 +59,7 @@ class UpdateHandler(Cleaner):
                     result.append(remote)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f"could not load remote package {local.base}")
+                self.logger.exception("could not load remote package %s", local.base)
                 continue
 
         return result
@@ -81,7 +81,7 @@ class UpdateHandler(Cleaner):
                 else:
                     self.reporter.set_pending(local.base)
             except Exception:
-                self.logger.exception(f"could not add package from {fn}")
+                self.logger.exception("could not add package from %s", fn)
         self.clear_manual()
 
         return result

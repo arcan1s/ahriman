@@ -61,7 +61,7 @@ class Executor(Cleaner):
                 build_single(single)
             except Exception:
                 self.reporter.set_failed(single.base)
-                self.logger.exception(f"{single.base} ({self.architecture}) build exception")
+                self.logger.exception("%s (%s) build exception", single.base, self.architecture)
         self.clear_build()
 
         return self.packages_built()
@@ -76,7 +76,7 @@ class Executor(Cleaner):
             try:
                 self.repo.remove(package, fn)
             except Exception:
-                self.logger.exception(f"could not remove {package}")
+                self.logger.exception("could not remove %s", package)
 
         requested = set(packages)
         for local in self.packages():
@@ -132,7 +132,7 @@ class Executor(Cleaner):
         """
         def update_single(fn: Optional[str], base: str) -> None:
             if fn is None:
-                self.logger.warning(f"received empty package name for base {base}")
+                self.logger.warning("received empty package name for base %s", base)
                 return  # suppress type checking, it never can be none actually
             # in theory it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / fn
@@ -150,7 +150,7 @@ class Executor(Cleaner):
                 local = Package.load(filename, self.pacman, self.aur_url)
                 updates.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
-                self.logger.exception(f"could not load package from {filename}")
+                self.logger.exception("could not load package from %s", filename)
 
         for local in updates.values():
             try:
@@ -159,7 +159,7 @@ class Executor(Cleaner):
                 self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
-                self.logger.exception(f"could not process {local.base}")
+                self.logger.exception("could not process %s", local.base)
         self.clear_packages()
 
         return self.repo.repo_path
