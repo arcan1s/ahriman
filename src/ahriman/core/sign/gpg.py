@@ -104,7 +104,7 @@ class GPG:
             })
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(f"could not download key {key} from {server}: {exception_response_text(e)}")
+            self.logger.exception("could not download key %s from %s: %s", key, server, exception_response_text(e))
             raise
         return response.text
 
@@ -142,7 +142,7 @@ class GPG:
             return [path]
         key = self.configuration.get("sign", f"key_{base}", fallback=self.default_key)
         if key is None:
-            self.logger.error(f"no default key set, skip package {path} sign")
+            self.logger.error("no default key set, skip package %s sign", path)
             return [path]
         return self.process(path, key)
 

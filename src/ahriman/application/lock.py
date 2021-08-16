@@ -94,8 +94,10 @@ class Lock:
         """
         status = self.reporter.get_internal()
         if status.version is not None and status.version != version.__version__:
-            logging.getLogger("root").warning(f"status watcher version mismatch, "
-                                              f"our {version.__version__}, their {status.version}")
+            logging.getLogger("root").warning(
+                "status watcher version mismatch, our %s, their %s",
+                version.__version__,
+                status.version)
 
     def check_user(self) -> None:
         """

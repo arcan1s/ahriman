@@ -185,7 +185,7 @@ class Application:
                 continue
             for archive in package.packages.values():
                 if archive.filepath is None:
-                    self.logger.warning(f"filepath is empty for {package.base}")
+                    self.logger.warning("filepath is empty for %s", package.base)
                     continue  # avoid mypy warning
                 src = self.repository.paths.repository / archive.filepath
                 dst = self.repository.paths.packages / archive.filepath
@@ -224,6 +224,6 @@ class Application:
         # process manual packages
         tree = Tree.load(updates)
         for num, level in enumerate(tree.levels()):
-            self.logger.info(f"processing level #{num} {[package.base for package in level]}")
+            self.logger.info("processing level #%i %s", num, [package.base for package in level])
             packages = self.repository.process_build(level)
             process_update(packages)

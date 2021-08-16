@@ -99,7 +99,7 @@ class Task:
         command.extend(self.archbuild_flags)
         command.extend(["--"] + self.makechrootpkg_flags)
         command.extend(["--"] + self.makepkg_flags)
-        self.logger.info(f"using {command} for {self.package.base}")
+        self.logger.info("using %s for %s", command, self.package.base)
 
         Task._check_output(
             *command,
