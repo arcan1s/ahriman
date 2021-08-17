@@ -25,8 +25,7 @@ async def test_exception_handler_client_error(aiohttp_request: Any, mocker: Mock
     """
     must pass client exception
     """
-    request_handler = AsyncMock()
-    request_handler.side_effect = HTTPBadRequest()
+    request_handler = AsyncMock(side_effect=HTTPBadRequest())
     logging_mock = mocker.patch("logging.Logger.exception")
 
     handler = exception_handler(logging.getLogger())
@@ -39,8 +38,7 @@ async def test_exception_handler_server_error(aiohttp_request: Any, mocker: Mock
     """
     must log server exception and re-raise it
     """
-    request_handler = AsyncMock()
-    request_handler.side_effect = Exception()
+    request_handler = AsyncMock(side_effect=Exception())
     logging_mock = mocker.patch("logging.Logger.exception")
 
     handler = exception_handler(logging.getLogger())

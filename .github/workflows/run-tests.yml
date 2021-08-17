@@ -18,7 +18,7 @@ jobs:
           docker run \
           -v  ${{ github.workspace }}:/build -w /build \
           archlinux:latest \
-          /bin/bash -c "pacman --noconfirm -Syu base-devel python python-pip && \
+          /bin/bash -c "pacman --noconfirm -Syu base-devel python-argparse-manpage python-pip && \
           pip install -e .[web] && \
           pip install -e .[check] && \
           pip install -e .[s3] && \

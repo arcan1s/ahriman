@@ -1,6 +1,7 @@
 # ArcHlinux ReposItory MANager
 
 [![build status](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/arcan1s/ahriman/badge)](https://www.codefactor.io/repository/github/arcan1s/ahriman)
 
 Wrapper for managing custom repository inspired by [repo-scripts](https://github.com/arcan1s/repo-scripts).
 
