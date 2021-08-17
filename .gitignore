@@ -94,3 +94,5 @@ ENV/
 .venv/
 
 *.tar.xz
+
+man/

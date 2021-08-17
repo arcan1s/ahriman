@@ -53,8 +53,7 @@ class Client:
         :param status: current package build status
         """
 
-    # pylint: disable=no-self-use
-    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:  # pylint: disable=no-self-use
         """
         get package status
         :param base: package base to get
@@ -63,16 +62,14 @@ class Client:
         del base
         return []
 
-    # pylint: disable=no-self-use
-    def get_internal(self) -> InternalStatus:
+    def get_internal(self) -> InternalStatus:  # pylint: disable=no-self-use
         """
         get internal service status
         :return: current internal (web) service status
         """
         return InternalStatus()
 
-    # pylint: disable=no-self-use
-    def get_self(self) -> BuildStatus:
+    def get_self(self) -> BuildStatus:  # pylint: disable=no-self-use
         """
         get ahriman status itself
         :return: current ahriman status

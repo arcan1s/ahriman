@@ -1,11 +1,16 @@
-from distutils.util import convert_path
+from build_manpages.build_manpages import build_manpages, get_build_py_cmd, get_install_cmd
+from pathlib import Path
 from setuptools import setup, find_packages
-from os import path
+from setuptools.command.build_py import build_py
+from setuptools.command.install import install
+from typing import Any, Dict
 
-here = path.abspath(path.dirname(__file__))
-metadata = dict()
-with open(convert_path("src/ahriman/version.py")) as metadata_file:
-    exec(metadata_file.read(), metadata)
+
+metadata_path = Path(__file__).resolve().parent / "src/ahriman/version.py"
+metadata: Dict[str, Any] = dict()
+with metadata_path.open() as metadata_file:
+    exec(metadata_file.read(), metadata)  # pylint: disable=exec-used
+
 
 setup(
     name="ahriman",
@@ -96,4 +101,10 @@ setup(
             "aiohttp_jinja2",
         ],
     },
+
+    cmdclass={
+        "build_manpages": build_manpages,
+        "build_py": get_build_py_cmd(build_py),
+        "install": get_install_cmd(install),
+    }
 )

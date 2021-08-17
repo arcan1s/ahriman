@@ -30,8 +30,7 @@ from ahriman.models.sign_settings import SignSettings
 
 
 # pylint thinks it is bad idea, but get the fuck off
-# pylint: disable=protected-access
-SubParserAction = argparse._SubParsersAction
+SubParserAction = argparse._SubParsersAction  # pylint: disable=protected-access
 
 
 def _parser() -> argparse.ArgumentParser:
