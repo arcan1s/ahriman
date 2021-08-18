@@ -49,9 +49,7 @@ def _parser() -> argparse.ArgumentParser:
         "--lock",
         help="lock file",
         type=Path,
-        default=Path(
-            tempfile.gettempdir()) /
-        "ahriman.lock")
+        default=Path(tempfile.gettempdir()) / "ahriman.lock")
     parser.add_argument("--no-log", help="redirect all log messages to stderr", action="store_true")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
