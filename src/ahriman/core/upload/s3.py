@@ -19,6 +19,7 @@
 #
 import boto3  # type: ignore
 import hashlib
+import mimetypes
 
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable
@@ -122,8 +123,13 @@ class S3(Upload):
             remote_checksum = remote_object.e_tag[1:-1] if remote_object is not None else None
             if remote_checksum == checksum:
                 continue
+
+            local_path = path / local_file
             remote_path = Path(self.architecture) / local_file
-            self.bucket.upload_file(str(path / local_file), str(remote_path))
+            (mime, _) = mimetypes.guess_type(local_path)
+            extra_args = {"Content-Type": mime} if mime is not None else None
+
+            self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)
 
         # remove files which were removed locally
         for local_file, remote_object in remote_objects.items():

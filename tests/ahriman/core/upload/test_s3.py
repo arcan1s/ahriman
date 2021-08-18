@@ -1,6 +1,6 @@
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, List
+from typing import Any, List, Optional, Tuple
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -74,15 +74,17 @@ def test_sync(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> No
     """
     must run sync command
     """
+    def mimetype(path: Path) -> Tuple[Optional[str], None]:
+        return ("text/html", None) if path.name == "b" else (None, None)
+
     root = Path("path")
     local_files = {
         Path(item.key.replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
         for item in s3_remote_objects
     }
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
-    print(local_files)
-    print(remote_objects)
 
+    mocker.patch("mimetypes.guess_type", side_effect=mimetype)
     local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files", return_value=local_files)
     remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects", return_value=remote_objects)
     upload_mock = s3.bucket = MagicMock()
@@ -91,8 +93,16 @@ def test_sync(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> No
 
     local_files_mock.assert_called_once()
     remote_objects_mock.assert_called_once()
-    upload_mock.upload_file.assert_has_calls([
-        mock.call(str(root / s3.architecture / "b"), f"{s3.architecture}/{s3.architecture}/b"),
-        mock.call(str(root / s3.architecture / "d"), f"{s3.architecture}/{s3.architecture}/d"),
-    ], any_order=True)
+    upload_mock.upload_file.assert_has_calls(
+        [
+            mock.call(
+                Filename=str(root / s3.architecture / "b"),
+                Key=f"{s3.architecture}/{s3.architecture}/b",
+                ExtraArgs={"Content-Type": "text/html"}),
+            mock.call(
+                Filename=str(root / s3.architecture / "d"),
+                Key=f"{s3.architecture}/{s3.architecture}/d",
+                ExtraArgs=None),
+        ],
+        any_order=True)
     remote_objects[Path("x86_64/a")].delete.assert_called_once()
