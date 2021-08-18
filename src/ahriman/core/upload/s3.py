@@ -81,6 +81,18 @@ class S3(Upload):
                                 aws_secret_access_key=configuration.get("s3", "secret_key"))
         return client.Bucket(configuration.get("s3", "bucket"))
 
+    @staticmethod
+    def remove_files(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+        """
+        remove files which have been removed locally
+        :param local_files: map of local path object to its checksum
+        :param remote_objects: map of remote path object to the remote s3 object
+        """
+        for local_file, remote_object in remote_objects.items():
+            if local_file in local_files:
+                continue
+            remote_object.delete()
+
     def get_local_files(self, path: Path) -> Dict[Path, str]:
         """
         get all local files and their calculated checksums
@@ -116,7 +128,16 @@ class S3(Upload):
         remote_objects = self.get_remote_objects()
         local_files = self.get_local_files(path)
 
-        # sync to remotes first
+        self.upload_files(path, local_files, remote_objects)
+        self.remove_files(local_files, remote_objects)
+
+    def upload_files(self, path: Path, local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+        """
+        upload changed files to s3
+        :param path: local path to sync
+        :param local_files: map of local path object to its checksum
+        :param remote_objects: map of remote path object to the remote s3 object
+        """
         for local_file, checksum in local_files.items():
             remote_object = remote_objects.get(local_file)
             # 0 and -1 elements are " (double quote)
@@ -130,9 +151,3 @@ class S3(Upload):
             extra_args = {"Content-Type": mime} if mime is not None else None
 
             self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)
-
-        # remove files which were removed locally
-        for local_file, remote_object in remote_objects.items():
-            if local_file in local_files:
-                continue
-            remote_object.delete()
