@@ -1,8 +1,6 @@
-from build_manpages.build_manpages import build_manpages, get_build_py_cmd, get_install_cmd
+from build_manpages import build_manpages
 from pathlib import Path
 from setuptools import setup, find_packages
-from setuptools.command.build_py import build_py
-from setuptools.command.install import install
 from typing import Any, Dict
 
 
@@ -103,8 +101,6 @@ setup(
     },
 
     cmdclass={
-        "build_manpages": build_manpages,
-        "build_py": get_build_py_cmd(build_py),
-        "install": get_install_cmd(install),
+        "build_manpages": build_manpages.build_manpages,
     }
 )
