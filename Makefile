@@ -3,7 +3,7 @@
 
 PROJECT := ahriman
 
-FILES := AUTHORS COPYING CONFIGURING.md README.md package src setup.py
+FILES := AUTHORS COPYING CONFIGURING.md README.md package src setup.cfg setup.py
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
