@@ -148,6 +148,6 @@ class S3(Upload):
             local_path = path / local_file
             remote_path = Path(self.architecture) / local_file
             (mime, _) = mimetypes.guess_type(local_path)
-            extra_args = {"Content-Type": mime} if mime is not None else None
+            extra_args = {"ContentType": mime} if mime is not None else None
 
             self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)

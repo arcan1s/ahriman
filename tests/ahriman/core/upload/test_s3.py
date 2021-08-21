@@ -122,7 +122,7 @@ def test_upload_files(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixtur
             mock.call(
                 Filename=str(root / s3.architecture / "b"),
                 Key=f"{s3.architecture}/{s3.architecture}/b",
-                ExtraArgs={"Content-Type": "text/html"}),
+                ExtraArgs={"ContentType": "text/html"}),
             mock.call(
                 Filename=str(root / s3.architecture / "d"),
                 Key=f"{s3.architecture}/{s3.architecture}/d",
