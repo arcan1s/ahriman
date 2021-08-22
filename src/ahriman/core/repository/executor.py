@@ -94,7 +94,7 @@ class Executor(Cleaner):
                     if package in requested and properties.filename is not None
                 }
             else:
-                to_remove = dict()
+                to_remove = {}
             for package, filename in to_remove.items():
                 remove_single(package, filename)
 
