@@ -97,6 +97,10 @@ setup(
             "Jinja2",
             "aiohttp",
             "aiohttp_jinja2",
+            "aiohttp_session",
+            "aiohttp_security",
+            "cryptography",
+            "passlib",
         ],
     },
 

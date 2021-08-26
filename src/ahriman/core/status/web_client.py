@@ -22,37 +22,90 @@ import requests
 
 from typing import List, Optional, Tuple
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatusEnum, BuildStatus
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
+from ahriman.models.user import User
 
 
 class WebClient(Client):
     """
     build status reporter web client
-    :ivar host: host of web service
+    :ivar address: address of the web service
     :ivar logger: class logger
-    :ivar port: port of web service
+    :ivar user: web service user descriptor
     """
 
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
-        :param host: host of web service
-        :param port: port of web service
+        :param configuration: configuration instance
         """
         self.logger = logging.getLogger("http")
-        self.host = host
-        self.port = port
+        self.address = self.parse_address(configuration)
+        self.user = User.from_option(
+            configuration.get("web", "username", fallback=None),
+            configuration.get("web", "password", fallback=None))
+        self.__session = requests.session()
 
+    @property
     def _ahriman_url(self) -> str:
         """
-        url generator
         :return: full url for web service for ahriman service itself
         """
-        return f"http://{self.host}:{self.port}/api/v1/ahriman"
+        return f"{self.address}/api/v1/ahriman"
+
+    @property
+    def _login_url(self) -> str:
+        """
+        :return: full url for web service to login
+        """
+        return f"{self.address}/login"
+
+    @property
+    def _status_url(self) -> str:
+        """
+        :return: full url for web service for status
+        """
+        return f"{self.address}/api/v1/status"
+
+    @staticmethod
+    def parse_address(configuration: Configuration) -> str:
+        """
+        parse address from configuration
+        :param configuration: configuration instance
+        :return: valid http address
+        """
+        address = configuration.get("web", "address", fallback=None)
+        if not address:
+            # build address from host and port directly
+            host = configuration.get("web", "host")
+            port = configuration.getint("web", "port")
+            address = f"http://{host}:{port}"
+        return address
+
+    def login(self) -> None:
+        """
+        process login to the service
+        """
+        if self.user is None:
+            return  # no auth configured
+
+        payload = {
+            "username": self.user.username,
+            "password": self.user.password
+        }
+
+        try:
+            response = self.__session.post(self._login_url, json=payload)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception("could not login as %s: %s", self.user, exception_response_text(e))
+        except Exception:
+            self.logger.exception("could not login as %s", self.user)
 
     def _package_url(self, base: str = "") -> str:
         """
@@ -60,14 +113,7 @@ class WebClient(Client):
         :param base: package base to generate url
         :return: full url of web service for specific package base
         """
-        return f"http://{self.host}:{self.port}/api/v1/packages/{base}"
-
-    def _status_url(self) -> str:
-        """
-        url generator
-        :return: full url for web service for status
-        """
-        return f"http://{self.host}:{self.port}/api/v1/status"
+        return f"{self.address}/api/v1/packages/{base}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -81,7 +127,7 @@ class WebClient(Client):
         }
 
         try:
-            response = requests.post(self._package_url(package.base), json=payload)
+            response = self.__session.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("could not add %s: %s", package.base, exception_response_text(e))
@@ -95,7 +141,7 @@ class WebClient(Client):
         :return: list of current package description and status if it has been found
         """
         try:
-            response = requests.get(self._package_url(base or ""))
+            response = self.__session.get(self._package_url(base or ""))
             response.raise_for_status()
 
             status_json = response.json()
@@ -115,7 +161,7 @@ class WebClient(Client):
         :return: current internal (web) service status
         """
         try:
-            response = requests.get(self._status_url())
+            response = self.__session.get(self._status_url)
             response.raise_for_status()
 
             status_json = response.json()
@@ -132,7 +178,7 @@ class WebClient(Client):
         :return: current ahriman status
         """
         try:
-            response = requests.get(self._ahriman_url())
+            response = self.__session.get(self._ahriman_url)
             response.raise_for_status()
 
             status_json = response.json()
@@ -149,7 +195,7 @@ class WebClient(Client):
         :param base: basename to remove
         """
         try:
-            response = requests.delete(self._package_url(base))
+            response = self.__session.delete(self._package_url(base))
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("could not delete %s: %s", base, exception_response_text(e))
@@ -165,7 +211,7 @@ class WebClient(Client):
         payload = {"status": status.value}
 
         try:
-            response = requests.post(self._package_url(base), json=payload)
+            response = self.__session.post(self._package_url(base), json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("could not update %s: %s", base, exception_response_text(e))
@@ -180,7 +226,7 @@ class WebClient(Client):
         payload = {"status": status.value}
 
         try:
-            response = requests.post(self._ahriman_url(), json=payload)
+            response = self.__session.post(self._ahriman_url, json=payload)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("could not update service status: %s", exception_response_text(e))

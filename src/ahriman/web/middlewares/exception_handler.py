@@ -21,13 +21,11 @@ from aiohttp.web import middleware, Request
 from aiohttp.web_exceptions import HTTPClientError
 from aiohttp.web_response import StreamResponse
 from logging import Logger
-from typing import Awaitable, Callable
+
+from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
-HandlerType = Callable[[Request], Awaitable[StreamResponse]]
-
-
-def exception_handler(logger: Logger) -> Callable[[Request, HandlerType], Awaitable[StreamResponse]]:
+def exception_handler(logger: Logger) -> MiddlewareType:
     """
     exception handler middleware. Just log any exception (except for client ones)
     :param logger: class logger

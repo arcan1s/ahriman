@@ -17,10 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Request
-from aiohttp.web_response import StreamResponse
-from typing import Awaitable, Callable
+from enum import Enum
 
 
-HandlerType = Callable[[Request], Awaitable[StreamResponse]]
-MiddlewareType = Callable[[Request, HandlerType], Awaitable[StreamResponse]]
+class UserAccess(Enum):
+    """
+    web user access enumeration
+    :cvar Read: user can read status page
+    :cvar Write: user can modify task and package list
+    :cvar Status: user can update statuses via API
+    """
+
+    Read = "read"
+    Write = "write"
+    Status = "status"

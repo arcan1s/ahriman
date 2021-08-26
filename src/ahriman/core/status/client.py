@@ -43,7 +43,7 @@ class Client:
         port = configuration.getint("web", "port", fallback=None)
         if host is not None and port is not None:
             from ahriman.core.status.web_client import WebClient
-            return WebClient(host, port)
+            return WebClient(configuration)
         return cls()
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:

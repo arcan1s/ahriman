@@ -78,14 +78,14 @@ class Configuration(configparser.RawConfigParser):
         return config
 
     @staticmethod
-    def section_name(section: str, architecture: str) -> str:
+    def section_name(section: str, suffix: str) -> str:
         """
-        generate section name for architecture specific sections
+        generate section name for sections which depends on context
         :param section: section name
-        :param architecture: repository architecture
+        :param suffix: session suffix, e.g. repository architecture
         :return: correct section name for repository specific section
         """
-        return f"{section}:{architecture}"
+        return f"{section}:{suffix}"
 
     def dump(self) -> Dict[str, Dict[str, str]]:
         """

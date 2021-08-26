@@ -17,10 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Request
-from aiohttp.web_response import StreamResponse
-from typing import Awaitable, Callable
+from aiohttp.web import HTTPFound, Response
+from aiohttp_security import check_authorized, forget  # type: ignore
+
+from ahriman.web.views.base import BaseView
 
 
-HandlerType = Callable[[Request], Awaitable[StreamResponse]]
-MiddlewareType = Callable[[Request, HandlerType], Awaitable[StreamResponse]]
+class LogoutView(BaseView):
+    """
+    logout endpoint view
+    """
+
+    async def post(self) -> Response:
+        """
+        logout user from the service. No parameters supported here
+        :return: redirect to main page
+        """
+        await check_authorized(self.request)
+
+        response = HTTPFound("/")
+        await forget(self.request, response)
+
+        return response

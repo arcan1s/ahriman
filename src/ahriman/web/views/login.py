@@ -17,42 +17,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPFound, HTTPUnauthorized, Response
+from aiohttp_security import remember  # type: ignore
 
-from ahriman.models.build_status import BuildStatusEnum
 from ahriman.web.views.base import BaseView
 
 
-class AhrimanView(BaseView):
+class LoginView(BaseView):
     """
-    service status web view
+    login endpoint view
     """
-
-    async def get(self) -> Response:
-        """
-        get current service status
-        :return: 200 with service status object
-        """
-        return json_response(self.service.status.view())
 
     async def post(self) -> Response:
         """
-        update service status
+        login user to service
 
-        JSON body must be supplied, the following model is used:
+        either JSON body or form data must be supplied the following fields are required:
         {
-            "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
+            "username": "username"  # username to use for login
+            "password": "pa55w0rd"  # password to use for login
         }
 
-        :return: 204 on success
+        :return: redirect to main page
         """
         data = await self.extract_data()
+        username = data.get("username")
 
-        try:
-            status = BuildStatusEnum(data["status"])
-        except Exception as e:
-            raise HTTPBadRequest(text=str(e))
+        response = HTTPFound("/")
+        if self.validator.check_credentials(username, data.get("password")):
+            await remember(self.request, response, username)
+            return response
 
-        self.service.update_self(status)
-
-        return HTTPNoContent()
+        raise HTTPUnauthorized()

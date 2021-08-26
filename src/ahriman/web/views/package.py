@@ -74,7 +74,7 @@ class PackageView(BaseView):
         :return: 204 on success
         """
         base = self.request.match_info["package"]
-        data = await self.request.json()
+        data = await self.extract_data()
 
         try:
             package = Package.from_json(data["package"]) if "package" in data else None

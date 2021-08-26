@@ -18,7 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import View
+from typing import Any, Dict
 
+from ahriman.core.auth import Auth
 from ahriman.core.status.watcher import Watcher
 
 
@@ -34,3 +36,22 @@ class BaseView(View):
         """
         watcher: Watcher = self.request.app["watcher"]
         return watcher
+
+    @property
+    def validator(self) -> Auth:
+        """
+        :return: authorization service instance
+        """
+        validator: Auth = self.request.app["validator"]
+        return validator
+
+    async def extract_data(self) -> Dict[str, Any]:
+        """
+        extract json data from either json or form data
+        :return: raw json object or form data converted to json
+        """
+        try:
+            json: Dict[str, Any] = await self.request.json()
+            return json
+        except ValueError:
+            return dict(await self.request.post())
