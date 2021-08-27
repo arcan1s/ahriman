@@ -44,6 +44,7 @@ def client() -> Client:
 def web_client(configuration: Configuration) -> WebClient:
     """
     fixture for web client
+    :param configuration: configuration fixture
     :return: web client test instance
     """
     configuration.set("web", "port", 8080)

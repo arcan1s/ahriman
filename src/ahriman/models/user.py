@@ -38,6 +38,8 @@ class User:
     password: str
     access: UserAccess
 
+    _HASHER = sha512_crypt
+
     @classmethod
     def from_option(cls: Type[User], username: Optional[str], password: Optional[str]) -> Optional[User]:
         """
@@ -57,8 +59,18 @@ class User:
         :param salt: salt for hashed password
         :return: True in case if password matches, False otherwise
         """
-        verified: bool = sha512_crypt.verify(password + salt, self.password)
+        verified: bool = self._HASHER.verify(password + salt, self.password)
         return verified
+
+    def generate_password(self, password: str, salt: str) -> str:
+        """
+        generate hashed password from plain text
+        :param password: entered password
+        :param salt: salt for hashed password
+        :return: hashed string to store in configuration
+        """
+        password_hash: str = self._HASHER.hash(password + salt)
+        return password_hash
 
     def verify_access(self, required: UserAccess) -> bool:
         """

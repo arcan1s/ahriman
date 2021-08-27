@@ -49,7 +49,9 @@ class WebClient(Client):
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),
             configuration.get("web", "password", fallback=None))
+
         self.__session = requests.session()
+        self.login()
 
     @property
     def _ahriman_url(self) -> str:
