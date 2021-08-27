@@ -17,10 +17,18 @@ def test_load_dummy_client(configuration: Configuration) -> None:
 
 def test_load_full_client(configuration: Configuration) -> None:
     """
-    must load full client if no settings set
+    must load full client if settings set
     """
     configuration.set("web", "host", "localhost")
     configuration.set("web", "port", "8080")
+    assert isinstance(Client.load(configuration), WebClient)
+
+
+def test_load_full_client_from_address(configuration: Configuration) -> None:
+    """
+    must load full client if settings set
+    """
+    configuration.set("web", "address", "http://localhost:8080")
     assert isinstance(Client.load(configuration), WebClient)
 
 

@@ -17,3 +17,16 @@ def application(configuration: Configuration, mocker: MockerFixture) -> web.Appl
     """
     mocker.patch("pathlib.Path.mkdir")
     return setup_service("x86_64", configuration)
+
+
+@pytest.fixture
+def application_with_auth(configuration: Configuration, mocker: MockerFixture) -> web.Application:
+    """
+    application fixture with auth enabled
+    :param configuration: configuration fixture
+    :param mocker: mocker object
+    :return: application test instance
+    """
+    configuration.set("web", "auth", "yes")
+    mocker.patch("pathlib.Path.mkdir")
+    return setup_service("x86_64", configuration)

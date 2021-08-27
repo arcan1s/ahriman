@@ -19,8 +19,10 @@
 #
 import argparse
 import configparser
+import getpass
+import random
+import string
 
-from getpass import getpass
 from pathlib import Path
 from typing import Type
 
@@ -42,38 +44,60 @@ class CreateUser(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        user = CreateUser.create_user(args, configuration)
-        CreateUser.create_configuration(user, configuration.include)
+        salt = CreateUser.get_salt(configuration)
+        user = CreateUser.create_user(args, salt)
+        CreateUser.create_configuration(user, salt, configuration.include)
 
     @staticmethod
-    def create_configuration(user: User, include_path: Path) -> None:
+    def create_configuration(user: User, salt: str, include_path: Path) -> None:
         """
         put new user to configuration
         :param user: user descriptor
+        :param salt: password hash salt
         :param include_path: path to directory with configuration includes
         """
+        def set_option(section_name: str, name: str, value: str) -> None:
+            if section_name not in configuration.sections():
+                configuration.add_section(section_name)
+            configuration.set(section_name, name, value)
+
         target = include_path / "auth.ini"
 
         configuration = configparser.ConfigParser()
-        configuration.read(target)
+        if target.is_file():  # load current configuration in case if it exists
+            configuration.read(target)
 
         section = Configuration.section_name("auth", user.access.value)
-        configuration.add_section(section)
-        configuration.set(section, user.username, user.password)
+        set_option("auth", "salt", salt)
+        set_option(section, user.username, user.password)
 
         with target.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def create_user(args: argparse.Namespace, configuration: Configuration) -> User:
+    def create_user(args: argparse.Namespace, salt: str) -> User:
         """
         create user descriptor from arguments
         :param args: command line args
-        :param configuration: configuration instance
+        :param salt: password hash salt
         :return: built user descriptor
         """
         user = User(args.username, args.password, args.role)
         if user.password is None:
-            user.password = getpass()
-        user.password = user.generate_password(user.password, configuration.get("auth", "salt"))
+            user.password = getpass.getpass()
+        user.password = user.generate_password(user.password, salt)
         return user
+
+    @staticmethod
+    def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
+        """
+        get salt from configuration or create new string
+        :param configuration: configuration instance
+        :param salt_length: salt length
+        :return: current salt
+        """
+        salt = configuration.get("auth", "salt", fallback=None)
+        if salt:
+            return salt
+
+        return "".join(random.choices(string.ascii_letters + string.digits, k=salt_length))

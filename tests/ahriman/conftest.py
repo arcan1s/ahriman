@@ -11,7 +11,8 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
-
+from ahriman.models.user import User
+from ahriman.models.user_access import UserAccess
 
 T = TypeVar("T")
 
@@ -156,6 +157,15 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
         root=configuration.getpath("repository", "root"))
+
+
+@pytest.fixture
+def user() -> User:
+    """
+    fixture for user descriptor
+    :return: user descriptor instance
+    """
+    return User("user", "pa55w0rd", UserAccess.Status)
 
 
 @pytest.fixture

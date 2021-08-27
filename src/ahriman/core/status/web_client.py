@@ -51,7 +51,7 @@ class WebClient(Client):
             configuration.get("web", "password", fallback=None))
 
         self.__session = requests.session()
-        self.login()
+        self._login()
 
     @property
     def _ahriman_url(self) -> str:
@@ -89,7 +89,7 @@ class WebClient(Client):
             address = f"http://{host}:{port}"
         return address
 
-    def login(self) -> None:
+    def _login(self) -> None:
         """
         process login to the service
         """

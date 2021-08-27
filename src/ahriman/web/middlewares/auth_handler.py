@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_security  # type: ignore
+
 from aiohttp import web
 from aiohttp.web import middleware, Request
 from aiohttp.web_response import StreamResponse
-from aiohttp_security import setup as setup_security  # type: ignore
-from aiohttp_security import AbstractAuthorizationPolicy, SessionIdentityPolicy, check_permission
 from typing import Optional
 
 from ahriman.core.auth import Auth
@@ -30,7 +30,7 @@ from ahriman.models.user_access import UserAccess
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
-class AuthorizationPolicy(AbstractAuthorizationPolicy):  # type: ignore
+class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type: ignore
     """
     authorization policy implementation
     :ivar validator: validator instance
@@ -71,13 +71,14 @@ def auth_handler() -> MiddlewareType:
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
+        print(request)
         if request.path.startswith("/api"):
             permission = UserAccess.Status
-        elif request.method in ("HEAD", "GET", "OPTIONS"):
+        elif request.method in ("GET", "HEAD", "OPTIONS"):
             permission = UserAccess.Read
         else:
             permission = UserAccess.Write
-        await check_permission(request, permission, request.path)
+        await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)
 
@@ -92,10 +93,10 @@ def setup_auth(application: web.Application, configuration: Configuration) -> we
     :return: configured web application
     """
     authorization_policy = AuthorizationPolicy(configuration)
-    identity_policy = SessionIdentityPolicy()
+    identity_policy = aiohttp_security.SessionIdentityPolicy()
 
     application["validator"] = authorization_policy.validator
-    setup_security(application, identity_policy, authorization_policy)
+    aiohttp_security.setup(application, identity_policy, authorization_policy)
     application.middlewares.append(auth_handler())
 
     return application

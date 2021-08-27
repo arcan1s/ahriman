@@ -5,10 +5,12 @@ import requests
 from pytest_mock import MockerFixture
 from requests import Response
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
+from ahriman.models.user import User
 
 
 def test_ahriman_url(web_client: WebClient) -> None:
@@ -25,6 +27,60 @@ def test_status_url(web_client: WebClient) -> None:
     """
     assert web_client._status_url.startswith(web_client.address)
     assert web_client._status_url.endswith("/api/v1/status")
+
+
+def test_parse_address(configuration: Configuration) -> None:
+    """
+    must extract address correctly
+    """
+    configuration.set("web", "host", "localhost")
+    configuration.set("web", "port", "8080")
+    assert WebClient.parse_address(configuration) == "http://localhost:8080"
+
+    configuration.set("web", "address", "http://localhost:8081")
+    assert WebClient.parse_address(configuration) == "http://localhost:8081"
+
+
+def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
+    """
+    must login user
+    """
+    web_client.user = user
+    requests_mock = mocker.patch("requests.Session.post")
+    payload = {
+        "username": user.username,
+        "password": user.password
+    }
+
+    web_client._login()
+    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True), json=payload)
+
+
+def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during login
+    """
+    web_client.user = user
+    mocker.patch("requests.Session.post", side_effect=Exception())
+    web_client._login()
+
+
+def test_login_failed_http_error(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during login
+    """
+    web_client.user = user
+    mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
+    web_client._login()
+
+
+def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must skip login if no user set
+    """
+    requests_mock = mocker.patch("requests.Session.post")
+    web_client._login()
+    requests_mock.assert_not_called()
 
 
 def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:

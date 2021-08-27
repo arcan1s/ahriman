@@ -2,6 +2,7 @@ import pytest
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
+from ahriman.core.auth import Auth
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.tree import Leaf
@@ -27,6 +28,15 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
     :return: tree leaf test instance
     """
     return Leaf(package_python_schedule, set())
+
+
+@pytest.fixture
+def auth(configuration: Configuration) -> Auth:
+    """
+    auth provider fixture
+    :return: auth service instance
+    """
+    return Auth(configuration)
 
 
 @pytest.fixture

@@ -35,7 +35,7 @@ class Auth:
     :cvar ALLOWED_PATHS_GROUPS: URI paths prefixes which can be accessed without authorization, predefined
     """
 
-    ALLOWED_PATHS = {"/", "/favicon.ico", "/login", "/logout"}
+    ALLOWED_PATHS = {"/favicon.ico", "/login", "/logout"}
     ALLOWED_PATHS_GROUPS: Set[str] = set()
 
     def __init__(self, configuration: Configuration) -> None:
@@ -84,9 +84,9 @@ class Auth:
         :param uri: request uri
         :return: True in case if this URI can be requested without authorization and False otherwise
         """
-        if uri is None:
+        if not uri:
             return False  # request without context is not allowed
-        return uri in self.ALLOWED_PATHS or any(uri.startswith(path) for path in self.ALLOWED_PATHS_GROUPS)
+        return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
 
     def verify_access(self, username: str, required: UserAccess) -> bool:
         """
