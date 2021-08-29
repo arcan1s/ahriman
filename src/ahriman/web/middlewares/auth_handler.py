@@ -18,10 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import aiohttp_security  # type: ignore
+import base64
 
 from aiohttp import web
 from aiohttp.web import middleware, Request
 from aiohttp.web_response import StreamResponse
+from aiohttp_session import setup as setup_session  # type: ignore
+from aiohttp_session.cookie_storage import EncryptedCookieStorage  # type: ignore
+from cryptography import fernet
 from typing import Optional
 
 from ahriman.core.auth import Auth
@@ -92,6 +96,11 @@ def setup_auth(application: web.Application, configuration: Configuration) -> we
     :param configuration: configuration instance
     :return: configured web application
     """
+    fernet_key = fernet.Fernet.generate_key()
+    secret_key = base64.urlsafe_b64decode(fernet_key)
+    storage = EncryptedCookieStorage(secret_key, cookie_name='API_SESSION')
+    setup_session(application, storage)
+
     authorization_policy = AuthorizationPolicy(configuration)
     identity_policy = aiohttp_security.SessionIdentityPolicy()
 

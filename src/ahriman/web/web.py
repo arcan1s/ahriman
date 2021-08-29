@@ -18,19 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import aiohttp_jinja2
-import base64
 import jinja2
 import logging
 
 from aiohttp import web
-from aiohttp_session import setup as setup_session  # type: ignore
-from aiohttp_session.cookie_storage import EncryptedCookieStorage  # type: ignore
-from cryptography import fernet
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
 from ahriman.core.status.watcher import Watcher
-from ahriman.web.middlewares.auth_handler import setup_auth
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
@@ -97,12 +92,8 @@ def setup_service(architecture: str, configuration: Configuration) -> web.Applic
     application.logger.info("setup watcher")
     application["watcher"] = Watcher(architecture, configuration)
 
-    fernet_key = fernet.Fernet.generate_key()
-    secret_key = base64.urlsafe_b64decode(fernet_key)
-    storage = EncryptedCookieStorage(secret_key, cookie_name='API_SESSION')
-    setup_session(application, storage)
-
     if configuration.getboolean("web", "auth", fallback=False):
+        from ahriman.web.middlewares.auth_handler import setup_auth
         setup_auth(application, configuration)
 
     return application
