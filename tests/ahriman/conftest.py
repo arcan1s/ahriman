@@ -1,11 +1,10 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, Type, TypeVar
 
+from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
@@ -44,6 +43,15 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 
 # generic fixtures
+@pytest.fixture
+def auth(configuration: Configuration) -> Auth:
+    """
+    auth provider fixture
+    :return: auth service instance
+    """
+    return Auth(configuration)
+
+
 @pytest.fixture
 def configuration(resource_path_root: Path) -> Configuration:
     """

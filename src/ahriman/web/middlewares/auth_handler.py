@@ -28,8 +28,7 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage  # type: ignor
 from cryptography import fernet
 from typing import Optional
 
-from ahriman.core.auth import Auth
-from ahriman.core.configuration import Configuration
+from ahriman.core.auth.auth import Auth
 from ahriman.models.user_access import UserAccess
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
@@ -40,12 +39,12 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
     :ivar validator: validator instance
     """
 
-    def __init__(self, configuration: Configuration) -> None:
+    def __init__(self, validator: Auth) -> None:
         """
         default constructor
-        :param configuration: configuration instance
+        :param validator: authorization module instance
         """
-        self.validator = Auth(configuration)
+        self.validator = validator
 
     async def authorized_userid(self, identity: str) -> Optional[str]:
         """
@@ -53,7 +52,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         :param identity: username
         :return: user identity (username) in case if user exists and None otherwise
         """
-        return identity if identity in self.validator.users else None
+        return identity if self.validator.known_username(identity) else None
 
     async def permits(self, identity: str, permission: UserAccess, context: Optional[str] = None) -> bool:
         """
@@ -63,37 +62,37 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         :param context: URI request path
         :return: True in case if user is allowed to perform this request and False otherwise
         """
-        if self.validator.is_safe_request(context):
-            return True
         return self.validator.verify_access(identity, permission)
 
 
-def auth_handler() -> MiddlewareType:
+def auth_handler(validator: Auth) -> MiddlewareType:
     """
     authorization and authentication middleware
+    :param validator: authorization module instance
     :return: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
-        print(request)
         if request.path.startswith("/api"):
             permission = UserAccess.Status
         elif request.method in ("GET", "HEAD", "OPTIONS"):
             permission = UserAccess.Read
         else:
             permission = UserAccess.Write
-        await aiohttp_security.check_permission(request, permission, request.path)
+
+        if not validator.is_safe_request(request.path):
+            await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)
 
     return handle
 
 
-def setup_auth(application: web.Application, configuration: Configuration) -> web.Application:
+def setup_auth(application: web.Application, validator: Auth) -> web.Application:
     """
     setup authorization policies for the application
     :param application: web application instance
-    :param configuration: configuration instance
+    :param validator: authorization module instance
     :return: configured web application
     """
     fernet_key = fernet.Fernet.generate_key()
@@ -101,11 +100,10 @@ def setup_auth(application: web.Application, configuration: Configuration) -> we
     storage = EncryptedCookieStorage(secret_key, cookie_name='API_SESSION')
     setup_session(application, storage)
 
-    authorization_policy = AuthorizationPolicy(configuration)
+    authorization_policy = AuthorizationPolicy(validator)
     identity_policy = aiohttp_security.SessionIdentityPolicy()
 
-    application["validator"] = authorization_policy.validator
     aiohttp_security.setup(application, identity_policy, authorization_policy)
-    application.middlewares.append(auth_handler())
+    application.middlewares.append(auth_handler(validator))
 
     return application

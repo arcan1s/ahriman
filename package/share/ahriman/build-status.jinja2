@@ -17,6 +17,8 @@
                 <img src="https://img.shields.io/badge/service%20status-{{ service.status }}-{{ service.status_color }}" alt="{{ service.status }}" title="{{ service.timestamp }}">
             </h1>
 
+            {% include "login-form.jinja2" %}
+            {% include "login-form-hide.jinja2" %}
             {% include "search-line.jinja2" %}
 
             <section class="element">
@@ -46,6 +48,17 @@
                     <li><a href="https://github.com/arcan1s/ahriman" title="sources">ahriman</a></li>
                     <li><a href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
                     <li><a href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
+                    {% if auth_enabled %}
+                        <li class="right">
+                            {% if auth_username is not none %}
+                                <form action="/logout" method="post">
+                                    <button class="login" type="submit">logout ({{ auth_username }})</button>
+                                </form>
+                            {% else %}
+                                <button class="login" onclick="document.getElementById('login-form').style.display='block'">login</button>
+                            {% endif %}
+                        </li>
+                    {% endif %}
                 </ul>
             </footer>
         </div>

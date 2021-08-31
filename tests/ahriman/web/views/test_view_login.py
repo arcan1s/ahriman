@@ -1,48 +1,41 @@
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
-from ahriman.core.auth import Auth
-from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 
 
-async def test_post(client: TestClient, configuration: Configuration, user: User, mocker: MockerFixture) -> None:
+async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixture) -> None:
     """
     must login user correctly
     """
-    client.app["validator"] = Auth(configuration)
     payload = {"username": user.username, "password": user.password}
-    remember_patch = mocker.patch("aiohttp_security.remember")
-    mocker.patch("ahriman.core.auth.Auth.check_credentials", return_value=True)
+    remember_mock = mocker.patch("aiohttp_security.remember")
 
-    post_response = await client.post("/login", json=payload)
+    post_response = await client_with_auth.post("/login", json=payload)
     assert post_response.status == 200
 
-    post_response = await client.post("/login", data=payload)
+    post_response = await client_with_auth.post("/login", data=payload)
     assert post_response.status == 200
 
-    remember_patch.assert_called()
+    remember_mock.assert_called()
 
 
-async def test_post_skip(client: TestClient, user: User, mocker: MockerFixture) -> None:
+async def test_post_skip(client: TestClient, user: User) -> None:
     """
     must process if no auth configured
     """
     payload = {"username": user.username, "password": user.password}
     post_response = await client.post("/login", json=payload)
-    remember_patch = mocker.patch("aiohttp_security.remember")
     assert post_response.status == 200
-    remember_patch.assert_not_called()
 
 
-async def test_post_unauthorized(client: TestClient, configuration: Configuration, user: User,
-                                 mocker: MockerFixture) -> None:
+async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocker: MockerFixture) -> None:
     """
     must return unauthorized on invalid auth
     """
-    client.app["validator"] = Auth(configuration)
-    payload = {"username": user.username, "password": user.password}
-    mocker.patch("ahriman.core.auth.Auth.check_credentials", return_value=False)
+    payload = {"username": user.username, "password": ""}
+    remember_mock = mocker.patch("aiohttp_security.remember")
 
-    post_response = await client.post("/login", json=payload)
+    post_response = await client_with_auth.post("/login", json=payload)
     assert post_response.status == 401
+    remember_mock.assert_not_called()

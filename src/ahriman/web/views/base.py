@@ -20,7 +20,7 @@
 from aiohttp.web import View
 from typing import Any, Dict
 
-from ahriman.core.auth import Auth
+from ahriman.core.auth.auth import Auth
 from ahriman.core.status.watcher import Watcher
 
 

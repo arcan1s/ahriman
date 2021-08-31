@@ -22,6 +22,7 @@ import aiohttp_jinja2
 from typing import Any, Dict
 
 from ahriman import version
+from ahriman.core.auth.helpers import authorized_userid
 from ahriman.core.util import pretty_datetime
 from ahriman.web.views.base import BaseView
 
@@ -33,6 +34,8 @@ class IndexView(BaseView):
     It uses jinja2 templates for report generation, the following variables are allowed:
 
         architecture - repository architecture, string, required
+        auth_enabled - whether authorization is enabled by configuration or not, boolean, required
+        auth_username - authorized user id if any, string. None means not authorized
         packages - sorted list of packages properties, required
                    * base, string
                    * depends, sorted list of strings
@@ -79,6 +82,8 @@ class IndexView(BaseView):
 
         return {
             "architecture": self.service.architecture,
+            "auth_enabled": self.validator.enabled,
+            "auth_username": await authorized_userid(self.request),
             "packages": packages,
             "repository": self.service.repository.name,
             "service": service,

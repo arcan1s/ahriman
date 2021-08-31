@@ -17,39 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, Optional, Set
+from typing import Dict, Optional
 
+from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
-class Auth:
+class MappingAuth(Auth):
     """
-    helper to deal with user authorization
-    :ivar allowed_paths: URI paths which can be accessed without authorization
-    :ivar allowed_paths_groups: URI paths prefixes which can be accessed without authorization
+    user authorization based on mapping from configuration file
     :ivar salt: random generated string to salt passwords
     :ivar users: map of username to its descriptor
-    :cvar ALLOWED_PATHS: URI paths which can be accessed without authorization, predefined
-    :cvar ALLOWED_PATHS_GROUPS: URI paths prefixes which can be accessed without authorization, predefined
     """
-
-    ALLOWED_PATHS = {"/favicon.ico", "/login", "/logout"}
-    ALLOWED_PATHS_GROUPS: Set[str] = set()
 
     def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
         :param configuration: configuration instance
         """
+        Auth.__init__(self, configuration)
         self.salt = configuration.get("auth", "salt")
         self.users = self.get_users(configuration)
-
-        self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
-        self.allowed_paths.update(self.ALLOWED_PATHS)
-        self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
-        self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
 
     @staticmethod
     def get_users(configuration: Configuration) -> Dict[str, User]:
@@ -76,17 +66,15 @@ class Auth:
         """
         if username is None or password is None:
             return False  # invalid data supplied
-        return username in self.users and self.users[username].check_credentials(password, self.salt)
+        return self.known_username(username) and self.users[username].check_credentials(password, self.salt)
 
-    def is_safe_request(self, uri: Optional[str]) -> bool:
+    def known_username(self, username: str) -> bool:
         """
-        check if requested path are allowed without authorization
-        :param uri: request uri
-        :return: True in case if this URI can be requested without authorization and False otherwise
+        check if user is known
+        :param username: username
+        :return: True in case if user is known and can be authorized and False otherwise
         """
-        if not uri:
-            return False  # request without context is not allowed
-        return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
+        return username in self.users
 
     def verify_access(self, username: str, required: UserAccess) -> bool:
         """
@@ -95,4 +83,4 @@ class Auth:
         :param required: required access level
         :return: True in case if user is allowed to do this request and False otherwise
         """
-        return username in self.users and self.users[username].verify_access(required)
+        return self.known_username(username) and self.users[username].verify_access(required)

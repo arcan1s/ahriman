@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_security  # type: ignore
-
 from aiohttp.web import HTTPFound, HTTPUnauthorized, Response
 
+from ahriman.core.auth.helpers import remember
 from ahriman.web.views.base import BaseView
 
 
@@ -45,11 +44,8 @@ class LoginView(BaseView):
         username = data.get("username")
 
         response = HTTPFound("/")
-        try:
-            if self.validator.check_credentials(username, data.get("password")):
-                await aiohttp_security.remember(self.request, response, username)
-                return response
-        except KeyError:
+        if self.validator.check_credentials(username, data.get("password")):
+            await remember(self.request, response, username)
             return response
 
         raise HTTPUnauthorized()

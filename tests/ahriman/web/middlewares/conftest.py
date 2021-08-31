@@ -2,6 +2,7 @@ import pytest
 
 from collections import namedtuple
 
+from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.web.middlewares.auth_handler import AuthorizationPolicy
@@ -24,6 +25,8 @@ def authorization_policy(configuration: Configuration, user: User) -> Authorizat
     fixture for authorization policy
     :return: authorization policy fixture
     """
-    policy = AuthorizationPolicy(configuration)
+    configuration.set("web", "auth", "yes")
+    validator = Auth.load(configuration)
+    policy = AuthorizationPolicy(validator)
     policy.validator.users = {user.username: user}
     return policy

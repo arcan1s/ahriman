@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_security  # type: ignore
-
 from aiohttp.web import HTTPFound, Response
 
+from ahriman.core.auth.helpers import check_authorized, forget
 from ahriman.web.views.base import BaseView
 
 
@@ -34,9 +33,9 @@ class LogoutView(BaseView):
         logout user from the service. No parameters supported here
         :return: redirect to main page
         """
-        await aiohttp_security.check_authorized(self.request)
+        await check_authorized(self.request)
 
         response = HTTPFound("/")
-        await aiohttp_security.forget(self.request, response)
+        await forget(self.request, response)
 
         return response
