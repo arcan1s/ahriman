@@ -12,9 +12,11 @@
     <body>
         <div class="root">
             <h1>ahriman
-                <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
-                <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
-                <img src="https://img.shields.io/badge/service%20status-{{ service.status }}-{{ service.status_color }}" alt="{{ service.status }}" title="{{ service.timestamp }}">
+                {% if authorized %}
+                    <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
+                    <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
+                    <img src="https://img.shields.io/badge/service%20status-{{ service.status }}-{{ service.status_color }}" alt="{{ service.status }}" title="{{ service.timestamp }}">
+                {% endif %}
             </h1>
 
             {% include "login-form.jinja2" %}
@@ -31,15 +33,21 @@
                         <th>status</th>
                     </tr>
 
-                    {% for package in packages %}
+                    {% if authorized %}
+                        {% for package in packages %}
+                            <tr class="package">
+                                <td class="include-search"><a href="{{ package.web_url }}" title="{{ package.base }}">{{ package.base }}</a></td>
+                                <td class="include-search">{{ package.packages|join("<br>"|safe) }}</td>
+                                <td>{{ package.version }}</td>
+                                <td>{{ package.timestamp }}</td>
+                                <td class="status package-{{ package.status }}">{{ package.status }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
                         <tr class="package">
-                            <td class="include-search"><a href="{{ package.web_url }}" title="{{ package.base }}">{{ package.base }}</a></td>
-                            <td class="include-search">{{ package.packages|join("<br>"|safe) }}</td>
-                            <td>{{ package.version }}</td>
-                            <td>{{ package.timestamp }}</td>
-                            <td class="status package-{{ package.status }}">{{ package.status }}</td>
+                            <td colspan="100%">In order to see statuses you must login first</td>
                         </tr>
-                    {% endfor %}
+                    {% endif %}
                 </table>
             </section>
 

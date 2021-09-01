@@ -34,6 +34,7 @@ class IndexView(BaseView):
     It uses jinja2 templates for report generation, the following variables are allowed:
 
         architecture - repository architecture, string, required
+        authorized - alias for `not auth_enabled or auth_username is not None`
         auth_enabled - whether authorization is enabled by configuration or not, boolean, required
         auth_username - authorized user id if any, string. None means not authorized
         packages - sorted list of packages properties, required
@@ -80,10 +81,15 @@ class IndexView(BaseView):
             "timestamp": pretty_datetime(self.service.status.timestamp)
         }
 
+        # auth block
+        auth_username = await authorized_userid(self.request)
+        authorized = not self.validator.enabled or auth_username is not None
+
         return {
             "architecture": self.service.architecture,
+            "authorized": authorized,
             "auth_enabled": self.validator.enabled,
-            "auth_username": await authorized_userid(self.request),
+            "auth_username": auth_username,
             "packages": packages,
             "repository": self.service.repository.name,
             "service": service,
