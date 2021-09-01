@@ -90,12 +90,13 @@ class Auth:
         del username
         return True
 
-    def verify_access(self, username: str, required: UserAccess) -> bool:  # pylint: disable=no-self-use
+    def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         validate if user has access to requested resource
         :param username: username
         :param required: required access level
+        :param context: URI request path
         :return: True in case if user is allowed to do this request and False otherwise
         """
-        del username, required
+        del username, required, context
         return True

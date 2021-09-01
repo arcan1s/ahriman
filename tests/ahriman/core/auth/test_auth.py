@@ -77,5 +77,5 @@ def test_verify_access(auth: Auth, user: User) -> None:
     """
     must allow any access
     """
-    assert auth.verify_access(user.username, user.access)
-    assert auth.verify_access(user.username, UserAccess.Write)
+    assert auth.verify_access(user.username, user.access, None)
+    assert auth.verify_access(user.username, UserAccess.Write, None)

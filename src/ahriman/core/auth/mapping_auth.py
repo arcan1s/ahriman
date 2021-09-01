@@ -90,12 +90,14 @@ class MappingAuth(Auth):
         """
         return self.get_user(username) is not None
 
-    def verify_access(self, username: str, required: UserAccess) -> bool:
+    def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
         """
         validate if user has access to requested resource
         :param username: username
         :param required: required access level
+        :param context: URI request path
         :return: True in case if user is allowed to do this request and False otherwise
         """
+        del context
         user = self.get_user(username)
         return user is not None and user.verify_access(required)

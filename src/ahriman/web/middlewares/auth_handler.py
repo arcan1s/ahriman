@@ -62,7 +62,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         :param context: URI request path
         :return: True in case if user is allowed to perform this request and False otherwise
         """
-        return self.validator.verify_access(identity, permission)
+        return self.validator.verify_access(identity, permission, context)
 
 
 def auth_handler(validator: Auth) -> MiddlewareType:

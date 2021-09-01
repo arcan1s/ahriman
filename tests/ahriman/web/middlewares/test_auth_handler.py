@@ -26,7 +26,7 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     authorization_policy.validator.verify_access.return_value = True
 
     assert await authorization_policy.permits(user.username, user.access, "/endpoint")
-    authorization_policy.validator.verify_access.assert_called_with(user.username, user.access)
+    authorization_policy.validator.verify_access.assert_called_with(user.username, user.access, "/endpoint")
 
 
 async def test_auth_handler_api(aiohttp_request: Any, auth: Auth, mocker: MockerFixture) -> None:

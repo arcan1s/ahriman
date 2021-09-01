@@ -117,5 +117,5 @@ def test_verify_access(mapping_auth: MappingAuth, user: User) -> None:
     must verify user access
     """
     mapping_auth._users[user.username] = user
-    assert mapping_auth.verify_access(user.username, user.access)
-    assert not mapping_auth.verify_access(user.username, UserAccess.Write)
+    assert mapping_auth.verify_access(user.username, user.access, None)
+    assert not mapping_auth.verify_access(user.username, UserAccess.Write, None)
