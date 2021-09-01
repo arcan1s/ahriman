@@ -7,8 +7,8 @@ pkgdesc="ArcHlinux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools' 'git' 'pyalpm' 'python-aur' 'python-srcinfo')
-makedepends=('python-argparse-manpage' 'python-pip')
+depends=('devtools' 'git' 'pyalpm' 'python-aur' 'python-passlib' 'python-srcinfo')
+makedepends=('python-pip')
 optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
             'gnupg: package and repository sign'

@@ -9,7 +9,7 @@ def test_load_dummy(configuration: Configuration) -> None:
     """
     must load dummy validator if authorization is not enabled
     """
-    configuration.set("web", "auth", "no")
+    configuration.set_option("auth", "enabled", "no")
     auth = Auth.load(configuration)
     assert isinstance(auth, Auth)
 
@@ -26,7 +26,7 @@ def test_load_mapping(configuration: Configuration) -> None:
     """
     must load mapping validator if option set
     """
-    configuration.set("web", "auth", "yes")
+    configuration.set_option("auth", "enabled", "yes")
     auth = Auth.load(configuration)
     assert isinstance(auth, MappingAuth)
 

@@ -47,7 +47,7 @@ class Auth:
         self.allowed_paths.update(self.ALLOWED_PATHS)
         self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
         self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
-        self.enabled = configuration.getboolean("web", "auth", fallback=False)
+        self.enabled = configuration.getboolean("auth", "enabled", fallback=False)
 
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration) -> Auth:
@@ -56,7 +56,7 @@ class Auth:
         :param configuration: configuration instance
         :return: authorization module according to current settings
         """
-        if configuration.getboolean("web", "auth", fallback=False):
+        if configuration.getboolean("auth", "enabled", fallback=False):
             from ahriman.core.auth.mapping_auth import MappingAuth
             return MappingAuth(configuration)
         return cls(configuration)

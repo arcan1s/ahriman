@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import configparser
 
 from pathlib import Path
 from typing import Type
@@ -79,25 +78,20 @@ class Setup(Handler):
         :param repository: repository name
         :param include_path: path to directory with configuration includes
         """
-        configuration = configparser.ConfigParser()
+        configuration = Configuration()
 
         section = Configuration.section_name("build", architecture)
-        configuration.add_section(section)
-        configuration.set(section, "build_command", str(Setup.build_command(args.build_command, architecture)))
-
-        configuration.add_section("repository")
-        configuration.set("repository", "name", repository)
+        configuration.set_option(section, "build_command", str(Setup.build_command(args.build_command, architecture)))
+        configuration.set_option("repository", "name", repository)
 
         if args.sign_key is not None:
             section = Configuration.section_name("sign", architecture)
-            configuration.add_section(section)
-            configuration.set(section, "target", " ".join([target.name.lower() for target in args.sign_target]))
-            configuration.set(section, "key", args.sign_key)
+            configuration.set_option(section, "target", " ".join([target.name.lower() for target in args.sign_target]))
+            configuration.set_option(section, "key", args.sign_key)
 
         if args.web_port is not None:
             section = Configuration.section_name("web", architecture)
-            configuration.add_section(section)
-            configuration.set(section, "port", str(args.web_port))
+            configuration.set_option(section, "port", str(args.web_port))
 
         target = include_path / "setup-overrides.ini"
         with target.open("w") as ahriman_configuration:
@@ -115,7 +109,7 @@ class Setup(Handler):
         :param repository: repository name
         :param paths: repository paths instance
         """
-        configuration = configparser.ConfigParser()
+        configuration = Configuration()
         # preserve case
         # stupid mypy thinks that it is impossible
         configuration.optionxform = lambda key: key  # type: ignore
@@ -125,17 +119,15 @@ class Setup(Handler):
         configuration.read(source)
 
         # set our architecture now
-        configuration.set("options", "Architecture", architecture)
+        configuration.set_option("options", "Architecture", architecture)
 
         # add multilib
         if not no_multilib:
-            configuration.add_section("multilib")
-            configuration.set("multilib", "Include", str(Setup.MIRRORLIST_PATH))
+            configuration.set_option("multilib", "Include", str(Setup.MIRRORLIST_PATH))
 
         # add repository itself
-        configuration.add_section(repository)
-        configuration.set(repository, "SigLevel", "Optional TrustAll")  # we don't care
-        configuration.set(repository, "Server", f"file://{paths.repository}")
+        configuration.set_option(repository, "SigLevel", "Optional TrustAll")  # we don't care
+        configuration.set_option(repository, "Server", f"file://{paths.repository}")
 
         target = source.parent / f"pacman-{prefix}-{architecture}.conf"
         with target.open("w") as devtools_configuration:

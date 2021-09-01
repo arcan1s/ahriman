@@ -21,6 +21,7 @@ from typing import Dict, Optional
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import DuplicateUser
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -29,7 +30,7 @@ class MappingAuth(Auth):
     """
     user authorization based on mapping from configuration file
     :ivar salt: random generated string to salt passwords
-    :ivar users: map of username to its descriptor
+    :ivar _users: map of username to its descriptor
     """
 
     def __init__(self, configuration: Configuration) -> None:
@@ -39,7 +40,7 @@ class MappingAuth(Auth):
         """
         Auth.__init__(self, configuration)
         self.salt = configuration.get("auth", "salt")
-        self.users = self.get_users(configuration)
+        self._users = self.get_users(configuration)
 
     @staticmethod
     def get_users(configuration: Configuration) -> Dict[str, User]:
@@ -54,7 +55,10 @@ class MappingAuth(Auth):
             if not configuration.has_section(section):
                 continue
             for user, password in configuration[section].items():
-                users[user] = User(user, password, role)
+                normalized_user = user.lower()
+                if normalized_user in users:
+                    raise DuplicateUser(normalized_user)
+                users[normalized_user] = User(normalized_user, password, role)
         return users
 
     def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
@@ -66,7 +70,17 @@ class MappingAuth(Auth):
         """
         if username is None or password is None:
             return False  # invalid data supplied
-        return self.known_username(username) and self.users[username].check_credentials(password, self.salt)
+        user = self.get_user(username)
+        return user is not None and user.check_credentials(password, self.salt)
+
+    def get_user(self, username: str) -> Optional[User]:
+        """
+        retrieve user from in-memory mapping
+        :param username: username
+        :return: user descriptor if username is known and None otherwise
+        """
+        normalized_user = username.lower()
+        return self._users.get(normalized_user)
 
     def known_username(self, username: str) -> bool:
         """
@@ -74,7 +88,7 @@ class MappingAuth(Auth):
         :param username: username
         :return: True in case if user is known and can be authorized and False otherwise
         """
-        return username in self.users
+        return self.get_user(username) is not None
 
     def verify_access(self, username: str, required: UserAccess) -> bool:
         """
@@ -83,4 +97,5 @@ class MappingAuth(Auth):
         :param required: required access level
         :return: True in case if user is allowed to do this request and False otherwise
         """
-        return self.known_username(username) and self.users[username].verify_access(required)
+        user = self.get_user(username)
+        return user is not None and user.verify_access(required)

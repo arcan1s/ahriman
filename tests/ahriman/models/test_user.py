@@ -21,15 +21,28 @@ def test_from_option_empty() -> None:
     assert User.from_option(None, None) is None
 
 
-def test_check_credentials_generate_password(user: User) -> None:
+def test_check_credentials_hash_password(user: User) -> None:
     """
     must generate and validate user password
     """
     current_password = user.password
-    user.password = user.generate_password(current_password, "salt")
+    user.password = user.hash_password(current_password, "salt")
     assert user.check_credentials(current_password, "salt")
     assert not user.check_credentials(current_password, "salt1")
     assert not user.check_credentials(user.password, "salt")
+
+
+def test_generate_password() -> None:
+    """
+    must generate password with specified length
+    """
+    password = User.generate_password(16)
+    assert password
+    assert len(password) == 16
+
+    password = User.generate_password(42)
+    assert password
+    assert len(password) == 42
 
 
 def test_verify_access_read(user: User) -> None:

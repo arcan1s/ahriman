@@ -18,10 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import configparser
 import getpass
-import random
-import string
 
 from pathlib import Path
 from typing import Type
@@ -46,32 +43,24 @@ class CreateUser(Handler):
         """
         salt = CreateUser.get_salt(configuration)
         user = CreateUser.create_user(args, salt)
-        CreateUser.create_configuration(user, salt, configuration.include)
+        auth_configuration = CreateUser.get_auth_configuration(configuration.include)
+        CreateUser.create_configuration(auth_configuration, user, salt)
 
     @staticmethod
-    def create_configuration(user: User, salt: str, include_path: Path) -> None:
+    def create_configuration(configuration: Configuration, user: User, salt: str) -> None:
         """
         put new user to configuration
+        :param configuration: configuration instance
         :param user: user descriptor
         :param salt: password hash salt
-        :param include_path: path to directory with configuration includes
         """
-        def set_option(section_name: str, name: str, value: str) -> None:
-            if section_name not in configuration.sections():
-                configuration.add_section(section_name)
-            configuration.set(section_name, name, value)
-
-        target = include_path / "auth.ini"
-
-        configuration = configparser.ConfigParser()
-        if target.is_file():  # load current configuration in case if it exists
-            configuration.read(target)
-
         section = Configuration.section_name("auth", user.access.value)
-        set_option("auth", "salt", salt)
-        set_option(section, user.username, user.password)
+        configuration.set_option("auth", "salt", salt)
+        configuration.set_option(section, user.username, user.password)
 
-        with target.open("w") as ahriman_configuration:
+        if configuration.path is None:
+            return
+        with configuration.path.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
     @staticmethod
@@ -85,8 +74,22 @@ class CreateUser(Handler):
         user = User(args.username, args.password, args.role)
         if user.password is None:
             user.password = getpass.getpass()
-        user.password = user.generate_password(user.password, salt)
+        user.password = user.hash_password(user.password, salt)
         return user
+
+    @staticmethod
+    def get_auth_configuration(include_path: Path) -> Configuration:
+        """
+        create configuration instance
+        :param include_path: path to directory with configuration includes
+        :return: configuration instance. In case if there are local settings they will be loaded
+        """
+        target = include_path / "auth.ini"
+        configuration = Configuration()
+        if target.is_file():  # load current configuration in case if it exists
+            configuration.load(target)
+
+        return configuration
 
     @staticmethod
     def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
@@ -99,5 +102,4 @@ class CreateUser(Handler):
         salt = configuration.get("auth", "salt", fallback=None)
         if salt:
             return salt
-
-        return "".join(random.choices(string.ascii_letters + string.digits, k=salt_length))
+        return User.generate_password(salt_length)

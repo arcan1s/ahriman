@@ -10,5 +10,5 @@ def mapping_auth(configuration: Configuration) -> MappingAuth:
     auth provider fixture
     :return: auth service instance
     """
-    configuration.set("web", "auth", "yes")
+    configuration.set_option("auth", "enabled", "yes")
     return MappingAuth(configuration)

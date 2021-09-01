@@ -28,34 +28,45 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.CreateUser.get_auth_configuration")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.CreateUser.create_configuration")
     create_user = mocker.patch("ahriman.application.handlers.CreateUser.create_user")
     get_salt_mock = mocker.patch("ahriman.application.handlers.CreateUser.get_salt")
 
     CreateUser.run(args, "x86_64", configuration)
+    get_auth_configuration_mock.assert_called_once()
     create_configuration_mock.assert_called_once()
     create_user.assert_called_once()
     get_salt_mock.assert_called_once()
 
 
-def test_create_configuration(user: User, mocker: MockerFixture) -> None:
+def test_create_configuration(configuration: Configuration, user: User, mocker: MockerFixture) -> None:
     """
     must correctly create configuration file
     """
     section = Configuration.section_name("auth", user.access.value)
-
     mocker.patch("pathlib.Path.open")
-    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
-    set_mock = mocker.patch("configparser.RawConfigParser.set")
-    write_mock = mocker.patch("configparser.RawConfigParser.write")
+    set_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    CreateUser.create_configuration(user, "salt", Path("path"))
+    CreateUser.create_configuration(configuration, user, "salt")
     write_mock.assert_called_once()
-    add_section_mock.assert_has_calls([mock.call("auth"), mock.call(section)])
     set_mock.assert_has_calls([
         mock.call("auth", "salt", pytest.helpers.anyvar(str)),
         mock.call(section, user.username, user.password)
     ])
+
+
+def test_create_configuration_not_loaded(configuration: Configuration, user: User, mocker: MockerFixture) -> None:
+    """
+    must do nothing in case if configuration is not loaded
+    """
+    configuration.path = None
+    mocker.patch("pathlib.Path.open")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
+
+    CreateUser.create_configuration(configuration, user, "salt")
+    write_mock.assert_not_called()
 
 
 def test_create_configuration_user_exists(configuration: Configuration, user: User, mocker: MockerFixture) -> None:
@@ -63,30 +74,12 @@ def test_create_configuration_user_exists(configuration: Configuration, user: Us
     must correctly update configuration file if user already exists
     """
     section = Configuration.section_name("auth", user.access.value)
-    configuration.add_section(section)
-    configuration.set(section, user.username, "")
-
+    configuration.set_option(section, user.username, "")
     mocker.patch("pathlib.Path.open")
-    mocker.patch("configparser.ConfigParser", return_value=configuration)
-    mocker.patch("configparser.RawConfigParser.write")
-    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
+    mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    CreateUser.create_configuration(user, "salt", Path("path"))
-    add_section_mock.assert_not_called()
+    CreateUser.create_configuration(configuration, user, "salt")
     assert configuration.get(section, user.username) == user.password
-
-
-def test_create_configuration_file_exists(user: User, mocker: MockerFixture) -> None:
-    """
-    must correctly update configuration file if file already exists
-    """
-    mocker.patch("pathlib.Path.open")
-    mocker.patch("pathlib.Path.is_file", return_value=True)
-    mocker.patch("configparser.RawConfigParser.write")
-    read_mock = mocker.patch("configparser.RawConfigParser.read")
-
-    CreateUser.create_configuration(user, "salt", Path("path"))
-    read_mock.assert_called_once()
 
 
 def test_create_user(args: argparse.Namespace, user: User) -> None:
@@ -130,3 +123,22 @@ def test_get_salt_generate(configuration: Configuration) -> None:
     salt = CreateUser.get_salt(configuration, 16)
     assert salt
     assert len(salt) == 16
+
+
+def test_get_auth_configuration() -> None:
+    """
+    must load empty configuration
+    """
+    assert CreateUser.get_auth_configuration(Path("path"))
+
+
+def test_get_auth_configuration_exists(mocker: MockerFixture) -> None:
+    """
+    must load configuration from filesystem
+    """
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+
+    CreateUser.get_auth_configuration(Path("path"))
+    read_mock.assert_called_once()

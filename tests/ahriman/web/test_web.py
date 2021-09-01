@@ -35,7 +35,7 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
     must run application
     """
     port = 8080
-    application["configuration"].set("web", "port", str(port))
+    application["configuration"].set_option("web", "port", str(port))
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application)
@@ -48,7 +48,7 @@ def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFix
     must run application
     """
     port = 8080
-    application_with_auth["configuration"].set("web", "port", str(port))
+    application_with_auth["configuration"].set_option("web", "port", str(port))
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application_with_auth)

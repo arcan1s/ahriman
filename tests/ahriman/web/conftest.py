@@ -32,12 +32,12 @@ def application_with_auth(configuration: Configuration, user: User, mocker: Mock
     :param mocker: mocker object
     :return: application test instance
     """
-    configuration.set("web", "auth", "yes")
+    configuration.set_option("auth", "enabled", "yes")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
     mocker.patch("pathlib.Path.mkdir")
     application = setup_service("x86_64", configuration)
 
-    generated = User(user.username, user.generate_password(user.password, application["validator"].salt), user.access)
-    application["validator"].users[generated.username] = generated
+    generated = User(user.username, user.hash_password(user.password, application["validator"].salt), user.access)
+    application["validator"]._users[generated.username] = generated
 
     return application

@@ -45,6 +45,19 @@ class DuplicateRun(Exception):
         Exception.__init__(self, "Another application instance is run")
 
 
+class DuplicateUser(Exception):
+    """
+    exception which will be thrown in case if there are two users with different settings
+    """
+
+    def __init__(self, username: str) -> None:
+        """
+        default constructor
+        :param username: username with duplicates
+        """
+        Exception.__init__(self, f"Found duplicate user with username {username}")
+
+
 class InitializeException(Exception):
     """
     base service initialization exception

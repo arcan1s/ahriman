@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Optional, Type
+from passlib.pwd import genword as generate_password  # type: ignore
 from passlib.handlers.sha2_crypt import sha512_crypt  # type: ignore
 
 from ahriman.models.user_access import UserAccess
@@ -52,6 +53,16 @@ class User:
             return None
         return cls(username, password, UserAccess.Status)
 
+    @staticmethod
+    def generate_password(length: int) -> str:
+        """
+        generate password with specified length
+        :param length: password length
+        :return: random string which contains letters and numbers
+        """
+        password: str = generate_password(length=length)
+        return password
+
     def check_credentials(self, password: str, salt: str) -> bool:
         """
         validate user password
@@ -62,7 +73,7 @@ class User:
         verified: bool = self._HASHER.verify(password + salt, self.password)
         return verified
 
-    def generate_password(self, password: str, salt: str) -> str:
+    def hash_password(self, password: str, salt: str) -> str:
         """
         generate hashed password from plain text
         :param password: entered password

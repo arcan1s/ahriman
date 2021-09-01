@@ -62,19 +62,12 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.open")
-    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
-    set_mock = mocker.patch("configparser.RawConfigParser.set")
-    write_mock = mocker.patch("configparser.RawConfigParser.write")
+    set_option_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     command = Setup.build_command(args.build_command, "x86_64")
     Setup.create_ahriman_configuration(args, "x86_64", args.repository, configuration.include)
-    add_section_mock.assert_has_calls([
-        mock.call(Configuration.section_name("build", "x86_64")),
-        mock.call("repository"),
-        mock.call(Configuration.section_name("sign", "x86_64")),
-        mock.call(Configuration.section_name("web", "x86_64")),
-    ])
-    set_mock.assert_has_calls([
+    set_option_mock.assert_has_calls([
         mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         mock.call("repository", "name", args.repository),
         mock.call(Configuration.section_name("sign", "x86_64"), "target",
@@ -92,9 +85,9 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.open")
-    mocker.patch("configparser.RawConfigParser.set")
-    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
-    write_mock = mocker.patch("configparser.RawConfigParser.write")
+    mocker.patch("ahriman.core.configuration.Configuration.set")
+    add_section_mock = mocker.patch("ahriman.core.configuration.Configuration.add_section")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
                                         args.no_multilib, args.repository, repository_paths)
@@ -112,13 +105,11 @@ def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, rep
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.open")
-    mocker.patch("configparser.RawConfigParser.set")
-    add_section_mock = mocker.patch("configparser.RawConfigParser.add_section")
-    write_mock = mocker.patch("configparser.RawConfigParser.write")
+    mocker.patch("ahriman.core.configuration.Configuration.set")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
                                         True, args.repository, repository_paths)
-    add_section_mock.assert_called_once()
     write_mock.assert_called_once()
 
 

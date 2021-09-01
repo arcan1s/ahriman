@@ -25,8 +25,8 @@ def authorization_policy(configuration: Configuration, user: User) -> Authorizat
     fixture for authorization policy
     :return: authorization policy fixture
     """
-    configuration.set("web", "auth", "yes")
+    configuration.set_option("auth", "enabled", "yes")
     validator = Auth.load(configuration)
     policy = AuthorizationPolicy(validator)
-    policy.validator.users = {user.username: user}
+    policy.validator._users = {user.username: user}
     return policy

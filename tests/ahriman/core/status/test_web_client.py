@@ -33,11 +33,11 @@ def test_parse_address(configuration: Configuration) -> None:
     """
     must extract address correctly
     """
-    configuration.set("web", "host", "localhost")
-    configuration.set("web", "port", "8080")
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
     assert WebClient.parse_address(configuration) == "http://localhost:8080"
 
-    configuration.set("web", "address", "http://localhost:8081")
+    configuration.set_option("web", "address", "http://localhost:8081")
     assert WebClient.parse_address(configuration) == "http://localhost:8081"
 
 

@@ -170,18 +170,27 @@ class Configuration(configparser.RawConfigParser):
         :param architecture: repository architecture
         """
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
-            if not self.has_section(section):
-                self.add_section(section)  # add section if not exists
             # get overrides
             specific = self.section_name(section, architecture)
             if self.has_section(specific):
                 # if there is no such section it means that there is no overrides for this arch
                 # but we anyway will have to delete sections for others archs
                 for key, value in self[specific].items():
-                    self.set(section, key, value)
+                    self.set_option(section, key, value)
             # remove any arch specific section
             for foreign in self.sections():
                 # we would like to use lambda filter here, but pylint is too dumb
                 if not foreign.startswith(f"{section}:"):
                     continue
                 self.remove_section(foreign)
+
+    def set_option(self, section: str, option: str, value: Optional[str]) -> None:
+        """
+        set option. Unlike default `configparser.RawConfigParser.set` it also creates section if it does not exist
+        :param section: section name
+        :param option: option name
+        :param value: option value as string in parsable format
+        """
+        if not self.has_section(section):
+            self.add_section(section)
+        self.set(section, option, value)

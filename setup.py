@@ -1,4 +1,3 @@
-from build_manpages import build_manpages
 from pathlib import Path
 from setuptools import setup, find_packages
 from typing import Any, Dict
@@ -31,6 +30,7 @@ setup(
     ],
     install_requires=[
         "aur",
+        "passlib",
         "pyalpm",
         "requests",
         "srcinfo",
@@ -103,8 +103,4 @@ setup(
             "passlib",
         ],
     },
-
-    cmdclass={
-        "build_manpages": build_manpages.build_manpages,
-    }
 )
