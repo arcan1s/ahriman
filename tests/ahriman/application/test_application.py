@@ -283,6 +283,27 @@ def test_sync(application: Application, mocker: MockerFixture) -> None:
     executor_mock.assert_called_once()
 
 
+def test_unknown(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return list of packages missing in aur
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+
+    packages = application.unknown()
+    assert packages == [package_ahriman]
+
+
+def test_unknown_empty(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return list of packages missing in aur
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur")
+
+    assert not application.unknown()
+
+
 def test_update(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must process package updates

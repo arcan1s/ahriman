@@ -68,6 +68,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_key_import_parser(subparsers)
     _set_rebuild_parser(subparsers)
     _set_remove_parser(subparsers)
+    _set_remove_unknown_parser(subparsers)
     _set_report_parser(subparsers)
     _set_search_parser(subparsers)
     _set_setup_parser(subparsers)
@@ -216,6 +217,20 @@ def _set_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package name or base", nargs="+")
     parser.set_defaults(handler=handlers.Remove, architecture=[])
+    return parser
+
+
+def _set_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for remove unknown packages subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("remove-unknown", help="remove unknown packages",
+                             description="remove packages which are missing in AUR",
+                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
+    parser.set_defaults(handler=handlers.RemoveUnknown, architecture=[])
     return parser
 
 
