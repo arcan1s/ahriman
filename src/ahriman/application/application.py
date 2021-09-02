@@ -205,6 +205,19 @@ class Application:
         targets = target or None
         self.repository.process_sync(targets, built_packages)
 
+    def unknown(self) -> List[Package]:
+        """
+        get packages which were not found in AUR
+        :return: unknown package list
+        """
+        packages = []
+        for base in self.repository.packages():
+            try:
+                _ = Package.from_aur(base.base, base.aur_url)
+            except Exception:
+                packages.append(base)
+        return packages
+
     def update(self, updates: Iterable[Package]) -> None:
         """
         run package updates

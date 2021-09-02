@@ -27,6 +27,7 @@ from ahriman.application.handlers.init import Init
 from ahriman.application.handlers.key_import import KeyImport
 from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.application.handlers.remove import Remove
+from ahriman.application.handlers.remove_unknown import RemoveUnknown
 from ahriman.application.handlers.report import Report
 from ahriman.application.handlers.search import Search
 from ahriman.application.handlers.setup import Setup
