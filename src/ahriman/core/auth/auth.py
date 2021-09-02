@@ -22,6 +22,7 @@ from __future__ import annotations
 from typing import Optional, Set, Type
 
 from ahriman.core.configuration import Configuration
+from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user_access import UserAccess
 
 
@@ -38,16 +39,17 @@ class Auth:
     ALLOWED_PATHS = {"/", "/favicon.ico", "/index.html", "/login", "/logout"}
     ALLOWED_PATHS_GROUPS: Set[str] = set()
 
-    def __init__(self, configuration: Configuration) -> None:
+    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """
         default constructor
         :param configuration: configuration instance
+        :param provider: authorization type definition
         """
         self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
         self.allowed_paths.update(self.ALLOWED_PATHS)
         self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
         self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
-        self.enabled = configuration.getboolean("auth", "enabled", fallback=False)
+        self.enabled = provider.is_enabled
 
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration) -> Auth:
@@ -56,7 +58,8 @@ class Auth:
         :param configuration: configuration instance
         :return: authorization module according to current settings
         """
-        if configuration.getboolean("auth", "enabled", fallback=False):
+        provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
+        if provider == AuthSettings.Configuration:
             from ahriman.core.auth.mapping_auth import MappingAuth
             return MappingAuth(configuration)
         return cls(configuration)

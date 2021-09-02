@@ -22,6 +22,7 @@ from typing import Dict, Optional
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateUser
+from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -33,12 +34,13 @@ class MappingAuth(Auth):
     :ivar _users: map of username to its descriptor
     """
 
-    def __init__(self, configuration: Configuration) -> None:
+    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Configuration) -> None:
         """
         default constructor
         :param configuration: configuration instance
+        :param provider: authorization type definition
         """
-        Auth.__init__(self, configuration)
+        Auth.__init__(self, configuration, provider)
         self.salt = configuration.get("auth", "salt")
         self._users = self.get_users(configuration)
 
