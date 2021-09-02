@@ -23,8 +23,8 @@ def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must send an email with attachment with auth
     """
-    configuration.set("email", "user", "username")
-    configuration.set("email", "password", "password")
+    configuration.set_option("email", "user", "username")
+    configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
     report = Email("x86_64", configuration)
@@ -36,7 +36,7 @@ def test_send_auth_no_password(configuration: Configuration, mocker: MockerFixtu
     """
     must send an email with attachment without auth if no password supplied
     """
-    configuration.set("email", "user", "username")
+    configuration.set_option("email", "user", "username")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
     report = Email("x86_64", configuration)
@@ -48,7 +48,7 @@ def test_send_auth_no_user(configuration: Configuration, mocker: MockerFixture) 
     """
     must send an email with attachment without auth if no user supplied
     """
-    configuration.set("email", "password", "password")
+    configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
     report = Email("x86_64", configuration)
@@ -60,7 +60,7 @@ def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> No
     """
     must send an email with attachment with ssl/tls
     """
-    configuration.set("email", "ssl", "ssl")
+    configuration.set_option("email", "ssl", "ssl")
     smtp_mock = mocker.patch("smtplib.SMTP_SSL")
 
     report = Email("x86_64", configuration)
@@ -75,7 +75,7 @@ def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> N
     """
     must send an email with attachment with starttls
     """
-    configuration.set("email", "ssl", "starttls")
+    configuration.set_option("email", "ssl", "starttls")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
     report = Email("x86_64", configuration)
@@ -109,7 +109,7 @@ def test_generate_no_empty(configuration: Configuration, package_ahriman: Packag
     """
     must not generate report with built packages if no_empty_report is set
     """
-    configuration.set("email", "no_empty_report", "yes")
+    configuration.set_option("email", "no_empty_report", "yes")
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration)
@@ -122,7 +122,7 @@ def test_generate_no_empty_with_built(configuration: Configuration, package_ahri
     """
     must generate report with built packages if no_empty_report is set
     """
-    configuration.set("email", "no_empty_report", "yes")
+    configuration.set_option("email", "no_empty_report", "yes")
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration)

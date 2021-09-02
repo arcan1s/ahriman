@@ -2,6 +2,7 @@ import pytest
 
 from typing import Any, Dict
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.status.client import Client
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -40,9 +41,11 @@ def client() -> Client:
 
 
 @pytest.fixture
-def web_client() -> WebClient:
+def web_client(configuration: Configuration) -> WebClient:
     """
     fixture for web client
+    :param configuration: configuration fixture
     :return: web client test instance
     """
-    return WebClient("localhost", 8080)
+    configuration.set("web", "port", 8080)
+    return WebClient(configuration)

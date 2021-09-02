@@ -35,9 +35,22 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
     must run application
     """
     port = 8080
-    application["configuration"].set("web", "port", str(port))
+    application["configuration"].set_option("web", "port", str(port))
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application)
     run_application_mock.assert_called_with(application, host="127.0.0.1", port=port,
+                                            handle_signals=False, access_log=pytest.helpers.anyvar(int))
+
+
+def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFixture) -> None:
+    """
+    must run application
+    """
+    port = 8080
+    application_with_auth["configuration"].set_option("web", "port", str(port))
+    run_application_mock = mocker.patch("aiohttp.web.run_app")
+
+    run_server(application_with_auth)
+    run_application_mock.assert_called_with(application_with_auth, host="127.0.0.1", port=port,
                                             handle_signals=False, access_log=pytest.helpers.anyvar(int))

@@ -40,6 +40,7 @@
         width: inherit;
     }
 
+    /* table description */
     th, td {
         padding: 5px;
     }
@@ -103,6 +104,7 @@
         background-color: rgba(var(--color-success), 1.0);
     }
 
+    /* navigation footer description */
     ul.navigation {
         list-style-type: none;
         margin: 0;
@@ -115,11 +117,8 @@
         float: left;
     }
 
-    ul.navigation li.status {
-        display: block;
-        text-align: center;
-        text-decoration: none;
-        padding: 14px 16px;
+    ul.navigation li.right {
+        float: right;
     }
 
     ul.navigation li a {
@@ -131,6 +130,86 @@
     }
 
     ul.navigation li a:hover {
-        background-color: rgba(var(--color-hover), 1.0);
+        opacity: 0.6;
+    }
+
+    /* login button in footer and modal page */
+    button.login {
+        background-color: rgba(var(--color-header), 1.0);
+        padding: 14px 16px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button.login:hover {
+        opacity: 0.6;
+    }
+
+    button.cancel {
+        background-color: rgba(var(--color-failed), 1.0);
+        padding: 14px 16px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    button.cancel:hover {
+        opacity: 0.6;
+    }
+
+    /* modal page inputs and containers */
+    input[type=text], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    .login-container {
+        padding: 14px 16px;
+    }
+
+    span.password {
+        float: right;
+        padding-top: 16px;
+    }
+
+    .modal-login-form {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .modal-login-form-content {
+        background-color: #fefefe;
+        margin: 5% auto 15% auto;
+        border: 1px solid #888;
+        width: 25%;
+    }
+
+    /* modal page animation */
+    .animate {
+        -webkit-animation: animatezoom 0.6s;
+        animation: animatezoom 0.6s
+    }
+
+    @-webkit-keyframes animatezoom {
+        from {-webkit-transform: scale(0)}
+        to {-webkit-transform: scale(1)}
+    }
+
+    @keyframes animatezoom {
+        from {transform: scale(0)}
+        to {transform: scale(1)}
     }
 </style>

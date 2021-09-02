@@ -78,14 +78,14 @@ class Configuration(configparser.RawConfigParser):
         return config
 
     @staticmethod
-    def section_name(section: str, architecture: str) -> str:
+    def section_name(section: str, suffix: str) -> str:
         """
-        generate section name for architecture specific sections
+        generate section name for sections which depends on context
         :param section: section name
-        :param architecture: repository architecture
+        :param suffix: session suffix, e.g. repository architecture
         :return: correct section name for repository specific section
         """
-        return f"{section}:{architecture}"
+        return f"{section}:{suffix}"
 
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
@@ -170,18 +170,27 @@ class Configuration(configparser.RawConfigParser):
         :param architecture: repository architecture
         """
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
-            if not self.has_section(section):
-                self.add_section(section)  # add section if not exists
             # get overrides
             specific = self.section_name(section, architecture)
             if self.has_section(specific):
                 # if there is no such section it means that there is no overrides for this arch
                 # but we anyway will have to delete sections for others archs
                 for key, value in self[specific].items():
-                    self.set(section, key, value)
+                    self.set_option(section, key, value)
             # remove any arch specific section
             for foreign in self.sections():
                 # we would like to use lambda filter here, but pylint is too dumb
                 if not foreign.startswith(f"{section}:"):
                     continue
                 self.remove_section(foreign)
+
+    def set_option(self, section: str, option: str, value: Optional[str]) -> None:
+        """
+        set option. Unlike default `configparser.RawConfigParser.set` it also creates section if it does not exist
+        :param section: section name
+        :param option: option name
+        :param value: option value as string in parsable format
+        """
+        if not self.has_section(section):
+            self.add_section(section)
+        self.set(section, option, value)

@@ -21,6 +21,8 @@ from aiohttp.web import Application
 
 from ahriman.web.views.ahriman import AhrimanView
 from ahriman.web.views.index import IndexView
+from ahriman.web.views.login import LoginView
+from ahriman.web.views.logout import LogoutView
 from ahriman.web.views.package import PackageView
 from ahriman.web.views.packages import PackagesView
 from ahriman.web.views.status import StatusView
@@ -34,6 +36,9 @@ def setup_routes(application: Application) -> None:
 
         GET /                           get build status page
         GET /index.html                 same as above
+
+        POST /login                     login to service
+        POST /logout                    logout from service
 
         GET /api/v1/ahriman             get current service status
         POST /api/v1/ahriman            update service status
@@ -51,6 +56,9 @@ def setup_routes(application: Application) -> None:
     """
     application.router.add_get("/", IndexView)
     application.router.add_get("/index.html", IndexView)
+
+    application.router.add_post("/login", LoginView)
+    application.router.add_post("/logout", LogoutView)
 
     application.router.add_get("/api/v1/ahriman", AhrimanView)
     application.router.add_post("/api/v1/ahriman", AhrimanView)

@@ -1,0 +1,18 @@
+{#idea is from here https://www.w3schools.com/howto/howto_css_login_form.asp#}
+<div id="login-form" class="modal-login-form">
+    <form class="modal-login-form-content animate" action="/login" method="post">
+        <div class="login-container">
+            <label for="username"><b>username</b></label>
+            <input type="text" placeholder="enter username" name="username" required>
+
+            <label for="password"><b>password</b></label>
+            <input type="password" placeholder="enter password" name="password" required>
+
+            <button class="login" type="submit">login</button>
+        </div>
+
+        <div class="login-container">
+            <button class="cancel" onclick="document.getElementById('login-form').style.display='none'">cancel</button>
+        </div>
+    </form>
+</div>

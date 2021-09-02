@@ -39,11 +39,12 @@ class Client:
         :param configuration: configuration instance
         :return: client according to current settings
         """
+        address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
         port = configuration.getint("web", "port", fallback=None)
-        if host is not None and port is not None:
+        if address or (host and port):
             from ahriman.core.status.web_client import WebClient
-            return WebClient(host, port)
+            return WebClient(configuration)
         return cls()
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:

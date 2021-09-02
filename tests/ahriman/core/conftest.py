@@ -2,6 +2,7 @@ import pytest
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
+from ahriman.core.auth.auth import Auth
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.tree import Leaf
