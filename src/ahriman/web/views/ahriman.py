@@ -46,7 +46,7 @@ class AhrimanView(BaseView):
 
         :return: 204 on success
         """
-        data = await self.request.json()
+        data = await self.extract_data()
 
         try:
             status = BuildStatusEnum(data["status"])

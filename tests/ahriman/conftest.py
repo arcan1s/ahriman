@@ -1,17 +1,17 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, Type, TypeVar
 
+from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
-
+from ahriman.models.user import User
+from ahriman.models.user_access import UserAccess
 
 T = TypeVar("T")
 
@@ -43,6 +43,15 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 
 # generic fixtures
+@pytest.fixture
+def auth(configuration: Configuration) -> Auth:
+    """
+    auth provider fixture
+    :return: auth service instance
+    """
+    return Auth(configuration)
+
+
 @pytest.fixture
 def configuration(resource_path_root: Path) -> Configuration:
     """
@@ -156,6 +165,15 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
         root=configuration.getpath("repository", "root"))
+
+
+@pytest.fixture
+def user() -> User:
+    """
+    fixture for user descriptor
+    :return: user descriptor instance
+    """
+    return User("user", "pa55w0rd", UserAccess.Status)
 
 
 @pytest.fixture

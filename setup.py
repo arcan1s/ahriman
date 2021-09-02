@@ -1,11 +1,10 @@
-from build_manpages import build_manpages
 from pathlib import Path
 from setuptools import setup, find_packages
 from typing import Any, Dict
 
 
 metadata_path = Path(__file__).resolve().parent / "src/ahriman/version.py"
-metadata: Dict[str, Any] = dict()
+metadata: Dict[str, Any] = {}
 with metadata_path.open() as metadata_file:
     exec(metadata_file.read(), metadata)  # pylint: disable=exec-used
 
@@ -31,6 +30,7 @@ setup(
     ],
     install_requires=[
         "aur",
+        "passlib",
         "pyalpm",
         "requests",
         "srcinfo",
@@ -97,10 +97,10 @@ setup(
             "Jinja2",
             "aiohttp",
             "aiohttp_jinja2",
+            "aiohttp_session",
+            "aiohttp_security",
+            "cryptography",
+            "passlib",
         ],
     },
-
-    cmdclass={
-        "build_manpages": build_manpages.build_manpages,
-    }
 )

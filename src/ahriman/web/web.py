@@ -23,6 +23,7 @@ import logging
 
 from aiohttp import web
 
+from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
 from ahriman.core.status.watcher import Watcher
@@ -91,5 +92,11 @@ def setup_service(architecture: str, configuration: Configuration) -> web.Applic
 
     application.logger.info("setup watcher")
     application["watcher"] = Watcher(architecture, configuration)
+
+    application.logger.info("setup authorization")
+    validator = application["validator"] = Auth.load(configuration)
+    if validator.enabled:
+        from ahriman.web.middlewares.auth_handler import setup_auth
+        setup_auth(application, validator)
 
     return application
