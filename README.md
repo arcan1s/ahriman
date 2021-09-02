@@ -7,13 +7,13 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 
 ## Features
 
-* Install-configure-forget manager for own repository
-* Multi-architecture support
-* VCS packages support
-* Sign support with gpg (repository, package, per package settings)
-* Synchronization to remote services (rsync, s3) and report generation (html)
-* Dependency manager
-* Repository status interface
+* Install-configure-forget manager for own repository.
+* Multi-architecture support.
+* VCS packages support.
+* Sign support with gpg (repository, package, per package settings).
+* Synchronization to remote services (rsync, s3) and report generation (html).
+* Dependency manager.
+* Repository status interface with optional authorization.
 
 ## Installation and run
 
