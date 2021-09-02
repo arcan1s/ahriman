@@ -140,6 +140,14 @@ def test_subparsers_remove(parser: argparse.ArgumentParser) -> None:
     assert args.architecture == []
 
 
+def test_subparsers_remove_unknown(parser: argparse.ArgumentParser) -> None:
+    """
+    remove-unknown command must imply empty architectures list
+    """
+    args = parser.parse_args(["remove-unknown"])
+    assert args.architecture == []
+
+
 def test_subparsers_report(parser: argparse.ArgumentParser) -> None:
     """
     report command must imply empty architectures list
