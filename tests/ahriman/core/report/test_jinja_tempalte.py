@@ -7,13 +7,6 @@ def test_generate(configuration: Configuration, package_ahriman: Package) -> Non
     """
     must generate html report
     """
+    path = configuration.getpath("html", "template_path")
     report = JinjaTemplate("html", configuration)
-    assert report.make_html([package_ahriman], extended_report=False)
-
-
-def test_generate_extended(configuration: Configuration, package_ahriman: Package) -> None:
-    """
-    must generate extended html report
-    """
-    report = JinjaTemplate("html", configuration)
-    assert report.make_html([package_ahriman], extended_report=True)
+    assert report.make_html([package_ahriman], path)

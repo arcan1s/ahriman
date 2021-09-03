@@ -19,6 +19,7 @@
 #
 import jinja2
 
+from pathlib import Path
 from typing import Callable, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
@@ -59,7 +60,6 @@ class JinjaTemplate:
     :ivar name: repository name
     :ivar default_pgp_key: default PGP key
     :ivar sign_targets: targets to sign enabled in configuration
-    :ivar template_path: path to directory with jinja templates
     """
 
     def __init__(self, section: str, configuration: Configuration) -> None:
@@ -69,7 +69,6 @@ class JinjaTemplate:
         :param configuration: configuration instance
         """
         self.link_path = configuration.get(section, "link_path")
-        self.template_path = configuration.getpath(section, "template_path")
 
         # base template vars
         self.homepage = configuration.get(section, "homepage", fallback=None)
@@ -77,16 +76,16 @@ class JinjaTemplate:
 
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 
-    def make_html(self, packages: Iterable[Package], extended_report: bool) -> str:
+    def make_html(self, packages: Iterable[Package], template_path: Path) -> str:
         """
         generate report for the specified packages
         :param packages: list of packages to generate report
-        :param extended_report: include additional blocks to the report
+        :param template_path: path to jinja template
         """
         # idea comes from https://stackoverflow.com/a/38642558
-        loader = jinja2.FileSystemLoader(searchpath=self.template_path.parent)
+        loader = jinja2.FileSystemLoader(searchpath=template_path.parent)
         environment = jinja2.Environment(loader=loader, autoescape=True)
-        template = environment.get_template(self.template_path.name)
+        template = environment.get_template(template_path.name)
 
         content = [
             {
@@ -107,7 +106,6 @@ class JinjaTemplate:
         comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
 
         return template.render(
-            extended_report=extended_report,
             homepage=self.homepage,
             link_path=self.link_path,
             has_package_signed=SignSettings.Packages in self.sign_targets,

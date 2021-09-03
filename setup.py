@@ -66,10 +66,8 @@ setup(
         ]),
         ("share/ahriman", [
             "package/share/ahriman/build-status.jinja2",
+            "package/share/ahriman/email-index.jinja2",
             "package/share/ahriman/repo-index.jinja2",
-            "package/share/ahriman/search.jinja2",
-            "package/share/ahriman/search-line.jinja2",
-            "package/share/ahriman/sorttable.jinja2",
             "package/share/ahriman/style.jinja2",
         ]),
     ],

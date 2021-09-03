@@ -44,6 +44,7 @@ class IndexView(BaseView):
                    * licenses, sorted list of strings
                    * packages, sorted list of strings
                    * status, string based on enum value
+                   * status_color, string based on enum value
                    * timestamp, pretty printed datetime, string
                    * version, string
                    * web_url, string
@@ -70,6 +71,7 @@ class IndexView(BaseView):
                 "licenses": package.licenses,
                 "packages": list(sorted(package.packages)),
                 "status": status.status.value,
+                "status_color": status.status.bootstrap_color(),
                 "timestamp": pretty_datetime(status.timestamp),
                 "version": package.version,
                 "web_url": package.web_url
