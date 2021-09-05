@@ -154,6 +154,7 @@ def _set_create_user_parser(root: SubParserAction) -> argparse.ArgumentParser:
         description="create user for web services with password and role. In case if password was not entered it will be asked interactively",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("username", help="username for web service")
+    parser.add_argument("--as-service", help="add user as service user", action="store_true")
     parser.add_argument("-r", "--role", help="user role", type=UserAccess, choices=UserAccess, default=UserAccess.Read)
     parser.add_argument("-p", "--password", help="user password")
     parser.set_defaults(

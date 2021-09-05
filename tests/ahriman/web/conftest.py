@@ -37,7 +37,7 @@ def application_with_auth(configuration: Configuration, user: User, mocker: Mock
     mocker.patch("pathlib.Path.mkdir")
     application = setup_service("x86_64", configuration)
 
-    generated = User(user.username, user.hash_password(user.password, application["validator"].salt), user.access)
+    generated = User(user.username, user.hash_password(application["validator"].salt), user.access)
     application["validator"]._users[generated.username] = generated
 
     return application

@@ -73,14 +73,13 @@ class User:
         verified: bool = self._HASHER.verify(password + salt, self.password)
         return verified
 
-    def hash_password(self, password: str, salt: str) -> str:
+    def hash_password(self, salt: str) -> str:
         """
         generate hashed password from plain text
-        :param password: entered password
         :param salt: salt for hashed password
         :return: hashed string to store in configuration
         """
-        password_hash: str = self._HASHER.hash(password + salt)
+        password_hash: str = self._HASHER.hash(self.password + salt)
         return password_hash
 
     def verify_access(self, required: UserAccess) -> bool:

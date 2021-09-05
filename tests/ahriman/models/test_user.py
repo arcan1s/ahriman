@@ -26,7 +26,7 @@ def test_check_credentials_hash_password(user: User) -> None:
     must generate and validate user password
     """
     current_password = user.password
-    user.password = user.hash_password(current_password, "salt")
+    user.password = user.hash_password("salt")
     assert user.check_credentials(current_password, "salt")
     assert not user.check_credentials(current_password, "salt1")
     assert not user.check_credentials(user.password, "salt")

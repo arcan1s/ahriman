@@ -42,21 +42,26 @@ class CreateUser(Handler):
         :param configuration: configuration instance
         """
         salt = CreateUser.get_salt(configuration)
-        user = CreateUser.create_user(args, salt)
+        user = CreateUser.create_user(args)
         auth_configuration = CreateUser.get_auth_configuration(configuration.include)
-        CreateUser.create_configuration(auth_configuration, user, salt)
+        CreateUser.create_configuration(auth_configuration, user, salt, args.as_service)
 
     @staticmethod
-    def create_configuration(configuration: Configuration, user: User, salt: str) -> None:
+    def create_configuration(configuration: Configuration, user: User, salt: str, as_service_user: bool) -> None:
         """
         put new user to configuration
         :param configuration: configuration instance
         :param user: user descriptor
         :param salt: password hash salt
+        :param as_service_user: add user as service user, also set password and user to configuration
         """
         section = Configuration.section_name("auth", user.access.value)
         configuration.set_option("auth", "salt", salt)
-        configuration.set_option(section, user.username, user.password)
+        configuration.set_option(section, user.username, user.hash_password(salt))
+
+        if as_service_user:
+            configuration.set_option("web", "username", user.username)
+            configuration.set_option("web", "password", user.password)
 
         if configuration.path is None:
             return
@@ -64,17 +69,15 @@ class CreateUser(Handler):
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def create_user(args: argparse.Namespace, salt: str) -> User:
+    def create_user(args: argparse.Namespace) -> User:
         """
         create user descriptor from arguments
         :param args: command line args
-        :param salt: password hash salt
         :return: built user descriptor
         """
         user = User(args.username, args.password, args.role)
         if user.password is None:
             user.password = getpass.getpass()
-        user.password = user.hash_password(user.password, salt)
         return user
 
     @staticmethod

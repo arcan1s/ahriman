@@ -58,7 +58,7 @@ def test_check_credentials(mapping_auth: MappingAuth, user: User) -> None:
     must return true for valid credentials
     """
     current_password = user.password
-    user.password = user.hash_password(user.password, mapping_auth.salt)
+    user.password = user.hash_password(mapping_auth.salt)
     mapping_auth._users[user.username] = user
     assert mapping_auth.check_credentials(user.username, current_password)
     assert not mapping_auth.check_credentials(user.username, user.password)  # here password is hashed so it is invalid
