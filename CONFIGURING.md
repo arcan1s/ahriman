@@ -70,6 +70,7 @@ Report generation settings.
 
 Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_64 architecture.
 
+* `full_template_path` - path to Jinja2 template for full package description index, string, optional.
 * `homepage` - link to homepage, string, optional.
 * `host` - SMTP host for sending emails, string, required.
 * `link_path` - prefix for HTML links, string, required.
