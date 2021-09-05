@@ -45,6 +45,7 @@ class Auth:
         :param configuration: configuration instance
         :param provider: authorization type definition
         """
+        self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
         self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
         self.allowed_paths.update(self.ALLOWED_PATHS)
         self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
@@ -74,14 +75,17 @@ class Auth:
         del username, password
         return True
 
-    def is_safe_request(self, uri: Optional[str]) -> bool:
+    def is_safe_request(self, uri: Optional[str], required: UserAccess) -> bool:
         """
         check if requested path are allowed without authorization
         :param uri: request uri
+        :param required: required access level
         :return: True in case if this URI can be requested without authorization and False otherwise
         """
         if not uri:
             return False  # request without context is not allowed
+        if required == UserAccess.Read and self.allow_read_only:
+            return True  # in case if read right requested and allowed in options
         return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
 
     def known_username(self, username: str) -> bool:  # pylint: disable=no-self-use

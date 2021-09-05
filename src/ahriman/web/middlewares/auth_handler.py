@@ -80,7 +80,7 @@ def auth_handler(validator: Auth) -> MiddlewareType:
         else:
             permission = UserAccess.Write
 
-        if not validator.is_safe_request(request.path):
+        if not validator.is_safe_request(request.path, permission):
             await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)
