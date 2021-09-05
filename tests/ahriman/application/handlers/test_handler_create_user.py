@@ -20,6 +20,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.username = "user"
     args.password = "pa55w0rd"
     args.role = UserAccess.Status
+    args.as_service = False
     return args
 
 
@@ -49,11 +50,11 @@ def test_create_configuration(configuration: Configuration, user: User, mocker: 
     set_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    CreateUser.create_configuration(configuration, user, "salt")
+    CreateUser.create_configuration(configuration, user, "salt", False)
     write_mock.assert_called_once()
     set_mock.assert_has_calls([
         mock.call("auth", "salt", pytest.helpers.anyvar(str)),
-        mock.call(section, user.username, user.password)
+        mock.call(section, user.username, pytest.helpers.anyvar(str))
     ])
 
 
@@ -65,7 +66,7 @@ def test_create_configuration_not_loaded(configuration: Configuration, user: Use
     mocker.patch("pathlib.Path.open")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    CreateUser.create_configuration(configuration, user, "salt")
+    CreateUser.create_configuration(configuration, user, "salt", False)
     write_mock.assert_not_called()
 
 
@@ -78,8 +79,28 @@ def test_create_configuration_user_exists(configuration: Configuration, user: Us
     mocker.patch("pathlib.Path.open")
     mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    CreateUser.create_configuration(configuration, user, "salt")
-    assert configuration.get(section, user.username) == user.password
+    CreateUser.create_configuration(configuration, user, "salt", False)
+    generated = User.from_option(user.username, configuration.get(section, user.username))
+    assert generated.check_credentials(user.password, configuration.get("auth", "salt"))
+
+
+def test_create_configuration_with_plain_password(
+        configuration: Configuration,
+        user: User,
+        mocker: MockerFixture) -> None:
+    """
+    must set plain text password and user for the service
+    """
+    section = Configuration.section_name("auth", user.access.value)
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("ahriman.core.configuration.Configuration.write")
+
+    CreateUser.create_configuration(configuration, user, "salt", True)
+
+    generated = User.from_option(user.username, configuration.get(section, user.username))
+    service = User.from_option(configuration.get("web", "username"), configuration.get("web", "password"))
+    assert generated.username == service.username
+    assert generated.check_credentials(service.password, configuration.get("auth", "salt"))
 
 
 def test_create_user(args: argparse.Namespace, user: User) -> None:
@@ -87,9 +108,8 @@ def test_create_user(args: argparse.Namespace, user: User) -> None:
     must create user
     """
     args = _default_args(args)
-    generated = CreateUser.create_user(args, "salt")
+    generated = CreateUser.create_user(args)
     assert generated.username == user.username
-    assert generated.check_credentials(user.password, "salt")
     assert generated.access == user.access
 
 
@@ -101,10 +121,10 @@ def test_create_user_getpass(args: argparse.Namespace, mocker: MockerFixture) ->
     args.password = None
 
     getpass_mock = mocker.patch("getpass.getpass", return_value="password")
-    generated = CreateUser.create_user(args, "salt")
+    generated = CreateUser.create_user(args)
 
     getpass_mock.assert_called_once()
-    assert generated.check_credentials("password", "salt")
+    assert generated.password == "password"
 
 
 def test_get_salt_read(configuration: Configuration) -> None:
