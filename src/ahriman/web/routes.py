@@ -54,20 +54,20 @@ def setup_routes(application: Application) -> None:
 
     :param application: web application instance
     """
-    application.router.add_get("/", IndexView)
-    application.router.add_get("/index.html", IndexView)
+    application.router.add_get("/", IndexView, allow_head=True)
+    application.router.add_get("/index.html", IndexView, allow_head=True)
 
     application.router.add_post("/login", LoginView)
     application.router.add_post("/logout", LogoutView)
 
-    application.router.add_get("/api/v1/ahriman", AhrimanView)
+    application.router.add_get("/api/v1/ahriman", AhrimanView, allow_head=True)
     application.router.add_post("/api/v1/ahriman", AhrimanView)
 
-    application.router.add_get("/api/v1/packages", PackagesView)
+    application.router.add_get("/api/v1/packages", PackagesView, allow_head=True)
     application.router.add_post("/api/v1/packages", PackagesView)
 
     application.router.add_delete("/api/v1/packages/{package}", PackageView)
-    application.router.add_get("/api/v1/packages/{package}", PackageView)
+    application.router.add_get("/api/v1/packages/{package}", PackageView, allow_head=True)
     application.router.add_post("/api/v1/packages/{package}", PackageView)
 
-    application.router.add_get("/api/v1/status", StatusView)
+    application.router.add_get("/api/v1/status", StatusView, allow_head=True)
