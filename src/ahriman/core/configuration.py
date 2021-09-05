@@ -24,7 +24,7 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 
 class Configuration(configparser.RawConfigParser):
@@ -40,6 +40,8 @@ class Configuration(configparser.RawConfigParser):
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "html", "rsync", "s3", "sign", "web"]
+
+    _UNSET = object()
 
     def __init__(self) -> None:
         """
@@ -109,15 +111,21 @@ class Configuration(configparser.RawConfigParser):
             return []
         return raw.split()
 
-    def getpath(self, section: str, key: str) -> Path:
+    def getpath(self, section: str, key: str, fallback: Any = _UNSET) -> Path:
         """
         helper to generate absolute configuration path for relative settings value
         :param section: section name
         :param key: key name
+        :param fallback: optional fallback value
         :return: absolute path according to current path configuration
         """
-        value = Path(self.get(section, key))
-        if self.path is None or value.is_absolute():
+        try:
+            value = Path(self.get(section, key))
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            if fallback is self._UNSET:
+                raise
+            value = fallback
+        if self.path is None or not isinstance(value, Path) or value.is_absolute():
             return value
         return self.path.parent / value
 

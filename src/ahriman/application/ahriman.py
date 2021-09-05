@@ -188,7 +188,7 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("key-import", help="import PGP key",
                              description="import PGP key from public sources to repository user",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--key-server", help="key server for key import", default="keys.gnupg.net")
+    parser.add_argument("--key-server", help="key server for key import", default="pgp.mit.edu")
     parser.add_argument("key", help="PGP key to import from public server")
     parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, no_report=True)
     return parser

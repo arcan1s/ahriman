@@ -1,0 +1,44 @@
+{#simplified version of full report#}
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>{{ repository }}</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+        {% include "style.jinja2" %}
+    </head>
+
+    <body>
+
+        <div class="container">
+            <table id="packages" class="table table-striped" cellspacing="0">
+                <thead class="table-primary">
+                    <tr>
+                        <th>package</th>
+                        <th>version</th>
+                        <th>archive size</th>
+                        <th>installed size</th>
+                        <th>build date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for package in packages %}
+                    <tr>
+                        <td><a href="{{ link_path }}/{{ package.filename }}" title="{{ package.name }}">{{ package.name }}</a></td>
+                        <td>{{ package.version }}</td>
+                        <td>{{ package.archive_size }}</td>
+                        <td>{{ package.installed_size }}</td>
+                        <td>{{ package.build_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </body>
+
+</html>

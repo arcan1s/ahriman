@@ -3,66 +3,82 @@
     <head>
         <title>{{ repository }}</title>
 
-        {% include "style.jinja2" %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {% if extended_report %}
-            {% include "sorttable.jinja2" %}
-            {% include "search.jinja2" %}
-        {% endif %}
+        <script src="https://kit.fontawesome.com/0d6d6d5226.js" crossorigin="anonymous"></script>
+        <link href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+        {% include "style.jinja2" %}
     </head>
 
     <body>
-        <div class="root">
-            {% if extended_report %}
-                <h1>Archlinux user repository</h1>
 
-                <section class="element">
-                    {% if pgp_key is not none %}
-                        <p>This repository is signed with <a href="http://keys.gnupg.net/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
-                    {% endif %}
-
-                    <code>
-                        $ cat /etc/pacman.conf<br>
-                        [{{ repository }}]<br>
-                        Server = {{ link_path }}<br>
-                        SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly
-                    </code>
-                </section>
-                
-                {% include "search-line.jinja2" %}
-            {% endif %}
-
-            <section class="element">
-                <table class="sortable search-table">
-                    <tr class="header">
-                        <th>package</th>
-                        <th>version</th>
-                        <th>archive size</th>
-                        <th>installed size</th>
-                        <th>build date</th>
-                    </tr>
-
-                    {% for package in packages %}
-                        <tr class="package">
-                            <td class="include-search"><a href="{{ link_path }}/{{ package.filename }}" title="{{ package.name }}">{{ package.name }}</a></td>
-                            <td>{{ package.version }}</td>
-                            <td>{{ package.archive_size }}</td>
-                            <td>{{ package.installed_size }}</td>
-                            <td>{{ package.build_date }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </section>
-
-            {% if extended_report %}
-                <footer>
-                    <ul class="navigation">
-                        {% if homepage is not none %}
-                            <li><a href="{{ homepage }}" title="homepage">Homepage</a></li>
-                        {% endif %}
-                    </ul>
-                </footer>
-            {% endif %}
+        <div class="container">
+            <h1>Archlinux user repository</h1>
         </div>
+
+        <div class="container">
+            {% if pgp_key is not none %}
+                <p>This repository is signed with <a href="https://pgp.mit.edu/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
+            {% endif %}
+
+<pre>$ cat /etc/pacman.conf
+[{{ repository }}]
+Server = {{ link_path }}
+SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly</pre>
+        </div>
+
+        <div class="container">
+            <table id="packages" class="table table-striped table-hover" cellspacing="0"
+                   data-toggle="table"
+                   data-pagination="true"
+                   data-page-siz="10"
+                   data-page-list="[10, 25, 50, 100, all]"
+                   data-search="true"
+                   data-show-columns="true"
+                   data-show-export="true"
+                   data-sortable="true">
+                <thead class="table-primary">
+                    <tr>
+                        <th data-sortable="true">package</th>
+                        <th data-sortable="true">version</th>
+                        <th data-sortable="true">archive size</th>
+                        <th data-sortable="true">installed size</th>
+                        <th data-sortable="true">build date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for package in packages %}
+                    <tr>
+                        <td><a href="{{ link_path }}/{{ package.filename }}" title="{{ package.name }}">{{ package.name }}</a></td>
+                        <td>{{ package.version }}</td>
+                        <td>{{ package.archive_size }}</td>
+                        <td>{{ package.installed_size }}</td>
+                        <td>{{ package.build_date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container">
+            <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
+                <ul class="nav">
+                    {% if homepage is not none %}
+                        <li><a class="nav-link" href="{{ homepage }}" title="homepage">Homepage</a></li>
+                    {% endif %}
+                </ul>
+            </footer>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+        <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+        <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/export/bootstrap-table-export.min.js"></script>
+
     </body>
+
 </html>

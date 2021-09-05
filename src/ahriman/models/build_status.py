@@ -58,6 +58,21 @@ class BuildStatusEnum(Enum):
             return "success"
         return "inactive"
 
+    def bootstrap_color(self) -> str:
+        """
+        converts itself to bootstrap color
+        :return: bootstrap color
+        """
+        if self == BuildStatusEnum.Pending:
+            return "warning"
+        if self == BuildStatusEnum.Building:
+            return "warning"
+        if self == BuildStatusEnum.Failed:
+            return "danger"
+        if self == BuildStatusEnum.Success:
+            return "success"
+        return "secondary"
+
 
 class BuildStatus:
     """

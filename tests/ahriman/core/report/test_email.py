@@ -105,6 +105,21 @@ def test_generate_with_built(configuration: Configuration, package_ahriman: Pack
     send_mock.assert_called_once()
 
 
+def test_generate_with_built_and_full_path(
+        configuration: Configuration,
+        package_ahriman: Package,
+        mocker: MockerFixture) -> None:
+    """
+    must generate report with built packages
+    """
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
+
+    report = Email("x86_64", configuration)
+    report.full_template_path = report.template_path
+    report.generate([package_ahriman], [package_ahriman])
+    send_mock.assert_called_once()
+
+
 def test_generate_no_empty(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must not generate report with built packages if no_empty_report is set

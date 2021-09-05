@@ -54,6 +54,9 @@ class Email(Report, JinjaTemplate):
         Report.__init__(self, architecture, configuration)
         JinjaTemplate.__init__(self, "email", configuration)
 
+        self.full_template_path = configuration.getpath("email", "full_template_path", fallback=None)
+        self.template_path = configuration.getpath("email", "template_path")
+
         # base smtp settings
         self.host = configuration.get("email", "host")
         self.no_empty_report = configuration.getboolean("email", "no_empty_report", fallback=True)
@@ -100,6 +103,9 @@ class Email(Report, JinjaTemplate):
         """
         if self.no_empty_report and not built_packages:
             return
-        text = self.make_html(built_packages, False)
-        attachments = {"index.html": self.make_html(packages, True)}
+        text = self.make_html(built_packages, self.template_path)
+        if self.full_template_path is not None:
+            attachments = {"index.html": self.make_html(packages, self.full_template_path)}
+        else:
+            attachments = {}
         self._send(text, attachments)
