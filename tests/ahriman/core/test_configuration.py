@@ -1,5 +1,7 @@
+import configparser
 from pathlib import Path
 
+import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -47,6 +49,25 @@ def test_absolute_path_for_relative(configuration: Configuration) -> None:
     assert result.is_absolute()
     assert result.parent == configuration.path.parent
     assert result.name == path.name
+
+
+def test_path_with_fallback(configuration: Configuration) -> None:
+    """
+    must return fallback path
+    """
+    path = Path("a")
+    assert configuration.getpath("some", "option", fallback=path).name == str(path)
+    assert configuration.getpath("some", "option", fallback=None) is None
+
+
+def test_path_without_fallback(configuration: Configuration) -> None:
+    """
+    must raise exception without fallback
+    """
+    with pytest.raises(configparser.NoSectionError):
+        assert configuration.getpath("some", "option")
+    with pytest.raises(configparser.NoOptionError):
+        assert configuration.getpath("build", "option")
 
 
 def test_dump(configuration: Configuration) -> None:

@@ -13,7 +13,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.key = "0xE989490C"
-    args.key_server = "keys.gnupg.net"
+    args.key_server = "pgp.mit.edu"
     return args
 
 

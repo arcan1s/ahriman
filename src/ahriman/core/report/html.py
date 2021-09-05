@@ -41,6 +41,7 @@ class HTML(Report, JinjaTemplate):
         JinjaTemplate.__init__(self, "html", configuration)
 
         self.report_path = configuration.getpath("html", "path")
+        self.template_path = configuration.getpath("html", "template_path")
 
     def generate(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
         """
@@ -48,5 +49,5 @@ class HTML(Report, JinjaTemplate):
         :param packages: list of packages to generate report
         :param built_packages: list of packages which has just been built
         """
-        html = self.make_html(packages, True)
+        html = self.make_html(packages, self.template_path)
         self.report_path.write_text(html)

@@ -69,7 +69,7 @@ def test_download_key(gpg: GPG, mocker: MockerFixture) -> None:
     must download the key from public server
     """
     requests_mock = mocker.patch("requests.get")
-    gpg.download_key("keys.gnupg.net", "0xE989490C")
+    gpg.download_key("pgp.mit.edu", "0xE989490C")
     requests_mock.assert_called_once()
 
 
@@ -79,7 +79,7 @@ def test_download_key_failure(gpg: GPG, mocker: MockerFixture) -> None:
     """
     mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
     with pytest.raises(requests.exceptions.HTTPError):
-        gpg.download_key("keys.gnupg.net", "0xE989490C")
+        gpg.download_key("pgp.mit.edu", "0xE989490C")
 
 
 def test_import_key(gpg: GPG, mocker: MockerFixture) -> None:
@@ -89,7 +89,7 @@ def test_import_key(gpg: GPG, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.core.sign.gpg.GPG.download_key", return_value="key")
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
 
-    gpg.import_key("keys.gnupg.net", "0xE989490C")
+    gpg.import_key("pgp.mit.edu", "0xE989490C")
     check_output_mock.assert_has_calls([
         mock.call("gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int)),
         mock.call("gpg", "--quick-lsign-key", "0xE989490C", exception=None, logger=pytest.helpers.anyvar(int))
