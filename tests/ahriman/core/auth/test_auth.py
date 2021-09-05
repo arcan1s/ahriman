@@ -46,24 +46,33 @@ def test_is_safe_request(auth: Auth) -> None:
     must validate safe request
     """
     # login and logout are always safe
-    assert auth.is_safe_request("/login")
-    assert auth.is_safe_request("/logout")
+    assert auth.is_safe_request("/login", UserAccess.Write)
+    assert auth.is_safe_request("/logout", UserAccess.Write)
 
     auth.allowed_paths.add("/safe")
     auth.allowed_paths_groups.add("/unsafe/safe")
 
-    assert auth.is_safe_request("/safe")
-    assert not auth.is_safe_request("/unsafe")
-    assert auth.is_safe_request("/unsafe/safe")
-    assert auth.is_safe_request("/unsafe/safe/suffix")
+    assert auth.is_safe_request("/safe", UserAccess.Write)
+    assert not auth.is_safe_request("/unsafe", UserAccess.Write)
+    assert auth.is_safe_request("/unsafe/safe", UserAccess.Write)
+    assert auth.is_safe_request("/unsafe/safe/suffix", UserAccess.Write)
 
 
 def test_is_safe_request_empty(auth: Auth) -> None:
     """
     must not allow requests without path
     """
-    assert not auth.is_safe_request(None)
-    assert not auth.is_safe_request("")
+    assert not auth.is_safe_request(None, UserAccess.Read)
+    assert not auth.is_safe_request("", UserAccess.Read)
+
+
+def test_is_safe_request_read_only(auth: Auth) -> None:
+    """
+    must allow read-only requests if it is set in settings
+    """
+    assert auth.is_safe_request("/", UserAccess.Read)
+    auth.allow_read_only = True
+    assert auth.is_safe_request("/unsafe", UserAccess.Read)
 
 
 def test_known_username(auth: Auth, user: User) -> None:

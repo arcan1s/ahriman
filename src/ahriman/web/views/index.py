@@ -85,7 +85,7 @@ class IndexView(BaseView):
 
         # auth block
         auth_username = await authorized_userid(self.request)
-        authorized = not self.validator.enabled or auth_username is not None
+        authorized = not self.validator.enabled or self.validator.allow_read_only or auth_username is not None
 
         return {
             "architecture": self.service.architecture,
