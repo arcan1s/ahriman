@@ -18,6 +18,7 @@
             <h1>ahriman
                 {% if authorized %}
                     <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
+                    <img src="https://img.shields.io/badge/repository-{{ repository }}-informational" alt="{{ repository }}">
                     <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
                     <img src="https://img.shields.io/badge/service%20status-{{ service.status }}-{{ service.status_color }}" alt="{{ service.status }}" title="{{ service.timestamp }}">
                 {% endif %}
