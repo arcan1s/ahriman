@@ -9,12 +9,12 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
     """
     must return status for all packages
     """
-    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+    await client.post(f"/status-api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
-    await client.post(f"/api/v1/packages/{package_python_schedule.base}",
+    await client.post(f"/status-api/v1/packages/{package_python_schedule.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
 
-    response = await client.get("/api/v1/packages")
+    response = await client.get("/status-api/v1/packages")
     assert response.status == 200
 
     packages = [Package.from_json(item["package"]) for item in await response.json()]
@@ -27,6 +27,6 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must be able to reload packages
     """
     load_mock = mocker.patch("ahriman.core.status.watcher.Watcher.load")
-    response = await client.post("/api/v1/packages")
+    response = await client.post("/status-api/v1/packages")
     assert response.status == 204
     load_mock.assert_called_once()

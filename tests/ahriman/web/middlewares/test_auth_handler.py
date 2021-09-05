@@ -33,7 +33,7 @@ async def test_auth_handler_api(aiohttp_request: Any, auth: Auth, mocker: Mocker
     """
     must ask for status permission for api calls
     """
-    aiohttp_request = aiohttp_request._replace(path="/api")
+    aiohttp_request = aiohttp_request._replace(path="/status-api")
     request_handler = AsyncMock()
     mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
@@ -47,7 +47,7 @@ async def test_auth_handler_api_post(aiohttp_request: Any, auth: Auth, mocker: M
     """
     must ask for status permission for api calls with POST
     """
-    aiohttp_request = aiohttp_request._replace(path="/api", method="POST")
+    aiohttp_request = aiohttp_request._replace(path="/status-api", method="POST")
     request_handler = AsyncMock()
     mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")

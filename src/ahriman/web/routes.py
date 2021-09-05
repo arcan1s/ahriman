@@ -34,23 +34,23 @@ def setup_routes(application: Application) -> None:
 
     Available routes are:
 
-        GET /                           get build status page
-        GET /index.html                 same as above
+        GET /                                  get build status page
+        GET /index.html                        same as above
 
-        POST /login                     login to service
-        POST /logout                    logout from service
+        POST /login                            login to service
+        POST /logout                           logout from service
 
-        GET /api/v1/ahriman             get current service status
-        POST /api/v1/ahriman            update service status
+        GET /status-api/v1/ahriman             get current service status
+        POST /status-api/v1/ahriman            update service status
 
-        GET /api/v1/packages            get all known packages
-        POST /api/v1/packages           force update every package from repository
+        GET /status-api/v1/packages            get all known packages
+        POST /status-api/v1/packages           force update every package from repository
 
-        DELETE /api/v1/package/:base    delete package base from status page
-        GET /api/v1/package/:base       get package base status
-        POST /api/v1/package/:base      update package base status
+        DELETE /status-api/v1/package/:base    delete package base from status page
+        GET /status-api/v1/package/:base       get package base status
+        POST /status-api/v1/package/:base      update package base status
 
-        GET /api/v1/status              get web service status itself
+        GET /status-api/v1/status              get web service status itself
 
     :param application: web application instance
     """
@@ -60,14 +60,14 @@ def setup_routes(application: Application) -> None:
     application.router.add_post("/login", LoginView)
     application.router.add_post("/logout", LogoutView)
 
-    application.router.add_get("/api/v1/ahriman", AhrimanView, allow_head=True)
-    application.router.add_post("/api/v1/ahriman", AhrimanView)
+    application.router.add_get("/status-api/v1/ahriman", AhrimanView, allow_head=True)
+    application.router.add_post("/status-api/v1/ahriman", AhrimanView)
 
-    application.router.add_get("/api/v1/packages", PackagesView, allow_head=True)
-    application.router.add_post("/api/v1/packages", PackagesView)
+    application.router.add_get("/status-api/v1/packages", PackagesView, allow_head=True)
+    application.router.add_post("/status-api/v1/packages", PackagesView)
 
-    application.router.add_delete("/api/v1/packages/{package}", PackageView)
-    application.router.add_get("/api/v1/packages/{package}", PackageView, allow_head=True)
-    application.router.add_post("/api/v1/packages/{package}", PackageView)
+    application.router.add_delete("/status-api/v1/packages/{package}", PackageView)
+    application.router.add_get("/status-api/v1/packages/{package}", PackageView, allow_head=True)
+    application.router.add_post("/status-api/v1/packages/{package}", PackageView)
 
-    application.router.add_get("/api/v1/status", StatusView, allow_head=True)
+    application.router.add_get("/status-api/v1/status", StatusView, allow_head=True)

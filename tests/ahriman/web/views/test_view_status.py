@@ -10,10 +10,10 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
     must generate web service status correctly
     """
-    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+    await client.post(f"/status-api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
 
-    response = await client.get("/api/v1/status")
+    response = await client.get("/status-api/v1/status")
     assert response.status == 200
 
     json = await response.json()

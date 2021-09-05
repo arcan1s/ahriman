@@ -73,7 +73,7 @@ def auth_handler(validator: Auth) -> MiddlewareType:
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
-        if request.path.startswith("/api"):
+        if request.path.startswith("/status-api"):
             permission = UserAccess.Status
         elif request.method in ("GET", "HEAD", "OPTIONS"):
             permission = UserAccess.Read

@@ -58,7 +58,7 @@ class WebClient(Client):
         """
         :return: full url for web service for ahriman service itself
         """
-        return f"{self.address}/api/v1/ahriman"
+        return f"{self.address}/status-api/v1/ahriman"
 
     @property
     def _login_url(self) -> str:
@@ -72,7 +72,7 @@ class WebClient(Client):
         """
         :return: full url for web service for status
         """
-        return f"{self.address}/api/v1/status"
+        return f"{self.address}/status-api/v1/status"
 
     @staticmethod
     def parse_address(configuration: Configuration) -> str:
@@ -115,7 +115,7 @@ class WebClient(Client):
         :param base: package base to generate url
         :return: full url of web service for specific package base
         """
-        return f"{self.address}/api/v1/packages/{base}"
+        return f"{self.address}/status-api/v1/packages/{base}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
