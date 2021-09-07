@@ -23,6 +23,7 @@ from typing import Type
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.spawn import Spawn
 
 
 class Web(Handler):
@@ -38,6 +39,11 @@ class Web(Handler):
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
+        # we are using local import for optional dependencies
         from ahriman.web.web import run_server, setup_service
-        application = setup_service(architecture, configuration)
+
+        spawner = Spawn(args.parser, architecture, configuration)
+        spawner.start()
+
+        application = setup_service(architecture, configuration, spawner)
         run_server(application)

@@ -21,6 +21,7 @@ from aiohttp.web import View
 from typing import Any, Dict
 
 from ahriman.core.auth.auth import Auth
+from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 
 
@@ -36,6 +37,14 @@ class BaseView(View):
         """
         watcher: Watcher = self.request.app["watcher"]
         return watcher
+
+    @property
+    def spawner(self) -> Spawn:
+        """
+        :return: external process spawner instance
+        """
+        spawner: Spawn = self.request.app["spawn"]
+        return spawner
 
     @property
     def validator(self) -> Auth:
@@ -54,4 +63,20 @@ class BaseView(View):
             json: Dict[str, Any] = await self.request.json()
             return json
         except ValueError:
-            return dict(await self.request.post())
+            return await self.data_as_json()
+
+    async def data_as_json(self) -> Dict[str, Any]:
+        """
+        extract form data and convert it to json object
+        :return: form data converted to json. In case if a key is found multiple times it will be returned as list
+        """
+        raw = await self.request.post()
+        json: Dict[str, Any] = {}
+        for key, value in raw.items():
+            if key in json and isinstance(json[key], list):
+                json[key].append(value)
+            elif key in json:
+                json[key] = [json[key], value]
+            else:
+                json[key] = value
+        return json
