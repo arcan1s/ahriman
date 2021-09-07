@@ -41,7 +41,7 @@ async def test_auth_handler_api(auth: Auth, mocker: MockerFixture) -> None:
 
     handler = auth_handler(auth)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Status, aiohttp_request.path)
+    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
 
 async def test_auth_handler_api_post(auth: Auth, mocker: MockerFixture) -> None:
@@ -55,7 +55,7 @@ async def test_auth_handler_api_post(auth: Auth, mocker: MockerFixture) -> None:
 
     handler = auth_handler(auth)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Status, aiohttp_request.path)
+    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
 
 
 async def test_auth_handler_read(auth: Auth, mocker: MockerFixture) -> None:

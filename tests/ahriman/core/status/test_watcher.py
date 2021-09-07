@@ -5,10 +5,26 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import PropertyMock
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import UnknownPackage
 from ahriman.core.status.watcher import Watcher
+from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
+
+
+def test_force_no_report(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must force dummy report client
+    """
+    configuration.set_option("web", "port", "8080")
+    mocker.patch("pathlib.Path.mkdir")
+
+    load_mock = mocker.patch("ahriman.core.status.client.Client.load")
+    watcher = Watcher("x86_64", configuration)
+
+    load_mock.assert_not_called()
+    assert not isinstance(watcher.repository.reporter, WebClient)
 
 
 def test_cache_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:

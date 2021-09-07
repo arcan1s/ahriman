@@ -77,7 +77,7 @@
                     {% if auth_username is none %}
                         <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>
                     {% else %}
-                        <form action="/logout" method="post">
+                        <form action="/user-api/v1/logout" method="post">
                             <button type="submit" class="btn btn-link" style="text-decoration: none">logout ({{ auth_username }})</button>
                         </form>
                     {% endif %}
@@ -88,19 +88,23 @@
         <div id="loginForm" tabindex="-1" role="dialog" class="modal fade">
             <div class="modal-dialog modal-login">
                 <div class="modal-content">
-                    <form action="/login" method="post">
+                    <form action="/user-api/v1/login" method="post">
                         <div class="modal-header">
                             <h4 class="modal-title">login</h4>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="username" class="col-form-label">username</label>
-                                <input id="username" type="text" class="form-control" placeholder="enter username" name="username" required>
+                            <div class="form-group row">
+                                <label for="username" class="col-sm-2 col-form-label">username</label>
+                                <div class="col-sm-10">
+                                    <input id="username" type="text" class="form-control" placeholder="enter username" name="username" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="password" class="col-form-label">password</label>
-                                <input id="password" type="password" class="form-control" placeholder="enter username" name="password" required>
+                            <div class="form-group row">
+                                <label for="password" class="col-sm-2 col-form-label">password</label>
+                                <div class="col-sm-10">
+                                    <input id="password" type="password" class="form-control" placeholder="enter password" name="password" required>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">

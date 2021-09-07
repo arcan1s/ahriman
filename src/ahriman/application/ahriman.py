@@ -76,7 +76,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_status_update_parser(subparsers)
     _set_sync_parser(subparsers)
     _set_update_parser(subparsers)
-    _set_web_parser(subparsers, parser)
+    _set_web_parser(subparsers)
 
     return parser
 
@@ -358,16 +358,15 @@ def _set_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_web_parser(root: SubParserAction, parent: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for web subcommand
     :param root: subparsers for the commands
-    :param parent: command line parser for the application
     :return: created argument parser
     """
     parser = root.add_parser("web", help="start web server", description="start web server",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.set_defaults(handler=handlers.Web, lock=None, no_report=True, parser=parent)
+    parser.set_defaults(handler=handlers.Web, lock=None, no_report=True, parser=_parser)
     return parser
 
 

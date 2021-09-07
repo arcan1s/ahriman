@@ -39,7 +39,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_sudo_configuration")
     executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_executable")
 
-    Setup.run(args, "x86_64", configuration)
+    Setup.run(args, "x86_64", configuration, True)
     ahriman_configuration_mock.assert_called_once()
     devtools_configuration_mock.assert_called_once()
     makepkg_configuration_mock.assert_called_once()

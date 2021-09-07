@@ -37,8 +37,8 @@ def setup_routes(application: Application) -> None:
         GET /                                  get build status page
         GET /index.html                        same as above
 
-        POST /login                            login to service
-        POST /logout                           logout from service
+        POST /user-api/v1/login                login to service
+        POST /user-api/v1/logout               logout from service
 
         GET /status-api/v1/ahriman             get current service status
         POST /status-api/v1/ahriman            update service status
@@ -57,8 +57,8 @@ def setup_routes(application: Application) -> None:
     application.router.add_get("/", IndexView, allow_head=True)
     application.router.add_get("/index.html", IndexView, allow_head=True)
 
-    application.router.add_post("/login", LoginView)
-    application.router.add_post("/logout", LogoutView)
+    application.router.add_post("/user-api/v1/login", LoginView)
+    application.router.add_post("/user-api/v1/logout", LogoutView)
 
     application.router.add_get("/status-api/v1/ahriman", AhrimanView, allow_head=True)
     application.router.add_post("/status-api/v1/ahriman", AhrimanView)

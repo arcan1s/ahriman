@@ -26,7 +26,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     mocker.patch("aur.search", return_value=[aur_package_ahriman])
     log_mock = mocker.patch("ahriman.application.handlers.search.Search.log_fn")
 
-    Search.run(args, "x86_64", configuration)
+    Search.run(args, "x86_64", configuration, True)
     log_mock.assert_called_once()
 
 
@@ -38,7 +38,7 @@ def test_run_multiple_search(args: argparse.Namespace, configuration: Configurat
     args.search = ["ahriman", "is", "cool"]
     search_mock = mocker.patch("aur.search")
 
-    Search.run(args, "x86_64", configuration)
+    Search.run(args, "x86_64", configuration, True)
     search_mock.assert_called_with(" ".join(args.search))
 
 
@@ -51,5 +51,5 @@ def test_log_fn(args: argparse.Namespace, configuration: Configuration, aur_pack
     mocker.patch("aur.search", return_value=[aur_package_ahriman])
     print_mock = mocker.patch("builtins.print")
 
-    Search.run(args, "x86_64", configuration)
+    Search.run(args, "x86_64", configuration, True)
     print_mock.assert_called()  # we don't really care about call details tbh

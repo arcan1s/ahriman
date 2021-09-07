@@ -47,7 +47,7 @@ class Handler:
         try:
             configuration = Configuration.from_path(args.configuration, architecture, not args.no_log)
             with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration)
+                cls.run(args, architecture, configuration, args.no_report)
             return True
         except Exception:
             logging.getLogger("root").exception("process exception")
@@ -88,11 +88,13 @@ class Handler:
         return architectures
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
         raise NotImplementedError

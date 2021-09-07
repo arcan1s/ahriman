@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from typing import Optional, Set, Type
+from typing import Optional, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.auth_settings import AuthSettings
@@ -36,8 +36,8 @@ class Auth:
     :cvar ALLOWED_PATHS_GROUPS: URI paths prefixes which can be accessed without authorization, predefined
     """
 
-    ALLOWED_PATHS = {"/", "/favicon.ico", "/index.html", "/login", "/logout"}
-    ALLOWED_PATHS_GROUPS: Set[str] = set()
+    ALLOWED_PATHS = {"/", "/favicon.ico", "/index.html"}
+    ALLOWED_PATHS_GROUPS = {"/user-api"}
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """

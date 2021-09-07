@@ -51,7 +51,7 @@ class User:
         """
         if username is None or password is None:
             return None
-        return cls(username, password, UserAccess.Status)
+        return cls(username, password, UserAccess.Read)
 
     @staticmethod
     def generate_password(length: int) -> str:

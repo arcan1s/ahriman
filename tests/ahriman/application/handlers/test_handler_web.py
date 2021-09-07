@@ -12,7 +12,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :param args: command line arguments fixture
     :return: generated arguments for these test cases
     """
-    args.parser = True
+    args.parser = lambda: True
     return args
 
 
@@ -26,6 +26,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     setup_mock = mocker.patch("ahriman.web.web.setup_service")
     run_mock = mocker.patch("ahriman.web.web.run_server")
 
-    Web.run(args, "x86_64", configuration)
+    Web.run(args, "x86_64", configuration, True)
     setup_mock.assert_called_once()
     run_mock.assert_called_once()

@@ -20,7 +20,7 @@ def application(configuration: Configuration, mocker: MockerFixture) -> Applicat
     :return: application test instance
     """
     mocker.patch("pathlib.Path.mkdir")
-    return Application("x86_64", configuration)
+    return Application("x86_64", configuration, no_report=True)
 
 
 @pytest.fixture

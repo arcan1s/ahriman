@@ -28,7 +28,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("pathlib.Path.mkdir")
     update_self_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
 
-    StatusUpdate.run(args, "x86_64", configuration)
+    StatusUpdate.run(args, "x86_64", configuration, True)
     update_self_mock.assert_called_once()
 
 
@@ -42,7 +42,7 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, pa
     mocker.patch("pathlib.Path.mkdir")
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
 
-    StatusUpdate.run(args, "x86_64", configuration)
+    StatusUpdate.run(args, "x86_64", configuration, True)
     update_mock.assert_called_once()
 
 
@@ -57,5 +57,17 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, pack
     mocker.patch("pathlib.Path.mkdir")
     update_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
-    StatusUpdate.run(args, "x86_64", configuration)
+    StatusUpdate.run(args, "x86_64", configuration, True)
     update_mock.assert_called_once()
+
+
+def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must create application object with native reporting
+    """
+    args = _default_args(args)
+    mocker.patch("pathlib.Path.mkdir")
+    load_mock = mocker.patch("ahriman.core.status.client.Client.load")
+
+    StatusUpdate.run(args, "x86_64", configuration, True)
+    load_mock.assert_called_once()

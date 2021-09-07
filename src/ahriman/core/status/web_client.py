@@ -65,7 +65,7 @@ class WebClient(Client):
         """
         :return: full url for web service to login
         """
-        return f"{self.address}/login"
+        return f"{self.address}/user-api/v1/login"
 
     @property
     def _status_url(self) -> str:

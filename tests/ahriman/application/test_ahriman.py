@@ -265,7 +265,7 @@ def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["-a", "x86_64", "web"])
     assert args.lock is None
     assert args.no_report
-    assert args.parser == parser
+    assert args.parser is not None and args.parser()
 
 
 def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:

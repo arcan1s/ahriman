@@ -46,8 +46,8 @@ def test_is_safe_request(auth: Auth) -> None:
     must validate safe request
     """
     # login and logout are always safe
-    assert auth.is_safe_request("/login", UserAccess.Write)
-    assert auth.is_safe_request("/logout", UserAccess.Write)
+    assert auth.is_safe_request("/user-api/v1/login", UserAccess.Write)
+    assert auth.is_safe_request("/user-api/v1/logout", UserAccess.Write)
 
     auth.allowed_paths.add("/safe")
     auth.allowed_paths_groups.add("/unsafe/safe")

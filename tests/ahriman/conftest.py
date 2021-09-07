@@ -188,7 +188,7 @@ def user() -> User:
     fixture for user descriptor
     :return: user descriptor instance
     """
-    return User("user", "pa55w0rd", UserAccess.Status)
+    return User("user", "pa55w0rd", UserAccess.Read)
 
 
 @pytest.fixture

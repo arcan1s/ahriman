@@ -26,7 +26,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages")
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
-    Rebuild.run(args, "x86_64", configuration)
+    Rebuild.run(args, "x86_64", configuration, True)
     application_packages_mock.assert_called_once()
     application_mock.assert_called_once()
 
@@ -44,7 +44,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration,
                  return_value=[package_ahriman, package_python_schedule])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
-    Rebuild.run(args, "x86_64", configuration)
+    Rebuild.run(args, "x86_64", configuration, True)
     application_mock.assert_called_with([package_ahriman])
 
 
@@ -60,5 +60,5 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
                  return_value=[package_ahriman, package_python_schedule])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
-    Rebuild.run(args, "x86_64", configuration)
+    Rebuild.run(args, "x86_64", configuration, True)
     application_mock.assert_called_with([package_ahriman, package_python_schedule])

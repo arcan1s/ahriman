@@ -43,7 +43,13 @@ class Properties:
     :ivar sign: GPG wrapper instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, no_report: bool) -> None:
+        """
+        default constructor
+        :param architecture: repository architecture
+        :param configuration: configuration instance
+        :param no_report: force disable reporting
+        """
         self.logger = logging.getLogger("builder")
         self.architecture = architecture
         self.configuration = configuration
@@ -58,4 +64,4 @@ class Properties:
         self.pacman = Pacman(configuration)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(configuration)
+        self.reporter = Client() if no_report else Client.load(configuration)
