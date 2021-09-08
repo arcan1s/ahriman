@@ -19,13 +19,17 @@
 #
 from aiohttp.web import Application
 
-from ahriman.web.views.ahriman import AhrimanView
 from ahriman.web.views.index import IndexView
-from ahriman.web.views.login import LoginView
-from ahriman.web.views.logout import LogoutView
-from ahriman.web.views.package import PackageView
-from ahriman.web.views.packages import PackagesView
-from ahriman.web.views.status import StatusView
+from ahriman.web.views.service.add import AddView
+from ahriman.web.views.service.remove import RemoveView
+from ahriman.web.views.service.search import SearchView
+from ahriman.web.views.service.update import UpdateView
+from ahriman.web.views.status.ahriman import AhrimanView
+from ahriman.web.views.status.package import PackageView
+from ahriman.web.views.status.packages import PackagesView
+from ahriman.web.views.status.status import StatusView
+from ahriman.web.views.user.login import LoginView
+from ahriman.web.views.user.logout import LogoutView
 
 
 def setup_routes(application: Application) -> None:
@@ -37,8 +41,13 @@ def setup_routes(application: Application) -> None:
         GET /                                  get build status page
         GET /index.html                        same as above
 
-        POST /user-api/v1/login                login to service
-        POST /user-api/v1/logout               logout from service
+        POST /service-api/v1/add               add new packages to repository
+
+        POST /service-api/v1/remove            remove existing package from repository
+
+        GET /service-api/v1/search             search for substring in AUR
+
+        POST /service-api/v1/update            update existing package in repository
 
         GET /status-api/v1/ahriman             get current service status
         POST /status-api/v1/ahriman            update service status
@@ -52,13 +61,21 @@ def setup_routes(application: Application) -> None:
 
         GET /status-api/v1/status              get web service status itself
 
+        POST /user-api/v1/login                login to service
+        POST /user-api/v1/logout               logout from service
+
     :param application: web application instance
     """
     application.router.add_get("/", IndexView, allow_head=True)
     application.router.add_get("/index.html", IndexView, allow_head=True)
 
-    application.router.add_post("/user-api/v1/login", LoginView)
-    application.router.add_post("/user-api/v1/logout", LogoutView)
+    application.router.add_post("/service-api/v1/add", AddView)
+
+    application.router.add_post("/service-api/v1/remove", RemoveView)
+
+    application.router.add_get("/service-api/v1/search", SearchView, allow_head=False)
+
+    application.router.add_post("/service-api/v1/update", UpdateView)
 
     application.router.add_get("/status-api/v1/ahriman", AhrimanView, allow_head=True)
     application.router.add_post("/status-api/v1/ahriman", AhrimanView)
@@ -71,3 +88,6 @@ def setup_routes(application: Application) -> None:
     application.router.add_post("/status-api/v1/packages/{package}", PackageView)
 
     application.router.add_get("/status-api/v1/status", StatusView, allow_head=True)
+
+    application.router.add_post("/user-api/v1/login", LoginView)
+    application.router.add_post("/user-api/v1/logout", LogoutView)
