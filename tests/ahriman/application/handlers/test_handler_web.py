@@ -29,3 +29,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     Web.run(args, "x86_64", configuration, True)
     setup_mock.assert_called_once()
     run_mock.assert_called_once()
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Web.ALLOW_MULTI_ARCHITECTURE_RUN

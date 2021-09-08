@@ -31,6 +31,8 @@ class Web(Handler):
     web server handler
     """
 
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
+
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
             configuration: Configuration, no_report: bool) -> None:

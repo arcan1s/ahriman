@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture
+from ahriman.core.exceptions import MissingArchitecture, MultipleArchitecture
 
 
 def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -42,6 +42,29 @@ def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
 
     Handler.execute(args)
     starmap_mock.assert_called_once()
+
+
+def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must raise an exception if multiple architectures are not supported by the handler
+    """
+    args.architecture = ["i686", "x86_64"]
+    args.command = "web"
+    mocker.patch.object(Handler, "ALLOW_MULTI_ARCHITECTURE_RUN", False)
+
+    with pytest.raises(MultipleArchitecture):
+        Handler.execute(args)
+
+
+def test_execute_single(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must run execution in current process if only one architecture supplied
+    """
+    args.architecture = ["x86_64"]
+    starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
+
+    Handler.execute(args)
+    starmap_mock.assert_not_called()
 
 
 def test_extract_architectures(args: argparse.Namespace, mocker: MockerFixture) -> None:
