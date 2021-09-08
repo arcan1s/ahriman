@@ -23,7 +23,6 @@ from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.search import SearchView
-from ahriman.web.views.service.update import UpdateView
 from ahriman.web.views.status.ahriman import AhrimanView
 from ahriman.web.views.status.package import PackageView
 from ahriman.web.views.status.packages import PackagesView
@@ -45,9 +44,9 @@ def setup_routes(application: Application) -> None:
 
         POST /service-api/v1/remove            remove existing package from repository
 
-        GET /service-api/v1/search             search for substring in AUR
+        POST /service-api/v1/update            update packages in repository, actually it is just alias for add
 
-        POST /service-api/v1/update            update existing package in repository
+        GET /service-api/v1/search             search for substring in AUR
 
         GET /status-api/v1/ahriman             get current service status
         POST /status-api/v1/ahriman            update service status
@@ -75,7 +74,7 @@ def setup_routes(application: Application) -> None:
 
     application.router.add_get("/service-api/v1/search", SearchView, allow_head=False)
 
-    application.router.add_post("/service-api/v1/update", UpdateView)
+    application.router.add_post("/service-api/v1/update", AddView)
 
     application.router.add_get("/status-api/v1/ahriman", AhrimanView, allow_head=True)
     application.router.add_post("/status-api/v1/ahriman", AhrimanView)

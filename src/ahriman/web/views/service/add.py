@@ -42,7 +42,7 @@ class AddView(BaseView):
         data = await self.extract_data(["packages"])
 
         try:
-            now = data.get("build_now") or False
+            now = data.get("build_now", True)
             packages = data["packages"]
         except Exception as e:
             return json_response(text=str(e), status=400)

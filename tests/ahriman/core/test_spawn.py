@@ -63,15 +63,6 @@ def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
     spawn_mock.assert_called_with("remove", "ahriman", "linux")
 
 
-def test_packages_update(spawner: Spawn, mocker: MockerFixture) -> None:
-    """
-    must call package updates
-    """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
-    spawner.packages_update(["ahriman", "linux"])
-    spawn_mock.assert_called_with("update", "ahriman", "linux")
-
-
 def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must correctly spawn child process

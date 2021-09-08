@@ -89,13 +89,6 @@ class Spawn(Thread):
         """
         self.spawn_process("remove", *packages)
 
-    def packages_update(self, packages: Iterable[str]) -> None:
-        """
-        update packages
-        :param packages: packages list to update
-        """
-        self.spawn_process("update", *packages)
-
     def spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
         """
         spawn external ahriman process with supplied arguments
