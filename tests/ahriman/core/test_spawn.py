@@ -9,11 +9,12 @@ def test_process(spawner: Spawn) -> None:
     must process external process run correctly
     """
     args = MagicMock()
+    args.no_report = False
     callback = MagicMock()
 
     spawner.process(callback, args, spawner.architecture, spawner.configuration, "id", spawner.queue)
 
-    callback.assert_called_with(args, spawner.architecture, spawner.configuration)
+    callback.assert_called_with(args, spawner.architecture, spawner.configuration, False)
     (uuid, error) = spawner.queue.get()
     assert uuid == "id"
     assert error is None

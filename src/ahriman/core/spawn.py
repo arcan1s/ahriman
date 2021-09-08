@@ -60,7 +60,7 @@ class Spawn(Thread):
         self.queue: Queue[Tuple[str, Optional[Exception]]] = Queue()  # pylint: disable=unsubscriptable-object
 
     @staticmethod
-    def process(callback: Callable[[argparse.Namespace, str, Configuration], None],
+    def process(callback: Callable[[argparse.Namespace, str, Configuration, bool], None],
                 args: argparse.Namespace, architecture: str, configuration: Configuration,
                 process_id: str, queue: Queue[Tuple[str, Optional[Exception]]]) -> None:  # pylint: disable=unsubscriptable-object
         """
@@ -73,7 +73,7 @@ class Spawn(Thread):
         :param queue: output queue
         """
         try:
-            callback(args, architecture, configuration)
+            callback(args, architecture, configuration, args.no_report)
             error = None
         except Exception as e:
             error = e
