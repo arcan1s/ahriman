@@ -9,15 +9,15 @@ def test_process(spawner: Spawn) -> None:
     must process external process run correctly
     """
     args = MagicMock()
-    args.no_report = False
     callback = MagicMock()
+    callback.return_value = True
 
-    spawner.process(callback, args, spawner.architecture, spawner.configuration, "id", spawner.queue)
+    spawner.process(callback, args, spawner.architecture, "id", spawner.queue)
 
-    callback.assert_called_with(args, spawner.architecture, spawner.configuration, False)
-    (uuid, error) = spawner.queue.get()
+    callback.assert_called_with(args, spawner.architecture)
+    (uuid, status) = spawner.queue.get()
     assert uuid == "id"
-    assert error is None
+    assert status
     assert spawner.queue.empty()
 
 
@@ -26,13 +26,13 @@ def test_process_error(spawner: Spawn) -> None:
     must process external run with error correctly
     """
     callback = MagicMock()
-    callback.side_effect = Exception()
+    callback.return_value = False
 
-    spawner.process(callback, MagicMock(), spawner.architecture, spawner.configuration, "id", spawner.queue)
+    spawner.process(callback, MagicMock(), spawner.architecture, "id", spawner.queue)
 
-    (uuid, error) = spawner.queue.get()
+    (uuid, status) = spawner.queue.get()
     assert uuid == "id"
-    assert isinstance(error, Exception)
+    assert not status
     assert spawner.queue.empty()
 
 
@@ -90,16 +90,14 @@ def test_run(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must implement run method
     """
-    logging_exception_mock = mocker.patch("logging.Logger.exception")
-    logging_info_mock = mocker.patch("logging.Logger.info")
+    logging_mock = mocker.patch("logging.Logger.info")
 
-    spawner.queue.put(("1", None))
-    spawner.queue.put(("2", Exception()))
+    spawner.queue.put(("1", False))
+    spawner.queue.put(("2", True))
     spawner.queue.put(None)  # terminate
 
     spawner.run()
-    logging_exception_mock.assert_called_once()
-    logging_info_mock.assert_called_once()
+    logging_mock.assert_called()
 
 
 def test_run_pop(spawner: Spawn) -> None:
@@ -109,8 +107,8 @@ def test_run_pop(spawner: Spawn) -> None:
     first = spawner.active["1"] = MagicMock()
     second = spawner.active["2"] = MagicMock()
 
-    spawner.queue.put(("1", None))
-    spawner.queue.put(("2", Exception()))
+    spawner.queue.put(("1", False))
+    spawner.queue.put(("2", True))
     spawner.queue.put(None)  # terminate
 
     spawner.run()

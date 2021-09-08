@@ -25,7 +25,7 @@ import uuid
 
 from multiprocessing import Process, Queue
 from threading import Lock, Thread
-from typing import Callable, Dict, Iterable, Optional, Tuple
+from typing import Callable, Dict, Iterable, Tuple
 
 from ahriman.core.configuration import Configuration
 
@@ -57,27 +57,21 @@ class Spawn(Thread):
         self.lock = Lock()
         self.active: Dict[str, Process] = {}
         # stupid pylint does not know that it is possible
-        self.queue: Queue[Tuple[str, Optional[Exception]]] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[Tuple[str, bool]] = Queue()  # pylint: disable=unsubscriptable-object
 
     @staticmethod
-    def process(callback: Callable[[argparse.Namespace, str, Configuration, bool], None],
-                args: argparse.Namespace, architecture: str, configuration: Configuration,
-                process_id: str, queue: Queue[Tuple[str, Optional[Exception]]]) -> None:  # pylint: disable=unsubscriptable-object
+    def process(callback: Callable[[argparse.Namespace, str], bool], args: argparse.Namespace, architecture: str,
+                process_id: str, queue: Queue[Tuple[str, bool]]) -> None:  # pylint: disable=unsubscriptable-object
         """
         helper to run external process
         :param callback: application run function (i.e. Handler.run method)
         :param args: command line arguments
         :param architecture: repository architecture
-        :param configuration: configuration instance
         :param process_id: process unique identifier
         :param queue: output queue
         """
-        try:
-            callback(args, architecture, configuration, args.no_report)
-            error = None
-        except Exception as e:
-            error = e
-        queue.put((process_id, error))
+        result = callback(args, architecture)
+        queue.put((process_id, result))
 
     def packages_add(self, packages: Iterable[str], now: bool) -> None:
         """
@@ -121,12 +115,14 @@ class Spawn(Thread):
             arguments.append(f"--{argument}")
             if value:
                 arguments.append(value)
+
+        process_id = str(uuid.uuid4())
+        self.logger.info("full command line arguments of %s are %s", process_id, arguments)
         parsed = self.args_parser.parse_args(arguments)
 
-        callback = parsed.handler.run
-        process_id = str(uuid.uuid4())
+        callback = parsed.handler.call
         process = Process(target=self.process,
-                          args=(callback, parsed, self.architecture, self.configuration, process_id, self.queue),
+                          args=(callback, parsed, self.architecture, process_id, self.queue),
                           daemon=True)
         process.start()
 
@@ -137,11 +133,8 @@ class Spawn(Thread):
         """
         thread run method
         """
-        for process_id, error in iter(self.queue.get, None):
-            if error is None:
-                self.logger.info("process %s has been terminated successfully", process_id)
-            else:
-                self.logger.exception("process %s has been terminated with exception %s", process_id, error)
+        for process_id, status in iter(self.queue.get, None):
+            self.logger.info("process %s has been terminated with status %s", process_id, status)
 
             with self.lock:
                 process = self.active.pop(process_id, None)

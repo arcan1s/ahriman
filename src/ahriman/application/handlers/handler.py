@@ -40,7 +40,7 @@ class Handler:
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
-    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
+    def call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
         :param args: command line args
@@ -72,9 +72,9 @@ class Handler:
 
             with Pool(len(architectures)) as pool:
                 result = pool.starmap(
-                    cls._call, [(args, architecture) for architecture in architectures])
+                    cls.call, [(args, architecture) for architecture in architectures])
         else:
-            result = [cls._call(args, architectures.pop())]
+            result = [cls.call(args, architectures.pop())]
 
         return 0 if all(result) else 1
 
