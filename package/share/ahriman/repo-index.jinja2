@@ -31,14 +31,15 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
 
         <div class="container">
             <table id="packages" class="table table-striped table-hover" cellspacing="0"
-                   data-toggle="table"
-                   data-pagination="true"
-                   data-page-siz="10"
+                   data-page-size="10"
                    data-page-list="[10, 25, 50, 100, all]"
+                   data-pagination="true"
                    data-search="true"
                    data-show-columns="true"
+                   data-show-columns-toggle-all="true"
                    data-show-export="true"
-                   data-sortable="true">
+                   data-sortable="true"
+                   data-toggle="table">
                 <thead class="table-primary">
                     <tr>
                         <th data-sortable="true">package</th>

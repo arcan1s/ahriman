@@ -61,6 +61,9 @@ def test_get_local_files(s3: S3, resource_path_root: Path) -> None:
         Path("models/package_yay_srcinfo"),
         Path("web/templates/build-status.jinja2"),
         Path("web/templates/email-index.jinja2"),
+        Path("web/templates/login-modal.jinja2"),
+        Path("web/templates/package-actions-modals.jinja2"),
+        Path("web/templates/package-actions-script.jinja2"),
         Path("web/templates/repo-index.jinja2"),
         Path("web/templates/style.jinja2"),
     ])
