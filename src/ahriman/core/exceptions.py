@@ -109,6 +109,19 @@ class MissingArchitecture(Exception):
         Exception.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
 
+class MultipleArchitecture(Exception):
+    """
+    exception which will be raised if multiple architectures are not supported by the handler
+    """
+
+    def __init__(self, command: str) -> None:
+        """
+        default constructor
+        :param command: command name which throws exception
+        """
+        Exception.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
+
+
 class ReportFailed(Exception):
     """
     report generation exception

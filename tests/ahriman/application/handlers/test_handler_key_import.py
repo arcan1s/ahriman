@@ -25,5 +25,5 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("pathlib.Path.mkdir")
     application_mock = mocker.patch("ahriman.core.sign.gpg.GPG.import_key")
 
-    KeyImport.run(args, "x86_64", configuration)
+    KeyImport.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()

@@ -6,6 +6,18 @@ from pytest_aiohttp import TestClient
 from pytest_mock import MockerFixture
 from typing import Any
 
+from ahriman.web.views.base import BaseView
+
+
+@pytest.fixture
+def base(application: web.Application) -> BaseView:
+    """
+    base view fixture
+    :param application: application fixture
+    :return: generated base view fixture
+    """
+    return BaseView(pytest.helpers.request(application, "", ""))
+
 
 @pytest.fixture
 def client(application: web.Application, loop: BaseEventLoop,

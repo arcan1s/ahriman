@@ -19,7 +19,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.username = "user"
     args.password = "pa55w0rd"
-    args.role = UserAccess.Status
+    args.role = UserAccess.Read
     args.as_service = False
     return args
 
@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     create_user = mocker.patch("ahriman.application.handlers.CreateUser.create_user")
     get_salt_mock = mocker.patch("ahriman.application.handlers.CreateUser.get_salt")
 
-    CreateUser.run(args, "x86_64", configuration)
+    CreateUser.run(args, "x86_64", configuration, True)
     get_auth_configuration_mock.assert_called_once()
     create_configuration_mock.assert_called_once()
     create_user.assert_called_once()

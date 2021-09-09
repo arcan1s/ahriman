@@ -34,24 +34,27 @@ class Status(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
-        application = Application(architecture, configuration)
+        # we are using reporter here
+        client = Application(architecture, configuration, no_report=False).repository.reporter
         if args.ahriman:
-            ahriman = application.repository.reporter.get_self()
+            ahriman = client.get_self()
             print(ahriman.pretty_print())
             print()
         if args.package:
             packages: Iterable[Tuple[Package, BuildStatus]] = sum(
-                [application.repository.reporter.get(base) for base in args.package],
+                [client.get(base) for base in args.package],
                 start=[])
         else:
-            packages = application.repository.reporter.get(None)
+            packages = client.get(None)
         for package, package_status in sorted(packages, key=lambda item: item[0].base):
             print(package.pretty_print())
             print(f"\t{package.version}")

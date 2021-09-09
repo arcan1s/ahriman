@@ -68,7 +68,15 @@ setup(
             "package/share/ahriman/build-status.jinja2",
             "package/share/ahriman/email-index.jinja2",
             "package/share/ahriman/repo-index.jinja2",
-            "package/share/ahriman/style.jinja2",
+        ]),
+        ("share/ahriman/build-status", [
+            "package/share/ahriman/build-status/login-modal.jinja2",
+            "package/share/ahriman/build-status/package-actions-modals.jinja2",
+            "package/share/ahriman/build-status/package-actions-script.jinja2",
+        ]),
+        ("share/ahriman/utils", [
+            "package/share/ahriman/utils/bootstrap-scripts.jinja2",
+            "package/share/ahriman/utils/style.jinja2",
         ]),
     ],
 

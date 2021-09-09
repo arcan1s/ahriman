@@ -40,16 +40,17 @@ class Application:
     :ivar repository: repository instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, no_report: bool) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
         self.logger = logging.getLogger("root")
         self.configuration = configuration
         self.architecture = architecture
-        self.repository = Repository(architecture, configuration)
+        self.repository = Repository(architecture, configuration, no_report)
 
     def _finalize(self, built_packages: Iterable[Package]) -> None:
         """

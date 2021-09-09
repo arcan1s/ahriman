@@ -43,14 +43,16 @@ class Setup(Handler):
     SUDOERS_PATH = Path("/etc/sudoers.d/ahriman")
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
-        application = Application(architecture, configuration)
+        application = Application(architecture, configuration, no_report)
         Setup.create_makepkg_configuration(args.packager, application.repository.paths)
         Setup.create_executable(args.build_command, architecture)
         Setup.create_devtools_configuration(args.build_command, architecture, args.from_configuration,

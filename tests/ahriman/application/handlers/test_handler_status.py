@@ -30,7 +30,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus())])
 
-    Status.run(args, "x86_64", configuration)
+    Status.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     packages_mock.assert_called_once()
 
@@ -46,5 +46,17 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus())])
 
-    Status.run(args, "x86_64", configuration)
+    Status.run(args, "x86_64", configuration, True)
     packages_mock.assert_called_once()
+
+
+def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must create application object with native reporting
+    """
+    args = _default_args(args)
+    mocker.patch("pathlib.Path.mkdir")
+    load_mock = mocker.patch("ahriman.core.status.client.Client.load")
+
+    Status.run(args, "x86_64", configuration, True)
+    load_mock.assert_called_once()

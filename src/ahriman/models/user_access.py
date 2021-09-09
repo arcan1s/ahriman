@@ -25,9 +25,7 @@ class UserAccess(Enum):
     web user access enumeration
     :cvar Read: user can read status page
     :cvar Write: user can modify task and package list
-    :cvar Status: user can update statuses via API
     """
 
     Read = "read"
     Write = "write"
-    Status = "status"

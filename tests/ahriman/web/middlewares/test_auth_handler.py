@@ -1,6 +1,7 @@
+import pytest
+
 from aiohttp import web
 from pytest_mock import MockerFixture
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 from ahriman.core.auth.auth import Auth
@@ -29,40 +30,40 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     authorization_policy.validator.verify_access.assert_called_with(user.username, user.access, "/endpoint")
 
 
-async def test_auth_handler_api(aiohttp_request: Any, auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_api(auth: Auth, mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls
     """
-    aiohttp_request = aiohttp_request._replace(path="/status-api")
+    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
     request_handler = AsyncMock()
     mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
     handler = auth_handler(auth)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Status, aiohttp_request.path)
+    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
 
-async def test_auth_handler_api_post(aiohttp_request: Any, auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_api_post(auth: Auth, mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls with POST
     """
-    aiohttp_request = aiohttp_request._replace(path="/status-api", method="POST")
+    aiohttp_request = pytest.helpers.request("", "/status-api", "POST")
     request_handler = AsyncMock()
     mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
     handler = auth_handler(auth)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Status, aiohttp_request.path)
+    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
 
 
-async def test_auth_handler_read(aiohttp_request: Any, auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_read(auth: Auth, mocker: MockerFixture) -> None:
     """
     must ask for read permission for api calls with GET
     """
     for method in ("GET", "HEAD", "OPTIONS"):
-        aiohttp_request = aiohttp_request._replace(method=method)
+        aiohttp_request = pytest.helpers.request("", "", method)
         request_handler = AsyncMock()
         mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
@@ -72,12 +73,12 @@ async def test_auth_handler_read(aiohttp_request: Any, auth: Auth, mocker: Mocke
         check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
 
-async def test_auth_handler_write(aiohttp_request: Any, auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_write(auth: Auth, mocker: MockerFixture) -> None:
     """
     must ask for read permission for api calls with POST
     """
     for method in ("CONNECT", "DELETE", "PATCH", "POST", "PUT", "TRACE"):
-        aiohttp_request = aiohttp_request._replace(method=method)
+        aiohttp_request = pytest.helpers.request("", "", method)
         request_handler = AsyncMock()
         mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")

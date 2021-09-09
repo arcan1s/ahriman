@@ -32,14 +32,17 @@ class StatusUpdate(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
-        client = Application(architecture, configuration).repository.reporter
+        # we are using reporter here
+        client = Application(architecture, configuration, no_report=False).repository.reporter
         callback: Callable[[str], None] = lambda p: client.remove(p) if args.remove else client.update(p, args.status)
         if args.package:
             # update packages statuses

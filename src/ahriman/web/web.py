@@ -26,6 +26,7 @@ from aiohttp import web
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
+from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
@@ -67,11 +68,12 @@ def run_server(application: web.Application) -> None:
                 access_log=logging.getLogger("http"))
 
 
-def setup_service(architecture: str, configuration: Configuration) -> web.Application:
+def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> web.Application:
     """
     create web application
     :param architecture: repository architecture
     :param configuration: configuration instance
+    :param spawner: spawner thread
     :return: web application instance
     """
     application = web.Application(logger=logging.getLogger("http"))
@@ -92,6 +94,9 @@ def setup_service(architecture: str, configuration: Configuration) -> web.Applic
 
     application.logger.info("setup watcher")
     application["watcher"] = Watcher(architecture, configuration)
+
+    application.logger.info("setup process spawner")
+    application["spawn"] = spawner
 
     application.logger.info("setup authorization")
     validator = application["validator"] = Auth.load(configuration)

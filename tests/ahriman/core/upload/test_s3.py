@@ -59,10 +59,14 @@ def test_get_local_files(s3: S3, resource_path_root: Path) -> None:
         Path("models/package_ahriman_srcinfo"),
         Path("models/package_tpacpi-bat-git_srcinfo"),
         Path("models/package_yay_srcinfo"),
+        Path("web/templates/build-status/login-modal.jinja2"),
+        Path("web/templates/build-status/package-actions-modals.jinja2"),
+        Path("web/templates/build-status/package-actions-script.jinja2"),
+        Path("web/templates/utils/bootstrap-scripts.jinja2"),
+        Path("web/templates/utils/style.jinja2"),
         Path("web/templates/build-status.jinja2"),
         Path("web/templates/email-index.jinja2"),
         Path("web/templates/repo-index.jinja2"),
-        Path("web/templates/style.jinja2"),
     ])
 
     local_files = list(sorted(s3.get_local_files(resource_path_root).keys()))
