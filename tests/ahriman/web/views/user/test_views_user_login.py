@@ -11,10 +11,10 @@ async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixt
     payload = {"username": user.username, "password": user.password}
     remember_mock = mocker.patch("aiohttp_security.remember")
 
-    post_response = await client_with_auth.post("/login", json=payload)
+    post_response = await client_with_auth.post("/user-api/v1/login", json=payload)
     assert post_response.status == 200
 
-    post_response = await client_with_auth.post("/login", data=payload)
+    post_response = await client_with_auth.post("/user-api/v1/login", data=payload)
     assert post_response.status == 200
 
     remember_mock.assert_called()
@@ -25,7 +25,7 @@ async def test_post_skip(client: TestClient, user: User) -> None:
     must process if no auth configured
     """
     payload = {"username": user.username, "password": user.password}
-    post_response = await client.post("/login", json=payload)
+    post_response = await client.post("/user-api/v1/login", json=payload)
     assert post_response.status == 200
 
 
@@ -36,6 +36,6 @@ async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocke
     payload = {"username": user.username, "password": ""}
     remember_mock = mocker.patch("aiohttp_security.remember")
 
-    post_response = await client_with_auth.post("/login", json=payload)
+    post_response = await client_with_auth.post("/user-api/v1/login", json=payload)
     assert post_response.status == 401
     remember_mock.assert_not_called()

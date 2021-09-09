@@ -27,11 +27,10 @@ from ahriman import version
 from ahriman.application import handlers
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.sign_settings import SignSettings
+from ahriman.models.user_access import UserAccess
 
 
 # pylint thinks it is bad idea, but get the fuck off
-from ahriman.models.user_access import UserAccess
-
 SubParserAction = argparse._SubParsersAction  # pylint: disable=protected-access
 
 
@@ -367,7 +366,7 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("web", help="start web server", description="start web server",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.set_defaults(handler=handlers.Web, lock=None, no_report=True)
+    parser.set_defaults(handler=handlers.Web, lock=None, no_report=True, parser=_parser)
     return parser
 
 

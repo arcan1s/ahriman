@@ -24,5 +24,5 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("pathlib.Path.mkdir")
     application_mock = mocker.patch("ahriman.application.application.Application.sync")
 
-    Sync.run(args, "x86_64", configuration)
+    Sync.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()

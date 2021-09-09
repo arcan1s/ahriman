@@ -1,0 +1,76 @@
+<script>
+    const $remove = $("#remove")
+    const $update = $("#update")
+
+    const $table = $("#packages")
+    $table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
+        function () {
+            $remove.prop("disabled", !$table.bootstrapTable("getSelections").length)
+            $update.prop("disabled", !$table.bootstrapTable("getSelections").length)
+        })
+
+    const $successForm = $("#successForm")
+    $successForm.on("hidden.bs.modal", function() { window.location.reload(); })
+
+    const $failedForm = $("#failedForm")
+    $failedForm.on("hidden.bs.modal", function() { window.location.reload(); })
+
+    const $package = $("#package")
+    const $knownPackages = $("#knownPackages")
+    $package.keyup(function () {
+        const $this = $(this);
+        clearTimeout($this.data("timeout"));
+
+        $this.data("timeout", setTimeout($.proxy(function () {
+            const $value = $package.val();
+
+            $.ajax({
+                url: "/service-api/v1/search",
+                data: {"for": $value},
+                type: "GET",
+                dataType: "json",
+                success: function (resp) {
+                    const $options = resp.map(function (pkg) {
+                        const $option = document.createElement("option");
+                        $option.value = pkg;
+                        return $option;
+                    });
+                    $knownPackages.empty().append($options);
+                    $this.focus()
+                },
+            })
+        }, this), 500));
+    })
+
+    function doPackageAction($uri, $packages) {
+        if ($packages.length === 0)
+            return;
+        $.ajax({
+            url: $uri,
+            data: JSON.stringify({packages: $packages}),
+            type: "POST",
+            contentType: "application/json",
+            success: function (_) { $successForm.modal("show"); },
+            error: function (_) { $failedForm.modal("show"); },
+        })
+    }
+
+    function getSelection() {
+        return $.map($table.bootstrapTable("getSelections"), function(row) {
+            return row._data["package-base"];
+        })
+    }
+
+    function addPackages() {
+        const $packages = [$package.val()]
+        doPackageAction("/service-api/v1/add", $packages);
+    }
+
+    function removePackages() { doPackageAction("/service-api/v1/remove", getSelection()); }
+
+    function updatePackages() { doPackageAction("/service-api/v1/add", getSelection()); }
+
+    $(function () {
+        $table.bootstrapTable("uncheckAll");
+    })
+</script>

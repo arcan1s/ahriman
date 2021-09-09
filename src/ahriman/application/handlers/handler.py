@@ -27,17 +27,20 @@ from typing import Set, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture
+from ahriman.core.exceptions import MissingArchitecture, MultipleArchitecture
 from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Handler:
     """
     base handler class for command callbacks
+    :cvar ALLOW_MULTI_ARCHITECTURE_RUN: allow to run with multiple architectures
     """
 
+    ALLOW_MULTI_ARCHITECTURE_RUN = True
+
     @classmethod
-    def _call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
+    def call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
         :param args: command line args
@@ -47,7 +50,7 @@ class Handler:
         try:
             configuration = Configuration.from_path(args.configuration, architecture, not args.no_log)
             with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration)
+                cls.run(args, architecture, configuration, args.no_report)
             return True
         except Exception:
             logging.getLogger("root").exception("process exception")
@@ -61,9 +64,18 @@ class Handler:
         :return: 0 on success, 1 otherwise
         """
         architectures = cls.extract_architectures(args)
-        with Pool(len(architectures)) as pool:
-            result = pool.starmap(
-                cls._call, [(args, architecture) for architecture in architectures])
+
+        # actually we do not have to spawn another process if it is single-process application, do we?
+        if len(architectures) > 1:
+            if not cls.ALLOW_MULTI_ARCHITECTURE_RUN:
+                raise MultipleArchitecture(args.command)
+
+            with Pool(len(architectures)) as pool:
+                result = pool.starmap(
+                    cls.call, [(args, architecture) for architecture in architectures])
+        else:
+            result = [cls.call(args, architectures.pop())]
+
         return 0 if all(result) else 1
 
     @classmethod
@@ -88,11 +100,13 @@ class Handler:
         return architectures
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
         raise NotImplementedError

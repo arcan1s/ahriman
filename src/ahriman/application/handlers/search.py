@@ -32,12 +32,14 @@ class Search(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
         search = " ".join(args.search)
         packages = aur.search(search)

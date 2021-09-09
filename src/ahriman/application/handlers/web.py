@@ -23,6 +23,7 @@ from typing import Type
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.spawn import Spawn
 
 
 class Web(Handler):
@@ -30,14 +31,23 @@ class Web(Handler):
     web server handler
     """
 
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
+
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
+        # we are using local import for optional dependencies
         from ahriman.web.web import run_server, setup_service
-        application = setup_service(architecture, configuration)
+
+        spawner = Spawn(args.parser(), architecture, configuration)
+        spawner.start()
+
+        application = setup_service(architecture, configuration, spawner)
         run_server(application)

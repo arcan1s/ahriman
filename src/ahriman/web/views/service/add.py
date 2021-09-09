@@ -17,42 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPFound, Response, json_response
 
-from ahriman.models.build_status import BuildStatusEnum
 from ahriman.web.views.base import BaseView
 
 
-class AhrimanView(BaseView):
+class AddView(BaseView):
     """
-    service status web view
+    add package web view
     """
-
-    async def get(self) -> Response:
-        """
-        get current service status
-        :return: 200 with service status object
-        """
-        return json_response(self.service.status.view())
 
     async def post(self) -> Response:
         """
-        update service status
+        add new package
 
         JSON body must be supplied, the following model is used:
         {
-            "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
+            "packages": "ahriman",   # either list of packages or package name as in AUR
+            "build_now": true       # optional flag which runs build
         }
 
-        :return: 204 on success
+        :return: redirect to main page on success
         """
-        data = await self.extract_data()
+        data = await self.extract_data(["packages"])
 
         try:
-            status = BuildStatusEnum(data["status"])
+            now = data.get("build_now", True)
+            packages = data["packages"]
         except Exception as e:
-            raise HTTPBadRequest(text=str(e))
+            return json_response(text=str(e), status=400)
 
-        self.service.update_self(status)
+        self.spawner.packages_add(packages, now)
 
-        return HTTPNoContent()
+        return HTTPFound("/")

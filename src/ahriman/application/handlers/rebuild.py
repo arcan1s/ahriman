@@ -32,16 +32,18 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
+            configuration: Configuration, no_report: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param no_report: force disable reporting
         """
         depends_on = set(args.depends_on) if args.depends_on else None
 
-        application = Application(architecture, configuration)
+        application = Application(architecture, configuration, no_report)
         packages = [
             package
             for package in application.repository.packages()

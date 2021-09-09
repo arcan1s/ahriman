@@ -1,17 +1,21 @@
+import aur
 import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, Type, TypeVar
+from unittest.mock import MagicMock
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+
 
 T = TypeVar("T")
 
@@ -44,9 +48,35 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 # generic fixtures
 @pytest.fixture
+def aur_package_ahriman(package_ahriman: Package) -> aur.Package:
+    """
+    fixture for AUR package
+    :param package_ahriman: package fixture
+    :return: AUR package test instance
+    """
+    return aur.Package(
+        num_votes=None,
+        description=package_ahriman.packages[package_ahriman.base].description,
+        url_path=package_ahriman.web_url,
+        last_modified=None,
+        name=package_ahriman.base,
+        out_of_date=None,
+        id=None,
+        first_submitted=None,
+        maintainer=None,
+        version=package_ahriman.version,
+        license=package_ahriman.packages[package_ahriman.base].licenses,
+        url=None,
+        package_base=package_ahriman.base,
+        package_base_id=None,
+        category_id=None)
+
+
+@pytest.fixture
 def auth(configuration: Configuration) -> Auth:
     """
     auth provider fixture
+    :param configuration: configuration fixture
     :return: auth service instance
     """
     return Auth(configuration)
@@ -160,6 +190,7 @@ def package_description_python2_schedule() -> PackageDescription:
 def repository_paths(configuration: Configuration) -> RepositoryPaths:
     """
     repository paths fixture
+    :param configuration: configuration fixture
     :return: repository paths test instance
     """
     return RepositoryPaths(
@@ -168,12 +199,22 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
 
 
 @pytest.fixture
+def spawner(configuration: Configuration) -> Spawn:
+    """
+    spawner fixture
+    :param configuration: configuration fixture
+    :return: spawner fixture
+    """
+    return Spawn(MagicMock(), "x86_64", configuration)
+
+
+@pytest.fixture
 def user() -> User:
     """
     fixture for user descriptor
     :return: user descriptor instance
     """
-    return User("user", "pa55w0rd", UserAccess.Status)
+    return User("user", "pa55w0rd", UserAccess.Read)
 
 
 @pytest.fixture

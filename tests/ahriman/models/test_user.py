@@ -7,7 +7,7 @@ def test_from_option(user: User) -> None:
     must generate user from options
     """
     assert User.from_option(user.username, user.password) == user
-    # default is status access
+    # default is read access
     user.access = UserAccess.Write
     assert User.from_option(user.username, user.password) != user
 
@@ -52,17 +52,6 @@ def test_verify_access_read(user: User) -> None:
     user.access = UserAccess.Read
     assert user.verify_access(UserAccess.Read)
     assert not user.verify_access(UserAccess.Write)
-    assert not user.verify_access(UserAccess.Status)
-
-
-def test_verify_access_status(user: User) -> None:
-    """
-    user with status access must be able to only request status
-    """
-    user.access = UserAccess.Status
-    assert not user.verify_access(UserAccess.Read)
-    assert not user.verify_access(UserAccess.Write)
-    assert user.verify_access(UserAccess.Status)
 
 
 def test_verify_access_write(user: User) -> None:
@@ -72,4 +61,3 @@ def test_verify_access_write(user: User) -> None:
     user.access = UserAccess.Write
     assert user.verify_access(UserAccess.Read)
     assert user.verify_access(UserAccess.Write)
-    assert user.verify_access(UserAccess.Status)

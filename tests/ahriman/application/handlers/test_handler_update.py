@@ -30,7 +30,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     updates_mock = mocker.patch("ahriman.application.application.Application.get_updates")
 
-    Update.run(args, "x86_64", configuration)
+    Update.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     updates_mock.assert_called_once()
 
@@ -44,7 +44,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     mocker.patch("pathlib.Path.mkdir")
     updates_mock = mocker.patch("ahriman.application.application.Application.get_updates")
 
-    Update.run(args, "x86_64", configuration)
+    Update.run(args, "x86_64", configuration, True)
     updates_mock.assert_called_once()
 
 

@@ -19,7 +19,7 @@ def cleaner(configuration: Configuration, mocker: MockerFixture) -> Cleaner:
     :return: cleaner test instance
     """
     mocker.patch("pathlib.Path.mkdir")
-    return Cleaner("x86_64", configuration)
+    return Cleaner("x86_64", configuration, no_report=True)
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def executor(configuration: Configuration, mocker: MockerFixture) -> Executor:
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
-    return Executor("x86_64", configuration)
+    return Executor("x86_64", configuration, no_report=True)
 
 
 @pytest.fixture
@@ -48,7 +48,7 @@ def repository(configuration: Configuration, mocker: MockerFixture) -> Repositor
     :return: repository test instance
     """
     mocker.patch("pathlib.Path.mkdir")
-    return Repository("x86_64", configuration)
+    return Repository("x86_64", configuration, no_report=True)
 
 
 @pytest.fixture
@@ -58,7 +58,7 @@ def properties(configuration: Configuration) -> Properties:
     :param configuration: configuration fixture
     :return: properties test instance
     """
-    return Properties("x86_64", configuration)
+    return Properties("x86_64", configuration, no_report=True)
 
 
 @pytest.fixture
@@ -75,4 +75,4 @@ def update_handler(configuration: Configuration, mocker: MockerFixture) -> Updat
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
-    return UpdateHandler("x86_64", configuration)
+    return UpdateHandler("x86_64", configuration, no_report=True)
