@@ -106,7 +106,6 @@ setup(
             "aiohttp_session",
             "aiohttp_security",
             "cryptography",
-            "passlib",
         ],
     },
 )
