@@ -13,61 +13,60 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * Sign support with gpg (repository, package, per package settings).
 * Synchronization to remote services (rsync, s3) and report generation (html).
 * Dependency manager.
-* Repository status interface with optional authorization.
+* Repository status interface with optional authorization and control options:
+
+    ![web interface](web.png)
 
 ## Installation and run
 
-* Install package as usual.
-* Change settings if required, see [CONFIGURING](CONFIGURING.md) for more details.
-* Create `/var/lib/ahriman/.makepkg.conf` with `makepkg.conf` overrides if required (at least you might want to set `PACKAGER`):
+For installation details please refer to the [documentation](docs/setup.md). For command help, `--help` subcommand must be used, e.g.:
 
-    ```shell
-    echo 'PACKAGER="John Doe <john@doe.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
-    ```
+```shell
+$ ahriman --help
+usage: ahriman [-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-log] [--no-report] [--unsafe] [-v]
+               {add,check,clean,config,create-user,init,key-import,rebuild,remove,remove-unknown,report,search,setup,sign,status,status-update,sync,update,web} ...
 
-* Configure build tools (it is required for correct dependency management system):
+ArcHlinux ReposItory MANager
 
-    * create build command, e.g. `ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build` (you can choose any name for command, basically it should be `{name}-{arch}-build`);
-    * create configuration file, e.g. `cp /usr/share/devtools/pacman-{extra,ahriman}.conf` (same as previous `pacman-{name}.conf`);
-    * change configuration file, add your own repository, add multilib repository etc;
-    * set `build_command` option to point to your command;
-    * configure `/etc/sudoers.d/ahriman` to allow running command without a password.
+optional arguments:
+  -h, --help            show this help message and exit
+  -a ARCHITECTURE, --architecture ARCHITECTURE
+                        target architectures (can be used multiple times) (default: None)
+  -c CONFIGURATION, --configuration CONFIGURATION
+                        configuration path (default: /etc/ahriman.ini)
+  --force               force run, remove file lock (default: False)
+  -l LOCK, --lock LOCK  lock file (default: /tmp/ahriman.lock)
+  --no-log              redirect all log messages to stderr (default: False)
+  --no-report           force disable reporting to web service (default: False)
+  --unsafe              allow to run ahriman as non-ahriman user (default: False)
+  -v, --version         show program's version number and exit
 
-    ```shell
-    ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build
-    cp /usr/share/devtools/pacman-{extra,ahriman}.conf
+command:
+  {add,check,clean,config,create-user,init,key-import,rebuild,remove,remove-unknown,report,search,setup,sign,status,status-update,sync,update,web}
+                        command to run
+    add                 add package
+    check               check for updates
+    clean               clean local caches
+    config              dump configuration
+    create-user         create user for web services
+    init                create repository tree
+    key-import          import PGP key
+    rebuild             rebuild repository
+    remove              remove package
+    remove-unknown      remove unknown packages
+    report              generate report
+    search              search for package
+    setup               initial service configuration
+    sign                sign packages
+    status              get package status
+    status-update       update package status
+    sync                sync repository
+    update              update packages
+    web                 start web server
+```
 
-    echo '[multilib]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-    echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman-ahriman.conf
+Subcommands have own help message as well.
 
-    echo '[aur-clone]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-    echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman-ahriman.conf
-    echo 'Server = file:///var/lib/ahriman/repository/$arch' | tee -a /usr/share/devtools/pacman-ahriman.conf
+## Configuration
 
-    echo '[build]' | tee -a /etc/ahriman.ini.d/build.ini
-    echo 'build_command = ahriman-x86_64-build' | tee -a /etc/ahriman.ini.d/build.ini
-
-    echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/ahriman-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
-    echo 'ahriman ALL=(ALL) NOPASSWD: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
-    chmod 400 /etc/sudoers.d/ahriman
-    ```
-
-* Start and enable `ahriman@.timer` via `systemctl`:
-
-    ```shell
-    systemctl enable --now ahriman@x86_64.timer
-    ```
-
-* Start and enable status page:
-
-    ```shell
-    systemctl enable --now ahriman-web@x86_64
-    ```
-
-* Add packages by using `ahriman add {package}` command:
-
-    ```shell
-    sudo -u ahriman ahriman -a x86_64 add yay --now
-    ```
-
-Note that initial service configuration can be done by running `ahriman setup` with specific arguments.
+Every available option is described in the [documentation](docs/configuration.md).
