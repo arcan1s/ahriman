@@ -74,6 +74,9 @@ setup(
             "package/share/ahriman/build-status/package-actions-modals.jinja2",
             "package/share/ahriman/build-status/package-actions-script.jinja2",
         ]),
+        ("share/ahriman/static", [
+            "package/share/ahriman/static/favicon.ico",
+        ]),
         ("share/ahriman/utils", [
             "package/share/ahriman/utils/bootstrap-scripts.jinja2",
             "package/share/ahriman/utils/style.jinja2",

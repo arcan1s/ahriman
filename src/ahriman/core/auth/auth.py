@@ -36,8 +36,8 @@ class Auth:
     :cvar ALLOWED_PATHS_GROUPS: URI paths prefixes which can be accessed without authorization, predefined
     """
 
-    ALLOWED_PATHS = {"/", "/favicon.ico", "/index.html"}
-    ALLOWED_PATHS_GROUPS = {"/user-api"}
+    ALLOWED_PATHS = {"/", "/index.html"}
+    ALLOWED_PATHS_GROUPS = {"/static", "/user-api"}
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """
@@ -51,6 +51,7 @@ class Auth:
         self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
         self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
         self.enabled = provider.is_enabled
+        self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)
 
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration) -> Auth:

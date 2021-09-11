@@ -26,3 +26,11 @@ async def test_get_without_auth(client: TestClient) -> None:
     response = await client.get("/")
     assert response.status == 200
     assert await response.text()
+
+
+async def test_get_static(client: TestClient) -> None:
+    """
+    must return static files
+    """
+    response = await client.get("/static/favicon.ico")
+    assert response.status == 200
