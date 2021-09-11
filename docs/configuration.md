@@ -31,7 +31,7 @@ Base authorization settings.
 
 ## `auth:*` groups
 
-Authorization mapping. Group name must refer to user access level, i.e. it should be one of `auth:status` (internal API usage only), `auth:read` (read hidden pages), `auth:write` (everything is allowed).
+Authorization mapping. Group name must refer to user access level, i.e. it should be one of `auth:read` (read hidden pages), `auth:write` (everything is allowed).
 
 Key is always username (case-insensitive), option value depends on authorization provider:
 
