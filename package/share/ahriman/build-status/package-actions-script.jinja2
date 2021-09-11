@@ -1,22 +1,24 @@
 <script>
-    const $remove = $("#remove")
-    const $update = $("#update")
+    const $remove = $("#remove");
+    const $update = $("#update");
 
-    const $table = $("#packages")
+    const $table = $("#packages");
     $table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
         function () {
-            $remove.prop("disabled", !$table.bootstrapTable("getSelections").length)
-            $update.prop("disabled", !$table.bootstrapTable("getSelections").length)
+            $remove.prop("disabled", !$table.bootstrapTable("getSelections").length);
+            $update.prop("disabled", !$table.bootstrapTable("getSelections").length);
         })
 
-    const $successForm = $("#successForm")
-    $successForm.on("hidden.bs.modal", function() { window.location.reload(); })
+    const $successForm = $("#successForm");
+    const $successDetails = $("#successDetails");
+    $successForm.on("hidden.bs.modal", function() { window.location.reload(); });
 
-    const $failedForm = $("#failedForm")
-    $failedForm.on("hidden.bs.modal", function() { window.location.reload(); })
+    const $failedForm = $("#failedForm");
+    const $errorDetails = $("#errorDetails");
+    $failedForm.on("hidden.bs.modal", function() { window.location.reload(); });
 
-    const $package = $("#package")
-    const $knownPackages = $("#knownPackages")
+    const $package = $("#package");
+    const $knownPackages = $("#knownPackages");
     $package.keyup(function () {
         const $this = $(this);
         clearTimeout($this.data("timeout"));
@@ -36,7 +38,7 @@
                         return $option;
                     });
                     $knownPackages.empty().append($options);
-                    $this.focus()
+                    $this.focus();
                 },
             })
         }, this), 500));
@@ -50,8 +52,19 @@
             data: JSON.stringify({packages: $packages}),
             type: "POST",
             contentType: "application/json",
-            success: function (_) { $successForm.modal("show"); },
-            error: function (_) { $failedForm.modal("show"); },
+            success: function (_) {
+                const $details = $packages.map(function (pkg) {
+                    const $li = document.createElement("li");
+                    $li.innerText = pkg;
+                    return $li;
+                });
+                $successDetails.empty().append($details);
+                $successForm.modal("show");
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $errorDetails.text(errorThrown);
+                $failedForm.modal("show");
+            },
         })
     }
 
