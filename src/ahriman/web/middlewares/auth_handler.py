@@ -95,7 +95,7 @@ def setup_auth(application: web.Application, validator: Auth) -> web.Application
     """
     fernet_key = fernet.Fernet.generate_key()
     secret_key = base64.urlsafe_b64decode(fernet_key)
-    storage = EncryptedCookieStorage(secret_key, cookie_name='API_SESSION')
+    storage = EncryptedCookieStorage(secret_key, cookie_name="API_SESSION", max_age=validator.max_age)
     setup_session(application, storage)
 
     authorization_policy = AuthorizationPolicy(validator)

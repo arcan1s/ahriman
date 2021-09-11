@@ -84,7 +84,7 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     application.middlewares.append(exception_handler(application.logger))
 
     application.logger.info("setup routes")
-    setup_routes(application)
+    setup_routes(application, configuration.getpath("web", "static_path"))
 
     application.logger.info("setup templates")
     aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(configuration.getpath("web", "templates")))

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import Application
+from pathlib import Path
 
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
@@ -31,7 +32,7 @@ from ahriman.web.views.user.login import LoginView
 from ahriman.web.views.user.logout import LogoutView
 
 
-def setup_routes(application: Application) -> None:
+def setup_routes(application: Application, static_path: Path) -> None:
     """
     setup all defined routes
 
@@ -64,9 +65,12 @@ def setup_routes(application: Application) -> None:
         POST /user-api/v1/logout               logout from service
 
     :param application: web application instance
+    :param static_path: path to static files directory
     """
     application.router.add_get("/", IndexView, allow_head=True)
     application.router.add_get("/index.html", IndexView, allow_head=True)
+
+    application.router.add_static("/static", static_path, follow_symlinks=True)
 
     application.router.add_post("/service-api/v1/add", AddView)
 
