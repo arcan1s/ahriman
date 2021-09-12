@@ -31,7 +31,7 @@ def test_calculate_etag_small(resource_path_root: Path) -> None:
     must calculate checksum for path which is single chunk
     """
     path = resource_path_root / "models" / "package_ahriman_srcinfo"
-    assert S3.calculate_etag(path, _chunk_size) == "04e75b4aa0fe6033e711e8ea98e059b2"
+    assert S3.calculate_etag(path, _chunk_size) == "a55f82198e56061295d405aeb58f4062"
 
 
 def test_remove_files(s3_remote_objects: List[Any]) -> None:

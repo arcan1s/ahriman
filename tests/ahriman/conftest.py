@@ -140,7 +140,7 @@ def package_description_ahriman() -> PackageDescription:
         archive_size=4200,
         build_date=42,
         depends=["devtools", "git", "pyalpm", "python-aur", "python-srcinfo"],
-        description="ArcHlinux ReposItory MANager",
+        description="ArcH Linux ReposItory MANager",
         filename="ahriman-0.12.1-1-any.pkg.tar.zst",
         groups=[],
         installed_size=4200000,

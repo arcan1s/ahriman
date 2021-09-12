@@ -1,4 +1,4 @@
-# ArcHlinux ReposItory MANager
+# ArcH Linux ReposItory MANager
 
 [![build status](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/arcan1s/ahriman/badge)](https://www.codefactor.io/repository/github/arcan1s/ahriman)
@@ -26,7 +26,7 @@ $ ahriman --help
 usage: ahriman [-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-log] [--no-report] [--unsafe] [-v]
                {add,check,clean,config,create-user,init,key-import,rebuild,remove,remove-unknown,report,search,setup,sign,status,status-update,sync,update,web} ...
 
-ArcHlinux ReposItory MANager
+ArcH Linux ReposItory MANager
 
 optional arguments:
   -h, --help            show this help message and exit

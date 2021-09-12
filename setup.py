@@ -15,7 +15,7 @@ setup(
     version=metadata["__version__"],
     zip_safe=False,
 
-    description="ArcHlinux ReposItory MANager",
+    description="ArcH Linux ReposItory MANager",
 
     author="arcanis",
     author_email="",
