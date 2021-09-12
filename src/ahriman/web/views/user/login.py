@@ -41,10 +41,10 @@ class LoginView(BaseView):
 
         code = self.request.query.getone("code", default=None)
         oauth_provider = self.validator
-        if not isinstance(oauth_provider, OAuth):
+        if not isinstance(oauth_provider, OAuth):  # there is actually property, but mypy does not like it anyway
             raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
-        if code is None:
+        if not code:
             return HTTPFound(oauth_provider.get_oauth_url())
 
         response = HTTPFound("/")

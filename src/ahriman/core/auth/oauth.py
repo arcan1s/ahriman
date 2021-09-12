@@ -19,7 +19,7 @@
 #
 import aioauth_client  # type: ignore
 
-from typing import Type
+from typing import Optional, Type
 
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.configuration import Configuration
@@ -47,7 +47,9 @@ class OAuth(Mapping):
         Mapping.__init__(self, configuration, provider)
         self.client_id = configuration.get("auth", "client_id")
         self.client_secret = configuration.get("auth", "client_secret")
-        self.redirect_uri = configuration.get("auth", "oauth_redirect_uri")
+        # in order to use OAuth feature the service must be publicity available
+        # thus we expect that address is set
+        self.redirect_uri = f"""{configuration.get("web", "address")}/user-api/v1/login"""
         self.provider = self.get_provider(configuration.get("auth", "oauth_provider"))
         # it is list but we will have to convert to string it anyway
         self.scopes = configuration.get("auth", "oauth_scopes")
@@ -91,16 +93,21 @@ class OAuth(Mapping):
         uri: str = client.get_authorize_url(scope=self.scopes, redirect_uri=self.redirect_uri)
         return uri
 
-    async def get_oauth_username(self, code: str) -> str:
+    async def get_oauth_username(self, code: str) -> Optional[str]:
         """
         extract OAuth username from remote
         :param code: authorization code provided by external service
         :return: username as is in OAuth provider
         """
-        client = self.get_client()
-        access_token, _ = await client.get_access_token(code, redirect_uri=self.redirect_uri)
-        client.access_token = access_token
+        try:
+            client = self.get_client()
+            access_token, _ = await client.get_access_token(code, redirect_uri=self.redirect_uri)
+            client.access_token = access_token
 
-        user, _ = await client.user_info()
-        username: str = user.email
-        return username
+            print(f"HEEELOOOO {client}")
+            user, _ = await client.user_info()
+            username: str = user.email
+            return username
+        except Exception:
+            self.logger.exception("got exception while performing request")
+            return None

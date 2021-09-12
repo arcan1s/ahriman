@@ -19,6 +19,8 @@
 #
 from __future__ import annotations
 
+import logging
+
 from typing import Dict, Optional, Type
 
 from ahriman.core.configuration import Configuration
@@ -47,6 +49,8 @@ class Auth:
         :param configuration: configuration instance
         :param provider: authorization type definition
         """
+        self.logger = logging.getLogger("http")
+
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
         self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
         self.allowed_paths.update(self.ALLOWED_PATHS)
@@ -124,7 +128,7 @@ class Auth:
             return False  # request without context is not allowed
         return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
 
-    async def known_username(self, username: str) -> bool:  # pylint: disable=no-self-use
+    async def known_username(self, username: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         check if user is known
         :param username: username

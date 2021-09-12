@@ -64,13 +64,13 @@ class Mapping(Auth):
         normalized_user = username.lower()
         return self._users.get(normalized_user)
 
-    async def known_username(self, username: str) -> bool:
+    async def known_username(self, username: Optional[str]) -> bool:
         """
         check if user is known
         :param username: username
         :return: True in case if user is known and can be authorized and False otherwise
         """
-        return self.get_user(username) is not None
+        return username is not None and self.get_user(username) is not None
 
     async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
         """

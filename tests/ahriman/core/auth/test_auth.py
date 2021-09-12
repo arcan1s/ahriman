@@ -2,10 +2,19 @@ import pytest
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.auth.mapping import Mapping
+from ahriman.core.auth.oauth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateUser
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+
+
+def test_auth_control(auth: Auth) -> None:
+    """
+    must return a control for authorization
+    """
+    assert auth.auth_control
+    assert "button" in auth.auth_control  # I think it should be button
 
 
 def test_load_dummy(configuration: Configuration) -> None:
@@ -34,7 +43,17 @@ def test_load_mapping(configuration: Configuration) -> None:
     assert isinstance(auth, Mapping)
 
 
-def test_get_users(mapping_auth: Auth, configuration: Configuration) -> None:
+def test_load_oauth(configuration: Configuration) -> None:
+    """
+    must load OAuth2 validator if option set
+    """
+    configuration.set_option("auth", "target", "oauth")
+    configuration.set_option("web", "address", "https://example.com")
+    auth = Auth.load(configuration)
+    assert isinstance(auth, OAuth)
+
+
+def test_get_users(mapping: Auth, configuration: Configuration) -> None:
     """
     must return valid user list
     """
@@ -48,12 +67,12 @@ def test_get_users(mapping_auth: Auth, configuration: Configuration) -> None:
     read_section = Configuration.section_name("auth", user_read.access.value)
     configuration.set_option(read_section, user_read.username, user_read.password)
 
-    users = mapping_auth.get_users(configuration)
+    users = mapping.get_users(configuration)
     expected = {user_write.username: user_write, user_read.username: user_read}
     assert users == expected
 
 
-def test_get_users_normalized(mapping_auth: Auth, configuration: Configuration) -> None:
+def test_get_users_normalized(mapping: Auth, configuration: Configuration) -> None:
     """
     must return user list with normalized usernames in keys
     """
@@ -61,13 +80,13 @@ def test_get_users_normalized(mapping_auth: Auth, configuration: Configuration) 
     read_section = Configuration.section_name("auth", user.access.value)
     configuration.set_option(read_section, user.username, user.password)
 
-    users = mapping_auth.get_users(configuration)
+    users = mapping.get_users(configuration)
     expected = user.username.lower()
     assert expected in users
     assert users[expected].username == expected
 
 
-def test_get_users_duplicate(mapping_auth: Auth, configuration: Configuration, user: User) -> None:
+def test_get_users_duplicate(mapping: Auth, configuration: Configuration, user: User) -> None:
     """
     must raise exception on duplicate username
     """
@@ -77,7 +96,7 @@ def test_get_users_duplicate(mapping_auth: Auth, configuration: Configuration, u
     configuration.set_option(read_section, user.username, user.password)
 
     with pytest.raises(DuplicateUser):
-        mapping_auth.get_users(configuration)
+        mapping.get_users(configuration)
 
 
 async def test_check_credentials(auth: Auth, user: User) -> None:
