@@ -12,7 +12,8 @@ async def test_get(client: TestClient, aur_package_ahriman: aur.Package, mocker:
     response = await client.get("/service-api/v1/search", params={"for": "ahriman"})
 
     assert response.ok
-    assert await response.json() == ["ahriman"]
+    assert await response.json() == [{"package": aur_package_ahriman.package_base,
+                                      "description": aur_package_ahriman.description}]
 
 
 async def test_get_exception(client: TestClient, mocker: MockerFixture) -> None:

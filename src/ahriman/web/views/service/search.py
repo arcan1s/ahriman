@@ -20,7 +20,7 @@
 import aur  # type: ignore
 
 from aiohttp.web import Response, json_response
-from typing import Iterator
+from typing import Callable, Iterator
 
 from ahriman.web.views.base import BaseView
 
@@ -36,7 +36,7 @@ class SearchView(BaseView):
 
         search string (non empty) must be supplied as `for` parameter
 
-        :return: 200 with found package bases sorted by name
+        :return: 200 with found package bases and descriptions sorted by base
         """
         search: Iterator[str] = filter(lambda s: len(s) > 3, self.request.query.getall("for", default=[]))
         search_string = " ".join(search)
@@ -45,4 +45,11 @@ class SearchView(BaseView):
             return json_response(text="Search string must not be empty", status=400)
         packages = aur.search(search_string)
 
-        return json_response(sorted(package.package_base for package in packages))
+        comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)
+        response = [
+            {
+                "package": package.package_base,
+                "description": package.description,
+            } for package in sorted(packages, key=comparator)
+        ]
+        return json_response(response)
