@@ -34,9 +34,11 @@ class IndexView(BaseView):
     It uses jinja2 templates for report generation, the following variables are allowed:
 
         architecture - repository architecture, string, required
-        authorized - alias for `not auth_enabled or auth_username is not None`
-        auth_enabled - whether authorization is enabled by configuration or not, boolean, required
-        auth_username - authorized user id if any, string. None means not authorized
+        auth - authorization descriptor, required
+                   * authenticated - alias to check if user can see the page, boolean, required
+                   * control - HTML to insert for login control, HTML string, required
+                   * enabled - whether authorization is enabled by configuration or not, boolean, required
+                   * username - authenticated username if any, string, null means not authenticated
         packages - sorted list of packages properties, required
                    * base, string
                    * depends, sorted list of strings
@@ -74,24 +76,27 @@ class IndexView(BaseView):
                 "status_color": status.status.bootstrap_color(),
                 "timestamp": pretty_datetime(status.timestamp),
                 "version": package.version,
-                "web_url": package.web_url
+                "web_url": package.web_url,
             } for package, status in sorted(self.service.packages, key=lambda item: item[0].base)
         ]
         service = {
             "status": self.service.status.status.value,
             "status_color": self.service.status.status.badges_color(),
-            "timestamp": pretty_datetime(self.service.status.timestamp)
+            "timestamp": pretty_datetime(self.service.status.timestamp),
         }
 
         # auth block
         auth_username = await authorized_userid(self.request)
-        authorized = not self.validator.enabled or self.validator.allow_read_only or auth_username is not None
+        auth = {
+            "authenticated": not self.validator.enabled or self.validator.allow_read_only or auth_username is not None,
+            "control": self.validator.auth_control,
+            "enabled": self.validator.enabled,
+            "username": auth_username,
+        }
 
         return {
             "architecture": self.service.architecture,
-            "authorized": authorized,
-            "auth_enabled": self.validator.enabled,
-            "auth_username": auth_username,
+            "auth": auth,
             "packages": packages,
             "repository": self.service.repository.name,
             "service": service,

@@ -106,6 +106,7 @@ setup(
             "Jinja2",
             "aiohttp",
             "aiohttp_jinja2",
+            "aioauth-client",
             "aiohttp_session",
             "aiohttp_security",
             "cryptography",

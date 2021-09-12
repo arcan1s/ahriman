@@ -34,6 +34,7 @@ class InternalStatus:
     :ivar repository: repository name
     :ivar version: service version
     """
+
     architecture: Optional[str] = None
     packages: Counters = field(default=Counters(total=0))
     repository: Optional[str] = None

@@ -61,6 +61,7 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
         GET /status-api/v1/status              get web service status itself
 
+        GET /user-api/v1/login                 OAuth2 handler for login
         POST /user-api/v1/login                login to service
         POST /user-api/v1/logout               logout from service
 
@@ -92,5 +93,6 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     application.router.add_get("/status-api/v1/status", StatusView, allow_head=True)
 
+    application.router.add_get("/user-api/v1/login", LoginView)
     application.router.add_post("/user-api/v1/login", LoginView)
     application.router.add_post("/user-api/v1/logout", LogoutView)

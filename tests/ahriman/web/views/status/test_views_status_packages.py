@@ -15,7 +15,7 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
 
     response = await client.get("/status-api/v1/packages")
-    assert response.status == 200
+    assert response.ok
 
     packages = [Package.from_json(item["package"]) for item in await response.json()]
     assert packages

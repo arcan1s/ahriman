@@ -2,10 +2,9 @@ import pytest
 
 from aiohttp import web
 from pytest_mock import MockerFixture
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 from ahriman.core.auth.auth import Auth
-from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 from ahriman.web.middlewares.auth_handler import auth_handler, AuthorizationPolicy, setup_auth
@@ -23,7 +22,7 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     """
     must call validator check
     """
-    authorization_policy.validator = MagicMock()
+    authorization_policy.validator = AsyncMock()
     authorization_policy.validator.verify_access.return_value = True
 
     assert await authorization_policy.permits(user.username, user.access, "/endpoint")

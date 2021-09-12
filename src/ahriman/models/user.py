@@ -35,6 +35,7 @@ class User:
     :ivar password: hashed user password with salt
     :ivar access: user role
     """
+
     username: str
     password: str
     access: UserAccess
@@ -42,16 +43,18 @@ class User:
     _HASHER = sha512_crypt
 
     @classmethod
-    def from_option(cls: Type[User], username: Optional[str], password: Optional[str]) -> Optional[User]:
+    def from_option(cls: Type[User], username: Optional[str], password: Optional[str],
+                    access: UserAccess = UserAccess.Read) -> Optional[User]:
         """
         build user descriptor from configuration options
         :param username: username
         :param password: password as string
+        :param access: optional user access
         :return: generated user descriptor if all options are supplied and None otherwise
         """
         if username is None or password is None:
             return None
-        return cls(username, password, UserAccess.Read)
+        return cls(username, password, access)
 
     @staticmethod
     def generate_password(length: int) -> str:
@@ -70,7 +73,10 @@ class User:
         :param salt: salt for hashed password
         :return: True in case if password matches, False otherwise
         """
-        verified: bool = self._HASHER.verify(password + salt, self.password)
+        try:
+            verified: bool = self._HASHER.verify(password + salt, self.password)
+        except ValueError:
+            verified = False  # the absence of evidence is not the evidence of absence (c) Gin Rummy
         return verified
 
     def hash_password(self, salt: str) -> str:
@@ -79,6 +85,10 @@ class User:
         :param salt: salt for hashed password
         :return: hashed string to store in configuration
         """
+        if not self.password:
+            # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider
+            # when we do not store any password here
+            return ""
         password_hash: str = self._HASHER.hash(self.password + salt)
         return password_hash
 

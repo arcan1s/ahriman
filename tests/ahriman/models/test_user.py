@@ -10,6 +10,7 @@ def test_from_option(user: User) -> None:
     # default is read access
     user.access = UserAccess.Write
     assert User.from_option(user.username, user.password) != user
+    assert User.from_option(user.username, user.password, user.access) == user
 
 
 def test_from_option_empty() -> None:
@@ -30,6 +31,26 @@ def test_check_credentials_hash_password(user: User) -> None:
     assert user.check_credentials(current_password, "salt")
     assert not user.check_credentials(current_password, "salt1")
     assert not user.check_credentials(user.password, "salt")
+
+
+def test_check_credentials_empty_hash(user: User) -> None:
+    """
+    must reject any authorization if the hash is invalid
+    """
+    current_password = user.password
+    assert not user.check_credentials(current_password, "salt")
+    user.password = ""
+    assert not user.check_credentials(current_password, "salt")
+
+
+def test_hash_password_empty_hash(user: User) -> None:
+    """
+    must return empty string after hash in case if password not set
+    """
+    user.password = ""
+    assert user.hash_password("salt") == ""
+    user.password = None
+    assert user.hash_password("salt") == ""
 
 
 def test_generate_password() -> None:
