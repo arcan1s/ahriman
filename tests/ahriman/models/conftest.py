@@ -1,4 +1,5 @@
 import pytest
+import time
 
 from unittest.mock import MagicMock, PropertyMock
 
@@ -8,6 +9,7 @@ from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.user_identity import UserIdentity
 
 
 @pytest.fixture
@@ -104,3 +106,12 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     type(mock).provides = PropertyMock(return_value=package_description_ahriman.provides)
     type(mock).url = PropertyMock(return_value=package_description_ahriman.url)
     return mock
+
+
+@pytest.fixture
+def user_identity() -> UserIdentity:
+    """
+    identity fixture
+    :return: user identity test instance
+    """
+    return UserIdentity("username", int(time.time()) + 30)
