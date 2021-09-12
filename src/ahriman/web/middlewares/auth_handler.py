@@ -52,7 +52,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         :param identity: username
         :return: user identity (username) in case if user exists and None otherwise
         """
-        return identity if self.validator.known_username(identity) else None
+        return identity if await self.validator.known_username(identity) else None
 
     async def permits(self, identity: str, permission: UserAccess, context: Optional[str] = None) -> bool:
         """
@@ -62,7 +62,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         :param context: URI request path
         :return: True in case if user is allowed to perform this request and False otherwise
         """
-        return self.validator.verify_access(identity, permission, context)
+        return await self.validator.verify_access(identity, permission, context)
 
 
 def auth_handler(validator: Auth) -> MiddlewareType:
@@ -78,7 +78,7 @@ def auth_handler(validator: Auth) -> MiddlewareType:
         else:
             permission = UserAccess.Write
 
-        if not validator.is_safe_request(request.path, permission):
+        if not await validator.is_safe_request(request.path, permission):
             await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)

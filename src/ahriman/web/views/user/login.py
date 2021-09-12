@@ -44,7 +44,7 @@ class LoginView(BaseView):
         username = data.get("username")
 
         response = HTTPFound("/")
-        if self.validator.check_credentials(username, data.get("password")):
+        if await self.validator.check_credentials(username, data.get("password")):
             await remember(self.request, response, username)
             return response
 

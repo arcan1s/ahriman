@@ -30,10 +30,12 @@ class AuthSettings(Enum):
     web authorization type
     :cvar Disabled: authorization is disabled
     :cvar Configuration: configuration based authorization
+    :cvar OAuth: OAuth based provider
     """
 
     Disabled = auto()
     Configuration = auto()
+    OAuth = auto()
 
     @classmethod
     def from_option(cls: Type[AuthSettings], value: str) -> AuthSettings:
@@ -46,6 +48,8 @@ class AuthSettings(Enum):
             return cls.Disabled
         if value.lower() in ("configuration", "mapping"):
             return cls.Configuration
+        if value.lower() in ('oauth', 'oauth2'):
+            return cls.OAuth
         raise InvalidOption(value)
 
     @property

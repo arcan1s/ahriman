@@ -17,17 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, Optional
+from typing import Optional
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import DuplicateUser
 from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
-class MappingAuth(Auth):
+class Mapping(Auth):
     """
     user authorization based on mapping from configuration file
     :ivar salt: random generated string to salt passwords
@@ -44,26 +43,7 @@ class MappingAuth(Auth):
         self.salt = configuration.get("auth", "salt")
         self._users = self.get_users(configuration)
 
-    @staticmethod
-    def get_users(configuration: Configuration) -> Dict[str, User]:
-        """
-        load users from settings
-        :param configuration: configuration instance
-        :return: map of username to its descriptor
-        """
-        users: Dict[str, User] = {}
-        for role in UserAccess:
-            section = configuration.section_name("auth", role.value)
-            if not configuration.has_section(section):
-                continue
-            for user, password in configuration[section].items():
-                normalized_user = user.lower()
-                if normalized_user in users:
-                    raise DuplicateUser(normalized_user)
-                users[normalized_user] = User(normalized_user, password, role)
-        return users
-
-    def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
+    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
         """
         validate user password
         :param username: username
@@ -84,7 +64,7 @@ class MappingAuth(Auth):
         normalized_user = username.lower()
         return self._users.get(normalized_user)
 
-    def known_username(self, username: str) -> bool:
+    async def known_username(self, username: str) -> bool:
         """
         check if user is known
         :param username: username
@@ -92,7 +72,7 @@ class MappingAuth(Auth):
         """
         return self.get_user(username) is not None
 
-    def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
+    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
         """
         validate if user has access to requested resource
         :param username: username
@@ -100,6 +80,5 @@ class MappingAuth(Auth):
         :param context: URI request path
         :return: True in case if user is allowed to do this request and False otherwise
         """
-        del context
         user = self.get_user(username)
         return user is not None and user.verify_access(required)

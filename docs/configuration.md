@@ -35,7 +35,7 @@ Authorization mapping. Group name must refer to user access level, i.e. it shoul
 
 Key is always username (case-insensitive), option value depends on authorization provider:
 
-* `MappingAuth` (default) - reads salted password hashes from values, uses SHA512 in order to hash passwords. Password can be set by using `create-user` subcommand.
+* `Mapping` (default) - reads salted password hashes from values, uses SHA512 in order to hash passwords. Password can be set by using `create-user` subcommand.
 
 ## `build:*` groups
 
