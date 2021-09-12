@@ -1,4 +1,4 @@
-.PHONY: archive archive_directory archlinux check clean directory push tests version
+.PHONY: architecture archive archive_directory archlinux check clean directory push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -9,6 +9,9 @@ IGNORE_FILES := package/archlinux src/.mypy_cache
 
 $(TARGET_FILES) : $(addprefix $(PROJECT), %) : $(addprefix ., %) directory version
 	@cp -rp $< $@
+
+architecture:
+	cd src && pydeps ahriman -o ../docs/ahriman-architecture.svg --no-show --cluster
 
 archive: archive_directory
 	tar cJf "$(PROJECT)-$(VERSION)-src.tar.xz" "$(PROJECT)"
