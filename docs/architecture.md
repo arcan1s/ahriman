@@ -107,6 +107,32 @@ For every external command run (which is actually not recommended if possible) c
 
 Some packages provide different behaviour depending on configuration settings. In this cases inheritance is used and recommended way to deal with them is to call class method `load` from base classes.
 
+## Authorization
+
+The package provides several authorization methods: disabled, based on configuration and OAuth2. 
+
+Disabled (default) authorization provider just allows everything for everyone and does not have any specific configuration (it uses some default configuration parameters though). It also provides generic interface for derived classes.
+
+Mapping (aka configuration) provider uses hashed passwords with salt from configuration file in order to authenticate users. This provider also enables user permission checking (read/write) (authorization). Thus, it defines the following methods:
+
+* `check_credentials` - user password validation (authentication).
+* `verify_access` - user permission validation (authorization).
+
+Passwords must be stored in configuration as `hash(password + salt)`, where `password` is user defined password (taken from user input), `salt` is random string (any length) defined globally in configuration and `hash` is secure hash function. Thus, the following configuration
+
+```ini
+[auth:read]
+username = $6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0
+```
+
+means that there is user `username` with `read` access and password `password` hashed by `sha512` with salt `salt`.
+
+OAuth provider uses library definitions (`aioauth-client`) in order _authenticate_ users. It still requires user permission to be set in configuration, thus it inherits mapping provider without any changes. Whereas we could override `check_credentials` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
+
+OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature is used by service reporting (aka robots).
+
+In order to configure users there is special command.
+
 ## Additional features
 
 Some features require optional dependencies to be installed:
@@ -122,7 +148,8 @@ Some features require optional dependencies to be installed:
 Web application requires the following python packages to be installed:
 
 * Core part requires `aiohttp` (application itself), `aiohttp_jinja2` and `Jinja2` (HTML generation from templates).
-* In addition authorization feature requires `aiohttp_security`, `aiohttp_session` and `cryptography`.
+* In addition, authorization feature requires `aiohttp_security`, `aiohttp_session` and `cryptography`.
+* In addition to base authorization dependencies, OAuth2 also requires `aioauth-client` library.
 
 ## Middlewares
 
@@ -150,7 +177,7 @@ Service provides optional authorization which can be turned on in settings. In o
 
 If this feature is configured any request except for whitelisted will be prohibited without authentication. In addition, configuration flag `auth.allow_read_only` can be used in order to allow seeing main page without authorization (this page is in default white list).
 
-For authorized users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application.
+For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application.
 
 ## External calls
 

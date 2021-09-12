@@ -14,7 +14,7 @@
 
         <div class="container">
             <h1>ahriman
-                {% if auth.authorized %}
+                {% if auth.authenticated %}
                     <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
                     <img src="https://img.shields.io/badge/repository-{{ repository }}-informational" alt="{{ repository }}">
                     <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
@@ -70,7 +70,7 @@
                 </thead>
 
                 <tbody>
-                {% if auth.authorized %}
+                {% if auth.authenticated %}
                     {% for package in packages %}
                         <tr data-package-base="{{ package.base }}">
                             <td data-checkbox="true"></td>
@@ -85,7 +85,7 @@
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="100%">In order to see statuses you must login first</td>
+                        <td colspan="100%">In order to see statuses you must login first.</td>
                     </tr>
                 {% endif %}
                 </tbody>

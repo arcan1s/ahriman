@@ -63,7 +63,7 @@ class Auth:
     def auth_control(self) -> str:
         """
         This workaround is required to make different behaviour for login interface.
-        In case of internal authorization it must provide an interface (modal form) to login with button sends POST
+        In case of internal authentication it must provide an interface (modal form) to login with button sends POST
         request. But for an external providers behaviour can be different: e.g. OAuth provider requires sending GET
         request to external resource
         :return: login control as html code to insert

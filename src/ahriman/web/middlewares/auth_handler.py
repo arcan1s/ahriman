@@ -48,7 +48,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
 
     async def authorized_userid(self, identity: str) -> Optional[str]:
         """
-        retrieve authorized username
+        retrieve authenticated username
         :param identity: username
         :return: user identity (username) in case if user exists and None otherwise
         """

@@ -35,10 +35,10 @@ class IndexView(BaseView):
 
         architecture - repository architecture, string, required
         auth - authorization descriptor, required
-                   * authorized - alias to check if user can see the page, boolean, required
+                   * authenticated - alias to check if user can see the page, boolean, required
                    * control - HTML to insert for login control, HTML string, required
                    * enabled - whether authorization is enabled by configuration or not, boolean, required
-                   * username - authorized username if any, string, null means not authorized
+                   * username - authenticated username if any, string, null means not authenticated
         packages - sorted list of packages properties, required
                    * base, string
                    * depends, sorted list of strings
@@ -88,7 +88,7 @@ class IndexView(BaseView):
         # auth block
         auth_username = await authorized_userid(self.request)
         auth = {
-            "authorized": not self.validator.enabled or self.validator.allow_read_only or auth_username is not None,
+            "authenticated": not self.validator.enabled or self.validator.allow_read_only or auth_username is not None,
             "control": self.validator.auth_control,
             "enabled": self.validator.enabled,
             "username": auth_username,
