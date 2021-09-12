@@ -45,7 +45,7 @@ class AddView(BaseView):
             now = data.get("build_now", True)
             packages = data["packages"]
         except Exception as e:
-            return json_response(text=str(e), status=400)
+            return json_response(data=str(e), status=400)
 
         self.spawner.packages_add(packages, now)
 

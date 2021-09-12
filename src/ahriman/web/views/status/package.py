@@ -80,11 +80,11 @@ class PackageView(BaseView):
             package = Package.from_json(data["package"]) if "package" in data else None
             status = BuildStatusEnum(data["status"])
         except Exception as e:
-            return json_response(text=str(e), status=400)
+            return json_response(data=str(e), status=400)
 
         try:
             self.service.update(base, status, package)
         except UnknownPackage:
-            return json_response(text=f"Package {base} is unknown, but no package body set", status=400)
+            return json_response(data=f"Package {base} is unknown, but no package body set", status=400)
 
         return HTTPNoContent()
