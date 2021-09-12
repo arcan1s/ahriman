@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound, HTTPUnauthorized, Response
+from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized, Response
 
 from ahriman.core.auth.helpers import remember
 from ahriman.web.views.base import BaseView
@@ -27,6 +27,33 @@ class LoginView(BaseView):
     """
     login endpoint view
     """
+
+    async def get(self) -> Response:
+        """
+        OAuth2 response handler
+
+        In case if code provided it will do a request to get user email. In case if no code provided it will redirect
+        to authorization url provided by OAuth client
+
+        :return: redirect to main page
+        """
+        from ahriman.core.auth.oauth import OAuth
+
+        code = self.request.query.getone("code", default=None)
+        oauth_provider = self.validator
+        if not isinstance(oauth_provider, OAuth):
+            raise HTTPMethodNotAllowed(self.request.method, ["POST"])
+
+        if code is None:
+            return HTTPFound(oauth_provider.get_oauth_url())
+
+        response = HTTPFound("/")
+        username = await oauth_provider.get_oauth_username(code)
+        if await self.validator.known_username(username):
+            await remember(self.request, response, username)
+            return response
+
+        raise HTTPUnauthorized()
 
     async def post(self) -> Response:
         """

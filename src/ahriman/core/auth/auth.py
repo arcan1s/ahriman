@@ -55,6 +55,17 @@ class Auth:
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)
 
+    @property
+    def auth_control(self) -> str:
+        """
+        This workaround is required to make different behaviour for login interface.
+        In case of internal authorization it must provide an interface (modal form) to login with button sends POST
+        request. But for an external providers behaviour can be different: e.g. OAuth provider requires sending GET
+        request to external resource
+        :return: login control as html code to insert
+        """
+        return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
+
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration) -> Auth:
         """
@@ -66,6 +77,9 @@ class Auth:
         if provider == AuthSettings.Configuration:
             from ahriman.core.auth.mapping import Mapping
             return Mapping(configuration)
+        if provider == AuthSettings.OAuth:
+            from ahriman.core.auth.oauth import OAuth
+            return OAuth(configuration)
         return cls(configuration)
 
     @staticmethod

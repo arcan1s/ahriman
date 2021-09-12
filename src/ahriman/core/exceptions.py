@@ -63,11 +63,12 @@ class InitializeException(Exception):
     base service initialization exception
     """
 
-    def __init__(self) -> None:
+    def __init__(self, details: str) -> None:
         """
         default constructor
+        :param details: details of the exception
         """
-        Exception.__init__(self, "Could not load service")
+        Exception.__init__(self, f"Could not load service: {details}")
 
 
 class InvalidOption(Exception):

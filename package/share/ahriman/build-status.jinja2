@@ -14,7 +14,7 @@
 
         <div class="container">
             <h1>ahriman
-                {% if authorized %}
+                {% if auth.authorized %}
                     <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
                     <img src="https://img.shields.io/badge/repository-{{ repository }}-informational" alt="{{ repository }}">
                     <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
@@ -25,7 +25,7 @@
 
         <div class="container">
             <div id="toolbar">
-                {% if not auth_enabled or auth_username is not none %}
+                {% if not auth.enabled or auth.username is not none %}
                     <button id="add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addForm">
                         <i class="fa fa-plus"></i> Add
                     </button>
@@ -70,7 +70,7 @@
                 </thead>
 
                 <tbody>
-                {% if authorized %}
+                {% if auth.authorized %}
                     {% for package in packages %}
                         <tr data-package-base="{{ package.base }}">
                             <td data-checkbox="true"></td>
@@ -100,19 +100,19 @@
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
                 </ul>
 
-                {% if auth_enabled %}
-                    {% if auth_username is none %}
-                        <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>
+                {% if auth.enabled %}
+                    {% if auth.username is none %}
+                        {{ auth.control|safe }}
                     {% else %}
                         <form action="/user-api/v1/logout" method="post">
-                            <button class="btn btn-link" style="text-decoration: none">logout ({{ auth_username }})</button>
+                            <button class="btn btn-link" style="text-decoration: none">logout ({{ auth.username }})</button>
                         </form>
                     {% endif %}
                 {% endif %}
             </footer>
         </div>
 
-        {% if auth_enabled %}
+        {% if auth.enabled %}
             {% include "build-status/login-modal.jinja2" %}
         {% endif %}
 
