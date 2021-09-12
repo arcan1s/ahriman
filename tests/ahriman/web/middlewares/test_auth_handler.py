@@ -7,15 +7,26 @@ from unittest.mock import AsyncMock
 from ahriman.core.auth.auth import Auth
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares.auth_handler import auth_handler, AuthorizationPolicy, setup_auth
+
+
+def _identity(username: str) -> str:
+    """
+    generate identity from user
+    :param user: user fixture object
+    :return: user identity string
+    """
+    return f"{username} {UserIdentity.expire_when(60)}"
 
 
 async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user: User) -> None:
     """
     must return authorized user id
     """
-    assert await authorization_policy.authorized_userid(user.username) == user.username
-    assert await authorization_policy.authorized_userid("some random name") is None
+    assert await authorization_policy.authorized_userid(_identity(user.username)) == user.username
+    assert await authorization_policy.authorized_userid(_identity("somerandomname")) is None
+    assert await authorization_policy.authorized_userid("somerandomname") is None
 
 
 async def test_permits(authorization_policy: AuthorizationPolicy, user: User) -> None:
@@ -23,10 +34,13 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     must call validator check
     """
     authorization_policy.validator = AsyncMock()
-    authorization_policy.validator.verify_access.return_value = True
+    authorization_policy.validator.verify_access.side_effect = lambda username, *args: username == user.username
 
-    assert await authorization_policy.permits(user.username, user.access, "/endpoint")
+    assert await authorization_policy.permits(_identity(user.username), user.access, "/endpoint")
     authorization_policy.validator.verify_access.assert_called_with(user.username, user.access, "/endpoint")
+
+    assert not await authorization_policy.permits(_identity("somerandomname"), user.access, "/endpoint")
+    assert not await authorization_policy.permits(user.username, user.access, "/endpoint")
 
 
 async def test_auth_handler_api(auth: Auth, mocker: MockerFixture) -> None:

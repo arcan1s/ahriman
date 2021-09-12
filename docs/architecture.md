@@ -177,7 +177,7 @@ Service provides optional authorization which can be turned on in settings. In o
 
 If this feature is configured any request except for whitelisted will be prohibited without authentication. In addition, configuration flag `auth.allow_read_only` can be used in order to allow seeing main page without authorization (this page is in default white list).
 
-For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application.
+For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application. It also stores expiration time of the session inside.
 
 ## External calls
 
