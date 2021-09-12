@@ -39,7 +39,7 @@ def _parser() -> argparse.ArgumentParser:
     command line parser generator
     :return: command line parser for the application
     """
-    parser = argparse.ArgumentParser(prog="ahriman", description="ArcHlinux ReposItory MANager",
+    parser = argparse.ArgumentParser(prog="ahriman", description="ArcH Linux ReposItory MANager",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
                         action="append")

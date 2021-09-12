@@ -216,7 +216,7 @@ class Package:
         generate full version from components
         :param epoch: package epoch if any
         :param pkgver: package version
-        :param pkgrel: package release version (archlinux specific)
+        :param pkgrel: package release version (arch linux specific)
         :return: generated version
         """
         prefix = f"{epoch}:" if epoch else ""

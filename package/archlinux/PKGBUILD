@@ -3,7 +3,7 @@
 pkgname='ahriman'
 pkgver=1.2.6
 pkgrel=1
-pkgdesc="ArcHlinux ReposItory MANager"
+pkgdesc="ArcH Linux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')

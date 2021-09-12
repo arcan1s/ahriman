@@ -1,5 +1,5 @@
 pkgbase = ahriman
-        pkgdesc = ArcHlinux ReposItory MANager
+        pkgdesc = ArcH Linux ReposItory MANager
         pkgver = 0.12.1
         pkgrel = 1
         url = https://github.com/arcan1s/ahriman
