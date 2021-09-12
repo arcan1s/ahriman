@@ -42,7 +42,7 @@ class SearchView(BaseView):
         search_string = " ".join(search)
 
         if not search_string:
-            return json_response(text="Search string must not be empty", status=400)
+            return json_response(data="Search string must not be empty", status=400)
         packages = aur.search(search_string)
 
         comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)

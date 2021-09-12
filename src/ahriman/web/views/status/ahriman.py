@@ -51,7 +51,7 @@ class AhrimanView(BaseView):
         try:
             status = BuildStatusEnum(data["status"])
         except Exception as e:
-            return json_response(text=str(e), status=400)
+            return json_response(data=str(e), status=400)
 
         self.service.update_self(status)
 
