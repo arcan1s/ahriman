@@ -14,7 +14,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
 
     response = await client.get("/status-api/v1/status")
-    assert response.status == 200
+    assert response.ok
 
     json = await response.json()
     assert json["version"] == version.__version__

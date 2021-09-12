@@ -11,7 +11,7 @@ async def test_get(client: TestClient, aur_package_ahriman: aur.Package, mocker:
     mocker.patch("aur.search", return_value=[aur_package_ahriman])
     response = await client.get("/service-api/v1/search", params={"for": "ahriman"})
 
-    assert response.status == 200
+    assert response.ok
     assert await response.json() == ["ahriman"]
 
 
@@ -33,7 +33,7 @@ async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     search_mock = mocker.patch("aur.search")
     response = await client.get("/service-api/v1/search", params=[("for", "ahriman"), ("for", "maybe")])
 
-    assert response.status == 200
+    assert response.ok
     search_mock.assert_called_with("ahriman maybe")
 
 
@@ -44,7 +44,7 @@ async def test_get_join_filter(client: TestClient, mocker: MockerFixture) -> Non
     search_mock = mocker.patch("aur.search")
     response = await client.get("/service-api/v1/search", params=[("for", "ah"), ("for", "maybe")])
 
-    assert response.status == 200
+    assert response.ok
     search_mock.assert_called_with("maybe")
 
 

@@ -19,10 +19,14 @@
 #
 from __future__ import annotations
 
-from typing import Optional, Type
+import logging
+
+from typing import Dict, Optional, Type
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import DuplicateUser
 from ahriman.models.auth_settings import AuthSettings
+from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
@@ -45,6 +49,8 @@ class Auth:
         :param configuration: configuration instance
         :param provider: authorization type definition
         """
+        self.logger = logging.getLogger("http")
+
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
         self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
         self.allowed_paths.update(self.ALLOWED_PATHS)
@@ -52,6 +58,17 @@ class Auth:
         self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)
+
+    @property
+    def auth_control(self) -> str:
+        """
+        This workaround is required to make different behaviour for login interface.
+        In case of internal authentication it must provide an interface (modal form) to login with button sends POST
+        request. But for an external providers behaviour can be different: e.g. OAuth provider requires sending GET
+        request to external resource
+        :return: login control as html code to insert
+        """
+        return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
 
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration) -> Auth:
@@ -62,11 +79,33 @@ class Auth:
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
-            from ahriman.core.auth.mapping_auth import MappingAuth
-            return MappingAuth(configuration)
+            from ahriman.core.auth.mapping import Mapping
+            return Mapping(configuration)
+        if provider == AuthSettings.OAuth:
+            from ahriman.core.auth.oauth import OAuth
+            return OAuth(configuration)
         return cls(configuration)
 
-    def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:  # pylint: disable=no-self-use
+    @staticmethod
+    def get_users(configuration: Configuration) -> Dict[str, User]:
+        """
+        load users from settings
+        :param configuration: configuration instance
+        :return: map of username to its descriptor
+        """
+        users: Dict[str, User] = {}
+        for role in UserAccess:
+            section = configuration.section_name("auth", role.value)
+            if not configuration.has_section(section):
+                continue
+            for user, password in configuration[section].items():
+                normalized_user = user.lower()
+                if normalized_user in users:
+                    raise DuplicateUser(normalized_user)
+                users[normalized_user] = User(normalized_user, password, role)
+        return users
+
+    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         validate user password
         :param username: username
@@ -76,20 +115,20 @@ class Auth:
         del username, password
         return True
 
-    def is_safe_request(self, uri: Optional[str], required: UserAccess) -> bool:
+    async def is_safe_request(self, uri: Optional[str], required: UserAccess) -> bool:
         """
         check if requested path are allowed without authorization
         :param uri: request uri
         :param required: required access level
         :return: True in case if this URI can be requested without authorization and False otherwise
         """
-        if not uri:
-            return False  # request without context is not allowed
         if required == UserAccess.Read and self.allow_read_only:
             return True  # in case if read right requested and allowed in options
+        if not uri:
+            return False  # request without context is not allowed
         return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
 
-    def known_username(self, username: str) -> bool:  # pylint: disable=no-self-use
+    async def known_username(self, username: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         check if user is known
         :param username: username
@@ -98,7 +137,7 @@ class Auth:
         del username
         return True
 
-    def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:  # pylint: disable=no-self-use
+    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         validate if user has access to requested resource
         :param username: username

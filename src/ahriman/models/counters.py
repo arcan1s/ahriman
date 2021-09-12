@@ -37,6 +37,7 @@ class Counters:
     :ivar failed: packages in failed status count
     :ivar success: packages in success status count
     """
+
     total: int
     unknown: int = 0
     pending: int = 0

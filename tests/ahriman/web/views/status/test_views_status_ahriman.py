@@ -11,7 +11,7 @@ async def test_get(client: TestClient) -> None:
     response = await client.get("/status-api/v1/ahriman")
     status = BuildStatus.from_json(await response.json())
 
-    assert response.status == 200
+    assert response.ok
     assert status.status == BuildStatusEnum.Unknown
 
 
@@ -26,7 +26,7 @@ async def test_post(client: TestClient) -> None:
     response = await client.get("/status-api/v1/ahriman")
     status = BuildStatus.from_json(await response.json())
 
-    assert response.status == 200
+    assert response.ok
     assert status.status == BuildStatusEnum.Success
 
 

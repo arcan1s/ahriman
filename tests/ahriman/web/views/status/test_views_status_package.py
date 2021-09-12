@@ -14,7 +14,7 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
 
     response = await client.get(f"/status-api/v1/packages/{package_ahriman.base}")
-    assert response.status == 200
+    assert response.ok
 
     packages = [Package.from_json(item["package"]) for item in await response.json()]
     assert packages
@@ -45,7 +45,7 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
     assert response.status == 404
 
     response = await client.get(f"/status-api/v1/packages/{package_python_schedule.base}")
-    assert response.status == 200
+    assert response.ok
 
 
 async def test_delete_unknown(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:
@@ -62,7 +62,7 @@ async def test_delete_unknown(client: TestClient, package_ahriman: Package, pack
     assert response.status == 404
 
     response = await client.get(f"/status-api/v1/packages/{package_python_schedule.base}")
-    assert response.status == 200
+    assert response.ok
 
 
 async def test_post(client: TestClient, package_ahriman: Package) -> None:
@@ -75,7 +75,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     assert post_response.status == 204
 
     response = await client.get(f"/status-api/v1/packages/{package_ahriman.base}")
-    assert response.status == 200
+    assert response.ok
 
 
 async def test_post_exception(client: TestClient, package_ahriman: Package) -> None:
@@ -100,7 +100,7 @@ async def test_post_light(client: TestClient, package_ahriman: Package) -> None:
     assert post_response.status == 204
 
     response = await client.get(f"/status-api/v1/packages/{package_ahriman.base}")
-    assert response.status == 200
+    assert response.ok
     statuses = {
         Package.from_json(item["package"]).base: BuildStatus.from_json(item["status"])
         for item in await response.json()

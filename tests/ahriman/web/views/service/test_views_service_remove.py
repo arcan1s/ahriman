@@ -9,7 +9,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_remove")
     response = await client.post("/service-api/v1/remove", json={"packages": ["ahriman"]})
 
-    assert response.status == 200
+    assert response.ok
     add_mock.assert_called_with(["ahriman"])
 
 

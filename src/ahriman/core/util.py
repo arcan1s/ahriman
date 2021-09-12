@@ -46,12 +46,12 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
         if logger is not None:
             for line in result.splitlines():
                 logger.debug(line)
+        return result
     except subprocess.CalledProcessError as e:
         if e.output is not None and logger is not None:
             for line in e.output.splitlines():
                 logger.debug(line)
         raise exception or e
-    return result
 
 
 def exception_response_text(exception: requests.exceptions.HTTPError) -> str:

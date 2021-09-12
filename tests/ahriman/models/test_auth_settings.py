@@ -21,6 +21,10 @@ def test_from_option_valid() -> None:
     assert AuthSettings.from_option("no") == AuthSettings.Disabled
     assert AuthSettings.from_option("NO") == AuthSettings.Disabled
 
+    assert AuthSettings.from_option("oauth") == AuthSettings.OAuth
+    assert AuthSettings.from_option("OAuth") == AuthSettings.OAuth
+    assert AuthSettings.from_option("OAuth2") == AuthSettings.OAuth
+
     assert AuthSettings.from_option("configuration") == AuthSettings.Configuration
     assert AuthSettings.from_option("ConFigUration") == AuthSettings.Configuration
     assert AuthSettings.from_option("mapping") == AuthSettings.Configuration
