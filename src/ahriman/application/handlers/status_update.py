@@ -24,6 +24,7 @@ from typing import Callable, Type
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import InvalidCommand
 
 
 class StatusUpdate(Handler):
@@ -48,6 +49,8 @@ class StatusUpdate(Handler):
             # update packages statuses
             for package in args.package:
                 callback(package)
+        elif args.remove:
+            raise InvalidCommand("Remove option is supplied, but no packages set")
         else:
             # update service status
             client.update_self(args.status)

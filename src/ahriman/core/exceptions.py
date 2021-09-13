@@ -20,7 +20,7 @@
 from typing import Any
 
 
-class BuildFailed(Exception):
+class BuildFailed(RuntimeError):
     """
     base exception for failed builds
     """
@@ -30,10 +30,10 @@ class BuildFailed(Exception):
         default constructor
         :param package: package base raised exception
         """
-        Exception.__init__(self, f"Package {package} build failed, check logs for details")
+        RuntimeError.__init__(self, f"Package {package} build failed, check logs for details")
 
 
-class DuplicateRun(Exception):
+class DuplicateRun(RuntimeError):
     """
     exception which will be raised if there is another application instance
     """
@@ -42,10 +42,10 @@ class DuplicateRun(Exception):
         """
         default constructor
         """
-        Exception.__init__(self, "Another application instance is run")
+        RuntimeError.__init__(self, "Another application instance is run")
 
 
-class DuplicateUser(Exception):
+class DuplicateUser(ValueError):
     """
     exception which will be thrown in case if there are two users with different settings
     """
@@ -55,10 +55,10 @@ class DuplicateUser(Exception):
         default constructor
         :param username: username with duplicates
         """
-        Exception.__init__(self, f"Found duplicate user with username {username}")
+        ValueError.__init__(self, f"Found duplicate user with username {username}")
 
 
-class InitializeException(Exception):
+class InitializeException(RuntimeError):
     """
     base service initialization exception
     """
@@ -68,10 +68,23 @@ class InitializeException(Exception):
         default constructor
         :param details: details of the exception
         """
-        Exception.__init__(self, f"Could not load service: {details}")
+        RuntimeError.__init__(self, f"Could not load service: {details}")
 
 
-class InvalidOption(Exception):
+class InvalidCommand(ValueError):
+    """
+    exception raised on invalid command line options
+    """
+
+    def __init__(self, details: Any) -> None:
+        """
+        default constructor
+        :param details" error details
+        """
+        ValueError.__init__(self, details)
+
+
+class InvalidOption(ValueError):
     """
     exception which will be raised on configuration errors
     """
@@ -81,10 +94,10 @@ class InvalidOption(Exception):
         default constructor
         :param value: option value
         """
-        Exception.__init__(self, f"Invalid or unknown option value `{value}`")
+        ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
 
 
-class InvalidPackageInfo(Exception):
+class InvalidPackageInfo(RuntimeError):
     """
     exception which will be raised on package load errors
     """
@@ -94,10 +107,10 @@ class InvalidPackageInfo(Exception):
         default constructor
         :param details: error details
         """
-        Exception.__init__(self, f"There are errors during reading package information: `{details}`")
+        RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
 
 
-class MissingArchitecture(Exception):
+class MissingArchitecture(ValueError):
     """
     exception which will be raised if architecture is required, but missing
     """
@@ -107,10 +120,10 @@ class MissingArchitecture(Exception):
         default constructor
         :param command: command name which throws exception
         """
-        Exception.__init__(self, f"Architecture required for subcommand {command}, but missing")
+        ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
 
-class MultipleArchitecture(Exception):
+class MultipleArchitecture(ValueError):
     """
     exception which will be raised if multiple architectures are not supported by the handler
     """
@@ -120,10 +133,10 @@ class MultipleArchitecture(Exception):
         default constructor
         :param command: command name which throws exception
         """
-        Exception.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
+        ValueError.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
 
 
-class ReportFailed(Exception):
+class ReportFailed(RuntimeError):
     """
     report generation exception
     """
@@ -132,10 +145,10 @@ class ReportFailed(Exception):
         """
         default constructor
         """
-        Exception.__init__(self, "Report failed")
+        RuntimeError.__init__(self, "Report failed")
 
 
-class SyncFailed(Exception):
+class SyncFailed(RuntimeError):
     """
     remote synchronization exception
     """
@@ -144,19 +157,19 @@ class SyncFailed(Exception):
         """
         default constructor
         """
-        Exception.__init__(self, "Sync failed")
+        RuntimeError.__init__(self, "Sync failed")
 
 
-class UnknownPackage(Exception):
+class UnknownPackage(ValueError):
     """
     exception for status watcher which will be thrown on unknown package
     """
 
     def __init__(self, base: str) -> None:
-        Exception.__init__(self, f"Package base {base} is unknown")
+        ValueError.__init__(self, f"Package base {base} is unknown")
 
 
-class UnsafeRun(Exception):
+class UnsafeRun(RuntimeError):
     """
     exception which will be raised in case if user is not owner of repository
     """
@@ -165,7 +178,7 @@ class UnsafeRun(Exception):
         """
         default constructor
         """
-        Exception.__init__(
+        RuntimeError.__init__(
             self,
             f"""Current UID {current_uid} differs from root owner {root_uid}.
 Note that for the most actions it is unsafe to run application as different user.
