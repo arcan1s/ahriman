@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import Iterable, Tuple, Type
+from typing import Callable, Iterable, Tuple, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
@@ -55,7 +55,11 @@ class Status(Handler):
                 start=[])
         else:
             packages = client.get(None)
-        for package, package_status in sorted(packages, key=lambda item: item[0].base):
+
+        comparator: Callable[[Tuple[Package, BuildStatus]], str] = lambda item: item[0].base
+        filter_fn: Callable[[Tuple[Package, BuildStatus]], bool] =\
+            lambda item: args.status is None or item[1].status == args.status
+        for package, package_status in sorted(filter(filter_fn, packages), key=comparator):
             print(package.pretty_print())
             print(f"\t{package.version}")
             print(f"\t{package_status.pretty_print()}")

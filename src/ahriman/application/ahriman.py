@@ -304,6 +304,7 @@ def _set_status_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("status", help="get package status", description="request status of the package",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
+    parser.add_argument("--status", help="filter packages by status", choices=BuildStatusEnum, type=BuildStatusEnum)
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.set_defaults(handler=handlers.Status, lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
