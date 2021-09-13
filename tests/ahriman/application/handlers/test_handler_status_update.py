@@ -1,9 +1,11 @@
 import argparse
 
+import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import StatusUpdate
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import InvalidCommand
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 
@@ -59,6 +61,19 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, pack
 
     StatusUpdate.run(args, "x86_64", configuration, True)
     update_mock.assert_called_once()
+
+
+def test_run_remove_without_packages(args: argparse.Namespace, configuration: Configuration,
+                                     mocker: MockerFixture) -> None:
+    """
+    must raise exception when no packages set and remove called
+    """
+    args = _default_args(args)
+    args.remove = True
+    mocker.patch("pathlib.Path.mkdir")
+
+    with pytest.raises(InvalidCommand):
+        StatusUpdate.run(args, "x86_64", configuration, True)
 
 
 def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
