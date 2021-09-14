@@ -41,13 +41,14 @@ class Configuration(configparser.RawConfigParser):
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "html", "rsync", "s3", "sign", "web"]
 
-    _UNSET = object()
-
     def __init__(self) -> None:
         """
         default constructor. In the most cases must not be called directly
         """
-        configparser.RawConfigParser.__init__(self, allow_no_value=True)
+        configparser.RawConfigParser.__init__(self, allow_no_value=True, converters={
+            "list": lambda value: value.split(),
+            "path": self.__convert_path,
+        })
         self.path: Optional[Path] = None
 
     @property
@@ -89,6 +90,17 @@ class Configuration(configparser.RawConfigParser):
         """
         return f"{section}:{suffix}"
 
+    def __convert_path(self, parsed: str) -> Path:
+        """
+        convert string value to path object
+        :param parsed: string configuration value
+        :return: path object which represents the configuration value
+        """
+        value = Path(parsed)
+        if self.path is None or value.is_absolute():
+            return value
+        return self.path.parent / value
+
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
         dump configuration to dictionary
@@ -99,35 +111,11 @@ class Configuration(configparser.RawConfigParser):
             for section in self.sections()
         }
 
-    def getlist(self, section: str, key: str) -> List[str]:
-        """
-        get space separated string list option
-        :param section: section name
-        :param key: key name
-        :return: list of string if option is set, empty list otherwise
-        """
-        raw = self.get(section, key, fallback=None)
-        if not raw:  # empty string or none
-            return []
-        return raw.split()
+    # pylint and mypy are too stupid to find these methods
+    # pylint: disable=missing-function-docstring,multiple-statements,unused-argument,no-self-use
+    def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...
 
-    def getpath(self, section: str, key: str, fallback: Any = _UNSET) -> Path:
-        """
-        helper to generate absolute configuration path for relative settings value
-        :param section: section name
-        :param key: key name
-        :param fallback: optional fallback value
-        :return: absolute path according to current path configuration
-        """
-        try:
-            value = Path(self.get(section, key))
-        except (configparser.NoOptionError, configparser.NoSectionError):
-            if fallback is self._UNSET:
-                raise
-            value = fallback
-        if self.path is None or not isinstance(value, Path) or value.is_absolute():
-            return value
-        return self.path.parent / value
+    def getpath(self, *args: Any, **kwargs: Any) -> Path: ...
 
     def load(self, path: Path) -> None:
         """

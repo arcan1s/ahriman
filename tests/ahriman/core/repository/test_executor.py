@@ -3,6 +3,7 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
+from unittest.mock import MagicMock
 
 from ahriman.core.report.report import Report
 from ahriman.core.repository.executor import Executor
@@ -137,14 +138,13 @@ def test_process_report(executor: Executor, package_ahriman: Package, mocker: Mo
     report_mock.assert_called_once()
 
 
-def test_process_report_auto(executor: Executor, mocker: MockerFixture) -> None:
+def test_process_report_auto(executor: Executor) -> None:
     """
     must process report in auto mode if no targets supplied
     """
-    configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
-
+    configuration_mock = executor.configuration = MagicMock()
     executor.process_report(None, [])
-    configuration_getlist_mock.assert_called_once()
+    configuration_mock.getlist.assert_called_once()
 
 
 def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
@@ -158,14 +158,13 @@ def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
     upload_mock.assert_called_once()
 
 
-def test_process_upload_auto(executor: Executor, mocker: MockerFixture) -> None:
+def test_process_upload_auto(executor: Executor) -> None:
     """
     must process sync in auto mode if no targets supplied
     """
-    configuration_getlist_mock = mocker.patch("ahriman.core.configuration.Configuration.getlist")
-
+    configuration_mock = executor.configuration = MagicMock()
     executor.process_sync(None, [])
-    configuration_getlist_mock.assert_called_once()
+    configuration_mock.getlist.assert_called_once()
 
 
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

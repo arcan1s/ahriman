@@ -71,7 +71,7 @@ Settings for signing packages or repository. Group name must refer to architectu
 
 Report generation settings.
 
-* `target` - list of reports to be generated, space separated list of strings, optional. Allowed values are `html`, `email`.
+* `target` - list of reports to be generated, space separated list of strings, required. Allowed values are `html`, `email`.
 
 ### `email:*` groups
 
@@ -103,7 +103,7 @@ Group name must refer to architecture, e.g. it should be `html:x86_64` for x86_6
 
 Remote synchronization settings.
 
-* `target` - list of synchronizations to be used, space separated list of strings, optional. Allowed values are `rsync`, `s3`.
+* `target` - list of synchronizations to be used, space separated list of strings, required. Allowed values are `rsync`, `s3`.
 
 ### `rsync:*` groups
 

@@ -92,7 +92,8 @@ class Handler:
 
         config = Configuration()
         config.load(args.configuration)
-        root = config.getpath("repository", "root")
+        # wtf???
+        root = config.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
         architectures = RepositoryPaths.known_architectures(root)
 
         if not architectures:

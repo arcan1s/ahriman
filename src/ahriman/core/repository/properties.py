@@ -60,7 +60,7 @@ class Properties:
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         self.paths.create_tree()
 
-        self.ignore_list = configuration.getlist("build", "ignore_packages")
+        self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(configuration)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
