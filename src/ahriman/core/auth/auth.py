@@ -52,9 +52,9 @@ class Auth:
         self.logger = logging.getLogger("http")
 
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
-        self.allowed_paths = set(configuration.getlist("auth", "allowed_paths"))
+        self.allowed_paths = set(configuration.getlist("auth", "allowed_paths", fallback=[]))
         self.allowed_paths.update(self.ALLOWED_PATHS)
-        self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups"))
+        self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups", fallback=[]))
         self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)

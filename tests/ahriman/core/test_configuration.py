@@ -104,7 +104,7 @@ def test_getlist_empty(configuration: Configuration) -> None:
     """
     must return list of string correctly for non-existing option
     """
-    assert configuration.getlist("build", "test_list") == []
+    assert configuration.getlist("build", "test_list", fallback=[]) == []
     configuration.set_option("build", "test_list", "")
     assert configuration.getlist("build", "test_list") == []
 

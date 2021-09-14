@@ -53,10 +53,10 @@ class Task:
         self.package = package
         self.paths = paths
 
-        self.archbuild_flags = configuration.getlist("build", "archbuild_flags")
+        self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
         self.build_command = configuration.get("build", "build_command")
-        self.makepkg_flags = configuration.getlist("build", "makepkg_flags")
-        self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags")
+        self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
+        self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
     @property
     def cache_path(self) -> Path:

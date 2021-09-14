@@ -67,27 +67,26 @@ def test_execute_single(args: argparse.Namespace, mocker: MockerFixture) -> None
     starmap_mock.assert_not_called()
 
 
-def test_extract_architectures(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_extract_architectures(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must generate list of available architectures
     """
     args.architecture = []
-    args.configuration = Path("")
-    mocker.patch("ahriman.core.configuration.Configuration.getpath")
+    args.configuration = configuration.path
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
 
     Handler.extract_architectures(args)
     known_architectures_mock.assert_called_once()
 
 
-def test_extract_architectures_empty(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_extract_architectures_empty(args: argparse.Namespace, configuration: Configuration,
+                                     mocker: MockerFixture) -> None:
     """
     must raise exception if no available architectures found
     """
     args.architecture = []
     args.command = "config"
-    args.configuration = Path("")
-    mocker.patch("ahriman.core.configuration.Configuration.getpath")
+    args.configuration = configuration.path
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
 
     with pytest.raises(MissingArchitecture):
