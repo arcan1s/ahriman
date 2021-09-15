@@ -62,7 +62,6 @@ def _parser() -> argparse.ArgumentParser:
     _set_check_parser(subparsers)
     _set_clean_parser(subparsers)
     _set_config_parser(subparsers)
-    _set_create_user_parser(subparsers)
     _set_init_parser(subparsers)
     _set_key_import_parser(subparsers)
     _set_rebuild_parser(subparsers)
@@ -76,6 +75,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_status_update_parser(subparsers)
     _set_sync_parser(subparsers)
     _set_update_parser(subparsers)
+    _set_user_parser(subparsers)
     _set_web_parser(subparsers)
 
     return parser
@@ -138,31 +138,6 @@ def _set_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="dump configuration for specified architecture",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, no_log=True, no_report=True, unsafe=True)
-    return parser
-
-
-def _set_create_user_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for create user subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
-    """
-    parser = root.add_parser(
-        "create-user",
-        help="create user for web services",
-        description="create user for web services with password and role. In case if password was not entered it will be asked interactively",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("username", help="username for web service")
-    parser.add_argument("--as-service", help="add user as service user", action="store_true")
-    parser.add_argument("-r", "--role", help="user role", type=UserAccess, choices=UserAccess, default=UserAccess.Read)
-    parser.add_argument("-p", "--password", help="user password")
-    parser.set_defaults(
-        handler=handlers.CreateUser,
-        architecture=[""],
-        lock=None,
-        no_log=True,
-        no_report=True,
-        unsafe=True)
     return parser
 
 
@@ -356,6 +331,32 @@ def _set_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
     parser.set_defaults(handler=handlers.Update, architecture=[])
+    return parser
+
+
+def _set_user_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for create user subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser(
+        "user",
+        help="manage users for web services",
+        description="manage users for web services with password and role. In case if password was not entered it will be asked interactively",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("username", help="username for web service")
+    parser.add_argument("--as-service", help="add user as service user", action="store_true")
+    parser.add_argument(
+        "-a",
+        "--access",
+        help="user access level",
+        type=UserAccess,
+        choices=UserAccess,
+        default=UserAccess.Read)
+    parser.add_argument("-p", "--password", help="user password")
+    parser.add_argument("-r", "--remove", help="remove user from configuration", action="store_true")
+    parser.set_defaults(handler=handlers.User, architecture=[""], lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
 

@@ -21,7 +21,6 @@ from ahriman.application.handlers.handler import Handler
 
 from ahriman.application.handlers.add import Add
 from ahriman.application.handlers.clean import Clean
-from ahriman.application.handlers.create_user import CreateUser
 from ahriman.application.handlers.dump import Dump
 from ahriman.application.handlers.init import Init
 from ahriman.application.handlers.key_import import KeyImport
@@ -36,4 +35,5 @@ from ahriman.application.handlers.status import Status
 from ahriman.application.handlers.status_update import StatusUpdate
 from ahriman.application.handlers.sync import Sync
 from ahriman.application.handlers.update import Update
+from ahriman.application.handlers.user import User
 from ahriman.application.handlers.web import Web
