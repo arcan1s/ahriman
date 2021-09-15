@@ -84,28 +84,6 @@ def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
-def test_subparsers_create_user(parser: argparse.ArgumentParser) -> None:
-    """
-    create-user command must imply architecture, lock, no-log, no-report and unsafe
-    """
-    args = parser.parse_args(["create-user", "username"])
-    assert args.architecture == [""]
-    assert args.lock is None
-    assert args.no_log
-    assert args.no_report
-    assert args.unsafe
-
-
-def test_subparsers_create_user_option_role(parser: argparse.ArgumentParser) -> None:
-    """
-    create-user command must convert role option to useraccess instance
-    """
-    args = parser.parse_args(["create-user", "username"])
-    assert isinstance(args.role, UserAccess)
-    args = parser.parse_args(["create-user", "username", "--role", "write"])
-    assert isinstance(args.role, UserAccess)
-
-
 def test_subparsers_init(parser: argparse.ArgumentParser) -> None:
     """
     init command must imply no_report
@@ -256,6 +234,28 @@ def test_subparsers_update(parser: argparse.ArgumentParser) -> None:
     """
     args = parser.parse_args(["update"])
     assert args.architecture == []
+
+
+def test_subparsers_user(parser: argparse.ArgumentParser) -> None:
+    """
+    user command must imply architecture, lock, no-log, no-report and unsafe
+    """
+    args = parser.parse_args(["user", "username"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_log
+    assert args.no_report
+    assert args.unsafe
+
+
+def test_subparsers_user_option_role(parser: argparse.ArgumentParser) -> None:
+    """
+    user command must convert role option to useraccess instance
+    """
+    args = parser.parse_args(["user", "username"])
+    assert isinstance(args.access, UserAccess)
+    args = parser.parse_args(["user", "username", "--access", "write"])
+    assert isinstance(args.access, UserAccess)
 
 
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:

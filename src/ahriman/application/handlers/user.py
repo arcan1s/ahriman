@@ -25,12 +25,13 @@ from typing import Type
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.models.user import User
+from ahriman.models.user import User as MUser
+from ahriman.models.user_access import UserAccess
 
 
-class CreateUser(Handler):
+class User(Handler):
     """
-    create user handler
+    user management handler
     """
 
     @classmethod
@@ -43,13 +44,30 @@ class CreateUser(Handler):
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        salt = CreateUser.get_salt(configuration)
-        user = CreateUser.create_user(args)
-        auth_configuration = CreateUser.get_auth_configuration(configuration.include)
-        CreateUser.create_configuration(auth_configuration, user, salt, args.as_service)
+        salt = User.get_salt(configuration)
+        user = User.create_user(args)
+        auth_configuration = User.get_auth_configuration(configuration.include)
+
+        User.clear_user(auth_configuration, user)
+        if not args.remove:
+            User.create_configuration(auth_configuration, user, salt, args.as_service)
+        User.write_configuration(configuration)
 
     @staticmethod
-    def create_configuration(configuration: Configuration, user: User, salt: str, as_service_user: bool) -> None:
+    def clear_user(configuration: Configuration, user: MUser) -> None:
+        """
+        remove user user from configuration file in case if it exists
+        :param configuration: configuration instance
+        :param user: user descriptor
+        """
+        for role in UserAccess:
+            section = Configuration.section_name("auth", role.value)
+            if not configuration.has_option(section, user.username):
+                continue
+            configuration.remove_option(section, user.username)
+
+    @staticmethod
+    def create_configuration(configuration: Configuration, user: MUser, salt: str, as_service_user: bool) -> None:
         """
         put new user to configuration
         :param configuration: configuration instance
@@ -65,19 +83,14 @@ class CreateUser(Handler):
             configuration.set_option("web", "username", user.username)
             configuration.set_option("web", "password", user.password)
 
-        if configuration.path is None:
-            return
-        with configuration.path.open("w") as ahriman_configuration:
-            configuration.write(ahriman_configuration)
-
     @staticmethod
-    def create_user(args: argparse.Namespace) -> User:
+    def create_user(args: argparse.Namespace) -> MUser:
         """
         create user descriptor from arguments
         :param args: command line args
         :return: built user descriptor
         """
-        user = User(args.username, args.password, args.role)
+        user = MUser(args.username, args.password, args.access)
         if user.password is None:
             user.password = getpass.getpass()
         return user
@@ -91,8 +104,7 @@ class CreateUser(Handler):
         """
         target = include_path / "auth.ini"
         configuration = Configuration()
-        if target.is_file():  # load current configuration in case if it exists
-            configuration.load(target)
+        configuration.load(target)
 
         return configuration
 
@@ -107,4 +119,16 @@ class CreateUser(Handler):
         salt = configuration.get("auth", "salt", fallback=None)
         if salt:
             return salt
-        return User.generate_password(salt_length)
+        return MUser.generate_password(salt_length)
+
+    @staticmethod
+    def write_configuration(configuration: Configuration) -> None:
+        """
+        write configuration file
+        :param configuration: configuration instance
+        """
+        if configuration.path is None:
+            return  # should never happen actually
+        with configuration.path.open("w") as ahriman_configuration:
+            configuration.write(ahriman_configuration)
+        configuration.path.chmod(0o600)
