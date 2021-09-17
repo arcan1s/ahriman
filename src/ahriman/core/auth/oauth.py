@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aioauth_client  # type: ignore
+import aioauth_client
 
 from typing import Optional, Type
 
@@ -106,7 +106,7 @@ class OAuth(Mapping):
 
             print(f"HEEELOOOO {client}")
             user, _ = await client.user_info()
-            username: str = user.email
+            username: str = user.email  # type: ignore
             return username
         except Exception:
             self.logger.exception("got exception while performing request")
