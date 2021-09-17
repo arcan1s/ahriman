@@ -152,7 +152,7 @@ class Setup(Handler):
         :param architecture: repository architecture
         """
         command = Setup.build_command(prefix, architecture)
-        Setup.SUDOERS_PATH.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n")
+        Setup.SUDOERS_PATH.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
         Setup.SUDOERS_PATH.chmod(0o400)  # security!
 
     @staticmethod

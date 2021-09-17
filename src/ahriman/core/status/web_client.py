@@ -72,7 +72,7 @@ class WebClient(Client):
         """
         :return: full url for web service to reload authentication module
         """
-        return f"{self.address}/status-api/v1/reload-auth"
+        return f"{self.address}/service-api/v1/reload-auth"
 
     @property
     def _status_url(self) -> str:

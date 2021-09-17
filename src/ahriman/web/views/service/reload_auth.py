@@ -35,6 +35,14 @@ class ReloadAuthView(BaseView):
         :return: 204 on success
         """
         self.configuration.reload()
-        self.request.app["validator"] = Auth.load(self.configuration)
+
+        try:
+            import aiohttp_security  # type: ignore
+            self.request.app[aiohttp_security.api.AUTZ_KEY].validator =\
+                self.request.app["validator"] =\
+                Auth.load(self.configuration)
+        except (ImportError, KeyError):
+            self.request.app.logger.warning("could not update authentication module validator", exc_info=True)
+            raise
 
         return HTTPNoContent()
