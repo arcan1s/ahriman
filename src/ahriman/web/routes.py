@@ -22,6 +22,7 @@ from pathlib import Path
 
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
+from ahriman.web.views.service.reload_auth import ReloadAuthView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.search import SearchView
 from ahriman.web.views.status.ahriman import AhrimanView
@@ -43,11 +44,13 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
         POST /service-api/v1/add               add new packages to repository
 
+        POST /service-api/v1/reload-auth       reload authentication module
+
         POST /service-api/v1/remove            remove existing package from repository
 
-        POST /service-api/v1/update            update packages in repository, actually it is just alias for add
-
         GET /service-api/v1/search             search for substring in AUR
+
+        POST /service-api/v1/update            update packages in repository, actually it is just alias for add
 
         GET /status-api/v1/ahriman             get current service status
         POST /status-api/v1/ahriman            update service status
@@ -74,6 +77,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_static("/static", static_path, follow_symlinks=True)
 
     application.router.add_post("/service-api/v1/add", AddView)
+
+    application.router.add_post("/service-api/v1/reload-auth", ReloadAuthView)
 
     application.router.add_post("/service-api/v1/remove", RemoveView)
 

@@ -26,10 +26,13 @@ from logging.config import fileConfig
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
+from ahriman.core.exceptions import InitializeException
+
 
 class Configuration(configparser.RawConfigParser):
     """
     extension for built-in configuration parser
+    :ivar architecture: repository architecture
     :ivar path: path to root configuration file
     :cvar ARCHITECTURE_SPECIFIC_SECTIONS: known sections which can be architecture specific (required by dump)
     :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
@@ -49,6 +52,7 @@ class Configuration(configparser.RawConfigParser):
             "list": lambda value: value.split(),
             "path": self.__convert_path,
         })
+        self.architecture: Optional[str] = None
         self.path: Optional[Path] = None
 
     @property
@@ -90,16 +94,16 @@ class Configuration(configparser.RawConfigParser):
         """
         return f"{section}:{suffix}"
 
-    def __convert_path(self, parsed: str) -> Path:
+    def __convert_path(self, value: str) -> Path:
         """
         convert string value to path object
-        :param parsed: string configuration value
+        :param value: string configuration value
         :return: path object which represents the configuration value
         """
-        value = Path(parsed)
-        if self.path is None or value.is_absolute():
-            return value
-        return self.path.parent / value
+        path = Path(value)
+        if self.path is None or path.is_absolute():
+            return path
+        return self.path.parent / path
 
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
@@ -165,6 +169,7 @@ class Configuration(configparser.RawConfigParser):
         merge architecture specific sections into main configuration
         :param architecture: repository architecture
         """
+        self.architecture = architecture
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
             # get overrides
             specific = self.section_name(section, architecture)
@@ -179,6 +184,15 @@ class Configuration(configparser.RawConfigParser):
                 if not foreign.startswith(f"{section}:"):
                     continue
                 self.remove_section(foreign)
+
+    def reload(self) -> None:
+        """
+        reload configuration if possible or raise exception otherwise
+        """
+        if self.path is None or self.architecture is None:
+            raise InitializeException("Configuration path and/or architecture are not set")
+        self.load(self.path)
+        self.merge_sections(self.architecture)
 
     def set_option(self, section: str, option: str, value: Optional[str]) -> None:
         """

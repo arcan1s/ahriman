@@ -23,6 +23,7 @@ import getpass
 from pathlib import Path
 from typing import Type
 
+from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.user import User as MUser
@@ -52,6 +53,10 @@ class User(Handler):
         if not args.remove:
             User.create_configuration(auth_configuration, user, salt, args.as_service)
         User.write_configuration(configuration)
+
+        if not args.no_reload:
+            client = Application(architecture, configuration, no_report=False).repository.reporter
+            client.reload_auth()
 
     @staticmethod
     def clear_user(configuration: Configuration, user: MUser) -> None:
