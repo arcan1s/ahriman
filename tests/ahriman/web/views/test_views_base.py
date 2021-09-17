@@ -5,6 +5,13 @@ from multidict import MultiDict
 from ahriman.web.views.base import BaseView
 
 
+def test_configuration(base: BaseView) -> None:
+    """
+    must return configuration
+    """
+    assert base.configuration
+
+
 def test_service(base: BaseView) -> None:
     """
     must return service

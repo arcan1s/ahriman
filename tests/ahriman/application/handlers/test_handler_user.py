@@ -21,6 +21,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.password = "pa55w0rd"
     args.access = UserAccess.Read
     args.as_service = False
+    args.no_reload = False
     args.remove = False
     return args
 
@@ -30,11 +31,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
+    mocker.patch("pathlib.Path.mkdir")
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.create_configuration")
     write_configuration_mock = mocker.patch("ahriman.application.handlers.User.write_configuration")
     create_user = mocker.patch("ahriman.application.handlers.User.create_user")
     get_salt_mock = mocker.patch("ahriman.application.handlers.User.get_salt")
+    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
     get_auth_configuration_mock.assert_called_once()
@@ -42,6 +45,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     create_user.assert_called_once()
     get_salt_mock.assert_called_once()
     write_configuration_mock.assert_called_once()
+    reload_mock.assert_called_once()
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -50,14 +54,32 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     """
     args = _default_args(args)
     args.remove = True
+    mocker.patch("pathlib.Path.mkdir")
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.create_configuration")
     write_configuration_mock = mocker.patch("ahriman.application.handlers.User.write_configuration")
+    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
     get_auth_configuration_mock.assert_called_once()
     create_configuration_mock.assert_not_called()
     write_configuration_mock.assert_called_once()
+    reload_mock.assert_called_once()
+
+
+def test_run_no_reload(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must run command with no reload
+    """
+    args = _default_args(args)
+    args.no_reload = True
+    mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
+    mocker.patch("ahriman.application.handlers.User.create_configuration")
+    mocker.patch("ahriman.application.handlers.User.write_configuration")
+    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
+
+    User.run(args, "x86_64", configuration, True)
+    reload_mock.assert_not_called()
 
 
 def test_clear_user(configuration: Configuration, user: MUser) -> None:

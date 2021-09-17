@@ -21,6 +21,7 @@ from aiohttp.web import View
 from typing import Any, Dict, List, Optional
 
 from ahriman.core.auth.auth import Auth
+from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 
@@ -29,6 +30,14 @@ class BaseView(View):
     """
     base web view to make things typed
     """
+
+    @property
+    def configuration(self) -> Configuration:
+        """
+        :return: configuration instance
+        """
+        configuration: Configuration = self.request.app["configuration"]
+        return configuration
 
     @property
     def service(self) -> Watcher:

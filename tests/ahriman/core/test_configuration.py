@@ -5,6 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import InitializeException
 
 
 def test_from_path(mocker: MockerFixture) -> None:
@@ -115,6 +116,7 @@ def test_getlist_single(configuration: Configuration) -> None:
     """
     configuration.set_option("build", "test_list", "a")
     assert configuration.getlist("build", "test_list") == ["a"]
+    assert configuration.getlist("build", "test_list") == ["a"]
 
 
 def test_load_includes_missing(configuration: Configuration) -> None:
@@ -168,6 +170,36 @@ def test_merge_sections_missing(configuration: Configuration) -> None:
 
     configuration.merge_sections("x86_64")
     assert configuration.get("build", "key") == "value"
+
+
+def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must reload configuration
+    """
+    load_mock = mocker.patch("ahriman.core.configuration.Configuration.load")
+    merge_mock = mocker.patch("ahriman.core.configuration.Configuration.merge_sections")
+
+    configuration.reload()
+    load_mock.assert_called_once()
+    merge_mock.assert_called_once()
+
+
+def test_reload_no_architecture(configuration: Configuration) -> None:
+    """
+    must raise exception on reload if no architecture set
+    """
+    configuration.architecture = None
+    with pytest.raises(InitializeException):
+        configuration.reload()
+
+
+def test_reload_no_path(configuration: Configuration) -> None:
+    """
+    must raise exception on reload if no path set
+    """
+    configuration.path = None
+    with pytest.raises(InitializeException):
+        configuration.reload()
 
 
 def test_set_option(configuration: Configuration) -> None:
