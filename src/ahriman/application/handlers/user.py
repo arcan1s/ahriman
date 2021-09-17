@@ -52,7 +52,7 @@ class User(Handler):
         User.clear_user(auth_configuration, user)
         if not args.remove:
             User.create_configuration(auth_configuration, user, salt, args.as_service)
-        User.write_configuration(configuration)
+        User.write_configuration(auth_configuration)
 
         if not args.no_reload:
             client = Application(architecture, configuration, no_report=False).repository.reporter
