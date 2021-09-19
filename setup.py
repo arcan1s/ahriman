@@ -81,6 +81,9 @@ setup(
             "package/share/ahriman/utils/bootstrap-scripts.jinja2",
             "package/share/ahriman/utils/style.jinja2",
         ]),
+        ("share/man/man1", [
+            "docs/ahriman.1",
+        ])
     ],
 
     extras_require={

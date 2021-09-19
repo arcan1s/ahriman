@@ -1,4 +1,4 @@
-.PHONY: architecture archive archive_directory archlinux check clean directory push tests version
+.PHONY: architecture archive archive_directory archlinux check clean directory man push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -38,6 +38,9 @@ clean:
 
 directory: clean
 	mkdir "$(PROJECT)"
+
+man:
+	cd src &&  PYTHONPATH=. argparse-manpage --module ahriman.application.ahriman --function _parser --author "ahriman team" --project-name ahriman --author-email "" --url https://github.com/arcan1s/ahriman --output ../docs/ahriman.1
 
 mypy:
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types --non-interactive || true
