@@ -46,7 +46,7 @@ class LoginView(BaseView):
             raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
         if not code:
-            return HTTPFound(oauth_provider.get_oauth_url())
+            raise HTTPFound(oauth_provider.get_oauth_url())
 
         response = HTTPFound("/")
         username = await oauth_provider.get_oauth_username(code)

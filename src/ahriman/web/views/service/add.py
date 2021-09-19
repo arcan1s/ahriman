@@ -49,4 +49,4 @@ class AddView(BaseView):
 
         self.spawner.packages_add(packages, now)
 
-        return HTTPFound("/")
+        raise HTTPFound("/")

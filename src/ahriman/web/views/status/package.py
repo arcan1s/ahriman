@@ -58,7 +58,7 @@ class PackageView(BaseView):
         base = self.request.match_info["package"]
         self.service.remove(base)
 
-        return HTTPNoContent()
+        raise HTTPNoContent()
 
     async def post(self) -> Response:
         """
@@ -87,4 +87,4 @@ class PackageView(BaseView):
         except UnknownPackage:
             return json_response(data=f"Package {base} is unknown, but no package body set", status=400)
 
-        return HTTPNoContent()
+        raise HTTPNoContent()

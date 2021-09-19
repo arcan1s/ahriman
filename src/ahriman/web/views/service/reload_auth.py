@@ -45,4 +45,4 @@ class ReloadAuthView(BaseView):
             self.request.app.logger.warning("could not update authentication module validator", exc_info=True)
             raise
 
-        return HTTPNoContent()
+        raise HTTPNoContent()
