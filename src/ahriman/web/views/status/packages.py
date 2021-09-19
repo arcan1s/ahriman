@@ -47,4 +47,4 @@ class PackagesView(BaseView):
         """
         self.service.load()
 
-        return HTTPNoContent()
+        raise HTTPNoContent()

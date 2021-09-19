@@ -55,4 +55,4 @@ class AhrimanView(BaseView):
 
         self.service.update_self(status)
 
-        return HTTPNoContent()
+        raise HTTPNoContent()

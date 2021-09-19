@@ -47,4 +47,4 @@ class RemoveView(BaseView):
 
         self.spawner.packages_remove(packages)
 
-        return HTTPFound("/")
+        raise HTTPFound("/")
