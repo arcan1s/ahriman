@@ -22,6 +22,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.access = UserAccess.Read
     args.as_service = False
     args.no_reload = False
+    args.secure = False
     args.remove = False
     return args
 
@@ -227,9 +228,21 @@ def test_write_configuration(configuration: Configuration, mocker: MockerFixture
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
     chmod_mock = mocker.patch("pathlib.Path.chmod")
 
-    User.write_configuration(configuration)
+    User.write_configuration(configuration, secure=True)
     write_mock.assert_called_once()
     chmod_mock.assert_called_once()
+
+
+def test_write_configuration_insecure(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must write configuration without setting file permissions
+    """
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("ahriman.core.configuration.Configuration.write")
+    chmod_mock = mocker.patch("pathlib.Path.chmod")
+
+    User.write_configuration(configuration, secure=False)
+    chmod_mock.assert_not_called()
 
 
 def test_write_configuration_not_loaded(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -241,6 +254,6 @@ def test_write_configuration_not_loaded(configuration: Configuration, mocker: Mo
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
     chmod_mock = mocker.patch("pathlib.Path.chmod")
 
-    User.write_configuration(configuration)
+    User.write_configuration(configuration, secure=True)
     write_mock.assert_not_called()
     chmod_mock.assert_not_called()
