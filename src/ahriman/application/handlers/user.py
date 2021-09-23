@@ -52,7 +52,7 @@ class User(Handler):
         User.clear_user(auth_configuration, user)
         if not args.remove:
             User.create_configuration(auth_configuration, user, salt, args.as_service)
-        User.write_configuration(auth_configuration)
+        User.write_configuration(auth_configuration, args.secure)
 
         if not args.no_reload:
             client = Application(architecture, configuration, no_report=False).repository.reporter
@@ -127,13 +127,15 @@ class User(Handler):
         return MUser.generate_password(salt_length)
 
     @staticmethod
-    def write_configuration(configuration: Configuration) -> None:
+    def write_configuration(configuration: Configuration, secure: bool) -> None:
         """
         write configuration file
         :param configuration: configuration instance
+        :param secure: if true then set file permissions to 0o600
         """
         if configuration.path is None:
             return  # should never happen actually
         with configuration.path.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
-        configuration.path.chmod(0o600)
+        if secure:
+            configuration.path.chmod(0o600)

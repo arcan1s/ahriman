@@ -357,6 +357,7 @@ def _set_user_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-reload", help="do not reload authentication module", action="store_true")
     parser.add_argument("-p", "--password", help="user password")
     parser.add_argument("-r", "--remove", help="remove user from configuration", action="store_true")
+    parser.add_argument("--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.User, architecture=[""], lock=None, no_log=True, no_report=True, unsafe=True)
     return parser
 
