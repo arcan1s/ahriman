@@ -22,13 +22,21 @@ from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
 from ahriman.core.exceptions import UnknownPackage
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class PackageView(BaseView):
     """
     package base specific web view
+    :cvar DELETE_PERMISSION: delete permissions of self
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar HEAD_PERMISSION: head permissions of self
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Write
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
 
     async def get(self) -> Response:
         """

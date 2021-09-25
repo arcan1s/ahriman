@@ -17,13 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import View
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
+
+from aiohttp.web import Request, View
+from typing import Any, Dict, List, Optional, Type
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.models.user_access import UserAccess
 
 
 class BaseView(View):
@@ -62,6 +65,16 @@ class BaseView(View):
         """
         validator: Auth = self.request.app["validator"]
         return validator
+
+    @classmethod
+    async def get_permission(cls: Type[BaseView], request: Request) -> UserAccess:
+        """
+        retrieve user permission from the request
+        :param request: request object
+        :return: extracted permission
+        """
+        permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Write)
+        return permission
 
     async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:
         """

@@ -22,13 +22,18 @@ import aur  # type: ignore
 from aiohttp.web import Response, json_response
 from typing import Callable, Iterator
 
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class SearchView(BaseView):
     """
     AUR search web view
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar HEAD_PERMISSION: head permissions of self
     """
+
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
 
     async def get(self) -> Response:
         """

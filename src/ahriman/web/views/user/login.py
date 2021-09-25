@@ -20,6 +20,7 @@
 from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized, Response
 
 from ahriman.core.auth.helpers import remember
+from ahriman.models.user_access import UserAccess
 from ahriman.models.user_identity import UserIdentity
 from ahriman.web.views.base import BaseView
 
@@ -27,7 +28,11 @@ from ahriman.web.views.base import BaseView
 class LoginView(BaseView):
     """
     login endpoint view
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    GET_PERMISSION = POST_PERMISSION = UserAccess.Safe
 
     async def get(self) -> Response:
         """

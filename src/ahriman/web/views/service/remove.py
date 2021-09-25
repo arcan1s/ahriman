@@ -19,13 +19,17 @@
 #
 from aiohttp.web import HTTPFound, Response, json_response
 
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class RemoveView(BaseView):
     """
     remove package web view
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    POST_PERMISSION = UserAccess.Write
 
     async def post(self) -> Response:
         """

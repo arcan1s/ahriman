@@ -22,13 +22,18 @@ from aiohttp.web import Response, json_response
 from ahriman import version
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class StatusView(BaseView):
     """
     web service status web view
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar HEAD_PERMISSION: head permissions of self
     """
+
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
 
     async def get(self) -> Response:
         """

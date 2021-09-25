@@ -109,40 +109,6 @@ async def test_check_credentials(auth: Auth, user: User) -> None:
     assert await auth.check_credentials(None, None)
 
 
-async def test_is_safe_request(auth: Auth) -> None:
-    """
-    must validate safe request
-    """
-    # login and logout are always safe
-    assert await auth.is_safe_request("/user-api/v1/login", UserAccess.Write)
-    assert await auth.is_safe_request("/user-api/v1/logout", UserAccess.Write)
-
-    auth.allowed_paths.add("/safe")
-    auth.allowed_paths_groups.add("/unsafe/safe")
-
-    assert await auth.is_safe_request("/safe", UserAccess.Write)
-    assert not await auth.is_safe_request("/unsafe", UserAccess.Write)
-    assert await auth.is_safe_request("/unsafe/safe", UserAccess.Write)
-    assert await auth.is_safe_request("/unsafe/safe/suffix", UserAccess.Write)
-
-
-async def test_is_safe_request_empty(auth: Auth) -> None:
-    """
-    must not allow requests without path
-    """
-    assert not await auth.is_safe_request(None, UserAccess.Read)
-    assert not await auth.is_safe_request("", UserAccess.Read)
-
-
-async def test_is_safe_request_read_only(auth: Auth) -> None:
-    """
-    must allow read-only requests if it is set in settings
-    """
-    assert await auth.is_safe_request("/", UserAccess.Read)
-    auth.allow_read_only = True
-    assert await auth.is_safe_request("/unsafe", UserAccess.Read)
-
-
 async def test_known_username(auth: Auth, user: User) -> None:
     """
     must allow any username

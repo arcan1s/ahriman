@@ -24,12 +24,15 @@ from typing import Any, Dict
 from ahriman import version
 from ahriman.core.auth.helpers import authorized_userid
 from ahriman.core.util import pretty_datetime
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class IndexView(BaseView):
     """
     root view
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar HEAD_PERMISSION: head permissions of self
 
     It uses jinja2 templates for report generation, the following variables are allowed:
 
@@ -57,6 +60,8 @@ class IndexView(BaseView):
                    * timestamp, pretty printed datetime, string
         version - ahriman version, string, required
     """
+
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Safe
 
     @aiohttp_jinja2.template("build-status.jinja2")
     async def get(self) -> Dict[str, Any]:

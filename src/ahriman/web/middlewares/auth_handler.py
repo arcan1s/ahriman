@@ -19,10 +19,12 @@
 #
 import aiohttp_security  # type: ignore
 import base64
+import types
 
 from aiohttp import web
 from aiohttp.web import middleware, Request
 from aiohttp.web_response import StreamResponse
+from aiohttp.web_urldispatcher import StaticResource
 from aiohttp_session import setup as setup_session  # type: ignore
 from aiohttp_session.cookie_storage import EncryptedCookieStorage  # type: ignore
 from cryptography import fernet
@@ -72,20 +74,22 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         return await self.validator.verify_access(user.username, permission, context)
 
 
-def auth_handler(validator: Auth) -> MiddlewareType:
+def auth_handler() -> MiddlewareType:
     """
     authorization and authentication middleware
-    :param validator: authorization module instance
     :return: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
-        if request.method in ("GET", "HEAD", "OPTIONS"):
-            permission = UserAccess.Read
+        permission_method = getattr(handler, "get_permission", None)
+        if permission_method is not None:
+            permission = await permission_method(request)
+        elif isinstance(handler, types.MethodType):  # additional wrapper for static resources
+            handler_instance = getattr(handler, "__self__", None)
+            permission = UserAccess.Safe if isinstance(handler_instance, StaticResource) else UserAccess.Write
         else:
             permission = UserAccess.Write
-
-        if not await validator.is_safe_request(request.path, permission):
+        if permission != UserAccess.Safe:
             await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)
@@ -109,6 +113,6 @@ def setup_auth(application: web.Application, validator: Auth) -> web.Application
     identity_policy = aiohttp_security.SessionIdentityPolicy()
 
     aiohttp_security.setup(application, identity_policy, authorization_policy)
-    application.middlewares.append(auth_handler(validator))
+    application.middlewares.append(auth_handler())
 
     return application

@@ -1,5 +1,19 @@
+import pytest
+
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
+
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.service.reload_auth import ReloadAuthView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("POST",):
+        request = pytest.helpers.request("", "", method)
+        assert await ReloadAuthView.get_permission(request) == UserAccess.Write
 
 
 async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None:

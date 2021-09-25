@@ -19,13 +19,20 @@
 #
 from aiohttp.web import HTTPNoContent, Response, json_response
 
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class PackagesView(BaseView):
     """
     global watcher view
+    :cvar GET_PERMISSION: get permissions of self
+    :cvar HEAD_PERMISSION: head permissions of self
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    POST_PERMISSION = UserAccess.Write
 
     async def get(self) -> Response:
         """

@@ -1,8 +1,24 @@
+import pytest
+
 from pytest_aiohttp import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.status.packages import PackagesView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("GET", "HEAD"):
+        request = pytest.helpers.request("", "", method)
+        assert await PackagesView.get_permission(request) == UserAccess.Read
+    for method in ("POST",):
+        request = pytest.helpers.request("", "", method)
+        assert await PackagesView.get_permission(request) == UserAccess.Write
 
 
 async def test_get(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:

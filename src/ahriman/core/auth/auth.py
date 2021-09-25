@@ -33,15 +33,10 @@ from ahriman.models.user_access import UserAccess
 class Auth:
     """
     helper to deal with user authorization
-    :ivar allowed_paths: URI paths which can be accessed without authorization
-    :ivar allowed_paths_groups: URI paths prefixes which can be accessed without authorization
+    :ivar allow_read_only: allow read only access to the index page
     :ivar enabled: indicates if authorization is enabled
-    :cvar ALLOWED_PATHS: URI paths which can be accessed without authorization, predefined
-    :cvar ALLOWED_PATHS_GROUPS: URI paths prefixes which can be accessed without authorization, predefined
+    :ivar max_age: session age in seconds. It will be used for both client side and server side checks
     """
-
-    ALLOWED_PATHS = {"/", "/index.html"}
-    ALLOWED_PATHS_GROUPS = {"/static", "/user-api"}
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """
@@ -52,10 +47,7 @@ class Auth:
         self.logger = logging.getLogger("http")
 
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
-        self.allowed_paths = set(configuration.getlist("auth", "allowed_paths", fallback=[]))
-        self.allowed_paths.update(self.ALLOWED_PATHS)
-        self.allowed_paths_groups = set(configuration.getlist("auth", "allowed_paths_groups", fallback=[]))
-        self.allowed_paths_groups.update(self.ALLOWED_PATHS_GROUPS)
+
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)
 
@@ -114,19 +106,6 @@ class Auth:
         """
         del username, password
         return True
-
-    async def is_safe_request(self, uri: Optional[str], required: UserAccess) -> bool:
-        """
-        check if requested path are allowed without authorization
-        :param uri: request uri
-        :param required: required access level
-        :return: True in case if this URI can be requested without authorization and False otherwise
-        """
-        if required == UserAccess.Read and self.allow_read_only:
-            return True  # in case if read right requested and allowed in options
-        if not uri:
-            return False  # request without context is not allowed
-        return uri in self.allowed_paths or any(uri.startswith(path) for path in self.allowed_paths_groups)
 
     async def known_username(self, username: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """

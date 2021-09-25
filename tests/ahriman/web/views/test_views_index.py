@@ -1,4 +1,18 @@
+import pytest
+
 from pytest_aiohttp import TestClient
+
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.index import IndexView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("GET", "HEAD"):
+        request = pytest.helpers.request("", "", method)
+        assert await IndexView.get_permission(request) == UserAccess.Safe
 
 
 async def test_get(client_with_auth: TestClient) -> None:
@@ -33,4 +47,12 @@ async def test_get_static(client: TestClient) -> None:
     must return static files
     """
     response = await client.get("/static/favicon.ico")
+    assert response.ok
+
+
+async def test_get_static_with_auth(client_with_auth: TestClient) -> None:
+    """
+    must return static files
+    """
+    response = await client_with_auth.get("/static/favicon.ico")
     assert response.ok

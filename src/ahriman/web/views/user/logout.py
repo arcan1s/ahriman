@@ -20,13 +20,17 @@
 from aiohttp.web import HTTPFound, Response
 
 from ahriman.core.auth.helpers import check_authorized, forget
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class LogoutView(BaseView):
     """
     logout endpoint view
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    POST_PERMISSION = UserAccess.Safe
 
     async def post(self) -> Response:
         """
