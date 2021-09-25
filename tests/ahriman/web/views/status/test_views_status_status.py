@@ -1,9 +1,22 @@
+import pytest
+
 from pytest_aiohttp import TestClient
 
 import ahriman.version as version
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.status.status import StatusView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("GET", "HEAD"):
+        request = pytest.helpers.request("", "", method)
+        assert await StatusView.get_permission(request) == UserAccess.Read
 
 
 async def test_get(client: TestClient, package_ahriman: Package) -> None:

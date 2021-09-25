@@ -33,6 +33,16 @@ def test_validator(base: BaseView) -> None:
     assert base.validator
 
 
+async def test_get_permission(base: BaseView) -> None:
+    """
+    must search for permission attribute in class
+    """
+    for method in ("DELETE", "GET", "HEAD", "POST"):
+        request = pytest.helpers.request(base.request.app, "", method)
+        setattr(BaseView, f"{method.upper()}_PERMISSION", "permission")
+        assert await base.get_permission(request) == "permission"
+
+
 async def test_extract_data_json(base: BaseView) -> None:
     """
     must parse and return json

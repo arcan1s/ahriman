@@ -43,60 +43,74 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     assert not await authorization_policy.permits(user.username, user.access, "/endpoint")
 
 
-async def test_auth_handler_api(auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_api(mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls
     """
     aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
     request_handler = AsyncMock()
-    mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
+    request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(auth)
+    handler = auth_handler()
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
 
-async def test_auth_handler_api_post(auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_api_no_method(mocker: MockerFixture) -> None:
+    """
+    must ask for write permission if handler does not have get_permission method
+    """
+    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
+    request_handler = AsyncMock()
+    request_handler.get_permission = None
+    check_permission_mock = mocker.patch("aiohttp_security.check_permission")
+
+    handler = auth_handler()
+    await handler(aiohttp_request, request_handler)
+    check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
+
+
+async def test_auth_handler_api_post(mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls with POST
     """
     aiohttp_request = pytest.helpers.request("", "/status-api", "POST")
     request_handler = AsyncMock()
-    mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
+    request_handler.get_permission.return_value = UserAccess.Write
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(auth)
+    handler = auth_handler()
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
 
 
-async def test_auth_handler_read(auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_read(mocker: MockerFixture) -> None:
     """
     must ask for read permission for api calls with GET
     """
     for method in ("GET", "HEAD", "OPTIONS"):
         aiohttp_request = pytest.helpers.request("", "", method)
         request_handler = AsyncMock()
-        mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
+        request_handler.get_permission.return_value = UserAccess.Read
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler(auth)
+        handler = auth_handler()
         await handler(aiohttp_request, request_handler)
         check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
 
-async def test_auth_handler_write(auth: Auth, mocker: MockerFixture) -> None:
+async def test_auth_handler_write(mocker: MockerFixture) -> None:
     """
     must ask for read permission for api calls with POST
     """
     for method in ("CONNECT", "DELETE", "PATCH", "POST", "PUT", "TRACE"):
         aiohttp_request = pytest.helpers.request("", "", method)
         request_handler = AsyncMock()
-        mocker.patch("ahriman.core.auth.auth.Auth.is_safe_request", return_value=False)
+        request_handler.get_permission.return_value = UserAccess.Write
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler(auth)
+        handler = auth_handler()
         await handler(aiohttp_request, request_handler)
         check_permission_mock.assert_called_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
 

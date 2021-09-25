@@ -17,17 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Response
-from aiohttp.web_exceptions import HTTPNoContent
+from aiohttp.web import HTTPNoContent, Response
 
 from ahriman.core.auth.auth import Auth
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
 class ReloadAuthView(BaseView):
     """
     reload authentication module web view
+    :cvar POST_PERMISSION: post permissions of self
     """
+
+    POST_PERMISSION = UserAccess.Write
 
     async def post(self) -> Response:
         """

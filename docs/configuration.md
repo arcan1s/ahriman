@@ -24,8 +24,6 @@ Base authorization settings. `OAuth` provider requires `aioauth-client` library 
 
 * `target` - specifies authorization provider, string, optional, default `disabled`. Allowed values are `disabled`, `configuration`, `oauth`.
 * `allow_read_only` - allow requesting read only pages without authorization, boolean, required.
-* `allowed_paths` - URI paths (exact match) which can be accessed without authorization, space separated list of strings, optional.
-* `allowed_paths_groups` - URI paths prefixes which can be accessed without authorization, space separated list of strings, optional.
 * `client_id` - OAuth2 application client ID, string, required in case if `oauth` is used.
 * `client_secret` - OAuth2 application client secret key, string, required in case if `oauth` is used.
 * `max_age` - parameter which controls both cookie expiration and token expiration inside the service, integer, optional, default is 7 days.

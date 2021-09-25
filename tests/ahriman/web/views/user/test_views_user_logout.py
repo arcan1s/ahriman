@@ -1,6 +1,20 @@
+import pytest
+
 from aiohttp.test_utils import TestClient
 from aiohttp.web import HTTPUnauthorized
 from pytest_mock import MockerFixture
+
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.user.logout import LogoutView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("POST",):
+        request = pytest.helpers.request("", "", method)
+        assert await LogoutView.get_permission(request) == UserAccess.Safe
 
 
 async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None:

@@ -1,9 +1,21 @@
+import pytest
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.core.auth.oauth import OAuth
 from ahriman.models.user import User
+from ahriman.models.user_access import UserAccess
+from ahriman.web.views.user.login import LoginView
+
+
+async def test_get_permission() -> None:
+    """
+    must return correct permission for the request
+    """
+    for method in ("GET", "POST"):
+        request = pytest.helpers.request("", "", method)
+        assert await LoginView.get_permission(request) == UserAccess.Safe
 
 
 async def test_get_default_validator(client_with_auth: TestClient) -> None:
