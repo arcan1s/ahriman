@@ -26,6 +26,7 @@ from pathlib import Path
 from ahriman import version
 from ahriman.application import handlers
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.package_source import PackageSource
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
 
@@ -91,6 +92,8 @@ def _set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package base/name or archive path", nargs="+")
     parser.add_argument("--now", help="run update function after", action="store_true")
+    parser.add_argument("--source", help="package source", choices=PackageSource, type=PackageSource,
+                        default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
     parser.set_defaults(handler=handlers.Add, architecture=[])
     return parser

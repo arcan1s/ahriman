@@ -28,6 +28,7 @@ from threading import Lock, Thread
 from typing import Callable, Dict, Iterable, Tuple
 
 from ahriman.core.configuration import Configuration
+from ahriman.models.package_source import PackageSource
 
 
 class Spawn(Thread):
@@ -79,7 +80,9 @@ class Spawn(Thread):
         :param packages: packages list to add
         :param now: build packages now
         """
-        kwargs = {"now": ""} if now else {}
+        kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
+        if now:
+            kwargs["now"] = ""
         self.spawn_process("add", *packages, **kwargs)
 
     def packages_remove(self, packages: Iterable[str]) -> None:
