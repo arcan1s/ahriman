@@ -100,6 +100,12 @@
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
                 </ul>
 
+                {% if index_url is not none %}
+                    <ul class="nav">
+                        <li><a class="nav-link" href="{{ index_url }}" title="repo index">repo index</a></li>
+                    </ul>
+                {% endif %}
+
                 {% if auth.enabled %}
                     {% if auth.username is none %}
                         {{ auth.control|safe }}
