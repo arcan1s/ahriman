@@ -42,7 +42,7 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=False)
-    spawn_mock.assert_called_with("add", "ahriman", "linux")
+    spawn_mock.assert_called_with("add", "ahriman", "linux", source="aur")
 
 
 def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -51,7 +51,7 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=True)
-    spawn_mock.assert_called_with("add", "ahriman", "linux", now="")
+    spawn_mock.assert_called_with("add", "ahriman", "linux", source="aur", now="")
 
 
 def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:

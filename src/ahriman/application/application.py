@@ -29,6 +29,7 @@ from ahriman.core.repository.repository import Repository
 from ahriman.core.tree import Tree
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class Application:
@@ -96,10 +97,11 @@ class Application:
 
         return updates
 
-    def add(self, names: Iterable[str], without_dependencies: bool) -> None:
+    def add(self, names: Iterable[str], source: PackageSource, without_dependencies: bool) -> None:
         """
         add packages for the next build
         :param names: list of package bases to add
+        :param source: package source to add
         :param without_dependencies: if set, dependency check will be disabled
         """
         known_packages = self._known_packages()
@@ -122,14 +124,14 @@ class Application:
             if without_dependencies:
                 return
             dependencies = Package.dependencies(path)
-            self.add(dependencies.difference(known_packages), without_dependencies)
+            self.add(dependencies.difference(known_packages), PackageSource.AUR, without_dependencies)
 
         def process_single(src: str) -> None:
-            maybe_path = Path(src)
-            if maybe_path.is_dir():
-                add_directory(maybe_path)
-            elif maybe_path.is_file():
-                add_archive(maybe_path)
+            resolved_source = source.resolve(src)
+            if resolved_source == PackageSource.Directory:
+                add_directory(Path(src))
+            elif resolved_source == PackageSource.Archive:
+                add_archive(Path(src))
             else:
                 path = add_manual(src)
                 process_dependencies(path)

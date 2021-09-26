@@ -42,7 +42,7 @@ class Add(Handler):
         :param no_report: force disable reporting
         """
         application = Application(architecture, configuration, no_report)
-        application.add(args.package, args.without_dependencies)
+        application.add(args.package, args.source, args.without_dependencies)
         if not args.now:
             return
 

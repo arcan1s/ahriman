@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Add
 from ahriman.core.configuration import Configuration
+from ahriman.models.package_source import PackageSource
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -14,6 +15,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.package = []
     args.now = False
+    args.source = PackageSource.Auto
     args.without_dependencies = False
     return args
 

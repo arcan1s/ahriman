@@ -6,6 +6,7 @@ from unittest import mock
 from ahriman.application.application import Application
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 def test_finalize(application: Application, mocker: MockerFixture) -> None:
@@ -108,12 +109,11 @@ def test_add_directory(application: Application, package_ahriman: Package, mocke
     must add packages from directory
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
-    mocker.patch("pathlib.Path.is_dir", return_value=True)
     iterdir_mock = mocker.patch("pathlib.Path.iterdir",
                                 return_value=[package.filepath for package in package_ahriman.packages.values()])
     move_mock = mocker.patch("shutil.move")
 
-    application.add([package_ahriman.base], False)
+    application.add([package_ahriman.base], PackageSource.Directory, False)
     iterdir_mock.assert_called_once()
     move_mock.assert_called_once()
 
@@ -126,7 +126,7 @@ def test_add_manual(application: Application, package_ahriman: Package, mocker: 
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     fetch_mock = mocker.patch("ahriman.core.build_tools.task.Task.fetch")
 
-    application.add([package_ahriman.base], True)
+    application.add([package_ahriman.base], PackageSource.AUR, True)
     fetch_mock.assert_called_once()
 
 
@@ -140,7 +140,7 @@ def test_add_manual_with_dependencies(application: Application, package_ahriman:
     mocker.patch("ahriman.core.build_tools.task.Task.fetch")
     dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies")
 
-    application.add([package_ahriman.base], False)
+    application.add([package_ahriman.base], PackageSource.AUR, False)
     dependencies_mock.assert_called_once()
 
 
@@ -149,10 +149,9 @@ def test_add_package(application: Application, package_ahriman: Package, mocker:
     must add package from archive
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
-    mocker.patch("pathlib.Path.is_file", return_value=True)
     move_mock = mocker.patch("shutil.move")
 
-    application.add([package_ahriman.base], False)
+    application.add([package_ahriman.base], PackageSource.Archive, False)
     move_mock.assert_called_once()
 
 
