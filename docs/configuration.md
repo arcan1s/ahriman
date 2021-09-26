@@ -129,6 +129,7 @@ Web server settings. If any of `host`/`port` is not set, web integration will be
 * `debug_check_host` - check hosts to access debug toolbar, boolean, optional, default `no`.
 * `debug_allowed_hosts` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
 * `host` - host to bind, string, optional.
+* `index_url` - full url of the repository index page, string, optional.
 * `password` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.  
 * `port` - port to bind, int, optional.
 * `static_path` - path to directory with static files, string, required.

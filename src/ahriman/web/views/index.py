@@ -42,6 +42,7 @@ class IndexView(BaseView):
                    * control - HTML to insert for login control, HTML string, required
                    * enabled - whether authorization is enabled by configuration or not, boolean, required
                    * username - authenticated username if any, string, null means not authenticated
+        index_url - url to the repository index, string, optional
         packages - sorted list of packages properties, required
                    * base, string
                    * depends, sorted list of strings
@@ -102,6 +103,7 @@ class IndexView(BaseView):
         return {
             "architecture": self.service.architecture,
             "auth": auth,
+            "index_url": self.configuration.get("web", "index_url", fallback=None),
             "packages": packages,
             "repository": self.service.repository.name,
             "service": service,
