@@ -34,7 +34,8 @@
                 success: function (resp) {
                     const $options = resp.map(function (pkg) {
                         const $option = document.createElement("option");
-                        $option.value = `${pkg.package} (${pkg.description})`;
+                        $option.value = pkg.package;
+                        $option.innerText = `${pkg.package} (${pkg.description})`;
                         return $option;
                     });
                     $knownPackages.empty().append($options);
