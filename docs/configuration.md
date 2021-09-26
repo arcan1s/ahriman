@@ -125,6 +125,9 @@ Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 
 Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web:x86_64` for x86_64 architecture.
 
 * `address` - optional address in form `proto://host:port` (`port` can be omitted in case of default `proto` ports), will be used instead of `http://{host}:{port}` in case if set, string, optional. This option is required in case if `OAuth` provider is used.
+* `debug` - enable debug toolbar, boolean, optional, default `no`.
+* `debug_check_host` - check hosts to access debug toolbar, boolean, optional, default `no`.
+* `debug_allowed_hosts` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
 * `host` - host to bind, string, optional.
 * `password` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.  
 * `port` - port to bind, int, optional.
