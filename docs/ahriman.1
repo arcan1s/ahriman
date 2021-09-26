@@ -100,7 +100,7 @@ manage users for web services
 \fBahriman\fR \fI\,web\/\fR
 start web server
 .SH OPTIONS 'ahriman add'
-usage: ahriman add [-h] [--now] [--without-dependencies] package [package ...]
+usage: ahriman add [-h] [--now] [--source {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}] [--without-dependencies] package [package ...]
 
 add package
 
@@ -111,6 +111,10 @@ package base/name or archive path
 .TP
 \fB\-\-now\fR
 run update function after
+
+.TP
+\fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
+package source
 
 .TP
 \fB\-\-without\-dependencies\fR
@@ -351,7 +355,7 @@ do not include manual updates
 do not check VCS packages
 
 .SH OPTIONS 'ahriman user'
-usage: ahriman user [-h] [--as-service] [-a {UserAccess.Read,UserAccess.Write}] [--no-reload] [-p PASSWORD] [-r] username
+usage: ahriman user [-h] [--as-service] [-a {UserAccess.Safe,UserAccess.Read,UserAccess.Write}] [--no-reload] [-p PASSWORD] [-r] [--secure] username
 
 manage users for web services with password and role. In case if password was not entered it will be asked interactively
 
@@ -364,7 +368,7 @@ username for web service
 add user as service user
 
 .TP
-\fB\-a\fR {UserAccess.Read,UserAccess.Write}, \fB\-\-access\fR {UserAccess.Read,UserAccess.Write}
+\fB\-a\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}, \fB\-\-access\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}
 user access level
 
 .TP
@@ -378,6 +382,10 @@ user password
 .TP
 \fB\-r\fR, \fB\-\-remove\fR
 remove user from configuration
+
+.TP
+\fB\-\-secure\fR
+set file permissions to user\-only
 
 .SH OPTIONS 'ahriman web'
 usage: ahriman web [-h]
