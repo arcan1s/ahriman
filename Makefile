@@ -46,8 +46,8 @@ mypy:
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types --non-interactive || true
 	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
 
-push: archlinux
-	git add package/archlinux/PKGBUILD src/ahriman/version.py
+push: architecture man archlinux
+	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
 	git push
