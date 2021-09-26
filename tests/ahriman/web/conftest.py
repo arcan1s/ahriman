@@ -64,3 +64,20 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     application["validator"]._users[generated.username] = generated
 
     return application
+
+
+@pytest.fixture
+def application_with_debug(configuration: Configuration, user: User, spawner: Spawn,
+                           mocker: MockerFixture) -> web.Application:
+    """
+    application fixture with debug enabled
+    :param configuration: configuration fixture
+    :param user: user descriptor fixture
+    :param spawner: spawner fixture
+    :param mocker: mocker object
+    :return: application test instance
+    """
+    configuration.set_option("web", "debug", "yes")
+    mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
+    mocker.patch("pathlib.Path.mkdir")
+    return setup_service("x86_64", configuration, spawner)
