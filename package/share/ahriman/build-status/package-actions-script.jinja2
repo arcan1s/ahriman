@@ -80,6 +80,11 @@
         doPackageAction("/service-api/v1/add", $packages);
     }
 
+    function requestPackages() {
+        const $packages = [$package.val()]
+        doPackageAction("/service-api/v1/request", $packages);
+    }
+
     function removePackages() { doPackageAction("/service-api/v1/remove", getSelection()); }
 
     function updatePackages() { doPackageAction("/service-api/v1/add", getSelection()); }

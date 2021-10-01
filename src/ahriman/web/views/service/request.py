@@ -23,17 +23,17 @@ from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
-class AddView(BaseView):
+class RequestView(BaseView):
     """
-    add package web view
+    request package web view. It is actually the same as AddView, but without now
     :cvar POST_PERMISSION: post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Write
+    POST_PERMISSION = UserAccess.Read
 
     async def post(self) -> Response:
         """
-        add new package
+        request to add new package
 
         JSON body must be supplied, the following model is used:
         {
@@ -49,6 +49,6 @@ class AddView(BaseView):
         except Exception as e:
             return json_response(data=str(e), status=400)
 
-        self.spawner.packages_add(packages, now=True)
+        self.spawner.packages_add(packages, now=False)
 
         raise HTTPFound("/")
