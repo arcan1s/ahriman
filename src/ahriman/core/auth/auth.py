@@ -33,9 +33,9 @@ from ahriman.models.user_access import UserAccess
 class Auth:
     """
     helper to deal with user authorization
-    :ivar allow_read_only: allow read only access to the index page
     :ivar enabled: indicates if authorization is enabled
     :ivar max_age: session age in seconds. It will be used for both client side and server side checks
+    :ivar safe_build_status: allow read only access to the index page
     """
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
@@ -46,7 +46,7 @@ class Auth:
         """
         self.logger = logging.getLogger("http")
 
-        self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
+        self.safe_build_status = configuration.getboolean("auth", "safe_build_status")
 
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)

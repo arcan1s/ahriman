@@ -148,6 +148,7 @@ Some features require optional dependencies to be installed:
 Web application requires the following python packages to be installed:
 
 * Core part requires `aiohttp` (application itself), `aiohttp_jinja2` and `Jinja2` (HTML generation from templates).
+* In addition, `aiohttp_debugtoolbar` is required for debug panel. Please note that this option does not work together with authorization and basically must not be used in production.
 * In addition, authorization feature requires `aiohttp_security`, `aiohttp_session` and `cryptography`.
 * In addition to base authorization dependencies, OAuth2 also requires `aioauth-client` library.
 
@@ -173,9 +174,9 @@ Package provides base jinja templates which can be overridden by settings. Vanil
 
 ## Requests and scopes
 
-Service provides optional authorization which can be turned on in settings. In order to control user access there are two levels of authorization - read-only (only GET-like requests) and write (anything).
+Service provides optional authorization which can be turned on in settings. In order to control user access there are two levels of authorization - read-only (only GET-like requests) and write (anything) which are provided by each web view directly.
 
-If this feature is configured any request except for whitelisted will be prohibited without authentication. In addition, configuration flag `auth.allow_read_only` can be used in order to allow seeing main page without authorization (this page is in default white list).
+If this feature is configured any request will be prohibited without authentication. In addition, configuration flag `auth.safe_build_status` can be used in order to allow seeing main page without authorization.
 
 For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application. It also stores expiration time of the session inside.
 

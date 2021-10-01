@@ -24,6 +24,7 @@ from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.reload_auth import ReloadAuthView
 from ahriman.web.views.service.remove import RemoveView
+from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
 from ahriman.web.views.status.ahriman import AhrimanView
 from ahriman.web.views.status.package import PackageView
@@ -47,6 +48,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
         POST /service-api/v1/reload-auth       reload authentication module
 
         POST /service-api/v1/remove            remove existing package from repository
+
+        POST /service-api/v1/request           request to add new packages to repository
 
         GET /service-api/v1/search             search for substring in AUR
 
@@ -81,6 +84,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_post("/service-api/v1/reload-auth", ReloadAuthView)
 
     application.router.add_post("/service-api/v1/remove", RemoveView)
+
+    application.router.add_post("/service-api/v1/request", RequestView)
 
     application.router.add_get("/service-api/v1/search", SearchView, allow_head=False)
 
