@@ -34,9 +34,11 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Handler:
     """
     base handler class for command callbacks
+    :cvar ALLOW_AUTO_ARCHITECTURE_RUN: allow to define architecture from existing repositories
     :cvar ALLOW_MULTI_ARCHITECTURE_RUN: allow to run with multiple architectures
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = True
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
@@ -85,9 +87,11 @@ class Handler:
         :param args: command line args
         :return: list of architectures for which tree is created
         """
-        if args.architecture is None:
+        if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
+            # for some parsers (e.g. config) we need to run with specific architecture
+            # for those cases architecture must be set explicitly
             raise MissingArchitecture(args.command)
-        if args.architecture:
+        if args.architecture:  # architecture is specified explicitly
             return set(args.architecture)
 
         config = Configuration()
@@ -96,7 +100,7 @@ class Handler:
         root = config.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
         architectures = RepositoryPaths.known_architectures(root)
 
-        if not architectures:
+        if not architectures:  # well we did not find anything
             raise MissingArchitecture(args.command)
         return architectures
 

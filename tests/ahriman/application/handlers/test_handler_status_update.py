@@ -86,3 +86,10 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
 
     StatusUpdate.run(args, "x86_64", configuration, True)
     load_mock.assert_called_once()
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not StatusUpdate.ALLOW_AUTO_ARCHITECTURE_RUN

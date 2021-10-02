@@ -37,6 +37,8 @@ class Setup(Handler):
     :cvar SUDOERS_PATH: path to sudoers.d include configuration
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = False
+
     ARCHBUILD_COMMAND_PATH = Path("/usr/bin/archbuild")
     BIN_DIR_PATH = Path("/usr/local/bin")
     MIRRORLIST_PATH = Path("/etc/pacman.d/mirrorlist")

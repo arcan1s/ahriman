@@ -31,6 +31,7 @@ class Web(Handler):
     web server handler
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = False
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
 
     @classmethod

@@ -18,3 +18,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     Dump.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     print_mock.assert_called()
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Dump.ALLOW_AUTO_ARCHITECTURE_RUN

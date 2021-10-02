@@ -257,3 +257,10 @@ def test_write_configuration_not_loaded(configuration: Configuration, mocker: Mo
     User.write_configuration(configuration, secure=True)
     write_mock.assert_not_called()
     chmod_mock.assert_not_called()
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not User.ALLOW_AUTO_ARCHITECTURE_RUN

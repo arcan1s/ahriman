@@ -30,6 +30,8 @@ class Dump(Handler):
     dump configuration handler
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = False
+
     _print = print
 
     @classmethod
