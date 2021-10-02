@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-from aiohttp.web_exceptions import HTTPBadRequest
+from aiohttp.web_exceptions import HTTPBadRequest, HTTPNoContent
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
@@ -18,6 +18,20 @@ async def test_exception_handler(mocker: MockerFixture) -> None:
 
     handler = exception_handler(logging.getLogger())
     await handler(request, request_handler)
+    logging_mock.assert_not_called()
+
+
+async def test_exception_handler_success(mocker: MockerFixture) -> None:
+    """
+    must pass client exception
+    """
+    request = pytest.helpers.request("", "", "")
+    request_handler = AsyncMock(side_effect=HTTPNoContent())
+    logging_mock = mocker.patch("logging.Logger.exception")
+
+    handler = exception_handler(logging.getLogger())
+    with pytest.raises(HTTPNoContent):
+        await handler(request, request_handler)
     logging_mock.assert_not_called()
 
 
