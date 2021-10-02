@@ -23,6 +23,7 @@ import shutil
 from pathlib import Path
 from typing import List, Optional
 
+from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
 from ahriman.core.util import check_output
@@ -58,38 +59,6 @@ class Task:
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    @property
-    def cache_path(self) -> Path:
-        """
-        :return: path to cached packages
-        """
-        return self.paths.cache / self.package.base
-
-    @property
-    def git_path(self) -> Path:
-        """
-        :return: path to clone package from git
-        """
-        return self.paths.sources / self.package.base
-
-    @staticmethod
-    def fetch(local: Path, remote: str, branch: str = "master") -> None:
-        """
-        either clone repository or update it to origin/`branch`
-        :param local: local path to fetch
-        :param remote: remote target (from where to fetch)
-        :param branch: branch name to checkout, master by default
-        """
-        logger = logging.getLogger("build_details")
-        # local directory exists and there is .git directory
-        if (local / ".git").is_dir():
-            Task._check_output("git", "fetch", "origin", branch, exception=None, cwd=local, logger=logger)
-        else:
-            Task._check_output("git", "clone", remote, str(local), exception=None, logger=logger)
-        # and now force reset to our branch
-        Task._check_output("git", "checkout", "--force", branch, exception=None, cwd=local, logger=logger)
-        Task._check_output("git", "reset", "--hard", f"origin/{branch}", exception=None, cwd=local, logger=logger)
-
     def build(self) -> List[Path]:
         """
         run package build
@@ -104,13 +73,13 @@ class Task:
         Task._check_output(
             *command,
             exception=BuildFailed(self.package.base),
-            cwd=self.git_path,
+            cwd=self.paths.sources_for(self.package.base),
             logger=self.build_logger)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",
                                       exception=BuildFailed(self.package.base),
-                                      cwd=self.git_path,
+                                      cwd=self.paths.sources_for(self.package.base),
                                       logger=self.build_logger).splitlines()
         return [Path(package) for package in packages]
 
@@ -119,8 +88,8 @@ class Task:
         fetch package from git
         :param path: optional local path to fetch. If not set default path will be used
         """
-        git_path = path or self.git_path
-        if self.cache_path.is_dir():
+        git_path = path or self.paths.sources_for(self.package.base)
+        if self.paths.cache_for(self.package.base).is_dir():
             # no need to clone whole repository, just copy from cache first
-            shutil.copytree(self.cache_path, git_path)
-        return self.fetch(git_path, self.package.git_url)
+            shutil.copytree(self.paths.cache_for(self.package.base), git_path)
+        Sources.load(git_path, self.package.git_url, self.paths.patches_for(self.package.base))

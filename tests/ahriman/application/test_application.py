@@ -124,10 +124,10 @@ def test_add_manual(application: Application, package_ahriman: Package, mocker: 
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    fetch_mock = mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     application.add([package_ahriman.base], PackageSource.AUR, True)
-    fetch_mock.assert_called_once()
+    load_mock.assert_called_once()
 
 
 def test_add_manual_with_dependencies(application: Application, package_ahriman: Package,
@@ -137,7 +137,7 @@ def test_add_manual_with_dependencies(application: Application, package_ahriman:
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies")
 
     application.add([package_ahriman.base], PackageSource.AUR, False)

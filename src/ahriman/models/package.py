@@ -231,22 +231,18 @@ class Package:
         if not self.is_vcs:
             return self.version
 
-        from ahriman.core.build_tools.task import Task
+        from ahriman.core.build_tools.sources import Sources
 
-        clone_dir = paths.cache / self.base
         logger = logging.getLogger("build_details")
-        Task.fetch(clone_dir, self.git_url)
+        Sources.load(paths.cache_for(self.base), self.git_url, paths.patches_for(self.base))
 
         try:
             # update pkgver first
-            Package._check_output("makepkg", "--nodeps", "--nobuild", exception=None, cwd=clone_dir, logger=logger)
+            Package._check_output("makepkg", "--nodeps", "--nobuild",
+                                  exception=None, cwd=paths.cache_for(self.base), logger=logger)
             # generate new .SRCINFO and put it to parser
-            srcinfo_source = Package._check_output(
-                "makepkg",
-                "--printsrcinfo",
-                exception=None,
-                cwd=clone_dir,
-                logger=logger)
+            srcinfo_source = Package._check_output("makepkg", "--printsrcinfo",
+                                                   exception=None, cwd=paths.cache_for(self.base), logger=logger)
             srcinfo, errors = parse_srcinfo(srcinfo_source)
             if errors:
                 raise InvalidPackageInfo(errors)
