@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import middleware, Request
-from aiohttp.web_exceptions import HTTPClientError
+from aiohttp.web_exceptions import HTTPException
 from aiohttp.web_response import StreamResponse
 from logging import Logger
 
@@ -35,8 +35,8 @@ def exception_handler(logger: Logger) -> MiddlewareType:
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:
             return await handler(request)
-        except HTTPClientError:
-            raise
+        except HTTPException:
+            raise  # we do not raise 5xx exceptions actually so it should be fine
         except Exception:
             logger.exception("exception during performing request to %s", request.path)
             raise
