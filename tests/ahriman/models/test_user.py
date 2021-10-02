@@ -82,3 +82,10 @@ def test_verify_access_write(user: User) -> None:
     user.access = UserAccess.Write
     assert user.verify_access(UserAccess.Read)
     assert user.verify_access(UserAccess.Write)
+
+
+def test_repr(user: User) -> None:
+    """
+    must print user without password
+    """
+    assert "pa55w0rd" not in str(user)

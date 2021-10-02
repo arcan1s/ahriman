@@ -70,18 +70,18 @@ class Configuration(configparser.RawConfigParser):
         return self.getpath("settings", "logging")
 
     @classmethod
-    def from_path(cls: Type[Configuration], path: Path, architecture: str, logfile: bool) -> Configuration:
+    def from_path(cls: Type[Configuration], path: Path, architecture: str, quiet: bool) -> Configuration:
         """
         constructor with full object initialization
         :param path: path to root configuration file
         :param architecture: repository architecture
-        :param logfile: use log file to output messages
+        :param quiet: force disable any log messages
         :return: configuration instance
         """
         config = cls()
         config.load(path)
         config.merge_sections(architecture)
-        config.load_logging(logfile)
+        config.load_logging(quiet)
         return config
 
     @staticmethod
@@ -142,27 +142,20 @@ class Configuration(configparser.RawConfigParser):
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 
-    def load_logging(self, logfile: bool) -> None:
+    def load_logging(self, quiet: bool) -> None:
         """
         setup logging settings from configuration
-        :param logfile: use log file to output messages
+        :param quiet: force disable any log messages
         """
-        def file_logger() -> None:
-            try:
-                path = self.logging_path
-                fileConfig(path)
-            except (FileNotFoundError, PermissionError):
-                console_logger()
-                logging.exception("could not create logfile, fallback to stderr")
-
-        def console_logger() -> None:
+        try:
+            path = self.logging_path
+            fileConfig(path)
+        except (FileNotFoundError, PermissionError):
             logging.basicConfig(filename=None, format=self.DEFAULT_LOG_FORMAT,
                                 level=self.DEFAULT_LOG_LEVEL)
-
-        if logfile:
-            file_logger()
-        else:
-            console_logger()
+            logging.exception("could not create logfile, fallback to stderr")
+        if quiet:
+            logging.disable()
 
     def merge_sections(self, architecture: str) -> None:
         """

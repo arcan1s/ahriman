@@ -90,7 +90,7 @@ def configuration(resource_path_root: Path) -> Configuration:
     :return: configuration test instance
     """
     path = resource_path_root / "core" / "ahriman.ini"
-    return Configuration.from_path(path=path, architecture="x86_64", logfile=False)
+    return Configuration.from_path(path=path, architecture="x86_64", quiet=False)
 
 
 @pytest.fixture

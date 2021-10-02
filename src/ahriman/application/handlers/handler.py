@@ -50,7 +50,7 @@ class Handler:
         :return: True on success, False otherwise
         """
         try:
-            configuration = Configuration.from_path(args.configuration, architecture, not args.no_log)
+            configuration = Configuration.from_path(args.configuration, architecture, args.quiet)
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration, args.no_report)
             return True
