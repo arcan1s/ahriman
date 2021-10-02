@@ -27,7 +27,7 @@ def args() -> argparse.Namespace:
     fixture for command line arguments
     :return: command line arguments test instance
     """
-    return argparse.Namespace(lock=None, force=False, unsafe=False, no_report=True)
+    return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, no_report=True)
 
 
 @pytest.fixture

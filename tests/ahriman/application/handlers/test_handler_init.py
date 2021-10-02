@@ -16,3 +16,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     Init.run(args, "x86_64", configuration, True)
     create_tree_mock.assert_called_once()
     init_mock.assert_called_once()
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Init.ALLOW_AUTO_ARCHITECTURE_RUN

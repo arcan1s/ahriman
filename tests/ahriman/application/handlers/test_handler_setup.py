@@ -149,3 +149,10 @@ def test_create_executable(args: argparse.Namespace, mocker: MockerFixture) -> N
     Setup.create_executable(args.build_command, "x86_64")
     symlink_text_mock.assert_called_once()
     unlink_text_mock.assert_called_once()
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Setup.ALLOW_AUTO_ARCHITECTURE_RUN

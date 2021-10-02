@@ -71,7 +71,6 @@ def test_extract_architectures(args: argparse.Namespace, configuration: Configur
     """
     must generate list of available architectures
     """
-    args.architecture = []
     args.configuration = configuration.path
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
 
@@ -84,7 +83,6 @@ def test_extract_architectures_empty(args: argparse.Namespace, configuration: Co
     """
     must raise exception if no available architectures found
     """
-    args.architecture = []
     args.command = "config"
     args.configuration = configuration.path
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
@@ -93,12 +91,12 @@ def test_extract_architectures_empty(args: argparse.Namespace, configuration: Co
         Handler.extract_architectures(args)
 
 
-def test_extract_architectures_exception(args: argparse.Namespace) -> None:
+def test_extract_architectures_exception(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must raise exception on missing architectures
     """
     args.command = "config"
-    args.architecture = None
+    mocker.patch.object(Handler, "ALLOW_AUTO_ARCHITECTURE_RUN", False)
     with pytest.raises(MissingArchitecture):
         Handler.extract_architectures(args)
 

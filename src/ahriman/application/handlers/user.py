@@ -35,6 +35,8 @@ class User(Handler):
     user management handler
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
             configuration: Configuration, no_report: bool) -> None:

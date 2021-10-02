@@ -95,7 +95,7 @@ def _set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--source", help="package source", choices=PackageSource, type=PackageSource,
                         default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
-    parser.set_defaults(handler=handlers.Add, architecture=[])
+    parser.set_defaults(handler=handlers.Add)
     return parser
 
 
@@ -110,7 +110,7 @@ def _set_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
-    parser.set_defaults(handler=handlers.Update, architecture=[], no_aur=False, no_manual=True, dry_run=True)
+    parser.set_defaults(handler=handlers.Update, no_aur=False, no_manual=True, dry_run=True)
     return parser
 
 
@@ -127,7 +127,7 @@ def _set_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
     parser.add_argument("--no-manual", help="do not clear directory with manually added packages", action="store_true")
     parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
-    parser.set_defaults(handler=handlers.Clean, architecture=[], no_log=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Clean, no_log=True, unsafe=True)
     return parser
 
 
@@ -181,7 +181,7 @@ def _set_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("rebuild", help="rebuild repository", description="rebuild whole repository",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
-    parser.set_defaults(handler=handlers.Rebuild, architecture=[])
+    parser.set_defaults(handler=handlers.Rebuild)
     return parser
 
 
@@ -194,7 +194,7 @@ def _set_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("remove", help="remove package", description="remove package",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="package name or base", nargs="+")
-    parser.set_defaults(handler=handlers.Remove, architecture=[])
+    parser.set_defaults(handler=handlers.Remove)
     return parser
 
 
@@ -208,7 +208,7 @@ def _set_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentParser
                              description="remove packages which are missing in AUR",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
-    parser.set_defaults(handler=handlers.RemoveUnknown, architecture=[])
+    parser.set_defaults(handler=handlers.RemoveUnknown)
     return parser
 
 
@@ -221,7 +221,7 @@ def _set_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("report", help="generate report", description="generate report",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
-    parser.set_defaults(handler=handlers.Report, architecture=[])
+    parser.set_defaults(handler=handlers.Report)
     return parser
 
 
@@ -269,7 +269,7 @@ def _set_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("sign", help="sign packages", description="(re-)sign packages and repository database",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
-    parser.set_defaults(handler=handlers.Sign, architecture=[])
+    parser.set_defaults(handler=handlers.Sign)
     return parser
 
 
@@ -316,7 +316,7 @@ def _set_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("sync", help="sync repository", description="sync packages to remote server",
                              formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target", help="target to sync", nargs="*")
-    parser.set_defaults(handler=handlers.Sync, architecture=[])
+    parser.set_defaults(handler=handlers.Sync)
     return parser
 
 
@@ -333,7 +333,7 @@ def _set_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
-    parser.set_defaults(handler=handlers.Update, architecture=[])
+    parser.set_defaults(handler=handlers.Update)
     return parser
 
 

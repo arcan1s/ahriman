@@ -33,6 +33,8 @@ class Status(Handler):
     package status handler
     """
 
+    ALLOW_AUTO_ARCHITECTURE_RUN = False
+
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
             configuration: Configuration, no_report: bool) -> None:

@@ -53,3 +53,10 @@ def test_log_fn(args: argparse.Namespace, configuration: Configuration, aur_pack
 
     Search.run(args, "x86_64", configuration, True)
     print_mock.assert_called()  # we don't really care about call details tbh
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Search.ALLOW_AUTO_ARCHITECTURE_RUN
