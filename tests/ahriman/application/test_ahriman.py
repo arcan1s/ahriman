@@ -79,7 +79,7 @@ def test_subparsers_clean(parser: argparse.ArgumentParser) -> None:
     clean command must imply unsafe and no-log
     """
     args = parser.parse_args(["clean"])
-    assert args.no_log
+    assert args.quiet
     assert args.unsafe
 
 
@@ -100,7 +100,7 @@ def test_subparsers_config(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["-a", "x86_64", "config"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 
@@ -169,7 +169,7 @@ def test_subparsers_search(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["search", "ahriman"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 
@@ -190,7 +190,7 @@ def test_subparsers_setup(parser: argparse.ArgumentParser) -> None:
                               "--repository", "aur-clone"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 
@@ -234,7 +234,7 @@ def test_subparsers_status(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["-a", "x86_64", "status"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 
@@ -246,7 +246,7 @@ def test_subparsers_status_update(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["-a", "x86_64", "status-update"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 
@@ -288,7 +288,7 @@ def test_subparsers_user(parser: argparse.ArgumentParser) -> None:
     args = parser.parse_args(["user", "username"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_log
+    assert args.quiet
     assert args.no_report
     assert args.unsafe
 

@@ -14,7 +14,7 @@ def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
     must call inside lock
     """
     args.configuration = Path("")
-    args.no_log = False
+    args.quiet = False
     mocker.patch("ahriman.application.handlers.Handler.run")
     mocker.patch("ahriman.core.configuration.Configuration.from_path")
     enter_mock = mocker.patch("ahriman.application.lock.Lock.__enter__")

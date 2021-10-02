@@ -148,16 +148,16 @@ def test_load_logging_fallback(configuration: Configuration, mocker: MockerFixtu
     must fallback to stderr without errors
     """
     mocker.patch("logging.config.fileConfig", side_effect=PermissionError())
-    configuration.load_logging(True)
+    configuration.load_logging(quiet=False)
 
 
-def test_load_logging_stderr(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_load_logging_quiet(configuration: Configuration, mocker: MockerFixture) -> None:
     """
-    must use stderr if flag set
+    must disable logging in case if quiet flag set
     """
-    logging_mock = mocker.patch("logging.config.fileConfig")
-    configuration.load_logging(False)
-    logging_mock.assert_not_called()
+    disable_mock = mocker.patch("logging.disable")
+    configuration.load_logging(quiet=True)
+    disable_mock.assert_called_once()
 
 
 def test_merge_sections_missing(configuration: Configuration) -> None:
