@@ -25,8 +25,9 @@ import tempfile
 from pathlib import Path
 from typing import Iterable, List, Set, Type
 
-from ahriman.core.build_tools.task import Task
+from ahriman.core.build_tools.sources import Sources
 from ahriman.models.package import Package
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Leaf:
@@ -53,15 +54,16 @@ class Leaf:
         return self.package.packages.keys()
 
     @classmethod
-    def load(cls: Type[Leaf], package: Package) -> Leaf:
+    def load(cls: Type[Leaf], package: Package, paths: RepositoryPaths) -> Leaf:
         """
         load leaf from package with dependencies
         :param package: package properties
+        :param paths: repository paths instance
         :return: loaded class
         """
         clone_dir = Path(tempfile.mkdtemp())
         try:
-            Task.fetch(clone_dir, package.git_url)
+            Sources.load(clone_dir, package.git_url, paths.patches_for(package.base))
             dependencies = Package.dependencies(clone_dir)
         finally:
             shutil.rmtree(clone_dir, ignore_errors=True)
@@ -93,13 +95,14 @@ class Tree:
         self.leaves = leaves
 
     @classmethod
-    def load(cls: Type[Tree], packages: Iterable[Package]) -> Tree:
+    def load(cls: Type[Tree], packages: Iterable[Package], paths: RepositoryPaths) -> Tree:
         """
         load tree from packages
         :param packages: packages list
+        :param paths: repository paths instance
         :return: loaded class
         """
-        return cls([Leaf.load(package) for package in packages])
+        return cls([Leaf.load(package, paths) for package in packages])
 
     def levels(self) -> List[List[Package]]:
         """

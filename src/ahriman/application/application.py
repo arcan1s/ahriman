@@ -23,7 +23,7 @@ import shutil
 from pathlib import Path
 from typing import Callable, Iterable, List, Set
 
-from ahriman.core.build_tools.task import Task
+from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository.repository import Repository
 from ahriman.core.tree import Tree
@@ -112,9 +112,9 @@ class Application:
 
         def add_manual(src: str) -> Path:
             package = Package.load(src, self.repository.pacman, self.configuration.get("alpm", "aur_url"))
-            path = self.repository.paths.manual / package.base
-            Task.fetch(path, package.git_url)
-            return path
+            Sources.load(self.repository.paths.manual_for(package.base), package.git_url,
+                         self.repository.paths.patches_for(package.base))
+            return self.repository.paths.manual_for(package.base)
 
         def add_archive(src: Path) -> None:
             dst = self.repository.paths.packages / src.name
@@ -238,7 +238,7 @@ class Application:
         process_update(packages)
 
         # process manual packages
-        tree = Tree.load(updates)
+        tree = Tree.load(updates, self.repository.paths)
         for num, level in enumerate(tree.levels()):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
             packages = self.repository.process_build(level)
