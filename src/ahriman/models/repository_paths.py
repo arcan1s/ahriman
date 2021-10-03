@@ -65,6 +65,13 @@ class RepositoryPaths:
         return self.root / "packages" / self.architecture
 
     @property
+    def patches(self) -> Path:
+        """
+        :return: directory for source patches
+        """
+        return self.root / "patches"
+
+    @property
     def repository(self) -> Path:
         """
         :return: repository directory
@@ -92,6 +99,14 @@ class RepositoryPaths:
             if path.is_dir()
         }
 
+    def cache_for(self, package_base: str) -> Path:
+        """
+        get cache path for specific package base
+        :param package_base: package base name
+        :return: full path to directory for specified package base cache
+        """
+        return self.cache / package_base
+
     def create_tree(self) -> None:
         """
         create ahriman working tree
@@ -100,5 +115,30 @@ class RepositoryPaths:
         self.chroot.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.manual.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.packages.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.patches.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.repository.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.sources.mkdir(mode=0o755, parents=True, exist_ok=True)
+
+    def manual_for(self, package_base: str) -> Path:
+        """
+        get manual path for specific package base
+        :param package_base: package base name
+        :return: full path to directory for specified package base manual updates
+        """
+        return self.manual / package_base
+
+    def patches_for(self, package_base: str) -> Path:
+        """
+        get patches path for specific package base
+        :param package_base: package base name
+        :return: full path to directory for specified package base patches
+        """
+        return self.patches / package_base
+
+    def sources_for(self, package_base: str) -> Path:
+        """
+        get sources path for specific package base
+        :param package_base: package base name
+        :return: full path to directory for specified package base sources
+        """
+        return self.sources / package_base

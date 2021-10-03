@@ -244,7 +244,7 @@ def test_actual_version_vcs(package_tpacpi_bat_git: Package, repository_paths: R
     """
     srcinfo = (resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
-    mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == "3.1.r13.g4959b52-1"
 
@@ -255,7 +255,7 @@ def test_actual_version_srcinfo_failed(package_tpacpi_bat_git: Package, reposito
     must return same version in case if exception occurred
     """
     mocker.patch("ahriman.models.package.Package._check_output", side_effect=Exception())
-    mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
 
@@ -268,7 +268,7 @@ def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_p
     mocker.patch("pathlib.Path.read_text", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
     mocker.patch("ahriman.models.package.Package._check_output")
-    mocker.patch("ahriman.core.build_tools.task.Task.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
 

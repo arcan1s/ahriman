@@ -1,6 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest import mock
 
+from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -13,6 +14,15 @@ def test_known_architectures(repository_paths: RepositoryPaths, mocker: MockerFi
     iterdir_mock.assert_called_once()
 
 
+def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
+    """
+    must return correct path for cache directory
+    """
+    path = repository_paths.cache_for(package_ahriman.base)
+    assert path.name == package_ahriman.base
+    assert path.parent == repository_paths.cache
+
+
 def test_create_tree(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must create whole tree
@@ -20,7 +30,9 @@ def test_create_tree(repository_paths: RepositoryPaths, mocker: MockerFixture) -
     paths = {
         prop
         for prop in dir(repository_paths)
-        if not prop.startswith("_") and prop not in ("architecture", "create_tree", "known_architectures", "root")
+        if not prop.startswith("_")
+        and not prop.endswith("_for")
+        and prop not in ("architecture", "create_tree", "known_architectures", "root")
     }
     mkdir_mock = mocker.patch("pathlib.Path.mkdir")
 
@@ -30,3 +42,30 @@ def test_create_tree(repository_paths: RepositoryPaths, mocker: MockerFixture) -
             mock.call(mode=0o755, parents=True, exist_ok=True)
             for _ in paths
         ])
+
+
+def test_manual_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
+    """
+    must return correct path for manual directory
+    """
+    path = repository_paths.manual_for(package_ahriman.base)
+    assert path.name == package_ahriman.base
+    assert path.parent == repository_paths.manual
+
+
+def test_patches_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
+    """
+    must return correct path for patches directory
+    """
+    path = repository_paths.patches_for(package_ahriman.base)
+    assert path.name == package_ahriman.base
+    assert path.parent == repository_paths.patches
+
+
+def test_sources_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
+    """
+    must return correct path for sources directory
+    """
+    path = repository_paths.sources_for(package_ahriman.base)
+    assert path.name == package_ahriman.base
+    assert path.parent == repository_paths.sources
