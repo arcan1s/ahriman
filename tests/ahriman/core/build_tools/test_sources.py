@@ -7,6 +7,34 @@ from unittest import mock
 from ahriman.core.build_tools.sources import Sources
 
 
+def test_add(mocker: MockerFixture) -> None:
+    """
+    must add files to git
+    """
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    Sources.add(local, "pattern1", "pattern2")
+    glob_mock.assert_has_calls([mock.call("pattern1"), mock.call("pattern2")])
+    check_output_mock.assert_called_with(
+        "git", "add", "--intent-to-add", "1", "2", "1", "2",
+        exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
+def test_diff(mocker: MockerFixture) -> None:
+    """
+    must calculate diff
+    """
+    write_mock = mocker.patch("pathlib.Path.write_text")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    Sources.diff(local, Path("patch"))
+    write_mock.assert_called_once()
+    check_output_mock.assert_called_with("git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
 def test_fetch_existing(mocker: MockerFixture) -> None:
     """
     must fetch new package via clone command
@@ -17,15 +45,10 @@ def test_fetch_existing(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, "remote", "master")
     check_output_mock.assert_has_calls([
-        mock.call("git", "fetch", "origin", "master",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", "master",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "fetch", "origin", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "checkout", "--force", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "reset", "--hard", "origin/master",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int))
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
 
 
@@ -39,15 +62,10 @@ def test_fetch_new(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, "remote", "master")
     check_output_mock.assert_has_calls([
-        mock.call("git", "clone", "remote", str(local),
-                  exception=pytest.helpers.anyvar(int),
-                  logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", "master",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "clone", "remote", str(local), exception=None, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "checkout", "--force", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "reset", "--hard", "origin/master",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int))
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
 
 
@@ -56,14 +74,14 @@ def test_load(mocker: MockerFixture) -> None:
     must load packages sources correctly
     """
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
-    patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch")
+    patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
 
     Sources.load(Path("local"), "remote", Path("patches"))
     fetch_mock.assert_called_with(Path("local"), "remote")
     patch_mock.assert_called_with(Path("local"), Path("patches"))
 
 
-def test_patches(mocker: MockerFixture) -> None:
+def test_patch_apply(mocker: MockerFixture) -> None:
     """
     must apply patches if any
     """
@@ -72,30 +90,28 @@ def test_patches(mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     local = Path("local")
-    Sources.patch(local, Path("patches"))
+    Sources.patch_apply(local, Path("patches"))
     glob_mock.assert_called_once()
     check_output_mock.assert_has_calls([
         mock.call("git", "apply", "--ignore-space-change", "--ignore-whitespace", "01.patch",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int)),
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "apply", "--ignore-space-change", "--ignore-whitespace", "02.patch",
-                  exception=pytest.helpers.anyvar(int),
-                  cwd=local, logger=pytest.helpers.anyvar(int)),
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
     ])
 
 
-def test_patches_no_dir(mocker: MockerFixture) -> None:
+def test_patch_apply_no_dir(mocker: MockerFixture) -> None:
     """
     must not fail if no patches directory exists
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     glob_mock = mocker.patch("pathlib.Path.glob")
 
-    Sources.patch(Path("local"), Path("patches"))
+    Sources.patch_apply(Path("local"), Path("patches"))
     glob_mock.assert_not_called()
 
 
-def test_patches_no_patches(mocker: MockerFixture) -> None:
+def test_patch_apply_no_patches(mocker: MockerFixture) -> None:
     """
     must not fail if no patches exist
     """
@@ -103,5 +119,17 @@ def test_patches_no_patches(mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.glob", return_value=[])
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
-    Sources.patch(Path("local"), Path("patches"))
+    Sources.patch_apply(Path("local"), Path("patches"))
     check_output_mock.assert_not_called()
+
+
+def test_patch_create(mocker: MockerFixture) -> None:
+    """
+    must create patch set for the package
+    """
+    add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
+    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
+
+    Sources.patch_create(Path("local"), Path("patch"), "glob")
+    add_mock.assert_called_with(Path("local"), "glob")
+    diff_mock.assert_called_with(Path("local"), Path("patch"))

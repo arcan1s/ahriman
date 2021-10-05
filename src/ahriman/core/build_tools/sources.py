@@ -20,6 +20,7 @@
 import logging
 
 from pathlib import Path
+from typing import List
 
 from ahriman.core.util import check_output
 
@@ -27,9 +28,38 @@ from ahriman.core.util import check_output
 class Sources:
     """
     helper to download package sources (PKGBUILD etc)
+    :cvar logger: class logger
     """
 
+    logger = logging.getLogger("build_details")
+
     _check_output = check_output
+
+    @staticmethod
+    def add(local_path: Path, *pattern: str) -> None:
+        """
+        track found files via git
+        :param local_path: local path to git repository
+        :param pattern: glob patterns
+        """
+        # glob directory to find files which match the specified patterns
+        found_files: List[Path] = []
+        for glob in pattern:
+            found_files.extend(local_path.glob(glob))
+        Sources.logger.info("found matching files %s", found_files)
+        # add them to index
+        Sources._check_output("git", "add", "--intent-to-add", *[str(fn.relative_to(local_path)) for fn in found_files],
+                              exception=None, cwd=local_path, logger=Sources.logger)
+
+    @staticmethod
+    def diff(local_path: Path, patch_path: Path) -> None:
+        """
+        generate diff from the current version and write it to the output file
+        :param local_path: local path to git repository
+        :param patch_path: path to result patch
+        """
+        patch = Sources._check_output("git", "diff", exception=None, cwd=local_path, logger=Sources.logger)
+        patch_path.write_text(patch)
 
     @staticmethod
     def fetch(local_path: Path, remote: str, branch: str = "master") -> None:
@@ -39,45 +69,56 @@ class Sources:
         :param remote: remote target (from where to fetch)
         :param branch: branch name to checkout, master by default
         """
-        logger = logging.getLogger("build_details")
         # local directory exists and there is .git directory
         if (local_path / ".git").is_dir():
-            logger.info("update HEAD to remote to %s", local_path)
-            Sources._check_output("git", "fetch", "origin", branch, exception=None, cwd=local_path, logger=logger)
+            Sources.logger.info("update HEAD to remote to %s", local_path)
+            Sources._check_output("git", "fetch", "origin", branch,
+                                  exception=None, cwd=local_path, logger=Sources.logger)
         else:
-            logger.info("clone remote %s to %s", remote, local_path)
-            Sources._check_output("git", "clone", remote, str(local_path), exception=None, logger=logger)
+            Sources.logger.info("clone remote %s to %s", remote, local_path)
+            Sources._check_output("git", "clone", remote, str(local_path), exception=None, logger=Sources.logger)
         # and now force reset to our branch
-        Sources._check_output("git", "checkout", "--force", branch, exception=None, cwd=local_path, logger=logger)
+        Sources._check_output("git", "checkout", "--force", branch,
+                              exception=None, cwd=local_path, logger=Sources.logger)
         Sources._check_output("git", "reset", "--hard", f"origin/{branch}",
-                              exception=None, cwd=local_path, logger=logger)
+                              exception=None, cwd=local_path, logger=Sources.logger)
 
     @staticmethod
-    def load(local_path: Path, remote: str, patch_path: Path) -> None:
+    def load(local_path: Path, remote: str, patch_dir: Path) -> None:
         """
         fetch sources from remote and apply patches
         :param local_path: local path to fetch
         :param remote: remote target (from where to fetch)
-        :param patch_path: path to directory with package patches
+        :param patch_dir: path to directory with package patches
         """
         Sources.fetch(local_path, remote)
-        Sources.patch(local_path, patch_path)
+        Sources.patch_apply(local_path, patch_dir)
 
     @staticmethod
-    def patch(local_path: Path, patch_path: Path) -> None:
+    def patch_apply(local_path: Path, patch_dir: Path) -> None:
         """
         apply patches if any
         :param local_path: local path to directory with git sources
-        :param patch_path: path to directory with package patches
+        :param patch_dir: path to directory with package patches
         """
         # check if even there are patches
-        if not patch_path.is_dir():
+        if not patch_dir.is_dir():
             return  # no patches provided
-        logger = logging.getLogger("build_details")
         # find everything that looks like patch and sort it
-        patches = sorted(patch_path.glob("*.patch"))
-        logger.info("found %s patches", patches)
+        patches = sorted(patch_dir.glob("*.patch"))
+        Sources.logger.info("found %s patches", patches)
         for patch in patches:
-            logger.info("apply patch %s", patch.name)
+            Sources.logger.info("apply patch %s", patch.name)
             Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace", str(patch),
-                                  exception=None, cwd=local_path, logger=logger)
+                                  exception=None, cwd=local_path, logger=Sources.logger)
+
+    @staticmethod
+    def patch_create(local_path: Path, patch_path: Path, *pattern: str) -> None:
+        """
+        create patch set for the specified local path
+        :param local_path: local path to git repository
+        :param patch_path: path to result patch
+        :param pattern: glob patterns
+        """
+        Sources.add(local_path, *pattern)
+        Sources.diff(local_path, patch_path)

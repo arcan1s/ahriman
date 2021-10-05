@@ -4,6 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
+from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
@@ -126,9 +127,74 @@ def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_key_import_architecture(parser: argparse.ArgumentParser) -> None:
     """
-    check command must correctly parse architecture list
+    key-import command must correctly parse architecture list
     """
     args = parser.parse_args(["-a", "x86_64", "key-import", "key"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_patch_add(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-add command must imply action, architecture list, lock and no-report
+    """
+    args = parser.parse_args(["patch-add", "ahriman"])
+    assert args.action == Action.Update
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+
+
+def test_subparsers_patch_add_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-add command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "patch-add", "ahriman"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_patch_add_track(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-add command must correctly parse track files patterns
+    """
+    args = parser.parse_args(["patch-add", "-t", "*.py", "ahriman"])
+    assert args.track == ["*.diff", "*.patch", "*.py"]
+
+
+def test_subparsers_patch_list(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-list command must imply action, architecture list, lock and no-report
+    """
+    args = parser.parse_args(["patch-list", "ahriman"])
+    assert args.action == Action.List
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+
+
+def test_subparsers_patch_list_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-list command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "patch-list", "ahriman"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_patch_remove(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-remove command must imply action, architecture list, lock and no-report
+    """
+    args = parser.parse_args(["patch-remove", "ahriman"])
+    assert args.action == Action.Remove
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+
+
+def test_subparsers_patch_remove_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-remove command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "patch-remove", "ahriman"])
     assert args.architecture == [""]
 
 
