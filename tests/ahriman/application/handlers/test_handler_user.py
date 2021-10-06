@@ -7,6 +7,7 @@ from unittest import mock
 
 from ahriman.application.handlers import User
 from ahriman.core.configuration import Configuration
+from ahriman.models.action import Action
 from ahriman.models.user import User as MUser
 from ahriman.models.user_access import UserAccess
 
@@ -18,12 +19,12 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.username = "user"
-    args.password = "pa55w0rd"
-    args.access = UserAccess.Read
+    args.action = Action.Update
     args.as_service = False
     args.no_reload = False
+    args.password = "pa55w0rd"
+    args.role = UserAccess.Read
     args.secure = False
-    args.remove = False
     return args
 
 
@@ -54,7 +55,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     must remove user if remove flag supplied
     """
     args = _default_args(args)
-    args.remove = True
+    args.action = Action.Remove
     mocker.patch("pathlib.Path.mkdir")
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.create_configuration")

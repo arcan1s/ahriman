@@ -71,19 +71,6 @@ class InitializeException(RuntimeError):
         RuntimeError.__init__(self, f"Could not load service: {details}")
 
 
-class InvalidCommand(ValueError):
-    """
-    exception raised on invalid command line options
-    """
-
-    def __init__(self, details: Any) -> None:
-        """
-        default constructor
-        :param details" error details
-        """
-        ValueError.__init__(self, details)
-
-
 class InvalidOption(ValueError):
     """
     exception which will be raised on configuration errors

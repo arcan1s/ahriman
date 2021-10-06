@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
@@ -32,8 +32,8 @@ class SignSettings(Enum):
     :cvar Repository: sign repository database file
     """
 
-    Packages = auto()
-    Repository = auto()
+    Packages = "pacakges"
+    Repository = "repository"
 
     @classmethod
     def from_option(cls: Type[SignSettings], value: str) -> SignSettings:

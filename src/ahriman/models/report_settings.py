@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
@@ -33,9 +33,9 @@ class ReportSettings(Enum):
     :cvar Email: email report generation
     """
 
-    Disabled = auto()  # for testing purpose
-    HTML = auto()
-    Email = auto()
+    Disabled = "disabled"  # for testing purpose
+    HTML = "html"
+    Email = "email"
 
     @classmethod
     def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:

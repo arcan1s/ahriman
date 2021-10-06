@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Type
 
 
@@ -31,9 +31,9 @@ class SmtpSSLSettings(Enum):
     :cvar STARTTLS: use STARTTLS in normal SMTP client
     """
 
-    Disabled = auto()
-    SSL = auto()
-    STARTTLS = auto()
+    Disabled = "disabled"
+    SSL = "ssl"
+    STARTTLS = "starttls"
 
     @classmethod
     def from_option(cls: Type[SmtpSSLSettings], value: str) -> SmtpSSLSettings:

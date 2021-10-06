@@ -55,7 +55,8 @@ class Handler:
                 cls.run(args, architecture, configuration, args.no_report)
             return True
         except Exception:
-            logging.getLogger("root").exception("process exception")
+            # we are basically always want to print error to stderr instead of default logger
+            logging.getLogger("stderr").exception("process exception")
             return False
 
     @classmethod

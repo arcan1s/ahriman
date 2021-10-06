@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
@@ -33,9 +33,9 @@ class AuthSettings(Enum):
     :cvar OAuth: OAuth based provider
     """
 
-    Disabled = auto()
-    Configuration = auto()
-    OAuth = auto()
+    Disabled = "disabled"
+    Configuration = "configuration"
+    OAuth = "oauth2"
 
     @classmethod
     def from_option(cls: Type[AuthSettings], value: str) -> AuthSettings:

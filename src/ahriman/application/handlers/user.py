@@ -26,6 +26,7 @@ from typing import Type
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.action import Action
 from ahriman.models.user import User as MUser
 from ahriman.models.user_access import UserAccess
 
@@ -52,7 +53,7 @@ class User(Handler):
         auth_configuration = User.get_auth_configuration(configuration.include)
 
         User.clear_user(auth_configuration, user)
-        if not args.remove:
+        if args.action == Action.Update:
             User.create_configuration(auth_configuration, user, salt, args.as_service)
         User.write_configuration(auth_configuration, args.secure)
 
@@ -97,7 +98,7 @@ class User(Handler):
         :param args: command line args
         :return: built user descriptor
         """
-        user = MUser(args.username, args.password, args.access)
+        user = MUser(args.username, args.password, args.role)
         if user.password is None:
             user.password = getpass.getpass()
         return user

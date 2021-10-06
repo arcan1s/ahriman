@@ -19,12 +19,12 @@
 #
 import argparse
 
-from typing import Callable, Type
+from typing import Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import InvalidCommand
+from ahriman.models.action import Action
 
 
 class StatusUpdate(Handler):
@@ -46,13 +46,14 @@ class StatusUpdate(Handler):
         """
         # we are using reporter here
         client = Application(architecture, configuration, no_report=False).repository.reporter
-        callback: Callable[[str], None] = lambda p: client.remove(p) if args.remove else client.update(p, args.status)
-        if args.package:
+
+        if args.action == Action.Update and args.package:
             # update packages statuses
             for package in args.package:
-                callback(package)
-        elif args.remove:
-            raise InvalidCommand("Remove option is supplied, but no packages set")
-        else:
+                client.update(package, args.status)
+        elif args.action == Action.Update:
             # update service status
             client.update_self(args.status)
+        elif args.action == Action.Remove:
+            for package in args.package:
+                client.remove(package)
