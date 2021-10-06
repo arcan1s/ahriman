@@ -150,10 +150,10 @@ class Configuration(configparser.RawConfigParser):
         try:
             path = self.logging_path
             fileConfig(path)
-        except (FileNotFoundError, PermissionError):
+        except Exception:
             logging.basicConfig(filename=None, format=self.DEFAULT_LOG_FORMAT,
                                 level=self.DEFAULT_LOG_LEVEL)
-            logging.exception("could not create logfile, fallback to stderr")
+            logging.exception("could not load logging from configuration, fallback to stderr")
         if quiet:
             logging.disable()
 

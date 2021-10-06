@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Type
 
 from ahriman.core.exceptions import InvalidOption
@@ -33,9 +33,9 @@ class UploadSettings(Enum):
     :cvar S3: sync to Amazon S3
     """
 
-    Disabled = auto()  # for testing purpose
-    Rsync = auto()
-    S3 = auto()
+    Disabled = "disabled"  # for testing purpose
+    Rsync = "rsync"
+    S3 = "s3"
 
     @classmethod
     def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
