@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-log] [--no-report] [--unsafe] [-v] {add,check,clean,config,init,key-import,rebuild,remove,remove-unknown,report,search,setup,sign,status,status-update,sync,update,user,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,key-import,package-add,add,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 .SH OPTIONS
@@ -25,12 +25,12 @@ force run, remove file lock
 lock file
 
 .TP
-\fB\-\-no\-log\fR
-redirect all log messages to stderr
-
-.TP
 \fB\-\-no\-report\fR
 force disable reporting to web service
+
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+force disable any logging
 
 .TP
 \fB\-\-unsafe\fR
@@ -43,64 +43,115 @@ show program's version number and exit
 .SS
 \fBSub-commands\fR
 .TP
-\fBahriman\fR \fI\,add\/\fR
-add package
-.TP
-\fBahriman\fR \fI\,check\/\fR
-check for updates
-.TP
-\fBahriman\fR \fI\,clean\/\fR
-clean local caches
-.TP
-\fBahriman\fR \fI\,config\/\fR
-dump configuration
-.TP
-\fBahriman\fR \fI\,init\/\fR
-create repository tree
+\fBahriman\fR \fI\,aur-search\/\fR
+search for package
 .TP
 \fBahriman\fR \fI\,key-import\/\fR
 import PGP key
 .TP
-\fBahriman\fR \fI\,rebuild\/\fR
-rebuild repository
+\fBahriman\fR \fI\,package-add\/\fR
+add package
 .TP
-\fBahriman\fR \fI\,remove\/\fR
+\fBahriman\fR \fI\,package-remove\/\fR
 remove package
 .TP
-\fBahriman\fR \fI\,remove-unknown\/\fR
-remove unknown packages
-.TP
-\fBahriman\fR \fI\,report\/\fR
-generate report
-.TP
-\fBahriman\fR \fI\,search\/\fR
-search for package
-.TP
-\fBahriman\fR \fI\,setup\/\fR
-initial service configuration
-.TP
-\fBahriman\fR \fI\,sign\/\fR
-sign packages
-.TP
-\fBahriman\fR \fI\,status\/\fR
+\fBahriman\fR \fI\,package-status\/\fR
 get package status
 .TP
-\fBahriman\fR \fI\,status-update\/\fR
+\fBahriman\fR \fI\,package-status-remove\/\fR
+remove package status
+.TP
+\fBahriman\fR \fI\,package-status-update\/\fR
 update package status
 .TP
-\fBahriman\fR \fI\,sync\/\fR
+\fBahriman\fR \fI\,patch-add\/\fR
+patches control
+.TP
+\fBahriman\fR \fI\,patch-list\/\fR
+patches control
+.TP
+\fBahriman\fR \fI\,patch-remove\/\fR
+patches control
+.TP
+\fBahriman\fR \fI\,repo-check\/\fR
+check for updates
+.TP
+\fBahriman\fR \fI\,repo-clean\/\fR
+clean local caches
+.TP
+\fBahriman\fR \fI\,repo-config\/\fR
+dump configuration
+.TP
+\fBahriman\fR \fI\,repo-init\/\fR
+create repository tree
+.TP
+\fBahriman\fR \fI\,repo-rebuild\/\fR
+rebuild repository
+.TP
+\fBahriman\fR \fI\,repo-remove-unknown\/\fR
+remove unknown packages
+.TP
+\fBahriman\fR \fI\,repo-report\/\fR
+generate report
+.TP
+\fBahriman\fR \fI\,repo-setup\/\fR
+initial service configuration
+.TP
+\fBahriman\fR \fI\,repo-sign\/\fR
+sign packages
+.TP
+\fBahriman\fR \fI\,repo-sync\/\fR
 sync repository
 .TP
-\fBahriman\fR \fI\,update\/\fR
+\fBahriman\fR \fI\,repo-update\/\fR
 update packages
 .TP
-\fBahriman\fR \fI\,user\/\fR
-manage users for web services
+\fBahriman\fR \fI\,user-add\/\fR
+create or update user for web services
+.TP
+\fBahriman\fR \fI\,user-remove\/\fR
+remove user for web services
 .TP
 \fBahriman\fR \fI\,web\/\fR
-start web server
-.SH OPTIONS 'ahriman add'
-usage: ahriman add [-h] [--now] [--source {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}] [--without-dependencies] package [package ...]
+web server
+.SH OPTIONS 'ahriman aur-search'
+usage: ahriman aur-search [-h] search [search ...]
+
+search for package in AUR using API
+
+.TP
+\fBsearch\fR
+search terms, can be specified multiple times
+
+
+.SH OPTIONS 'ahriman search'
+usage: ahriman aur-search [-h] search [search ...]
+
+search for package in AUR using API
+
+.TP
+\fBsearch\fR
+search terms, can be specified multiple times
+
+
+.SH OPTIONS 'ahriman key-import'
+usage: ahriman key-import [-h] [--key-server KEY_SERVER] key
+
+import PGP key from public sources to repository user
+
+.TP
+\fBkey\fR
+PGP key to import from public server
+
+.TP
+\fB\-\-key\-server\fR \fI\,KEY_SERVER\/\fR
+key server for key import
+
+.SH OPTIONS 'ahriman package-add'
+usage: ahriman package-add [-h] [-n]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}]
+                           [--without-dependencies]
+                           package [package ...]
 
 add package
 
@@ -109,19 +160,174 @@ add package
 package base/name or archive path
 
 .TP
-\fB\-\-now\fR
+\fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
 package source
 
 .TP
 \fB\-\-without\-dependencies\fR
 do not add dependencies
 
-.SH OPTIONS 'ahriman check'
-usage: ahriman check [-h] [--no-vcs] [package ...]
+.SH OPTIONS 'ahriman add'
+usage: ahriman package-add [-h] [-n]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}]
+                           [--without-dependencies]
+                           package [package ...]
+
+add package
+
+.TP
+\fBpackage\fR
+package base/name or archive path
+
+.TP
+\fB\-n\fR, \fB\-\-now\fR
+run update function after
+
+.TP
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
+package source
+
+.TP
+\fB\-\-without\-dependencies\fR
+do not add dependencies
+
+.SH OPTIONS 'ahriman package-remove'
+usage: ahriman package-remove [-h] package [package ...]
+
+remove package
+
+.TP
+\fBpackage\fR
+package name or base
+
+
+.SH OPTIONS 'ahriman remove'
+usage: ahriman package-remove [-h] package [package ...]
+
+remove package
+
+.TP
+\fBpackage\fR
+package name or base
+
+
+.SH OPTIONS 'ahriman package-status'
+usage: ahriman package-status [-h] [--ahriman]
+                              [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+                              [package ...]
+
+request status of the package
+
+.TP
+\fBpackage\fR
+filter status by package base
+
+.TP
+\fB\-\-ahriman\fR
+get service status itself
+
+.TP
+\fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
+filter packages by status
+
+.SH OPTIONS 'ahriman status'
+usage: ahriman package-status [-h] [--ahriman]
+                              [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+                              [package ...]
+
+request status of the package
+
+.TP
+\fBpackage\fR
+filter status by package base
+
+.TP
+\fB\-\-ahriman\fR
+get service status itself
+
+.TP
+\fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
+filter packages by status
+
+.SH OPTIONS 'ahriman package-status-remove'
+usage: ahriman package-status-remove [-h] package [package ...]
+
+remove the package from the status page
+
+.TP
+\fBpackage\fR
+remove specified packages
+
+
+.SH OPTIONS 'ahriman package-status-update'
+usage: ahriman package-status-update [-h]
+                                     [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+                                     [package ...]
+
+update package status on the status page
+
+.TP
+\fBpackage\fR
+set status for specified packages. If no packages supplied, service status will be updated
+
+.TP
+\fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
+new status
+
+.SH OPTIONS 'ahriman status-update'
+usage: ahriman package-status-update [-h]
+                                     [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+                                     [package ...]
+
+update package status on the status page
+
+.TP
+\fBpackage\fR
+set status for specified packages. If no packages supplied, service status will be updated
+
+.TP
+\fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
+new status
+
+.SH OPTIONS 'ahriman patch-add'
+usage: ahriman patch-add [-h] [-t TRACK] package
+
+create/update for sources
+
+.TP
+\fBpackage\fR
+path to directory with changed files for patch addition/update
+
+.TP
+\fB\-t\fR \fI\,TRACK\/\fR, \fB\-\-track\fR \fI\,TRACK\/\fR
+files which has to be tracked
+
+.SH OPTIONS 'ahriman patch-list'
+usage: ahriman patch-list [-h] package
+
+list available patches for the package
+
+.TP
+\fBpackage\fR
+package base
+
+
+.SH OPTIONS 'ahriman patch-remove'
+usage: ahriman patch-remove [-h] package
+
+remove patches for the package
+
+.TP
+\fBpackage\fR
+package base
+
+
+.SH OPTIONS 'ahriman repo-check'
+usage: ahriman repo-check [-h] [--no-vcs] [package ...]
 
 check for updates. Same as update \-\-dry\-run \-\-no\-manual
 
@@ -133,8 +339,21 @@ filter check by package base
 \fB\-\-no\-vcs\fR
 do not check VCS packages
 
-.SH OPTIONS 'ahriman clean'
-usage: ahriman clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
+.SH OPTIONS 'ahriman check'
+usage: ahriman repo-check [-h] [--no-vcs] [package ...]
+
+check for updates. Same as update \-\-dry\-run \-\-no\-manual
+
+.TP
+\fBpackage\fR
+filter check by package base
+
+.TP
+\fB\-\-no\-vcs\fR
+do not check VCS packages
+
+.SH OPTIONS 'ahriman repo-clean'
+usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
 
 clear local caches
 
@@ -159,35 +378,62 @@ do not clear directory with manually added packages
 \fB\-\-no\-packages\fR
 do not clear directory with built packages
 
-.SH OPTIONS 'ahriman config'
-usage: ahriman config [-h]
+.SH OPTIONS 'ahriman clean'
+usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
+
+clear local caches
+
+
+.TP
+\fB\-\-no\-build\fR
+do not clear directory with package sources
+
+.TP
+\fB\-\-no\-cache\fR
+do not clear directory with package caches
+
+.TP
+\fB\-\-no\-chroot\fR
+do not clear build chroot
+
+.TP
+\fB\-\-no\-manual\fR
+do not clear directory with manually added packages
+
+.TP
+\fB\-\-no\-packages\fR
+do not clear directory with built packages
+
+.SH OPTIONS 'ahriman repo-config'
+usage: ahriman repo-config [-h]
 
 dump configuration for specified architecture
 
 
 
-.SH OPTIONS 'ahriman init'
-usage: ahriman init [-h]
+.SH OPTIONS 'ahriman config'
+usage: ahriman repo-config [-h]
+
+dump configuration for specified architecture
+
+
+
+.SH OPTIONS 'ahriman repo-init'
+usage: ahriman repo-init [-h]
 
 create empty repository tree. Optional command for auto architecture support
 
 
 
-.SH OPTIONS 'ahriman key-import'
-usage: ahriman key-import [-h] [--key-server KEY_SERVER] key
+.SH OPTIONS 'ahriman init'
+usage: ahriman repo-init [-h]
 
-import PGP key from public sources to repository user
+create empty repository tree. Optional command for auto architecture support
 
-.TP
-\fBkey\fR
-PGP key to import from public server
 
-.TP
-\fB\-\-key\-server\fR \fI\,KEY_SERVER\/\fR
-key server for key import
 
-.SH OPTIONS 'ahriman rebuild'
-usage: ahriman rebuild [-h] [--depends-on DEPENDS_ON]
+.SH OPTIONS 'ahriman repo-rebuild'
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
 
 rebuild whole repository
 
@@ -196,18 +442,18 @@ rebuild whole repository
 \fB\-\-depends\-on\fR \fI\,DEPENDS_ON\/\fR
 only rebuild packages that depend on specified package
 
-.SH OPTIONS 'ahriman remove'
-usage: ahriman remove [-h] package [package ...]
+.SH OPTIONS 'ahriman rebuild'
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
 
-remove package
+rebuild whole repository
+
 
 .TP
-\fBpackage\fR
-package name or base
+\fB\-\-depends\-on\fR \fI\,DEPENDS_ON\/\fR
+only rebuild packages that depend on specified package
 
-
-.SH OPTIONS 'ahriman remove-unknown'
-usage: ahriman remove-unknown [-h] [--dry-run]
+.SH OPTIONS 'ahriman repo-remove-unknown'
+usage: ahriman repo-remove-unknown [-h] [--dry-run]
 
 remove packages which are missing in AUR
 
@@ -216,8 +462,18 @@ remove packages which are missing in AUR
 \fB\-\-dry\-run\fR
 just perform check for packages without removal
 
-.SH OPTIONS 'ahriman report'
-usage: ahriman report [-h] [target ...]
+.SH OPTIONS 'ahriman remove-unknown'
+usage: ahriman repo-remove-unknown [-h] [--dry-run]
+
+remove packages which are missing in AUR
+
+
+.TP
+\fB\-\-dry\-run\fR
+just perform check for packages without removal
+
+.SH OPTIONS 'ahriman repo-report'
+usage: ahriman repo-report [-h] [target ...]
 
 generate report
 
@@ -226,19 +482,20 @@ generate report
 target to generate report
 
 
-.SH OPTIONS 'ahriman search'
-usage: ahriman search [-h] search [search ...]
+.SH OPTIONS 'ahriman report'
+usage: ahriman repo-report [-h] [target ...]
 
-search for package in AUR using API
+generate report
 
 .TP
-\fBsearch\fR
-search terms, can be specified multiple times
+\fBtarget\fR
+target to generate report
 
 
-.SH OPTIONS 'ahriman setup'
-usage: ahriman setup [-h] [--build-command BUILD_COMMAND] [--from-configuration FROM_CONFIGURATION] [--no-multilib] --packager PACKAGER --repository REPOSITORY [--sign-key SIGN_KEY]
-                     [--sign-target {SignSettings.Packages,SignSettings.Repository}] [--web-port WEB_PORT]
+.SH OPTIONS 'ahriman repo-setup'
+usage: ahriman repo-setup [-h] [--build-command BUILD_COMMAND] [--from-configuration FROM_CONFIGURATION] [--no-multilib]
+                          --packager PACKAGER --repository REPOSITORY [--sign-key SIGN_KEY]
+                          [--sign-target {SignSettings.Packages,SignSettings.Repository}] [--web-port WEB_PORT]
 
 create initial service configuration, requires root
 
@@ -275,8 +532,48 @@ sign options
 \fB\-\-web\-port\fR \fI\,WEB_PORT\/\fR
 port of the web service
 
-.SH OPTIONS 'ahriman sign'
-usage: ahriman sign [-h] [package ...]
+.SH OPTIONS 'ahriman setup'
+usage: ahriman repo-setup [-h] [--build-command BUILD_COMMAND] [--from-configuration FROM_CONFIGURATION] [--no-multilib]
+                          --packager PACKAGER --repository REPOSITORY [--sign-key SIGN_KEY]
+                          [--sign-target {SignSettings.Packages,SignSettings.Repository}] [--web-port WEB_PORT]
+
+create initial service configuration, requires root
+
+
+.TP
+\fB\-\-build\-command\fR \fI\,BUILD_COMMAND\/\fR
+build command prefix
+
+.TP
+\fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
+path to default devtools pacman configuration
+
+.TP
+\fB\-\-no\-multilib\fR
+do not add multilib repository
+
+.TP
+\fB\-\-packager\fR \fI\,PACKAGER\/\fR
+packager name and email
+
+.TP
+\fB\-\-repository\fR \fI\,REPOSITORY\/\fR
+repository name
+
+.TP
+\fB\-\-sign\-key\fR \fI\,SIGN_KEY\/\fR
+sign key id
+
+.TP
+\fB\-\-sign\-target\fR {SignSettings.Packages,SignSettings.Repository}
+sign options
+
+.TP
+\fB\-\-web\-port\fR \fI\,WEB_PORT\/\fR
+port of the web service
+
+.SH OPTIONS 'ahriman repo-sign'
+usage: ahriman repo-sign [-h] [package ...]
 
 (re\-)sign packages and repository database
 
@@ -285,42 +582,18 @@ usage: ahriman sign [-h] [package ...]
 sign only specified packages
 
 
-.SH OPTIONS 'ahriman status'
-usage: ahriman status [-h] [--ahriman] [--status {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}] [package ...]
+.SH OPTIONS 'ahriman sign'
+usage: ahriman repo-sign [-h] [package ...]
 
-request status of the package
-
-.TP
-\fBpackage\fR
-filter status by package base
-
-.TP
-\fB\-\-ahriman\fR
-get service status itself
-
-.TP
-\fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
-filter packages by status
-
-.SH OPTIONS 'ahriman status-update'
-usage: ahriman status-update [-h] [--status {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}] [--remove] [package ...]
-
-request status of the package
+(re\-)sign packages and repository database
 
 .TP
 \fBpackage\fR
-set status for specified packages. If no packages supplied, service status will be updated
+sign only specified packages
 
-.TP
-\fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
-new status
 
-.TP
-\fB\-\-remove\fR
-remove package status page
-
-.SH OPTIONS 'ahriman sync'
-usage: ahriman sync [-h] [target ...]
+.SH OPTIONS 'ahriman repo-sync'
+usage: ahriman repo-sync [-h] [target ...]
 
 sync packages to remote server
 
@@ -329,8 +602,18 @@ sync packages to remote server
 target to sync
 
 
-.SH OPTIONS 'ahriman update'
-usage: ahriman update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
+.SH OPTIONS 'ahriman sync'
+usage: ahriman repo-sync [-h] [target ...]
+
+sync packages to remote server
+
+.TP
+\fBtarget\fR
+target to sync
+
+
+.SH OPTIONS 'ahriman repo-update'
+usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
 
 run updates
 
@@ -354,10 +637,37 @@ do not include manual updates
 \fB\-\-no\-vcs\fR
 do not check VCS packages
 
-.SH OPTIONS 'ahriman user'
-usage: ahriman user [-h] [--as-service] [-a {UserAccess.Safe,UserAccess.Read,UserAccess.Write}] [--no-reload] [-p PASSWORD] [-r] [--secure] username
+.SH OPTIONS 'ahriman update'
+usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
 
-manage users for web services with password and role. In case if password was not entered it will be asked interactively
+run updates
+
+.TP
+\fBpackage\fR
+filter check by package base
+
+.TP
+\fB\-\-dry\-run\fR
+just perform check for updates, same as check command
+
+.TP
+\fB\-\-no\-aur\fR
+do not check for AUR updates. Implies \-\-no\-vcs
+
+.TP
+\fB\-\-no\-manual\fR
+do not include manual updates
+
+.TP
+\fB\-\-no\-vcs\fR
+do not check VCS packages
+
+.SH OPTIONS 'ahriman user-add'
+usage: ahriman user-add [-h] [--as-service] [--no-reload] [-p PASSWORD]
+                        [-r {UserAccess.Safe,UserAccess.Read,UserAccess.Write}] [-s]
+                        username
+
+update user for web services with the given password and role. In case if password was not entered it will be asked interactively
 
 .TP
 \fBusername\fR
@@ -368,23 +678,37 @@ username for web service
 add user as service user
 
 .TP
-\fB\-a\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}, \fB\-\-access\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}
+\fB\-\-no\-reload\fR
+do not reload authentication module
+
+.TP
+\fB\-p\fR \fI\,PASSWORD\/\fR, \fB\-\-password\fR \fI\,PASSWORD\/\fR
+user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2
+authorization type.
+
+.TP
+\fB\-r\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}, \fB\-\-role\fR {UserAccess.Safe,UserAccess.Read,UserAccess.Write}
 user access level
+
+.TP
+\fB\-s\fR, \fB\-\-secure\fR
+set file permissions to user\-only
+
+.SH OPTIONS 'ahriman user-remove'
+usage: ahriman user-remove [-h] [--no-reload] [-s] username
+
+remove user from the user mapping and write the configuration
+
+.TP
+\fBusername\fR
+username for web service
 
 .TP
 \fB\-\-no\-reload\fR
 do not reload authentication module
 
 .TP
-\fB\-p\fR \fI\,PASSWORD\/\fR, \fB\-\-password\fR \fI\,PASSWORD\/\fR
-user password
-
-.TP
-\fB\-r\fR, \fB\-\-remove\fR
-remove user from configuration
-
-.TP
-\fB\-\-secure\fR
+\fB\-s\fR, \fB\-\-secure\fR
 set file permissions to user\-only
 
 .SH OPTIONS 'ahriman web'
