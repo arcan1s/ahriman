@@ -1,4 +1,4 @@
-name: tests
+name: setup
 
 on:
   push:
@@ -7,15 +7,15 @@ on:
     branches: [ master ]
 
 jobs:
-  run-tests:
+  run-setup:
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - name: run check and tests in arch linux container
+      - name: setup the service in arch linux container
         run: |
           docker run \
           -v  ${{ github.workspace }}:/build -w /build \
           archlinux:latest \
-          .github/workflows/tests.sh
+          .github/workflows/setup.sh
