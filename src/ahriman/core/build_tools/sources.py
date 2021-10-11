@@ -33,72 +33,97 @@ class Sources:
 
     logger = logging.getLogger("build_details")
 
+    _branch = "master"  # in case if BLM would like to change it
     _check_output = check_output
 
     @staticmethod
-    def add(local_path: Path, *pattern: str) -> None:
+    def add(sources_dir: Path, *pattern: str) -> None:
         """
         track found files via git
-        :param local_path: local path to git repository
+        :param sources_dir: local path to git repository
         :param pattern: glob patterns
         """
         # glob directory to find files which match the specified patterns
         found_files: List[Path] = []
         for glob in pattern:
-            found_files.extend(local_path.glob(glob))
+            found_files.extend(sources_dir.glob(glob))
         Sources.logger.info("found matching files %s", found_files)
         # add them to index
-        Sources._check_output("git", "add", "--intent-to-add", *[str(fn.relative_to(local_path)) for fn in found_files],
-                              exception=None, cwd=local_path, logger=Sources.logger)
+        Sources._check_output("git", "add", "--intent-to-add",
+                              *[str(fn.relative_to(sources_dir)) for fn in found_files],
+                              exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def diff(local_path: Path, patch_path: Path) -> None:
+    def branches(sources_dir: Path) -> List[str]:
+        """
+        list current branches. Currently this method is used to define if there is initialized git repository
+        :param sources_dir: local path to git repository
+        :return: sorted list of available branches
+        """
+        branches = Sources._check_output("git", "branch", exception=None, cwd=sources_dir, logger=Sources.logger)
+        return sorted(branches.splitlines())
+
+    @staticmethod
+    def diff(sources_dir: Path, patch_path: Path) -> None:
         """
         generate diff from the current version and write it to the output file
-        :param local_path: local path to git repository
+        :param sources_dir: local path to git repository
         :param patch_path: path to result patch
         """
-        patch = Sources._check_output("git", "diff", exception=None, cwd=local_path, logger=Sources.logger)
+        patch = Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
         patch_path.write_text(patch)
 
     @staticmethod
-    def fetch(local_path: Path, remote: str, branch: str = "master") -> None:
+    def fetch(sources_dir: Path, remote: str) -> None:
         """
         either clone repository or update it to origin/`branch`
-        :param local_path: local path to fetch
+        :param sources_dir: local path to fetch
         :param remote: remote target (from where to fetch)
-        :param branch: branch name to checkout, master by default
         """
         # local directory exists and there is .git directory
-        if (local_path / ".git").is_dir():
-            Sources.logger.info("update HEAD to remote to %s", local_path)
-            Sources._check_output("git", "fetch", "origin", branch,
-                                  exception=None, cwd=local_path, logger=Sources.logger)
+        is_initialized_git = (sources_dir / ".git").is_dir()
+        if is_initialized_git and not Sources.branches(sources_dir):
+            # there is git repository, but no remote configured so far
+            return
+
+        if is_initialized_git:
+            Sources.logger.info("update HEAD to remote to %s", sources_dir)
+            Sources._check_output("git", "fetch", "origin", Sources._branch,
+                                  exception=None, cwd=sources_dir, logger=Sources.logger)
         else:
-            Sources.logger.info("clone remote %s to %s", remote, local_path)
-            Sources._check_output("git", "clone", remote, str(local_path), exception=None, logger=Sources.logger)
+            Sources.logger.info("clone remote %s to %s", remote, sources_dir)
+            Sources._check_output("git", "clone", remote, str(sources_dir), exception=None, logger=Sources.logger)
         # and now force reset to our branch
-        Sources._check_output("git", "checkout", "--force", branch,
-                              exception=None, cwd=local_path, logger=Sources.logger)
-        Sources._check_output("git", "reset", "--hard", f"origin/{branch}",
-                              exception=None, cwd=local_path, logger=Sources.logger)
+        Sources._check_output("git", "checkout", "--force", Sources._branch,
+                              exception=None, cwd=sources_dir, logger=Sources.logger)
+        Sources._check_output("git", "reset", "--hard", f"origin/{Sources._branch}",
+                              exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def load(local_path: Path, remote: str, patch_dir: Path) -> None:
+    def init(sources_dir: Path) -> None:
+        """
+        create empty git repository at the specified path
+        :param sources_dir: local path to sources
+        """
+        Sources._check_output("git", "init", "--initial-branch", Sources._branch,
+                              exception=None, cwd=sources_dir, logger=Sources.logger)
+
+    @staticmethod
+    def load(sources_dir: Path, remote: str, patch_dir: Path) -> None:
         """
         fetch sources from remote and apply patches
-        :param local_path: local path to fetch
+        :param sources_dir: local path to fetch
         :param remote: remote target (from where to fetch)
         :param patch_dir: path to directory with package patches
         """
-        Sources.fetch(local_path, remote)
-        Sources.patch_apply(local_path, patch_dir)
+        Sources.fetch(sources_dir, remote)
+        Sources.patch_apply(sources_dir, patch_dir)
 
     @staticmethod
-    def patch_apply(local_path: Path, patch_dir: Path) -> None:
+    def patch_apply(sources_dir: Path, patch_dir: Path) -> None:
         """
         apply patches if any
-        :param local_path: local path to directory with git sources
+        :param sources_dir: local path to directory with git sources
         :param patch_dir: path to directory with package patches
         """
         # check if even there are patches
@@ -110,15 +135,15 @@ class Sources:
         for patch in patches:
             Sources.logger.info("apply patch %s", patch.name)
             Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace", str(patch),
-                                  exception=None, cwd=local_path, logger=Sources.logger)
+                                  exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def patch_create(local_path: Path, patch_path: Path, *pattern: str) -> None:
+    def patch_create(sources_dir: Path, patch_path: Path, *pattern: str) -> None:
         """
         create patch set for the specified local path
-        :param local_path: local path to git repository
+        :param sources_dir: local path to git repository
         :param patch_path: path to result patch
         :param pattern: glob patterns
         """
-        Sources.add(local_path, *pattern)
-        Sources.diff(local_path, patch_path)
+        Sources.add(sources_dir, *pattern)
+        Sources.diff(sources_dir, patch_path)

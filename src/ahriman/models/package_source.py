@@ -30,14 +30,16 @@ class PackageSource(Enum):
     package source for addition enumeration
     :cvar Auto: automatically determine type of the source
     :cvar Archive: source is a package archive
-    :cvar Directory: source is a directory which contains packages
     :cvar AUR: source is an AUR package for which it should search
+    :cvar Directory: source is a directory which contains packages
+    :cvar Local: source is locally stored PKGBUILD
     """
 
     Auto = "auto"
     Archive = "archive"
-    Directory = "directory"
     AUR = "aur"
+    Directory = "directory"
+    Local = "local"
 
     def resolve(self, source: str) -> PackageSource:
         """
@@ -47,7 +49,10 @@ class PackageSource(Enum):
         """
         if self != PackageSource.Auto:
             return self
+
         maybe_path = Path(source)
+        if (maybe_path / "PKGBUILD").is_file():
+            return PackageSource.Local
         if maybe_path.is_dir():
             return PackageSource.Directory
         if maybe_path.is_file() and package_like(maybe_path):
