@@ -22,26 +22,6 @@ def test_add(mocker: MockerFixture) -> None:
         exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
-def test_branches(mocker: MockerFixture) -> None:
-    """
-    must ask for available branches
-    """
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="b\na")
-
-    local = Path("local")
-    branches = Sources.branches(local)
-    check_output_mock.assert_called_with("git", "branch", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
-    assert branches == ["a", "b"]
-
-
-def test_branches_empty(mocker: MockerFixture) -> None:
-    """
-    must ask for available branches and do not fail if no branches found
-    """
-    mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="")
-    assert Sources.branches(Path("local")) == []
-
-
 def test_diff(mocker: MockerFixture) -> None:
     """
     must calculate diff
@@ -60,7 +40,7 @@ def test_fetch_empty(mocker: MockerFixture) -> None:
     must do nothing in case if no branches available
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.branches", return_value=[])
+    mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     Sources.fetch(Path("local"), "remote")
@@ -72,7 +52,7 @@ def test_fetch_existing(mocker: MockerFixture) -> None:
     must fetch new package via fetch command
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.branches", return_value=["master"])
+    mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=True)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     local = Path("local")
@@ -103,6 +83,25 @@ def test_fetch_new(mocker: MockerFixture) -> None:
         mock.call("git", "reset", "--hard", f"origin/{Sources._branch}",
                   exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
+
+
+def test_has_remotes(mocker: MockerFixture) -> None:
+    """
+    must ask for remotes
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="origin")
+
+    local = Path("local")
+    assert Sources.has_remotes(local)
+    check_output_mock.assert_called_with("git", "remote", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
+def test_has_remotes_empty(mocker: MockerFixture) -> None:
+    """
+    must ask for remotes and return false in case if no remotes found
+    """
+    mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="")
+    assert not Sources.has_remotes(Path("local"))
 
 
 def test_init(mocker: MockerFixture) -> None:

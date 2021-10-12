@@ -117,9 +117,10 @@ class Application:
 
         def add_local(path: Path) -> Path:
             package = Package.load(path, self.repository.pacman, aur_url)
-            Sources.init(path)
-            shutil.copytree(path, self.repository.paths.manual_for(package.base))  # copy package for the build
-            shutil.copytree(path, self.repository.paths.cache_for(package.base))  # copy package to store in caches
+            cache_dir = self.repository.paths.cache_for(package.base)
+            shutil.copytree(path, cache_dir)  # copy package to store in caches
+            Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
+            shutil.copytree(cache_dir, self.repository.paths.manual_for(package.base))  # copy package for the build
             return self.repository.paths.manual_for(package.base)
 
         def add_remote(src: str) -> Path:
@@ -233,7 +234,7 @@ class Application:
 
         def has_local(package_base: str) -> bool:
             cache_dir = self.repository.paths.cache_for(package_base)
-            return cache_dir.is_dir() and not Sources.branches(cache_dir)
+            return cache_dir.is_dir() and not Sources.has_remotes(cache_dir)
 
         return [
             package

@@ -54,16 +54,6 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def branches(sources_dir: Path) -> List[str]:
-        """
-        list current branches. Currently this method is used to define if there is initialized git repository
-        :param sources_dir: local path to git repository
-        :return: sorted list of available branches
-        """
-        branches = Sources._check_output("git", "branch", exception=None, cwd=sources_dir, logger=Sources.logger)
-        return sorted(branches.splitlines())
-
-    @staticmethod
     def diff(sources_dir: Path, patch_path: Path) -> None:
         """
         generate diff from the current version and write it to the output file
@@ -82,7 +72,7 @@ class Sources:
         """
         # local directory exists and there is .git directory
         is_initialized_git = (sources_dir / ".git").is_dir()
-        if is_initialized_git and not Sources.branches(sources_dir):
+        if is_initialized_git and not Sources.has_remotes(sources_dir):
             # there is git repository, but no remote configured so far
             Sources.logger.info("skip update at %s because there are no branches configured", sources_dir)
             return
@@ -99,6 +89,16 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
         Sources._check_output("git", "reset", "--hard", f"origin/{Sources._branch}",
                               exception=None, cwd=sources_dir, logger=Sources.logger)
+
+    @staticmethod
+    def has_remotes(sources_dir: Path) -> bool:
+        """
+        check if there are remotes for the repository
+        :param sources_dir: local path to git repository
+        :return: True in case if there is any remote and false otherwise
+        """
+        remotes = Sources._check_output("git", "remote", exception=None, cwd=sources_dir, logger=Sources.logger)
+        return bool(remotes)
 
     @staticmethod
     def init(sources_dir: Path) -> None:
