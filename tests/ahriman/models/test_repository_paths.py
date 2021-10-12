@@ -50,6 +50,23 @@ def test_sources_for(repository_paths: RepositoryPaths, package_ahriman: Package
     assert path.parent == repository_paths.sources
 
 
+def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove any package related files
+    """
+    paths = {
+        getattr(repository_paths, prop)(package_ahriman.base)
+        for prop in dir(repository_paths) if prop.endswith("_for")
+    }
+    rmtree_mock = mocker.patch("shutil.rmtree")
+
+    repository_paths.tree_clear(package_ahriman.base)
+    rmtree_mock.assert_has_calls(
+        [
+            mock.call(path, ignore_errors=True) for path in paths
+        ], any_order=True)
+
+
 def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must create whole tree
@@ -68,4 +85,4 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         [
             mock.call(mode=0o755, parents=True, exist_ok=True)
             for _ in paths
-        ])
+        ], any_order=True)

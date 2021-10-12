@@ -141,7 +141,8 @@ class RepositoryPaths:
         for directory in (
                 self.cache_for(package_base),
                 self.manual_for(package_base),
-                self.patches_for(package_base)):
+                self.patches_for(package_base),
+                self.sources_for(package_base)):
             shutil.rmtree(directory, ignore_errors=True)
 
     def tree_create(self) -> None:

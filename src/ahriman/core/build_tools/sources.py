@@ -84,10 +84,11 @@ class Sources:
         is_initialized_git = (sources_dir / ".git").is_dir()
         if is_initialized_git and not Sources.branches(sources_dir):
             # there is git repository, but no remote configured so far
+            Sources.logger.info("skip update at %s because there are no branches configured", sources_dir)
             return
 
         if is_initialized_git:
-            Sources.logger.info("update HEAD to remote to %s", sources_dir)
+            Sources.logger.info("update HEAD to remote at %s", sources_dir)
             Sources._check_output("git", "fetch", "origin", Sources._branch,
                                   exception=None, cwd=sources_dir, logger=Sources.logger)
         else:
