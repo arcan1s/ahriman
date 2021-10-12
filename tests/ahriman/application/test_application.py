@@ -314,23 +314,37 @@ def test_sync(application: Application, mocker: MockerFixture) -> None:
     executor_mock.assert_called_once()
 
 
-def test_unknown(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_aur(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must return list of packages missing in aur
+    must return empty list in case if there is locally stored PKGBUILD
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.branches", return_value=[])
+
+    assert not application.unknown()
+
+
+def test_unknown_no_aur_no_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return list of packages missing in aur and in local storage
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     packages = application.unknown()
     assert packages == [package_ahriman]
 
 
-def test_unknown_empty(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must return list of packages missing in aur
+    must return empty list in case if there is package in AUR
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur")
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     assert not application.unknown()
 

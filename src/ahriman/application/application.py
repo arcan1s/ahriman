@@ -224,13 +224,22 @@ class Application:
         get packages which were not found in AUR
         :return: unknown package list
         """
-        packages = []
-        for base in self.repository.packages():
+        def has_aur(package_base: str, aur_url: str) -> bool:
             try:
-                _ = Package.from_aur(base.base, base.aur_url)
+                _ = Package.from_aur(package_base, aur_url)
             except Exception:
-                packages.append(base)
-        return packages
+                return False
+            return True
+
+        def has_local(package_base: str) -> bool:
+            cache_dir = self.repository.paths.cache_for(package_base)
+            return cache_dir.is_dir() and not Sources.branches(cache_dir)
+
+        return [
+            package
+            for package in self.repository.packages()
+            if not has_aur(package.base, package.aur_url) and not has_local(package.base)
+        ]
 
     def update(self, updates: Iterable[Package]) -> None:
         """

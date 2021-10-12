@@ -137,9 +137,16 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("package-add", aliases=["add"], help="add package", description="add package",
                              epilog="This subcommand should be used for new package addition. It also supports flag "
-                                    "--now in case if you would like to build the package immediately.",
+                                    "--now in case if you would like to build the package immediately. "
+                                    "You can add new package from one of supported sources: "
+                                    "1) if it is already built package you can specify the path to the archive; "
+                                    "2) you can also add built packages from the directory (e.g. during the migration "
+                                    "from another repository source); "
+                                    "3) it is also possible to add package from local PKGBUILD, but in this case it "
+                                    "will be ignored during the next automatic updates; "
+                                    "4) and finally you can add package from AUR.",
                              formatter_class=_formatter)
-    parser.add_argument("package", help="package base/name or archive path", nargs="+")
+    parser.add_argument("package", help="package base/name or path to local files", nargs="+")
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
     parser.add_argument("-s", "--source", help="package source",
                         type=PackageSource, choices=PackageSource, default=PackageSource.Auto)
