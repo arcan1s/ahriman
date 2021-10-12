@@ -1,5 +1,6 @@
 import pytest
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
@@ -104,6 +105,43 @@ def test_get_updates_with_filter(application: Application, mocker: MockerFixture
     updates_manual_mock.assert_called_once()
 
 
+def test_add_archive(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must add package from archive
+    """
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    move_mock = mocker.patch("shutil.move")
+
+    application.add([package_ahriman.base], PackageSource.Archive, False)
+    move_mock.assert_called_once()
+
+
+def test_add_remote(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must add package from AUR
+    """
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
+
+    application.add([package_ahriman.base], PackageSource.AUR, True)
+    load_mock.assert_called_once()
+
+
+def test_add_remote_with_dependencies(application: Application, package_ahriman: Package,
+                                      mocker: MockerFixture) -> None:
+    """
+    must add package from AUR with dependencies
+    """
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
+    dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies")
+
+    application.add([package_ahriman.base], PackageSource.AUR, False)
+    dependencies_mock.assert_called_once()
+
+
 def test_add_directory(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must add packages from directory
@@ -118,41 +156,36 @@ def test_add_directory(application: Application, package_ahriman: Package, mocke
     move_mock.assert_called_once()
 
 
-def test_add_manual(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_add_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must add package from AUR
-    """
-    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
-
-    application.add([package_ahriman.base], PackageSource.AUR, True)
-    load_mock.assert_called_once()
-
-
-def test_add_manual_with_dependencies(application: Application, package_ahriman: Package,
-                                      mocker: MockerFixture) -> None:
-    """
-    must add package from AUR with dependencies
+    must add package from local sources
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
+    init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
+    copytree_mock = mocker.patch("shutil.copytree")
+
+    application.add([package_ahriman.base], PackageSource.Local, True)
+    init_mock.assert_called_once()
+    copytree_mock.assert_has_calls([
+        mock.call(Path(package_ahriman.base), application.repository.paths.cache_for(package_ahriman.base)),
+        mock.call(application.repository.paths.cache_for(package_ahriman.base),
+                  application.repository.paths.manual_for(package_ahriman.base)),
+    ])
+
+
+def test_add_local_with_dependencies(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must add package from local sources with dependencies
+    """
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.init")
+    mocker.patch("shutil.copytree")
     dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies")
 
-    application.add([package_ahriman.base], PackageSource.AUR, False)
+    application.add([package_ahriman.base], PackageSource.Local, False)
     dependencies_mock.assert_called_once()
-
-
-def test_add_package(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must add package from archive
-    """
-    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
-    move_mock = mocker.patch("shutil.move")
-
-    application.add([package_ahriman.base], PackageSource.Archive, False)
-    move_mock.assert_called_once()
 
 
 def test_clean_build(application: Application, mocker: MockerFixture) -> None:
@@ -282,23 +315,37 @@ def test_sync(application: Application, mocker: MockerFixture) -> None:
     executor_mock.assert_called_once()
 
 
-def test_unknown(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_aur(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must return list of packages missing in aur
+    must return empty list in case if there is locally stored PKGBUILD
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
+
+    assert not application.unknown()
+
+
+def test_unknown_no_aur_no_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return list of packages missing in aur and in local storage
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     packages = application.unknown()
     assert packages == [package_ahriman]
 
 
-def test_unknown_empty(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must return list of packages missing in aur
+    must return empty list in case if there is package in AUR
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur")
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     assert not application.unknown()
 

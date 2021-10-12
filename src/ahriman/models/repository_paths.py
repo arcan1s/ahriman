@@ -19,6 +19,8 @@
 #
 from __future__ import annotations
 
+import shutil
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Set, Type
@@ -101,23 +103,11 @@ class RepositoryPaths:
 
     def cache_for(self, package_base: str) -> Path:
         """
-        get cache path for specific package base
+        get path to cached PKGBUILD and package sources for the package base
         :param package_base: package base name
         :return: full path to directory for specified package base cache
         """
         return self.cache / package_base
-
-    def create_tree(self) -> None:
-        """
-        create ahriman working tree
-        """
-        self.cache.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.chroot.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.manual.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.packages.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.patches.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.repository.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.sources.mkdir(mode=0o755, parents=True, exist_ok=True)
 
     def manual_for(self, package_base: str) -> Path:
         """
@@ -137,8 +127,34 @@ class RepositoryPaths:
 
     def sources_for(self, package_base: str) -> Path:
         """
-        get sources path for specific package base
+        get path to directory from where build will start for the package base
         :param package_base: package base name
         :return: full path to directory for specified package base sources
         """
         return self.sources / package_base
+
+    def tree_clear(self, package_base: str) -> None:
+        """
+        clear package specific files
+        :param package_base: package base name
+        """
+        for directory in (
+                self.cache_for(package_base),
+                self.manual_for(package_base),
+                self.patches_for(package_base),
+                self.sources_for(package_base)):
+            shutil.rmtree(directory, ignore_errors=True)
+
+    def tree_create(self) -> None:
+        """
+        create ahriman working tree
+        """
+        for directory in (
+                self.cache,
+                self.chroot,
+                self.manual,
+                self.packages,
+                self.patches,
+                self.repository,
+                self.sources):
+            directory.mkdir(mode=0o755, parents=True, exist_ok=True)

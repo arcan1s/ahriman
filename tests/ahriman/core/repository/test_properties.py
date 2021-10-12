@@ -9,17 +9,17 @@ def test_create_tree_on_load(configuration: Configuration, mocker: MockerFixture
     """
     must create tree on load
     """
-    create_tree_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.create_tree")
+    tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     Properties("x86_64", configuration, True)
 
-    create_tree_mock.assert_called_once()
+    tree_create_mock.assert_called_once()
 
 
 def test_create_dummy_report_client(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must create dummy report client if report is disabled
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.create_tree")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
     properties = Properties("x86_64", configuration, True)
 
@@ -31,7 +31,7 @@ def test_create_full_report_client(configuration: Configuration, mocker: MockerF
     """
     must create load report client if report is enabled
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.create_tree")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
     Properties("x86_64", configuration, False)
 

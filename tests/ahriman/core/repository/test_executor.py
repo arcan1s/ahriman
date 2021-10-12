@@ -60,13 +60,15 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     must run remove process for whole base
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
+    tree_clear_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
     executor.process_remove([package_ahriman.base])
     # must remove via alpm wrapper
     repo_remove_mock.assert_called_once()
-    # must update status
+    # must update status and remove package files
+    tree_clear_mock.assert_called_with(package_ahriman.base)
     status_client_mock.assert_called_once()
 
 
@@ -106,6 +108,15 @@ def test_process_remove_base_single(executor: Executor, package_python_schedule:
 
 
 def test_process_remove_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress tree clear errors during package base removal
+    """
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear", side_effect=Exception())
+    executor.process_remove([package_ahriman.base])
+
+
+def test_process_remove_tree_clear_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must suppress remove errors
     """
