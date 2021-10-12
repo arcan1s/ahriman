@@ -105,20 +105,29 @@ class Application:
         :param without_dependencies: if set, dependency check will be disabled
         """
         known_packages = self._known_packages()
+        aur_url = self.configuration.get("alpm", "aur_url")
+
+        def add_archive(src: Path) -> None:
+            dst = self.repository.paths.packages / src.name
+            shutil.move(src, dst)
 
         def add_directory(path: Path) -> None:
             for full_path in filter(package_like, path.iterdir()):
                 add_archive(full_path)
 
-        def add_manual(src: str) -> Path:
-            package = Package.load(src, self.repository.pacman, self.configuration.get("alpm", "aur_url"))
+        def add_local(path: Path) -> Path:
+            package = Package.load(path, self.repository.pacman, aur_url)
+            cache_dir = self.repository.paths.cache_for(package.base)
+            shutil.copytree(path, cache_dir)  # copy package to store in caches
+            Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
+            shutil.copytree(cache_dir, self.repository.paths.manual_for(package.base))  # copy package for the build
+            return self.repository.paths.manual_for(package.base)
+
+        def add_remote(src: str) -> Path:
+            package = Package.load(src, self.repository.pacman, aur_url)
             Sources.load(self.repository.paths.manual_for(package.base), package.git_url,
                          self.repository.paths.patches_for(package.base))
             return self.repository.paths.manual_for(package.base)
-
-        def add_archive(src: Path) -> None:
-            dst = self.repository.paths.packages / src.name
-            shutil.move(src, dst)
 
         def process_dependencies(path: Path) -> None:
             if without_dependencies:
@@ -128,12 +137,15 @@ class Application:
 
         def process_single(src: str) -> None:
             resolved_source = source.resolve(src)
-            if resolved_source == PackageSource.Directory:
-                add_directory(Path(src))
-            elif resolved_source == PackageSource.Archive:
+            if resolved_source == PackageSource.Archive:
                 add_archive(Path(src))
-            else:
-                path = add_manual(src)
+            elif resolved_source == PackageSource.AUR:
+                path = add_remote(src)
+                process_dependencies(path)
+            elif resolved_source == PackageSource.Directory:
+                add_directory(Path(src))
+            elif resolved_source == PackageSource.Local:
+                path = add_local(Path(src))
                 process_dependencies(path)
 
         for name in names:
@@ -213,13 +225,22 @@ class Application:
         get packages which were not found in AUR
         :return: unknown package list
         """
-        packages = []
-        for base in self.repository.packages():
+        def has_aur(package_base: str, aur_url: str) -> bool:
             try:
-                _ = Package.from_aur(base.base, base.aur_url)
+                _ = Package.from_aur(package_base, aur_url)
             except Exception:
-                packages.append(base)
-        return packages
+                return False
+            return True
+
+        def has_local(package_base: str) -> bool:
+            cache_dir = self.repository.paths.cache_for(package_base)
+            return cache_dir.is_dir() and not Sources.has_remotes(cache_dir)
+
+        return [
+            package
+            for package in self.repository.packages()
+            if not has_aur(package.base, package.aur_url) and not has_local(package.base)
+        ]
 
     def update(self, updates: Iterable[Package]) -> None:
         """

@@ -35,19 +35,34 @@ def test_diff(mocker: MockerFixture) -> None:
     check_output_mock.assert_called_with("git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
-def test_fetch_existing(mocker: MockerFixture) -> None:
+def test_fetch_empty(mocker: MockerFixture) -> None:
     """
-    must fetch new package via clone command
+    must do nothing in case if no branches available
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    Sources.fetch(Path("local"), "remote")
+    check_output_mock.assert_not_called()
+
+
+def test_fetch_existing(mocker: MockerFixture) -> None:
+    """
+    must fetch new package via fetch command
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=True)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     local = Path("local")
-    Sources.fetch(local, "remote", "master")
+    Sources.fetch(local, "remote")
     check_output_mock.assert_has_calls([
-        mock.call("git", "fetch", "origin", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "reset", "--hard", "origin/master",
+        mock.call("git", "fetch", "origin", Sources._branch,
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "checkout", "--force", Sources._branch,
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "reset", "--hard", f"origin/{Sources._branch}",
                   exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
 
@@ -60,13 +75,45 @@ def test_fetch_new(mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     local = Path("local")
-    Sources.fetch(local, "remote", "master")
+    Sources.fetch(local, "remote")
     check_output_mock.assert_has_calls([
         mock.call("git", "clone", "remote", str(local), exception=None, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", "master", exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "reset", "--hard", "origin/master",
+        mock.call("git", "checkout", "--force", Sources._branch,
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "reset", "--hard", f"origin/{Sources._branch}",
                   exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
+
+
+def test_has_remotes(mocker: MockerFixture) -> None:
+    """
+    must ask for remotes
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="origin")
+
+    local = Path("local")
+    assert Sources.has_remotes(local)
+    check_output_mock.assert_called_with("git", "remote", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
+def test_has_remotes_empty(mocker: MockerFixture) -> None:
+    """
+    must ask for remotes and return false in case if no remotes found
+    """
+    mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="")
+    assert not Sources.has_remotes(Path("local"))
+
+
+def test_init(mocker: MockerFixture) -> None:
+    """
+    must create empty repository at the specified path
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    Sources.init(local)
+    check_output_mock.assert_called_with("git", "init", "--initial-branch", Sources._branch,
+                                         exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_load(mocker: MockerFixture) -> None:

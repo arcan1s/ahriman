@@ -23,27 +23,6 @@ def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) 
     assert path.parent == repository_paths.cache
 
 
-def test_create_tree(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
-    """
-    must create whole tree
-    """
-    paths = {
-        prop
-        for prop in dir(repository_paths)
-        if not prop.startswith("_")
-        and not prop.endswith("_for")
-        and prop not in ("architecture", "create_tree", "known_architectures", "root")
-    }
-    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
-
-    repository_paths.create_tree()
-    mkdir_mock.assert_has_calls(
-        [
-            mock.call(mode=0o755, parents=True, exist_ok=True)
-            for _ in paths
-        ])
-
-
 def test_manual_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
     """
     must return correct path for manual directory
@@ -69,3 +48,41 @@ def test_sources_for(repository_paths: RepositoryPaths, package_ahriman: Package
     path = repository_paths.sources_for(package_ahriman.base)
     assert path.name == package_ahriman.base
     assert path.parent == repository_paths.sources
+
+
+def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove any package related files
+    """
+    paths = {
+        getattr(repository_paths, prop)(package_ahriman.base)
+        for prop in dir(repository_paths) if prop.endswith("_for")
+    }
+    rmtree_mock = mocker.patch("shutil.rmtree")
+
+    repository_paths.tree_clear(package_ahriman.base)
+    rmtree_mock.assert_has_calls(
+        [
+            mock.call(path, ignore_errors=True) for path in paths
+        ], any_order=True)
+
+
+def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must create whole tree
+    """
+    paths = {
+        prop
+        for prop in dir(repository_paths)
+        if not prop.startswith("_")
+        and not prop.endswith("_for")
+        and prop not in ("architecture", "known_architectures", "root", "tree_clear", "tree_create")
+    }
+    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
+
+    repository_paths.tree_create()
+    mkdir_mock.assert_has_calls(
+        [
+            mock.call(mode=0o755, parents=True, exist_ok=True)
+            for _ in paths
+        ], any_order=True)

@@ -72,9 +72,16 @@ class Executor(Cleaner):
         :param packages: list of package names or bases to remove
         :return: path to repository database
         """
-        def remove_single(package: str, fn: Path) -> None:
+        def remove_base(package_base: str) -> None:
             try:
-                self.repo.remove(package, fn)
+                self.paths.tree_clear(package_base)  # remove all internal files
+                self.reporter.remove(package_base)  # we only update status page in case of base removal
+            except Exception:
+                self.logger.exception("could not remove base %s", package_base)
+
+        def remove_package(package: str, fn: Path) -> None:
+            try:
+                self.repo.remove(package, fn)  # remove the package itself
             except Exception:
                 self.logger.exception("could not remove %s", package)
 
@@ -86,7 +93,7 @@ class Executor(Cleaner):
                     for package, properties in local.packages.items()
                     if properties.filename is not None
                 }
-                self.reporter.remove(local.base)  # we only update status page in case of base removal
+                remove_base(local.base)
             elif requested.intersection(local.packages.keys()):
                 to_remove = {
                     package: Path(properties.filename)
@@ -95,8 +102,9 @@ class Executor(Cleaner):
                 }
             else:
                 to_remove = {}
+
             for package, filename in to_remove.items():
-                remove_single(package, filename)
+                remove_package(package, filename)
 
         return self.repo.repo_path
 

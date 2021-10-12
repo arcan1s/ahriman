@@ -58,7 +58,7 @@ class Properties:
         self.name = configuration.get("repository", "name")
 
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
-        self.paths.create_tree()
+        self.paths.tree_create()
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(configuration)
