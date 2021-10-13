@@ -22,10 +22,11 @@ import hashlib
 import mimetypes
 
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable
+from typing import Any, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
+from ahriman.core.util import walk
 from ahriman.models.package import Package
 
 
@@ -82,7 +83,7 @@ class S3(Upload):
         return client.Bucket(configuration.get("s3", "bucket"))
 
     @staticmethod
-    def remove_files(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+    def files_remove(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
         """
         remove files which have been removed locally
         :param local_files: map of local path object to its checksum
@@ -93,19 +94,33 @@ class S3(Upload):
                 continue
             remote_object.delete()
 
+    def files_upload(self, path: Path, local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+        """
+        upload changed files to s3
+        :param path: local path to sync
+        :param local_files: map of local path object to its checksum
+        :param remote_objects: map of remote path object to the remote s3 object
+        """
+        for local_file, checksum in local_files.items():
+            remote_object = remote_objects.get(local_file)
+            # 0 and -1 elements are " (double quote)
+            remote_checksum = remote_object.e_tag[1:-1] if remote_object is not None else None
+            if remote_checksum == checksum:
+                continue
+
+            local_path = path / local_file
+            remote_path = Path(self.architecture) / local_file
+            (mime, _) = mimetypes.guess_type(local_path)
+            extra_args = {"ContentType": mime} if mime is not None else None
+
+            self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)
+
     def get_local_files(self, path: Path) -> Dict[Path, str]:
         """
         get all local files and their calculated checksums
         :param path: local path to sync
         :return: map of path object to its checksum
         """
-        # credits to https://stackoverflow.com/a/64915960
-        def walk(directory_path: Path) -> Generator[Path, None, None]:
-            for element in directory_path.iterdir():
-                if element.is_dir():
-                    yield from walk(element)
-                    continue
-                yield element
         return {
             local_file.relative_to(path): self.calculate_etag(local_file, self.chunk_size)
             for local_file in walk(path)
@@ -128,26 +143,5 @@ class S3(Upload):
         remote_objects = self.get_remote_objects()
         local_files = self.get_local_files(path)
 
-        self.upload_files(path, local_files, remote_objects)
-        self.remove_files(local_files, remote_objects)
-
-    def upload_files(self, path: Path, local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
-        """
-        upload changed files to s3
-        :param path: local path to sync
-        :param local_files: map of local path object to its checksum
-        :param remote_objects: map of remote path object to the remote s3 object
-        """
-        for local_file, checksum in local_files.items():
-            remote_object = remote_objects.get(local_file)
-            # 0 and -1 elements are " (double quote)
-            remote_checksum = remote_object.e_tag[1:-1] if remote_object is not None else None
-            if remote_checksum == checksum:
-                continue
-
-            local_path = path / local_file
-            remote_path = Path(self.architecture) / local_file
-            (mime, _) = mimetypes.guess_type(local_path)
-            extra_args = {"ContentType": mime} if mime is not None else None
-
-            self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)
+        self.files_upload(path, local_files, remote_objects)
+        self.files_remove(local_files, remote_objects)

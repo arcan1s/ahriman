@@ -110,10 +110,10 @@ def test_add_archive(application: Application, package_ahriman: Package, mocker:
     must add package from archive
     """
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
-    move_mock = mocker.patch("shutil.move")
+    copy_mock = mocker.patch("shutil.copy")
 
     application.add([package_ahriman.base], PackageSource.Archive, False)
-    move_mock.assert_called_once()
+    copy_mock.assert_called_once()
 
 
 def test_add_remote(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -149,11 +149,11 @@ def test_add_directory(application: Application, package_ahriman: Package, mocke
     mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
     iterdir_mock = mocker.patch("pathlib.Path.iterdir",
                                 return_value=[package.filepath for package in package_ahriman.packages.values()])
-    move_mock = mocker.patch("shutil.move")
+    copy_mock = mocker.patch("shutil.copy")
 
     application.add([package_ahriman.base], PackageSource.Directory, False)
     iterdir_mock.assert_called_once()
-    move_mock.assert_called_once()
+    copy_mock.assert_called_once()
 
 
 def test_add_local(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

@@ -111,7 +111,7 @@ class WebClient(Client):
         try:
             response = self.__session.post(self._login_url, json=payload)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not login as %s: %s", self.user, exception_response_text(e))
         except Exception:
             self.logger.exception("could not login as %s", self.user)
@@ -138,7 +138,7 @@ class WebClient(Client):
         try:
             response = self.__session.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not add %s: %s", package.base, exception_response_text(e))
         except Exception:
             self.logger.exception("could not add %s", package.base)
@@ -158,7 +158,7 @@ class WebClient(Client):
                 (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
                 for package in status_json
             ]
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not get %s: %s", base, exception_response_text(e))
         except Exception:
             self.logger.exception("could not get %s", base)
@@ -175,7 +175,7 @@ class WebClient(Client):
 
             status_json = response.json()
             return InternalStatus.from_json(status_json)
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not get web service status: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not get web service status")
@@ -192,7 +192,7 @@ class WebClient(Client):
 
             status_json = response.json()
             return BuildStatus.from_json(status_json)
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not get service status: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not get service status")
@@ -205,7 +205,7 @@ class WebClient(Client):
         try:
             response = self.__session.post(self._reload_auth_url)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not reload auth module: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not reload auth module")
@@ -218,7 +218,7 @@ class WebClient(Client):
         try:
             response = self.__session.delete(self._package_url(base))
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not delete %s: %s", base, exception_response_text(e))
         except Exception:
             self.logger.exception("could not delete %s", base)
@@ -234,7 +234,7 @@ class WebClient(Client):
         try:
             response = self.__session.post(self._package_url(base), json=payload)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not update %s: %s", base, exception_response_text(e))
         except Exception:
             self.logger.exception("could not update %s", base)
@@ -249,7 +249,7 @@ class WebClient(Client):
         try:
             response = self.__session.post(self._ahriman_url, json=payload)
             response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
+        except requests.HTTPError as e:
             self.logger.exception("could not update service status: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not update service status")
