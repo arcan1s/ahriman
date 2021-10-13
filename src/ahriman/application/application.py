@@ -109,7 +109,7 @@ class Application:
 
         def add_archive(src: Path) -> None:
             dst = self.repository.paths.packages / src.name
-            shutil.move(src, dst)
+            shutil.copy(src, dst)
 
         def add_directory(path: Path) -> None:
             for full_path in filter(package_like, path.iterdir()):

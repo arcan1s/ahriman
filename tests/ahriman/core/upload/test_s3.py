@@ -34,7 +34,7 @@ def test_calculate_etag_small(resource_path_root: Path) -> None:
     assert S3.calculate_etag(path, _chunk_size) == "a55f82198e56061295d405aeb58f4062"
 
 
-def test_remove_files(s3_remote_objects: List[Any]) -> None:
+def test_files_remove(s3_remote_objects: List[Any]) -> None:
     """
     must remove remote objects
     """
@@ -43,35 +43,49 @@ def test_remove_files(s3_remote_objects: List[Any]) -> None:
     }
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
-    S3.remove_files(local_files, remote_objects)
+    S3.files_remove(local_files, remote_objects)
     remote_objects[Path("x86_64/a")].delete.assert_called_once()
 
 
-def test_get_local_files(s3: S3, resource_path_root: Path) -> None:
+def test_files_upload(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> None:
+    """
+    must upload changed files
+    """
+    def mimetype(path: Path) -> Tuple[Optional[str], None]:
+        return ("text/html", None) if path.name == "b" else (None, None)
+
+    root = Path("path")
+    local_files = {
+        Path(item.key.replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
+        for item in s3_remote_objects
+    }
+    remote_objects = {Path(item.key): item for item in s3_remote_objects}
+
+    mocker.patch("mimetypes.guess_type", side_effect=mimetype)
+    upload_mock = s3.bucket = MagicMock()
+
+    s3.files_upload(root, local_files, remote_objects)
+    upload_mock.upload_file.assert_has_calls(
+        [
+            mock.call(
+                Filename=str(root / s3.architecture / "b"),
+                Key=f"{s3.architecture}/{s3.architecture}/b",
+                ExtraArgs={"ContentType": "text/html"}),
+            mock.call(
+                Filename=str(root / s3.architecture / "d"),
+                Key=f"{s3.architecture}/{s3.architecture}/d",
+                ExtraArgs=None),
+        ],
+        any_order=True)
+
+
+def test_get_local_files(s3: S3, resource_path_root: Path, mocker: MockerFixture) -> None:
     """
     must get all local files recursively
     """
-    expected = sorted([
-        Path("core/ahriman.ini"),
-        Path("core/logging.ini"),
-        Path("models/big_file_checksum"),
-        Path("models/empty_file_checksum"),
-        Path("models/package_ahriman_srcinfo"),
-        Path("models/package_tpacpi-bat-git_srcinfo"),
-        Path("models/package_yay_srcinfo"),
-        Path("web/templates/build-status/login-modal.jinja2"),
-        Path("web/templates/build-status/package-actions-modals.jinja2"),
-        Path("web/templates/build-status/package-actions-script.jinja2"),
-        Path("web/templates/static/favicon.ico"),
-        Path("web/templates/utils/bootstrap-scripts.jinja2"),
-        Path("web/templates/utils/style.jinja2"),
-        Path("web/templates/build-status.jinja2"),
-        Path("web/templates/email-index.jinja2"),
-        Path("web/templates/repo-index.jinja2"),
-    ])
-
-    local_files = list(sorted(s3.get_local_files(resource_path_root).keys()))
-    assert local_files == expected
+    walk_mock = mocker.patch("ahriman.core.util.walk")
+    s3.get_local_files(resource_path_root)
+    walk_mock.assert_called()
 
 
 def test_get_remote_objects(s3: S3, s3_remote_objects: List[Any]) -> None:
@@ -92,43 +106,11 @@ def test_sync(s3: S3, mocker: MockerFixture) -> None:
     """
     local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files")
     remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects")
-    remove_files_mock = mocker.patch("ahriman.core.upload.s3.S3.remove_files")
-    upload_files_mock = mocker.patch("ahriman.core.upload.s3.S3.upload_files")
+    remove_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_remove")
+    upload_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_upload")
 
     s3.sync(Path("root"), [])
     local_files_mock.assert_called_once()
     remote_objects_mock.assert_called_once()
     remove_files_mock.assert_called_once()
     upload_files_mock.assert_called_once()
-
-
-def test_upload_files(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> None:
-    """
-    must upload changed files
-    """
-    def mimetype(path: Path) -> Tuple[Optional[str], None]:
-        return ("text/html", None) if path.name == "b" else (None, None)
-
-    root = Path("path")
-    local_files = {
-        Path(item.key.replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
-        for item in s3_remote_objects
-    }
-    remote_objects = {Path(item.key): item for item in s3_remote_objects}
-
-    mocker.patch("mimetypes.guess_type", side_effect=mimetype)
-    upload_mock = s3.bucket = MagicMock()
-
-    s3.upload_files(root, local_files, remote_objects)
-    upload_mock.upload_file.assert_has_calls(
-        [
-            mock.call(
-                Filename=str(root / s3.architecture / "b"),
-                Key=f"{s3.architecture}/{s3.architecture}/b",
-                ExtraArgs={"ContentType": "text/html"}),
-            mock.call(
-                Filename=str(root / s3.architecture / "d"),
-                Key=f"{s3.architecture}/{s3.architecture}/d",
-                ExtraArgs=None),
-        ],
-        any_order=True)

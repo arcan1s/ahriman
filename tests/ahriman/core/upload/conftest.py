@@ -1,14 +1,56 @@
 import pytest
 
 from collections import namedtuple
-from typing import List
+from typing import Any, Dict, List
 from unittest.mock import MagicMock
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.upload.github import Github
+from ahriman.core.upload.rsync import Rsync
 from ahriman.core.upload.s3 import S3
 
 
 _s3_object = namedtuple("s3_object", ["key", "e_tag", "delete"])
+
+
+@pytest.fixture
+def github(configuration: Configuration) -> Github:
+    """
+    fixture for github synchronization
+    :param configuration: configuration fixture
+    :return: github test instance
+    """
+    return Github("x86_64", configuration)
+
+
+@pytest.fixture
+def github_release() -> Dict[str, Any]:
+    """
+    fixture for the github release object
+    :return: github test release object
+    """
+    return {
+        "url": "release_url",
+        "assets_url": "assets_url",
+        "upload_url": "upload_url{?name,label}",
+        "tag_name": "x86_64",
+        "name": "x86_64",
+        "assets": [{
+            "url": "asset_url",
+            "name": "asset_name",
+        }],
+        "body": None,
+    }
+
+
+@pytest.fixture
+def rsync(configuration: Configuration) -> Rsync:
+    """
+    fixture for rsync synchronization
+    :param configuration: configuration fixture
+    :return: rsync test instance
+    """
+    return Rsync("x86_64", configuration)
 
 
 @pytest.fixture

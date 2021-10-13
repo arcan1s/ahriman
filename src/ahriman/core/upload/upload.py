@@ -64,6 +64,9 @@ class Upload:
         if provider == UploadSettings.S3:
             from ahriman.core.upload.s3 import S3
             return S3(architecture, configuration)
+        if provider == UploadSettings.Github:
+            from ahriman.core.upload.github import Github
+            return Github(architecture, configuration)
         return cls(architecture, configuration)  # should never happen
 
     def run(self, path: Path, built_packages: Iterable[Package]) -> None:
