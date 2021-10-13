@@ -31,11 +31,13 @@ class UploadSettings(Enum):
     :cvar Disabled: no sync will be performed, required for testing purpose
     :cvar Rsync: sync via rsync
     :cvar S3: sync to Amazon S3
+    :cvar Github: sync to github releases page
     """
 
     Disabled = "disabled"  # for testing purpose
     Rsync = "rsync"
     S3 = "s3"
+    Github = "github"
 
     @classmethod
     def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
@@ -48,4 +50,6 @@ class UploadSettings(Enum):
             return cls.Rsync
         if value.lower() in ("s3",):
             return cls.S3
+        if value.lower() in ("github",):
+            return cls.Github
         raise InvalidOption(value)

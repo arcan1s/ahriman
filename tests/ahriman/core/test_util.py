@@ -2,10 +2,11 @@ import logging
 import pytest
 import subprocess
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.exceptions import InvalidOption
-from ahriman.core.util import check_output, package_like, pretty_datetime, pretty_size
+from ahriman.core.util import check_output, package_like, pretty_datetime, pretty_size, walk
 from ahriman.models.package import Package
 
 
@@ -138,3 +139,29 @@ def test_pretty_size_empty() -> None:
     must generate empty string for None value
     """
     assert pretty_size(None) == ""
+
+
+def test_walk(resource_path_root: Path) -> None:
+    """
+    must traverse directory recursively
+    """
+    expected = sorted([
+        resource_path_root / "core/ahriman.ini",
+        resource_path_root / "core/logging.ini",
+        resource_path_root / "models/big_file_checksum",
+        resource_path_root / "models/empty_file_checksum",
+        resource_path_root / "models/package_ahriman_srcinfo",
+        resource_path_root / "models/package_tpacpi-bat-git_srcinfo",
+        resource_path_root / "models/package_yay_srcinfo",
+        resource_path_root / "web/templates/build-status/login-modal.jinja2",
+        resource_path_root / "web/templates/build-status/package-actions-modals.jinja2",
+        resource_path_root / "web/templates/build-status/package-actions-script.jinja2",
+        resource_path_root / "web/templates/static/favicon.ico",
+        resource_path_root / "web/templates/utils/bootstrap-scripts.jinja2",
+        resource_path_root / "web/templates/utils/style.jinja2",
+        resource_path_root / "web/templates/build-status.jinja2",
+        resource_path_root / "web/templates/email-index.jinja2",
+        resource_path_root / "web/templates/repo-index.jinja2",
+    ])
+    local_files = list(sorted(walk(resource_path_root)))
+    assert local_files == expected

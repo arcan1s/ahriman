@@ -23,7 +23,7 @@ import requests
 
 from logging import Logger
 from pathlib import Path
-from typing import Optional, Union
+from typing import Generator, Optional, Union
 
 from ahriman.core.exceptions import InvalidOption
 
@@ -106,3 +106,17 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
     if size < 1024 or level >= 3:
         return f"{size:.1f} {str_level()}"
     return pretty_size(size / 1024, level + 1)
+
+
+def walk(directory_path: Path) -> Generator[Path, None, None]:
+    """
+    list all file paths in given directory
+    Credits to https://stackoverflow.com/a/64915960
+    :param directory_path: root directory path
+    :return: all found files in given directory with full path
+    """
+    for element in directory_path.iterdir():
+        if element.is_dir():
+            yield from walk(element)
+            continue
+        yield element

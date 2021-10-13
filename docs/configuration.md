@@ -101,7 +101,20 @@ Group name must refer to architecture, e.g. it should be `html:x86_64` for x86_6
 
 Remote synchronization settings.
 
-* `target` - list of synchronizations to be used, space separated list of strings, required. Allowed values are `rsync`, `s3`.
+* `target` - list of synchronizations to be used, space separated list of strings, required. Allowed values are `rsync`, `s3`, `github`.
+
+### `github:*` groups
+
+Group name must refer to architecture, e.g. it should be `github:x86_64` for x86_64 architecture. This feature requires Github key creation (see below).
+
+* `api_key` - created Github API key. In order to create it do the following:
+    1. Go to [settings page](https://github.com/settings/profile).
+    2. Switch to [developers settings](https://github.com/settings/apps).
+    3. Switch to [personal access tokens](https://github.com/settings/tokens).
+    4. Generate new token. Required scope is `public_repo` (or `repo` for private repository support).
+* `owner` - Github repository owner, string, required.
+* `repository` - Github repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
+* `username` - Github authorization user, string, optional, default is the same as `owner`.
 
 ### `rsync:*` groups
 
