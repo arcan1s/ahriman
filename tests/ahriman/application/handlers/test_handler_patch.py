@@ -28,7 +28,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     args = _default_args(args)
     args.action = Action.Update
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
     Patch.run(args, "x86_64", configuration, True)
@@ -41,7 +41,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker
     """
     args = _default_args(args)
     args.action = Action.List
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_list")
 
     Patch.run(args, "x86_64", configuration, True)
@@ -54,7 +54,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     """
     args = _default_args(args)
     args.action = Action.Remove
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
 
     Patch.run(args, "x86_64", configuration, True)
@@ -91,6 +91,7 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     """
     must create patch set for the package
     """
+    mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     remove_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
     create_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create")

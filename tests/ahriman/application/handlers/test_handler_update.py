@@ -26,7 +26,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     updates_mock = mocker.patch("ahriman.application.application.Application.get_updates")
 
@@ -41,7 +41,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     """
     args = _default_args(args)
     args.dry_run = True
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     updates_mock = mocker.patch("ahriman.application.application.Application.get_updates")
 
     Update.run(args, "x86_64", configuration, True)

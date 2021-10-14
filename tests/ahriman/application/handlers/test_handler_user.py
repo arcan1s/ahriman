@@ -33,7 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
     write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
@@ -56,7 +56,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     """
     args = _default_args(args)
     args.action = Action.Remove
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
     write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")

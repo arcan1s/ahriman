@@ -22,8 +22,10 @@ import logging
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import UnsafeRun
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
+from ahriman.core.util import check_user
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -58,7 +60,11 @@ class Properties:
         self.name = configuration.get("repository", "name")
 
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
-        self.paths.tree_create()
+        try:
+            check_user(self.paths.root)
+            self.paths.tree_create()
+        except UnsafeRun:
+            self.logger.exception("root owner differs from the current user, skipping tree creation")
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(configuration)

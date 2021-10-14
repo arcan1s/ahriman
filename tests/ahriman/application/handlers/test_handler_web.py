@@ -21,8 +21,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
-    mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.core.spawn.Spawn.start")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     setup_mock = mocker.patch("ahriman.web.web.setup_service")
     run_mock = mocker.patch("ahriman.web.web.run_server")
 

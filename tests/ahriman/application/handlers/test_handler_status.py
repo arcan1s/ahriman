@@ -26,7 +26,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     must run command
     """
     args = _default_args(args)
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.core.status.client.Client.get_self")
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
@@ -46,7 +46,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     """
     args = _default_args(args)
     args.package = [package_ahriman.base]
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
@@ -61,10 +61,10 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
     """
     args = _default_args(args)
     args.status = BuildStatusEnum.Failed
-    mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.core.status.client.Client.get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     pretty_print_mock = mocker.patch("ahriman.models.package.Package.pretty_print")
 
     Status.run(args, "x86_64", configuration, True)
@@ -76,7 +76,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     must create application object with native reporting
     """
     args = _default_args(args)
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
     Status.run(args, "x86_64", configuration, True)

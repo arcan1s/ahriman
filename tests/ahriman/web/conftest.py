@@ -39,8 +39,8 @@ def application(configuration: Configuration, spawner: Spawn, mocker: MockerFixt
     :param mocker: mocker object
     :return: application test instance
     """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
-    mocker.patch("pathlib.Path.mkdir")
     return setup_service("x86_64", configuration, spawner)
 
 
@@ -56,8 +56,8 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     :return: application test instance
     """
     configuration.set_option("auth", "target", "configuration")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
-    mocker.patch("pathlib.Path.mkdir")
     application = setup_service("x86_64", configuration, spawner)
 
     generated = User(user.username, user.hash_password(application["validator"].salt), user.access)
@@ -78,6 +78,6 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     :return: application test instance
     """
     configuration.set_option("web", "debug", "yes")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
-    mocker.patch("pathlib.Path.mkdir")
     return setup_service("x86_64", configuration, spawner)

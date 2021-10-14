@@ -10,7 +10,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     must run command
     """
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     print_mock = mocker.patch("ahriman.application.handlers.dump.Dump._print")
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
                                     return_value=configuration.dump())

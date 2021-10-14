@@ -5,8 +5,8 @@ import subprocess
 from pathlib import Path
 from pytest_mock import MockerFixture
 
-from ahriman.core.exceptions import InvalidOption
-from ahriman.core.util import check_output, package_like, pretty_datetime, pretty_size, walk
+from ahriman.core.exceptions import InvalidOption, UnsafeRun
+from ahriman.core.util import check_output, check_user, package_like, pretty_datetime, pretty_size, walk
 from ahriman.models.package import Package
 
 
@@ -49,6 +49,34 @@ def test_check_output_failure_log(mocker: MockerFixture) -> None:
     with pytest.raises(subprocess.CalledProcessError):
         check_output("echo", "hello", exception=None, logger=logging.getLogger(""))
         logger_mock.assert_called_once()
+
+
+def test_check_user(mocker: MockerFixture) -> None:
+    """
+    must check user correctly
+    """
+    cwd = Path.cwd()
+    mocker.patch("os.getuid", return_value=cwd.stat().st_uid)
+    check_user(cwd)
+
+
+def test_check_user_no_directory(mocker: MockerFixture) -> None:
+    """
+    must not fail in case if no directory found
+    """
+    mocker.patch("pathlib.Path.exists", return_value=False)
+    check_user(Path.cwd())
+
+
+def test_check_user_exception(mocker: MockerFixture) -> None:
+    """
+    must raise exception if user differs
+    """
+    cwd = Path.cwd()
+    mocker.patch("os.getuid", return_value=cwd.stat().st_uid + 1)
+
+    with pytest.raises(UnsafeRun):
+        check_user(cwd)
 
 
 def test_package_like(package_ahriman: Package) -> None:
