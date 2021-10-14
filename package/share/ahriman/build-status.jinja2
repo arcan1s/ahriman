@@ -27,13 +27,13 @@
             <div id="toolbar">
                 {% if not auth.enabled or auth.username is not none %}
                     <button id="add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addForm">
-                        <i class="fa fa-plus"></i> Add
+                        <i class="fa fa-plus"></i> add
                     </button>
                     <button id="update" class="btn btn-secondary" onclick="updatePackages()" disabled>
-                        <i class="fa fa-play"></i> Update
+                        <i class="fa fa-play"></i> update
                     </button>
                     <button id="remove" class="btn btn-danger" onclick="removePackages()" disabled>
-                        <i class="fa fa-trash"></i> Remove
+                        <i class="fa fa-trash"></i> remove
                     </button>
                 {% endif %}
             </div>

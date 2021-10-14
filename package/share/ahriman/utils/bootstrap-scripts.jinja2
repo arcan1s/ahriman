@@ -10,3 +10,14 @@
 <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
 <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+
+<script>
+    $("#packages").bootstrapTable({
+        formatClearSearch: function () {
+            return "Clear search";
+        },
+        formatSearch: function () {
+            return "search";
+        }
+    })
+</script>
