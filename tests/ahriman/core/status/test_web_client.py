@@ -53,7 +53,7 @@ def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None
     }
 
     web_client._login()
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True), json=payload)
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json=payload)
 
 
 def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
@@ -99,7 +99,7 @@ def test_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixt
     payload = pytest.helpers.get_package_status(package_ahriman)
 
     web_client.add(package_ahriman, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True), json=payload)
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json=payload)
 
 
 def test_add_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -237,7 +237,7 @@ def test_reload_auth(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.Session.post")
 
     web_client.reload_auth()
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True))
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True))
 
 
 def test_reload_auth_failed(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -263,7 +263,7 @@ def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerF
     requests_mock = mocker.patch("requests.Session.delete")
 
     web_client.remove(package_ahriman.base)
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True))
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True))
 
 
 def test_remove_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -289,7 +289,8 @@ def test_update(web_client: WebClient, package_ahriman: Package, mocker: MockerF
     requests_mock = mocker.patch("requests.Session.post")
 
     web_client.update(package_ahriman.base, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True), json={"status": BuildStatusEnum.Unknown.value})
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json={
+                                          "status": BuildStatusEnum.Unknown.value})
 
 
 def test_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -315,7 +316,8 @@ def test_update_self(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.Session.post")
 
     web_client.update_self(BuildStatusEnum.Unknown)
-    requests_mock.assert_called_with(pytest.helpers.anyvar(str, True), json={"status": BuildStatusEnum.Unknown.value})
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json={
+                                          "status": BuildStatusEnum.Unknown.value})
 
 
 def test_update_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:

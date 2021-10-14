@@ -64,8 +64,8 @@ async def test_get(client_with_auth: TestClient, mocker: MockerFixture) -> None:
     get_response = await client_with_auth.get("/user-api/v1/login", params={"code": "code"})
 
     assert get_response.ok
-    oauth.get_oauth_username.assert_called_with("code")
-    oauth.known_username.assert_called_with("user")
+    oauth.get_oauth_username.assert_called_once_with("code")
+    oauth.known_username.assert_called_once_with("user")
     remember_mock.assert_called_once()
 
 

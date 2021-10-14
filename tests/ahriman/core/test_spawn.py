@@ -14,7 +14,7 @@ def test_process(spawner: Spawn) -> None:
 
     spawner.process(callback, args, spawner.architecture, "id", spawner.queue)
 
-    callback.assert_called_with(args, spawner.architecture)
+    callback.assert_called_once_with(args, spawner.architecture)
     (uuid, status) = spawner.queue.get()
     assert uuid == "id"
     assert status
@@ -42,7 +42,7 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=False)
-    spawn_mock.assert_called_with("add", "ahriman", "linux", source="aur")
+    spawn_mock.assert_called_once_with("add", "ahriman", "linux", source="aur")
 
 
 def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -51,7 +51,7 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=True)
-    spawn_mock.assert_called_with("add", "ahriman", "linux", source="aur", now="")
+    spawn_mock.assert_called_once_with("add", "ahriman", "linux", source="aur", now="")
 
 
 def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -60,7 +60,7 @@ def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_remove(["ahriman", "linux"])
-    spawn_mock.assert_called_with("remove", "ahriman", "linux")
+    spawn_mock.assert_called_once_with("remove", "ahriman", "linux")
 
 
 def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -71,7 +71,7 @@ def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
 
     spawner.spawn_process("add", "ahriman", now="", maybe="?")
     start_mock.assert_called_once()
-    spawner.args_parser.parse_args.assert_called_with([
+    spawner.args_parser.parse_args.assert_called_once_with([
         "--architecture", spawner.architecture, "--configuration", str(spawner.configuration.path),
         "add", "ahriman", "--now", "--maybe", "?"
     ])

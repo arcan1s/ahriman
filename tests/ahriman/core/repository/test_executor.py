@@ -68,7 +68,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     # must remove via alpm wrapper
     repo_remove_mock.assert_called_once()
     # must update status and remove package files
-    tree_clear_mock.assert_called_with(package_ahriman.base)
+    tree_clear_mock.assert_called_once_with(package_ahriman.base)
     status_client_mock.assert_called_once()
 
 
@@ -218,7 +218,7 @@ def test_process_update_group(executor: Executor, package_python_schedule: Packa
         mock.call(executor.paths.repository / package.filepath)
         for package in package_python_schedule.packages.values()
     ], any_order=True)
-    status_client_mock.assert_called_with(package_python_schedule)
+    status_client_mock.assert_called_once_with(package_python_schedule)
 
 
 def test_process_empty_filename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

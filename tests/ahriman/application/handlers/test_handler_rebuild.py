@@ -45,7 +45,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration,
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
     Rebuild.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_with([package_ahriman])
+    application_mock.assert_called_once_with([package_ahriman])
 
 
 def test_run_without_filter(args: argparse.Namespace, configuration: Configuration,
@@ -61,4 +61,4 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
     Rebuild.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_with([package_ahriman, package_python_schedule])
+    application_mock.assert_called_once_with([package_ahriman, package_python_schedule])

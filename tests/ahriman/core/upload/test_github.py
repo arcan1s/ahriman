@@ -70,7 +70,7 @@ def test_asset_remove(github: Github, github_release: Dict[str, Any], mocker: Mo
     """
     request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
     github.asset_remove(github_release, "asset_name")
-    request_mock.assert_called_with("DELETE", "asset_url")
+    request_mock.assert_called_once_with("DELETE", "asset_url")
 
 
 def test_asset_remove_unknown(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
@@ -91,8 +91,8 @@ def test_asset_upload(github: Github, github_release: Dict[str, Any], mocker: Mo
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
-    request_mock.assert_called_with("POST", "upload_url", params={"name": "new.tar.xz"},
-                                    data=b"", headers={"Content-Type": "application/x-tar"})
+    request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
+                                         data=b"", headers={"Content-Type": "application/x-tar"})
     remove_mock.assert_not_called()
 
 
@@ -105,10 +105,11 @@ def test_asset_upload_with_removal(github: Github, github_release: Dict[str, Any
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
     github.asset_upload(github_release, Path("asset_name"))
-    remove_mock.assert_called_with(github_release, "asset_name")
-
     github.asset_upload(github_release, Path("/root/asset_name"))
-    remove_mock.assert_called_with(github_release, "asset_name")
+    remove_mock.assert_has_calls([
+        mock.call(github_release, "asset_name"),
+        mock.call(github_release, "asset_name"),
+    ])
 
 
 def test_asset_upload_empty_mimetype(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
@@ -121,8 +122,8 @@ def test_asset_upload_empty_mimetype(github: Github, github_release: Dict[str, A
     request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
-    request_mock.assert_called_with("POST", "upload_url", params={"name": "new.tar.xz"},
-                                    data=b"", headers={"Content-Type": "application/octet-stream"})
+    request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
+                                         data=b"", headers={"Content-Type": "application/octet-stream"})
 
 
 def test_get_local_files(github: Github, resource_path_root: Path, mocker: MockerFixture) -> None:

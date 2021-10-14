@@ -48,7 +48,7 @@ async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     response = await client.get("/service-api/v1/search", params=[("for", "ahriman"), ("for", "maybe")])
 
     assert response.ok
-    search_mock.assert_called_with("ahriman maybe")
+    search_mock.assert_called_once_with("ahriman maybe")
 
 
 async def test_get_join_filter(client: TestClient, mocker: MockerFixture) -> None:
@@ -59,7 +59,7 @@ async def test_get_join_filter(client: TestClient, mocker: MockerFixture) -> Non
     response = await client.get("/service-api/v1/search", params=[("for", "ah"), ("for", "maybe")])
 
     assert response.ok
-    search_mock.assert_called_with("maybe")
+    search_mock.assert_called_once_with("maybe")
 
 
 async def test_get_join_filter_empty(client: TestClient, mocker: MockerFixture) -> None:

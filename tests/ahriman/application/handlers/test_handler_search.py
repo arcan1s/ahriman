@@ -39,7 +39,7 @@ def test_run_multiple_search(args: argparse.Namespace, configuration: Configurat
     search_mock = mocker.patch("aur.search")
 
     Search.run(args, "x86_64", configuration, True)
-    search_mock.assert_called_with(" ".join(args.search))
+    search_mock.assert_called_once_with(" ".join(args.search))
 
 
 def test_log_fn(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,

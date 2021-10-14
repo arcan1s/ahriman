@@ -39,8 +39,8 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application)
-    run_application_mock.assert_called_with(application, host="127.0.0.1", port=port,
-                                            handle_signals=False, access_log=pytest.helpers.anyvar(int))
+    run_application_mock.assert_called_once_with(application, host="127.0.0.1", port=port,
+                                                 handle_signals=False, access_log=pytest.helpers.anyvar(int))
 
 
 def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFixture) -> None:
@@ -52,8 +52,8 @@ def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFix
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application_with_auth)
-    run_application_mock.assert_called_with(application_with_auth, host="127.0.0.1", port=port,
-                                            handle_signals=False, access_log=pytest.helpers.anyvar(int))
+    run_application_mock.assert_called_once_with(application_with_auth, host="127.0.0.1", port=port,
+                                                 handle_signals=False, access_log=pytest.helpers.anyvar(int))
 
 
 def test_run_with_debug(application_with_debug: web.Application, mocker: MockerFixture) -> None:
@@ -65,5 +65,5 @@ def test_run_with_debug(application_with_debug: web.Application, mocker: MockerF
     run_application_mock = mocker.patch("aiohttp.web.run_app")
 
     run_server(application_with_debug)
-    run_application_mock.assert_called_with(application_with_debug, host="127.0.0.1", port=port,
-                                            handle_signals=False, access_log=pytest.helpers.anyvar(int))
+    run_application_mock.assert_called_once_with(application_with_debug, host="127.0.0.1", port=port,
+                                                 handle_signals=False, access_log=pytest.helpers.anyvar(int))

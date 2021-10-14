@@ -70,7 +70,7 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     print_mock = mocker.patch("ahriman.application.handlers.patch.Patch._print")
 
     Patch.patch_set_list(application, "ahriman")
-    glob_mock.assert_called_with("*.patch")
+    glob_mock.assert_called_once_with("*.patch")
     print_mock.assert_called()
 
 
@@ -96,7 +96,7 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     patch_dir = application.repository.paths.patches_for(package_ahriman.base)
 
     Patch.patch_set_create(application, Path("path"), ["*.patch"])
-    create_mock.assert_called_with(Path("path"), patch_dir / "00-main.patch", "*.patch")
+    create_mock.assert_called_once_with(Path("path"), patch_dir / "00-main.patch", "*.patch")
 
 
 def test_patch_set_create_clear(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -120,4 +120,4 @@ def test_patch_set_remove(application: Application, package_ahriman: Package, mo
     patch_dir = application.repository.paths.patches_for(package_ahriman.base)
 
     Patch.patch_set_remove(application, package_ahriman.base)
-    remove_mock.assert_called_with(patch_dir, ignore_errors=True)
+    remove_mock.assert_called_once_with(patch_dir, ignore_errors=True)

@@ -27,7 +27,7 @@ async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None
 
     assert response.ok
     reload_mock.assert_called_once()
-    load_mock.assert_called_with(client_with_auth.app["configuration"])
+    load_mock.assert_called_once_with(client_with_auth.app["configuration"])
 
 
 async def test_post_no_auth(client: TestClient, mocker: MockerFixture) -> None:
