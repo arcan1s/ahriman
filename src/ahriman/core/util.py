@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import datetime
+import os
 import subprocess
 import requests
 
@@ -25,7 +26,7 @@ from logging import Logger
 from pathlib import Path
 from typing import Generator, Optional, Union
 
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.exceptions import InvalidOption, UnsafeRun
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
@@ -52,6 +53,19 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
             for line in e.output.splitlines():
                 logger.debug(line)
         raise exception or e
+
+
+def check_user(root: Path) -> None:
+    """
+    check if current user is the owner of the root
+    :param root: root directory (i.e. ahriman home)
+    """
+    if not root.exists():
+        return  # no directory found, skip check
+    current_uid = os.getuid()
+    root_uid = root.stat().st_uid
+    if current_uid != root_uid:
+        raise UnsafeRun(current_uid, root_uid)
 
 
 def exception_response_text(exception: requests.exceptions.HTTPError) -> str:

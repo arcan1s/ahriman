@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 
 from pathlib import Path
 from types import TracebackType
@@ -29,8 +28,9 @@ from typing import Literal, Optional, Type
 
 from ahriman import version
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import DuplicateRun, UnsafeRun
+from ahriman.core.exceptions import DuplicateRun
 from ahriman.core.status.client import Client
+from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
 
 
@@ -105,10 +105,7 @@ class Lock:
         """
         if self.unsafe:
             return
-        current_uid = os.getuid()
-        root_uid = self.root.stat().st_uid
-        if current_uid != root_uid:
-            raise UnsafeRun(current_uid, root_uid)
+        check_user(self.root)
 
     def clear(self) -> None:
         """

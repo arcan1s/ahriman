@@ -80,21 +80,16 @@ def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check user correctly
     """
-    stat = Path.cwd().stat()
-    mocker.patch("pathlib.Path.stat", return_value=stat)
-    mocker.patch("os.getuid", return_value=stat.st_uid)
-
+    check_user_patch = mocker.patch("ahriman.application.lock.check_user")
     lock.check_user()
+    check_user_patch.assert_called_once_with(lock.root)
 
 
 def test_check_user_exception(lock: Lock, mocker: MockerFixture) -> None:
     """
     must raise exception if user differs
     """
-    stat = Path.cwd().stat()
-    mocker.patch("pathlib.Path.stat")
-    mocker.patch("os.getuid", return_value=stat.st_uid + 1)
-
+    mocker.patch("ahriman.application.lock.check_user", side_effect=UnsafeRun(0, 1))
     with pytest.raises(UnsafeRun):
         lock.check_user()
 

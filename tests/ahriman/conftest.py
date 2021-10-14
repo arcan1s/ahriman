@@ -225,5 +225,5 @@ def watcher(configuration: Configuration, mocker: MockerFixture) -> Watcher:
     :param mocker: mocker object
     :return: package status watcher test instance
     """
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Watcher("x86_64", configuration)

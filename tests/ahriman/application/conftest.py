@@ -17,7 +17,7 @@ def application(configuration: Configuration, mocker: MockerFixture) -> Applicat
     :param mocker: mocker object
     :return: application test instance
     """
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Application("x86_64", configuration, no_report=True)
 
 

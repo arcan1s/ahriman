@@ -10,6 +10,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     must run command
     """
+    mocker.patch("ahriman.core.repository.properties.check_user")
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 

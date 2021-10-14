@@ -18,7 +18,7 @@ def test_force_no_report(configuration: Configuration, mocker: MockerFixture) ->
     must force dummy report client
     """
     configuration.set_option("web", "port", "8080")
-    mocker.patch("pathlib.Path.mkdir")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
 
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
     watcher = Watcher("x86_64", configuration)
