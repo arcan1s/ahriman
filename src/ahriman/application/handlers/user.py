@@ -49,33 +49,20 @@ class User(Handler):
         :param no_report: force disable reporting
         """
         salt = User.get_salt(configuration)
-        user = User.create_user(args)
-        auth_configuration = User.get_auth_configuration(configuration.include)
+        user = User.user_create(args)
+        auth_configuration = User.configuration_get(configuration.include)
 
-        User.clear_user(auth_configuration, user)
+        User.user_clear(auth_configuration, user)
         if args.action == Action.Update:
-            User.create_configuration(auth_configuration, user, salt, args.as_service)
-        User.write_configuration(auth_configuration, args.secure)
+            User.configuration_create(auth_configuration, user, salt, args.as_service)
+        User.configuration_write(auth_configuration, args.secure)
 
         if not args.no_reload:
             client = Application(architecture, configuration, no_report=False).repository.reporter
             client.reload_auth()
 
     @staticmethod
-    def clear_user(configuration: Configuration, user: MUser) -> None:
-        """
-        remove user user from configuration file in case if it exists
-        :param configuration: configuration instance
-        :param user: user descriptor
-        """
-        for role in UserAccess:
-            section = Configuration.section_name("auth", role.value)
-            if not configuration.has_option(section, user.username):
-                continue
-            configuration.remove_option(section, user.username)
-
-    @staticmethod
-    def create_configuration(configuration: Configuration, user: MUser, salt: str, as_service_user: bool) -> None:
+    def configuration_create(configuration: Configuration, user: MUser, salt: str, as_service_user: bool) -> None:
         """
         put new user to configuration
         :param configuration: configuration instance
@@ -92,19 +79,7 @@ class User(Handler):
             configuration.set_option("web", "password", user.password)
 
     @staticmethod
-    def create_user(args: argparse.Namespace) -> MUser:
-        """
-        create user descriptor from arguments
-        :param args: command line args
-        :return: built user descriptor
-        """
-        user = MUser(args.username, args.password, args.role)
-        if user.password is None:
-            user.password = getpass.getpass()
-        return user
-
-    @staticmethod
-    def get_auth_configuration(include_path: Path) -> Configuration:
+    def configuration_get(include_path: Path) -> Configuration:
         """
         create configuration instance
         :param include_path: path to directory with configuration includes
@@ -115,6 +90,20 @@ class User(Handler):
         configuration.load(target)
 
         return configuration
+
+    @staticmethod
+    def configuration_write(configuration: Configuration, secure: bool) -> None:
+        """
+        write configuration file
+        :param configuration: configuration instance
+        :param secure: if true then set file permissions to 0o600
+        """
+        if configuration.path is None:
+            return  # should never happen actually
+        with configuration.path.open("w") as ahriman_configuration:
+            configuration.write(ahriman_configuration)
+        if secure:
+            configuration.path.chmod(0o600)
 
     @staticmethod
     def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
@@ -130,15 +119,26 @@ class User(Handler):
         return MUser.generate_password(salt_length)
 
     @staticmethod
-    def write_configuration(configuration: Configuration, secure: bool) -> None:
+    def user_clear(configuration: Configuration, user: MUser) -> None:
         """
-        write configuration file
+        remove user user from configuration file in case if it exists
         :param configuration: configuration instance
-        :param secure: if true then set file permissions to 0o600
+        :param user: user descriptor
         """
-        if configuration.path is None:
-            return  # should never happen actually
-        with configuration.path.open("w") as ahriman_configuration:
-            configuration.write(ahriman_configuration)
-        if secure:
-            configuration.path.chmod(0o600)
+        for role in UserAccess:
+            section = Configuration.section_name("auth", role.value)
+            if not configuration.has_option(section, user.username):
+                continue
+            configuration.remove_option(section, user.username)
+
+    @staticmethod
+    def user_create(args: argparse.Namespace) -> MUser:
+        """
+        create user descriptor from arguments
+        :param args: command line args
+        :return: built user descriptor
+        """
+        user = MUser(args.username, args.password, args.role)
+        if user.password is None:
+            user.password = getpass.getpass()
+        return user

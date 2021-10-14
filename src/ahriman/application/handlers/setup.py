@@ -55,12 +55,12 @@ class Setup(Handler):
         :param no_report: force disable reporting
         """
         application = Application(architecture, configuration, no_report)
-        Setup.create_makepkg_configuration(args.packager, application.repository.paths)
-        Setup.create_executable(args.build_command, architecture)
-        Setup.create_devtools_configuration(args.build_command, architecture, args.from_configuration,
+        Setup.configuration_create_makepkg(args.packager, application.repository.paths)
+        Setup.executable_create(args.build_command, architecture)
+        Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
                                             args.no_multilib, args.repository, application.repository.paths)
-        Setup.create_ahriman_configuration(args, architecture, args.repository, configuration.include)
-        Setup.create_sudo_configuration(args.build_command, architecture)
+        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include)
+        Setup.configuration_create_sudo(args.build_command, architecture)
 
     @staticmethod
     def build_command(prefix: str, architecture: str) -> Path:
@@ -73,7 +73,7 @@ class Setup(Handler):
         return Setup.BIN_DIR_PATH / f"{prefix}-{architecture}-build"
 
     @staticmethod
-    def create_ahriman_configuration(args: argparse.Namespace, architecture: str, repository: str,
+    def configuration_create_ahriman(args: argparse.Namespace, architecture: str, repository: str,
                                      include_path: Path) -> None:
         """
         create service specific configuration
@@ -102,7 +102,7 @@ class Setup(Handler):
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def create_devtools_configuration(prefix: str, architecture: str, source: Path,
+    def configuration_create_devtools(prefix: str, architecture: str, source: Path,
                                       no_multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on `source` configuration
@@ -138,7 +138,7 @@ class Setup(Handler):
             configuration.write(devtools_configuration)
 
     @staticmethod
-    def create_makepkg_configuration(packager: str, paths: RepositoryPaths) -> None:
+    def configuration_create_makepkg(packager: str, paths: RepositoryPaths) -> None:
         """
         create configuration for makepkg
         :param packager: packager identifier (e.g. name, email)
@@ -147,7 +147,7 @@ class Setup(Handler):
         (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n")
 
     @staticmethod
-    def create_sudo_configuration(prefix: str, architecture: str) -> None:
+    def configuration_create_sudo(prefix: str, architecture: str) -> None:
         """
         create configuration to run build command with sudo without password
         :param prefix: command prefix in {prefix}-{architecture}-build
@@ -158,7 +158,7 @@ class Setup(Handler):
         Setup.SUDOERS_PATH.chmod(0o400)  # security!
 
     @staticmethod
-    def create_executable(prefix: str, architecture: str) -> None:
+    def executable_create(prefix: str, architecture: str) -> None:
         """
         create executable for the service
         :param prefix: command prefix in {prefix}-{architecture}-build

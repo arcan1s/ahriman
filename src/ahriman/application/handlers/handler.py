@@ -42,6 +42,30 @@ class Handler:
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
+    def architectures_extract(cls: Type[Handler], args: argparse.Namespace) -> Set[str]:
+        """
+        get known architectures
+        :param args: command line args
+        :return: list of architectures for which tree is created
+        """
+        if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
+            # for some parsers (e.g. config) we need to run with specific architecture
+            # for those cases architecture must be set explicitly
+            raise MissingArchitecture(args.command)
+        if args.architecture:  # architecture is specified explicitly
+            return set(args.architecture)
+
+        config = Configuration()
+        config.load(args.configuration)
+        # wtf???
+        root = config.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
+        architectures = RepositoryPaths.known_architectures(root)
+
+        if not architectures:  # well we did not find anything
+            raise MissingArchitecture(args.command)
+        return architectures
+
+    @classmethod
     def call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
@@ -66,7 +90,7 @@ class Handler:
         :param args: command line args
         :return: 0 on success, 1 otherwise
         """
-        architectures = cls.extract_architectures(args)
+        architectures = cls.architectures_extract(args)
 
         # actually we do not have to spawn another process if it is single-process application, do we?
         if len(architectures) > 1:
@@ -80,30 +104,6 @@ class Handler:
             result = [cls.call(args, architectures.pop())]
 
         return 0 if all(result) else 1
-
-    @classmethod
-    def extract_architectures(cls: Type[Handler], args: argparse.Namespace) -> Set[str]:
-        """
-        get known architectures
-        :param args: command line args
-        :return: list of architectures for which tree is created
-        """
-        if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
-            # for some parsers (e.g. config) we need to run with specific architecture
-            # for those cases architecture must be set explicitly
-            raise MissingArchitecture(args.command)
-        if args.architecture:  # architecture is specified explicitly
-            return set(args.architecture)
-
-        config = Configuration()
-        config.load(args.configuration)
-        # wtf???
-        root = config.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
-        architectures = RepositoryPaths.known_architectures(root)
-
-        if not architectures:  # well we did not find anything
-            raise MissingArchitecture(args.command)
-        return architectures
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,

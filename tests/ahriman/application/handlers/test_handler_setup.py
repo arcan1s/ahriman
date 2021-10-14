@@ -33,11 +33,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.mkdir")
-    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_ahriman_configuration")
-    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_devtools_configuration")
-    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_makepkg_configuration")
-    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_sudo_configuration")
-    executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.create_executable")
+    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
+    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
+    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
+    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
+    executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
 
     Setup.run(args, "x86_64", configuration, True)
     ahriman_configuration_mock.assert_called_once()
@@ -55,7 +55,7 @@ def test_build_command(args: argparse.Namespace) -> None:
     assert Setup.build_command(args.build_command, "x86_64").name == f"{args.build_command}-x86_64-build"
 
 
-def test_create_ahriman_configuration(args: argparse.Namespace, configuration: Configuration,
+def test_configuration_create_ahriman(args: argparse.Namespace, configuration: Configuration,
                                       mocker: MockerFixture) -> None:
     """
     must create configuration for the service
@@ -66,7 +66,7 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     command = Setup.build_command(args.build_command, "x86_64")
-    Setup.create_ahriman_configuration(args, "x86_64", args.repository, configuration.include)
+    Setup.configuration_create_ahriman(args, "x86_64", args.repository, configuration.include)
     set_option_mock.assert_has_calls([
         mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         mock.call("repository", "name", args.repository),
@@ -78,7 +78,7 @@ def test_create_ahriman_configuration(args: argparse.Namespace, configuration: C
     write_mock.assert_called_once()
 
 
-def test_create_devtools_configuration(args: argparse.Namespace, repository_paths: RepositoryPaths,
+def test_configuration_create_devtools(args: argparse.Namespace, repository_paths: RepositoryPaths,
                                        mocker: MockerFixture) -> None:
     """
     must create configuration for the devtools
@@ -89,7 +89,7 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     add_section_mock = mocker.patch("ahriman.core.configuration.Configuration.add_section")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
+    Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
                                         args.no_multilib, args.repository, repository_paths)
     add_section_mock.assert_has_calls([
         mock.call("multilib"),
@@ -98,7 +98,7 @@ def test_create_devtools_configuration(args: argparse.Namespace, repository_path
     write_mock.assert_called_once()
 
 
-def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, repository_paths: RepositoryPaths,
+def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, repository_paths: RepositoryPaths,
                                                    mocker: MockerFixture) -> None:
     """
     must create configuration for the devtools without multilib
@@ -108,12 +108,12 @@ def test_create_devtools_configuration_no_multilib(args: argparse.Namespace, rep
     mocker.patch("ahriman.core.configuration.Configuration.set")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    Setup.create_devtools_configuration(args.build_command, "x86_64", args.from_configuration,
+    Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
                                         True, args.repository, repository_paths)
     write_mock.assert_called_once()
 
 
-def test_create_makepkg_configuration(args: argparse.Namespace, repository_paths: RepositoryPaths,
+def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths: RepositoryPaths,
                                       mocker: MockerFixture) -> None:
     """
     must create makepkg configuration
@@ -121,11 +121,11 @@ def test_create_makepkg_configuration(args: argparse.Namespace, repository_paths
     args = _default_args(args)
     write_text_mock = mocker.patch("pathlib.Path.write_text")
 
-    Setup.create_makepkg_configuration(args.packager, repository_paths)
+    Setup.configuration_create_makepkg(args.packager, repository_paths)
     write_text_mock.assert_called_once()
 
 
-def test_create_sudo_configuration(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_configuration_create_sudo(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must create sudo configuration
     """
@@ -133,12 +133,12 @@ def test_create_sudo_configuration(args: argparse.Namespace, mocker: MockerFixtu
     chmod_text_mock = mocker.patch("pathlib.Path.chmod")
     write_text_mock = mocker.patch("pathlib.Path.write_text")
 
-    Setup.create_sudo_configuration(args.build_command, "x86_64")
+    Setup.configuration_create_sudo(args.build_command, "x86_64")
     chmod_text_mock.assert_called_once_with(0o400)
     write_text_mock.assert_called_once()
 
 
-def test_create_executable(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_executable_create(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must create executable
     """
@@ -146,7 +146,7 @@ def test_create_executable(args: argparse.Namespace, mocker: MockerFixture) -> N
     symlink_text_mock = mocker.patch("pathlib.Path.symlink_to")
     unlink_text_mock = mocker.patch("pathlib.Path.unlink")
 
-    Setup.create_executable(args.build_command, "x86_64")
+    Setup.executable_create(args.build_command, "x86_64")
     symlink_text_mock.assert_called_once()
     unlink_text_mock.assert_called_once()
 

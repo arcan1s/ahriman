@@ -208,7 +208,7 @@ class Application:
         # run generic update function
         self.update([])
         # sign repository database if set
-        self.repository.sign.sign_repository(self.repository.repo.repo_path)
+        self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
         self._finalize([])
 
     def sync(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
