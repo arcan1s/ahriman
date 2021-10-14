@@ -144,7 +144,7 @@ class Executor(Cleaner):
                 return  # suppress type checking, it never can be none actually
             # in theory it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / fn
-            files = self.sign.sign_package(full_path, base)
+            files = self.sign.process_sign_package(full_path, base)
             for src in files:
                 dst = self.paths.repository / src.name
                 shutil.move(src, dst)

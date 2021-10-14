@@ -34,17 +34,17 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     args = _default_args(args)
     mocker.patch("pathlib.Path.mkdir")
-    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
-    create_configuration_mock = mocker.patch("ahriman.application.handlers.User.create_configuration")
-    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.write_configuration")
-    create_user = mocker.patch("ahriman.application.handlers.User.create_user")
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
+    create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
+    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
+    create_user_mock = mocker.patch("ahriman.application.handlers.User.user_create")
     get_salt_mock = mocker.patch("ahriman.application.handlers.User.get_salt")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
     get_auth_configuration_mock.assert_called_once()
     create_configuration_mock.assert_called_once()
-    create_user.assert_called_once()
+    create_user_mock.assert_called_once()
     get_salt_mock.assert_called_once()
     write_configuration_mock.assert_called_once()
     reload_mock.assert_called_once()
@@ -57,9 +57,9 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     args = _default_args(args)
     args.action = Action.Remove
     mocker.patch("pathlib.Path.mkdir")
-    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
-    create_configuration_mock = mocker.patch("ahriman.application.handlers.User.create_configuration")
-    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.write_configuration")
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
+    create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
+    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
@@ -75,41 +75,16 @@ def test_run_no_reload(args: argparse.Namespace, configuration: Configuration, m
     """
     args = _default_args(args)
     args.no_reload = True
-    mocker.patch("ahriman.application.handlers.User.get_auth_configuration")
-    mocker.patch("ahriman.application.handlers.User.create_configuration")
-    mocker.patch("ahriman.application.handlers.User.write_configuration")
+    mocker.patch("ahriman.application.handlers.User.configuration_get")
+    mocker.patch("ahriman.application.handlers.User.configuration_create")
+    mocker.patch("ahriman.application.handlers.User.configuration_write")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
     reload_mock.assert_not_called()
 
 
-def test_clear_user(configuration: Configuration, user: MUser) -> None:
-    """
-    must clear user from configuration
-    """
-    section = Configuration.section_name("auth", user.access.value)
-    configuration.set_option(section, user.username, user.password)
-
-    User.clear_user(configuration, user)
-    assert configuration.get(section, user.username, fallback=None) is None
-
-
-def test_clear_user_multiple_sections(configuration: Configuration, user: MUser) -> None:
-    """
-    must clear user from configuration from all sections
-    """
-    for role in UserAccess:
-        section = Configuration.section_name("auth", role.value)
-        configuration.set_option(section, user.username, user.password)
-
-    User.clear_user(configuration, user)
-    for role in UserAccess:
-        section = Configuration.section_name("auth", role.value)
-        assert configuration.get(section, user.username, fallback=None) is None
-
-
-def test_create_configuration(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
+def test_configuration_create(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
     """
     must correctly create configuration file
     """
@@ -117,14 +92,14 @@ def test_create_configuration(configuration: Configuration, user: MUser, mocker:
     mocker.patch("pathlib.Path.open")
     set_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
 
-    User.create_configuration(configuration, user, "salt", False)
+    User.configuration_create(configuration, user, "salt", False)
     set_mock.assert_has_calls([
         mock.call("auth", "salt", pytest.helpers.anyvar(str)),
         mock.call(section, user.username, pytest.helpers.anyvar(str))
     ])
 
 
-def test_create_configuration_user_exists(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
+def test_configuration_create_user_exists(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
     """
     must correctly update configuration file if user already exists
     """
@@ -132,12 +107,12 @@ def test_create_configuration_user_exists(configuration: Configuration, user: MU
     configuration.set_option(section, user.username, "")
     mocker.patch("pathlib.Path.open")
 
-    User.create_configuration(configuration, user, "salt", False)
+    User.configuration_create(configuration, user, "salt", False)
     generated = MUser.from_option(user.username, configuration.get(section, user.username))
     assert generated.check_credentials(user.password, configuration.get("auth", "salt"))
 
 
-def test_create_configuration_with_plain_password(
+def test_configuration_create_with_plain_password(
         configuration: Configuration,
         user: MUser,
         mocker: MockerFixture) -> None:
@@ -147,7 +122,7 @@ def test_create_configuration_with_plain_password(
     section = Configuration.section_name("auth", user.access.value)
     mocker.patch("pathlib.Path.open")
 
-    User.create_configuration(configuration, user, "salt", True)
+    User.configuration_create(configuration, user, "salt", True)
 
     generated = MUser.from_option(user.username, configuration.get(section, user.username))
     service = MUser.from_option(configuration.get("web", "username"), configuration.get("web", "password"))
@@ -155,28 +130,67 @@ def test_create_configuration_with_plain_password(
     assert generated.check_credentials(service.password, configuration.get("auth", "salt"))
 
 
-def test_create_user(args: argparse.Namespace, user: MUser) -> None:
+def test_configuration_get_exists(mocker: MockerFixture) -> None:
     """
-    must create user
+    must load configuration from filesystem
     """
-    args = _default_args(args)
-    generated = User.create_user(args)
-    assert generated.username == user.username
-    assert generated.access == user.access
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+
+    assert User.configuration_get(Path("path"))
+    read_mock.assert_called_once()
 
 
-def test_create_user_getpass(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_configuration_get_not_exists(mocker: MockerFixture) -> None:
     """
-    must create user and get password from command line
+    must try to load configuration from filesystem
     """
-    args = _default_args(args)
-    args.password = None
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
-    getpass_mock = mocker.patch("getpass.getpass", return_value="password")
-    generated = User.create_user(args)
+    assert User.configuration_get(Path("path"))
+    read_mock.assert_called_once()
 
-    getpass_mock.assert_called_once()
-    assert generated.password == "password"
+
+def test_configuration_write(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must write configuration
+    """
+    mocker.patch("pathlib.Path.open")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
+    chmod_mock = mocker.patch("pathlib.Path.chmod")
+
+    User.configuration_write(configuration, secure=True)
+    write_mock.assert_called_once()
+    chmod_mock.assert_called_once()
+
+
+def test_configuration_write_insecure(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must write configuration without setting file permissions
+    """
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("ahriman.core.configuration.Configuration.write")
+    chmod_mock = mocker.patch("pathlib.Path.chmod")
+
+    User.configuration_write(configuration, secure=False)
+    chmod_mock.assert_not_called()
+
+
+def test_configuration_write_not_loaded(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must do nothing in case if configuration is not loaded
+    """
+    configuration.path = None
+    mocker.patch("pathlib.Path.open")
+    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
+    chmod_mock = mocker.patch("pathlib.Path.chmod")
+
+    User.configuration_write(configuration, secure=True)
+    write_mock.assert_not_called()
+    chmod_mock.assert_not_called()
 
 
 def test_get_salt_read(configuration: Configuration) -> None:
@@ -197,67 +211,53 @@ def test_get_salt_generate(configuration: Configuration) -> None:
     assert len(salt) == 16
 
 
-def test_get_auth_configuration_exists(mocker: MockerFixture) -> None:
+def test_user_clear(configuration: Configuration, user: MUser) -> None:
     """
-    must load configuration from filesystem
+    must clear user from configuration
     """
-    mocker.patch("pathlib.Path.open")
-    mocker.patch("pathlib.Path.is_file", return_value=True)
-    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+    section = Configuration.section_name("auth", user.access.value)
+    configuration.set_option(section, user.username, user.password)
 
-    assert User.get_auth_configuration(Path("path"))
-    read_mock.assert_called_once()
+    User.user_clear(configuration, user)
+    assert configuration.get(section, user.username, fallback=None) is None
 
 
-def test_get_auth_configuration_not_exists(mocker: MockerFixture) -> None:
+def test_user_clear_multiple_sections(configuration: Configuration, user: MUser) -> None:
     """
-    must try to load configuration from filesystem
+    must clear user from configuration from all sections
     """
-    mocker.patch("pathlib.Path.open")
-    mocker.patch("pathlib.Path.is_file", return_value=False)
-    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+    for role in UserAccess:
+        section = Configuration.section_name("auth", role.value)
+        configuration.set_option(section, user.username, user.password)
 
-    assert User.get_auth_configuration(Path("path"))
-    read_mock.assert_called_once()
+    User.user_clear(configuration, user)
+    for role in UserAccess:
+        section = Configuration.section_name("auth", role.value)
+        assert configuration.get(section, user.username, fallback=None) is None
 
 
-def test_write_configuration(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_user_create(args: argparse.Namespace, user: MUser) -> None:
     """
-    must write configuration
+    must create user
     """
-    mocker.patch("pathlib.Path.open")
-    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
-    chmod_mock = mocker.patch("pathlib.Path.chmod")
-
-    User.write_configuration(configuration, secure=True)
-    write_mock.assert_called_once()
-    chmod_mock.assert_called_once()
+    args = _default_args(args)
+    generated = User.user_create(args)
+    assert generated.username == user.username
+    assert generated.access == user.access
 
 
-def test_write_configuration_insecure(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_user_create_getpass(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
-    must write configuration without setting file permissions
+    must create user and get password from command line
     """
-    mocker.patch("pathlib.Path.open")
-    mocker.patch("ahriman.core.configuration.Configuration.write")
-    chmod_mock = mocker.patch("pathlib.Path.chmod")
+    args = _default_args(args)
+    args.password = None
 
-    User.write_configuration(configuration, secure=False)
-    chmod_mock.assert_not_called()
+    getpass_mock = mocker.patch("getpass.getpass", return_value="password")
+    generated = User.user_create(args)
 
-
-def test_write_configuration_not_loaded(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must do nothing in case if configuration is not loaded
-    """
-    configuration.path = None
-    mocker.patch("pathlib.Path.open")
-    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
-    chmod_mock = mocker.patch("pathlib.Path.chmod")
-
-    User.write_configuration(configuration, secure=True)
-    write_mock.assert_not_called()
-    chmod_mock.assert_not_called()
+    getpass_mock.assert_called_once()
+    assert generated.password == "password"
 
 
 def test_disallow_auto_architecture_run() -> None:

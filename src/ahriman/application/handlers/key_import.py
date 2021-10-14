@@ -43,4 +43,4 @@ class KeyImport(Handler):
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        Application(architecture, configuration, no_report).repository.sign.import_key(args.key_server, args.key)
+        Application(architecture, configuration, no_report).repository.sign.key_import(args.key_server, args.key)

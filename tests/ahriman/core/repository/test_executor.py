@@ -185,7 +185,7 @@ def test_process_update(executor: Executor, package_ahriman: Package, mocker: Mo
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     move_mock = mocker.patch("shutil.move")
     repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
-    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.sign_package", side_effect=lambda fn, _: [fn])
+    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
 
     # must return complete

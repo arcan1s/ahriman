@@ -88,7 +88,7 @@ class GPG:
         default_key = configuration.get("sign", "key") if targets else None
         return targets, default_key
 
-    def download_key(self, server: str, key: str) -> str:
+    def key_download(self, server: str, key: str) -> str:
         """
         download key from public PGP server
         :param server: public PGP server which will be used to download the key
@@ -108,13 +108,13 @@ class GPG:
             raise
         return response.text
 
-    def import_key(self, server: str, key: str) -> None:
+    def key_import(self, server: str, key: str) -> None:
         """
         import key to current user and sign it locally
         :param server: public PGP server which will be used to download the key
         :param key: key ID to import
         """
-        key_body = self.download_key(server, key)
+        key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, exception=None, logger=self.logger)
         GPG._check_output("gpg", "--quick-lsign-key", key, exception=None, logger=self.logger)
 
@@ -131,7 +131,7 @@ class GPG:
             logger=self.logger)
         return [path, path.parent / f"{path.name}.sig"]
 
-    def sign_package(self, path: Path, base: str) -> List[Path]:
+    def process_sign_package(self, path: Path, base: str) -> List[Path]:
         """
         sign package if required by configuration
         :param path: path to file to sign
@@ -146,7 +146,7 @@ class GPG:
             return [path]
         return self.process(path, key)
 
-    def sign_repository(self, path: Path) -> List[Path]:
+    def process_sign_repository(self, path: Path) -> List[Path]:
         """
         sign repository if required by configuration
         :note: more likely you just want to pass `repository_sign_args` to repo wrapper

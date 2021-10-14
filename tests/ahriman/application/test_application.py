@@ -263,7 +263,7 @@ def test_sign(application: Application, package_ahriman: Package, package_python
                  return_value=[package_ahriman, package_python_schedule])
     copy_mock = mocker.patch("shutil.copy")
     update_mock = mocker.patch("ahriman.application.application.Application.update")
-    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.sign_repository")
+    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
     finalize_mock = mocker.patch("ahriman.application.application.Application._finalize")
 
     application.sign([])
@@ -296,7 +296,7 @@ def test_sign_specific(application: Application, package_ahriman: Package, packa
                  return_value=[package_ahriman, package_python_schedule])
     copy_mock = mocker.patch("shutil.copy")
     update_mock = mocker.patch("ahriman.application.application.Application.update")
-    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.sign_repository")
+    sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
     finalize_mock = mocker.patch("ahriman.application.application.Application._finalize")
 
     application.sign([package_ahriman.base])
