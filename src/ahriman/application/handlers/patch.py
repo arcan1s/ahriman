@@ -68,8 +68,7 @@ class Patch(Handler):
         package = Package.load(sources_dir, application.repository.pacman, application.repository.aur_url)
         patch_dir = application.repository.paths.patches_for(package.base)
 
-        if patch_dir.is_dir():
-            shutil.rmtree(patch_dir)  # remove old patches
+        Patch.patch_set_remove(application, package.base)  # remove old patches
         patch_dir.mkdir(mode=0o755, parents=True)
 
         Sources.patch_create(sources_dir, patch_dir / "00-main.patch", *track)
