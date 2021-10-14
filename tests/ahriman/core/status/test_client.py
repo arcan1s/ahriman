@@ -96,7 +96,7 @@ def test_set_building(client: Client, package_ahriman: Package, mocker: MockerFi
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
     client.set_building(package_ahriman.base)
 
-    update_mock.assert_called_with(package_ahriman.base, BuildStatusEnum.Building)
+    update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Building)
 
 
 def test_set_failed(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -106,7 +106,7 @@ def test_set_failed(client: Client, package_ahriman: Package, mocker: MockerFixt
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
     client.set_failed(package_ahriman.base)
 
-    update_mock.assert_called_with(package_ahriman.base, BuildStatusEnum.Failed)
+    update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Failed)
 
 
 def test_set_pending(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -116,7 +116,7 @@ def test_set_pending(client: Client, package_ahriman: Package, mocker: MockerFix
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
     client.set_pending(package_ahriman.base)
 
-    update_mock.assert_called_with(package_ahriman.base, BuildStatusEnum.Pending)
+    update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Pending)
 
 
 def test_set_success(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -126,7 +126,7 @@ def test_set_success(client: Client, package_ahriman: Package, mocker: MockerFix
     add_mock = mocker.patch("ahriman.core.status.client.Client.add")
     client.set_success(package_ahriman)
 
-    add_mock.assert_called_with(package_ahriman, BuildStatusEnum.Success)
+    add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Success)
 
 
 def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -136,4 +136,4 @@ def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFix
     add_mock = mocker.patch("ahriman.core.status.client.Client.add")
     client.set_unknown(package_ahriman)
 
-    add_mock.assert_called_with(package_ahriman, BuildStatusEnum.Unknown)
+    add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Unknown)

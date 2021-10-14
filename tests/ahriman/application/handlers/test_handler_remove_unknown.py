@@ -47,7 +47,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, pac
     RemoveUnknown.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     remove_mock.assert_not_called()
-    log_fn_mock.assert_called_with(package_ahriman)
+    log_fn_mock.assert_called_once_with(package_ahriman)
 
 
 def test_log_fn(package_ahriman: Package, mocker: MockerFixture) -> None:

@@ -58,7 +58,7 @@ def test_get_oauth_url(oauth: OAuth, mocker: MockerFixture) -> None:
     """
     authorize_url_mock = mocker.patch("aioauth_client.GoogleClient.get_authorize_url")
     oauth.get_oauth_url()
-    authorize_url_mock.assert_called_with(scope=oauth.scopes, redirect_uri=oauth.redirect_uri)
+    authorize_url_mock.assert_called_once_with(scope=oauth.scopes, redirect_uri=oauth.redirect_uri)
 
 
 async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
@@ -70,7 +70,7 @@ async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
                                   return_value=(aioauth_client.User(email="email"), ""))
 
     email = await oauth.get_oauth_username("code")
-    access_token_mock.assert_called_with("code", redirect_uri=oauth.redirect_uri)
+    access_token_mock.assert_called_once_with("code", redirect_uri=oauth.redirect_uri)
     user_info_mock.assert_called_once()
     assert email == "email"
 

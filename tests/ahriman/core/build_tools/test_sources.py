@@ -17,7 +17,7 @@ def test_add(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.add(local, "pattern1", "pattern2")
     glob_mock.assert_has_calls([mock.call("pattern1"), mock.call("pattern2")])
-    check_output_mock.assert_called_with(
+    check_output_mock.assert_called_once_with(
         "git", "add", "--intent-to-add", "1", "2", "1", "2",
         exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
@@ -32,7 +32,8 @@ def test_diff(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.diff(local, Path("patch"))
     write_mock.assert_called_once()
-    check_output_mock.assert_called_with("git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "diff",
+                                              exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_fetch_empty(mocker: MockerFixture) -> None:
@@ -93,7 +94,8 @@ def test_has_remotes(mocker: MockerFixture) -> None:
 
     local = Path("local")
     assert Sources.has_remotes(local)
-    check_output_mock.assert_called_with("git", "remote", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "remote",
+                                              exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_has_remotes_empty(mocker: MockerFixture) -> None:
@@ -112,8 +114,8 @@ def test_init(mocker: MockerFixture) -> None:
 
     local = Path("local")
     Sources.init(local)
-    check_output_mock.assert_called_with("git", "init", "--initial-branch", Sources._branch,
-                                         exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "init", "--initial-branch", Sources._branch,
+                                              exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_load(mocker: MockerFixture) -> None:
@@ -124,8 +126,8 @@ def test_load(mocker: MockerFixture) -> None:
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
 
     Sources.load(Path("local"), "remote", Path("patches"))
-    fetch_mock.assert_called_with(Path("local"), "remote")
-    patch_mock.assert_called_with(Path("local"), Path("patches"))
+    fetch_mock.assert_called_once_with(Path("local"), "remote")
+    patch_mock.assert_called_once_with(Path("local"), Path("patches"))
 
 
 def test_patch_apply(mocker: MockerFixture) -> None:
@@ -178,5 +180,5 @@ def test_patch_create(mocker: MockerFixture) -> None:
     diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
 
     Sources.patch_create(Path("local"), Path("patch"), "glob")
-    add_mock.assert_called_with(Path("local"), "glob")
-    diff_mock.assert_called_with(Path("local"), Path("patch"))
+    add_mock.assert_called_once_with(Path("local"), "glob")
+    diff_mock.assert_called_once_with(Path("local"), Path("patch"))

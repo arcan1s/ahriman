@@ -51,7 +51,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
     Status.run(args, "x86_64", configuration, True)
-    packages_mock.assert_called_with(package_ahriman.base)
+    packages_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_run_by_status(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,

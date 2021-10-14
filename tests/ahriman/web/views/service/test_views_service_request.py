@@ -24,7 +24,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     response = await client.post("/service-api/v1/request", json={"packages": ["ahriman"]})
 
     assert response.ok
-    add_mock.assert_called_with(["ahriman"], now=False)
+    add_mock.assert_called_once_with(["ahriman"], now=False)
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

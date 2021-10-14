@@ -134,7 +134,7 @@ def test_create_sudo_configuration(args: argparse.Namespace, mocker: MockerFixtu
     write_text_mock = mocker.patch("pathlib.Path.write_text")
 
     Setup.create_sudo_configuration(args.build_command, "x86_64")
-    chmod_text_mock.assert_called_with(0o400)
+    chmod_text_mock.assert_called_once_with(0o400)
     write_text_mock.assert_called_once()
 
 

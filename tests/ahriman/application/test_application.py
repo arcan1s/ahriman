@@ -41,7 +41,7 @@ def test_get_updates_all(application: Application, package_ahriman: Package, moc
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
     application.get_updates([], no_aur=False, no_manual=False, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_with([], False)
+    updates_aur_mock.assert_called_once_with([], False)
     updates_manual_mock.assert_called_once()
 
 
@@ -77,7 +77,7 @@ def test_get_updates_no_manual(application: Application, mocker: MockerFixture) 
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
     application.get_updates([], no_aur=False, no_manual=True, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_with([], False)
+    updates_aur_mock.assert_called_once_with([], False)
     updates_manual_mock.assert_not_called()
 
 
@@ -89,7 +89,7 @@ def test_get_updates_no_vcs(application: Application, mocker: MockerFixture) -> 
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
     application.get_updates([], no_aur=False, no_manual=False, no_vcs=True, log_fn=print)
-    updates_aur_mock.assert_called_with([], True)
+    updates_aur_mock.assert_called_once_with([], True)
     updates_manual_mock.assert_called_once()
 
 
@@ -101,7 +101,7 @@ def test_get_updates_with_filter(application: Application, mocker: MockerFixture
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
     application.get_updates(["filter"], no_aur=False, no_manual=False, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_with(["filter"], False)
+    updates_aur_mock.assert_called_once_with(["filter"], False)
     updates_manual_mock.assert_called_once()
 
 
@@ -271,7 +271,7 @@ def test_sign(application: Application, package_ahriman: Package, package_python
         mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str)),
         mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str))
     ])
-    update_mock.assert_called_with([])
+    update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once()
     finalize_mock.assert_called_once()
 
@@ -301,7 +301,7 @@ def test_sign_specific(application: Application, package_ahriman: Package, packa
 
     application.sign([package_ahriman.base])
     copy_mock.assert_called_once()
-    update_mock.assert_called_with([])
+    update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once()
     finalize_mock.assert_called_once()
 
@@ -366,5 +366,5 @@ def test_update(application: Application, package_ahriman: Package, mocker: Mock
 
     application.update([package_ahriman])
     build_mock.assert_called_once()
-    update_mock.assert_called_with(paths)
-    finalize_mock.assert_called_with([package_ahriman])
+    update_mock.assert_called_once_with(paths)
+    finalize_mock.assert_called_once_with([package_ahriman])
