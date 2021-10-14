@@ -92,24 +92,13 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     must create patch set for the package
     """
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    remove_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
     create_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create")
     patch_dir = application.repository.paths.patches_for(package_ahriman.base)
 
     Patch.patch_set_create(application, Path("path"), ["*.patch"])
+    remove_mock.assert_called_once_with(application, package_ahriman.base)
     create_mock.assert_called_once_with(Path("path"), patch_dir / "00-main.patch", "*.patch")
-
-
-def test_patch_set_create_clear(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must clear patches directory before new set creation
-    """
-    mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create")
-    remove_mock = mocker.patch("shutil.rmtree")
-
-    Patch.patch_set_create(application, Path("path"), ["*.patch"])
-    remove_mock.assert_called()
 
 
 def test_patch_set_remove(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
