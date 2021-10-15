@@ -11,7 +11,6 @@ depends=('devtools' 'git' 'pyalpm' 'python-aur' 'python-passlib' 'python-srcinfo
 makedepends=('python-pip')
 optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
-            'gnupg: package and repository sign'
             'mercurial: -hg packages support'
             'python-aioauth-client: web server with OAuth2 authorization'
             'python-aiohttp: web server'

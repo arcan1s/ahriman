@@ -59,7 +59,7 @@
 6. Add packages by using `ahriman package-add {package}` command:
 
     ```shell
-    sudo -u ahriman ahriman -a x86_64 package-add yay --now
+    sudo -u ahriman ahriman -a x86_64 package-add ahriman --now
     ```
 
 ## User creation

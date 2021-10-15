@@ -56,15 +56,12 @@ def _parser() -> argparse.ArgumentParser:
                         action="append")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
-    parser.add_argument(
-        "-l",
-        "--lock",
-        help="lock file",
-        type=Path,
-        default=Path(tempfile.gettempdir()) / "ahriman.lock")
+    parser.add_argument("-l", "--lock", help="lock file", type=Path,
+                        default=Path(tempfile.gettempdir()) / "ahriman.lock")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
-    parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user", action="store_true")
+    parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
+                        action="store_true")
     parser.add_argument("-v", "--version", action="version", version=version.__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
@@ -117,7 +114,7 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("key-import", help="import PGP key",
-                             description="import PGP key from public sources to repository user",
+                             description="import PGP key from public sources to the repository user",
                              epilog="By default ahriman runs build process with package sources validation "
                                     "(in case if signature and keys are available in PKGBUILD). This process will "
                                     "fail in case if key is not known for build user. This subcommand can be used "
@@ -135,7 +132,8 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("package-add", aliases=["add"], help="add package", description="add package",
+    parser = root.add_parser("package-add", aliases=["add", "package-update"], help="add package",
+                             description="add existing or new package to the build queue",
                              epilog="This subcommand should be used for new package addition. It also supports flag "
                                     "--now in case if you would like to build the package immediately. "
                                     "You can add new package from one of supported sources: "
@@ -161,8 +159,8 @@ def _set_package_remove_parser(root: SubParserAction) -> argparse.ArgumentParser
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("package-remove", aliases=["remove"], help="remove package", description="remove package",
-                             formatter_class=_formatter)
+    parser = root.add_parser("package-remove", aliases=["remove"], help="remove package",
+                             description="remove package from the repository", formatter_class=_formatter)
     parser.add_argument("package", help="package name or base", nargs="+")
     parser.set_defaults(handler=handlers.Remove)
     return parser
@@ -227,7 +225,7 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("patch-add", help="patches control", description="create/update for sources",
+    parser = root.add_parser("patch-add", help="add patch set", description="create or update source patches",
                              epilog="In order to add a patch set for the package you will need to clone "
                                     "the AUR package manually, add required changes (e.g. external patches, "
                                     "edit PKGBUILD) and run command, e.g. `ahriman patch path/to/directory`. "
@@ -247,8 +245,8 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("patch-list", help="patches control", description="list available patches for the package",
-                             formatter_class=_formatter)
+    parser = root.add_parser("patch-list", help="list patch sets",
+                             description="list available patches for the package", formatter_class=_formatter)
     parser.add_argument("package", help="package base")
     parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, no_report=True)
     return parser
@@ -260,7 +258,7 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("patch-remove", help="patches control", description="remove patches for the package",
+    parser = root.add_parser("patch-remove", help="remove patch set", description="remove patches for the package",
                              formatter_class=_formatter)
     parser.add_argument("package", help="package base")
     parser.set_defaults(handler=handlers.Patch, action=Action.Remove, architecture=[""], lock=None, no_report=True)
@@ -274,7 +272,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-check", aliases=["check"], help="check for updates",
-                             description="check for updates. Same as update --dry-run --no-manual",
+                             description="check for packages updates. Same as update --dry-run --no-manual",
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
@@ -289,7 +287,7 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-clean", aliases=["clean"], help="clean local caches",
-                             description="clear local caches",
+                             description="remove local caches",
                              epilog="The subcommand clears every temporary directories (builds, caches etc). Normally "
                                     "you should not run this command manually. Also in case if you are going to clear "
                                     "the chroot directories you will need root privileges.",
@@ -310,7 +308,7 @@ def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-config", aliases=["config"], help="dump configuration",
-                             description="dump configuration for specified architecture",
+                             description="dump configuration for the specified architecture",
                              formatter_class=_formatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, no_report=True, quiet=True, unsafe=True)
     return parser
@@ -336,7 +334,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
-                             description="rebuild whole repository", formatter_class=_formatter)
+                             description="force rebuild whole repository", formatter_class=_formatter)
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
@@ -349,7 +347,7 @@ def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentP
     :return: created argument parser
     """
     parser = root.add_parser("repo-remove-unknown", aliases=["remove-unknown"], help="remove unknown packages",
-                             description="remove packages which are missing in AUR",
+                             description="remove packages which are missing in AUR and do not have local PKGBUILDs",
                              formatter_class=_formatter)
     parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
     parser.set_defaults(handler=handlers.RemoveUnknown)
@@ -362,7 +360,8 @@ def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("repo-report", aliases=["report"], help="generate report", description="generate report",
+    parser = root.add_parser("repo-report", aliases=["report"], help="generate report",
+                             description="generate repository report according to current settings",
                              epilog="Create and/or update repository report as configured.",
                              formatter_class=_formatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
@@ -401,7 +400,7 @@ def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-sign", aliases=["sign"], help="sign packages",
-                             description="(re-)sign packages and repository database",
+                             description="(re-)sign packages and repository database according to current settings",
                              epilog="Sign repository and/or packages as configured.",
                              formatter_class=_formatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
@@ -416,7 +415,7 @@ def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :return: created argument parser
     """
     parser = root.add_parser("repo-sync", aliases=["sync"], help="sync repository",
-                             description="sync packages to remote server",
+                             description="sync repository files to remote server according to current settings",
                              epilog="Synchronize the repository to remote services as configured.",
                              formatter_class=_formatter)
     parser.add_argument("target", help="target to sync", nargs="*")
@@ -430,7 +429,8 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("repo-update", aliases=["update"], help="update packages", description="run updates",
+    parser = root.add_parser("repo-update", aliases=["update"], help="update packages",
+                             description="check for packages updates and run build process if requested",
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
@@ -447,7 +447,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("user-add", help="create or update user for web services",
+    parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
                                          "In case if password was not entered it will be asked interactively",
                              formatter_class=_formatter)
@@ -470,8 +470,8 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("user-remove", help="remove user for web services",
-                             description="remove user from the user mapping and write the configuration",
+    parser = root.add_parser("user-remove", help="remove user",
+                             description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("--no-reload", help="do not reload authentication module", action="store_true")

@@ -104,7 +104,6 @@ class OAuth(Mapping):
             access_token, _ = await client.get_access_token(code, redirect_uri=self.redirect_uri)
             client.access_token = access_token
 
-            print(f"HEEELOOOO {client}")
             user, _ = await client.user_info()
             username: str = user.email  # type: ignore
             return username

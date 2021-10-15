@@ -17,7 +17,7 @@ setup(
 
     description="ArcH Linux ReposItory MANager",
 
-    author="arcanis",
+    author="ahriman team",
     author_email="",
     url="https://github.com/arcan1s/ahriman",
 
