@@ -194,9 +194,10 @@ There are several choices:
     target = github
 
     [github]
-    api_key = ...
     owner = ahriman
+    password = ...
     repository = repository
+    username = ahriman
     ```
 
 ## Reporting
