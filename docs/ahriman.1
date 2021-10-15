@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,key-import,package-add,add,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 .SH OPTIONS
@@ -34,7 +34,7 @@ force disable any logging
 
 .TP
 \fB\-\-unsafe\fR
-allow to run ahriman as non\-ahriman user
+allow to run ahriman as non\-ahriman user. Some actions might be unavailable
 
 .TP
 \fB\-v\fR, \fB\-\-version\fR
@@ -65,13 +65,13 @@ remove package status
 update package status
 .TP
 \fBahriman\fR \fI\,patch-add\/\fR
-patches control
+add patch set
 .TP
 \fBahriman\fR \fI\,patch-list\/\fR
-patches control
+list patch sets
 .TP
 \fBahriman\fR \fI\,patch-remove\/\fR
-patches control
+remove patch set
 .TP
 \fBahriman\fR \fI\,repo-check\/\fR
 check for updates
@@ -107,10 +107,10 @@ sync repository
 update packages
 .TP
 \fBahriman\fR \fI\,user-add\/\fR
-create or update user for web services
+create or update user
 .TP
 \fBahriman\fR \fI\,user-remove\/\fR
-remove user for web services
+remove user
 .TP
 \fBahriman\fR \fI\,web\/\fR
 web server
@@ -137,7 +137,7 @@ search terms, can be specified multiple times
 .SH OPTIONS 'ahriman key-import'
 usage: ahriman key-import [-h] [--key-server KEY_SERVER] key
 
-import PGP key from public sources to repository user
+import PGP key from public sources to the repository user
 
 .TP
 \fBkey\fR
@@ -149,22 +149,22 @@ key server for key import
 
 .SH OPTIONS 'ahriman package-add'
 usage: ahriman package-add [-h] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
                            [--without-dependencies]
                            package [package ...]
 
-add package
+add existing or new package to the build queue
 
 .TP
 \fBpackage\fR
-package base/name or archive path
+package base/name or path to local files
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
 package source
 
 .TP
@@ -173,22 +173,46 @@ do not add dependencies
 
 .SH OPTIONS 'ahriman add'
 usage: ahriman package-add [-h] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
                            [--without-dependencies]
                            package [package ...]
 
-add package
+add existing or new package to the build queue
 
 .TP
 \fBpackage\fR
-package base/name or archive path
+package base/name or path to local files
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.Directory,PackageSource.AUR}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
+package source
+
+.TP
+\fB\-\-without\-dependencies\fR
+do not add dependencies
+
+.SH OPTIONS 'ahriman package-update'
+usage: ahriman package-add [-h] [-n]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
+                           [--without-dependencies]
+                           package [package ...]
+
+add existing or new package to the build queue
+
+.TP
+\fBpackage\fR
+package base/name or path to local files
+
+.TP
+\fB\-n\fR, \fB\-\-now\fR
+run update function after
+
+.TP
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
 package source
 
 .TP
@@ -198,7 +222,7 @@ do not add dependencies
 .SH OPTIONS 'ahriman package-remove'
 usage: ahriman package-remove [-h] package [package ...]
 
-remove package
+remove package from the repository
 
 .TP
 \fBpackage\fR
@@ -208,7 +232,7 @@ package name or base
 .SH OPTIONS 'ahriman remove'
 usage: ahriman package-remove [-h] package [package ...]
 
-remove package
+remove package from the repository
 
 .TP
 \fBpackage\fR
@@ -296,7 +320,7 @@ new status
 .SH OPTIONS 'ahriman patch-add'
 usage: ahriman patch-add [-h] [-t TRACK] package
 
-create/update for sources
+create or update source patches
 
 .TP
 \fBpackage\fR
@@ -329,7 +353,7 @@ package base
 .SH OPTIONS 'ahriman repo-check'
 usage: ahriman repo-check [-h] [--no-vcs] [package ...]
 
-check for updates. Same as update \-\-dry\-run \-\-no\-manual
+check for packages updates. Same as update \-\-dry\-run \-\-no\-manual
 
 .TP
 \fBpackage\fR
@@ -342,7 +366,7 @@ do not check VCS packages
 .SH OPTIONS 'ahriman check'
 usage: ahriman repo-check [-h] [--no-vcs] [package ...]
 
-check for updates. Same as update \-\-dry\-run \-\-no\-manual
+check for packages updates. Same as update \-\-dry\-run \-\-no\-manual
 
 .TP
 \fBpackage\fR
@@ -355,7 +379,7 @@ do not check VCS packages
 .SH OPTIONS 'ahriman repo-clean'
 usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
 
-clear local caches
+remove local caches
 
 
 .TP
@@ -381,7 +405,7 @@ do not clear directory with built packages
 .SH OPTIONS 'ahriman clean'
 usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
 
-clear local caches
+remove local caches
 
 
 .TP
@@ -407,14 +431,14 @@ do not clear directory with built packages
 .SH OPTIONS 'ahriman repo-config'
 usage: ahriman repo-config [-h]
 
-dump configuration for specified architecture
+dump configuration for the specified architecture
 
 
 
 .SH OPTIONS 'ahriman config'
 usage: ahriman repo-config [-h]
 
-dump configuration for specified architecture
+dump configuration for the specified architecture
 
 
 
@@ -435,7 +459,7 @@ create empty repository tree. Optional command for auto architecture support
 .SH OPTIONS 'ahriman repo-rebuild'
 usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
 
-rebuild whole repository
+force rebuild whole repository
 
 
 .TP
@@ -445,7 +469,7 @@ only rebuild packages that depend on specified package
 .SH OPTIONS 'ahriman rebuild'
 usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
 
-rebuild whole repository
+force rebuild whole repository
 
 
 .TP
@@ -455,7 +479,7 @@ only rebuild packages that depend on specified package
 .SH OPTIONS 'ahriman repo-remove-unknown'
 usage: ahriman repo-remove-unknown [-h] [--dry-run]
 
-remove packages which are missing in AUR
+remove packages which are missing in AUR and do not have local PKGBUILDs
 
 
 .TP
@@ -465,7 +489,7 @@ just perform check for packages without removal
 .SH OPTIONS 'ahriman remove-unknown'
 usage: ahriman repo-remove-unknown [-h] [--dry-run]
 
-remove packages which are missing in AUR
+remove packages which are missing in AUR and do not have local PKGBUILDs
 
 
 .TP
@@ -475,7 +499,7 @@ just perform check for packages without removal
 .SH OPTIONS 'ahriman repo-report'
 usage: ahriman repo-report [-h] [target ...]
 
-generate report
+generate repository report according to current settings
 
 .TP
 \fBtarget\fR
@@ -485,7 +509,7 @@ target to generate report
 .SH OPTIONS 'ahriman report'
 usage: ahriman repo-report [-h] [target ...]
 
-generate report
+generate repository report according to current settings
 
 .TP
 \fBtarget\fR
@@ -575,7 +599,7 @@ port of the web service
 .SH OPTIONS 'ahriman repo-sign'
 usage: ahriman repo-sign [-h] [package ...]
 
-(re\-)sign packages and repository database
+(re\-)sign packages and repository database according to current settings
 
 .TP
 \fBpackage\fR
@@ -585,7 +609,7 @@ sign only specified packages
 .SH OPTIONS 'ahriman sign'
 usage: ahriman repo-sign [-h] [package ...]
 
-(re\-)sign packages and repository database
+(re\-)sign packages and repository database according to current settings
 
 .TP
 \fBpackage\fR
@@ -595,7 +619,7 @@ sign only specified packages
 .SH OPTIONS 'ahriman repo-sync'
 usage: ahriman repo-sync [-h] [target ...]
 
-sync packages to remote server
+sync repository files to remote server according to current settings
 
 .TP
 \fBtarget\fR
@@ -605,7 +629,7 @@ target to sync
 .SH OPTIONS 'ahriman sync'
 usage: ahriman repo-sync [-h] [target ...]
 
-sync packages to remote server
+sync repository files to remote server according to current settings
 
 .TP
 \fBtarget\fR
@@ -615,7 +639,7 @@ target to sync
 .SH OPTIONS 'ahriman repo-update'
 usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
 
-run updates
+check for packages updates and run build process if requested
 
 .TP
 \fBpackage\fR
@@ -640,7 +664,7 @@ do not check VCS packages
 .SH OPTIONS 'ahriman update'
 usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
 
-run updates
+check for packages updates and run build process if requested
 
 .TP
 \fBpackage\fR
@@ -697,7 +721,7 @@ set file permissions to user\-only
 .SH OPTIONS 'ahriman user-remove'
 usage: ahriman user-remove [-h] [--no-reload] [-s] username
 
-remove user from the user mapping and write the configuration
+remove user from the user mapping and update the configuration
 
 .TP
 \fBusername\fR

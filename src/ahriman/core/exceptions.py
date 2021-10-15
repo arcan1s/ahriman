@@ -42,7 +42,8 @@ class DuplicateRun(RuntimeError):
         """
         default constructor
         """
-        RuntimeError.__init__(self, "Another application instance is run")
+        RuntimeError.__init__(
+            self, "Another application instance is run. This error can be suppressed by using --force flag.")
 
 
 class DuplicateUser(ValueError):

@@ -133,6 +133,16 @@ OAuth's implementation also allows authenticating users via username + password 
 
 In order to configure users there is special command.
 
+## Remote synchronization
+
+There are several supported synchronization providers, currently they are `rsync`, `s3`, `github`. 
+
+`rsync` provider does not have any specific logic except for running external rsync application with configured arguments. The service does not handle SSH configuration, thus it has to be configured before running application manually.
+
+`s3` provider uses `boto3` package and implements sync feature. The files are stored in architecture directory (e.g. if bucket is `repository`, packages will be stored in `repository/x86_64` for the `x86_64` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, used realization is described [here](https://teppen.io/2018/10/23/aws_s3_verify_etags/). 
+
+`github` provider authenticates through basic auth, API key with repository write permissions is required. There will be created a release with the name of the architecture in case if it does not exist; files will be uploaded to the release assets. It also stores array of files and their MD5 checksums in release body in order to upload only changed ones. According to the Github API in case if there is already uploaded asset with the same name (e.g. database files), asset will be removed first.
+
 ## Additional features
 
 Some features require optional dependencies to be installed:
