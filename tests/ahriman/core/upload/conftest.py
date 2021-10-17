@@ -20,7 +20,7 @@ def github(configuration: Configuration) -> Github:
     :param configuration: configuration fixture
     :return: github test instance
     """
-    return Github("x86_64", configuration)
+    return Github("x86_64", configuration, "github:x86_64")
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def rsync(configuration: Configuration) -> Rsync:
     :param configuration: configuration fixture
     :return: rsync test instance
     """
-    return Rsync("x86_64", configuration)
+    return Rsync("x86_64", configuration, "rsync")
 
 
 @pytest.fixture
@@ -60,7 +60,7 @@ def s3(configuration: Configuration) -> S3:
     :param configuration: configuration fixture
     :return: S3 test instance
     """
-    return S3("x86_64", configuration)
+    return S3("x86_64", configuration, "customs3")
 
 
 @pytest.fixture

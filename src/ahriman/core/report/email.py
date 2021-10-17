@@ -45,27 +45,28 @@ class Email(Report, JinjaTemplate):
     :ivar user: username to authenticate via SMTP
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param section: settings section name
         """
         Report.__init__(self, architecture, configuration)
-        JinjaTemplate.__init__(self, "email", configuration)
+        JinjaTemplate.__init__(self, section, configuration)
 
-        self.full_template_path = configuration.getpath("email", "full_template_path", fallback=None)
-        self.template_path = configuration.getpath("email", "template_path")
+        self.full_template_path = configuration.getpath(section, "full_template_path", fallback=None)
+        self.template_path = configuration.getpath(section, "template_path")
 
         # base smtp settings
-        self.host = configuration.get("email", "host")
-        self.no_empty_report = configuration.getboolean("email", "no_empty_report", fallback=True)
-        self.password = configuration.get("email", "password", fallback=None)
-        self.port = configuration.getint("email", "port")
-        self.receivers = configuration.getlist("email", "receivers")
-        self.sender = configuration.get("email", "sender")
-        self.ssl = SmtpSSLSettings.from_option(configuration.get("email", "ssl", fallback="disabled"))
-        self.user = configuration.get("email", "user", fallback=None)
+        self.host = configuration.get(section, "host")
+        self.no_empty_report = configuration.getboolean(section, "no_empty_report", fallback=True)
+        self.password = configuration.get(section, "password", fallback=None)
+        self.port = configuration.getint(section, "port")
+        self.receivers = configuration.getlist(section, "receivers")
+        self.sender = configuration.get(section, "sender")
+        self.ssl = SmtpSSLSettings.from_option(configuration.get(section, "ssl", fallback="disabled"))
+        self.user = configuration.get(section, "user", fallback=None)
 
     def _send(self, text: str, attachment: Dict[str, str]) -> None:
         """

@@ -35,15 +35,16 @@ class Rsync(Upload):
 
     _check_output = check_output
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param section: settings section name
         """
         Upload.__init__(self, architecture, configuration)
-        self.command = configuration.getlist("rsync", "command")
-        self.remote = configuration.get("rsync", "remote")
+        self.command = configuration.getlist(section, "command")
+        self.remote = configuration.get(section, "remote")
 
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """

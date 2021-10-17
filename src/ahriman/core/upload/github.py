@@ -36,15 +36,16 @@ class Github(HttpUpload):
     :ivar gh_repository: github repository name
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param section: settings section name
         """
-        HttpUpload.__init__(self, architecture, configuration, "github")
-        self.gh_owner = configuration.get("github", "owner")
-        self.gh_repository = configuration.get("github", "repository")
+        HttpUpload.__init__(self, architecture, configuration, section)
+        self.gh_owner = configuration.get(section, "owner")
+        self.gh_repository = configuration.get(section, "repository")
 
     def asset_remove(self, release: Dict[str, Any], name: str) -> None:
         """

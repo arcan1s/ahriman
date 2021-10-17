@@ -24,7 +24,7 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from ahriman.core.exceptions import InitializeException
 
@@ -42,7 +42,7 @@ class Configuration(configparser.RawConfigParser):
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d] [%(funcName)s]: %(message)s"
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
-    ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "html", "rsync", "s3", "sign", "web"]
+    ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
 
     def __init__(self) -> None:
         """
@@ -120,6 +120,26 @@ class Configuration(configparser.RawConfigParser):
     def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...
+
+    def gettype(self, section: str, architecture: str) -> Tuple[str, str]:
+        """
+        get type variable with fallback to old logic
+        Despite the fact that it has same semantics as other get* methods, but it has different argument list
+        :param section: section name
+        :param architecture: repository architecture
+        :return: section name and found type name
+        """
+        group_type = self.get(section, "type", fallback=None)  # new-style logic
+        if group_type is not None:
+            return section, group_type
+        # okay lets check for the section with architecture name
+        full_section = self.section_name(section, architecture)
+        if self.has_section(full_section):
+            return full_section, section
+        # okay lets just use section as type
+        if not self.has_section(section):
+            raise configparser.NoSectionError(section)
+        return section, section
 
     def load(self, path: Path) -> None:
         """

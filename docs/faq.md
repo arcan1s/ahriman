@@ -21,6 +21,66 @@ systemctl enable --now ahriman@x86_64.timer
 
 The idea is to install the package as usual, create working directory tree, create configuration for `sudo` and `devtools`. Detailed description of the setup instruction can be found [here](setup.md).
 
+### What does "architecture specific" mean? / How to configure for different architectures?
+
+Some sections can be configured per architecture. The service will merge architecture specific values into common settings. In order to specify settings for specific architecture you must point it in section name.
+
+For example, the section
+
+```ini
+[build]
+build_command = extra-x86_64-build
+```
+
+states that default build command is `extra-x86_64-build`. But if there is section
+
+```ini
+[build:i686]
+build_command = extra-i686-build
+```
+
+the `extra-i686-build` command will be used for `i686` architecture.
+
+### How to use reporter/upload settings?
+
+Normally you probably like to generate only one report for the specific type, e.g. only one email report. In order to do it you will need to have the following configuration:
+
+```ini
+[report]
+target = email
+
+[email]
+...
+```
+
+or in case of multiple architectures and _different_ reporting settings:
+
+```ini
+[report]
+target = email
+
+[email:i686]
+...
+
+[email:x86_64]
+...
+```
+
+But for some cases you would like to have multiple different reports with the same type (e.g. sending different templates to different addresses). For these cases you will need to specify section name in target and type in section, e.g. the following configuration can be used:
+
+```ini
+[report]
+target = email_1 email_2
+
+[email_1]
+type = email
+...
+
+[email_2]
+type = email
+...
+```
+
 ### Okay, I've installed ahriman, how do I add new package?
 
 ```shell
