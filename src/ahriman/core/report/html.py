@@ -31,17 +31,18 @@ class HTML(Report, JinjaTemplate):
     :ivar report_path: output path to html report
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param section: settings section name
         """
         Report.__init__(self, architecture, configuration)
-        JinjaTemplate.__init__(self, "html", configuration)
+        JinjaTemplate.__init__(self, section, configuration)
 
-        self.report_path = configuration.getpath("html", "path")
-        self.template_path = configuration.getpath("html", "template_path")
+        self.report_path = configuration.getpath(section, "path")
+        self.template_path = configuration.getpath(section, "template_path")
 
     def generate(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
         """

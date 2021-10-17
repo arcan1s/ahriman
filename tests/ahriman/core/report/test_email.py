@@ -11,7 +11,7 @@ def test_send(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     smtp_mock = mocker.patch("smtplib.SMTP")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
@@ -27,7 +27,7 @@ def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
     configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.login.assert_called_once()
 
@@ -39,7 +39,7 @@ def test_send_auth_no_password(configuration: Configuration, mocker: MockerFixtu
     configuration.set_option("email", "user", "username")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.login.assert_not_called()
 
@@ -51,7 +51,7 @@ def test_send_auth_no_user(configuration: Configuration, mocker: MockerFixture) 
     configuration.set_option("email", "password", "password")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.login.assert_not_called()
 
@@ -63,7 +63,7 @@ def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> No
     configuration.set_option("email", "ssl", "ssl")
     smtp_mock = mocker.patch("smtplib.SMTP_SSL")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
@@ -78,7 +78,7 @@ def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> N
     configuration.set_option("email", "ssl", "starttls")
     smtp_mock = mocker.patch("smtplib.SMTP")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_called_once()
 
@@ -89,7 +89,7 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
     """
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [])
     send_mock.assert_called_once()
 
@@ -100,7 +100,7 @@ def test_generate_with_built(configuration: Configuration, package_ahriman: Pack
     """
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [package_ahriman])
     send_mock.assert_called_once()
 
@@ -114,7 +114,7 @@ def test_generate_with_built_and_full_path(
     """
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report.full_template_path = report.template_path
     report.generate([package_ahriman], [package_ahriman])
     send_mock.assert_called_once()
@@ -127,7 +127,7 @@ def test_generate_no_empty(configuration: Configuration, package_ahriman: Packag
     configuration.set_option("email", "no_empty_report", "yes")
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [])
     send_mock.assert_not_called()
 
@@ -140,6 +140,6 @@ def test_generate_no_empty_with_built(configuration: Configuration, package_ahri
     configuration.set_option("email", "no_empty_report", "yes")
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    report = Email("x86_64", configuration)
+    report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [package_ahriman])
     send_mock.assert_called_once()

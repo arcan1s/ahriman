@@ -37,15 +37,15 @@ class S3(Upload):
     :ivar chunk_size: chunk size for calculating checksums
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
         Upload.__init__(self, architecture, configuration)
-        self.bucket = self.get_bucket(configuration)
-        self.chunk_size = configuration.getint("s3", "chunk_size", fallback=8 * 1024 * 1024)
+        self.bucket = self.get_bucket(configuration, section)
+        self.chunk_size = configuration.getint(section, "chunk_size", fallback=8 * 1024 * 1024)
 
     @staticmethod
     def calculate_etag(path: Path, chunk_size: int) -> str:
@@ -70,17 +70,18 @@ class S3(Upload):
         return f"{checksum.hexdigest()}{suffix}"
 
     @staticmethod
-    def get_bucket(configuration: Configuration) -> Any:
+    def get_bucket(configuration: Configuration, section: str) -> Any:
         """
         create resource client from configuration
         :param configuration: configuration instance
+        :param section: settings section name
         :return: amazon client
         """
         client = boto3.resource(service_name="s3",
-                                region_name=configuration.get("s3", "region"),
-                                aws_access_key_id=configuration.get("s3", "access_key"),
-                                aws_secret_access_key=configuration.get("s3", "secret_key"))
-        return client.Bucket(configuration.get("s3", "bucket"))
+                                region_name=configuration.get(section, "region"),
+                                aws_access_key_id=configuration.get(section, "access_key"),
+                                aws_secret_access_key=configuration.get(section, "secret_key"))
+        return client.Bucket(configuration.get(section, "bucket"))
 
     @staticmethod
     def files_remove(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:

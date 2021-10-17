@@ -69,12 +69,19 @@ Settings for signing packages or repository. Group name must refer to architectu
 
 Report generation settings.
 
-* `target` - list of reports to be generated, space separated list of strings, required. Allowed values are `html`, `email`.
+* `target` - list of reports to be generated, space separated list of strings, required. It must point to valid section (or to section with architecture), e.g. `somerandomname` must point to existing section, `email` must point to one of `email` of `email:x86_64` (with architecture it has higher priority). 
 
-### `email:*` groups
+Type will be read from several ways:
 
-Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_64 architecture.
+* In case if `type` option set inside the section, it will be used.
+* Otherwise, it will look for type from section name removing architecture name.
+* And finally, it will use section name as type.
 
+### `email` type
+
+Section name must be either `email` (plus optional architecture name, e.g. `email:x86_64`) or random name with `type` set.
+
+* `type` - type of the report, string, optional, must be set to `email` if exists.
 * `full_template_path` - path to Jinja2 template for full package description index, string, optional.
 * `homepage` - link to homepage, string, optional.
 * `host` - SMTP host for sending emails, string, required.
@@ -88,10 +95,11 @@ Group name must refer to architecture, e.g. it should be `email:x86_64` for x86_
 * `template_path` - path to Jinja2 template, string, required.
 * `user` - SMTP user to authenticate, string, optional.
 
-### `html:*` groups
+### `html` type
 
-Group name must refer to architecture, e.g. it should be `html:x86_64` for x86_64 architecture.
+Section name must be either `html` (plus optional architecture name, e.g. `html:x86_64`) or random name with `type` set.
 
+* `type` - type of the report, string, optional, must be set to `html` if exists.
 * `path` - path to html report file, string, required.
 * `homepage` - link to homepage, string, optional.
 * `link_path` - prefix for HTML links, string, required.
@@ -101,12 +109,19 @@ Group name must refer to architecture, e.g. it should be `html:x86_64` for x86_6
 
 Remote synchronization settings.
 
-* `target` - list of synchronizations to be used, space separated list of strings, required. Allowed values are `rsync`, `s3`, `github`.
+* `target` - list of synchronizations to be used, space separated list of strings, required. It must point to valid section (or to section with architecture), e.g. `somerandomname` must point to existing section, `github` must point to one of `github` of `github:x86_64` (with architecture it has higher priority).
 
-### `github:*` groups
+Type will be read from several ways:
 
-Group name must refer to architecture, e.g. it should be `github:x86_64` for x86_64 architecture. This feature requires Github key creation (see below).
+* In case if `type` option set inside the section, it will be used.
+* Otherwise, it will look for type from section name removing architecture name.
+* And finally, it will use section name as type.
 
+### `github` type
+
+This feature requires Github key creation (see below). Section name must be either `github` (plus optional architecture name, e.g. `github:x86_64`) or random name with `type` set.
+
+* `type` - type of the upload, string, optional, must be set to `github` if exists.
 * `owner` - Github repository owner, string, required.
 * `password` - created Github API key. In order to create it do the following:
   1. Go to [settings page](https://github.com/settings/profile).
@@ -116,17 +131,19 @@ Group name must refer to architecture, e.g. it should be `github:x86_64` for x86
 * `repository` - Github repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
 * `username` - Github authorization user, string, required. Basically the same as `owner`.
 
-### `rsync:*` groups
+### `rsync` type
 
-Group name must refer to architecture, e.g. it should be `rsync:x86_64` for x86_64 architecture. Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`.
+Requires `rsync` package to be installed. Do not forget to configure ssh for user `ahriman`. Section name must be either `rsync` (plus optional architecture name, e.g. `rsync:x86_64`) or random name with `type` set.
 
+* `type` - type of the upload, string, optional, must be set to `rsync` if exists.
 * `command` - rsync command to run, space separated list of string, required.
 * `remote` - remote server to rsync (e.g. `1.2.3.4:path/to/sync`), string, required.
 
-### `s3:*` groups
+### `s3` type
 
-Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 architecture.
+Requires `boto3` library to be installed. Section name must be either `s3` (plus optional architecture name, e.g. `s3:x86_64`) or random name with `type` set.
 
+* `type` - type of the upload, string, optional, must be set to `github` if exists.
 * `access_key` - AWS access key ID, string, required.
 * `bucket` - bucket name (e.g. `bucket`), string, required.
 * `chunk_size` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
@@ -135,7 +152,7 @@ Group name must refer to architecture, e.g. it should be `s3:x86_64` for x86_64 
 
 ## `web:*` groups
 
-Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web:x86_64` for x86_64 architecture.
+Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web:x86_64` for x86_64 architecture. This feature requires `aiohttp` libraries to be installed.
 
 * `address` - optional address in form `proto://host:port` (`port` can be omitted in case of default `proto` ports), will be used instead of `http://{host}:{port}` in case if set, string, optional. This option is required in case if `OAuth` provider is used.
 * `debug` - enable debug toolbar, boolean, optional, default `no`.

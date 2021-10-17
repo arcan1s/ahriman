@@ -1,7 +1,7 @@
 import configparser
-from pathlib import Path
-
 import pytest
+
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -24,53 +24,6 @@ def test_from_path(mocker: MockerFixture) -> None:
     load_logging_mock.assert_called_once()
 
 
-def test_section_name(configuration: Configuration) -> None:
-    """
-    must return architecture specific group
-    """
-    assert configuration.section_name("build", "x86_64") == "build:x86_64"
-
-
-def test_absolute_path_for_absolute(configuration: Configuration) -> None:
-    """
-    must not change path for absolute path in settings
-    """
-    path = Path("/a/b/c")
-    configuration.set_option("build", "path", str(path))
-    assert configuration.getpath("build", "path") == path
-
-
-def test_absolute_path_for_relative(configuration: Configuration) -> None:
-    """
-    must prepend root path to relative path
-    """
-    path = Path("a")
-    configuration.set_option("build", "path", str(path))
-    result = configuration.getpath("build", "path")
-    assert result.is_absolute()
-    assert result.parent == configuration.path.parent
-    assert result.name == path.name
-
-
-def test_path_with_fallback(configuration: Configuration) -> None:
-    """
-    must return fallback path
-    """
-    path = Path("a")
-    assert configuration.getpath("some", "option", fallback=path).name == str(path)
-    assert configuration.getpath("some", "option", fallback=None) is None
-
-
-def test_path_without_fallback(configuration: Configuration) -> None:
-    """
-    must raise exception without fallback
-    """
-    with pytest.raises(configparser.NoSectionError):
-        assert configuration.getpath("some", "option")
-    with pytest.raises(configparser.NoOptionError):
-        assert configuration.getpath("build", "option")
-
-
 def test_dump(configuration: Configuration) -> None:
     """
     dump must not be empty
@@ -91,6 +44,53 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     assert "build" in dump
     assert section not in dump
     assert dump["build"]["archbuild_flags"] == "hello flag"
+
+
+def test_section_name(configuration: Configuration) -> None:
+    """
+    must return architecture specific group
+    """
+    assert configuration.section_name("build", "x86_64") == "build:x86_64"
+
+
+def test_getpath_absolute_to_absolute(configuration: Configuration) -> None:
+    """
+    must not change path for absolute path in settings
+    """
+    path = Path("/a/b/c")
+    configuration.set_option("build", "path", str(path))
+    assert configuration.getpath("build", "path") == path
+
+
+def test_getpath_absolute_to_relative(configuration: Configuration) -> None:
+    """
+    must prepend root path to relative path
+    """
+    path = Path("a")
+    configuration.set_option("build", "path", str(path))
+    result = configuration.getpath("build", "path")
+    assert result.is_absolute()
+    assert result.parent == configuration.path.parent
+    assert result.name == path.name
+
+
+def test_getpath_with_fallback(configuration: Configuration) -> None:
+    """
+    must return fallback path
+    """
+    path = Path("a")
+    assert configuration.getpath("some", "option", fallback=path).name == str(path)
+    assert configuration.getpath("some", "option", fallback=None) is None
+
+
+def test_getpath_without_fallback(configuration: Configuration) -> None:
+    """
+    must raise exception without fallback
+    """
+    with pytest.raises(configparser.NoSectionError):
+        assert configuration.getpath("some", "option")
+    with pytest.raises(configparser.NoOptionError):
+        assert configuration.getpath("build", "option")
 
 
 def test_getlist(configuration: Configuration) -> None:
@@ -119,6 +119,43 @@ def test_getlist_single(configuration: Configuration) -> None:
     assert configuration.getlist("build", "test_list") == ["a"]
 
 
+def test_gettype(configuration: Configuration) -> None:
+    """
+    must extract type from variable
+    """
+    section, provider = configuration.gettype("customs3", "x86_64")
+    assert section == "customs3"
+    assert provider == "s3"
+
+
+def test_gettype_from_section(configuration: Configuration) -> None:
+    """
+    must extract type from section name
+    """
+    section, provider = configuration.gettype("rsync", "x86_64")
+    assert section == "rsync"
+    assert provider == "rsync"
+
+
+def test_gettype_from_section_with_architecture(configuration: Configuration) -> None:
+    """
+    must extract type from section name with architecture
+    """
+    section, provider = configuration.gettype("github", "x86_64")
+    assert section == "github:x86_64"
+    assert provider == "github"
+
+
+def test_gettype_from_section_no_section(configuration: Configuration) -> None:
+    """
+    must extract type from section name with architecture
+    """
+    # technically rsync:x86_64 is valid section
+    # but in current configuration it must be considered as missing section
+    with pytest.raises(configparser.NoSectionError):
+        configuration.gettype("rsync:x86_64", "x86_64")
+
+
 def test_load_includes_missing(configuration: Configuration) -> None:
     """
     must not fail if not include directory found
@@ -137,7 +174,7 @@ def test_load_includes_no_option(configuration: Configuration) -> None:
 
 def test_load_includes_no_section(configuration: Configuration) -> None:
     """
-    must not fail if no option set
+    must not fail if no section set
     """
     configuration.remove_section("settings")
     configuration.load_includes()
