@@ -351,6 +351,30 @@ def test_subparsers_repo_sign_architecture(parser: argparse.ArgumentParser) -> N
     assert args.architecture == ["x86_64"]
 
 
+def test_subparsers_repo_status_update(parser: argparse.ArgumentParser) -> None:
+    """
+    re[p-status-update command must imply action, lock, no-report, package, quiet and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "package-status-update"])
+    assert args.architecture == ["x86_64"]
+    assert args.action == Action.Update
+    assert args.lock is None
+    assert args.no_report
+    assert not args.package
+    assert args.quiet
+    assert args.unsafe
+
+
+def test_subparsers_repo_status_update_option_status(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-status-update command must convert status option to buildstatusenum instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "repo-status-update"])
+    assert isinstance(args.status, BuildStatusEnum)
+    args = parser.parse_args(["-a", "x86_64", "repo-status-update", "--status", "failed"])
+    assert isinstance(args.status, BuildStatusEnum)
+
+
 def test_subparsers_repo_sync_architecture(parser: argparse.ArgumentParser) -> None:
     """
     repo-sync command must correctly parse architecture list

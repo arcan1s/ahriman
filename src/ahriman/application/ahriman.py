@@ -85,6 +85,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_report_parser(subparsers)
     _set_repo_setup_parser(subparsers)
     _set_repo_sign_parser(subparsers)
+    _set_repo_status_update_parser(subparsers)
     _set_repo_sync_parser(subparsers)
     _set_repo_update_parser(subparsers)
     _set_user_add_parser(subparsers)
@@ -405,6 +406,21 @@ def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
     parser.set_defaults(handler=handlers.Sign)
+    return parser
+
+
+def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository status update subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("repo-status-update", help="update repository status",
+                             description="update repository status on the status page", formatter_class=_formatter)
+    parser.add_argument("-s", "--status", help="new status",
+                        type=BuildStatusEnum, choices=BuildStatusEnum, default=BuildStatusEnum.Success)
+    parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Update, lock=None, no_report=True, package=[],
+                        quiet=True, unsafe=True)
     return parser
 
 
