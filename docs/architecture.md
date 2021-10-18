@@ -67,7 +67,10 @@ Application is designed to run from `systemd` services and provides parametrized
 Idea is to copy package to the directory from which it will be handled at the next update run. Different variants are supported:
 
 * If supplied argument is file then application moves the file to the directory with built packages. Same rule applies for directory, but in this case it copies every package-like file from the specified directory.
+* If supplied argument is directory and there is `PKGBUILD` file there it will be treated as local package. In this case it will queue this package to build and copy source files (`PKGBUILD` and `.SRCINFO`) to caches.
 * If supplied argument iis not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
+
+This logic can be overwritten by specifying the `source` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR.
 
 ## Rebuild packages
 
@@ -97,7 +100,7 @@ After any step any package data is being removed.
 
 ## Configuration 
 
-`ahriman.core.configuration.Configuration` class provides some additional methods (e.g. `getpath` and `getlist`) and also combines multiple files into single configuration dictionary using architecture overrides. It is recommended to read class related settings from the class, not outside.
+`ahriman.core.configuration.Configuration` class provides some additional methods (e.g. `getpath` and `getlist`) and also combines multiple files into single configuration dictionary using architecture overrides. It is the recommended way to deal with settings.
 
 ## Utils
 
@@ -105,7 +108,7 @@ For every external command run (which is actually not recommended if possible) c
 
 ## Submodules
 
-Some packages provide different behaviour depending on configuration settings. In this cases inheritance is used and recommended way to deal with them is to call class method `load` from base classes.
+Some packages provide different behaviour depending on configuration settings. In these cases inheritance is used and recommended way to deal with them is to call class method `load` from base classes.
 
 ## Authorization
 
@@ -131,7 +134,7 @@ OAuth provider uses library definitions (`aioauth-client`) in order _authenticat
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature is used by service reporting (aka robots).
 
-In order to configure users there is special command.
+In order to configure users there are special commands.
 
 ## Remote synchronization
 
