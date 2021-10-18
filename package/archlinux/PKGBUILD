@@ -1,7 +1,7 @@
 # Maintainer: Evgeniy Alekseev
 
 pkgname='ahriman'
-pkgver=1.4.1
+pkgver=1.5.0
 pkgrel=1
 pkgdesc="ArcH Linux ReposItory MANager"
 arch=('any')

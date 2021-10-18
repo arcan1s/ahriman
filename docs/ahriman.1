@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 .SH OPTIONS
@@ -99,6 +99,9 @@ initial service configuration
 .TP
 \fBahriman\fR \fI\,repo-sign\/\fR
 sign packages
+.TP
+\fBahriman\fR \fI\,repo-status-update\/\fR
+update repository status
 .TP
 \fBahriman\fR \fI\,repo-sync\/\fR
 sync repository
@@ -615,6 +618,17 @@ usage: ahriman repo-sign [-h] [package ...]
 \fBpackage\fR
 sign only specified packages
 
+
+.SH OPTIONS 'ahriman repo-status-update'
+usage: ahriman repo-status-update [-h]
+                                  [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+
+update repository status on the status page
+
+
+.TP
+\fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
+new status
 
 .SH OPTIONS 'ahriman repo-sync'
 usage: ahriman repo-sync [-h] [target ...]
