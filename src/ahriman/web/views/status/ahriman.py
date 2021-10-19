@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.user_access import UserAccess
@@ -53,12 +53,11 @@ class AhrimanView(BaseView):
 
         :return: 204 on success
         """
-        data = await self.extract_data()
-
         try:
+            data = await self.extract_data()
             status = BuildStatusEnum(data["status"])
         except Exception as e:
-            return json_response(data=str(e), status=400)
+            raise HTTPBadRequest(reason=str(e))
 
         self.service.update_self(status)
 

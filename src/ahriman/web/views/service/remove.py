@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPFound, Response
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -42,12 +42,11 @@ class RemoveView(BaseView):
 
         :return: redirect to main page on success
         """
-        data = await self.extract_data(["packages"])
-
         try:
+            data = await self.extract_data(["packages"])
             packages = data["packages"]
         except Exception as e:
-            return json_response(data=str(e), status=400)
+            raise HTTPBadRequest(reason=str(e))
 
         self.spawner.packages_remove(packages)
 

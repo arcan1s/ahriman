@@ -19,7 +19,7 @@
 #
 import aur  # type: ignore
 
-from aiohttp.web import Response, json_response
+from aiohttp.web import HTTPBadRequest, Response, json_response
 from typing import Callable, Iterator
 
 from ahriman.models.user_access import UserAccess
@@ -47,7 +47,7 @@ class SearchView(BaseView):
         search_string = " ".join(search)
 
         if not search_string:
-            return json_response(data="Search string must not be empty", status=400)
+            raise HTTPBadRequest(reason="Search string must not be empty")
         packages = aur.search(search_string)
 
         comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)
