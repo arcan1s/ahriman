@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import middleware, Request
-from aiohttp.web_exceptions import HTTPException
-from aiohttp.web_response import StreamResponse
+from aiohttp.web_exceptions import HTTPClientError, HTTPException, HTTPServerError
+from aiohttp.web_response import json_response, StreamResponse
 from logging import Logger
 
 from ahriman.web.middlewares import HandlerType, MiddlewareType
@@ -35,10 +35,15 @@ def exception_handler(logger: Logger) -> MiddlewareType:
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:
             return await handler(request)
+        except HTTPClientError as e:
+            return json_response(data={"error": e.reason}, status=e.status_code)
+        except HTTPServerError as e:
+            logger.exception("server exception during performing request to %s", request.path)
+            return json_response(data={"error": e.reason}, status=e.status_code)
         except HTTPException:
-            raise  # we do not raise 5xx exceptions actually so it should be fine
-        except Exception:
-            logger.exception("exception during performing request to %s", request.path)
-            raise
+            raise  # just raise 2xx and 3xx codes
+        except Exception as e:
+            logger.exception("unknown exception during performing request to %s", request.path)
+            return json_response(data={"error": str(e)}, status=500)
 
     return handle

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackage
 from ahriman.models.build_status import BuildStatusEnum
@@ -88,11 +88,11 @@ class PackageView(BaseView):
             package = Package.from_json(data["package"]) if "package" in data else None
             status = BuildStatusEnum(data["status"])
         except Exception as e:
-            return json_response(data=str(e), status=400)
+            raise HTTPBadRequest(reason=str(e))
 
         try:
             self.service.update(base, status, package)
         except UnknownPackage:
-            return json_response(data=f"Package {base} is unknown, but no package body set", status=400)
+            raise HTTPBadRequest(reason=f"Package {base} is unknown, but no package body set")
 
         raise HTTPNoContent()
