@@ -51,7 +51,8 @@ def _parser() -> argparse.ArgumentParser:
     :return: command line parser for the application
     """
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcH Linux ReposItory MANager",
-                                     formatter_class=_formatter)
+                                     epilog="Argument list can also be read from file by using @ prefix.",
+                                     fromfile_prefix_chars="@", formatter_class=_formatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
                         action="append")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
