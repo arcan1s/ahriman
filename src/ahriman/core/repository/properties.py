@@ -52,7 +52,7 @@ class Properties:
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        self.logger = logging.getLogger("builder")
+        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 
