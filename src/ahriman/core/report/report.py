@@ -43,7 +43,7 @@ class Report:
         :param architecture: repository architecture
         :param configuration: configuration instance
         """
-        self.logger = logging.getLogger("builder")
+        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 

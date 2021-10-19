@@ -39,7 +39,7 @@ class Configuration(configparser.RawConfigParser):
     :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
     """
 
-    DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d] [%(funcName)s]: %(message)s"
+    DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]

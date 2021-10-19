@@ -49,7 +49,7 @@ class Task:
         :param configuration: configuration instance
         :param paths: repository paths instance
         """
-        self.logger = logging.getLogger("builder")
+        self.logger = logging.getLogger("root")
         self.build_logger = logging.getLogger("build_details")
         self.package = package
         self.paths = paths
