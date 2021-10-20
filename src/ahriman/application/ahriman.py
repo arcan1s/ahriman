@@ -300,6 +300,7 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
     parser.add_argument("--no-manual", help="do not clear directory with manually added packages", action="store_true")
     parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
+    parser.add_argument("--no-patches", help="do not clear directory with patches", action="store_true")
     parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
     return parser
 

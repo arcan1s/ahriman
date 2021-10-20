@@ -76,3 +76,11 @@ class Cleaner(Properties):
         self.logger.info("clear built packages directory")
         for package in self.packages_built():
             package.unlink()
+
+    def clear_patches(self) -> None:
+        """
+        clear directory with patches
+        """
+        self.logger.info("clear patches directory")
+        for package in self.paths.patches.iterdir():
+            shutil.rmtree(package)

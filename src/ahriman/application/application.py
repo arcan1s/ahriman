@@ -162,7 +162,8 @@ class Application:
         for name in names:
             process_single(name)
 
-    def clean(self, no_build: bool, no_cache: bool, no_chroot: bool, no_manual: bool, no_packages: bool) -> None:
+    def clean(self, no_build: bool, no_cache: bool, no_chroot: bool, no_manual: bool, no_packages: bool,
+              no_patches: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root
         :param no_build: do not clear directory with package sources
@@ -170,6 +171,7 @@ class Application:
         :param no_chroot: do not clear build chroot
         :param no_manual: do not clear directory with manually added packages
         :param no_packages: do not clear directory with built packages
+        :param no_patches: do not clear directory with patches
         """
         if not no_build:
             self.repository.clear_build()
@@ -181,6 +183,8 @@ class Application:
             self.repository.clear_manual()
         if not no_packages:
             self.repository.clear_packages()
+        if not no_patches:
+            self.repository.clear_patches()
 
     def remove(self, names: Iterable[str]) -> None:
         """
