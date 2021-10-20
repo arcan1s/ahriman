@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
+from urllib.parse import urlparse
 
 from ahriman.core.util import package_like
 
@@ -33,6 +34,7 @@ class PackageSource(Enum):
     :cvar AUR: source is an AUR package for which it should search
     :cvar Directory: source is a directory which contains packages
     :cvar Local: source is locally stored PKGBUILD
+    :cvar Remote: source is remote (http, ftp etc) link
     """
 
     Auto = "auto"
@@ -40,6 +42,7 @@ class PackageSource(Enum):
     AUR = "aur"
     Directory = "directory"
     Local = "local"
+    Remote = "remote"
 
     def resolve(self, source: str) -> PackageSource:
         """
@@ -50,11 +53,16 @@ class PackageSource(Enum):
         if self != PackageSource.Auto:
             return self
 
-        maybe_path = Path(source)
+        maybe_url = urlparse(source)  # handle file:// like paths
+        maybe_path = Path(maybe_url.path)
+
+        if maybe_url.scheme and maybe_url.scheme not in ("data", "file") and package_like(maybe_path):
+            return PackageSource.Remote
         if (maybe_path / "PKGBUILD").is_file():
             return PackageSource.Local
         if maybe_path.is_dir():
             return PackageSource.Directory
         if maybe_path.is_file() and package_like(maybe_path):
             return PackageSource.Archive
+
         return PackageSource.AUR

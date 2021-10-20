@@ -2,6 +2,7 @@ from pytest_mock import MockerFixture
 from pathlib import Path
 from typing import Callable
 
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 
 
@@ -24,13 +25,13 @@ def test_resolve_non_auto() -> None:
         assert source.resolve("") == source
 
 
-def test_resolve_archive(mocker: MockerFixture) -> None:
+def test_resolve_archive(package_description_ahriman: PackageDescription, mocker: MockerFixture) -> None:
     """
     must resolve auto type into the archive
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=_is_file_mock(True, False))
-    assert PackageSource.Auto.resolve("linux-5.14.2.arch1-2-x86_64.pkg.tar.zst") == PackageSource.Archive
+    assert PackageSource.Auto.resolve(package_description_ahriman.filename) == PackageSource.Archive
 
 
 def test_resolve_aur(mocker: MockerFixture) -> None:
@@ -56,14 +57,23 @@ def test_resolve_directory(mocker: MockerFixture) -> None:
     must resolve auto type into the directory
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("pathlib.Path.is_file", return_value=False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=_is_file_mock(False, False))
     assert PackageSource.Auto.resolve("path") == PackageSource.Directory
 
 
 def test_resolve_local(mocker: MockerFixture) -> None:
     """
-    must resolve auto type into the directory
+    must resolve auto type into the local sources
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=_is_file_mock(True, True))
     assert PackageSource.Auto.resolve("path") == PackageSource.Local
+
+
+def test_resolve_remote(package_description_ahriman: PackageDescription, mocker: MockerFixture) -> None:
+    """
+    must resolve auto type into the remote sources
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=_is_file_mock(False, False))
+    assert PackageSource.Auto.resolve(f"https://host/{package_description_ahriman.filename}") == PackageSource.Remote

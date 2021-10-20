@@ -144,11 +144,12 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "from another repository source); "
                                     "3) it is also possible to add package from local PKGBUILD, but in this case it "
                                     "will be ignored during the next automatic updates; "
-                                    "4) and finally you can add package from AUR.",
+                                    "4) ahriman supports downloading archives from remote (e.g. HTTP) sources; "
+                                    "5) and finally you can add package from AUR.",
                              formatter_class=_formatter)
-    parser.add_argument("package", help="package base/name or path to local files", nargs="+")
+    parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
-    parser.add_argument("-s", "--source", help="package source",
+    parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                         type=PackageSource, choices=PackageSource, default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
     parser.set_defaults(handler=handlers.Add)
