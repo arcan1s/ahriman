@@ -17,6 +17,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.no_chroot = False
     args.no_manual = False
     args.no_packages = False
+    args.no_patches = False
     return args
 
 

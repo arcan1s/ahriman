@@ -82,3 +82,12 @@ def test_clear_packages(cleaner: Cleaner, mocker: MockerFixture) -> None:
 
     cleaner.clear_packages()
     Path.unlink.assert_has_calls([mock.call(), mock.call(), mock.call()])
+
+
+def test_clear_patches(cleaner: Cleaner, mocker: MockerFixture) -> None:
+    """
+    must clear directory with patches
+    """
+    _mock_clear(mocker)
+    cleaner.clear_patches()
+    _mock_clear_check()
