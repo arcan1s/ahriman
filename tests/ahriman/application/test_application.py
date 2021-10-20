@@ -3,10 +3,12 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
+from unittest.mock import MagicMock
 
 from ahriman.application.application import Application
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 
 
@@ -116,7 +118,7 @@ def test_add_archive(application: Application, package_ahriman: Package, mocker:
     copy_mock.assert_called_once()
 
 
-def test_add_remote(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_add_aur(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must add package from AUR
     """
@@ -128,8 +130,7 @@ def test_add_remote(application: Application, package_ahriman: Package, mocker: 
     load_mock.assert_called_once()
 
 
-def test_add_remote_with_dependencies(application: Application, package_ahriman: Package,
-                                      mocker: MockerFixture) -> None:
+def test_add_aur_with_dependencies(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must add package from AUR with dependencies
     """
@@ -186,6 +187,24 @@ def test_add_local_with_dependencies(application: Application, package_ahriman: 
 
     application.add([package_ahriman.base], PackageSource.Local, False)
     dependencies_mock.assert_called_once()
+
+
+def test_add_remote(application: Application, package_description_ahriman: PackageDescription,
+                    mocker: MockerFixture) -> None:
+    """
+    must add package from remote source
+    """
+    mocker.patch("ahriman.application.application.Application._known_packages", return_value=set())
+    response_mock = MagicMock()
+    response_mock.iter_content.return_value = ["chunk"]
+    open_mock = mocker.patch("pathlib.Path.open")
+    request_mock = mocker.patch("requests.get", return_value=response_mock)
+    url = f"https://host/{package_description_ahriman.filename}"
+
+    application.add([url], PackageSource.Remote, False)
+    open_mock.assert_called_once_with("wb")
+    request_mock.assert_called_once_with(url, stream=True)
+    response_mock.raise_for_status.assert_called_once()
 
 
 def test_clean_build(application: Application, mocker: MockerFixture) -> None:

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
+import requests
 import shutil
 
 from pathlib import Path
@@ -111,6 +112,12 @@ class Application:
             dst = self.repository.paths.packages / src.name
             shutil.copy(src, dst)
 
+        def add_aur(src: str) -> Path:
+            package = Package.load(src, self.repository.pacman, aur_url)
+            Sources.load(self.repository.paths.manual_for(package.base), package.git_url,
+                         self.repository.paths.patches_for(package.base))
+            return self.repository.paths.manual_for(package.base)
+
         def add_directory(path: Path) -> None:
             for full_path in filter(package_like, path.iterdir()):
                 add_archive(full_path)
@@ -123,11 +130,13 @@ class Application:
             shutil.copytree(cache_dir, self.repository.paths.manual_for(package.base))  # copy package for the build
             return self.repository.paths.manual_for(package.base)
 
-        def add_remote(src: str) -> Path:
-            package = Package.load(src, self.repository.pacman, aur_url)
-            Sources.load(self.repository.paths.manual_for(package.base), package.git_url,
-                         self.repository.paths.patches_for(package.base))
-            return self.repository.paths.manual_for(package.base)
+        def add_remote(src: str) -> None:
+            dst = self.repository.paths.packages / Path(src).name  # URL is path, is not it?
+            response = requests.get(src, stream=True)
+            response.raise_for_status()
+            with dst.open("wb") as local_file:
+                for chunk in response.iter_content(chunk_size=1024):
+                    local_file.write(chunk)
 
         def process_dependencies(path: Path) -> None:
             if without_dependencies:
@@ -140,13 +149,15 @@ class Application:
             if resolved_source == PackageSource.Archive:
                 add_archive(Path(src))
             elif resolved_source == PackageSource.AUR:
-                path = add_remote(src)
+                path = add_aur(src)
                 process_dependencies(path)
             elif resolved_source == PackageSource.Directory:
                 add_directory(Path(src))
             elif resolved_source == PackageSource.Local:
                 path = add_local(Path(src))
                 process_dependencies(path)
+            elif resolved_source == PackageSource.Remote:
+                add_remote(src)
 
         for name in names:
             process_single(name)
