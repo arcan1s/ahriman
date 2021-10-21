@@ -42,4 +42,4 @@ class Clean(Handler):
         :param no_report: force disable reporting
         """
         Application(architecture, configuration, no_report).clean(
-            args.no_build, args.no_cache, args.no_chroot, args.no_manual, args.no_packages, args.no_patches)
+            args.build, args.cache, args.chroot, args.manual, args.packages, args.patches)

@@ -41,7 +41,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update")
-    updates_mock = mocker.patch("ahriman.application.application.Application.get_updates")
+    updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
     Add.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()

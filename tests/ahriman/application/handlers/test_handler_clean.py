@@ -12,12 +12,12 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :param args: command line arguments fixture
     :return: generated arguments for these test cases
     """
-    args.no_build = False
-    args.no_cache = False
-    args.no_chroot = False
-    args.no_manual = False
-    args.no_packages = False
-    args.no_patches = False
+    args.build = False
+    args.cache = False
+    args.chroot = False
+    args.manual = False
+    args.packages = False
+    args.patches = False
     return args
 
 
