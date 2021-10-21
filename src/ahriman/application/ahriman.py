@@ -295,12 +295,12 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "you should not run this command manually. Also in case if you are going to clear "
                                     "the chroot directories you will need root privileges.",
                              formatter_class=_formatter)
-    parser.add_argument("--no-build", help="do not clear directory with package sources", action="store_true")
-    parser.add_argument("--no-cache", help="do not clear directory with package caches", action="store_true")
-    parser.add_argument("--no-chroot", help="do not clear build chroot", action="store_true")
-    parser.add_argument("--no-manual", help="do not clear directory with manually added packages", action="store_true")
-    parser.add_argument("--no-packages", help="do not clear directory with built packages", action="store_true")
-    parser.add_argument("--no-patches", help="do not clear directory with patches", action="store_true")
+    parser.add_argument("--build", help="clear directory with package sources", action="store_true")
+    parser.add_argument("--cache", help="clear directory with package caches", action="store_true")
+    parser.add_argument("--chroot", help="clear build chroot", action="store_true")
+    parser.add_argument("--manual", help="clear directory with manually added packages", action="store_true")
+    parser.add_argument("--packages", help="clear directory with built packages", action="store_true")
+    parser.add_argument("--patches", help="clear directory with patches", action="store_true")
     parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
     return parser
 

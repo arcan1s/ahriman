@@ -12,7 +12,11 @@ Full dependency diagram:
 
 ## `ahriman.application` package
 
-This package contains application (aka executable) related classes and everything for that. It also contains package called `ahriman.application.handlers` in which all available subcommands are described as separated classes derived from base `ahriman.application.handlers.handler.Handler` class. `ahriman.application.ahriman` contains only command line parses and executes specified `Handler` on success, `ahriman.application.application.Application` is a god class which provides interfaces for all repository related actions. `ahriman.application.lock.Lock` is additional class which provides file-based lock and also performs some common checks.
+This package contains application (aka executable) related classes and everything for that. It also contains package called `ahriman.application.handlers` in which all available subcommands are described as separated classes derived from base `ahriman.application.handlers.handler.Handler` class.
+
+`ahriman.application.application.application.Application` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
+
+`ahriman.application.ahriman` contains only command line parses and executes specified `Handler` on success, `ahriman.application.lock.Lock` is additional class which provides file-based lock and also performs some common checks.
 
 ## `ahriman.core` package
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 from pytest_mock import MockerFixture
 
-from ahriman.core.repository.repository import Repository
+from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 
 

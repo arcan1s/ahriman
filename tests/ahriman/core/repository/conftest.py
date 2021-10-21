@@ -3,10 +3,10 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.properties import Properties
-from ahriman.core.repository.repository import Repository
 from ahriman.core.repository.update_handler import UpdateHandler
 
 

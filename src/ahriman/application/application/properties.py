@@ -17,34 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import argparse
+import logging
 
-from typing import Type
-
-from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 
 
-class Add(Handler):
+class Properties:
     """
-    add packages handler
+    application base properties class
+    :ivar architecture: repository architecture
+    :ivar configuration: configuration instance
+    :ivar logger: application logger
+    :ivar repository: repository instance
     """
 
-    @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, no_report: bool) -> None:
         """
-        callback for command line
-        :param args: command line args
+        default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        application = Application(architecture, configuration, no_report)
-        application.add(args.package, args.source, args.without_dependencies)
-        if not args.now:
-            return
-
-        packages = application.updates(args.package, True, False, True, application.logger.info)
-        application.update(packages)
+        self.logger = logging.getLogger("root")
+        self.configuration = configuration
+        self.architecture = architecture
+        self.repository = Repository(architecture, configuration, no_report)

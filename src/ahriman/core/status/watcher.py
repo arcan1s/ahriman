@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import UnknownPackage
-from ahriman.core.repository.repository import Repository
+from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 
