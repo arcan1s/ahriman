@@ -5,6 +5,8 @@ set -ex
 
 # install dependencies
 echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never' | tee -a /etc/pacman.conf
+# refresh the image
+pacman --noconfirm -Syu
 # main dependencies
 pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib python-srcinfo sudo
 # make dependencies
