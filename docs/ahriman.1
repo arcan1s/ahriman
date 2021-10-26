@@ -118,24 +118,44 @@ remove user
 \fBahriman\fR \fI\,web\/\fR
 web server
 .SH OPTIONS 'ahriman aur-search'
-usage: ahriman aur-search [-h] search [search ...]
+usage: ahriman aur-search [-h] [-i]
+                          [--sort-by {category_id,description,first_submitted,id,last_modified,license,maintainer,name,num_votes,out_of_date,package_base,package_base_id,url,url_path,version}]
+                          search [search ...]
 
 search for package in AUR using API
 
 .TP
 \fBsearch\fR
-search terms, can be specified multiple times
+search terms, can be specified multiple times, result will match all terms
 
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
+
+.TP
+\fB\-\-sort\-by\fR {category_id,description,first_submitted,id,last_modified,license,maintainer,name,num_votes,out_of_date,package_base,package_base_id,url,url_path,version}
+sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
+by name
 
 .SH OPTIONS 'ahriman search'
-usage: ahriman aur-search [-h] search [search ...]
+usage: ahriman aur-search [-h] [-i]
+                          [--sort-by {category_id,description,first_submitted,id,last_modified,license,maintainer,name,num_votes,out_of_date,package_base,package_base_id,url,url_path,version}]
+                          search [search ...]
 
 search for package in AUR using API
 
 .TP
 \fBsearch\fR
-search terms, can be specified multiple times
+search terms, can be specified multiple times, result will match all terms
 
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
+
+.TP
+\fB\-\-sort\-by\fR {category_id,description,first_submitted,id,last_modified,license,maintainer,name,num_votes,out_of_date,package_base,package_base_id,url,url_path,version}
+sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
+by name
 
 .SH OPTIONS 'ahriman key-import'
 usage: ahriman key-import [-h] [--key-server KEY_SERVER] key
@@ -152,7 +172,7 @@ key server for key import
 
 .SH OPTIONS 'ahriman package-add'
 usage: ahriman package-add [-h] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -160,15 +180,15 @@ add existing or new package to the build queue
 
 .TP
 \fBpackage\fR
-package base/name or path to local files
+package source (base name, path to local files, remote URL)
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
-package source
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+explicitly specify the package source for this command
 
 .TP
 \fB\-\-without\-dependencies\fR
@@ -176,7 +196,7 @@ do not add dependencies
 
 .SH OPTIONS 'ahriman add'
 usage: ahriman package-add [-h] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -184,15 +204,15 @@ add existing or new package to the build queue
 
 .TP
 \fBpackage\fR
-package base/name or path to local files
+package source (base name, path to local files, remote URL)
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
-package source
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+explicitly specify the package source for this command
 
 .TP
 \fB\-\-without\-dependencies\fR
@@ -200,7 +220,7 @@ do not add dependencies
 
 .SH OPTIONS 'ahriman package-update'
 usage: ahriman package-add [-h] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -208,15 +228,15 @@ add existing or new package to the build queue
 
 .TP
 \fBpackage\fR
-package base/name or path to local files
+package source (base name, path to local files, remote URL)
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local}
-package source
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+explicitly specify the package source for this command
 
 .TP
 \fB\-\-without\-dependencies\fR
@@ -243,7 +263,7 @@ package name or base
 
 
 .SH OPTIONS 'ahriman package-status'
-usage: ahriman package-status [-h] [--ahriman]
+usage: ahriman package-status [-h] [--ahriman] [-i]
                               [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
                               [package ...]
 
@@ -256,13 +276,17 @@ filter status by package base
 .TP
 \fB\-\-ahriman\fR
 get service status itself
+
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
 
 .TP
 \fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
 filter packages by status
 
 .SH OPTIONS 'ahriman status'
-usage: ahriman package-status [-h] [--ahriman]
+usage: ahriman package-status [-h] [--ahriman] [-i]
                               [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
                               [package ...]
 
@@ -275,6 +299,10 @@ filter status by package base
 .TP
 \fB\-\-ahriman\fR
 get service status itself
+
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
 
 .TP
 \fB\-s\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}, \fB\-\-status\fR {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}
@@ -380,56 +408,64 @@ filter check by package base
 do not check VCS packages
 
 .SH OPTIONS 'ahriman repo-clean'
-usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
+usage: ahriman repo-clean [-h] [--build] [--cache] [--chroot] [--manual] [--packages] [--patches]
 
 remove local caches
 
 
 .TP
-\fB\-\-no\-build\fR
-do not clear directory with package sources
+\fB\-\-build\fR
+clear directory with package sources
 
 .TP
-\fB\-\-no\-cache\fR
-do not clear directory with package caches
+\fB\-\-cache\fR
+clear directory with package caches
 
 .TP
-\fB\-\-no\-chroot\fR
-do not clear build chroot
+\fB\-\-chroot\fR
+clear build chroot
 
 .TP
-\fB\-\-no\-manual\fR
-do not clear directory with manually added packages
+\fB\-\-manual\fR
+clear directory with manually added packages
 
 .TP
-\fB\-\-no\-packages\fR
-do not clear directory with built packages
+\fB\-\-packages\fR
+clear directory with built packages
+
+.TP
+\fB\-\-patches\fR
+clear directory with patches
 
 .SH OPTIONS 'ahriman clean'
-usage: ahriman repo-clean [-h] [--no-build] [--no-cache] [--no-chroot] [--no-manual] [--no-packages]
+usage: ahriman repo-clean [-h] [--build] [--cache] [--chroot] [--manual] [--packages] [--patches]
 
 remove local caches
 
 
 .TP
-\fB\-\-no\-build\fR
-do not clear directory with package sources
+\fB\-\-build\fR
+clear directory with package sources
 
 .TP
-\fB\-\-no\-cache\fR
-do not clear directory with package caches
+\fB\-\-cache\fR
+clear directory with package caches
 
 .TP
-\fB\-\-no\-chroot\fR
-do not clear build chroot
+\fB\-\-chroot\fR
+clear build chroot
 
 .TP
-\fB\-\-no\-manual\fR
-do not clear directory with manually added packages
+\fB\-\-manual\fR
+clear directory with manually added packages
 
 .TP
-\fB\-\-no\-packages\fR
-do not clear directory with built packages
+\fB\-\-packages\fR
+clear directory with built packages
+
+.TP
+\fB\-\-patches\fR
+clear directory with patches
 
 .SH OPTIONS 'ahriman repo-config'
 usage: ahriman repo-config [-h]
@@ -480,7 +516,7 @@ force rebuild whole repository
 only rebuild packages that depend on specified package
 
 .SH OPTIONS 'ahriman repo-remove-unknown'
-usage: ahriman repo-remove-unknown [-h] [--dry-run]
+usage: ahriman repo-remove-unknown [-h] [--dry-run] [-i]
 
 remove packages which are missing in AUR and do not have local PKGBUILDs
 
@@ -488,9 +524,13 @@ remove packages which are missing in AUR and do not have local PKGBUILDs
 .TP
 \fB\-\-dry\-run\fR
 just perform check for packages without removal
+
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
 
 .SH OPTIONS 'ahriman remove-unknown'
-usage: ahriman repo-remove-unknown [-h] [--dry-run]
+usage: ahriman repo-remove-unknown [-h] [--dry-run] [-i]
 
 remove packages which are missing in AUR and do not have local PKGBUILDs
 
@@ -498,6 +538,10 @@ remove packages which are missing in AUR and do not have local PKGBUILDs
 .TP
 \fB\-\-dry\-run\fR
 just perform check for packages without removal
+
+.TP
+\fB\-i\fR, \fB\-\-info\fR
+show additional package information
 
 .SH OPTIONS 'ahriman repo-report'
 usage: ahriman repo-report [-h] [target ...]
@@ -753,6 +797,11 @@ set file permissions to user\-only
 usage: ahriman web [-h]
 
 start web server
+
+
+
+.SH COMMENTS
+Argument list can also be read from file by using @ prefix.
 
 .SH AUTHORS
 .B ahriman
