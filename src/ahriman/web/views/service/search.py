@@ -19,9 +19,10 @@
 #
 import aur  # type: ignore
 
-from aiohttp.web import HTTPBadRequest, Response, json_response
-from typing import Callable, Iterator
+from aiohttp.web import HTTPNotFound, Response, json_response
+from typing import Callable, List
 
+from ahriman.core.util import aur_search
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
@@ -43,12 +44,10 @@ class SearchView(BaseView):
 
         :return: 200 with found package bases and descriptions sorted by base
         """
-        search: Iterator[str] = filter(lambda s: len(s) > 3, self.request.query.getall("for", default=[]))
-        search_string = " ".join(search)
-
-        if not search_string:
-            raise HTTPBadRequest(reason="Search string must not be empty")
-        packages = aur.search(search_string)
+        search: List[str] = self.request.query.getall("for", default=[])
+        packages = aur_search(*search)
+        if not packages:
+            raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 
         comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)
         response = [

@@ -21,7 +21,7 @@ async def test_get(client: TestClient, aur_package_ahriman: aur.Package, mocker:
     """
     must call get request correctly
     """
-    mocker.patch("aur.search", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.web.views.service.search.aur_search", return_value=[aur_package_ahriman])
     response = await client.get("/service-api/v1/search", params={"for": "ahriman"})
 
     assert response.ok
@@ -33,41 +33,19 @@ async def test_get_exception(client: TestClient, mocker: MockerFixture) -> None:
     """
     must raise 400 on empty search string
     """
-    search_mock = mocker.patch("aur.search")
+    search_mock = mocker.patch("ahriman.web.views.service.search.aur_search", return_value=[])
     response = await client.get("/service-api/v1/search")
 
-    assert response.status == 400
-    search_mock.assert_not_called()
+    assert response.status == 404
+    search_mock.assert_called_once_with()
 
 
 async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     """
     must join search args with space
     """
-    search_mock = mocker.patch("aur.search")
+    search_mock = mocker.patch("ahriman.web.views.service.search.aur_search")
     response = await client.get("/service-api/v1/search", params=[("for", "ahriman"), ("for", "maybe")])
 
     assert response.ok
-    search_mock.assert_called_once_with("ahriman maybe")
-
-
-async def test_get_join_filter(client: TestClient, mocker: MockerFixture) -> None:
-    """
-    must filter search parameters with less than 3 symbols
-    """
-    search_mock = mocker.patch("aur.search")
-    response = await client.get("/service-api/v1/search", params=[("for", "ah"), ("for", "maybe")])
-
-    assert response.ok
-    search_mock.assert_called_once_with("maybe")
-
-
-async def test_get_join_filter_empty(client: TestClient, mocker: MockerFixture) -> None:
-    """
-    must filter search parameters with less than 3 symbols (empty result)
-    """
-    search_mock = mocker.patch("aur.search")
-    response = await client.get("/service-api/v1/search", params=[("for", "ah"), ("for", "ma")])
-
-    assert response.status == 400
-    search_mock.assert_not_called()
+    search_mock.assert_called_once_with("ahriman", "maybe")

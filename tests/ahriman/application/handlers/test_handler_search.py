@@ -3,7 +3,6 @@ import aur
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
 
 from ahriman.application.handlers import Search
 from ahriman.core.configuration import Configuration
@@ -28,24 +27,12 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     must run command
     """
     args = _default_args(args)
-    mocker.patch("aur.search", return_value=[aur_package_ahriman])
+    search_mock = mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True)
+    search_mock.assert_called_once_with("ahriman")
     print_mock.assert_called_once()
-
-
-def test_run_multiple_search(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,
-                             mocker: MockerFixture) -> None:
-    """
-    must run command with multiple search arguments
-    """
-    args = _default_args(args)
-    args.search = ["ahriman", "is", "cool"]
-    search_mock = mocker.patch("aur.search", return_value=[aur_package_ahriman])
-
-    Search.run(args, "x86_64", configuration, True)
-    search_mock.assert_has_calls([mock.call(term) for term in args.search])
 
 
 def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,
@@ -54,7 +41,7 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     must run command with sorting
     """
     args = _default_args(args)
-    mocker.patch("aur.search", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True)
@@ -68,7 +55,7 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     """
     args = _default_args(args)
     args.sort_by = "field"
-    mocker.patch("aur.search", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True)
