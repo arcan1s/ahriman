@@ -21,6 +21,7 @@ from typing import Iterable, List
 
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class UpdateHandler(Cleaner):
@@ -53,7 +54,7 @@ class UpdateHandler(Cleaner):
                 continue
 
             try:
-                remote = Package.load(local.base, self.pacman, self.aur_url)
+                remote = Package.load(local.base, PackageSource.AUR, self.pacman, self.aur_url)
                 if local.is_outdated(remote, self.paths):
                     self.reporter.set_pending(local.base)
                     result.append(remote)
@@ -72,16 +73,16 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}
 
-        for filename in self.paths.manual.iterdir():
+        for dirname in self.paths.manual.iterdir():
             try:
-                local = Package.load(filename, self.pacman, self.aur_url)
+                local = Package.load(str(dirname), PackageSource.Local, self.pacman, self.aur_url)
                 result.append(local)
                 if local.base not in known_bases:
                     self.reporter.set_unknown(local)
                 else:
                     self.reporter.set_pending(local.base)
             except Exception:
-                self.logger.exception("could not add package from %s", filename)
+                self.logger.exception("could not add package from %s", dirname)
         self.clear_manual()
 
         return result

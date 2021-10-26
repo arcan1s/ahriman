@@ -26,12 +26,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, List, Optional, Set, Type, Union
+from typing import Any, Dict, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -164,21 +165,24 @@ class Package:
             packages=packages)
 
     @classmethod
-    def load(cls: Type[Package], path: Union[Path, str], pacman: Pacman, aur_url: str) -> Package:
+    def load(cls: Type[Package], package: str, source: PackageSource, pacman: Pacman, aur_url: str) -> Package:
         """
         package constructor from available sources
-        :param path: one of path to sources directory, path to archive or package name/base
+        :param package: one of path to sources directory, path to archive or package name/base
+        :param source: source of the package required to define the load method
         :param pacman: alpm wrapper instance (required to load from archive)
         :param aur_url: AUR root url
         :return: package properties
         """
         try:
-            maybe_path = Path(path)
-            if maybe_path.is_dir():
-                return cls.from_build(maybe_path, aur_url)
-            if maybe_path.is_file():
-                return cls.from_archive(maybe_path, pacman, aur_url)
-            return cls.from_aur(str(path), aur_url)
+            resolved_source = source.resolve(package)
+            if resolved_source == PackageSource.Archive:
+                return cls.from_archive(Path(package), pacman, aur_url)
+            if resolved_source == PackageSource.AUR:
+                return cls.from_aur(package, aur_url)
+            if resolved_source == PackageSource.Local:
+                return cls.from_build(Path(package), aur_url)
+            raise InvalidPackageInfo(f"Unsupported local package source {resolved_source}")
         except InvalidPackageInfo:
             raise
         except Exception as e:
