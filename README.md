@@ -21,70 +21,7 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 
 ## Installation and run
 
-For installation details please refer to the [documentation](docs/setup.md). For command help, `--help` subcommand must be used, e.g.:
-
-```shell
-$ ahriman --help
-usage: ahriman [-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v]
-               {aur-search,search,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web}
-               ...
-
-ArcH Linux ReposItory MANager
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -a ARCHITECTURE, --architecture ARCHITECTURE
-                        target architectures (can be used multiple times) (default: None)
-  -c CONFIGURATION, --configuration CONFIGURATION
-                        configuration path (default: /etc/ahriman.ini)
-  --force               force run, remove file lock (default: False)
-  -l LOCK, --lock LOCK  lock file (default: /tmp/ahriman.lock)
-  --no-report           force disable reporting to web service (default: False)
-  -q, --quiet           force disable any logging (default: False)
-  --unsafe              allow to run ahriman as non-ahriman user. Some actions might be unavailable (default: False)
-  -v, --version         show program's version number and exit
-
-command:
-  {aur-search,search,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-init,init,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,setup,repo-sign,sign,repo-sync,sync,repo-update,update,user-add,user-remove,web}
-                        command to run
-    aur-search (search)
-                        search for package
-    key-import          import PGP key
-    package-add (add, package-update)
-                        add package
-    package-remove (remove)
-                        remove package
-    package-status (status)
-                        get package status
-    package-status-remove
-                        remove package status
-    package-status-update (status-update)
-                        update package status
-    patch-add           add patch set
-    patch-list          list patch sets
-    patch-remove        remove patch set
-    repo-check (check)  check for updates
-    repo-clean (clean)  clean local caches
-    repo-config (config)
-                        dump configuration
-    repo-init (init)    create repository tree
-    repo-rebuild (rebuild)
-                        rebuild repository
-    repo-remove-unknown (remove-unknown)
-                        remove unknown packages
-    repo-report (report)
-                        generate report
-    repo-setup (setup)  initial service configuration
-    repo-sign (sign)    sign packages
-    repo-sync (sync)    sync repository
-    repo-update (update)
-                        update packages
-    user-add            create or update user
-    user-remove         remove user
-    web                 web server
-```
-
-Subcommands have own help message as well.
+For installation details please refer to the [documentation](docs/setup.md). For command help, `--help` subcommand must be used. Subcommands have own help message as well. The package also provides a [man page](docs/ahriman.1).
 
 ## Configuration
 
