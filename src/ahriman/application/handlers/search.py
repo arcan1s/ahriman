@@ -20,12 +20,13 @@
 import argparse
 import aur  # type: ignore
 
-from typing import Callable, Dict, Iterable, List, Tuple, Type
+from typing import Callable, Iterable, List, Tuple, Type
 
 from ahriman.application.formatters.aur_printer import AurPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidOption
+from ahriman.core.util import aur_search
 
 
 class Search(Handler):
@@ -46,17 +47,7 @@ class Search(Handler):
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        packages: Dict[str, aur.Package] = {}
-        # see https://bugs.archlinux.org/task/49133
-        for search in args.search:
-            portion = aur.search(search)
-            packages = {
-                package.package_base: package
-                for package in portion
-                if package.package_base in packages or not packages
-            }
-
-        packages_list = list(packages.values())  # explicit conversion for the tests
+        packages_list = aur_search(*args.search)
         for package in Search.sort(packages_list, args.sort_by):
             AurPrinter(package).print(args.info)
 
