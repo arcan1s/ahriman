@@ -24,7 +24,7 @@ import requests
 
 from logging import Logger
 from pathlib import Path
-from typing import Generator, Optional, Union
+from typing import Any, Dict, Generator, Iterable, Optional, Union
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
 
@@ -78,6 +78,16 @@ def exception_response_text(exception: requests.exceptions.HTTPError) -> str:
     return result
 
 
+def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str, Any]:
+    """
+    filter json object by fields used for json-to-object conversion
+    :param source: raw json object
+    :param known_fields: list of fields which have to be known for the target object
+    :return: json object without unknown and empty fields
+    """
+    return {key: value for key, value in source.items() if key in known_fields and value is not None}
+
+
 def package_like(filename: Path) -> bool:
     """
     check if file looks like package
@@ -88,13 +98,17 @@ def package_like(filename: Path) -> bool:
     return ".pkg." in name and not name.endswith(".sig")
 
 
-def pretty_datetime(timestamp: Optional[Union[float, int]]) -> str:
+def pretty_datetime(timestamp: Optional[Union[datetime.datetime, float, int]]) -> str:
     """
     convert datetime object to string
     :param timestamp: datetime to convert
     :return: pretty printable datetime as string
     """
-    return "" if timestamp is None else datetime.datetime.utcfromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+    if timestamp is None:
+        return ""
+    if isinstance(timestamp, (int, float)):
+        timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+    return timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def pretty_size(size: Optional[float], level: int = 0) -> str:

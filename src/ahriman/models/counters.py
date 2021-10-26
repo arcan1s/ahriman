@@ -22,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from typing import Any, Dict, List, Tuple, Type
 
+from ahriman.core.util import filter_json
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 
@@ -54,8 +55,7 @@ class Counters:
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
-        dump = {key: value for key, value in dump.items() if key in known_fields}
-        return cls(**dump)
+        return cls(**filter_json(dump, known_fields))
 
     @classmethod
     def from_packages(cls: Type[Counters], packages: List[Tuple[Package, BuildStatus]]) -> Counters:

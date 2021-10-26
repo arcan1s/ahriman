@@ -45,11 +45,11 @@ class LoginView(BaseView):
         """
         from ahriman.core.auth.oauth import OAuth
 
-        code = self.request.query.getone("code", default=None)
         oauth_provider = self.validator
         if not isinstance(oauth_provider, OAuth):  # there is actually property, but mypy does not like it anyway
             raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
+        code = self.request.query.getone("code", default=None)
         if not code:
             raise HTTPFound(oauth_provider.get_oauth_url())
 

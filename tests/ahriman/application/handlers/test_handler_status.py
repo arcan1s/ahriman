@@ -1,6 +1,7 @@
 import argparse
 
 from pytest_mock import MockerFixture
+from unittest import mock
 
 from ahriman.application.handlers import Status
 from ahriman.core.configuration import Configuration
@@ -15,6 +16,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.ahriman = True
+    args.info = False
     args.package = []
     args.status = None
     return args
@@ -31,12 +33,28 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
-    pretty_print_mock = mocker.patch("ahriman.models.package.Package.pretty_print")
+    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     Status.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     packages_mock.assert_called_once()
-    pretty_print_mock.assert_called()
+    print_mock.assert_has_calls([mock.call(False) for _ in range(3)])
+
+
+def test_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
+                     mocker: MockerFixture) -> None:
+    """
+    must run command
+    """
+    args = _default_args(args)
+    args.info = True
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.status.client.Client.get",
+                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
+    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
+
+    Status.run(args, "x86_64", configuration, True)
+    print_mock.assert_has_calls([mock.call(True) for _ in range(2)])
 
 
 def test_run_with_package_filter(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
@@ -65,10 +83,10 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    pretty_print_mock = mocker.patch("ahriman.models.package.Package.pretty_print")
+    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     Status.run(args, "x86_64", configuration, True)
-    pretty_print_mock.assert_called_once()
+    print_mock.assert_has_calls([mock.call(False) for _ in range(2)])
 
 
 def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

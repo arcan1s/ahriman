@@ -81,8 +81,7 @@ def auth_handler() -> MiddlewareType:
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
-        permission_method = getattr(handler, "get_permission", None)
-        if permission_method is not None:
+        if (permission_method := getattr(handler, "get_permission", None)) is not None:
             permission = await permission_method(request)
         elif isinstance(handler, types.MethodType):  # additional wrapper for static resources
             handler_instance = getattr(handler, "__self__", None)

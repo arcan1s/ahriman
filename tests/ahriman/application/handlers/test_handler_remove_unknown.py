@@ -14,6 +14,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.dry_run = False
+    args.info = False
     return args
 
 
@@ -42,19 +43,29 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, pac
     application_mock = mocker.patch("ahriman.application.application.Application.unknown",
                                     return_value=[package_ahriman])
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
-    log_fn_mock = mocker.patch("ahriman.application.handlers.remove_unknown.RemoveUnknown.log_fn")
+    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     RemoveUnknown.run(args, "x86_64", configuration, True)
     application_mock.assert_called_once()
     remove_mock.assert_not_called()
-    log_fn_mock.assert_called_once_with(package_ahriman)
+    print_mock.assert_called_once_with(False)
 
 
-def test_log_fn(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_run_dry_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
+                             mocker: MockerFixture) -> None:
     """
-    log function must call print built-in
+    must run simplified command with increased verbosity
     """
-    print_mock = mocker.patch("builtins.print")
+    args = _default_args(args)
+    args.dry_run = True
+    args.info = True
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    application_mock = mocker.patch("ahriman.application.application.Application.unknown",
+                                    return_value=[package_ahriman])
+    remove_mock = mocker.patch("ahriman.application.application.Application.remove")
+    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
-    RemoveUnknown.log_fn(package_ahriman)
-    print_mock.assert_called()  # we don't really care about call details tbh
+    RemoveUnknown.run(args, "x86_64", configuration, True)
+    application_mock.assert_called_once()
+    remove_mock.assert_not_called()
+    print_mock.assert_called_once_with(True)

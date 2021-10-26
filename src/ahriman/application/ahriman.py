@@ -60,7 +60,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
                         default=Path(tempfile.gettempdir()) / "ahriman.lock")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
-    parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
+    parser.add_argument("-q", "--quiet", help="force disable any logging", action=argparse.BooleanOptionalAction,
+                        default=False)  # sometimes we would like to run not quiet even if it is disabled by default
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
     parser.add_argument("-v", "--version", action="version", version=version.__version__)
@@ -104,7 +105,12 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("aur-search", aliases=["search"], help="search for package",
                              description="search for package in AUR using API", formatter_class=_formatter)
-    parser.add_argument("search", help="search terms, can be specified multiple times", nargs="+")
+    parser.add_argument("search", help="search terms, can be specified multiple times, result will match all terms",
+                        nargs="+")
+    parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
+    parser.add_argument("--sort-by", help="sort field by this field. In case if two packages have the same value of "
+                                          "the specified field, they will be always sorted by name",
+                        default="name", choices=sorted(handlers.Search.SORT_FIELDS))
     parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, no_report=True, quiet=True, unsafe=True)
     return parser
 
@@ -181,6 +187,7 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
+    parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
     parser.add_argument("-s", "--status", help="filter packages by status",
                         type=BuildStatusEnum, choices=BuildStatusEnum)
     parser.set_defaults(handler=handlers.Status, lock=None, no_report=True, quiet=True, unsafe=True)
@@ -354,6 +361,7 @@ def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentP
                              description="remove packages which are missing in AUR and do not have local PKGBUILDs",
                              formatter_class=_formatter)
     parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
+    parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
     parser.set_defaults(handler=handlers.RemoveUnknown)
     return parser
 

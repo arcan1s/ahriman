@@ -22,9 +22,10 @@ import argparse
 from typing import Type
 
 from ahriman.application.application import Application
+from ahriman.application.formatters.package_printer import PackagePrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.models.package import Package
+from ahriman.models.build_status import BuildStatus
 
 
 class RemoveUnknown(Handler):
@@ -46,16 +47,7 @@ class RemoveUnknown(Handler):
         unknown_packages = application.unknown()
         if args.dry_run:
             for package in unknown_packages:
-                RemoveUnknown.log_fn(package)
+                PackagePrinter(package, BuildStatus()).print(args.info)
             return
 
         application.remove(package.base for package in unknown_packages)
-
-    @staticmethod
-    def log_fn(package: Package) -> None:
-        """
-        log package information
-        :param package: package object to log
-        """
-        print(f"=> {package.base} {package.version}")
-        print(f"   {package.web_url}")

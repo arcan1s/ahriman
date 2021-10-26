@@ -16,6 +16,8 @@ This package contains application (aka executable) related classes and everythin
 
 `ahriman.application.application.application.Application` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
+`ahriman.application.formatters` package provides `Printer` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
+
 `ahriman.application.ahriman` contains only command line parses and executes specified `Handler` on success, `ahriman.application.lock.Lock` is additional class which provides file-based lock and also performs some common checks.
 
 ## `ahriman.core` package

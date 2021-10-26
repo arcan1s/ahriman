@@ -138,17 +138,17 @@ class Executor(Cleaner):
         :param packages: list of filenames to run
         :return: path to repository database
         """
-        def update_single(fn: Optional[str], base: str) -> None:
-            if fn is None:
+        def update_single(name: Optional[str], base: str) -> None:
+            if name is None:
                 self.logger.warning("received empty package name for base %s", base)
                 return  # suppress type checking, it never can be none actually
             # in theory it might be NOT packages directory, but we suppose it is
-            full_path = self.paths.packages / fn
+            full_path = self.paths.packages / name
             files = self.sign.process_sign_package(full_path, base)
             for src in files:
                 dst = self.paths.repository / src.name
                 shutil.move(src, dst)
-            package_path = self.paths.repository / fn
+            package_path = self.paths.repository / name
             self.repo.add(package_path)
 
         # we are iterating over bases, not single packages

@@ -21,6 +21,7 @@ import argparse
 
 from typing import Type
 
+from ahriman.application.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 
@@ -31,8 +32,6 @@ class Dump(Handler):
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
-
-    _print = print
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
@@ -46,7 +45,4 @@ class Dump(Handler):
         """
         dump = configuration.dump()
         for section, values in sorted(dump.items()):
-            Dump._print(f"[{section}]")
-            for key, value in sorted(values.items()):
-                Dump._print(f"{key} = {value}")
-            Dump._print()
+            ConfigurationPrinter(section, values).print(verbose=False, separator=" = ")

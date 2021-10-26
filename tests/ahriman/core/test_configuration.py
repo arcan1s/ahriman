@@ -1,4 +1,5 @@
 import configparser
+import logging
 import pytest
 
 from pathlib import Path
@@ -194,7 +195,7 @@ def test_load_logging_quiet(configuration: Configuration, mocker: MockerFixture)
     """
     disable_mock = mocker.patch("logging.disable")
     configuration.load_logging(quiet=True)
-    disable_mock.assert_called_once()
+    disable_mock.assert_called_once_with(logging.WARNING)
 
 
 def test_merge_sections_missing(configuration: Configuration) -> None:

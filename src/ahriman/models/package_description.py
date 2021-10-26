@@ -24,6 +24,8 @@ from pathlib import Path
 from pyalpm import Package  # type: ignore
 from typing import Any, Dict, List, Optional, Type
 
+from ahriman.core.util import filter_json
+
 
 @dataclass
 class PackageDescription:
@@ -70,8 +72,7 @@ class PackageDescription:
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
-        dump = {key: value for key, value in dump.items() if key in known_fields}
-        return cls(**dump)
+        return cls(**filter_json(dump, known_fields))
 
     @classmethod
     def from_package(cls: Type[PackageDescription], package: Package, path: Path) -> PackageDescription:
