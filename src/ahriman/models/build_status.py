@@ -21,10 +21,11 @@ from __future__ import annotations
 
 import datetime
 
+from dataclasses import dataclass, fields
 from enum import Enum
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Type
 
-from ahriman.core.util import pretty_datetime
+from ahriman.core.util import filter_json, pretty_datetime
 
 
 class BuildStatusEnum(Enum):
@@ -74,6 +75,7 @@ class BuildStatusEnum(Enum):
         return "secondary"
 
 
+@dataclass
 class BuildStatus:
     """
     build status holder
@@ -81,15 +83,14 @@ class BuildStatus:
     :ivar timestamp: build status update time
     """
 
-    def __init__(self, status: Union[BuildStatusEnum, str, None] = None,
-                 timestamp: Optional[int] = None) -> None:
+    status: BuildStatusEnum = BuildStatusEnum.Unknown
+    timestamp: int = int(datetime.datetime.utcnow().timestamp())
+
+    def __post_init__(self) -> None:
         """
-        default constructor
-        :param status: current build status if known. `BuildStatusEnum.Unknown` will be used if not set
-        :param timestamp: build status timestamp. Current timestamp will be used if not set
+        convert status to enum type
         """
-        self.status = BuildStatusEnum(status) if status else BuildStatusEnum.Unknown
-        self.timestamp = timestamp or int(datetime.datetime.utcnow().timestamp())
+        self.status = BuildStatusEnum(self.status)
 
     @classmethod
     def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:
@@ -98,7 +99,8 @@ class BuildStatus:
         :param dump: json dump body
         :return: status properties
         """
-        return cls(dump.get("status"), dump.get("timestamp"))
+        known_fields = [pair.name for pair in fields(cls)]
+        return cls(**filter_json(dump, known_fields))
 
     def pretty_print(self) -> str:
         """
@@ -116,20 +118,3 @@ class BuildStatus:
             "status": self.status.value,
             "timestamp": self.timestamp
         }
-
-    def __eq__(self, other: Any) -> bool:
-        """
-        compare object to other
-        :param other: other object to compare
-        :return: True in case if objects are equal
-        """
-        if not isinstance(other, BuildStatus):
-            return False
-        return self.status == other.status and self.timestamp == other.timestamp
-
-    def __repr__(self) -> str:
-        """
-        generate string representation of object
-        :return: unique string representation
-        """
-        return f"BuildStatus(status={self.status.value}, timestamp={self.timestamp})"

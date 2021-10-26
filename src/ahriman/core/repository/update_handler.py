@@ -72,16 +72,16 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}
 
-        for fn in self.paths.manual.iterdir():
+        for filename in self.paths.manual.iterdir():
             try:
-                local = Package.load(fn, self.pacman, self.aur_url)
+                local = Package.load(filename, self.pacman, self.aur_url)
                 result.append(local)
                 if local.base not in known_bases:
                     self.reporter.set_unknown(local)
                 else:
                     self.reporter.set_pending(local.base)
             except Exception:
-                self.logger.exception("could not add package from %s", fn)
+                self.logger.exception("could not add package from %s", filename)
         self.clear_manual()
 
         return result

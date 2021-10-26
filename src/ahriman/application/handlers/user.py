@@ -113,8 +113,7 @@ class User(Handler):
         :param salt_length: salt length
         :return: current salt
         """
-        salt = configuration.get("auth", "salt", fallback=None)
-        if salt:
+        if salt := configuration.get("auth", "salt", fallback=None):
             return salt
         return MUser.generate_password(salt_length)
 

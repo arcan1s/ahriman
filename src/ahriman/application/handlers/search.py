@@ -20,10 +20,12 @@
 import argparse
 import aur  # type: ignore
 
-from typing import Callable, Type
+from typing import Callable, Dict, Iterable, List, Tuple, Type
 
+from ahriman.application.formatters.aur_printer import AurPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import InvalidOption
 
 
 class Search(Handler):
@@ -32,6 +34,7 @@ class Search(Handler):
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+    SORT_FIELDS = set(aur.Package._fields)  # later we will have to remove some fields from here (lists)
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
@@ -43,20 +46,32 @@ class Search(Handler):
         :param configuration: configuration instance
         :param no_report: force disable reporting
         """
-        search = " ".join(args.search)
-        packages = aur.search(search)
+        packages: Dict[str, aur.Package] = {}
+        # see https://bugs.archlinux.org/task/49133
+        for search in args.search:
+            portion = aur.search(search)
+            packages = {
+                package.package_base: package
+                for package in portion
+                if package.package_base in packages or not packages
+            }
 
-        # it actually always should return string
-        # explicit cast to string just to avoid mypy warning for untyped library
-        comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)
-        for package in sorted(packages, key=comparator):
-            Search.log_fn(package)
+        packages_list = list(packages.values())  # explicit conversion for the tests
+        for package in Search.sort(packages_list, args.sort_by):
+            AurPrinter(package).print(args.info)
 
     @staticmethod
-    def log_fn(package: aur.Package) -> None:
+    def sort(packages: Iterable[aur.Package], sort_by: str) -> List[aur.Package]:
         """
-        log package information
-        :param package: package object as from AUR
+        sort package list by specified field
+        :param packages: packages list to sort
+        :param sort_by: AUR package field name to sort by
+        :return: sorted list for packages
         """
-        print(f"=> {package.package_base} {package.version}")
-        print(f"   {package.description}")
+        if sort_by not in Search.SORT_FIELDS:
+            raise InvalidOption(sort_by)
+        # always sort by package name at the last
+        # well technically it is not a string, but we can deal with it
+        comparator: Callable[[aur.Package], Tuple[str, str]] =\
+            lambda package: (getattr(package, sort_by), package.name)
+        return sorted(packages, key=comparator)

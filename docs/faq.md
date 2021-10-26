@@ -399,6 +399,17 @@ Don't know, haven't tried it. But it lacks of documentation at least.
 * `archrepo2` actively uses direct shell calls and `yaourt` components.
 * It has constantly running process instead of timer process (it is not pro or con).
 
+#### [repoctl](https://github.com/cassava/repoctl)
+
+* Web interface.
+* No reporting.
+* Local packages and patches support.
+* Some actions are not fully automated (e.g. package update still requires manual intervention for the build itself). 
+* `repoctl` has better AUR interaction features. With colors!
+* `repoctl` has much easier configuration and even completion.
+* `repoctl` is able to store old packages.
+* Ability to host repository from same command vs external services (e.g. nginx) in `ahriman`.
+
 #### [repo-scripts](https://github.com/arcan1s/repo-scripts)
 
 Though originally I've created ahriman by trying to improve the project, it still lacks a lot of features:

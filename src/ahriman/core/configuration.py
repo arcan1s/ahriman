@@ -175,7 +175,7 @@ class Configuration(configparser.RawConfigParser):
                                 level=self.DEFAULT_LOG_LEVEL)
             logging.exception("could not load logging from configuration, fallback to stderr")
         if quiet:
-            logging.disable()
+            logging.disable(logging.WARNING)  # only print errors here
 
     def merge_sections(self, architecture: str) -> None:
         """

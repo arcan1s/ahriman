@@ -1,3 +1,4 @@
+import datetime
 import logging
 import pytest
 import subprocess
@@ -6,7 +7,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
-from ahriman.core.util import check_output, check_user, package_like, pretty_datetime, pretty_size, walk
+from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, walk
 from ahriman.models.package import Package
 
 
@@ -79,6 +80,26 @@ def test_check_user_exception(mocker: MockerFixture) -> None:
         check_user(cwd)
 
 
+def test_filter_json(package_ahriman: Package) -> None:
+    """
+    must filter fields by known list
+    """
+    expected = package_ahriman.view()
+    probe = package_ahriman.view()
+    probe["unknown_field"] = "value"
+
+    assert expected == filter_json(probe, expected.keys())
+
+
+def test_filter_json_empty_value(package_ahriman: Package) -> None:
+    """
+    must return empty values from object
+    """
+    probe = package_ahriman.view()
+    probe["base"] = None
+    assert "base" not in filter_json(probe, probe.keys())
+
+
 def test_package_like(package_ahriman: Package) -> None:
     """
     package_like must return true for archives
@@ -100,6 +121,13 @@ def test_pretty_datetime() -> None:
     must generate string from timestamp value
     """
     assert pretty_datetime(0) == "1970-01-01 00:00:00"
+
+
+def test_pretty_datetime_datetime() -> None:
+    """
+    must generate string from datetime object
+    """
+    assert pretty_datetime(datetime.datetime(1970, 1, 1, 0, 0, 0)) == "1970-01-01 00:00:00"
 
 
 def test_pretty_datetime_empty() -> None:

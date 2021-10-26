@@ -126,11 +126,10 @@ class Watcher:
         """
         for package in self.repository.packages():
             # get status of build or assign unknown
-            current = self.known.get(package.base)
-            if current is None:
-                status = BuildStatus()
-            else:
+            if (current := self.known.get(package.base)) is not None:
                 _, status = current
+            else:
+                status = BuildStatus()
             self.known[package.base] = (package, status)
         self._cache_load()
 
