@@ -64,7 +64,7 @@ class Properties:
             check_user(self.paths.root)
             self.paths.tree_create()
         except UnsafeRun:
-            self.logger.exception("root owner differs from the current user, skipping tree creation")
+            self.logger.warning("root owner differs from the current user, skipping tree creation")
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(configuration)
