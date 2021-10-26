@@ -24,6 +24,7 @@ from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class Repository(Executor, UpdateHandler):
@@ -39,7 +40,7 @@ class Repository(Executor, UpdateHandler):
         result: Dict[str, Package] = {}
         for full_path in filter(package_like, self.paths.repository.iterdir()):
             try:
-                local = Package.load(full_path, self.pacman, self.aur_url)
+                local = Package.load(str(full_path), PackageSource.Archive, self.pacman, self.aur_url)
                 result.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
                 self.logger.exception("could not load package from %s", full_path)

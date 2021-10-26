@@ -26,6 +26,7 @@ from ahriman.application.application.properties import Properties
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class Repository(Properties):
@@ -133,7 +134,10 @@ class Repository(Properties):
         def process_update(paths: Iterable[Path]) -> None:
             if not paths:
                 return  # don't need to process if no update supplied
-            updated = [Package.load(path, self.repository.pacman, self.repository.aur_url) for path in paths]
+            updated = [
+                Package.load(str(path), PackageSource.Archive, self.repository.pacman, self.repository.aur_url)
+                for path in paths
+            ]
             self.repository.process_update(paths)
             self._finalize(updated)
 

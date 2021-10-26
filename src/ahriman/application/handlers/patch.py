@@ -29,6 +29,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.models.action import Action
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class Patch(Handler):
@@ -55,23 +56,24 @@ class Patch(Handler):
         elif args.action == Action.Remove:
             Patch.patch_set_remove(application, args.package)
         elif args.action == Action.Update:
-            Patch.patch_set_create(application, Path(args.package), args.track)
+            Patch.patch_set_create(application, args.package, args.track)
 
     @staticmethod
-    def patch_set_create(application: Application, sources_dir: Path, track: List[str]) -> None:
+    def patch_set_create(application: Application, sources_dir: str, track: List[str]) -> None:
         """
         create patch set for the package base
         :param application: application instance
         :param sources_dir: path to directory with the package sources
         :param track: track files which match the glob before creating the patch
         """
-        package = Package.load(sources_dir, application.repository.pacman, application.repository.aur_url)
+        package = Package.load(sources_dir, PackageSource.Local, application.repository.pacman,
+                               application.repository.aur_url)
         patch_dir = application.repository.paths.patches_for(package.base)
 
         Patch.patch_set_remove(application, package.base)  # remove old patches
         patch_dir.mkdir(mode=0o755, parents=True)
 
-        Sources.patch_create(sources_dir, patch_dir / "00-main.patch", *track)
+        Sources.patch_create(Path(sources_dir), patch_dir / "00-main.patch", *track)
 
     @staticmethod
     def patch_set_list(application: Application, package_base: str) -> None:

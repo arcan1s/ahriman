@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, PropertyMock
 
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -156,14 +157,24 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
+def test_load_resolve(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must resolve source before package loading
+    """
+    resolve_mock = mocker.patch("ahriman.models.package_source.PackageSource.resolve",
+                                return_value=PackageSource.Archive)
+    mocker.patch("ahriman.models.package.Package.from_archive")
+
+    Package.load("path", PackageSource.Archive, pyalpm_handle, package_ahriman.aur_url)
+    resolve_mock.assert_called_once_with("path")
+
+
 def test_load_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
     """
     must load package from package archive
     """
-    mocker.patch("pathlib.Path.is_file", return_value=True)
     load_mock = mocker.patch("ahriman.models.package.Package.from_archive")
-
-    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    Package.load("path", PackageSource.Archive, pyalpm_handle, package_ahriman.aur_url)
     load_mock.assert_called_once()
 
 
@@ -172,8 +183,7 @@ def test_load_from_aur(package_ahriman: Package, pyalpm_handle: MagicMock, mocke
     must load package from AUR
     """
     load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
-
-    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
     load_mock.assert_called_once()
 
 
@@ -181,10 +191,8 @@ def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, moc
     """
     must load package from build directory
     """
-    mocker.patch("pathlib.Path.is_dir", return_value=True)
     load_mock = mocker.patch("ahriman.models.package.Package.from_build")
-
-    Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+    Package.load("path", PackageSource.Local, pyalpm_handle, package_ahriman.aur_url)
     load_mock.assert_called_once()
 
 
@@ -192,13 +200,26 @@ def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     """
     must raise InvalidPackageInfo on exception
     """
-    mocker.patch("pathlib.Path.is_dir", side_effect=InvalidPackageInfo("exception!"))
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=InvalidPackageInfo("exception!"))
     with pytest.raises(InvalidPackageInfo):
-        Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+        Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
 
-    mocker.patch("pathlib.Path.is_dir", side_effect=Exception())
+
+def test_load_failure_exception(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must raise InvalidPackageInfo on random eexception
+    """
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
     with pytest.raises(InvalidPackageInfo):
-        Package.load(Path("path"), pyalpm_handle, package_ahriman.aur_url)
+        Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
+
+
+def test_load_invalid_source(package_ahriman: Package, pyalpm_handle: MagicMock) -> None:
+    """
+    must raise InvalidPackageInfo on unsupported source
+    """
+    with pytest.raises(InvalidPackageInfo):
+        Package.load("path", PackageSource.Remote, pyalpm_handle, package_ahriman.aur_url)
 
 
 def test_dependencies_failed(mocker: MockerFixture) -> None:

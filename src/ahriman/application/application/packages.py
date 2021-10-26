@@ -65,11 +65,10 @@ class Packages(Properties):
         :param without_dependencies: if set, dependency check will be disabled
         """
         aur_url = self.configuration.get("alpm", "aur_url")
-        package = Package.load(source, self.repository.pacman, aur_url)
-        Sources.load(self.repository.paths.manual_for(package.base), package.git_url,
-                     self.repository.paths.patches_for(package.base))
-
+        package = Package.load(source, PackageSource.AUR, self.repository.pacman, aur_url)
         local_path = self.repository.paths.manual_for(package.base)
+
+        Sources.load(local_path, package.git_url, self.repository.paths.patches_for(package.base))
         self._process_dependencies(local_path, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
@@ -88,11 +87,10 @@ class Packages(Properties):
         :param known_packages: list of packages which are known by the service
         :param without_dependencies: if set, dependency check will be disabled
         """
-        local_path = Path(source)
         aur_url = self.configuration.get("alpm", "aur_url")
-        package = Package.load(local_path, self.repository.pacman, aur_url)
+        package = Package.load(source, PackageSource.Local, self.repository.pacman, aur_url)
         cache_dir = self.repository.paths.cache_for(package.base)
-        shutil.copytree(local_path, cache_dir)  # copy package to store in caches
+        shutil.copytree(Path(source), cache_dir)  # copy package to store in caches
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
 
         dst = self.repository.paths.manual_for(package.base)

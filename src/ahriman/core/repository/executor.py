@@ -27,6 +27,7 @@ from ahriman.core.report.report import Report
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 class Executor(Cleaner):
@@ -155,7 +156,7 @@ class Executor(Cleaner):
         updates: Dict[str, Package] = {}
         for filename in packages:
             try:
-                local = Package.load(filename, self.pacman, self.aur_url)
+                local = Package.load(str(filename), PackageSource.Archive, self.pacman, self.aur_url)
                 updates.setdefault(local.base, local).packages.update(local.packages)
             except Exception:
                 self.logger.exception("could not load package from %s", filename)
