@@ -60,8 +60,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
                         default=Path(tempfile.gettempdir()) / "ahriman.lock")
     parser.add_argument("--no-report", help="force disable reporting to web service", action="store_true")
-    parser.add_argument("-q", "--quiet", help="force disable any logging", action=argparse.BooleanOptionalAction,
-                        default=False)  # sometimes we would like to run not quiet even if it is disabled by default
+    parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
     parser.add_argument("-v", "--version", action="version", version=version.__version__)
