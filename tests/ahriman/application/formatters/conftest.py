@@ -5,6 +5,7 @@ from ahriman.application.formatters.aur_printer import AurPrinter
 from ahriman.application.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.application.formatters.package_printer import PackagePrinter
 from ahriman.application.formatters.status_printer import StatusPrinter
+from ahriman.application.formatters.update_printer import UpdatePrinter
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 
@@ -39,9 +40,18 @@ def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
 
 
 @pytest.fixture
-def status_printer(package_ahriman: Package) -> StatusPrinter:
+def status_printer() -> StatusPrinter:
     """
     fixture for build status printer
     :return: build status printer test instance
     """
     return StatusPrinter(BuildStatus())
+
+
+@pytest.fixture
+def update_printer(package_ahriman: Package) -> UpdatePrinter:
+    """
+    fixture for build status printer
+    :return: build status printer test instance
+    """
+    return UpdatePrinter(package_ahriman, None)

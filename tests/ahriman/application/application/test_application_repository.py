@@ -201,6 +201,7 @@ def test_updates_all(application_repository: Repository, package_ahriman: Packag
     """
     must get updates for all
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur",
                                     return_value=[package_ahriman])
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
@@ -214,6 +215,7 @@ def test_updates_disabled(application_repository: Repository, mocker: MockerFixt
     """
     must get updates without anything
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
@@ -226,6 +228,7 @@ def test_updates_no_aur(application_repository: Repository, mocker: MockerFixtur
     """
     must get updates without aur
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
@@ -238,6 +241,7 @@ def test_updates_no_manual(application_repository: Repository, mocker: MockerFix
     """
     must get updates without manual
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
@@ -250,6 +254,7 @@ def test_updates_no_vcs(application_repository: Repository, mocker: MockerFixtur
     """
     must get updates without VCS
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
@@ -262,6 +267,7 @@ def test_updates_with_filter(application_repository: Repository, mocker: MockerF
     """
     must get updates without VCS
     """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
