@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Callable, Iterable, List
 
 from ahriman.application.application.properties import Properties
+from ahriman.application.formatters.update_printer import UpdatePrinter
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
@@ -170,7 +171,9 @@ class Repository(Properties):
         if not no_manual:
             updates.extend(self.repository.updates_manual())
 
+        local_versions = {package.base: package.version for package in self.repository.packages()}
         for package in updates:
-            log_fn(f"{package.base} = {package.version}")
+            UpdatePrinter(package, local_versions.get(package.base)).print(
+                verbose=True, log_fn=log_fn, separator=" -> ")
 
         return updates
