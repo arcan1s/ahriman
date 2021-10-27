@@ -163,6 +163,41 @@ Server = file:///var/lib/ahriman/repository/x86_64
 
 (You might need to add `SigLevel` option according to the pacman documentation.)
 
+
+### I would like to serve the repository
+
+Easy. For example, nginx configuration (without SSL) will look like:
+
+```
+server {
+    listen 80;
+    server_name repo.example.com;
+
+    location / {
+        autoindex on;
+        root /var/lib/ahriman/repository;
+    }
+}
+```
+
+Example of the status page configuration is the following (status service is using 8080 port):
+
+```
+server {
+    listen 80;
+    server_name builds.example.com;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarder-Proto $scheme;
+
+        proxy_pass http://127.0.0.1:8080;
+    }
+}
+```
+
 ## Remote synchronization
 
 ### Wait I would like to use the repository from another server
