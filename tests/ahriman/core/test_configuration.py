@@ -4,6 +4,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest import mock
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
@@ -54,6 +55,64 @@ def test_section_name(configuration: Configuration) -> None:
     assert configuration.section_name("build", "x86_64") == "build:x86_64"
 
 
+def test_getlist(configuration: Configuration) -> None:
+    """
+    must return list of string correctly
+    """
+    configuration.set_option("build", "test_list", "a b c")
+    assert configuration.getlist("build", "test_list") == ["a", "b", "c"]
+
+
+def test_getlist_empty(configuration: Configuration) -> None:
+    """
+    must return list of string correctly for non-existing option
+    """
+    assert configuration.getlist("build", "test_list", fallback=[]) == []
+    configuration.set_option("build", "test_list", "")
+    assert configuration.getlist("build", "test_list") == []
+
+
+def test_getlist_single(configuration: Configuration) -> None:
+    """
+    must return list of strings for single string
+    """
+    configuration.set_option("build", "test_list", "a")
+    assert configuration.getlist("build", "test_list") == ["a"]
+    assert configuration.getlist("build", "test_list") == ["a"]
+
+
+def test_getlist_with_spaces(configuration: Configuration) -> None:
+    """
+    must return list of string if there is string with spaces in quotes
+    """
+    configuration.set_option("build", "test_list", """"ahriman is" cool""")
+    assert configuration.getlist("build", "test_list") == ["""ahriman is""", """cool"""]
+    configuration.set_option("build", "test_list", """'ahriman is' cool""")
+    assert configuration.getlist("build", "test_list") == ["""ahriman is""", """cool"""]
+
+
+def test_getlist_with_quotes(configuration: Configuration) -> None:
+    """
+    must return list of string if there is string with quote inside quote
+    """
+    configuration.set_option("build", "test_list", """"ahriman is" c"'"ool""")
+    assert configuration.getlist("build", "test_list") == ["""ahriman is""", """c'ool"""]
+    configuration.set_option("build", "test_list", """'ahriman is' c'"'ool""")
+    assert configuration.getlist("build", "test_list") == ["""ahriman is""", """c"ool"""]
+
+
+def test_getlist_unmatched_quote(configuration: Configuration) -> None:
+    """
+    must raise exception on unmatched quote in string value
+    """
+    configuration.set_option("build", "test_list", """ahri"man is cool""")
+    with pytest.raises(ValueError):
+        configuration.getlist("build", "test_list")
+    configuration.set_option("build", "test_list", """ahri'man is cool""")
+    with pytest.raises(ValueError):
+        configuration.getlist("build", "test_list")
+
+
 def test_getpath_absolute_to_absolute(configuration: Configuration) -> None:
     """
     must not change path for absolute path in settings
@@ -92,32 +151,6 @@ def test_getpath_without_fallback(configuration: Configuration) -> None:
         assert configuration.getpath("some", "option")
     with pytest.raises(configparser.NoOptionError):
         assert configuration.getpath("build", "option")
-
-
-def test_getlist(configuration: Configuration) -> None:
-    """
-    must return list of string correctly
-    """
-    configuration.set_option("build", "test_list", "a b c")
-    assert configuration.getlist("build", "test_list") == ["a", "b", "c"]
-
-
-def test_getlist_empty(configuration: Configuration) -> None:
-    """
-    must return list of string correctly for non-existing option
-    """
-    assert configuration.getlist("build", "test_list", fallback=[]) == []
-    configuration.set_option("build", "test_list", "")
-    assert configuration.getlist("build", "test_list") == []
-
-
-def test_getlist_single(configuration: Configuration) -> None:
-    """
-    must return list of strings for single string
-    """
-    configuration.set_option("build", "test_list", "a")
-    assert configuration.getlist("build", "test_list") == ["a"]
-    assert configuration.getlist("build", "test_list") == ["a"]
 
 
 def test_gettype(configuration: Configuration) -> None:
@@ -220,6 +253,17 @@ def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
     configuration.reload()
     load_mock.assert_called_once()
     merge_mock.assert_called_once()
+
+
+def test_reload_clear(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must clear current settings before configuration reload
+    """
+    clear_mock = mocker.patch("ahriman.core.configuration.Configuration.remove_section")
+    sections = configuration.sections()
+
+    configuration.reload()
+    clear_mock.assert_has_calls([mock.call(section) for section in sections])
 
 
 def test_reload_no_architecture(configuration: Configuration) -> None:

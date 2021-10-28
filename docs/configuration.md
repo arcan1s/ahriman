@@ -1,6 +1,13 @@
 # ahriman configuration
 
-Some groups can be specified for each architecture separately. E.g. if there are `build` and `build:x86_64` groups it will use the option from `build:x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. 
+Some groups can be specified for each architecture separately. E.g. if there are `build` and `build:x86_64` groups it will use the option from `build:x86_64` for the `x86_64` architecture and `build` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them.
+
+Some values have list of strings type. Those values will be read in the same way as shell does:
+
+* By default, it splits value by spaces excluding empty elements. 
+* In case if quotation mark (`"` or `'`) will be found, any spaces inside will be ignored.
+* In order to use quotation mark inside value it is required to put it to another quotation mark, e.g. `wor"'"d "with quote"` will be parsed as `["wor'd", "with quote"]` and vice versa.
+* Unclosed quotation mark is not allowed and will rise an exception.
 
 ## `settings` group
 
@@ -38,11 +45,11 @@ Authorization mapping. Group name must refer to user access level, i.e. it shoul
 Key is always username (case-insensitive), option value depends on authorization provider:
 
 * `OAuth` - by default requires only usernames and ignores values. But in case of direct login method call (via POST request) it will act as `Mapping` authorization method.
-* `Mapping` (default) - reads salted password hashes from values, uses SHA512 in order to hash passwords. Password can be set by using `create-user` subcommand.
+* `Mapping` (default) - reads salted password hashes from values, uses SHA512 in order to hash passwords. Password can be set by using `user-add` subcommand.
 
 ## `build:*` groups
 
-Build related configuration. Group name must refer to architecture, e.g. it should be `build:x86_64` for x86_64 architecture.
+Build related configuration. Group name can refer to architecture, e.g. `build:x86_64` can be used for x86_64 architecture specific settings.
 
 * `archbuild_flags` - additional flags passed to `archbuild` command, space separated list of strings, optional.
 * `build_command` - default build command, string, required.
@@ -59,7 +66,7 @@ Base repository settings.
 
 ## `sign:*` groups
 
-Settings for signing packages or repository. Group name must refer to architecture, e.g. it should be `sign:x86_64` for x86_64 architecture.
+Settings for signing packages or repository. Group name can refer to architecture, e.g. `sign:x86_64` can be used for x86_64 architecture specific settings.
 
 * `target` - configuration flag to enable signing, space separated list of strings, required. Allowed values are `package` (sign each package separately), `repository` (sign repository database file).
 * `key` - default PGP key, string, required. This key will also be used for database signing if enabled.
@@ -69,7 +76,7 @@ Settings for signing packages or repository. Group name must refer to architectu
 
 Report generation settings.
 
-* `target` - list of reports to be generated, space separated list of strings, required. It must point to valid section (or to section with architecture), e.g. `somerandomname` must point to existing section, `email` must point to one of `email` of `email:x86_64` (with architecture it has higher priority). 
+* `target` - list of reports to be generated, space separated list of strings, required. It must point to valid section (or to section with architecture), e.g. `somerandomname` must point to existing section, `email` must point to one of `email` of `email:x86_64` (the one with architecture has higher priority). 
 
 Type will be read from several ways:
 
@@ -152,7 +159,7 @@ Requires `boto3` library to be installed. Section name must be either `s3` (plus
 
 ## `web:*` groups
 
-Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name must refer to architecture, e.g. it should be `web:x86_64` for x86_64 architecture. This feature requires `aiohttp` libraries to be installed.
+Web server settings. If any of `host`/`port` is not set, web integration will be disabled. Group name can refer to architecture, e.g. `web:x86_64` can be used for x86_64 architecture specific settings. This feature requires `aiohttp` libraries to be installed.
 
 * `address` - optional address in form `proto://host:port` (`port` can be omitted in case of default `proto` ports), will be used instead of `http://{host}:{port}` in case if set, string, optional. This option is required in case if `OAuth` provider is used.
 * `debug` - enable debug toolbar, boolean, optional, default `no`.
