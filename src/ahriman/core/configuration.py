@@ -24,7 +24,7 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
 from ahriman.core.exceptions import InitializeException
 
@@ -49,7 +49,7 @@ class Configuration(configparser.RawConfigParser):
         default constructor. In the most cases must not be called directly
         """
         configparser.RawConfigParser.__init__(self, allow_no_value=True, converters={
-            "list": lambda value: value.split(),
+            "list": self.__convert_list,
             "path": self.__convert_path,
         })
         self.architecture: Optional[str] = None
@@ -83,6 +83,32 @@ class Configuration(configparser.RawConfigParser):
         config.merge_sections(architecture)
         config.load_logging(quiet)
         return config
+
+    @staticmethod
+    def __convert_list(value: str) -> List[str]:
+        """
+        convert string value to list of strings
+        :param value: string configuration value
+        :return: list of string from the parsed string
+        """
+        def generator() -> Generator[str, None, None]:
+            quote_mark = None
+            word = ""
+            for char in value:
+                if char in ("'", "\"") and quote_mark is None:  # quoted part started, store quote and do nothing
+                    quote_mark = char
+                elif char == quote_mark:  # quoted part ended, reset quotation
+                    quote_mark = None
+                elif char == " " and quote_mark is None:  # found space outside of the quotation, yield the word
+                    yield word
+                    word = ""
+                else:  # append character to the buffer
+                    word += char
+            if quote_mark:  # there is unmatched quote
+                raise ValueError(f"unmatched quote in {value}")
+            yield word  # sequence done, return whatever we found
+
+        return [word for word in generator() if word]
 
     @staticmethod
     def section_name(section: str, suffix: str) -> str:
@@ -204,6 +230,8 @@ class Configuration(configparser.RawConfigParser):
         """
         if self.path is None or self.architecture is None:
             raise InitializeException("Configuration path and/or architecture are not set")
+        for section in self.sections():  # clear current content
+            self.remove_section(section)
         self.load(self.path)
         self.merge_sections(self.architecture)
 
