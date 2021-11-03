@@ -11,6 +11,14 @@ from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
 
 
+def test_load_archives(executor: Executor) -> None:
+    """
+    must raise NotImplemented for missing load_archives method
+    """
+    with pytest.raises(NotImplementedError):
+        executor.load_archives([])
+
+
 def test_packages(executor: Executor) -> None:
     """
     must raise NotImplemented for missing method
@@ -182,7 +190,7 @@ def test_process_update(executor: Executor, package_ahriman: Package, mocker: Mo
     """
     must run update process
     """
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     move_mock = mocker.patch("shutil.move")
     repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
     sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
@@ -209,7 +217,7 @@ def test_process_update_group(executor: Executor, package_python_schedule: Packa
     must group single packages under one base
     """
     mocker.patch("shutil.move")
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_python_schedule)
+    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_python_schedule])
     repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
 
@@ -226,7 +234,7 @@ def test_process_empty_filename(executor: Executor, package_ahriman: Package, mo
     must skip update for package which does not have path
     """
     package_ahriman.packages[package_ahriman.base].filename = None
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     executor.process_update([package.filepath for package in package_ahriman.packages.values()])
 
 
@@ -235,18 +243,8 @@ def test_process_update_failed(executor: Executor, package_ahriman: Package, moc
     must process update for failed package
     """
     mocker.patch("shutil.move", side_effect=Exception())
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     executor.process_update([package.filepath for package in package_ahriman.packages.values()])
     status_client_mock.assert_called_once()
-
-
-def test_process_update_failed_on_load(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must process update even with failed package load
-    """
-    mocker.patch("shutil.move")
-    mocker.patch("ahriman.models.package.Package.load", side_effect=Exception())
-
-    assert executor.process_update([package.filepath for package in package_ahriman.packages.values()])

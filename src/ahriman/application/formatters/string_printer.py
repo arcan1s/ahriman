@@ -20,24 +20,23 @@
 from typing import Optional
 
 from ahriman.application.formatters.printer import Printer
-from ahriman.models.build_status import BuildStatus
 
 
-class StatusPrinter(Printer):
+class StringPrinter(Printer):
     """
-    print content of the status object
+    print content of the random string
     """
 
-    def __init__(self, status: BuildStatus) -> None:
+    def __init__(self, content: str) -> None:
         """
         default constructor
-        :param status: build status
+        :param content: any content string
         """
-        self.content = status
+        self.content = content
 
     def title(self) -> Optional[str]:
         """
         generate entry title from content
         :return: content title if it can be generated and None otherwise
         """
-        return self.content.pretty_print()
+        return self.content

@@ -22,10 +22,9 @@ import argparse
 from typing import Type
 
 from ahriman.application.application import Application
-from ahriman.application.formatters.package_printer import PackagePrinter
+from ahriman.application.formatters.string_printer import StringPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.models.build_status import BuildStatus
 
 
 class RemoveUnknown(Handler):
@@ -46,8 +45,8 @@ class RemoveUnknown(Handler):
         application = Application(architecture, configuration, no_report)
         unknown_packages = application.unknown()
         if args.dry_run:
-            for package in unknown_packages:
-                PackagePrinter(package, BuildStatus()).print(args.info)
+            for package in sorted(unknown_packages):
+                StringPrinter(package).print(args.info)
             return
 
-        application.remove(package.base for package in unknown_packages)
+        application.remove(unknown_packages)

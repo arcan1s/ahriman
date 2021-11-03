@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, Iterable, List
 
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
@@ -32,20 +32,35 @@ class Repository(Executor, UpdateHandler):
     base repository control class
     """
 
+    def load_archives(self, packages: Iterable[Path]) -> List[Package]:
+        """
+        load packages from list of archives
+        :param packages: paths to package archives
+        :return: list of read packages
+        """
+        result: Dict[str, Package] = {}
+        # we are iterating over bases, not single packages
+        for full_path in packages:
+            try:
+                local = Package.load(str(full_path), PackageSource.Archive, self.pacman, self.aur_url)
+                current = result.setdefault(local.base, local)
+                if current.version != local.version:
+                    # force version to max of them
+                    self.logger.warning("version of %s differs, found %s and %s",
+                                        current.base, current.version, local.version)
+                    if current.is_outdated(local, self.paths, calculate_version=False):
+                        current.version = local.version
+                current.packages.update(local.packages)
+            except Exception:
+                self.logger.exception("could not load package from %s", full_path)
+        return list(result.values())
+
     def packages(self) -> List[Package]:
         """
         generate list of repository packages
         :return: list of packages properties
         """
-        result: Dict[str, Package] = {}
-        for full_path in filter(package_like, self.paths.repository.iterdir()):
-            try:
-                local = Package.load(str(full_path), PackageSource.Archive, self.pacman, self.aur_url)
-                result.setdefault(local.base, local).packages.update(local.packages)
-            except Exception:
-                self.logger.exception("could not load package from %s", full_path)
-                continue
-        return list(result.values())
+        return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
 
     def packages_built(self) -> List[Path]:
         """
