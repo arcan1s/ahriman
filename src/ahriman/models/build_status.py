@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import datetime
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any, Dict, Type
 
@@ -84,7 +84,7 @@ class BuildStatus:
     """
 
     status: BuildStatusEnum = BuildStatusEnum.Unknown
-    timestamp: int = int(datetime.datetime.utcnow().timestamp())
+    timestamp: int = field(default_factory=lambda: int(datetime.datetime.utcnow().timestamp()))
 
     def __post_init__(self) -> None:
         """

@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 
@@ -43,6 +44,17 @@ def test_build_status_init_2(build_status_failed: BuildStatus) -> None:
     """
     status = BuildStatus(BuildStatusEnum.Failed, 42)
     assert status == build_status_failed
+
+
+def test_build_status_init_empty_timestamp() -> None:
+    """
+    must st current timestamp when not set
+    """
+    first = BuildStatus()
+    time.sleep(1)
+    second = BuildStatus()
+    # well technically it just should increase
+    assert first.timestamp < second.timestamp
 
 
 def test_build_status_from_json_view(build_status_failed: BuildStatus) -> None:
