@@ -147,6 +147,7 @@ def test_unknown_no_aur(application_repository: Repository, package_ahriman: Pac
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
 
@@ -163,7 +164,7 @@ def test_unknown_no_aur_no_local(application_repository: Repository, package_ahr
     mocker.patch("pathlib.Path.is_dir", return_value=False)
 
     packages = application_repository.unknown()
-    assert packages == [package_ahriman]
+    assert packages == list(package_ahriman.packages.keys())
 
 
 def test_unknown_no_local(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
