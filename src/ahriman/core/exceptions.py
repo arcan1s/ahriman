@@ -153,8 +153,12 @@ class UnknownPackage(ValueError):
     exception for status watcher which will be thrown on unknown package
     """
 
-    def __init__(self, base: str) -> None:
-        ValueError.__init__(self, f"Package base {base} is unknown")
+    def __init__(self, package_base: str) -> None:
+        """
+        default constructor
+        :param package_base: package base name
+        """
+        ValueError.__init__(self, f"Package base {package_base} is unknown")
 
 
 class UnsafeRun(RuntimeError):
@@ -165,9 +169,9 @@ class UnsafeRun(RuntimeError):
     def __init__(self, current_uid: int, root_uid: int) -> None:
         """
         default constructor
+        :param current_uid: current user ID
+        :param root_uid: ID of the owner of root directory
         """
-        RuntimeError.__init__(
-            self,
-            f"""Current UID {current_uid} differs from root owner {root_uid}.
-Note that for the most actions it is unsafe to run application as different user.
-If you are 100% sure that it must be there try --unsafe option""")
+        RuntimeError.__init__(self, f"Current UID {current_uid} differs from root owner {root_uid}. "
+                                    f"Note that for the most actions it is unsafe to run application as different user."
+                                    f" If you are 100% sure that it must be there try --unsafe option")

@@ -105,27 +105,37 @@ class Repository(Properties):
         targets = target or None
         self.repository.process_sync(targets, built_packages)
 
-    def unknown(self) -> List[Package]:
+    def unknown(self) -> List[str]:
         """
         get packages which were not found in AUR
-        :return: unknown package list
+        :return: unknown package archive list
         """
-        def has_aur(package_base: str, aur_url: str) -> bool:
-            try:
-                _ = Package.from_aur(package_base, aur_url)
-            except Exception:
-                return False
-            return True
-
-        def has_local(package_base: str) -> bool:
-            cache_dir = self.repository.paths.cache_for(package_base)
+        def has_local(probe: Package) -> bool:
+            cache_dir = self.repository.paths.cache_for(probe.base)
             return cache_dir.is_dir() and not Sources.has_remotes(cache_dir)
 
-        return [
-            package
-            for package in self.repository.packages()
-            if not has_aur(package.base, package.aur_url) and not has_local(package.base)
-        ]
+        def unknown_aur(probe: Package) -> List[str]:
+            packages: List[str] = []
+            for single in probe.packages:
+                try:
+                    _ = Package.from_aur(single, probe.aur_url)
+                except Exception:
+                    packages.append(single)
+            return packages
+
+        def unknown_local(probe: Package) -> List[str]:
+            cache_dir = self.repository.paths.cache_for(probe.base)
+            local = Package.from_build(cache_dir, probe.aur_url)
+            packages = set(probe.packages.keys()).difference(local.packages.keys())
+            return list(packages)
+
+        result = []
+        for package in self.repository.packages():
+            if has_local(package):
+                result.extend(unknown_local(package))  # there is local package
+            else:
+                result.extend(unknown_aur(package))  # local package not found
+        return result
 
     def update(self, updates: Iterable[Package]) -> None:
         """

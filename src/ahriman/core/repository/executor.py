@@ -20,20 +20,27 @@
 import shutil
 
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.report.report import Report
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
 
 
 class Executor(Cleaner):
     """
     trait for common repository update processes
     """
+
+    def load_archives(self, packages: Iterable[Path]) -> List[Package]:
+        """
+        load packages from list of archives
+        :param packages: paths to package archives
+        :return: list of read packages
+        """
+        raise NotImplementedError
 
     def packages(self) -> List[Package]:
         """
@@ -152,23 +159,24 @@ class Executor(Cleaner):
             package_path = self.paths.repository / name
             self.repo.add(package_path)
 
-        # we are iterating over bases, not single packages
-        updates: Dict[str, Package] = {}
-        for filename in packages:
-            try:
-                local = Package.load(str(filename), PackageSource.Archive, self.pacman, self.aur_url)
-                updates.setdefault(local.base, local).packages.update(local.packages)
-            except Exception:
-                self.logger.exception("could not load package from %s", filename)
+        current_packages = self.packages()
+        removed_packages: List[str] = []  # list of packages which have been removed from the base
+        updates = self.load_archives(packages)
 
-        for local in updates.values():
+        for local in updates:
             try:
                 for description in local.packages.values():
                     update_single(description.filename, local.base)
                 self.reporter.set_success(local)
+
+                current_package_archives: Set[str] = next(
+                    (set(current.packages) for current in current_packages if current.base == local.base), set())
+                removed_packages.extend(current_package_archives.difference(local.packages))
             except Exception:
                 self.reporter.set_failed(local.base)
                 self.logger.exception("could not process %s", local.base)
         self.clear_packages()
+
+        self.process_remove(removed_packages)
 
         return self.repo.repo_path

@@ -257,14 +257,15 @@ class Package:
 
         return self.version
 
-    def is_outdated(self, remote: Package, paths: RepositoryPaths) -> bool:
+    def is_outdated(self, remote: Package, paths: RepositoryPaths, calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
         :param remote: package properties from remote source
         :param paths: repository paths instance. Required for VCS packages cache
+        :param calculate_version: expand version to actual value (by calculating git versions)
         :return: True if the package is out-of-dated and False otherwise
         """
-        remote_version = remote.actual_version(paths)  # either normal version or updated VCS
+        remote_version = remote.actual_version(paths) if calculate_version else remote.version
         result: int = vercmp(self.version, remote_version)
         return result < 0
 
