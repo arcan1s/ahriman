@@ -46,5 +46,5 @@ class Add(Handler):
         if not args.now:
             return
 
-        packages = application.updates(args.package, True, False, True, application.logger.info)
+        packages = application.updates(args.package, True, True, False, True, application.logger.info)
         application.update(packages)

@@ -16,6 +16,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.package = []
     args.dry_run = False
     args.no_aur = False
+    args.no_local = False
     args.no_manual = False
     args.no_vcs = False
     return args
