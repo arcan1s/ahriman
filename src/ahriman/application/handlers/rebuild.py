@@ -22,6 +22,7 @@ import argparse
 from typing import Type
 
 from ahriman.application.application import Application
+from ahriman.application.formatters.update_printer import UpdatePrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 
@@ -44,9 +45,10 @@ class Rebuild(Handler):
         depends_on = set(args.depends_on) if args.depends_on else None
 
         application = Application(architecture, configuration, no_report)
-        packages = [
-            package
-            for package in application.repository.packages()
-            if depends_on is None or depends_on.intersection(package.depends)
-        ]  # we have to use explicit list here for testing purpose
-        application.update(packages)
+        updates = application.repository.packages_depends_on(depends_on)
+        if args.dry_run:
+            for package in updates:
+                UpdatePrinter(package, package.version).print(verbose=True)
+            return
+
+        application.update(updates)

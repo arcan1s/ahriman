@@ -294,6 +294,24 @@ def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_p
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
 
 
+def test_full_depends(package_ahriman: Package, package_python_schedule: Package, pyalpm_package_ahriman: MagicMock,
+                      pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must extract all dependencies from the package
+    """
+    package_python_schedule.packages[package_python_schedule.base].provides = ["python3-schedule"]
+
+    database_mock = MagicMock()
+    database_mock.pkgcache = [pyalpm_package_ahriman]
+    pyalpm_handle.handle.get_syncdbs.return_value = [database_mock]
+
+    assert package_ahriman.full_depends(pyalpm_handle, [package_python_schedule]) == package_ahriman.depends
+
+    package_python_schedule.packages[package_python_schedule.base].depends = [package_ahriman.base]
+    expected = sorted(set(package_python_schedule.depends + ["python-aur"]))
+    assert package_python_schedule.full_depends(pyalpm_handle, [package_python_schedule]) == expected
+
+
 def test_is_outdated_false(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
     """
     must be not outdated for the same package
