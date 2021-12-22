@@ -19,6 +19,7 @@
 #
 from typing import Iterable, List
 
+from ahriman.core.build_tools.sources import Sources
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -62,6 +63,31 @@ class UpdateHandler(Cleaner):
                 self.reporter.set_failed(local.base)
                 self.logger.exception("could not load remote package %s", local.base)
                 continue
+
+        return result
+
+    def updates_local(self) -> List[Package]:
+        """
+        check local packages for updates
+        :return: list of local packages which are out-of-dated
+        """
+        result: List[Package] = []
+        packages = {local.base: local for local in self.packages()}
+
+        for dirname in self.paths.cache.iterdir():
+            try:
+                Sources.fetch(dirname, remote=None)
+                remote = Package.load(str(dirname), PackageSource.Local, self.pacman, self.aur_url)
+
+                local = packages.get(remote.base)
+                if local is None:
+                    self.reporter.set_unknown(remote)
+                    result.append(remote)
+                elif local.is_outdated(remote, self.paths):
+                    self.reporter.set_pending(local.base)
+                    result.append(remote)
+            except Exception:
+                self.logger.exception("could not procees package at %s", dirname)
 
         return result
 

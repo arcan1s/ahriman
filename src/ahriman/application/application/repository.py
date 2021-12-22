@@ -163,27 +163,31 @@ class Repository(Properties):
             packages = self.repository.process_build(level)
             process_update(packages)
 
-    def updates(self, filter_packages: Iterable[str], no_aur: bool, no_manual: bool, no_vcs: bool,
+    def updates(self, filter_packages: Iterable[str], no_aur: bool, no_local: bool, no_manual: bool, no_vcs: bool,
                 log_fn: Callable[[str], None]) -> List[Package]:
         """
         get list of packages to run update process
         :param filter_packages: do not check every package just specified in the list
         :param no_aur: do not check for aur updates
+        :param no_local: do not check local packages for updates
         :param no_manual: do not check for manual updates
         :param no_vcs: do not check VCS packages
         :param log_fn: logger function to log updates
         :return: list of out-of-dated packages
         """
-        updates = []
+        updates = {}
 
         if not no_aur:
-            updates.extend(self.repository.updates_aur(filter_packages, no_vcs))
+            updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, no_vcs)})
+        if not no_local:
+            updates.update({package.base: package for package in self.repository.updates_local()})
         if not no_manual:
-            updates.extend(self.repository.updates_manual())
+            updates.update({package.base: package for package in self.repository.updates_manual()})
 
         local_versions = {package.base: package.version for package in self.repository.packages()}
-        for package in updates:
+        updated_packages = [package for _, package in sorted(updates.items())]
+        for package in updated_packages:
             UpdatePrinter(package, local_versions.get(package.base)).print(
                 verbose=True, log_fn=log_fn, separator=" -> ")
 
-        return updates
+        return updated_packages

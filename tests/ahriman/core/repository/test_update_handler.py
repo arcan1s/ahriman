@@ -81,6 +81,50 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
     package_is_outdated_mock.assert_not_called()
 
 
+def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must check for updates for locally stored packages
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    package_load_mock = mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
+
+    assert update_handler.updates_local() == [package_ahriman]
+    fetch_mock.assert_called_once_with(package_ahriman.base, remote=None)
+    package_load_mock.assert_called_once()
+    status_client_mock.assert_called_once()
+
+
+def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return unknown package as out-dated
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
+    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
+
+    assert update_handler.updates_local() == [package_ahriman]
+    status_client_mock.assert_called_once()
+
+
+def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahriman: Package,
+                                     mocker: MockerFixture) -> None:
+    """
+    must process local through the packages with failure
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages")
+    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
+
+    assert not update_handler.updates_local()
+
+
 def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixture) -> None:
     """
     requesting manual updates must clear packages directory
@@ -125,7 +169,7 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
 def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahriman: Package,
                                       mocker: MockerFixture) -> None:
     """
-    must process through the packages with failure
+    must process manual through the packages with failure
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])

@@ -20,7 +20,7 @@
 import logging
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from ahriman.core.util import check_output
 
@@ -64,7 +64,7 @@ class Sources:
         patch_path.write_text(patch)
 
     @staticmethod
-    def fetch(sources_dir: Path, remote: str) -> None:
+    def fetch(sources_dir: Path, remote: Optional[str]) -> None:
         """
         either clone repository or update it to origin/`branch`
         :param sources_dir: local path to fetch
@@ -81,6 +81,8 @@ class Sources:
             Sources.logger.info("update HEAD to remote at %s", sources_dir)
             Sources._check_output("git", "fetch", "origin", Sources._branch,
                                   exception=None, cwd=sources_dir, logger=Sources.logger)
+        elif remote is None:
+            Sources.logger.warning("%s is not initialized, but no remote provided", sources_dir)
         else:
             Sources.logger.info("clone remote %s to %s", remote, sources_dir)
             Sources._check_output("git", "clone", remote, str(sources_dir), exception=None, logger=Sources.logger)
