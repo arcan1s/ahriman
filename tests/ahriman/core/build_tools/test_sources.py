@@ -86,6 +86,23 @@ def test_fetch_new(mocker: MockerFixture) -> None:
     ])
 
 
+def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
+    """
+    must fetch nothing in case if no remote set
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    Sources.fetch(local, None)
+    check_output_mock.assert_has_calls([
+        mock.call("git", "checkout", "--force", Sources._branch,
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "reset", "--hard", f"origin/{Sources._branch}",
+                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    ])
+
+
 def test_has_remotes(mocker: MockerFixture) -> None:
     """
     must ask for remotes

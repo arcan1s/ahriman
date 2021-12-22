@@ -42,7 +42,7 @@ class Update(Handler):
         :param no_report: force disable reporting
         """
         application = Application(architecture, configuration, no_report)
-        packages = application.updates(args.package, args.no_aur, args.no_manual, args.no_vcs,
+        packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                        Update.log_fn(application, args.dry_run))
         if args.dry_run:
             return

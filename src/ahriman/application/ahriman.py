@@ -285,7 +285,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
-    parser.set_defaults(handler=handlers.Update, dry_run=True, no_aur=False, no_manual=True)
+    parser.set_defaults(handler=handlers.Update, dry_run=True, no_aur=False, no_local=False, no_manual=True)
     return parser
 
 
@@ -461,6 +461,7 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
     parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
+    parser.add_argument("--no-local", help="do not check local packages for updates", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
     parser.set_defaults(handler=handlers.Update)

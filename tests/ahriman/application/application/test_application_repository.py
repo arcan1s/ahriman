@@ -205,10 +205,12 @@ def test_updates_all(application_repository: Repository, package_ahriman: Packag
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur",
                                     return_value=[package_ahriman])
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_manual=False, no_vcs=False, log_fn=print)
+    application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], False)
+    updates_local_mock.assert_called_once()
     updates_manual_mock.assert_called_once()
 
 
@@ -218,10 +220,12 @@ def test_updates_disabled(application_repository: Repository, mocker: MockerFixt
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=True, no_manual=True, no_vcs=False, log_fn=print)
+    application_repository.updates([], no_aur=True, no_local=True, no_manual=True, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_not_called()
+    updates_local_mock.assert_not_called()
     updates_manual_mock.assert_not_called()
 
 
@@ -231,10 +235,27 @@ def test_updates_no_aur(application_repository: Repository, mocker: MockerFixtur
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=True, no_manual=False, no_vcs=False, log_fn=print)
+    application_repository.updates([], no_aur=True, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_not_called()
+    updates_local_mock.assert_called_once()
+    updates_manual_mock.assert_called_once()
+
+
+def test_updates_no_local(application_repository: Repository, mocker: MockerFixture) -> None:
+    """
+    must get updates without local packages
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
+    updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
+    updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
+
+    application_repository.updates([], no_aur=False, no_local=True, no_manual=False, no_vcs=False, log_fn=print)
+    updates_aur_mock.assert_called_once_with([], False)
+    updates_local_mock.assert_not_called()
     updates_manual_mock.assert_called_once()
 
 
@@ -244,10 +265,12 @@ def test_updates_no_manual(application_repository: Repository, mocker: MockerFix
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_manual=True, no_vcs=False, log_fn=print)
+    application_repository.updates([], no_aur=False, no_local=False, no_manual=True, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], False)
+    updates_local_mock.assert_called_once()
     updates_manual_mock.assert_not_called()
 
 
@@ -257,21 +280,26 @@ def test_updates_no_vcs(application_repository: Repository, mocker: MockerFixtur
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_manual=False, no_vcs=True, log_fn=print)
+    application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=True, log_fn=print)
     updates_aur_mock.assert_called_once_with([], True)
+    updates_local_mock.assert_called_once()
     updates_manual_mock.assert_called_once()
 
 
 def test_updates_with_filter(application_repository: Repository, mocker: MockerFixture) -> None:
     """
-    must get updates without VCS
+    must get updates with filter
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
+    updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates(["filter"], no_aur=False, no_manual=False, no_vcs=False, log_fn=print)
+    application_repository.updates(["filter"], no_aur=False, no_local=False, no_manual=False, no_vcs=False,
+                                   log_fn=print)
     updates_aur_mock.assert_called_once_with(["filter"], False)
+    updates_local_mock.assert_called_once()
     updates_manual_mock.assert_called_once()
