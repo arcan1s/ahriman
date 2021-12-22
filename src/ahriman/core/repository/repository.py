@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Optional
 
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
@@ -68,3 +68,20 @@ class Repository(Executor, UpdateHandler):
         :return: list of filenames from the directory
         """
         return list(filter(package_like, self.paths.packages.iterdir()))
+
+    def packages_depends_on(self, depends_on: Optional[Iterable[str]]) -> List[Package]:
+        """
+        extract list of packages which depends on specified package
+        :param: depends_on: dependencies of the packages
+        :return: list of repository packages which depend on specified packages
+        """
+        packages = self.packages()
+        if depends_on is None:
+            return packages  # no list provided extract everything by default
+        depends_on = set(depends_on)
+
+        return [
+            package
+            for package in packages
+            if depends_on is None or depends_on.intersection(package.full_depends(self.pacman, packages))
+        ]

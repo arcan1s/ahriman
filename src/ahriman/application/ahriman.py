@@ -346,6 +346,8 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
                              description="force rebuild whole repository", formatter_class=_formatter)
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
+    parser.add_argument("--dry-run", help="just perform check for packages without rebuild process itself",
+                        action="store_true")
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 

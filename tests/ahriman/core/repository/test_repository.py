@@ -80,3 +80,23 @@ def test_packages_built(repository: Repository, mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[Path("a.tar.xz"), Path("b.pkg.tar.xz")])
     assert repository.packages_built() == [Path("b.pkg.tar.xz")]
+
+
+def test_packages_depends_on(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
+                             mocker: MockerFixture) -> None:
+    """
+    must filter packages by depends list
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages",
+                 return_value=[package_ahriman, package_python_schedule])
+    assert repository.packages_depends_on(["python-aur"]) == [package_ahriman]
+
+
+def test_packages_depends_on_empty(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
+                                   mocker: MockerFixture) -> None:
+    """
+    must return all packages in case if no filter is provided
+    """
+    mocker.patch("ahriman.core.repository.repository.Repository.packages",
+                 return_value=[package_ahriman, package_python_schedule])
+    assert repository.packages_depends_on(None) == [package_ahriman, package_python_schedule]

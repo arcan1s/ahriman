@@ -20,13 +20,14 @@
 from __future__ import annotations
 
 import aur  # type: ignore
+import copy
 import logging
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
@@ -256,6 +257,36 @@ class Package:
             logger.exception("cannot determine version of VCS package, make sure that you have VCS tools installed")
 
         return self.version
+
+    def full_depends(self, pacman: Pacman, packages: Iterable[Package]) -> List[str]:
+        """
+        generate full dependencies list including transitive dependencies
+        :param pacman: alpm wrapper instance
+        :param packages: repository package list
+        :return: all dependencies of the package
+        """
+        dependencies = {}
+        # load own package dependencies
+        for package_base in packages:
+            for name, repo_package in package_base.packages.items():
+                dependencies[name] = repo_package.depends
+                for provides in repo_package.provides:
+                    dependencies[provides] = repo_package.depends
+        # load repository dependencies
+        for database in pacman.handle.get_syncdbs():
+            for pacman_package in database.pkgcache:
+                dependencies[pacman_package.name] = pacman_package.depends
+                for provides in pacman_package.provides:
+                    dependencies[provides] = pacman_package.depends
+
+        result = set(self.depends)
+        current_depends: Set[str] = set()
+        while result != current_depends:
+            current_depends = copy.deepcopy(result)
+            for package in current_depends:
+                result.update(dependencies.get(package, []))
+
+        return sorted(result)
 
     def is_outdated(self, remote: Package, paths: RepositoryPaths, calculate_version: bool = True) -> bool:
         """

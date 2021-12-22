@@ -82,7 +82,9 @@ def pyalpm_package_ahriman(package_ahriman: Package) -> MagicMock:
     """
     mock = MagicMock()
     type(mock).base = PropertyMock(return_value=package_ahriman.base)
+    type(mock).depends = PropertyMock(return_value=["python-aur"])
     type(mock).name = PropertyMock(return_value=package_ahriman.base)
+    type(mock).provides = PropertyMock(return_value=["python-ahriman"])
     type(mock).version = PropertyMock(return_value=package_ahriman.version)
     return mock
 
