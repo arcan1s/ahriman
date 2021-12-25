@@ -22,6 +22,7 @@ import sys
 import tempfile
 
 from pathlib import Path
+from typing import TypeVar
 
 from ahriman import version
 from ahriman.application import handlers
@@ -32,8 +33,11 @@ from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
 
 
-# pylint thinks it is bad idea, but get the fuck off
-SubParserAction = argparse._SubParsersAction  # pylint: disable=protected-access
+# this workaround is for several things
+# firstly python devs don't think that is it error and asking you for workarounds https://bugs.python.org/issue41592
+# secondly linters don't like when you are importing private members
+# thirdly new mypy doesn't like _SubParsersAction and thinks it is a template
+SubParserAction = TypeVar("SubParserAction", bound="argparse._SubParsersAction[argparse.ArgumentParser]")
 
 
 def _formatter(prog: str) -> argparse.HelpFormatter:
