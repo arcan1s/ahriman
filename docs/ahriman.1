@@ -496,7 +496,7 @@ create empty repository tree. Optional command for auto architecture support
 
 
 .SH OPTIONS 'ahriman repo-rebuild'
-usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run]
 
 force rebuild whole repository
 
@@ -504,9 +504,13 @@ force rebuild whole repository
 .TP
 \fB\-\-depends\-on\fR \fI\,DEPENDS_ON\/\fR
 only rebuild packages that depend on specified package
+
+.TP
+\fB\-\-dry\-run\fR
+just perform check for packages without rebuild process itself
 
 .SH OPTIONS 'ahriman rebuild'
-usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON]
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run]
 
 force rebuild whole repository
 
@@ -514,6 +518,10 @@ force rebuild whole repository
 .TP
 \fB\-\-depends\-on\fR \fI\,DEPENDS_ON\/\fR
 only rebuild packages that depend on specified package
+
+.TP
+\fB\-\-dry\-run\fR
+just perform check for packages without rebuild process itself
 
 .SH OPTIONS 'ahriman repo-remove-unknown'
 usage: ahriman repo-remove-unknown [-h] [--dry-run] [-i]
@@ -695,7 +703,7 @@ target to sync
 
 
 .SH OPTIONS 'ahriman repo-update'
-usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
+usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-local] [--no-manual] [--no-vcs] [package ...]
 
 check for packages updates and run build process if requested
 
@@ -710,6 +718,10 @@ just perform check for updates, same as check command
 .TP
 \fB\-\-no\-aur\fR
 do not check for AUR updates. Implies \-\-no\-vcs
+
+.TP
+\fB\-\-no\-local\fR
+do not check local packages for updates
 
 .TP
 \fB\-\-no\-manual\fR
@@ -720,7 +732,7 @@ do not include manual updates
 do not check VCS packages
 
 .SH OPTIONS 'ahriman update'
-usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-manual] [--no-vcs] [package ...]
+usage: ahriman repo-update [-h] [--dry-run] [--no-aur] [--no-local] [--no-manual] [--no-vcs] [package ...]
 
 check for packages updates and run build process if requested
 
@@ -735,6 +747,10 @@ just perform check for updates, same as check command
 .TP
 \fB\-\-no\-aur\fR
 do not check for AUR updates. Implies \-\-no\-vcs
+
+.TP
+\fB\-\-no\-local\fR
+do not check local packages for updates
 
 .TP
 \fB\-\-no\-manual\fR
