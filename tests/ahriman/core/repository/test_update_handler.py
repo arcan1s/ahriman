@@ -28,6 +28,20 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     status_client_mock.assert_called_once()
 
 
+def test_updates_aur_success(update_handler: UpdateHandler, package_ahriman: Package,
+                             mocker: MockerFixture) -> None:
+    """
+    must provide updates with status updates
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
+
+    assert not update_handler.updates_aur([], False)
+    status_client_mock.assert_called_once_with(package_ahriman)
+
+
 def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Package,
                             mocker: MockerFixture) -> None:
     """
@@ -123,6 +137,22 @@ def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahri
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
 
     assert not update_handler.updates_local()
+
+
+def test_updates_local_success(update_handler: UpdateHandler, package_ahriman: Package,
+                               mocker: MockerFixture) -> None:
+    """
+    must set success status for up-to-date packages
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
+
+    assert not update_handler.updates_local()
+    status_client_mock.assert_called_once_with(package_ahriman)
 
 
 def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixture) -> None:
