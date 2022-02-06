@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aur  # type: ignore
 import datetime
 import os
 import subprocess
@@ -25,27 +24,9 @@ import requests
 
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Optional, Union
+from typing import Any, Dict, Generator, Iterable, Optional, Union
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
-
-
-def aur_search(*terms: str) -> List[aur.Package]:
-    """
-    search in AUR by using API with multiple words. This method is required in order to handle
-    https://bugs.archlinux.org/task/49133. In addition short words will be dropped
-    :param terms: search terms, e.g. "ahriman", "is", "cool"
-    :return: list of packages each of them matches all search terms
-    """
-    packages: Dict[str, aur.Package] = {}
-    for term in filter(lambda word: len(word) > 3, terms):
-        portion = aur.search(term)
-        packages = {
-            package.package_base: package
-            for package in portion
-            if package.package_base in packages or not packages
-        }
-    return list(packages.values())
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
