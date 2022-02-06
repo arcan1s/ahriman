@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aur  # type: ignore
-
 from typing import List, Optional
 
 from ahriman.application.formatters.printer import Printer
 from ahriman.core.util import pretty_datetime
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.property import Property
 
 
@@ -31,7 +30,7 @@ class AurPrinter(Printer):
     print content of the AUR package
     """
 
-    def __init__(self, package: aur.Package) -> None:
+    def __init__(self, package: AURPackage) -> None:
         """
         default constructor
         :param package: AUR package description
@@ -46,12 +45,12 @@ class AurPrinter(Printer):
         return [
             Property("Package base", self.content.package_base),
             Property("Description", self.content.description, is_required=True),
-            Property("Upstream URL", self.content.url),
-            Property("Licenses", self.content.license),  # it should be actually a list
-            Property("Maintainer", self.content.maintainer or ""),  # I think it is optional
+            Property("Upstream URL", self.content.url or ""),
+            Property("Licenses", ",".join(self.content.license)),
+            Property("Maintainer", self.content.maintainer or ""),
             Property("First submitted", pretty_datetime(self.content.first_submitted)),
             Property("Last updated", pretty_datetime(self.content.last_modified)),
-            # more fields coming https://github.com/cdown/aur/pull/29
+            Property("Keywords", ",".join(self.content.keywords)),
         ]
 
     def title(self) -> Optional[str]:

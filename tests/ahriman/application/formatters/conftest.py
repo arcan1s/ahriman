@@ -1,4 +1,3 @@
-import aur
 import pytest
 
 from ahriman.application.formatters.aur_printer import AurPrinter
@@ -7,12 +6,13 @@ from ahriman.application.formatters.package_printer import PackagePrinter
 from ahriman.application.formatters.status_printer import StatusPrinter
 from ahriman.application.formatters.string_printer import StringPrinter
 from ahriman.application.formatters.update_printer import UpdatePrinter
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 
 
 @pytest.fixture
-def aur_package_ahriman_printer(aur_package_ahriman: aur.Package) -> AurPrinter:
+def aur_package_ahriman_printer(aur_package_ahriman: AURPackage) -> AurPrinter:
     """
     fixture for AUR package printer
     :param aur_package_ahriman: AUR package fixture

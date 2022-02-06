@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aur  # type: ignore
-
 from aiohttp.web import HTTPNotFound, Response, json_response
 from typing import Callable, List
 
-from ahriman.core.util import aur_search
+from ahriman.core.alpm.aur import AUR
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
@@ -45,11 +44,11 @@ class SearchView(BaseView):
         :return: 200 with found package bases and descriptions sorted by base
         """
         search: List[str] = self.request.query.getall("for", default=[])
-        packages = aur_search(*search)
+        packages = AUR.multisearch(*search)
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 
-        comparator: Callable[[aur.Package], str] = lambda item: str(item.package_base)
+        comparator: Callable[[AURPackage], str] = lambda item: str(item.package_base)
         response = [
             {
                 "package": package.package_base,

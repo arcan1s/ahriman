@@ -29,7 +29,7 @@ setup(
     dependency_links=[
     ],
     install_requires=[
-        "aur",
+        "inflection",
         "passlib",
         "pyalpm",
         "requests",
