@@ -1,6 +1,6 @@
 import pytest
 
-from pytest_aiohttp import TestClient
+from aiohttp.test_utils import TestClient
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.index import IndexView

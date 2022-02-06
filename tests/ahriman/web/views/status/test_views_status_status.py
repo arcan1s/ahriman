@@ -1,6 +1,6 @@
 import pytest
 
-from pytest_aiohttp import TestClient
+from aiohttp.test_utils import TestClient
 
 import ahriman.version as version
 

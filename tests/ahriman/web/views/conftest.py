@@ -2,7 +2,8 @@ import pytest
 
 from aiohttp import web
 from asyncio import BaseEventLoop
-from pytest_aiohttp import TestClient
+
+from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from typing import Any
 
