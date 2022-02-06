@@ -1,4 +1,4 @@
-import aur
+import datetime
 import pytest
 
 from pathlib import Path
@@ -10,6 +10,7 @@ from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
@@ -48,28 +49,56 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 # generic fixtures
 @pytest.fixture
-def aur_package_ahriman(package_ahriman: Package) -> aur.Package:
+def aur_package_ahriman() -> AURPackage:
     """
     fixture for AUR package
-    :param package_ahriman: package fixture
     :return: AUR package test instance
     """
-    return aur.Package(
-        num_votes=None,
-        description=package_ahriman.packages[package_ahriman.base].description,
-        url_path=package_ahriman.web_url,
-        last_modified=None,
-        name=package_ahriman.base,
+    return AURPackage(
+        id=1009791,
+        name="ahriman",
+        package_base_id=165427,
+        package_base="ahriman",
+        version="1.7.0-1",
+        description="ArcH Linux ReposItory MANager",
+        num_votes=0,
+        popularity=0,
+        first_submitted=datetime.datetime(2021, 4, 9, 22, 44, 45),
+        last_modified=datetime.datetime(2021, 12, 25, 23, 11, 11),
+        url_path="/cgit/aur.git/snapshot/ahriman.tar.gz",
+        url="https://github.com/arcan1s/ahriman",
         out_of_date=None,
-        id=None,
-        first_submitted=None,
-        maintainer=None,
-        version=package_ahriman.version,
-        license=package_ahriman.packages[package_ahriman.base].licenses,
-        url=None,
-        package_base=package_ahriman.base,
-        package_base_id=None,
-        category_id=None)
+        maintainer="arcanis",
+        depends=[
+            "devtools",
+            "git",
+            "pyalpm",
+            "python-aur",
+            "python-passlib",
+            "python-srcinfo",
+        ],
+        make_depends=["python-pip"],
+        opt_depends=[
+            "breezy",
+            "darcs",
+            "mercurial",
+            "python-aioauth-client",
+            "python-aiohttp",
+            "python-aiohttp-debugtoolbar",
+            "python-aiohttp-jinja2",
+            "python-aiohttp-security",
+            "python-aiohttp-session",
+            "python-boto3",
+            "python-cryptography",
+            "python-jinja",
+            "rsync",
+            "subversion",
+        ],
+        conflicts=[],
+        provides=[],
+        license=["GPL3"],
+        keywords=[],
+    )
 
 
 @pytest.fixture
@@ -103,7 +132,7 @@ def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     packages = {"ahriman": package_description_ahriman}
     return Package(
         base="ahriman",
-        version="0.12.1-1",
+        version="1.7.0-1",
         aur_url="https://aur.archlinux.org",
         packages=packages)
 
@@ -139,9 +168,16 @@ def package_description_ahriman() -> PackageDescription:
         architecture="x86_64",
         archive_size=4200,
         build_date=42,
-        depends=["devtools", "git", "pyalpm", "python-aur", "python-srcinfo"],
+        depends=[
+            "devtools",
+            "git",
+            "pyalpm",
+            "python-aur",
+            "python-passlib",
+            "python-srcinfo",
+        ],
         description="ArcH Linux ReposItory MANager",
-        filename="ahriman-0.12.1-1-any.pkg.tar.zst",
+        filename="ahriman-1.7.0-1-any.pkg.tar.zst",
         groups=[],
         installed_size=4200000,
         licenses=["GPL3"],

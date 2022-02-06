@@ -25,8 +25,8 @@ from aiohttp import web
 from aiohttp.web import middleware, Request
 from aiohttp.web_response import StreamResponse
 from aiohttp.web_urldispatcher import StaticResource
-from aiohttp_session import setup as setup_session  # type: ignore
-from aiohttp_session.cookie_storage import EncryptedCookieStorage  # type: ignore
+from aiohttp_session import setup as setup_session
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from typing import Optional
 

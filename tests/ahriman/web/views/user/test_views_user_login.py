@@ -1,4 +1,5 @@
 import pytest
+
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
@@ -31,7 +32,7 @@ async def test_get_redirect_to_oauth(client_with_auth: TestClient) -> None:
     must redirect to OAuth service provider in case if no code is supplied
     """
     oauth = client_with_auth.app["validator"] = MagicMock(spec=OAuth)
-    oauth.get_oauth_url.return_value = "https://example.com"
+    oauth.get_oauth_url.return_value = "https://httpbin.org"
 
     get_response = await client_with_auth.get("/user-api/v1/login")
     assert get_response.ok
@@ -43,7 +44,7 @@ async def test_get_redirect_to_oauth_empty_code(client_with_auth: TestClient) ->
     must redirect to OAuth service provider in case if empty code is supplied
     """
     oauth = client_with_auth.app["validator"] = MagicMock(spec=OAuth)
-    oauth.get_oauth_url.return_value = "https://example.com"
+    oauth.get_oauth_url.return_value = "https://httpbin.org"
 
     get_response = await client_with_auth.get("/user-api/v1/login", params={"code": ""})
     assert get_response.ok

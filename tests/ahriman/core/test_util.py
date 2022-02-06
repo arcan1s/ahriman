@@ -1,4 +1,3 @@
-import aur
 import datetime
 import logging
 import pytest
@@ -6,43 +5,10 @@ import subprocess
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
-from ahriman.core.util import aur_search, check_output, check_user, filter_json, package_like, pretty_datetime, \
-    pretty_size, walk
+from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, walk
 from ahriman.models.package import Package
-
-
-def test_aur_search(aur_package_ahriman: aur.Package, mocker: MockerFixture) -> None:
-    """
-    must search in AUR with multiple words
-    """
-    terms = ["ahriman", "is", "cool"]
-    search_mock = mocker.patch("aur.search", return_value=[aur_package_ahriman])
-
-    assert aur_search(*terms) == [aur_package_ahriman]
-    search_mock.assert_has_calls([mock.call("ahriman"), mock.call("cool")])
-
-
-def test_aur_search_empty(mocker: MockerFixture) -> None:
-    """
-    must return empty list if no long terms supplied
-    """
-    terms = ["it", "is"]
-    search_mock = mocker.patch("aur.search")
-
-    assert aur_search(*terms) == []
-    search_mock.assert_not_called()
-
-
-def test_aur_search_single(aur_package_ahriman: aur.Package, mocker: MockerFixture) -> None:
-    """
-    must search in AUR with one word
-    """
-    search_mock = mocker.patch("aur.search", return_value=[aur_package_ahriman])
-    assert aur_search("ahriman") == [aur_package_ahriman]
-    search_mock.assert_called_once_with("ahriman")
 
 
 def test_check_output(mocker: MockerFixture) -> None:
@@ -127,7 +93,7 @@ def test_filter_json(package_ahriman: Package) -> None:
 
 def test_filter_json_empty_value(package_ahriman: Package) -> None:
     """
-    must return empty values from object
+    must filter empty values from object
     """
     probe = package_ahriman.view()
     probe["base"] = None
@@ -238,8 +204,10 @@ def test_walk(resource_path_root: Path) -> None:
     expected = sorted([
         resource_path_root / "core/ahriman.ini",
         resource_path_root / "core/logging.ini",
+        resource_path_root / "models/aur_error",
         resource_path_root / "models/big_file_checksum",
         resource_path_root / "models/empty_file_checksum",
+        resource_path_root / "models/package_ahriman_aur",
         resource_path_root / "models/package_ahriman_srcinfo",
         resource_path_root / "models/package_tpacpi-bat-git_srcinfo",
         resource_path_root / "models/package_yay_srcinfo",

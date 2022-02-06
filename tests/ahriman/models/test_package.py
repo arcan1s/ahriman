@@ -2,9 +2,10 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -96,15 +97,11 @@ def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     assert Package.from_archive(Path("path"), pyalpm_handle, package_ahriman.aur_url) == package_ahriman
 
 
-def test_from_aur(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must construct package from aur
     """
-    mock = MagicMock()
-    type(mock).name = PropertyMock(return_value=package_ahriman.base)
-    type(mock).package_base = PropertyMock(return_value=package_ahriman.base)
-    type(mock).version = PropertyMock(return_value=package_ahriman.version)
-    mocker.patch("aur.info", return_value=mock)
+    mocker.patch("ahriman.core.alpm.aur.AUR.info", return_value=aur_package_ahriman)
 
     package = Package.from_aur(package_ahriman.base, package_ahriman.aur_url)
     assert package_ahriman.base == package.base

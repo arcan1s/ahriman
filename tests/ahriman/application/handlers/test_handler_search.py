@@ -1,5 +1,5 @@
 import argparse
-import aur
+import dataclasses
 import pytest
 
 from pytest_mock import MockerFixture
@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.handlers import Search
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidOption
+from ahriman.models.aur_package import AURPackage
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -21,13 +22,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,
+def test_run(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
              mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    search_mock = mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
+    search_mock = mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True)
@@ -35,38 +36,38 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     print_mock.assert_called_once()
 
 
-def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,
+def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
                   mocker: MockerFixture) -> None:
     """
     must run command with sorting
     """
     args = _default_args(args)
-    mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True)
     sort_mock.assert_called_once_with([aur_package_ahriman], "name")
 
 
-def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: aur.Package,
+def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
                      mocker: MockerFixture) -> None:
     """
     must run command with sorting by specified field
     """
     args = _default_args(args)
     args.sort_by = "field"
-    mocker.patch("ahriman.application.handlers.search.aur_search", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True)
     sort_mock.assert_called_once_with([aur_package_ahriman], "field")
 
 
-def test_sort(aur_package_ahriman: aur.Package) -> None:
+def test_sort(aur_package_ahriman: AURPackage) -> None:
     """
     must sort package list
     """
-    another = aur_package_ahriman._replace(name="1", package_base="base")
+    another = dataclasses.replace(aur_package_ahriman, name="1", package_base="base")
     # sort by name
     assert Search.sort([aur_package_ahriman, another], "name") == [another, aur_package_ahriman]
     # sort by another field
@@ -75,7 +76,7 @@ def test_sort(aur_package_ahriman: aur.Package) -> None:
     assert Search.sort([aur_package_ahriman, another], "version") == [another, aur_package_ahriman]
 
 
-def test_sort_exception(aur_package_ahriman: aur.Package) -> None:
+def test_sort_exception(aur_package_ahriman: AURPackage) -> None:
     """
     must raise an exception on unknown sorting field
     """
@@ -94,4 +95,5 @@ def test_sort_fields() -> None:
     """
     must store valid field list which are allowed to be used for sorting
     """
-    assert all(field in aur.Package._fields for field in Search.SORT_FIELDS)
+    expected = {pair.name for pair in dataclasses.fields(AURPackage)}
+    assert all(field in expected for field in Search.SORT_FIELDS)

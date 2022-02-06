@@ -19,7 +19,6 @@
 #
 from __future__ import annotations
 
-import aur  # type: ignore
 import copy
 import logging
 
@@ -29,6 +28,7 @@ from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
+from ahriman.core.alpm.aur import AUR
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output
@@ -129,7 +129,7 @@ class Package:
         :param aur_url: AUR root url
         :return: package properties
         """
-        package = aur.info(name)
+        package = AUR.info(name)
         return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
 
     @classmethod

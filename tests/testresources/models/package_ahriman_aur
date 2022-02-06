@@ -1,0 +1,54 @@
+{
+  "resultcount": 1,
+  "results": [
+    {
+      "Depends": [
+        "devtools",
+        "git",
+        "pyalpm",
+        "python-aur",
+        "python-passlib",
+        "python-srcinfo"
+      ],
+      "Description": "ArcH Linux ReposItory MANager",
+      "FirstSubmitted": 1618008285,
+      "ID": 1009791,
+      "Keywords": [],
+      "LastModified": 1640473871,
+      "License": [
+        "GPL3"
+      ],
+      "Maintainer": "arcanis",
+      "MakeDepends": [
+        "python-pip"
+      ],
+      "Name": "ahriman",
+      "NumVotes": 0,
+      "OptDepends": [
+        "breezy",
+        "darcs",
+        "mercurial",
+        "python-aioauth-client",
+        "python-aiohttp",
+        "python-aiohttp-debugtoolbar",
+        "python-aiohttp-jinja2",
+        "python-aiohttp-security",
+        "python-aiohttp-session",
+        "python-boto3",
+        "python-cryptography",
+        "python-jinja",
+        "rsync",
+        "subversion"
+      ],
+      "OutOfDate": null,
+      "PackageBase": "ahriman",
+      "PackageBaseID": 165427,
+      "Popularity": 0,
+      "URL": "https://github.com/arcan1s/ahriman",
+      "URLPath": "/cgit/aur.git/snapshot/ahriman.tar.gz",
+      "Version": "1.7.0-1"
+    }
+  ],
+  "type": "multiinfo",
+  "version": 5
+}
