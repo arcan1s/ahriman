@@ -12,8 +12,8 @@ def test_finalize(application: Application, mocker: MockerFixture) -> None:
     sync_mock = mocker.patch("ahriman.application.application.Application.sync")
 
     application._finalize([])
-    report_mock.assert_called_once()
-    sync_mock.assert_called_once()
+    report_mock.assert_called_once_with([], [])
+    sync_mock.assert_called_once_with([], [])
 
 
 def test_known_packages(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

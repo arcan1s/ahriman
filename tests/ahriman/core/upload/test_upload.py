@@ -25,7 +25,7 @@ def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> No
     mocker.patch("ahriman.models.upload_settings.UploadSettings.from_option", return_value=UploadSettings.Disabled)
     upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.sync")
     Upload.load("x86_64", configuration, "disabled").run(Path("path"), [])
-    upload_mock.assert_called_once()
+    upload_mock.assert_called_once_with(Path("path"), [])
 
 
 def test_upload_rsync(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -34,7 +34,7 @@ def test_upload_rsync(configuration: Configuration, mocker: MockerFixture) -> No
     """
     upload_mock = mocker.patch("ahriman.core.upload.rsync.Rsync.sync")
     Upload.load("x86_64", configuration, "rsync").run(Path("path"), [])
-    upload_mock.assert_called_once()
+    upload_mock.assert_called_once_with(Path("path"), [])
 
 
 def test_upload_s3(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -43,7 +43,7 @@ def test_upload_s3(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     upload_mock = mocker.patch("ahriman.core.upload.s3.S3.sync")
     Upload.load("x86_64", configuration, "customs3").run(Path("path"), [])
-    upload_mock.assert_called_once()
+    upload_mock.assert_called_once_with(Path("path"), [])
 
 
 def test_upload_github(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -52,4 +52,4 @@ def test_upload_github(configuration: Configuration, mocker: MockerFixture) -> N
     """
     upload_mock = mocker.patch("ahriman.core.upload.github.Github.sync")
     Upload.load("x86_64", configuration, "github").run(Path("path"), [])
-    upload_mock.assert_called_once()
+    upload_mock.assert_called_once_with(Path("path"), [])

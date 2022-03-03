@@ -1,3 +1,5 @@
+import pytest
+
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, List, Optional, Tuple
@@ -44,7 +46,7 @@ def test_files_remove(s3_remote_objects: List[Any]) -> None:
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
     S3.files_remove(local_files, remote_objects)
-    remote_objects[Path("x86_64/a")].delete.assert_called_once()
+    remote_objects[Path("x86_64/a")].delete.assert_called_once_with()
 
 
 def test_files_upload(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> None:
@@ -104,13 +106,13 @@ def test_sync(s3: S3, mocker: MockerFixture) -> None:
     """
     must run sync command
     """
-    local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files")
-    remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects")
+    local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files", return_value=["a"])
+    remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects", return_value=["b"])
     remove_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_remove")
     upload_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_upload")
 
     s3.sync(Path("root"), [])
-    local_files_mock.assert_called_once()
-    remote_objects_mock.assert_called_once()
-    remove_files_mock.assert_called_once()
-    upload_files_mock.assert_called_once()
+    remote_objects_mock.assert_called_once_with()
+    local_files_mock.assert_called_once_with(Path("root"))
+    upload_files_mock.assert_called_once_with(Path("root"), ["a"], ["b"])
+    remove_files_mock.assert_called_once_with(["a"], ["b"])

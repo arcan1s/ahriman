@@ -22,7 +22,7 @@ def test_clean_build(application_repository: Repository, mocker: MockerFixture) 
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
     application_repository.clean(True, False, False, False, False, False)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_clean_cache(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -31,7 +31,7 @@ def test_clean_cache(application_repository: Repository, mocker: MockerFixture) 
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
     application_repository.clean(False, True, False, False, False, False)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_clean_chroot(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -40,7 +40,7 @@ def test_clean_chroot(application_repository: Repository, mocker: MockerFixture)
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
     application_repository.clean(False, False, True, False, False, False)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_clean_manual(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -49,7 +49,7 @@ def test_clean_manual(application_repository: Repository, mocker: MockerFixture)
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
     application_repository.clean(False, False, False, True, False, False)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_clean_packages(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -58,7 +58,7 @@ def test_clean_packages(application_repository: Repository, mocker: MockerFixtur
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
     application_repository.clean(False, False, False, False, True, False)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_clean_patches(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -67,7 +67,7 @@ def test_clean_patches(application_repository: Repository, mocker: MockerFixture
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_patches")
     application_repository.clean(False, False, False, False, False, True)
-    clear_mock.assert_called_once()
+    clear_mock.assert_called_once_with()
 
 
 def test_report(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -75,8 +75,8 @@ def test_report(application_repository: Repository, mocker: MockerFixture) -> No
     must generate report
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_report")
-    application_repository.report([], [])
-    executor_mock.assert_called_once()
+    application_repository.report(["a"], [])
+    executor_mock.assert_called_once_with(["a"], [])
 
 
 def test_sign(application_repository: Repository, package_ahriman: Package, package_python_schedule: Package,
@@ -93,12 +93,12 @@ def test_sign(application_repository: Repository, package_ahriman: Package, pack
 
     application_repository.sign([])
     copy_mock.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str)),
-        mock.call(pytest.helpers.anyvar(str), pytest.helpers.anyvar(str))
+        mock.call(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int)),
+        mock.call(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
     ])
     update_mock.assert_called_once_with([])
-    sign_repository_mock.assert_called_once()
-    finalize_mock.assert_called_once()
+    sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
+    finalize_mock.assert_called_once_with([])
 
 
 def test_sign_skip(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -125,11 +125,14 @@ def test_sign_specific(application_repository: Repository, package_ahriman: Pack
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
     finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
 
+    filename = package_ahriman.packages[package_ahriman.base].filepath
     application_repository.sign([package_ahriman.base])
-    copy_mock.assert_called_once()
+    copy_mock.assert_called_once_with(
+        application_repository.repository.paths.repository / filename.name,
+        application_repository.repository.paths.packages / filename.name)
     update_mock.assert_called_once_with([])
-    sign_repository_mock.assert_called_once()
-    finalize_mock.assert_called_once()
+    sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
+    finalize_mock.assert_called_once_with([])
 
 
 def test_sync(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -137,8 +140,8 @@ def test_sync(application_repository: Repository, mocker: MockerFixture) -> None
     must sync to remote
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_sync")
-    application_repository.sync([], [])
-    executor_mock.assert_called_once()
+    application_repository.sync(["a"], [])
+    executor_mock.assert_called_once_with(["a"], [])
 
 
 def test_unknown_no_aur(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -193,7 +196,7 @@ def test_update(application_repository: Repository, package_ahriman: Package, mo
     finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
 
     application_repository.update([package_ahriman])
-    build_mock.assert_called_once()
+    build_mock.assert_called_once_with([package_ahriman])
     update_mock.assert_called_once_with(paths)
     finalize_mock.assert_called_once_with([package_ahriman])
 
@@ -210,8 +213,8 @@ def test_updates_all(application_repository: Repository, package_ahriman: Packag
 
     application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], False)
-    updates_local_mock.assert_called_once()
-    updates_manual_mock.assert_called_once()
+    updates_local_mock.assert_called_once_with()
+    updates_manual_mock.assert_called_once_with()
 
 
 def test_updates_disabled(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -240,8 +243,8 @@ def test_updates_no_aur(application_repository: Repository, mocker: MockerFixtur
 
     application_repository.updates([], no_aur=True, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_not_called()
-    updates_local_mock.assert_called_once()
-    updates_manual_mock.assert_called_once()
+    updates_local_mock.assert_called_once_with()
+    updates_manual_mock.assert_called_once_with()
 
 
 def test_updates_no_local(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -256,7 +259,7 @@ def test_updates_no_local(application_repository: Repository, mocker: MockerFixt
     application_repository.updates([], no_aur=False, no_local=True, no_manual=False, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], False)
     updates_local_mock.assert_not_called()
-    updates_manual_mock.assert_called_once()
+    updates_manual_mock.assert_called_once_with()
 
 
 def test_updates_no_manual(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -270,7 +273,7 @@ def test_updates_no_manual(application_repository: Repository, mocker: MockerFix
 
     application_repository.updates([], no_aur=False, no_local=False, no_manual=True, no_vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], False)
-    updates_local_mock.assert_called_once()
+    updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_not_called()
 
 
@@ -285,8 +288,8 @@ def test_updates_no_vcs(application_repository: Repository, mocker: MockerFixtur
 
     application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=True, log_fn=print)
     updates_aur_mock.assert_called_once_with([], True)
-    updates_local_mock.assert_called_once()
-    updates_manual_mock.assert_called_once()
+    updates_local_mock.assert_called_once_with()
+    updates_manual_mock.assert_called_once_with()
 
 
 def test_updates_with_filter(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -301,5 +304,5 @@ def test_updates_with_filter(application_repository: Repository, mocker: MockerF
     application_repository.updates(["filter"], no_aur=False, no_local=False, no_manual=False, no_vcs=False,
                                    log_fn=print)
     updates_aur_mock.assert_called_once_with(["filter"], False)
-    updates_local_mock.assert_called_once()
-    updates_manual_mock.assert_called_once()
+    updates_local_mock.assert_called_once_with()
+    updates_manual_mock.assert_called_once_with()

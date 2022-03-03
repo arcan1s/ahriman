@@ -36,7 +36,7 @@ async def test_get_redirect_to_oauth(client_with_auth: TestClient) -> None:
 
     get_response = await client_with_auth.get("/user-api/v1/login")
     assert get_response.ok
-    oauth.get_oauth_url.assert_called_once()
+    oauth.get_oauth_url.assert_called_once_with()
 
 
 async def test_get_redirect_to_oauth_empty_code(client_with_auth: TestClient) -> None:
@@ -48,7 +48,7 @@ async def test_get_redirect_to_oauth_empty_code(client_with_auth: TestClient) ->
 
     get_response = await client_with_auth.get("/user-api/v1/login", params={"code": ""})
     assert get_response.ok
-    oauth.get_oauth_url.assert_called_once()
+    oauth.get_oauth_url.assert_called_once_with()
 
 
 async def test_get(client_with_auth: TestClient, mocker: MockerFixture) -> None:
@@ -58,7 +58,7 @@ async def test_get(client_with_auth: TestClient, mocker: MockerFixture) -> None:
     oauth = client_with_auth.app["validator"] = MagicMock(spec=OAuth)
     oauth.get_oauth_username.return_value = "user"
     oauth.known_username.return_value = True
-    oauth.enabled = False  # lol\
+    oauth.enabled = False  # lol
     oauth.max_age = 60
     remember_mock = mocker.patch("aiohttp_security.remember")
 
@@ -67,7 +67,8 @@ async def test_get(client_with_auth: TestClient, mocker: MockerFixture) -> None:
     assert get_response.ok
     oauth.get_oauth_username.assert_called_once_with("code")
     oauth.known_username.assert_called_once_with("user")
-    remember_mock.assert_called_once()
+    remember_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 
 
 async def test_get_unauthorized(client_with_auth: TestClient, mocker: MockerFixture) -> None:

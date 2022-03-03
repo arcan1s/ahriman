@@ -1,10 +1,12 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Update
 from ahriman.core.configuration import Configuration
+from ahriman.models.package import Package
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -22,18 +24,20 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, package_ahriman: Package,
+             configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update")
-    updates_mock = mocker.patch("ahriman.application.application.Application.updates")
+    updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
 
     Update.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
-    updates_mock.assert_called_once()
+    application_mock.assert_called_once_with([package_ahriman])
+    updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
+                                         pytest.helpers.anyvar(int))
 
 
 def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -46,7 +50,8 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
     Update.run(args, "x86_64", configuration, True)
-    updates_mock.assert_called_once()
+    updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
+                                         pytest.helpers.anyvar(int))
 
 
 def test_log_fn(application: Application, mocker: MockerFixture) -> None:
@@ -55,4 +60,4 @@ def test_log_fn(application: Application, mocker: MockerFixture) -> None:
     """
     logger_mock = mocker.patch("logging.Logger.info")
     Update.log_fn(application, False)("hello")
-    logger_mock.assert_called_once()
+    logger_mock.assert_called_once_with("hello")

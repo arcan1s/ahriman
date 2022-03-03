@@ -33,7 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
 
     Search.run(args, "x86_64", configuration, True)
     search_mock.assert_called_once_with("ahriman")
-    print_mock.assert_called_once()
+    print_mock.assert_called_once_with(False)
 
 
 def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,

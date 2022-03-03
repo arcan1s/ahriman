@@ -14,7 +14,7 @@ def test_create_tree_on_load(configuration: Configuration, mocker: MockerFixture
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     Properties("x86_64", configuration, True)
 
-    tree_create_mock.assert_called_once()
+    tree_create_mock.assert_called_once_with()
 
 
 def test_create_tree_on_load_unsafe(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -48,4 +48,4 @@ def test_create_full_report_client(configuration: Configuration, mocker: MockerF
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
     Properties("x86_64", configuration, False)
 
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with(configuration)

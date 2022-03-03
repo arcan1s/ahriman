@@ -26,7 +26,7 @@ async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None
     response = await client_with_auth.post("/service-api/v1/reload-auth")
 
     assert response.ok
-    reload_mock.assert_called_once()
+    reload_mock.assert_called_once_with()
     load_mock.assert_called_once_with(client_with_auth.app["configuration"])
 
 
@@ -38,4 +38,4 @@ async def test_post_no_auth(client: TestClient, mocker: MockerFixture) -> None:
     response = await client.post("/service-api/v1/reload-auth")
 
     assert response.status == 500
-    reload_mock.assert_called_once()
+    reload_mock.assert_called_once_with()

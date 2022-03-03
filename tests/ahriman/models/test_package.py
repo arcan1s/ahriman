@@ -172,7 +172,7 @@ def test_load_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, m
     """
     load_mock = mocker.patch("ahriman.models.package.Package.from_archive")
     Package.load("path", PackageSource.Archive, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with(Path("path"), pyalpm_handle, package_ahriman.aur_url)
 
 
 def test_load_from_aur(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
@@ -181,7 +181,7 @@ def test_load_from_aur(package_ahriman: Package, pyalpm_handle: MagicMock, mocke
     """
     load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
     Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with("path", package_ahriman.aur_url)
 
 
 def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
@@ -190,7 +190,7 @@ def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, moc
     """
     load_mock = mocker.patch("ahriman.models.package.Package.from_build")
     Package.load("path", PackageSource.Local, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with(Path("path"), package_ahriman.aur_url)
 
 
 def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:

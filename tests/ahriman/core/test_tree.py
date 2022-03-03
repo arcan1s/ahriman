@@ -1,3 +1,5 @@
+import pytest
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.tree import Leaf, Tree
@@ -47,10 +49,11 @@ def test_leaf_load(package_ahriman: Package, repository_paths: RepositoryPaths, 
     leaf = Leaf.load(package_ahriman, repository_paths)
     assert leaf.package == package_ahriman
     assert leaf.dependencies == {"ahriman-dependency"}
-    tempdir_mock.assert_called_once()
-    load_mock.assert_called_once()
-    dependencies_mock.assert_called_once()
-    rmtree_mock.assert_called_once()
+    tempdir_mock.assert_called_once_with()
+    load_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), package_ahriman.git_url, repository_paths.patches_for(package_ahriman.base))
+    dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+    rmtree_mock.assert_called_once_with(pytest.helpers.anyvar(int), ignore_errors=True)
 
 
 def test_tree_levels(leaf_ahriman: Leaf, leaf_python_schedule: Leaf) -> None:

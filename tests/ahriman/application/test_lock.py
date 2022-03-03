@@ -24,10 +24,10 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
 
     with lock:
         pass
-    check_user_mock.assert_called_once()
-    clear_mock.assert_called_once()
-    create_mock.assert_called_once()
-    check_version_mock.assert_called_once()
+    check_user_mock.assert_called_once_with()
+    clear_mock.assert_called_once_with()
+    create_mock.assert_called_once_with()
+    check_version_mock.assert_called_once_with()
     update_status_mock.assert_has_calls([
         mock.call(BuildStatusEnum.Building),
         mock.call(BuildStatusEnum.Success)
@@ -66,14 +66,14 @@ def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
 
 def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
     """
-    must check version correctly
+    must check mismatched version correctly
     """
     mocker.patch("ahriman.core.status.client.Client.get_internal",
                  return_value=InternalStatus(version="version"))
     logging_mock = mocker.patch("logging.Logger.warning")
 
     lock.check_version()
-    logging_mock.assert_called_once()
+    logging_mock.assert_called_once()  # we do not check logging arguments
 
 
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:

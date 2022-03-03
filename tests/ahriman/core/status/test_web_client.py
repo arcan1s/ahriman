@@ -130,7 +130,7 @@ def test_get_all(web_client: WebClient, package_ahriman: Package, mocker: Mocker
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
 
     result = web_client.get(None)
-    requests_mock.assert_called_once()
+    requests_mock.assert_called_once_with(web_client._package_url())
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -163,7 +163,7 @@ def test_get_single(web_client: WebClient, package_ahriman: Package, mocker: Moc
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
 
     result = web_client.get(package_ahriman.base)
-    requests_mock.assert_called_once()
+    requests_mock.assert_called_once_with(web_client._package_url(package_ahriman.base))
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -179,7 +179,7 @@ def test_get_internal(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
 
     result = web_client.get_internal()
-    requests_mock.assert_called_once()
+    requests_mock.assert_called_once_with(web_client._status_url)
     assert result.architecture == "x86_64"
 
 
@@ -210,7 +210,7 @@ def test_get_self(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
 
     result = web_client.get_self()
-    requests_mock.assert_called_once()
+    requests_mock.assert_called_once_with(web_client._ahriman_url)
     assert result.status == BuildStatusEnum.Unknown
 
 

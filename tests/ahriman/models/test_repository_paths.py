@@ -11,7 +11,7 @@ def test_known_architectures(repository_paths: RepositoryPaths, mocker: MockerFi
     """
     iterdir_mock = mocker.patch("pathlib.Path.iterdir")
     repository_paths.known_architectures(repository_paths.root)
-    iterdir_mock.assert_called_once()
+    iterdir_mock.assert_called_once_with()
 
 
 def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:

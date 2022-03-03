@@ -70,7 +70,7 @@ def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
     start_mock = mocker.patch("multiprocessing.Process.start")
 
     spawner.spawn_process("add", "ahriman", now="", maybe="?")
-    start_mock.assert_called_once()
+    start_mock.assert_called_once_with()
     spawner.args_parser.parse_args.assert_called_once_with([
         "--architecture", spawner.architecture, "--configuration", str(spawner.configuration.path),
         "add", "ahriman", "--now", "--maybe", "?"
@@ -104,8 +104,8 @@ def test_run_pop(spawner: Spawn) -> None:
 
     spawner.run()
 
-    first.terminate.assert_called_once()
-    first.join.assert_called_once()
-    second.terminate.assert_called_once()
-    second.join.assert_called_once()
+    first.terminate.assert_called_once_with()
+    first.join.assert_called_once_with()
+    second.terminate.assert_called_once_with()
+    second.join.assert_called_once_with()
     assert not spawner.active

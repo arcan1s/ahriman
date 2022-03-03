@@ -70,7 +70,8 @@ def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:
     """
     requests_mock = mocker.patch("requests.get")
     gpg.key_download("pgp.mit.edu", "0xE989490C")
-    requests_mock.assert_called_once()
+    requests_mock.assert_called_once_with(
+        "http://pgp.mit.edu/pks/lookup", params={"op": "get", "options": "mr", "search": "0xE989490C"})
 
 
 def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:
@@ -116,19 +117,19 @@ def test_process_sign_package_1(gpg_with_key: GPG, mocker: MockerFixture) -> Non
 
     gpg_with_key.targets = {SignSettings.Packages}
     assert gpg_with_key.process_sign_package(Path("a"), "a") == result
-    process_mock.assert_called_once()
+    process_mock.assert_called_once_with(Path("a"), "key")
 
 
 def test_process_sign_package_2(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must sign package
+    must sign package if there are multiple targets
     """
     result = [Path("a"), Path("a.sig")]
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process", return_value=result)
 
     gpg_with_key.targets = {SignSettings.Packages, SignSettings.Repository}
     assert gpg_with_key.process_sign_package(Path("a"), "a") == result
-    process_mock.assert_called_once()
+    process_mock.assert_called_once_with(Path("a"), "key")
 
 
 def test_process_sign_package_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:
@@ -180,19 +181,19 @@ def test_process_sign_repository_1(gpg_with_key: GPG, mocker: MockerFixture) -> 
 
     gpg_with_key.targets = {SignSettings.Repository}
     assert gpg_with_key.process_sign_repository(Path("a")) == result
-    process_mock.assert_called_once()
+    process_mock.assert_called_once_with(Path("a"), "key")
 
 
 def test_process_sign_repository_2(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must sign repository
+    must sign repository if there are multiple targets
     """
     result = [Path("a"), Path("a.sig")]
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process", return_value=result)
 
     gpg_with_key.targets = {SignSettings.Packages, SignSettings.Repository}
     assert gpg_with_key.process_sign_repository(Path("a")) == result
-    process_mock.assert_called_once()
+    process_mock.assert_called_once_with(Path("a"), "key")
 
 
 def test_process_sign_repository_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:

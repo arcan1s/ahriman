@@ -21,4 +21,4 @@ def test_init_with_cache(task_ahriman: Task, mocker: MockerFixture) -> None:
     copytree_mock = mocker.patch("shutil.copytree")
 
     task_ahriman.init(None)
-    copytree_mock.assert_called_once()
+    copytree_mock.assert_called_once()  # we do not check full command here, sorry

@@ -26,7 +26,7 @@ async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None
 
     post_response = await client_with_auth.post("/user-api/v1/logout")
     assert post_response.ok
-    forget_mock.assert_called_once()
+    forget_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 
 
 async def test_post_unauthorized(client_with_auth: TestClient, mocker: MockerFixture) -> None:

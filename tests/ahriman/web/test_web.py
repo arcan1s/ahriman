@@ -5,7 +5,16 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.exceptions import InitializeException
 from ahriman.core.status.watcher import Watcher
-from ahriman.web.web import on_startup, run_server
+from ahriman.web.web import on_shutdown, on_startup, run_server
+
+
+async def test_on_shutdown(application: web.Application, mocker: MockerFixture) -> None:
+    """
+    must write information to log
+    """
+    logging_mock = mocker.patch("logging.Logger.warning")
+    await on_shutdown(application)
+    logging_mock.assert_called_once_with(pytest.helpers.anyvar(str, True))
 
 
 async def test_on_startup(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:
@@ -16,7 +25,7 @@ async def test_on_startup(application: web.Application, watcher: Watcher, mocker
     load_mock = mocker.patch("ahriman.core.status.watcher.Watcher.load")
 
     await on_startup(application)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with()
 
 
 async def test_on_startup_exception(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:

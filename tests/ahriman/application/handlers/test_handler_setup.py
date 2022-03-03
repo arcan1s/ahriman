@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
@@ -38,13 +39,15 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
     sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
     executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
+    paths = RepositoryPaths(configuration.getpath("repository", "root"), "x86_64")
 
     Setup.run(args, "x86_64", configuration, True)
-    ahriman_configuration_mock.assert_called_once()
-    devtools_configuration_mock.assert_called_once()
-    makepkg_configuration_mock.assert_called_once()
-    sudo_configuration_mock.assert_called_once()
-    executable_mock.assert_called_once()
+    ahriman_configuration_mock.assert_called_once_with(args, "x86_64", args.repository, configuration.include)
+    devtools_configuration_mock.assert_called_once_with(args.build_command, "x86_64", args.from_configuration,
+                                                        args.no_multilib, args.repository, paths)
+    makepkg_configuration_mock.assert_called_once_with(args.packager, paths)
+    sudo_configuration_mock.assert_called_once_with(args.build_command, "x86_64")
+    executable_mock.assert_called_once_with(args.build_command, "x86_64")
 
 
 def test_build_command(args: argparse.Namespace) -> None:
@@ -75,7 +78,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
         mock.call(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
         mock.call(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
     ])
-    write_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_configuration_create_devtools(args: argparse.Namespace, repository_paths: RepositoryPaths,
@@ -95,7 +98,7 @@ def test_configuration_create_devtools(args: argparse.Namespace, repository_path
         mock.call("multilib"),
         mock.call(args.repository)
     ])
-    write_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, repository_paths: RepositoryPaths,
@@ -110,7 +113,7 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, rep
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
                                         True, args.repository, repository_paths)
-    write_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths: RepositoryPaths,
@@ -122,7 +125,7 @@ def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths
     write_text_mock = mocker.patch("pathlib.Path.write_text")
 
     Setup.configuration_create_makepkg(args.packager, repository_paths)
-    write_text_mock.assert_called_once()
+    write_text_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), encoding="utf8")
 
 
 def test_configuration_create_sudo(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -135,7 +138,7 @@ def test_configuration_create_sudo(args: argparse.Namespace, mocker: MockerFixtu
 
     Setup.configuration_create_sudo(args.build_command, "x86_64")
     chmod_text_mock.assert_called_once_with(0o400)
-    write_text_mock.assert_called_once()
+    write_text_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), encoding="utf8")
 
 
 def test_executable_create(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -147,8 +150,8 @@ def test_executable_create(args: argparse.Namespace, mocker: MockerFixture) -> N
     unlink_text_mock = mocker.patch("pathlib.Path.unlink")
 
     Setup.executable_create(args.build_command, "x86_64")
-    symlink_text_mock.assert_called_once()
-    unlink_text_mock.assert_called_once()
+    symlink_text_mock.assert_called_once_with(Setup.ARCHBUILD_COMMAND_PATH)
+    unlink_text_mock.assert_called_once_with(missing_ok=True)
 
 
 def test_disallow_auto_architecture_run() -> None:

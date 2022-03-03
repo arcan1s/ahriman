@@ -1,3 +1,5 @@
+import pytest
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -13,4 +15,4 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
 
     report = HTML("x86_64", configuration, "html")
     report.generate([package_ahriman], [])
-    write_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))

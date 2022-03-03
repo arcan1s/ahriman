@@ -45,4 +45,4 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     load_mock = mocker.patch("ahriman.core.status.watcher.Watcher.load")
     response = await client.post("/status-api/v1/packages")
     assert response.status == 204
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with()

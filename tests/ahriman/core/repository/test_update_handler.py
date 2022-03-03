@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 
 
 def test_packages(update_handler: UpdateHandler) -> None:
@@ -25,13 +26,13 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     assert update_handler.updates_aur([], False) == [package_ahriman]
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_updates_aur_success(update_handler: UpdateHandler, package_ahriman: Package,
                              mocker: MockerFixture) -> None:
     """
-    must provide updates with status updates
+    must provide updates with status updates with success
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
@@ -52,7 +53,7 @@ def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Pack
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     update_handler.updates_aur([], False)
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Package, package_python_schedule: Package,
@@ -66,7 +67,8 @@ def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Pack
     package_load_mock = mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
 
     assert update_handler.updates_aur([package_ahriman.base], False) == [package_ahriman]
-    package_load_mock.assert_called_once()
+    package_load_mock.assert_called_once_with(package_ahriman.base, PackageSource.AUR,
+                                              update_handler.pacman, update_handler.aur_url)
 
 
 def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Package,
@@ -108,8 +110,9 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
 
     assert update_handler.updates_local() == [package_ahriman]
     fetch_mock.assert_called_once_with(package_ahriman.base, remote=None)
-    package_load_mock.assert_called_once()
-    status_client_mock.assert_called_once()
+    package_load_mock.assert_called_once_with(
+        package_ahriman.base, PackageSource.Local, update_handler.pacman, update_handler.aur_url)
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -124,7 +127,7 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     assert update_handler.updates_local() == [package_ahriman]
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman)
 
 
 def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahriman: Package,
@@ -165,7 +168,7 @@ def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixtu
     update_handler.updates_manual()
 
     from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_manual.assert_called_once()
+    Cleaner.clear_manual.assert_called_once_with()
 
 
 def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahriman: Package,
@@ -179,7 +182,7 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     update_handler.updates_manual()
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ahriman: Package,
@@ -193,7 +196,7 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     update_handler.updates_manual()
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman)
 
 
 def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahriman: Package,

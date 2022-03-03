@@ -71,7 +71,7 @@ async def test_exception_handler_server_error(mocker: MockerFixture) -> None:
     handler = exception_handler(logging.getLogger())
     response = await handler(request, request_handler)
     assert _extract_body(response) == {"error": HTTPInternalServerError().reason}
-    logging_mock.assert_called_once()
+    logging_mock.assert_called_once()  # we do not check logging arguments
 
 
 async def test_exception_handler_unknown_error(mocker: MockerFixture) -> None:
@@ -85,4 +85,4 @@ async def test_exception_handler_unknown_error(mocker: MockerFixture) -> None:
     handler = exception_handler(logging.getLogger())
     response = await handler(request, request_handler)
     assert _extract_body(response) == {"error": "An error"}
-    logging_mock.assert_called_once()
+    logging_mock.assert_called_once()  # we do not check logging arguments
