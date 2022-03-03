@@ -21,7 +21,7 @@ def test_check_output(mocker: MockerFixture) -> None:
     logger_mock.assert_not_called()
 
     assert check_output("echo", "hello", exception=None, logger=logging.getLogger("")) == "hello"
-    logger_mock.assert_called_once()
+    logger_mock.assert_called_once_with("hello")
 
 
 def test_check_output_failure(mocker: MockerFixture) -> None:
@@ -49,7 +49,7 @@ def test_check_output_failure_log(mocker: MockerFixture) -> None:
 
     with pytest.raises(subprocess.CalledProcessError):
         check_output("echo", "hello", exception=None, logger=logging.getLogger(""))
-        logger_mock.assert_called_once()
+        logger_mock.assert_called_once_with()
 
 
 def test_check_user(mocker: MockerFixture) -> None:

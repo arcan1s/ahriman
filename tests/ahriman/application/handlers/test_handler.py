@@ -17,7 +17,7 @@ def test_architectures_extract(args: argparse.Namespace, configuration: Configur
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
 
     Handler.architectures_extract(args)
-    known_architectures_mock.assert_called_once()
+    known_architectures_mock.assert_called_once_with(configuration.getpath("repository", "root"))
 
 
 def test_architectures_extract_empty(args: argparse.Namespace, configuration: Configuration,
@@ -48,7 +48,7 @@ def test_architectures_extract_specified(args: argparse.Namespace) -> None:
     must return architecture list if it has been specified
     """
     architectures = args.architecture = ["i686", "x86_64"]
-    assert Handler.architectures_extract(args) == set(architectures)
+    assert Handler.architectures_extract(args) == sorted(set(architectures))
 
 
 def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -63,8 +63,8 @@ def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
     exit_mock = mocker.patch("ahriman.application.lock.Lock.__exit__")
 
     assert Handler.call(args, "x86_64")
-    enter_mock.assert_called_once()
-    exit_mock.assert_called_once()
+    enter_mock.assert_called_once_with()
+    exit_mock.assert_called_once_with(None, None, None)
 
 
 def test_call_exception(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -83,7 +83,7 @@ def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
 
     Handler.execute(args)
-    starmap_mock.assert_called_once()
+    starmap_mock.assert_called_once_with(Handler.call, [(args, architecture) for architecture in args.architecture])
 
 
 def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: MockerFixture) -> None:

@@ -23,7 +23,7 @@ import argparse
 import logging
 
 from multiprocessing import Pool
-from typing import Set, Type
+from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
@@ -42,7 +42,7 @@ class Handler:
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
-    def architectures_extract(cls: Type[Handler], args: argparse.Namespace) -> Set[str]:
+    def architectures_extract(cls: Type[Handler], args: argparse.Namespace) -> List[str]:
         """
         get known architectures
         :param args: command line args
@@ -53,7 +53,7 @@ class Handler:
             # for those cases architecture must be set explicitly
             raise MissingArchitecture(args.command)
         if args.architecture:  # architecture is specified explicitly
-            return set(args.architecture)
+            return sorted(set(args.architecture))
 
         config = Configuration()
         config.load(args.configuration)
@@ -63,7 +63,7 @@ class Handler:
 
         if not architectures:  # well we did not find anything
             raise MissingArchitecture(args.command)
-        return architectures
+        return sorted(architectures)
 
     @classmethod
     def call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:

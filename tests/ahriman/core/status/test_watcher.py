@@ -105,7 +105,7 @@ def test_cache_save(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
 
     watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
     watcher._cache_save()
-    json_mock.assert_called_once()
+    json_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 
 
 def test_cache_save_failed(watcher: Watcher, mocker: MockerFixture) -> None:
@@ -163,7 +163,7 @@ def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture)
     cache_mock = mocker.patch("ahriman.core.status.watcher.Watcher._cache_load")
 
     watcher.load()
-    cache_mock.assert_called_once()
+    cache_mock.assert_called_once_with()
     package, status = watcher.known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Unknown
@@ -191,7 +191,7 @@ def test_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
 
     watcher.remove(package_ahriman.base)
     assert not watcher.known
-    cache_mock.assert_called_once()
+    cache_mock.assert_called_once_with()
 
 
 def test_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -201,7 +201,7 @@ def test_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: Mock
     cache_mock = mocker.patch("ahriman.core.status.watcher.Watcher._cache_save")
 
     watcher.remove(package_ahriman.base)
-    cache_mock.assert_called_once()
+    cache_mock.assert_called_once_with()
 
 
 def test_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -211,7 +211,7 @@ def test_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
     cache_mock = mocker.patch("ahriman.core.status.watcher.Watcher._cache_save")
 
     watcher.update(package_ahriman.base, BuildStatusEnum.Unknown, package_ahriman)
-    cache_mock.assert_called_once()
+    cache_mock.assert_called_once_with()
     package, status = watcher.known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Unknown
@@ -225,7 +225,7 @@ def test_update_ping(watcher: Watcher, package_ahriman: Package, mocker: MockerF
     watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.update(package_ahriman.base, BuildStatusEnum.Success, None)
-    cache_mock.assert_called_once()
+    cache_mock.assert_called_once_with()
     package, status = watcher.known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Success
@@ -239,7 +239,7 @@ def test_update_unknown(watcher: Watcher, package_ahriman: Package, mocker: Mock
 
     with pytest.raises(UnknownPackage):
         watcher.update(package_ahriman.base, BuildStatusEnum.Unknown, None)
-        cache_mock.assert_called_once()
+        cache_mock.assert_called_once_with()
 
 
 def test_update_self(watcher: Watcher) -> None:

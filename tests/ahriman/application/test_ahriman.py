@@ -473,4 +473,4 @@ def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:
     exit_mock = mocker.patch("sys.exit")
 
     ahriman.run()
-    exit_mock.assert_called_once()
+    exit_mock.assert_called_once_with(1)

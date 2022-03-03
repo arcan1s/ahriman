@@ -180,20 +180,20 @@ def test_release_sync(github: Github, mocker: MockerFixture) -> None:
     """
     must run sync command
     """
-    release_get_mock = mocker.patch("ahriman.core.upload.github.Github.release_get")
-    get_hashes_mock = mocker.patch("ahriman.core.upload.github.Github.get_hashes")
-    get_local_files_mock = mocker.patch("ahriman.core.upload.github.Github.get_local_files")
+    release_get_mock = mocker.patch("ahriman.core.upload.github.Github.release_get", return_value={})
+    get_hashes_mock = mocker.patch("ahriman.core.upload.github.Github.get_hashes", return_value={})
+    get_local_files_mock = mocker.patch("ahriman.core.upload.github.Github.get_local_files", return_value={})
     files_upload_mock = mocker.patch("ahriman.core.upload.github.Github.files_upload")
     files_remove_mock = mocker.patch("ahriman.core.upload.github.Github.files_remove")
     release_update_mock = mocker.patch("ahriman.core.upload.github.Github.release_update")
 
     github.sync(Path("local"), [])
-    release_get_mock.assert_called_once()
-    get_hashes_mock.assert_called_once()
-    get_local_files_mock.assert_called_once()
-    files_upload_mock.assert_called_once()
-    files_remove_mock.assert_called_once()
-    release_update_mock.assert_called_once()
+    release_get_mock.assert_called_once_with()
+    get_hashes_mock.assert_called_once_with("")
+    get_local_files_mock.assert_called_once_with(Path("local"))
+    files_upload_mock.assert_called_once_with({}, {}, {})
+    files_remove_mock.assert_called_once_with({}, {}, {})
+    release_update_mock.assert_called_once_with({}, pytest.helpers.anyvar(int))
 
 
 def test_release_sync_create_release(github: Github, mocker: MockerFixture) -> None:
@@ -209,4 +209,4 @@ def test_release_sync_create_release(github: Github, mocker: MockerFixture) -> N
     release_create_mock = mocker.patch("ahriman.core.upload.github.Github.release_create")
 
     github.sync(Path("local"), [])
-    release_create_mock.assert_called_once()
+    release_create_mock.assert_called_once_with()

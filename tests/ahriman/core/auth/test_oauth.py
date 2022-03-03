@@ -71,7 +71,7 @@ async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
 
     email = await oauth.get_oauth_username("code")
     access_token_mock.assert_called_once_with("code", redirect_uri=oauth.redirect_uri)
-    user_info_mock.assert_called_once()
+    user_info_mock.assert_called_once_with()
     assert email == "email"
 
 

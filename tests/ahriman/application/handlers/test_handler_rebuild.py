@@ -18,18 +18,20 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, package_ahriman: Package,
+             configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on")
+    application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on",
+                                             return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
     Rebuild.run(args, "x86_64", configuration, True)
-    application_packages_mock.assert_called_once()
-    application_mock.assert_called_once()
+    application_packages_mock.assert_called_once_with(None)
+    application_mock.assert_called_once_with([package_ahriman])
 
 
 def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,

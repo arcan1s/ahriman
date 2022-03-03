@@ -39,7 +39,7 @@ async def test_authorized_userid_library(mocker: MockerFixture) -> None:
     mocker.patch.object(helpers, "_has_aiohttp_security", True)
     authorized_userid_mock = mocker.patch("aiohttp_security.authorized_userid")
     await helpers.authorized_userid()
-    authorized_userid_mock.assert_called_once()
+    authorized_userid_mock.assert_called_once_with()
 
 
 async def test_check_authorized_dummy(mocker: MockerFixture) -> None:
@@ -59,7 +59,7 @@ async def test_check_authorized_library(mocker: MockerFixture) -> None:
     mocker.patch.object(helpers, "_has_aiohttp_security", True)
     check_authorized_mock = mocker.patch("aiohttp_security.check_authorized")
     await helpers.check_authorized()
-    check_authorized_mock.assert_called_once()
+    check_authorized_mock.assert_called_once_with()
 
 
 async def test_forget_dummy(mocker: MockerFixture) -> None:
@@ -79,7 +79,7 @@ async def test_forget_library(mocker: MockerFixture) -> None:
     mocker.patch.object(helpers, "_has_aiohttp_security", True)
     forget_mock = mocker.patch("aiohttp_security.forget")
     await helpers.forget()
-    forget_mock.assert_called_once()
+    forget_mock.assert_called_once_with()
 
 
 async def test_remember_dummy(mocker: MockerFixture) -> None:
@@ -99,4 +99,4 @@ async def test_remember_library(mocker: MockerFixture) -> None:
     mocker.patch.object(helpers, "_has_aiohttp_security", True)
     remember_mock = mocker.patch("aiohttp_security.remember")
     await helpers.remember()
-    remember_mock.assert_called_once()
+    remember_mock.assert_called_once_with()

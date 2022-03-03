@@ -22,8 +22,8 @@ def test_from_path(mocker: MockerFixture) -> None:
     configuration = Configuration.from_path(path, "x86_64", True)
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
-    load_includes_mock.assert_called_once()
-    load_logging_mock.assert_called_once()
+    load_includes_mock.assert_called_once_with()
+    load_logging_mock.assert_called_once_with(True)
 
 
 def test_dump(configuration: Configuration) -> None:
@@ -251,8 +251,8 @@ def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
     merge_mock = mocker.patch("ahriman.core.configuration.Configuration.merge_sections")
 
     configuration.reload()
-    load_mock.assert_called_once()
-    merge_mock.assert_called_once()
+    load_mock.assert_called_once_with(configuration.path)
+    merge_mock.assert_called_once_with(configuration.architecture)
 
 
 def test_reload_clear(configuration: Configuration, mocker: MockerFixture) -> None:

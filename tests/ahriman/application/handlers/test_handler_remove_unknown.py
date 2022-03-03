@@ -18,18 +18,20 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, package_ahriman: Package,
+             configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    application_mock = mocker.patch("ahriman.application.application.Application.unknown")
+    application_mock = mocker.patch("ahriman.application.application.Application.unknown",
+                                    return_value=[package_ahriman])
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
 
     RemoveUnknown.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
-    remove_mock.assert_called_once()
+    application_mock.assert_called_once_with()
+    remove_mock.assert_called_once_with([package_ahriman])
 
 
 def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
@@ -46,7 +48,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, pac
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     RemoveUnknown.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
     print_mock.assert_called_once_with(False)
 
@@ -66,6 +68,6 @@ def test_run_dry_run_verbose(args: argparse.Namespace, configuration: Configurat
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     RemoveUnknown.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
     print_mock.assert_called_once_with(True)

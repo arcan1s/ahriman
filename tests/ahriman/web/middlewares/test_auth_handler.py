@@ -14,7 +14,7 @@ from ahriman.web.middlewares.auth_handler import auth_handler, AuthorizationPoli
 def _identity(username: str) -> str:
     """
     generate identity from user
-    :param user: user fixture object
+    :param username: name of the user
     :return: user identity string
     """
     return f"{username} {UserIdentity.expire_when(60)}"
@@ -119,7 +119,7 @@ def test_setup_auth(application_with_auth: web.Application, auth: Auth, mocker: 
     """
     must setup authorization
     """
-    aiohttp_security_setup_mock = mocker.patch("aiohttp_security.setup")
+    setup_mock = mocker.patch("aiohttp_security.setup")
     application = setup_auth(application_with_auth, auth)
     assert application.get("validator") is not None
-    aiohttp_security_setup_mock.assert_called_once()
+    setup_mock.assert_called_once_with(application_with_auth, pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))

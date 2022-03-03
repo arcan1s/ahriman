@@ -30,4 +30,4 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.clean")
 
     Clean.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with(False, False, False, False, False, False)

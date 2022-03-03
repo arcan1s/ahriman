@@ -24,7 +24,7 @@ def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> No
     mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
     report_mock = mocker.patch("ahriman.core.report.report.Report.generate")
     Report.load("x86_64", configuration, "disabled").run([], [])
-    report_mock.assert_called_once()
+    report_mock.assert_called_once_with([], [])
 
 
 def test_report_email(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -33,7 +33,7 @@ def test_report_email(configuration: Configuration, mocker: MockerFixture) -> No
     """
     report_mock = mocker.patch("ahriman.core.report.email.Email.generate")
     Report.load("x86_64", configuration, "email").run([], [])
-    report_mock.assert_called_once()
+    report_mock.assert_called_once_with([], [])
 
 
 def test_report_html(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -42,4 +42,4 @@ def test_report_html(configuration: Configuration, mocker: MockerFixture) -> Non
     """
     report_mock = mocker.patch("ahriman.core.report.html.HTML.generate")
     Report.load("x86_64", configuration, "html").run([], [])
-    report_mock.assert_called_once()
+    report_mock.assert_called_once_with([], [])

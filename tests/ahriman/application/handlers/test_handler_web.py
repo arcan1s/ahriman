@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 
@@ -27,8 +28,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     run_mock = mocker.patch("ahriman.web.web.run_server")
 
     Web.run(args, "x86_64", configuration, True)
-    setup_mock.assert_called_once()
-    run_mock.assert_called_once()
+    setup_mock.assert_called_once_with("x86_64", configuration, pytest.helpers.anyvar(int))
+    run_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_disallow_auto_architecture_run() -> None:

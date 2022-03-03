@@ -39,14 +39,14 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
 
     executor.process_build([package_ahriman])
     # must move files (once)
-    move_mock.assert_called_once()
+    move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
     # must clear directory
     from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_build.assert_called_once()
+    Cleaner.clear_build.assert_called_once_with()
     # must return build packages after all
-    built_packages_mock.assert_called_once()
+    built_packages_mock.assert_called_once_with()
 
 
 def test_process_build_failure(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -60,7 +60,7 @@ def test_process_build_failure(executor: Executor, package_ahriman: Package, moc
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     executor.process_build([package_ahriman])
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_remove_base(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -74,10 +74,11 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
 
     executor.process_remove([package_ahriman.base])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_called_once()
+    repo_remove_mock.assert_called_once_with(
+        package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
     # must update status and remove package files
     tree_clear_mock.assert_called_once_with(package_ahriman.base)
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_remove_base_multiple(executor: Executor, package_python_schedule: Package,
@@ -96,7 +97,7 @@ def test_process_remove_base_multiple(executor: Executor, package_python_schedul
         for package, props in package_python_schedule.packages.items()
     ], any_order=True)
     # must update status
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_python_schedule.base)
 
 
 def test_process_remove_base_single(executor: Executor, package_python_schedule: Package,
@@ -110,7 +111,8 @@ def test_process_remove_base_single(executor: Executor, package_python_schedule:
 
     executor.process_remove(["python2-schedule"])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_called_once()
+    repo_remove_mock.assert_called_once_with(
+        "python2-schedule", package_python_schedule.packages["python2-schedule"].filepath)
     # must not update status
     status_client_mock.assert_not_called()
 
@@ -154,7 +156,7 @@ def test_process_report(executor: Executor, package_ahriman: Package, mocker: Mo
     report_mock = mocker.patch("ahriman.core.report.report.Report.run")
 
     executor.process_report(["dummy"], [])
-    report_mock.assert_called_once()
+    report_mock.assert_called_once_with([package_ahriman], [])
 
 
 def test_process_report_auto(executor: Executor) -> None:
@@ -163,18 +165,18 @@ def test_process_report_auto(executor: Executor) -> None:
     """
     configuration_mock = executor.configuration = MagicMock()
     executor.process_report(None, [])
-    configuration_mock.getlist.assert_called_once()
+    configuration_mock.getlist.assert_called_once_with("report", "target")
 
 
 def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
     """
-    must process sync in auto mode if no targets supplied
+    must process sync
     """
     mocker.patch("ahriman.core.upload.upload.Upload.load", return_value=Upload("x86_64", executor.configuration))
     upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.run")
 
     executor.process_sync(["dummy"], [])
-    upload_mock.assert_called_once()
+    upload_mock.assert_called_once_with(executor.paths.repository, [])
 
 
 def test_process_upload_auto(executor: Executor) -> None:
@@ -183,7 +185,7 @@ def test_process_upload_auto(executor: Executor) -> None:
     """
     configuration_mock = executor.configuration = MagicMock()
     executor.process_sync(None, [])
-    configuration_mock.getlist.assert_called_once()
+    configuration_mock.getlist.assert_called_once_with("upload", "target")
 
 
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -197,20 +199,21 @@ def test_process_update(executor: Executor, package_ahriman: Package, mocker: Mo
     sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
     remove_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
+    filepath = next(package.filepath for package in package_ahriman.packages.values())
 
     # must return complete
-    assert executor.process_update([package.filepath for package in package_ahriman.packages.values()])
+    assert executor.process_update([filepath])
     # must move files (once)
-    move_mock.assert_called_once()
+    move_mock.assert_called_once_with(executor.paths.packages / filepath, executor.paths.repository / filepath)
     # must sign package
-    sign_package_mock.assert_called_once()
+    sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, package_ahriman.base)
     # must add package
-    repo_add_mock.assert_called_once()
+    repo_add_mock.assert_called_once_with(executor.paths.repository / filepath)
     # must update status
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman)
     # must clear directory
     from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_packages.assert_called_once()
+    Cleaner.clear_packages.assert_called_once_with()
     # clear removed packages
     remove_mock.assert_called_once_with([])
 
@@ -256,7 +259,7 @@ def test_process_update_failed(executor: Executor, package_ahriman: Package, moc
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     executor.process_update([package.filepath for package in package_ahriman.packages.values()])
-    status_client_mock.assert_called_once()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_update_removed_package(executor: Executor, package_python_schedule: Package,

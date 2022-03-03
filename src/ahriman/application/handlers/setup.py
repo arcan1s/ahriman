@@ -144,7 +144,7 @@ class Setup(Handler):
         :param packager: packager identifier (e.g. name, email)
         :param paths: repository paths instance
         """
-        (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n")
+        (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
 
     @staticmethod
     def configuration_create_sudo(prefix: str, architecture: str) -> None:

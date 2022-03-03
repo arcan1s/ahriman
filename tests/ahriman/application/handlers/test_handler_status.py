@@ -36,8 +36,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
     Status.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
-    packages_mock.assert_called_once()
+    application_mock.assert_called_once_with()
+    packages_mock.assert_called_once_with(None)
     print_mock.assert_has_calls([mock.call(False) for _ in range(3)])
 
 
@@ -98,7 +98,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
     Status.run(args, "x86_64", configuration, True)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with(configuration)
 
 
 def test_disallow_auto_architecture_run() -> None:

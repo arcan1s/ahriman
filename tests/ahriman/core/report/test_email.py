@@ -1,3 +1,5 @@
+import pytest
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -15,8 +17,8 @@ def test_send(configuration: Configuration, mocker: MockerFixture) -> None:
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
-    smtp_mock.return_value.sendmail.assert_called_once()
-    smtp_mock.return_value.quit.assert_called_once()
+    smtp_mock.return_value.sendmail.assert_called_once_with(report.sender, report.receivers, pytest.helpers.anyvar(int))
+    smtp_mock.return_value.quit.assert_called_once_with()
 
 
 def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -29,7 +31,7 @@ def test_send_auth(configuration: Configuration, mocker: MockerFixture) -> None:
 
     report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
-    smtp_mock.return_value.login.assert_called_once()
+    smtp_mock.return_value.login.assert_called_once_with(report.user, report.password)
 
 
 def test_send_auth_no_password(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -67,8 +69,8 @@ def test_send_ssl_tls(configuration: Configuration, mocker: MockerFixture) -> No
     report._send("a text", {"attachment.html": "an attachment"})
     smtp_mock.return_value.starttls.assert_not_called()
     smtp_mock.return_value.login.assert_not_called()
-    smtp_mock.return_value.sendmail.assert_called_once()
-    smtp_mock.return_value.quit.assert_called_once()
+    smtp_mock.return_value.sendmail.assert_called_once_with(report.sender, report.receivers, pytest.helpers.anyvar(int))
+    smtp_mock.return_value.quit.assert_called_once_with()
 
 
 def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -80,7 +82,7 @@ def test_send_starttls(configuration: Configuration, mocker: MockerFixture) -> N
 
     report = Email("x86_64", configuration, "email")
     report._send("a text", {"attachment.html": "an attachment"})
-    smtp_mock.return_value.starttls.assert_called_once()
+    smtp_mock.return_value.starttls.assert_called_once_with()
 
 
 def test_generate(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -91,7 +93,7 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [])
-    send_mock.assert_called_once()
+    send_mock.assert_called_once_with(pytest.helpers.anyvar(int), {})
 
 
 def test_generate_with_built(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -102,7 +104,7 @@ def test_generate_with_built(configuration: Configuration, package_ahriman: Pack
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [package_ahriman])
-    send_mock.assert_called_once()
+    send_mock.assert_called_once_with(pytest.helpers.anyvar(int), {})
 
 
 def test_generate_with_built_and_full_path(
@@ -117,7 +119,7 @@ def test_generate_with_built_and_full_path(
     report = Email("x86_64", configuration, "email")
     report.full_template_path = report.template_path
     report.generate([package_ahriman], [package_ahriman])
-    send_mock.assert_called_once()
+    send_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 
 
 def test_generate_no_empty(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -142,4 +144,4 @@ def test_generate_no_empty_with_built(configuration: Configuration, package_ahri
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], [package_ahriman])
-    send_mock.assert_called_once()
+    send_mock.assert_called_once_with(pytest.helpers.anyvar(int), {})

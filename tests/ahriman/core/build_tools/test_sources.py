@@ -31,7 +31,7 @@ def test_diff(mocker: MockerFixture) -> None:
 
     local = Path("local")
     Sources.diff(local, Path("patch"))
-    write_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     check_output_mock.assert_called_once_with("git", "diff",
                                               exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
 
@@ -157,7 +157,7 @@ def test_patch_apply(mocker: MockerFixture) -> None:
 
     local = Path("local")
     Sources.patch_apply(local, Path("patches"))
-    glob_mock.assert_called_once()
+    glob_mock.assert_called_once_with("*.patch")
     check_output_mock.assert_has_calls([
         mock.call("git", "apply", "--ignore-space-change", "--ignore-whitespace", "01.patch",
                   exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),

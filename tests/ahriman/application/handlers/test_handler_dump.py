@@ -16,7 +16,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
                                     return_value=configuration.dump())
 
     Dump.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with()
     print_mock.assert_called()
 
 

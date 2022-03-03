@@ -1,3 +1,5 @@
+import pytest
+
 from pathlib import Path
 from pytest_mock import MockerFixture
 
@@ -71,7 +73,8 @@ def test_packages(repository: Repository, mocker: MockerFixture) -> None:
     """
     load_mock = mocker.patch("ahriman.core.repository.repository.Repository.load_archives")
     repository.packages()
-    load_mock.assert_called_once()  # it uses filter object so we cannot verity argument list =/
+    # it uses filter object, so we cannot verify argument list =/
+    load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_packages_built(repository: Repository, mocker: MockerFixture) -> None:

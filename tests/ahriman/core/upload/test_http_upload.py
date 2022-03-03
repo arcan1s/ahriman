@@ -51,7 +51,7 @@ def test_request(github: Github, mocker: MockerFixture) -> None:
 
     github._request("GET", "url", arg="arg")
     request_mock.assert_called_once_with("GET", "url", auth=github.auth, arg="arg")
-    response_mock.raise_for_status.assert_called_once()
+    response_mock.raise_for_status.assert_called_once_with()
 
 
 def test_request_exception(github: Github, mocker: MockerFixture) -> None:

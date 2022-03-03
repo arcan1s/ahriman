@@ -42,12 +42,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
-    get_auth_configuration_mock.assert_called_once()
-    create_configuration_mock.assert_called_once()
-    create_user_mock.assert_called_once()
-    get_salt_mock.assert_called_once()
-    write_configuration_mock.assert_called_once()
-    reload_mock.assert_called_once()
+    get_auth_configuration_mock.assert_called_once_with(configuration.include)
+    create_configuration_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), args.as_service)
+    create_user_mock.assert_called_once_with(args)
+    get_salt_mock.assert_called_once_with(configuration)
+    write_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.secure)
+    reload_mock.assert_called_once_with()
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -63,10 +64,10 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
     User.run(args, "x86_64", configuration, True)
-    get_auth_configuration_mock.assert_called_once()
+    get_auth_configuration_mock.assert_called_once_with(configuration.include)
     create_configuration_mock.assert_not_called()
-    write_configuration_mock.assert_called_once()
-    reload_mock.assert_called_once()
+    write_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.secure)
+    reload_mock.assert_called_once_with()
 
 
 def test_run_no_reload(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -94,8 +95,8 @@ def test_configuration_create(configuration: Configuration, user: MUser, mocker:
 
     User.configuration_create(configuration, user, "salt", False)
     set_mock.assert_has_calls([
-        mock.call("auth", "salt", pytest.helpers.anyvar(str)),
-        mock.call(section, user.username, pytest.helpers.anyvar(str))
+        mock.call("auth", "salt", pytest.helpers.anyvar(int)),
+        mock.call(section, user.username, pytest.helpers.anyvar(int))
     ])
 
 
@@ -139,7 +140,7 @@ def test_configuration_get_exists(mocker: MockerFixture) -> None:
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
     assert User.configuration_get(Path("path"))
-    read_mock.assert_called_once()
+    read_mock.assert_called_once_with(Path("path") / "auth.ini")
 
 
 def test_configuration_get_not_exists(mocker: MockerFixture) -> None:
@@ -151,7 +152,7 @@ def test_configuration_get_not_exists(mocker: MockerFixture) -> None:
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
     assert User.configuration_get(Path("path"))
-    read_mock.assert_called_once()
+    read_mock.assert_called_once_with(Path("path") / "auth.ini")
 
 
 def test_configuration_write(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -163,8 +164,8 @@ def test_configuration_write(configuration: Configuration, mocker: MockerFixture
     chmod_mock = mocker.patch("pathlib.Path.chmod")
 
     User.configuration_write(configuration, secure=True)
-    write_mock.assert_called_once()
-    chmod_mock.assert_called_once()
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+    chmod_mock.assert_called_once_with(0o600)
 
 
 def test_configuration_write_insecure(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -256,7 +257,7 @@ def test_user_create_getpass(args: argparse.Namespace, mocker: MockerFixture) ->
     getpass_mock = mocker.patch("getpass.getpass", return_value="password")
     generated = User.user_create(args)
 
-    getpass_mock.assert_called_once()
+    getpass_mock.assert_called_once_with()
     assert generated.password == "password"
 
 

@@ -33,7 +33,8 @@ def test_add_archive(application_packages: Packages, package_ahriman: Package, m
     """
     copy_mock = mocker.patch("shutil.copy")
     application_packages._add_archive(package_ahriman.base)
-    copy_mock.assert_called_once()
+    copy_mock.assert_called_once_with(
+        Path(package_ahriman.base), application_packages.repository.paths.packages / package_ahriman.base)
 
 
 def test_add_aur(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -45,8 +46,12 @@ def test_add_aur(application_packages: Packages, package_ahriman: Package, mocke
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
 
     application_packages._add_aur(package_ahriman.base, set(), False)
-    load_mock.assert_called_once()
-    dependencies_mock.assert_called_once()
+    load_mock.assert_called_once_with(
+        application_packages.repository.paths.manual_for(package_ahriman.base),
+        package_ahriman.git_url,
+        application_packages.repository.paths.patches_for(package_ahriman.base))
+    dependencies_mock.assert_called_once_with(
+        application_packages.repository.paths.manual_for(package_ahriman.base), set(), False)
 
 
 def test_add_directory(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -56,10 +61,11 @@ def test_add_directory(application_packages: Packages, package_ahriman: Package,
     iterdir_mock = mocker.patch("pathlib.Path.iterdir",
                                 return_value=[package.filepath for package in package_ahriman.packages.values()])
     copy_mock = mocker.patch("shutil.copy")
+    filename = package_ahriman.packages[package_ahriman.base].filepath
 
     application_packages._add_directory(package_ahriman.base)
-    iterdir_mock.assert_called_once()
-    copy_mock.assert_called_once()
+    iterdir_mock.assert_called_once_with()
+    copy_mock.assert_called_once_with(filename, application_packages.repository.paths.packages / filename.name)
 
 
 def test_add_local(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -72,13 +78,14 @@ def test_add_local(application_packages: Packages, package_ahriman: Package, moc
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
 
     application_packages._add_local(package_ahriman.base, set(), False)
-    init_mock.assert_called_once()
+    init_mock.assert_called_once_with(application_packages.repository.paths.cache_for(package_ahriman.base))
     copytree_mock.assert_has_calls([
         mock.call(Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base)),
         mock.call(application_packages.repository.paths.cache_for(package_ahriman.base),
                   application_packages.repository.paths.manual_for(package_ahriman.base)),
     ])
-    dependencies_mock.assert_called_once()
+    dependencies_mock.assert_called_once_with(
+        application_packages.repository.paths.manual_for(package_ahriman.base), set(), False)
 
 
 def test_add_remote(application_packages: Packages, package_description_ahriman: PackageDescription,
@@ -95,7 +102,7 @@ def test_add_remote(application_packages: Packages, package_description_ahriman:
     application_packages._add_remote(url)
     open_mock.assert_called_once_with("wb")
     request_mock.assert_called_once_with(url, stream=True)
-    response_mock.raise_for_status.assert_called_once()
+    response_mock.raise_for_status.assert_called_once_with()
 
 
 def test_process_dependencies(application_packages: Packages, mocker: MockerFixture) -> None:
@@ -146,7 +153,7 @@ def test_add_add_archive(application_packages: Packages, package_ahriman: Packag
     add_mock = mocker.patch("ahriman.application.application.packages.Packages._add_archive")
 
     application_packages.add([package_ahriman.base], PackageSource.Archive, False)
-    add_mock.assert_called_once()
+    add_mock.assert_called_once_with(package_ahriman.base, set(), False)
 
 
 def test_add_add_aur(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -157,7 +164,7 @@ def test_add_add_aur(application_packages: Packages, package_ahriman: Package, m
     add_mock = mocker.patch("ahriman.application.application.packages.Packages._add_aur")
 
     application_packages.add([package_ahriman.base], PackageSource.AUR, True)
-    add_mock.assert_called_once()
+    add_mock.assert_called_once_with(package_ahriman.base, set(), True)
 
 
 def test_add_add_directory(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -168,7 +175,7 @@ def test_add_add_directory(application_packages: Packages, package_ahriman: Pack
     add_mock = mocker.patch("ahriman.application.application.packages.Packages._add_directory")
 
     application_packages.add([package_ahriman.base], PackageSource.Directory, False)
-    add_mock.assert_called_once()
+    add_mock.assert_called_once_with(package_ahriman.base, set(), False)
 
 
 def test_add_add_local(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -179,7 +186,7 @@ def test_add_add_local(application_packages: Packages, package_ahriman: Package,
     add_mock = mocker.patch("ahriman.application.application.packages.Packages._add_local")
 
     application_packages.add([package_ahriman.base], PackageSource.Local, False)
-    add_mock.assert_called_once()
+    add_mock.assert_called_once_with(package_ahriman.base, set(), False)
 
 
 def test_add_add_remote(application_packages: Packages, package_description_ahriman: PackageDescription,
@@ -192,7 +199,7 @@ def test_add_add_remote(application_packages: Packages, package_description_ahri
     url = f"https://host/{package_description_ahriman.filename}"
 
     application_packages.add([url], PackageSource.Remote, False)
-    add_mock.assert_called_once()
+    add_mock.assert_called_once_with(url, set(), False)
 
 
 def test_remove(application_packages: Packages, mocker: MockerFixture) -> None:
@@ -203,5 +210,5 @@ def test_remove(application_packages: Packages, mocker: MockerFixture) -> None:
     finalize_mock = mocker.patch("ahriman.application.application.packages.Packages._finalize")
 
     application_packages.remove([])
-    executor_mock.assert_called_once()
-    finalize_mock.assert_called_once()
+    executor_mock.assert_called_once_with([])
+    finalize_mock.assert_called_once_with([])

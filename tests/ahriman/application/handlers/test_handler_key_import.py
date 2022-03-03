@@ -26,7 +26,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_import")
 
     KeyImport.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with(args.key_server, args.key)
 
 
 def test_disallow_auto_architecture_run() -> None:

@@ -30,7 +30,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     update_self_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
 
     StatusUpdate.run(args, "x86_64", configuration, True)
-    update_self_mock.assert_called_once()
+    update_self_mock.assert_called_once_with(args.status)
 
 
 def test_run_packages(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
@@ -44,7 +44,7 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, pa
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
 
     StatusUpdate.run(args, "x86_64", configuration, True)
-    update_mock.assert_called_once()
+    update_mock.assert_called_once_with(package_ahriman.base, args.status)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
@@ -59,7 +59,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, pack
     update_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
     StatusUpdate.run(args, "x86_64", configuration, True)
-    update_mock.assert_called_once()
+    update_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -71,7 +71,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
     StatusUpdate.run(args, "x86_64", configuration, True)
-    load_mock.assert_called_once()
+    load_mock.assert_called_once_with(configuration)
 
 
 def test_disallow_auto_architecture_run() -> None:

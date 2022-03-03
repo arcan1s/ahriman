@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
@@ -32,7 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
     Patch.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, args.track)
 
 
 def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -45,7 +46,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_list")
 
     Patch.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -58,7 +59,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
 
     Patch.run(args, "x86_64", configuration, True)
-    application_mock.assert_called_once()
+    application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package)
 
 
 def test_patch_set_list(application: Application, mocker: MockerFixture) -> None:

@@ -10,4 +10,4 @@ def test_sync(rsync: Rsync, mocker: MockerFixture) -> None:
     """
     check_output_mock = mocker.patch("ahriman.core.upload.rsync.Rsync._check_output")
     rsync.sync(Path("path"), [])
-    check_output_mock.assert_called_once()
+    check_output_mock.assert_called_once_with(*rsync.command, "path", rsync.remote, exception=None, logger=rsync.logger)
