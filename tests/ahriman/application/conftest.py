@@ -18,7 +18,7 @@ def application(configuration: Configuration, mocker: MockerFixture) -> Applicat
     :return: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Application("x86_64", configuration, no_report=True)
+    return Application("x86_64", configuration, no_report=True, unsafe=False)
 
 
 @pytest.fixture

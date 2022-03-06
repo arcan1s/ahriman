@@ -58,7 +58,7 @@ def test_check_user(mocker: MockerFixture) -> None:
     """
     cwd = Path.cwd()
     mocker.patch("os.getuid", return_value=cwd.stat().st_uid)
-    check_user(cwd)
+    check_user(cwd, False)
 
 
 def test_check_user_no_directory(mocker: MockerFixture) -> None:
@@ -66,7 +66,7 @@ def test_check_user_no_directory(mocker: MockerFixture) -> None:
     must not fail in case if no directory found
     """
     mocker.patch("pathlib.Path.exists", return_value=False)
-    check_user(Path.cwd())
+    check_user(Path.cwd(), False)
 
 
 def test_check_user_exception(mocker: MockerFixture) -> None:
@@ -77,7 +77,16 @@ def test_check_user_exception(mocker: MockerFixture) -> None:
     mocker.patch("os.getuid", return_value=cwd.stat().st_uid + 1)
 
     with pytest.raises(UnsafeRun):
-        check_user(cwd)
+        check_user(cwd, False)
+
+
+def test_check_unsafe(mocker: MockerFixture) -> None:
+    """
+    must skip check if unsafe flag is set
+    """
+    cwd = Path.cwd()
+    mocker.patch("os.getuid", return_value=cwd.stat().st_uid + 1)
+    check_user(cwd, True)
 
 
 def test_filter_json(package_ahriman: Package) -> None:

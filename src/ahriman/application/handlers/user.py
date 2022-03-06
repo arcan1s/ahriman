@@ -40,13 +40,14 @@ class User(Handler):
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
         salt = User.get_salt(configuration)
         user = User.user_create(args)
@@ -58,7 +59,7 @@ class User(Handler):
         User.configuration_write(auth_configuration, args.secure)
 
         if not args.no_reload:
-            client = Application(architecture, configuration, no_report=False).repository.reporter
+            client = Application(architecture, configuration, no_report=False, unsafe=unsafe).repository.reporter
             client.reload_auth()
 
     @staticmethod

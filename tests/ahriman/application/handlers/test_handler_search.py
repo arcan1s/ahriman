@@ -31,7 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     search_mock = mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
-    Search.run(args, "x86_64", configuration, True)
+    Search.run(args, "x86_64", configuration, True, False)
     search_mock.assert_called_once_with("ahriman")
     print_mock.assert_called_once_with(False)
 
@@ -45,7 +45,7 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
-    Search.run(args, "x86_64", configuration, True)
+    Search.run(args, "x86_64", configuration, True, False)
     sort_mock.assert_called_once_with([aur_package_ahriman], "name")
 
 
@@ -59,7 +59,7 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
-    Search.run(args, "x86_64", configuration, True)
+    Search.run(args, "x86_64", configuration, True, False)
     sort_mock.assert_called_once_with([aur_package_ahriman], "field")
 
 

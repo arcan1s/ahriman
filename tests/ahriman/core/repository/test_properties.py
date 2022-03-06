@@ -12,7 +12,7 @@ def test_create_tree_on_load(configuration: Configuration, mocker: MockerFixture
     """
     mocker.patch("ahriman.core.repository.properties.check_user")
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    Properties("x86_64", configuration, True)
+    Properties("x86_64", configuration, True, False)
 
     tree_create_mock.assert_called_once_with()
 
@@ -23,7 +23,7 @@ def test_create_tree_on_load_unsafe(configuration: Configuration, mocker: Mocker
     """
     mocker.patch("ahriman.core.repository.properties.check_user", side_effect=UnsafeRun(0, 1))
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    Properties("x86_64", configuration, True)
+    Properties("x86_64", configuration, True, False)
 
     tree_create_mock.assert_not_called()
 
@@ -34,7 +34,7 @@ def test_create_dummy_report_client(configuration: Configuration, mocker: Mocker
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
-    properties = Properties("x86_64", configuration, True)
+    properties = Properties("x86_64", configuration, True, False)
 
     load_mock.assert_not_called()
     assert not isinstance(properties.reporter, WebClient)
@@ -46,6 +46,6 @@ def test_create_full_report_client(configuration: Configuration, mocker: MockerF
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
-    Properties("x86_64", configuration, False)
+    Properties("x86_64", configuration, False, False)
 
     load_mock.assert_called_once_with(configuration)

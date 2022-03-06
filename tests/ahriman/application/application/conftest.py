@@ -17,7 +17,7 @@ def application_packages(configuration: Configuration, mocker: MockerFixture) ->
     :return: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Packages("x86_64", configuration, no_report=True)
+    return Packages("x86_64", configuration, no_report=True, unsafe=False)
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def application_properties(configuration: Configuration, mocker: MockerFixture) 
     :return: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Properties("x86_64", configuration, no_report=True)
+    return Properties("x86_64", configuration, no_report=True, unsafe=False)
 
 
 @pytest.fixture
@@ -41,4 +41,4 @@ def application_repository(configuration: Configuration, mocker: MockerFixture) 
     :return: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Repository("x86_64", configuration, no_report=True)
+    return Repository("x86_64", configuration, no_report=True, unsafe=False)

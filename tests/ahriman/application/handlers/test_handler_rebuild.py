@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
-    Rebuild.run(args, "x86_64", configuration, True)
+    Rebuild.run(args, "x86_64", configuration, True, False)
     application_packages_mock.assert_called_once_with(None)
     application_mock.assert_called_once_with([package_ahriman])
 
@@ -45,7 +45,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
 
-    Rebuild.run(args, "x86_64", configuration, True)
+    Rebuild.run(args, "x86_64", configuration, True, False)
     application_mock.assert_not_called()
 
 
@@ -59,7 +59,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, mock
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on")
 
-    Rebuild.run(args, "x86_64", configuration, True)
+    Rebuild.run(args, "x86_64", configuration, True, False)
     application_packages_mock.assert_called_once_with({"python-aur"})
 
 
@@ -72,5 +72,5 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on")
 
-    Rebuild.run(args, "x86_64", configuration, True)
+    Rebuild.run(args, "x86_64", configuration, True, False)
     application_packages_mock.assert_called_once_with(None)

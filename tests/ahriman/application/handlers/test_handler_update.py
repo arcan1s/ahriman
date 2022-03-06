@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
 
-    Update.run(args, "x86_64", configuration, True)
+    Update.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with([package_ahriman])
     updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                          pytest.helpers.anyvar(int))
@@ -49,7 +49,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
-    Update.run(args, "x86_64", configuration, True)
+    Update.run(args, "x86_64", configuration, True, False)
     updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                          pytest.helpers.anyvar(int))
 

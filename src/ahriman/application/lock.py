@@ -103,9 +103,7 @@ class Lock:
         """
         check if current user is actually owner of ahriman root
         """
-        if self.unsafe:
-            return
-        check_user(self.root)
+        check_user(self.root, self.unsafe)
 
     def clear(self) -> None:
         """
