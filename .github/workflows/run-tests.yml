@@ -13,6 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: run check and tests in arch linux container
         run: |
           docker run \
