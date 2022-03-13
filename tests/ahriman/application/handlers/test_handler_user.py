@@ -41,7 +41,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     get_salt_mock = mocker.patch("ahriman.application.handlers.User.get_salt")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
-    User.run(args, "x86_64", configuration, True)
+    User.run(args, "x86_64", configuration, True, False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
     create_configuration_mock.assert_called_once_with(
         pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), args.as_service)
@@ -63,7 +63,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
-    User.run(args, "x86_64", configuration, True)
+    User.run(args, "x86_64", configuration, True, False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
     create_configuration_mock.assert_not_called()
     write_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.secure)
@@ -81,7 +81,7 @@ def test_run_no_reload(args: argparse.Namespace, configuration: Configuration, m
     mocker.patch("ahriman.application.handlers.User.configuration_write")
     reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
 
-    User.run(args, "x86_64", configuration, True)
+    User.run(args, "x86_64", configuration, True, False)
     reload_mock.assert_not_called()
 
 

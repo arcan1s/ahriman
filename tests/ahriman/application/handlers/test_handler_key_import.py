@@ -25,7 +25,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_import")
 
-    KeyImport.run(args, "x86_64", configuration, True)
+    KeyImport.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with(args.key_server, args.key)
 
 

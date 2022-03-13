@@ -15,7 +15,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
                                     return_value=configuration.dump())
 
-    Dump.run(args, "x86_64", configuration, True)
+    Dump.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with()
     print_mock.assert_called()
 

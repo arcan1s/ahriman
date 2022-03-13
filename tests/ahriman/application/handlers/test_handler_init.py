@@ -14,7 +14,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
-    Init.run(args, "x86_64", configuration, True)
+    Init.run(args, "x86_64", configuration, True, False)
     tree_create_mock.assert_called_once_with()
     init_mock.assert_called_once_with()
 

@@ -32,7 +32,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
-    Patch.run(args, "x86_64", configuration, True)
+    Patch.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, args.track)
 
 
@@ -45,7 +45,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_list")
 
-    Patch.run(args, "x86_64", configuration, True)
+    Patch.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package)
 
 
@@ -58,7 +58,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, mock
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
 
-    Patch.run(args, "x86_64", configuration, True)
+    Patch.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package)
 
 

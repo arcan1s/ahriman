@@ -45,12 +45,13 @@ class Properties:
     :ivar sign: GPG wrapper instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, no_report: bool) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
@@ -61,7 +62,7 @@ class Properties:
 
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         try:
-            check_user(self.paths.root)
+            check_user(self.paths.root, unsafe)
             self.paths.tree_create()
         except UnsafeRun:
             self.logger.warning("root owner differs from the current user, skipping tree creation")

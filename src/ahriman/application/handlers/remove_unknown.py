@@ -34,15 +34,16 @@ class RemoveUnknown(Handler):
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report)
+        application = Application(architecture, configuration, no_report, unsafe)
         unknown_packages = application.unknown()
         if args.dry_run:
             for package in sorted(unknown_packages):

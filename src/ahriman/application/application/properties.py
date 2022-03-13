@@ -32,14 +32,15 @@ class Properties:
     :ivar repository: repository instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, no_report: bool) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.configuration = configuration
         self.architecture = architecture
-        self.repository = Repository(architecture, configuration, no_report)
+        self.repository = Repository(architecture, configuration, no_report, unsafe)

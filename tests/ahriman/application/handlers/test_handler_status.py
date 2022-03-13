@@ -35,7 +35,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True)
+    Status.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
     print_mock.assert_has_calls([mock.call(False) for _ in range(3)])
@@ -53,7 +53,7 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, pac
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True)
+    Status.run(args, "x86_64", configuration, True, False)
     print_mock.assert_has_calls([mock.call(True) for _ in range(2)])
 
 
@@ -68,7 +68,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
-    Status.run(args, "x86_64", configuration, True)
+    Status.run(args, "x86_64", configuration, True, False)
     packages_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -85,7 +85,7 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True)
+    Status.run(args, "x86_64", configuration, True, False)
     print_mock.assert_has_calls([mock.call(False) for _ in range(2)])
 
 
@@ -97,7 +97,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
-    Status.run(args, "x86_64", configuration, True)
+    Status.run(args, "x86_64", configuration, True, False)
     load_mock.assert_called_once_with(configuration)
 
 

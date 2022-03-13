@@ -33,15 +33,16 @@ class Update(Handler):
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report)
+        application = Application(architecture, configuration, no_report, unsafe)
         packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                        Update.log_fn(application, args.dry_run))
         if args.dry_run:

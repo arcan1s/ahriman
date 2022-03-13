@@ -35,12 +35,14 @@ class KeyImport(Handler):
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report).repository.sign.key_import(args.key_server, args.key)
+        Application(architecture, configuration, no_report, unsafe).repository.sign.key_import(
+            args.key_server, args.key)

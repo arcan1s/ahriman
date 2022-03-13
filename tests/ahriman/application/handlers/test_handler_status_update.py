@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     update_self_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
 
-    StatusUpdate.run(args, "x86_64", configuration, True)
+    StatusUpdate.run(args, "x86_64", configuration, True, False)
     update_self_mock.assert_called_once_with(args.status)
 
 
@@ -43,7 +43,7 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, pa
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     update_mock = mocker.patch("ahriman.core.status.client.Client.update")
 
-    StatusUpdate.run(args, "x86_64", configuration, True)
+    StatusUpdate.run(args, "x86_64", configuration, True, False)
     update_mock.assert_called_once_with(package_ahriman.base, args.status)
 
 
@@ -58,7 +58,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, pack
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     update_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
-    StatusUpdate.run(args, "x86_64", configuration, True)
+    StatusUpdate.run(args, "x86_64", configuration, True, False)
     update_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -70,7 +70,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
-    StatusUpdate.run(args, "x86_64", configuration, True)
+    StatusUpdate.run(args, "x86_64", configuration, True, False)
     load_mock.assert_called_once_with(configuration)
 
 

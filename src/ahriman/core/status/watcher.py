@@ -49,7 +49,7 @@ class Watcher:
         self.logger = logging.getLogger("http")
 
         self.architecture = architecture
-        self.repository = Repository(architecture, configuration, no_report=True)
+        self.repository = Repository(architecture, configuration, no_report=True, unsafe=False)
 
         self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()

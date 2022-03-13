@@ -35,6 +35,7 @@ from ahriman.application.handlers.sign import Sign
 from ahriman.application.handlers.status import Status
 from ahriman.application.handlers.status_update import StatusUpdate
 from ahriman.application.handlers.sync import Sync
+from ahriman.application.handlers.unsafe_commands import UnsafeCommands
 from ahriman.application.handlers.update import Update
 from ahriman.application.handlers.user import User
 from ahriman.application.handlers.web import Web
