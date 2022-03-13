@@ -55,13 +55,16 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
         raise exception or e
 
 
-def check_user(root: Path) -> None:
+def check_user(root: Path, unsafe: bool) -> None:
     """
     check if current user is the owner of the root
     :param root: root directory (i.e. ahriman home)
+    :param unsafe: if set no user check will be performed before path creation
     """
     if not root.exists():
         return  # no directory found, skip check
+    if unsafe:
+        return  # unsafe flag is enabled, no check performed
     current_uid = os.getuid()
     root_uid = root.stat().st_uid
     if current_uid != root_uid:

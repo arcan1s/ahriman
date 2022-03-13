@@ -76,7 +76,7 @@ class Handler:
         try:
             configuration = Configuration.from_path(args.configuration, architecture, args.quiet)
             with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration, args.no_report)
+                cls.run(args, architecture, configuration, args.no_report, args.unsafe)
             return True
         except Exception:
             # we are basically always want to print error to stderr instead of default logger
@@ -107,12 +107,13 @@ class Handler:
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
         raise NotImplementedError

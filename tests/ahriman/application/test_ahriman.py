@@ -65,6 +65,27 @@ def test_subparsers_aur_search_architecture(parser: argparse.ArgumentParser) -> 
     assert args.architecture == [""]
 
 
+def test_subparsers_help_commands_unsafe(parser: argparse.ArgumentParser) -> None:
+    """
+    help-commands-unsafe command must imply architecture list, lock, no-report, quiet, unsafe and parser
+    """
+    args = parser.parse_args(["help-commands-unsafe"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.quiet
+    assert args.unsafe
+    assert args.parser is not None and args.parser()
+
+
+def test_subparsers_help_commands_unsafe_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    help-ommands-unsafe command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "help-commands-unsafe"])
+    assert args.architecture == [""]
+
+
 def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
     """
     key-import command must imply architecture list, lock and no-report

@@ -19,17 +19,16 @@
 #
 import argparse
 
-from typing import Type
+from typing import List, Type
 
-from ahriman.application.application import Application
-from ahriman.application.formatters.update_printer import UpdatePrinter
+from ahriman.application.formatters.string_printer import StringPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 
 
-class Rebuild(Handler):
+class UnsafeCommands(Handler):
     """
-    make world handler
+    unsafe command help parser
     """
 
     @classmethod
@@ -43,13 +42,17 @@ class Rebuild(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
-        depends_on = set(args.depends_on) if args.depends_on else None
+        unsafe_commands = UnsafeCommands.get_unsafe_commands(args.parser())
+        for command in unsafe_commands:
+            StringPrinter(command).print(verbose=True)
 
-        application = Application(architecture, configuration, no_report, unsafe)
-        updates = application.repository.packages_depends_on(depends_on)
-        if args.dry_run:
-            for package in updates:
-                UpdatePrinter(package, package.version).print(verbose=True)
-            return
-
-        application.update(updates)
+    @staticmethod
+    def get_unsafe_commands(parser: argparse.ArgumentParser) -> List[str]:
+        """
+        extract unsafe commands from argument parser
+        :param parser: generated argument parser
+        :return: list of commands with default unsafe flag
+        """
+        # pylint: disable=protected-access
+        subparser = next(action for action in parser._actions if isinstance(action, argparse._SubParsersAction))
+        return [action_name for action_name, action in subparser.choices.items() if action.get_default("unsafe")]

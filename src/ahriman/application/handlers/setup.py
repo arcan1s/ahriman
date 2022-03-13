@@ -46,15 +46,16 @@ class Setup(Handler):
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool) -> None:
+            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
         :param args: command line args
         :param architecture: repository architecture
         :param configuration: configuration instance
         :param no_report: force disable reporting
+        :param unsafe: if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report)
+        application = Application(architecture, configuration, no_report, unsafe)
         Setup.configuration_create_makepkg(args.packager, application.repository.paths)
         Setup.executable_create(args.build_command, architecture)
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
@@ -87,6 +88,8 @@ class Setup(Handler):
         section = Configuration.section_name("build", architecture)
         configuration.set_option(section, "build_command", str(Setup.build_command(args.build_command, architecture)))
         configuration.set_option("repository", "name", repository)
+        if args.build_as_user is not None:
+            configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
 
         if args.sign_key is not None:
             section = Configuration.section_name("sign", architecture)

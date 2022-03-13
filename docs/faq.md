@@ -198,6 +198,66 @@ server {
 }
 ```
 
+## Docker image
+
+We provide official images which can be found under `arcan1s/ahriman` repository. Docker image is being updated on each master commit as well as on each version. If you would like to use last (probably unstable build) you can use `latest` tag; otherwise you can use any version tag available. 
+
+The default action (in case if no arguments provided) is `repo-update`. Basically the idea is to run container, e.g.:
+
+```shell
+docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+```
+
+`--privileged` flag is required to make mount possible inside container. In addition, you can pass own configuration overrides by using the same `-v` flag, e.g.:
+
+```shell
+docker run -v /path/to/local/repo:/var/lib/ahriman -v /etc/ahriman.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
+```
+
+By default, it runs `repo-update`, but it can be overwritten to any other command you would like to, e.g.:
+
+```shell
+docker run arcan1s/ahriman:latest package-add ahriman --now
+```
+
+For more details please refer to docker FAQ.
+
+### Environment variables
+
+The following environment variables are supported:
+
+* `AHRIMAN_ARCHITECTURE` - architecture of the repository, default is `x86_64`.
+* `AHRIMAN_DEBUG` - if set all commands will be logged to console.
+* `AHRIMAN_FORCE_ROOT` - force run ahriman as root instead of guessing by subcommand.
+* `AHRIMAN_OUTPUT` - controls logging handler, e.g. `syslog`, `console`. The name must be found in logging configuration. Note that if `syslog` (the default) handler is used you will need to mount `/dev/log` inside container because it is not available there.
+* `AHRIMAN_PACKAGER` - packager name from which packages will be built, default is `ahriman bot <ahriman@example.com>`.
+* `AHRIMAN_PORT` - HTTP server port if any, default is empty.
+* `AHRIMAN_REPOSITORY` - repository name, default is `aur-clone`.
+* `AHRIMAN_REPOSITORY_ROOT` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses `ahriman` directory inside ahriman's home, which can be passed as mount volume.
+* `AHRIMAN_USER` - ahriman user, usually must not be overwritten, default is `ahriman`. 
+
+You can pass any of these variables by using `-e` argument, e.g.:
+
+```shell
+docker run -e AHRIMAN_PORT=8080 arcan1s/ahriman:latest
+```
+
+### Working with web service
+
+Well for that you would need to have web container instance running forever; it can be achieved by the following command:
+
+```shell
+docker run -p 8080:8080 -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+```
+
+Note about `AHRIMAN_PORT` environment variable which is required in order to enable web service. An additional port bind by `-p 8080:8080` is required to pass docker port outside of container.
+
+For every next container run use arguments `-e AHRIMAN_PORT=8080 --net=host`, e.g.:
+
+```shell
+docker run --privileged -e AHRIMAN_PORT=8080 --net=host -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+```
+
 ## Remote synchronization
 
 ### Wait I would like to use the repository from another server

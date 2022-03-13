@@ -17,6 +17,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :param args: command line arguments fixture
     :return: generated arguments for these test cases
     """
+    args.build_as_user = "ahriman"
     args.build_command = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
     args.no_multilib = False
@@ -41,7 +42,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     paths = RepositoryPaths(configuration.getpath("repository", "root"), "x86_64")
 
-    Setup.run(args, "x86_64", configuration, True)
+    Setup.run(args, "x86_64", configuration, True, False)
     ahriman_configuration_mock.assert_called_once_with(args, "x86_64", args.repository, configuration.include)
     devtools_configuration_mock.assert_called_once_with(args.build_command, "x86_64", args.from_configuration,
                                                         args.no_multilib, args.repository, paths)
@@ -73,6 +74,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
     set_option_mock.assert_has_calls([
         mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         mock.call("repository", "name", args.repository),
+        mock.call(Configuration.section_name("build", "x86_64"), "makechrootpkg_flags", f"-U {args.build_as_user}"),
         mock.call(Configuration.section_name("sign", "x86_64"), "target",
                   " ".join([target.name.lower() for target in args.sign_target])),
         mock.call(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),

@@ -72,6 +72,7 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     _set_aur_search_parser(subparsers)
+    _set_help_commands_unsafe(subparsers)
     _set_key_import_parser(subparsers)
     _set_package_add_parser(subparsers)
     _set_package_remove_parser(subparsers)
@@ -115,6 +116,19 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                           "the specified field, they will be always sorted by name",
                         default="name", choices=sorted(handlers.Search.SORT_FIELDS))
     parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, no_report=True, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_help_commands_unsafe(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for listing unsafe commands
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
+                             description="list unsafe commands as defined in default args", formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.UnsafeCommands, architecture=[""], lock=None, no_report=True, quiet=True,
+                        unsafe=True, parser=_parser)
     return parser
 
 
@@ -396,6 +410,7 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="create initial service configuration, requires root",
                              epilog="Create _minimal_ configuration for the service according to provided options.",
                              formatter_class=_formatter)
+    parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
