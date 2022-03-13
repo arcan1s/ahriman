@@ -37,7 +37,7 @@ COPY --chown=build . "/home/build/ahriman"
 ## create package archive and install it
 RUN cd /home/build/ahriman && \
     make VERSION="$(git describe --tags --abbrev=0)" archlinux && \
-    cp *-src.tar.xz package/archlinux && \
+    cp ./*-src.tar.xz package/archlinux && \
     cd package/archlinux && \
     runuser -u build -- makepkg --noconfirm --install --skipchecksums && \
     cd - && rm -r /home/build/ahriman
