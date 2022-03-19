@@ -21,9 +21,9 @@ import argparse
 
 from typing import List, Type
 
-from ahriman.application.formatters.string_printer import StringPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.formatters.string_printer import StringPrinter
 
 
 class UnsafeCommands(Handler):

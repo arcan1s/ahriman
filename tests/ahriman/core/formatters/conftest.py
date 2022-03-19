@@ -1,11 +1,11 @@
 import pytest
 
-from ahriman.application.formatters.aur_printer import AurPrinter
-from ahriman.application.formatters.configuration_printer import ConfigurationPrinter
-from ahriman.application.formatters.package_printer import PackagePrinter
-from ahriman.application.formatters.status_printer import StatusPrinter
-from ahriman.application.formatters.string_printer import StringPrinter
-from ahriman.application.formatters.update_printer import UpdatePrinter
+from ahriman.core.formatters.aur_printer import AurPrinter
+from ahriman.core.formatters.configuration_printer import ConfigurationPrinter
+from ahriman.core.formatters.package_printer import PackagePrinter
+from ahriman.core.formatters.status_printer import StatusPrinter
+from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters.update_printer import UpdatePrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package

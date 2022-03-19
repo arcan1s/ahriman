@@ -1,4 +1,4 @@
-from ahriman.application.formatters.package_printer import PackagePrinter
+from ahriman.core.formatters.package_printer import PackagePrinter
 
 
 def test_properties(package_ahriman_printer: PackagePrinter) -> None:

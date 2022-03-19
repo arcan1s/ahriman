@@ -17,13 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Optional
-
-from ahriman.application.formatters.printer import Printer
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.build_status import BuildStatus
 
 
-class StatusPrinter(Printer):
+class StatusPrinter(StringPrinter):
     """
     print content of the status object
     """
@@ -33,11 +31,4 @@ class StatusPrinter(Printer):
         default constructor
         :param status: build status
         """
-        self.content = status
-
-    def title(self) -> Optional[str]:
-        """
-        generate entry title from content
-        :return: content title if it can be generated and None otherwise
-        """
-        return self.content.pretty_print()
+        StringPrinter.__init__(self, status.pretty_print())

@@ -27,6 +27,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportFailed
 from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
+from ahriman.models.result import Result
 
 
 class Report:
@@ -64,23 +65,26 @@ class Report:
         if provider == ReportSettings.Email:
             from ahriman.core.report.email import Email
             return Email(architecture, configuration, section)
+        if provider == ReportSettings.Console:
+            from ahriman.core.report.console import Console
+            return Console(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 
-    def generate(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
+    def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
         :param packages: list of packages to generate report
-        :param built_packages: list of packages which has just been built
+        :param result: build result
         """
 
-    def run(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
+    def run(self, packages: Iterable[Package], result: Result) -> None:
         """
         run report generation
         :param packages: list of packages to generate report
-        :param built_packages: list of packages which has just been built
+        :param result: build result
         """
         try:
-            self.generate(packages, built_packages)
+            self.generate(packages, result)
         except Exception:
             self.logger.exception("report generation failed")
             raise ReportFailed()

@@ -17,17 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List, Optional
+from typing import List
 
-from ahriman.application.formatters.printer import Printer
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.core.util import pretty_datetime
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.property import Property
 
 
-class AurPrinter(Printer):
+class AurPrinter(StringPrinter):
     """
     print content of the AUR package
+    :ivar package: AUR package description
     """
 
     def __init__(self, package: AURPackage) -> None:
@@ -35,7 +36,8 @@ class AurPrinter(Printer):
         default constructor
         :param package: AUR package description
         """
-        self.content = package
+        StringPrinter.__init__(self, f"{package.name} {package.version} ({package.num_votes})")
+        self.package = package
 
     def properties(self) -> List[Property]:
         """
@@ -43,19 +45,12 @@ class AurPrinter(Printer):
         :return: list of content properties
         """
         return [
-            Property("Package base", self.content.package_base),
-            Property("Description", self.content.description, is_required=True),
-            Property("Upstream URL", self.content.url or ""),
-            Property("Licenses", ",".join(self.content.license)),
-            Property("Maintainer", self.content.maintainer or ""),
-            Property("First submitted", pretty_datetime(self.content.first_submitted)),
-            Property("Last updated", pretty_datetime(self.content.last_modified)),
-            Property("Keywords", ",".join(self.content.keywords)),
+            Property("Package base", self.package.package_base),
+            Property("Description", self.package.description, is_required=True),
+            Property("Upstream URL", self.package.url or ""),
+            Property("Licenses", ",".join(self.package.license)),
+            Property("Maintainer", self.package.maintainer or ""),
+            Property("First submitted", pretty_datetime(self.package.first_submitted)),
+            Property("Last updated", pretty_datetime(self.package.last_modified)),
+            Property("Keywords", ",".join(self.package.keywords)),
         ]
-
-    def title(self) -> Optional[str]:
-        """
-        generate entry title from content
-        :return: content title if it can be generated and None otherwise
-        """
-        return f"{self.content.name} {self.content.version} ({self.content.num_votes})"

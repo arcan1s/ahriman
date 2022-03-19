@@ -35,7 +35,6 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     mocker.patch("ahriman.core.build_tools.task.Task.init")
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_building")
-    built_packages_mock = mocker.patch("ahriman.core.repository.executor.Executor.packages_built")
 
     executor.process_build([package_ahriman])
     # must move files (once)
@@ -45,8 +44,6 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     # must clear directory
     from ahriman.core.repository.cleaner import Cleaner
     Cleaner.clear_build.assert_called_once_with()
-    # must return build packages after all
-    built_packages_mock.assert_called_once_with()
 
 
 def test_process_build_failure(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

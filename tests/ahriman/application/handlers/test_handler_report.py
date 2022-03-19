@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Report
 from ahriman.core.configuration import Configuration
+from ahriman.models.result import Result
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -25,4 +26,4 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.report")
 
     Report.run(args, "x86_64", configuration, True, False)
-    application_mock.assert_called_once_with(args.target, [])
+    application_mock.assert_called_once_with(args.target, Result())

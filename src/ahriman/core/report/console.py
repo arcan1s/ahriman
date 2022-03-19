@@ -20,17 +20,16 @@
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report.jinja_template import JinjaTemplate
+from ahriman.core.formatters.build_printer import BuildPrinter
 from ahriman.core.report.report import Report
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-class HTML(Report, JinjaTemplate):
+class Console(Report):
     """
     html report generator
-    :ivar report_path: output path to html report
-    :ivar template_path: path to template for full package list
+    :ivar use_utf: print utf8 symbols instead of ASCII
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -41,10 +40,7 @@ class HTML(Report, JinjaTemplate):
         :param section: settings section name
         """
         Report.__init__(self, architecture, configuration)
-        JinjaTemplate.__init__(self, section, configuration)
-
-        self.report_path = configuration.getpath(section, "path")
-        self.template_path = configuration.getpath(section, "template_path")
+        self.use_utf = configuration.getboolean(section, "use_utf")
 
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
@@ -52,5 +48,7 @@ class HTML(Report, JinjaTemplate):
         :param packages: list of packages to generate report
         :param result: build result
         """
-        html = self.make_html(Result(success=packages), self.template_path)
-        self.report_path.write_text(html)
+        for package in result.success:
+            BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)
+        for package in result.failed:
+            BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)

@@ -20,12 +20,12 @@
 import jinja2
 
 from pathlib import Path
-from typing import Callable, Dict, Iterable
+from typing import Callable, Dict
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.util import pretty_datetime, pretty_size
-from ahriman.models.package import Package
+from ahriman.models.result import Result
 from ahriman.models.sign_settings import SignSettings
 
 
@@ -76,10 +76,10 @@ class JinjaTemplate:
 
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 
-    def make_html(self, packages: Iterable[Package], template_path: Path) -> str:
+    def make_html(self, result: Result, template_path: Path) -> str:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
+        :param result: build result
         :param template_path: path to jinja template
         """
         # idea comes from https://stackoverflow.com/a/38642558
@@ -101,7 +101,7 @@ class JinjaTemplate:
                 "name": package,
                 "url": properties.url or "",
                 "version": base.version
-            } for base in packages for package, properties in base.packages.items()
+            } for base in result.updated for package, properties in base.packages.items()
         ]
         comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
 

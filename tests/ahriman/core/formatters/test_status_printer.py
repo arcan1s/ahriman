@@ -1,4 +1,4 @@
-from ahriman.application.formatters.status_printer import StatusPrinter
+from ahriman.core.formatters.status_printer import StatusPrinter
 
 
 def test_properties(status_printer: StatusPrinter) -> None:

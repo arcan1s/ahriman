@@ -17,15 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from ahriman.application.formatters.printer import Printer
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.property import Property
 
 
-class ConfigurationPrinter(Printer):
+class ConfigurationPrinter(StringPrinter):
     """
     print content of the configuration section
+    :ivar values: configuration values dictionary
     """
 
     def __init__(self, section: str, values: Dict[str, str]) -> None:
@@ -34,8 +35,8 @@ class ConfigurationPrinter(Printer):
         :param section: section name
         :param values: configuration values dictionary
         """
-        self.section = section
-        self.content = values
+        StringPrinter.__init__(self, f"[{section}]")
+        self.values = values
 
     def properties(self) -> List[Property]:
         """
@@ -44,12 +45,5 @@ class ConfigurationPrinter(Printer):
         """
         return [
             Property(key, value, is_required=True)
-            for key, value in sorted(self.content.items())
+            for key, value in sorted(self.values.items())
         ]
-
-    def title(self) -> Optional[str]:
-        """
-        generate entry title from content
-        :return: content title if it can be generated and None otherwise
-        """
-        return f"[{self.section}]"

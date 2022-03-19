@@ -29,12 +29,14 @@ from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
 from ahriman.core.util import pretty_datetime
 from ahriman.models.package import Package
+from ahriman.models.result import Result
 from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 
 
 class Email(Report, JinjaTemplate):
     """
     email report generator
+    :ivar full_template_path: path to template for full package list
     :ivar host: SMTP host to connect
     :ivar no_empty_report: skip empty report generation
     :ivar password: password to authenticate via SMTP
@@ -42,6 +44,7 @@ class Email(Report, JinjaTemplate):
     :ivar receivers: list of receivers emails
     :ivar sender: sender email address
     :ivar ssl: SSL mode for SMTP connection
+    :ivar template_path: path to template for built packages
     :ivar user: username to authenticate via SMTP
     """
 
@@ -96,17 +99,17 @@ class Email(Report, JinjaTemplate):
         session.sendmail(self.sender, self.receivers, message.as_string())
         session.quit()
 
-    def generate(self, packages: Iterable[Package], built_packages: Iterable[Package]) -> None:
+    def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
         :param packages: list of packages to generate report
-        :param built_packages: list of packages which has just been built
+        :param result: build result
         """
-        if self.no_empty_report and not built_packages:
+        if self.no_empty_report and not result.success:
             return
-        text = self.make_html(built_packages, self.template_path)
+        text = self.make_html(result, self.template_path)
         if self.full_template_path is not None:
-            attachments = {"index.html": self.make_html(packages, self.full_template_path)}
+            attachments = {"index.html": self.make_html(Result(success=packages), self.full_template_path)}
         else:
             attachments = {}
         self._send(text, attachments)

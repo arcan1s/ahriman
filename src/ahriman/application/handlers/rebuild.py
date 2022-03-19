@@ -22,9 +22,9 @@ import argparse
 from typing import Type
 
 from ahriman.application.application import Application
-from ahriman.application.formatters.update_printer import UpdatePrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.formatters.update_printer import UpdatePrinter
 
 
 class Rebuild(Handler):

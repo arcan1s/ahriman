@@ -23,11 +23,11 @@ from pathlib import Path
 from typing import Callable, Iterable, List
 
 from ahriman.application.application.properties import Properties
-from ahriman.application.formatters.update_printer import UpdatePrinter
 from ahriman.core.build_tools.sources import Sources
+from ahriman.core.formatters.update_printer import UpdatePrinter
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
+from ahriman.models.result import Result
 
 
 class Repository(Properties):
@@ -35,9 +35,10 @@ class Repository(Properties):
     repository control class
     """
 
-    def _finalize(self, built_packages: Iterable[Package]) -> None:
+    def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
+        :param result: build result
         """
         raise NotImplementedError
 
@@ -64,14 +65,14 @@ class Repository(Properties):
         if patches:
             self.repository.clear_patches()
 
-    def report(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
+    def report(self, target: Iterable[str], result: Result) -> None:
         """
         generate report
         :param target: list of targets to run (e.g. html)
-        :param built_packages: list of packages which has just been built
+        :param result: build result
         """
         targets = target or None
-        self.repository.process_report(targets, built_packages)
+        self.repository.process_report(targets, result)
 
     def sign(self, packages: Iterable[str]) -> None:
         """
@@ -94,7 +95,7 @@ class Repository(Properties):
         self.update([])
         # sign repository database if set
         self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
-        self._finalize([])
+        self._finalize(Result())
 
     def sync(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
         """
@@ -142,26 +143,23 @@ class Repository(Properties):
         run package updates
         :param updates: list of packages to update
         """
-        def process_update(paths: Iterable[Path]) -> None:
+        def process_update(paths: Iterable[Path], result: Result) -> None:
             if not paths:
                 return  # don't need to process if no update supplied
-            updated = [
-                Package.load(str(path), PackageSource.Archive, self.repository.pacman, self.repository.aur_url)
-                for path in paths
-            ]
-            self.repository.process_update(paths)
-            self._finalize(updated)
+            update_result = self.repository.process_update(paths)
+            self._finalize(result.merge(update_result))
 
         # process built packages
         packages = self.repository.packages_built()
-        process_update(packages)
+        process_update(packages, Result())
 
         # process manual packages
         tree = Tree.load(updates, self.repository.paths)
         for num, level in enumerate(tree.levels()):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
-            packages = self.repository.process_build(level)
-            process_update(packages)
+            build_result = self.repository.process_build(level)
+            packages = self.repository.packages_built()
+            process_update(packages, build_result)
 
     def updates(self, filter_packages: Iterable[str], no_aur: bool, no_local: bool, no_manual: bool, no_vcs: bool,
                 log_fn: Callable[[str], None]) -> List[Package]:

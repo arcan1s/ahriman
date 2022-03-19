@@ -19,42 +19,31 @@
 #
 from typing import List, Optional
 
-from ahriman.application.formatters.printer import Printer
-from ahriman.models.build_status import BuildStatus
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.package import Package
 from ahriman.models.property import Property
 
 
-class PackagePrinter(Printer):
+class UpdatePrinter(StringPrinter):
     """
-    print content of the internal package object
+    print content of the package update
+    :ivar package: remote (new) package object
+    :ivar local_version: local version of the package if any
     """
 
-    def __init__(self, package: Package, status: BuildStatus) -> None:
+    def __init__(self, remote: Package, local_version: Optional[str]) -> None:
         """
         default constructor
-        :param package: package description
-        :param status: build status
+        :param remote: remote (new) package object
+        :param local_version: local version of the package if any
         """
-        self.content = package
-        self.status = status
+        StringPrinter.__init__(self, remote.base)
+        self.package = remote
+        self.local_version = local_version or "N/A"
 
     def properties(self) -> List[Property]:
         """
         convert content into printable data
         :return: list of content properties
         """
-        return [
-            Property("Version", self.content.version, is_required=True),
-            Property("Groups", " ".join(self.content.groups)),
-            Property("Licenses", " ".join(self.content.licenses)),
-            Property("Depends", " ".join(self.content.depends)),
-            Property("Status", self.status.pretty_print(), is_required=True),
-        ]
-
-    def title(self) -> Optional[str]:
-        """
-        generate entry title from content
-        :return: content title if it can be generated and None otherwise
-        """
-        return self.content.pretty_print()
+        return [Property(self.local_version, self.package.version, is_required=True)]
