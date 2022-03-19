@@ -21,3 +21,6 @@ def test_from_option_valid() -> None:
 
     assert ReportSettings.from_option("email") == ReportSettings.Email
     assert ReportSettings.from_option("EmAil") == ReportSettings.Email
+
+    assert ReportSettings.from_option("console") == ReportSettings.Console
+    assert ReportSettings.from_option("conSOle") == ReportSettings.Console

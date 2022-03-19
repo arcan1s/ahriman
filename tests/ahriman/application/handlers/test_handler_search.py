@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     """
     args = _default_args(args)
     search_mock = mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
-    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True, False)
     search_mock.assert_called_once_with("ahriman")

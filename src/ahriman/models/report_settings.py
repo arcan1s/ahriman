@@ -31,11 +31,13 @@ class ReportSettings(Enum):
     :cvar Disabled: option which generates no report for testing purpose
     :cvar HTML: html report generation
     :cvar Email: email report generation
+    :cvar Console: print result to console
     """
 
     Disabled = "disabled"  # for testing purpose
     HTML = "html"
     Email = "email"
+    Console = "console"
 
     @classmethod
     def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
@@ -48,4 +50,6 @@ class ReportSettings(Enum):
             return cls.HTML
         if value.lower() in ("email",):
             return cls.Email
+        if value.lower() in ("console",):
+            return cls.Console
         raise InvalidOption(value)

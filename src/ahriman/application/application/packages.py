@@ -28,6 +28,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
+from ahriman.models.result import Result
 
 
 class Packages(Properties):
@@ -35,9 +36,10 @@ class Packages(Properties):
     package control class
     """
 
-    def _finalize(self, built_packages: Iterable[Package]) -> None:
+    def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
+        :param result: build result
         """
         raise NotImplementedError
 
@@ -141,4 +143,4 @@ class Packages(Properties):
         :param names: list of packages (either base or name) to remove
         """
         self.repository.process_remove(names)
-        self._finalize([])
+        self._finalize(Result())

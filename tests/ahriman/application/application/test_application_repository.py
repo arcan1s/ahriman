@@ -6,6 +6,7 @@ from unittest import mock
 from ahriman.application.application.repository import Repository
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
+from ahriman.models.result import Result
 
 
 def test_finalize(application_repository: Repository) -> None:
@@ -98,7 +99,7 @@ def test_sign(application_repository: Repository, package_ahriman: Package, pack
     ])
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
-    finalize_mock.assert_called_once_with([])
+    finalize_mock.assert_called_once_with(Result())
 
 
 def test_sign_skip(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -132,7 +133,7 @@ def test_sign_specific(application_repository: Repository, package_ahriman: Pack
         application_repository.repository.paths.packages / filename.name)
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
-    finalize_mock.assert_called_once_with([])
+    finalize_mock.assert_called_once_with(Result())
 
 
 def test_sync(application_repository: Repository, mocker: MockerFixture) -> None:
@@ -181,7 +182,8 @@ def test_unknown_no_local(application_repository: Repository, package_ahriman: P
     assert not application_repository.unknown()
 
 
-def test_update(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_update(application_repository: Repository, package_ahriman: Package, result: Result,
+                mocker: MockerFixture) -> None:
     """
     must process package updates
     """
@@ -189,16 +191,33 @@ def test_update(application_repository: Repository, package_ahriman: Package, mo
     tree = Tree([Leaf(package_ahriman, set())])
 
     mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
-    mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
+    mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=paths)
-    update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
+    build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
+    update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
     finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
 
     application_repository.update([package_ahriman])
     build_mock.assert_called_once_with([package_ahriman])
-    update_mock.assert_called_once_with(paths)
-    finalize_mock.assert_called_once_with([package_ahriman])
+    update_mock.assert_has_calls([mock.call(paths), mock.call(paths)])
+    finalize_mock.assert_has_calls([mock.call(result), mock.call(result)])
+
+
+def test_update_empty(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip updating repository if no packages supplied
+    """
+    paths = [package.filepath for package in package_ahriman.packages.values()]
+    tree = Tree([Leaf(package_ahriman, set())])
+
+    mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
+    mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
+    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.core.repository.executor.Executor.process_build")
+    update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
+
+    application_repository.update([package_ahriman])
+    update_mock.assert_not_called()
 
 
 def test_updates_all(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:

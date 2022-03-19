@@ -22,9 +22,9 @@ import argparse
 from typing import Type
 
 from ahriman.application.application import Application
-from ahriman.application.formatters.string_printer import StringPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.formatters.string_printer import StringPrinter
 
 
 class RemoveUnknown(Handler):

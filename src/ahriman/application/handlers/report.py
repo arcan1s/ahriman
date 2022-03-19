@@ -24,6 +24,7 @@ from typing import Type
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.result import Result
 
 
 class Report(Handler):
@@ -42,4 +43,4 @@ class Report(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).report(args.target, [])
+        Application(architecture, configuration, no_report, unsafe).report(args.target, Result())

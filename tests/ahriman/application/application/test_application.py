@@ -2,6 +2,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.application import Application
 from ahriman.models.package import Package
+from ahriman.models.result import Result
 
 
 def test_finalize(application: Application, mocker: MockerFixture) -> None:
@@ -11,8 +12,8 @@ def test_finalize(application: Application, mocker: MockerFixture) -> None:
     report_mock = mocker.patch("ahriman.application.application.Application.report")
     sync_mock = mocker.patch("ahriman.application.application.Application.sync")
 
-    application._finalize([])
-    report_mock.assert_called_once_with([], [])
+    application._finalize(Result())
+    report_mock.assert_called_once_with([], Result())
     sync_mock.assert_called_once_with([], [])
 
 

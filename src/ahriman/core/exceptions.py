@@ -136,6 +136,19 @@ class ReportFailed(RuntimeError):
         RuntimeError.__init__(self, "Report failed")
 
 
+class SuccessFailed(ValueError):
+    """
+    exception for merging invalid statues
+    """
+
+    def __init__(self, package_base: str) -> None:
+        """
+        default constructor
+        :param package_base: package base name
+        """
+        ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
+
+
 class SyncFailed(RuntimeError):
     """
     remote synchronization exception

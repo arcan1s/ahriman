@@ -14,6 +14,7 @@ from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.result import Result
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -232,6 +233,18 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
     return RepositoryPaths(
         architecture="x86_64",
         root=configuration.getpath("repository", "root"))
+
+
+@pytest.fixture
+def result(package_ahriman: Package) -> Result:
+    """
+    result fixture
+    :param package_ahriman: package fixture
+    :return: result test instance
+    """
+    result = Result()
+    result.add_success(package_ahriman)
+    return result
 
 
 @pytest.fixture

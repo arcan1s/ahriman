@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from ahriman.application.formatters.package_printer import PackagePrinter
-from ahriman.application.formatters.printer import Printer
+from ahriman.core.formatters.package_printer import PackagePrinter
+from ahriman.core.formatters.printer import Printer
 
 
 def test_print(package_ahriman_printer: PackagePrinter) -> None:

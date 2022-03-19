@@ -27,6 +27,7 @@ from ahriman.core.report.report import Report
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
+from ahriman.models.result import Result
 
 
 class Executor(Cleaner):
@@ -49,7 +50,7 @@ class Executor(Cleaner):
         """
         raise NotImplementedError
 
-    def process_build(self, updates: Iterable[Package]) -> List[Path]:
+    def process_build(self, updates: Iterable[Package]) -> Result:
         """
         build packages
         :param updates: list of packages properties to build
@@ -64,15 +65,18 @@ class Executor(Cleaner):
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
 
+        result = Result()
         for single in updates:
             try:
                 build_single(single)
+                result.add_success(single)
             except Exception:
                 self.reporter.set_failed(single.base)
+                result.add_failed(single)
                 self.logger.exception("%s (%s) build exception", single.base, self.architecture)
         self.clear_build()
 
-        return self.packages_built()
+        return result
 
     def process_remove(self, packages: Iterable[str]) -> Path:
         """
@@ -116,17 +120,17 @@ class Executor(Cleaner):
 
         return self.repo.repo_path
 
-    def process_report(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
+    def process_report(self, targets: Optional[Iterable[str]], result: Result) -> None:
         """
         generate reports
         :param targets: list of targets to generate reports. Configuration option will be used if it is not set
-        :param built_packages: list of packages which has just been built
+        :param result: build result
         """
         if targets is None:
             targets = self.configuration.getlist("report", "target")
         for target in targets:
             runner = Report.load(self.architecture, self.configuration, target)
-            runner.run(self.packages(), built_packages)
+            runner.run(self.packages(), result)
 
     def process_sync(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
         """
@@ -140,7 +144,7 @@ class Executor(Cleaner):
             runner = Upload.load(self.architecture, self.configuration, target)
             runner.run(self.paths.repository, built_packages)
 
-    def process_update(self, packages: Iterable[Path]) -> Path:
+    def process_update(self, packages: Iterable[Path]) -> Result:
         """
         sign packages, add them to repository and update repository database
         :param packages: list of filenames to run
@@ -163,20 +167,23 @@ class Executor(Cleaner):
         removed_packages: List[str] = []  # list of packages which have been removed from the base
         updates = self.load_archives(packages)
 
+        result = Result()
         for local in updates:
             try:
                 for description in local.packages.values():
                     update_single(description.filename, local.base)
                 self.reporter.set_success(local)
+                result.add_success(local)
 
                 current_package_archives: Set[str] = next(
                     (set(current.packages) for current in current_packages if current.base == local.base), set())
                 removed_packages.extend(current_package_archives.difference(local.packages))
             except Exception:
                 self.reporter.set_failed(local.base)
+                result.add_failed(local)
                 self.logger.exception("could not process %s", local.base)
         self.clear_packages()
 
         self.process_remove(removed_packages)
 
-        return self.repo.repo_path
+        return result

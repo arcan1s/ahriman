@@ -11,7 +11,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
                                     return_value=configuration.dump())
 

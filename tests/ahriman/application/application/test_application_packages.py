@@ -9,6 +9,7 @@ from ahriman.application.application.packages import Packages
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.result import Result
 
 
 def test_finalize(application_packages: Packages) -> None:
@@ -211,4 +212,4 @@ def test_remove(application_packages: Packages, mocker: MockerFixture) -> None:
 
     application_packages.remove([])
     executor_mock.assert_called_once_with([])
-    finalize_mock.assert_called_once_with([])
+    finalize_mock.assert_called_once_with(Result())

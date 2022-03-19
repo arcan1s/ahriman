@@ -21,9 +21,9 @@ import argparse
 
 from typing import Type
 
-from ahriman.application.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.formatters.configuration_printer import ConfigurationPrinter
 
 
 class Dump(Handler):

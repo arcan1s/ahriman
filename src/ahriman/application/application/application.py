@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, Set
+from typing import Set
 
 from ahriman.application.application.packages import Packages
 from ahriman.application.application.repository import Repository
-from ahriman.models.package import Package
+from ahriman.models.result import Result
 
 
 class Application(Packages, Repository):
@@ -29,12 +29,13 @@ class Application(Packages, Repository):
     base application class
     """
 
-    def _finalize(self, built_packages: Iterable[Package]) -> None:
+    def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
+        :param result: build result
         """
-        self.report([], built_packages)
-        self.sync([], built_packages)
+        self.report([], result)
+        self.sync([], result.success)
 
     def _known_packages(self) -> Set[str]:
         """

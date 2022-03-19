@@ -24,7 +24,7 @@ RUN YAY_DIR="$(runuser -u build -- mktemp -d)" && \
     runuser -u build -- makepkg --noconfirm --install && \
     cd - && rm -r "$YAY_DIR"
 ## install package dependencies
-RUN runuser -u build -- yay --noconfirm -Sy devtools git pyalpm python-inflection python-passlib python-srcinfo && \
+RUN runuser -u build -- yay --noconfirm -Sy devtools git pyalpm python-inflection python-passlib python-requests python-srcinfo && \
     runuser -u build -- yay --noconfirm -Sy python-pip && \
     runuser -u build -- yay --noconfirm -Sy breezy darcs mercurial python-aioauth-client python-aiohttp \
                                             python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security \

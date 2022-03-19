@@ -15,7 +15,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args.parser = _parser
     commands_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.get_unsafe_commands",
                                  return_value=["command"])
-    print_mock = mocker.patch("ahriman.application.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     UnsafeCommands.run(args, "x86_64", configuration, True, False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))

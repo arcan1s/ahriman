@@ -1,4 +1,4 @@
-from ahriman.application.formatters.string_printer import StringPrinter
+from ahriman.core.formatters.string_printer import StringPrinter
 
 
 def test_properties(string_printer: StringPrinter) -> None:
