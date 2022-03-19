@@ -31,3 +31,10 @@ def test_get_unsafe_commands() -> None:
     commands = UnsafeCommands.get_unsafe_commands(parser)
     for command in commands:
         assert subparser.choices[command].get_default("unsafe")
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not UnsafeCommands.ALLOW_AUTO_ARCHITECTURE_RUN
