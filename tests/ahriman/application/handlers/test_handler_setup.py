@@ -40,6 +40,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
     sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
     executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
+    init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
     paths = RepositoryPaths(configuration.getpath("repository", "root"), "x86_64")
 
     Setup.run(args, "x86_64", configuration, True, False)
@@ -49,6 +50,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     makepkg_configuration_mock.assert_called_once_with(args.packager, paths)
     sudo_configuration_mock.assert_called_once_with(args.build_command, "x86_64")
     executable_mock.assert_called_once_with(args.build_command, "x86_64")
+    init_mock.assert_called_once()
 
 
 def test_build_command(args: argparse.Namespace) -> None:

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from pathlib import Path
 from typing import Any
 
 
@@ -85,6 +86,20 @@ class InvalidOption(ValueError):
         ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
 
 
+class InvalidPath(ValueError):
+    """
+    exception which will be raised on path which is not belong to root directory
+    """
+
+    def __init__(self, path: Path, root: Path) -> None:
+        """
+        default constructor
+        :param path: path which raised an exception
+        :param root: repository root (i.e. ahriman home)
+        """
+        ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
+
+
 class InvalidPackageInfo(RuntimeError):
     """
     exception which will be raised on package load errors
@@ -111,7 +126,7 @@ class MissingArchitecture(ValueError):
         ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
 
-class MultipleArchitecture(ValueError):
+class MultipleArchitectures(ValueError):
     """
     exception which will be raised if multiple architectures are not supported by the handler
     """

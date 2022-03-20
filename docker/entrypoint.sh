@@ -20,8 +20,6 @@ fi
 # create repository root inside the [[mounted]] directory and set correct ownership
 [ -d "$AHRIMAN_REPOSITORY_ROOT" ] || mkdir "$AHRIMAN_REPOSITORY_ROOT"
 chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_REPOSITORY_ROOT"
-# run initial setup
-sudo -u "$AHRIMAN_USER" -- ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" repo-init
 
 # run built-in setup command
 AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")

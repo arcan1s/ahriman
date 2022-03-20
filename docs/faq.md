@@ -12,7 +12,6 @@ TL;DR
 
 ```shell
 yay -S ahriman
-sudo -u ahriman ahriman -a x86_64 init
 sudo ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
 systemctl enable --now ahriman@x86_64.timer
 ```

@@ -27,7 +27,7 @@ from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture, MultipleArchitecture
+from ahriman.core.exceptions import MissingArchitecture, MultipleArchitectures
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -95,7 +95,7 @@ class Handler:
         # actually we do not have to spawn another process if it is single-process application, do we?
         if len(architectures) > 1:
             if not cls.ALLOW_MULTI_ARCHITECTURE_RUN:
-                raise MultipleArchitecture(args.command)
+                raise MultipleArchitectures(args.command)
 
             with Pool(len(architectures)) as pool:
                 result = pool.starmap(

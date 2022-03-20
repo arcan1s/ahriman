@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture, MultipleArchitecture
+from ahriman.core.exceptions import MissingArchitecture, MultipleArchitectures
 
 
 def test_architectures_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -94,7 +94,7 @@ def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: Mocker
     args.command = "web"
     mocker.patch.object(Handler, "ALLOW_MULTI_ARCHITECTURE_RUN", False)
 
-    with pytest.raises(MultipleArchitecture):
+    with pytest.raises(MultipleArchitectures):
         Handler.execute(args)
 
 

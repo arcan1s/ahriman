@@ -55,13 +55,18 @@ class Setup(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
+        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include)
+        configuration.reload()
+
         application = Application(architecture, configuration, no_report, unsafe)
+
         Setup.configuration_create_makepkg(args.packager, application.repository.paths)
         Setup.executable_create(args.build_command, architecture)
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
                                             args.no_multilib, args.repository, application.repository.paths)
-        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include)
         Setup.configuration_create_sudo(args.build_command, architecture)
+
+        application.repository.repo.init()
 
     @staticmethod
     def build_command(prefix: str, architecture: str) -> Path:

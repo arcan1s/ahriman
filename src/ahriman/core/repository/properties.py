@@ -62,7 +62,7 @@ class Properties:
 
         self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         try:
-            check_user(self.paths.root, unsafe)
+            check_user(self.paths, unsafe)
             self.paths.tree_create()
         except UnsafeRun:
             self.logger.warning("root owner differs from the current user, skipping tree creation")

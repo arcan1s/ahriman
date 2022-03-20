@@ -19,11 +19,14 @@
 #
 from __future__ import annotations
 
+import os
 import shutil
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set, Type
+from typing import Set, Tuple, Type
+
+from ahriman.core.exceptions import InvalidPath
 
 
 @dataclass
@@ -81,6 +84,13 @@ class RepositoryPaths:
         return self.root / "repository" / self.architecture
 
     @property
+    def root_owner(self) -> Tuple[int, int]:
+        """
+        :return: owner user and group of the root directory
+        """
+        return self.owner(self.root)
+
+    @property
     def sources(self) -> Path:
         """
         :return: directory for downloaded PKGBUILDs for current build
@@ -101,6 +111,16 @@ class RepositoryPaths:
             if path.is_dir()
         }
 
+    @staticmethod
+    def owner(path: Path) -> Tuple[int, int]:
+        """
+        retrieve owner information by path
+        :param path: path for which extract ids
+        :return: owner user and group ids of the directory
+        """
+        stat = path.stat()
+        return stat.st_uid, stat.st_gid
+
     def cache_for(self, package_base: str) -> Path:
         """
         get path to cached PKGBUILD and package sources for the package base
@@ -108,6 +128,28 @@ class RepositoryPaths:
         :return: full path to directory for specified package base cache
         """
         return self.cache / package_base
+
+    def chown(self, path: Path) -> None:
+        """
+        set owner of path recursively (from root) to root owner
+        :param path: path to be chown
+        """
+        def set_owner(current: Path) -> None:
+            """
+            set owner to the specified path
+            :param current: path to set
+            """
+            uid, gid = self.owner(current)
+            if uid == root_uid and gid == root_gid:
+                return
+            os.chown(current, root_uid, root_gid, follow_symlinks=False)
+
+        if self.root not in path.parents:
+            raise InvalidPath(path, self.root)
+        root_uid, root_gid = self.root_owner
+        while path != self.root:
+            set_owner(path)
+            path = path.parent
 
     def manual_for(self, package_base: str) -> Path:
         """
@@ -158,3 +200,4 @@ class RepositoryPaths:
                 self.repository,
                 self.sources):
             directory.mkdir(mode=0o755, parents=True, exist_ok=True)
+            self.chown(directory)
