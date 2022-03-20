@@ -10,7 +10,7 @@ pacman --noconfirm -Syu
 # main dependencies
 pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib python-srcinfo sudo
 # make dependencies
-pacman --noconfirm -Sy python-pip
+pacman --noconfirm -Sy python-build python-installer python-wheel
 # optional dependencies
 # VCS support
 pacman --noconfirm -Sy breezy darcs mercurial subversion

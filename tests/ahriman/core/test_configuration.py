@@ -14,6 +14,7 @@ def test_from_path(mocker: MockerFixture) -> None:
     """
     must load configuration
     """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
     load_includes_mock = mocker.patch("ahriman.core.configuration.Configuration.load_includes")
     load_logging_mock = mocker.patch("ahriman.core.configuration.Configuration.load_logging")
@@ -24,6 +25,19 @@ def test_from_path(mocker: MockerFixture) -> None:
     read_mock.assert_called_once_with(path)
     load_includes_mock.assert_called_once_with()
     load_logging_mock.assert_called_once_with(True)
+
+
+def test_from_path_file_missing(mocker: MockerFixture) -> None:
+    """
+    must load configuration based on package files
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    mocker.patch("ahriman.core.configuration.Configuration.load_includes")
+    mocker.patch("ahriman.core.configuration.Configuration.load_logging")
+    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+
+    configuration = Configuration.from_path(Path("path"), "x86_64", True)
+    read_mock.assert_called_once_with(configuration.SYSTEM_CONFIGURATION_PATH)
 
 
 def test_dump(configuration: Configuration) -> None:

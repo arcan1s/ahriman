@@ -94,3 +94,4 @@ ENV/
 .venv/
 
 *.tar.xz
+status_cache.json

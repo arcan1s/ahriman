@@ -11,12 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    container:
+      image: archlinux:latest
+      volumes:
+        - ${{ github.workspace }}:/build
+      options: --privileged -w /build
+
     steps:
       - uses: actions/checkout@v2
 
       - name: setup the service in arch linux container
-        run: |
-          docker run --privileged \
-          -v  ${{ github.workspace }}:/build -w /build \
-          archlinux:latest \
-          .github/workflows/setup.sh
+        run: .github/workflows/setup.sh

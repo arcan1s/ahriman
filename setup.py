@@ -36,7 +36,6 @@ setup(
         "srcinfo",
     ],
     setup_requires=[
-        "pytest-runner",
     ],
     tests_require=[
         "pytest",
@@ -53,33 +52,33 @@ setup(
         "package/bin/ahriman",
     ],
     data_files=[
-        ("/etc", [
-            "package/etc/ahriman.ini",
+        ("share/ahriman/settings", [
+            "package/share/ahriman/settings/ahriman.ini",
         ]),
-        ("/etc/ahriman.ini.d", [
-            "package/etc/ahriman.ini.d/logging.ini",
+        ("share/ahriman/settings/ahriman.ini.d", [
+            "package/share/ahriman/settings/ahriman.ini.d/logging.ini",
         ]),
         ("lib/systemd/system", [
             "package/lib/systemd/system/ahriman@.service",
             "package/lib/systemd/system/ahriman@.timer",
             "package/lib/systemd/system/ahriman-web@.service",
         ]),
-        ("share/ahriman", [
-            "package/share/ahriman/build-status.jinja2",
-            "package/share/ahriman/email-index.jinja2",
-            "package/share/ahriman/repo-index.jinja2",
+        ("share/ahriman/templates", [
+            "package/share/ahriman/templates/build-status.jinja2",
+            "package/share/ahriman/templates/email-index.jinja2",
+            "package/share/ahriman/templates/repo-index.jinja2",
         ]),
-        ("share/ahriman/build-status", [
-            "package/share/ahriman/build-status/login-modal.jinja2",
-            "package/share/ahriman/build-status/package-actions-modals.jinja2",
-            "package/share/ahriman/build-status/package-actions-script.jinja2",
+        ("share/ahriman/templates/build-status", [
+            "package/share/ahriman/templates/build-status/login-modal.jinja2",
+            "package/share/ahriman/templates/build-status/package-actions-modals.jinja2",
+            "package/share/ahriman/templates/build-status/package-actions-script.jinja2",
         ]),
-        ("share/ahriman/static", [
-            "package/share/ahriman/static/favicon.ico",
+        ("share/ahriman/templates/static", [
+            "package/share/ahriman/templates/static/favicon.ico",
         ]),
-        ("share/ahriman/utils", [
-            "package/share/ahriman/utils/bootstrap-scripts.jinja2",
-            "package/share/ahriman/utils/style.jinja2",
+        ("share/ahriman/templates/utils", [
+            "package/share/ahriman/templates/utils/bootstrap-scripts.jinja2",
+            "package/share/ahriman/templates/utils/style.jinja2",
         ]),
         ("share/man/man1", [
             "docs/ahriman.1",
@@ -96,7 +95,7 @@ setup(
         "s3": [
             "boto3",
         ],
-        "test": [
+        "tests": [
             "pytest",
             "pytest-aiohttp",
             "pytest-cov",
