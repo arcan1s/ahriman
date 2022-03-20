@@ -84,6 +84,12 @@ Type will be read from several ways:
 * Otherwise, it will look for type from section name removing architecture name.
 * And finally, it will use section name as type.
 
+### `console` type
+
+Section name must be either `console` (plus optional architecture name, e.g. `console:x86_64`) or random name with `type` set.
+
+* `use_utf` - use utf8 symbols in output if set and ascii otherwise, boolean, optional, default `yes`.
+
 ### `email` type
 
 Section name must be either `email` (plus optional architecture name, e.g. `email:x86_64`) or random name with `type` set.

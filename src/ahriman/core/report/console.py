@@ -40,7 +40,7 @@ class Console(Report):
         :param section: settings section name
         """
         Report.__init__(self, architecture, configuration)
-        self.use_utf = configuration.getboolean(section, "use_utf")
+        self.use_utf = configuration.getboolean(section, "use_utf", fallback=True)
 
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
