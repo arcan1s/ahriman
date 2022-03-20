@@ -44,7 +44,7 @@ setup(
         "pytest-cov",
         "pytest-helpers-namespace",
         "pytest-mock",
-        "pytest-pspec",
+        "pytest-spec",
         "pytest-resource-path",
     ],
 
@@ -102,8 +102,8 @@ setup(
             "pytest-cov",
             "pytest-helpers-namespace",
             "pytest-mock",
-            "pytest-pspec",
             "pytest-resource-path",
+            "pytest-spec",
         ],
         "web": [
             "Jinja2",

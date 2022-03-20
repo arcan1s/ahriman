@@ -38,8 +38,6 @@ class LogoutView(BaseView):
         :return: redirect to main page
         """
         await check_authorized(self.request)
+        await forget(self.request, HTTPFound("/"))
 
-        response = HTTPFound("/")
-        await forget(self.request, response)
-
-        return response
+        raise HTTPFound("/")
