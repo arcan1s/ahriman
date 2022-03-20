@@ -3,7 +3,7 @@
 
 PROJECT := ahriman
 
-FILES := AUTHORS COPYING README.md docs package src setup.cfg setup.py web.png
+FILES := AUTHORS COPYING README.md docs package src setup.py tox.ini web.png
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
@@ -26,11 +26,8 @@ archive_directory: $(TARGET_FILES)
 archlinux: archive
 	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
-check: clean mypy
-	autopep8 --exit-code --max-line-length 120 -aa -i -j 0 -r "src/$(PROJECT)" "tests/$(PROJECT)"
-	pylint --rcfile=.pylintrc "src/$(PROJECT)"
-	bandit -c .bandit.yml -r "src/$(PROJECT)"
-	bandit -c .bandit-test.yml -r "tests/$(PROJECT)"
+check: clean
+	tox -e check
 
 clean:
 	find . -type f -name "$(PROJECT)-*-src.tar.xz" -delete
@@ -42,10 +39,6 @@ directory: clean
 man:
 	cd src &&  PYTHONPATH=. argparse-manpage --module ahriman.application.ahriman --function _parser --author "ahriman team" --project-name ahriman --author-email "" --url https://github.com/arcan1s/ahriman --output ../docs/ahriman.1
 
-mypy:
-	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)" --install-types --non-interactive || true
-	cd src && mypy --implicit-reexport --strict -p "$(PROJECT)"
-
 push: architecture man archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
 	git commit -m "Release $(VERSION)"
@@ -54,7 +47,7 @@ push: architecture man archlinux
 	git push --tags
 
 tests: clean
-	python setup.py test
+	tox -e tests
 
 version:
 ifndef VERSION

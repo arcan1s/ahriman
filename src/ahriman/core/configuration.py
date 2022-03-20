@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import configparser
 import logging
+import sys
 
 from logging.config import fileConfig
 from pathlib import Path
@@ -37,12 +38,14 @@ class Configuration(configparser.RawConfigParser):
     :cvar ARCHITECTURE_SPECIFIC_SECTIONS: known sections which can be architecture specific (required by dump)
     :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
     :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
+    :cvar SYSTEM_CONFIGURATION_PATH: default system configuration path distributed by package
     """
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
     DEFAULT_LOG_LEVEL = logging.DEBUG
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
+    SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
 
     def __init__(self) -> None:
         """
@@ -172,6 +175,8 @@ class Configuration(configparser.RawConfigParser):
         fully load configuration
         :param path: path to root configuration file
         """
+        if not path.is_file():  # fallback to the system file
+            path = self.SYSTEM_CONFIGURATION_PATH
         self.path = path
         self.read(self.path)
         self.load_includes()

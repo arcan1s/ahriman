@@ -131,24 +131,12 @@ def test_configuration_create_with_plain_password(
     assert generated.check_credentials(service.password, configuration.get("auth", "salt"))
 
 
-def test_configuration_get_exists(mocker: MockerFixture) -> None:
+def test_configuration_get(mocker: MockerFixture) -> None:
     """
     must load configuration from filesystem
     """
     mocker.patch("pathlib.Path.open")
     mocker.patch("pathlib.Path.is_file", return_value=True)
-    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
-
-    assert User.configuration_get(Path("path"))
-    read_mock.assert_called_once_with(Path("path") / "auth.ini")
-
-
-def test_configuration_get_not_exists(mocker: MockerFixture) -> None:
-    """
-    must try to load configuration from filesystem
-    """
-    mocker.patch("pathlib.Path.open")
-    mocker.patch("pathlib.Path.is_file", return_value=False)
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
     assert User.configuration_get(Path("path"))

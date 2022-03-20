@@ -2,6 +2,7 @@
 
 [![tests status](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/run-tests.yml)
 [![setup status](https://github.com/arcan1s/ahriman/actions/workflows/run-setup.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/run-setup.yml)
+[![docker image](https://github.com/arcan1s/ahriman/actions/workflows/docker-image.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/docker-image.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/arcan1s/ahriman/badge)](https://www.codefactor.io/repository/github/arcan1s/ahriman)
 
 Wrapper for managing custom repository inspired by [repo-scripts](https://github.com/arcan1s/repo-scripts).

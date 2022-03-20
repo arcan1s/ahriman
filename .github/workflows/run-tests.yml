@@ -11,12 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    container:
+      image: archlinux:latest
+      volumes:
+        - ${{ github.workspace }}:/build
+      options: -w /build
+
     steps:
       - uses: actions/checkout@v2
 
       - name: run check and tests in arch linux container
-        run: |
-          docker run \
-          -v  ${{ github.workspace }}:/build -w /build \
-          archlinux:latest \
-          .github/workflows/tests.sh
+        run: .github/workflows/tests.sh
