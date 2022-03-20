@@ -52,6 +52,14 @@ def test_resolve_aur_not_package_like(mocker: MockerFixture) -> None:
     assert PackageSource.Auto.resolve("package") == PackageSource.AUR
 
 
+def test_resolve_aur_no_access(mocker: MockerFixture) -> None:
+    """
+    must resolve auto type into the AUR package in case if we cannot read in suggested path
+    """
+    mocker.patch("pathlib.Path.is_dir", side_effect=PermissionError())
+    assert PackageSource.Auto.resolve("package") == PackageSource.AUR
+
+
 def test_resolve_directory(mocker: MockerFixture) -> None:
     """
     must resolve auto type into the directory
@@ -65,7 +73,7 @@ def test_resolve_local(mocker: MockerFixture) -> None:
     """
     must resolve auto type into the local sources
     """
-    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=_is_file_mock(True, True))
     assert PackageSource.Auto.resolve("path") == PackageSource.Local
 

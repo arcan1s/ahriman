@@ -58,11 +58,17 @@ class PackageSource(Enum):
 
         if maybe_url.scheme and maybe_url.scheme not in ("data", "file") and package_like(maybe_path):
             return PackageSource.Remote
-        if (maybe_path / "PKGBUILD").is_file():
-            return PackageSource.Local
-        if maybe_path.is_dir():
-            return PackageSource.Directory
-        if maybe_path.is_file() and package_like(maybe_path):
-            return PackageSource.Archive
+        try:
+            if (maybe_path / "PKGBUILD").is_file():
+                return PackageSource.Local
+            if maybe_path.is_dir():
+                return PackageSource.Directory
+            if maybe_path.is_file() and package_like(maybe_path):
+                return PackageSource.Archive
+        except PermissionError:
+            # in some cases (e.g. if you run from your home directory with sudo)
+            # it will try to read files to which it has no access.
+            # lets fallback to AUR source in these cases
+            pass
 
         return PackageSource.AUR
