@@ -27,10 +27,11 @@ from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, Optional, Union
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
-                 input_data: Optional[str] = None, logger: Optional[Logger] = None) -> str:
+                 input_data: Optional[str] = None, logger: Optional[Logger] = None, user: Optional[int] = None) -> str:
     """
     subprocess wrapper
     :param args: command line arguments
@@ -38,12 +39,15 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     :param cwd: current working directory
     :param input_data: data which will be written to command stdin
     :param logger: logger to log command result if required
+    :param user: run process as specified user
     :return: command output
     """
     try:
         # universal_newlines is required to read input from string
+        # FIXME additional workaround for linter and type check which do not know that user arg is supported
+        # pylint: disable=unexpected-keyword-arg
         result: str = subprocess.check_output(args, cwd=cwd, input=input_data, stderr=subprocess.STDOUT,
-                                              universal_newlines=True).strip()
+                                              universal_newlines=True, user=user).strip()  # type: ignore
         if logger is not None:
             for line in result.splitlines():
                 logger.debug(line)
@@ -55,18 +59,18 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
         raise exception or e
 
 
-def check_user(root: Path, unsafe: bool) -> None:
+def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
     """
     check if current user is the owner of the root
-    :param root: root directory (i.e. ahriman home)
+    :param paths: repository paths object
     :param unsafe: if set no user check will be performed before path creation
     """
-    if not root.exists():
+    if not paths.root.exists():
         return  # no directory found, skip check
     if unsafe:
         return  # unsafe flag is enabled, no check performed
     current_uid = os.getuid()
-    root_uid = root.stat().st_uid
+    root_uid, _ = paths.root_owner
     if current_uid != root_uid:
         raise UnsafeRun(current_uid, root_uid)
 

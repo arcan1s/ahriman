@@ -34,6 +34,7 @@ class Repo:
     :ivar name: repository name
     :ivar paths: repository paths instance
     :ivar sign_args: additional args which have to be used to sign repository archive
+    :ivar uid: uid of the repository owner user
     """
 
     _check_output = check_output
@@ -48,6 +49,7 @@ class Repo:
         self.logger = logging.getLogger("build_details")
         self.name = name
         self.paths = paths
+        self.uid, _ = paths.root_owner
         self.sign_args = sign_args
 
     @property
@@ -66,7 +68,8 @@ class Repo:
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
             exception=BuildFailed(path.name),
             cwd=self.paths.repository,
-            logger=self.logger)
+            logger=self.logger,
+            user=self.uid)
 
     def init(self) -> None:
         """
@@ -76,7 +79,8 @@ class Repo:
             "repo-add", *self.sign_args, str(self.repo_path),
             exception=None,
             cwd=self.paths.repository,
-            logger=self.logger)
+            logger=self.logger,
+            user=self.uid)
 
     def remove(self, package: str, filename: Path) -> None:
         """
@@ -93,4 +97,5 @@ class Repo:
             "repo-remove", *self.sign_args, str(self.repo_path), package,
             exception=BuildFailed(package),
             cwd=self.paths.repository,
-            logger=self.logger)
+            logger=self.logger,
+            user=self.uid)

@@ -82,7 +82,7 @@ def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     """
     check_user_patch = mocker.patch("ahriman.application.lock.check_user")
     lock.check_user()
-    check_user_patch.assert_called_once_with(lock.root, False)
+    check_user_patch.assert_called_once_with(lock.paths, False)
 
 
 def test_check_user_exception(lock: Lock, mocker: MockerFixture) -> None:

@@ -85,7 +85,6 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_check_parser(subparsers)
     _set_repo_clean_parser(subparsers)
     _set_repo_config_parser(subparsers)
-    _set_repo_init_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
     _set_repo_report_parser(subparsers)
@@ -342,19 +341,6 @@ def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_repo_init_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for repository init subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
-    """
-    parser = root.add_parser("repo-init", aliases=["init"], help="create repository tree",
-                             description="create empty repository tree. Optional command for auto architecture support",
-                             formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Init, no_report=True)
-    return parser
-
-
 def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository rebuild subcommand
@@ -406,7 +392,7 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     :param root: subparsers for the commands
     :return: created argument parser
     """
-    parser = root.add_parser("repo-setup", aliases=["setup"], help="initial service configuration",
+    parser = root.add_parser("repo-setup", aliases=["init", "repo-init", "setup"], help="initial service configuration",
                              description="create initial service configuration, requires root",
                              epilog="Create _minimal_ configuration for the service according to provided options.",
                              formatter_class=_formatter)

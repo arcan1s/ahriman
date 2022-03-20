@@ -9,6 +9,7 @@ from pytest_mock import MockerFixture
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
 from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, walk
 from ahriman.models.package import Package
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 def test_check_output(mocker: MockerFixture) -> None:
@@ -56,37 +57,37 @@ def test_check_user(mocker: MockerFixture) -> None:
     """
     must check user correctly
     """
-    cwd = Path.cwd()
-    mocker.patch("os.getuid", return_value=cwd.stat().st_uid)
-    check_user(cwd, False)
+    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    mocker.patch("os.getuid", return_value=paths.root_owner[0])
+    check_user(paths, False)
 
 
-def test_check_user_no_directory(mocker: MockerFixture) -> None:
+def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must not fail in case if no directory found
     """
     mocker.patch("pathlib.Path.exists", return_value=False)
-    check_user(Path.cwd(), False)
+    check_user(repository_paths, False)
 
 
 def test_check_user_exception(mocker: MockerFixture) -> None:
     """
     must raise exception if user differs
     """
-    cwd = Path.cwd()
-    mocker.patch("os.getuid", return_value=cwd.stat().st_uid + 1)
+    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
 
     with pytest.raises(UnsafeRun):
-        check_user(cwd, False)
+        check_user(paths, False)
 
 
 def test_check_unsafe(mocker: MockerFixture) -> None:
     """
     must skip check if unsafe flag is set
     """
-    cwd = Path.cwd()
-    mocker.patch("os.getuid", return_value=cwd.stat().st_uid + 1)
-    check_user(cwd, True)
+    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
+    check_user(paths, True)
 
 
 def test_filter_json(package_ahriman: Package) -> None:

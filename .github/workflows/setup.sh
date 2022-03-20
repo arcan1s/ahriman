@@ -25,25 +25,28 @@ make VERSION=1.0.0 archlinux  # well, it does not really matter which version we
 mv ahriman-*-src.tar.xz package/archlinux
 chmod +777 package/archlinux  # because fuck you that's why
 cd package/archlinux
-sudo -u nobody makepkg -cf --skipchecksums --noconfirm
+sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
 pacman --noconfirm -U ahriman-1.0.0-1-any.pkg.tar.zst
+# create machine-id which is required by build tools
+systemd-machine-id-setup
 
 # special thing for the container, because /dev/log interface is not available there
-sed -i 's/handlers = syslog_handler/handlers = console_handler/g' /etc/ahriman.ini.d/logging.ini
+sed -i "s/handlers = syslog_handler/handlers = console_handler/g" /etc/ahriman.ini.d/logging.ini
 # initial setup command as root
-sudo -u ahriman ahriman -a x86_64 init
 ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" --web-port 8080
 # enable services
 systemctl enable ahriman-web@x86_64
 systemctl enable ahriman@x86_64.timer
 # run web service (detached)
-sudo -u ahriman ahriman -a x86_64 web &
+sudo -u ahriman -- ahriman -a x86_64 web &
 WEBPID=$!
 sleep 15s  # wait for the web service activation
 # add the first package
-# the build itself does not really work in the container because it requires procfs
-sudo -u ahriman ahriman package-add yay
+# the build itself does not really work in the container
+sudo -u ahriman -- ahriman package-add --now yay
+# check if package was actually installed
+#test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
 # run package check
-sudo -u ahriman ahriman repo-update
+sudo -u ahriman -- ahriman repo-update
 # stop web service lol
 kill $WEBPID

@@ -5,11 +5,10 @@
 3. TL;DR
 
    ```shell
-   sudo -u ahriman ahriman -a x86_64 repo-init
    sudo ahriman -a x86_64 repo-setup ...
    ```
    
-   `repo-init` subcommand is required to create the repository tree with correct rights. `repo-setup` literally does the following steps:
+   `repo-setup` literally does the following steps:
 
    1. Create `/var/lib/ahriman/.makepkg.conf` with `makepkg.conf` overrides if required (at least you might want to set `PACKAGER`):
 

@@ -38,6 +38,7 @@ class Task:
     :ivar logger: class logger
     :ivar package: package definitions
     :ivar paths: repository paths instance
+    :ivar uid: uid of the repository owner user
     """
 
     _check_output = check_output
@@ -53,6 +54,7 @@ class Task:
         self.build_logger = logging.getLogger("build_details")
         self.package = package
         self.paths = paths
+        self.uid, _ = paths.root_owner
 
         self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
         self.build_command = configuration.get("build", "build_command")
@@ -74,7 +76,8 @@ class Task:
             *command,
             exception=BuildFailed(self.package.base),
             cwd=self.paths.sources_for(self.package.base),
-            logger=self.build_logger)
+            logger=self.build_logger,
+            user=self.uid)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",

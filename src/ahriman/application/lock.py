@@ -32,6 +32,7 @@ from ahriman.core.exceptions import DuplicateRun
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Lock:
@@ -40,7 +41,7 @@ class Lock:
     :ivar force: remove lock file on start if any
     :ivar path: path to lock file if any
     :ivar reporter: build status reporter instance
-    :ivar root: repository root (i.e. ahriman home)
+    :ivar paths: repository paths instance
     :ivar unsafe: skip user check
     """
 
@@ -55,7 +56,7 @@ class Lock:
         self.force = args.force
         self.unsafe = args.unsafe
 
-        self.root = Path(configuration.get("repository", "root"))
+        self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
         self.reporter = Client() if args.no_report else Client.load(configuration)
 
     def __enter__(self) -> Lock:
@@ -103,7 +104,7 @@ class Lock:
         """
         check if current user is actually owner of ahriman root
         """
-        check_user(self.root, self.unsafe)
+        check_user(self.paths, self.unsafe)
 
     def clear(self) -> None:
         """

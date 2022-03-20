@@ -288,15 +288,6 @@ def test_subparsers_repo_config(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
-def test_subparsers_repo_init(parser: argparse.ArgumentParser) -> None:
-    """
-    repo-init command must imply no_report
-    """
-    args = parser.parse_args(["-a", "x86_64", "repo-init"])
-    assert args.architecture == ["x86_64"]
-    assert args.no_report
-
-
 def test_subparsers_repo_rebuild_architecture(parser: argparse.ArgumentParser) -> None:
     """
     repo-rebuild command must correctly parse architecture list
