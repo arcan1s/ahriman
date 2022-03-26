@@ -27,7 +27,7 @@ def test_check_credentials_hash_password(user: User) -> None:
     must generate and validate user password
     """
     current_password = user.password
-    user.password = user.hash_password("salt")
+    user = user.hash_password("salt")
     assert user.check_credentials(current_password, "salt")
     assert not user.check_credentials(current_password, "salt1")
     assert not user.check_credentials(user.password, "salt")
@@ -48,9 +48,9 @@ def test_hash_password_empty_hash(user: User) -> None:
     must return empty string after hash in case if password not set
     """
     user.password = ""
-    assert user.hash_password("salt") == ""
+    assert user.hash_password("salt") == user
     user.password = None
-    assert user.hash_password("salt") == ""
+    assert user.hash_password("salt") == user
 
 
 def test_generate_password() -> None:

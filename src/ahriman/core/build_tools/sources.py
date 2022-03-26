@@ -47,6 +47,8 @@ class Sources:
         found_files: List[Path] = []
         for glob in pattern:
             found_files.extend(sources_dir.glob(glob))
+        if not found_files:
+            return  # no additional files found
         Sources.logger.info("found matching files %s", found_files)
         # add them to index
         Sources._check_output("git", "add", "--intent-to-add",
@@ -54,14 +56,13 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def diff(sources_dir: Path, patch_path: Path) -> None:
+    def diff(sources_dir: Path) -> str:
         """
         generate diff from the current version and write it to the output file
         :param sources_dir: local path to git repository
-        :param patch_path: path to result patch
+        :return: patch as plain string
         """
-        patch = Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
-        patch_path.write_text(patch)
+        return Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
     def fetch(sources_dir: Path, remote: Optional[str]) -> None:
@@ -112,41 +113,39 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def load(sources_dir: Path, remote: str, patch_dir: Path) -> None:
+    def load(sources_dir: Path, remote: str, patch: Optional[str]) -> None:
         """
         fetch sources from remote and apply patches
         :param sources_dir: local path to fetch
         :param remote: remote target (from where to fetch)
-        :param patch_dir: path to directory with package patches
+        :param patch: optional patch to be applied
         """
         Sources.fetch(sources_dir, remote)
-        Sources.patch_apply(sources_dir, patch_dir)
+        if patch is None:
+            Sources.logger.info("no patches found")
+            return
+        Sources.patch_apply(sources_dir, patch)
 
     @staticmethod
-    def patch_apply(sources_dir: Path, patch_dir: Path) -> None:
+    def patch_apply(sources_dir: Path, patch: str) -> None:
         """
         apply patches if any
         :param sources_dir: local path to directory with git sources
-        :param patch_dir: path to directory with package patches
+        :param patch: patch to be applied
         """
-        # check if even there are patches
-        if not patch_dir.is_dir():
-            return  # no patches provided
-        # find everything that looks like patch and sort it
-        patches = sorted(patch_dir.glob("*.patch"))
-        Sources.logger.info("found %s patches", patches)
-        for patch in patches:
-            Sources.logger.info("apply patch %s", patch.name)
-            Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace", str(patch),
-                                  exception=None, cwd=sources_dir, logger=Sources.logger)
+        # create patch
+        Sources.logger.info("apply patch from database")
+        Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace",
+                              exception=None, cwd=sources_dir, input_data=patch, logger=Sources.logger)
 
     @staticmethod
-    def patch_create(sources_dir: Path, patch_path: Path, *pattern: str) -> None:
+    def patch_create(sources_dir: Path, *pattern: str) -> str:
         """
         create patch set for the specified local path
         :param sources_dir: local path to git repository
-        :param patch_path: path to result patch
         :param pattern: glob patterns
+        :return: patch as plain text
         """
         Sources.add(sources_dir, *pattern)
-        Sources.diff(sources_dir, patch_path)
+        diff = Sources.diff(sources_dir)
+        return f"{diff}\n"  # otherwise, patch will be broken

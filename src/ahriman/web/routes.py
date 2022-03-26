@@ -22,7 +22,6 @@ from pathlib import Path
 
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
-from ahriman.web.views.service.reload_auth import ReloadAuthView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
@@ -44,8 +43,6 @@ def setup_routes(application: Application, static_path: Path) -> None:
         GET /index.html                        same as above
 
         POST /service-api/v1/add               add new packages to repository
-
-        POST /service-api/v1/reload-auth       reload authentication module
 
         POST /service-api/v1/remove            remove existing package from repository
 
@@ -80,8 +77,6 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_static("/static", static_path, follow_symlinks=True)
 
     application.router.add_post("/service-api/v1/add", AddView)
-
-    application.router.add_post("/service-api/v1/reload-auth", ReloadAuthView)
 
     application.router.add_post("/service-api/v1/remove", RemoveView)
 

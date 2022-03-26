@@ -43,4 +43,4 @@ class Clean(Handler):
         :param unsafe: if set no user check will be performed before path creation
         """
         Application(architecture, configuration, no_report, unsafe).clean(
-            args.build, args.cache, args.chroot, args.manual, args.packages, args.patches)
+            args.cache, args.chroot, args.manual, args.packages)

@@ -18,11 +18,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import shlex
 
 from typing import List, Type
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import ExitCode
 from ahriman.core.formatters.string_printer import StringPrinter
 
 
@@ -44,9 +46,25 @@ class UnsafeCommands(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
-        unsafe_commands = UnsafeCommands.get_unsafe_commands(args.parser())
-        for command in unsafe_commands:
-            StringPrinter(command).print(verbose=True)
+        parser = args.parser()
+        unsafe_commands = UnsafeCommands.get_unsafe_commands(parser)
+        if args.command is None:
+            for command in unsafe_commands:
+                StringPrinter(command).print(verbose=True)
+        else:
+            UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
+
+    @staticmethod
+    def check_unsafe(command: str, unsafe_commands: List[str], parser: argparse.ArgumentParser) -> None:
+        """
+        check if command is unsafe
+        :param command: command to check
+        :param unsafe_commands: list of unsafe commands
+        :param parser: generated argument parser
+        """
+        args = parser.parse_args(shlex.split(command))
+        if args.command in unsafe_commands:
+            raise ExitCode()
 
     @staticmethod
     def get_unsafe_commands(parser: argparse.ArgumentParser) -> List[str]:

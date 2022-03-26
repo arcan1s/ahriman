@@ -228,6 +228,7 @@ The following environment variables are supported:
 * `AHRIMAN_ARCHITECTURE` - architecture of the repository, default is `x86_64`.
 * `AHRIMAN_DEBUG` - if set all commands will be logged to console.
 * `AHRIMAN_FORCE_ROOT` - force run ahriman as root instead of guessing by subcommand.
+* `AHRIMAN_HOST` - host for the web interface, default is `0.0.0.0`.
 * `AHRIMAN_OUTPUT` - controls logging handler, e.g. `syslog`, `console`. The name must be found in logging configuration. Note that if `syslog` (the default) handler is used you will need to mount `/dev/log` inside container because it is not available there.
 * `AHRIMAN_PACKAGER` - packager name from which packages will be built, default is `ahriman bot <ahriman@example.com>`.
 * `AHRIMAN_PORT` - HTTP server port if any, default is empty.

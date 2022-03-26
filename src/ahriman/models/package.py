@@ -239,7 +239,7 @@ class Package:
         from ahriman.core.build_tools.sources import Sources
 
         logger = logging.getLogger("build_details")
-        Sources.load(paths.cache_for(self.base), self.git_url, paths.patches_for(self.base))
+        Sources.load(paths.cache_for(self.base), self.git_url, None)
 
         try:
             # update pkgver first

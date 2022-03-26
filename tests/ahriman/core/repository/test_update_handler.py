@@ -168,7 +168,7 @@ def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixtu
     update_handler.updates_manual()
 
     from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_manual.assert_called_once_with()
+    Cleaner.clear_queue.assert_called_once_with()
 
 
 def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahriman: Package,
@@ -176,9 +176,8 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
     """
     must create record for known package via reporter
     """
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     update_handler.updates_manual()
@@ -190,9 +189,8 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
     """
     must create record for unknown package via reporter
     """
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     update_handler.updates_manual()
@@ -204,8 +202,6 @@ def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahr
     """
     must process manual through the packages with failure
     """
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
-    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
-    mocker.patch("ahriman.models.package.Package.load", side_effect=Exception())
-
+    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", side_effect=Exception())
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     assert update_handler.updates_manual() == []

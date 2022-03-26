@@ -19,9 +19,12 @@
 #
 import datetime
 import os
-import subprocess
 import requests
+import shutil
+import subprocess
+import tempfile
 
+from contextlib import contextmanager
 from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, Generator, Iterable, Optional, Union
@@ -141,6 +144,19 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
     if size < 1024 or level >= 3:
         return f"{size:.1f} {str_level()}"
     return pretty_size(size / 1024, level + 1)
+
+
+@contextmanager
+def tmpdir() -> Generator[Path, None, None]:
+    """
+    wrapper for tempfile to remove directory after all
+    :return: path to the created directory
+    """
+    path = Path(tempfile.mkdtemp())
+    try:
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
 
 
 def walk(directory_path: Path) -> Generator[Path, None, None]:

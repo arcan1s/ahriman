@@ -61,13 +61,6 @@ def test_get_self(client: Client) -> None:
     assert client.get_self().status == BuildStatusEnum.Unknown
 
 
-def test_reload_auth(client: Client) -> None:
-    """
-    must process auth reload without errors
-    """
-    client.reload_auth()
-
-
 def test_remove(client: Client, package_ahriman: Package) -> None:
     """
     must process remove without errors

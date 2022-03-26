@@ -41,9 +41,6 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    # must clear directory
-    from ahriman.core.repository.cleaner import Cleaner
-    Cleaner.clear_build.assert_called_once_with()
 
 
 def test_process_build_failure(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

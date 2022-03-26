@@ -52,15 +52,8 @@ class RepositoryPaths:
         """
         :return: directory for devtools chroot
         """
-        # for the chroot directory devtools will create own tree and we don"t have to specify architecture here
+        # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
         return self.root / "chroot"
-
-    @property
-    def manual(self) -> Path:
-        """
-        :return: directory for manual updates (i.e. from add command)
-        """
-        return self.root / "manual" / self.architecture
 
     @property
     def packages(self) -> Path:
@@ -68,13 +61,6 @@ class RepositoryPaths:
         :return: directory for built packages
         """
         return self.root / "packages" / self.architecture
-
-    @property
-    def patches(self) -> Path:
-        """
-        :return: directory for source patches
-        """
-        return self.root / "patches"
 
     @property
     def repository(self) -> Path:
@@ -89,13 +75,6 @@ class RepositoryPaths:
         :return: owner user and group of the root directory
         """
         return self.owner(self.root)
-
-    @property
-    def sources(self) -> Path:
-        """
-        :return: directory for downloaded PKGBUILDs for current build
-        """
-        return self.root / "sources" / self.architecture
 
     @classmethod
     def known_architectures(cls: Type[RepositoryPaths], root: Path) -> Set[str]:
@@ -151,30 +130,6 @@ class RepositoryPaths:
             set_owner(path)
             path = path.parent
 
-    def manual_for(self, package_base: str) -> Path:
-        """
-        get manual path for specific package base
-        :param package_base: package base name
-        :return: full path to directory for specified package base manual updates
-        """
-        return self.manual / package_base
-
-    def patches_for(self, package_base: str) -> Path:
-        """
-        get patches path for specific package base
-        :param package_base: package base name
-        :return: full path to directory for specified package base patches
-        """
-        return self.patches / package_base
-
-    def sources_for(self, package_base: str) -> Path:
-        """
-        get path to directory from where build will start for the package base
-        :param package_base: package base name
-        :return: full path to directory for specified package base sources
-        """
-        return self.sources / package_base
-
     def tree_clear(self, package_base: str) -> None:
         """
         clear package specific files
@@ -182,9 +137,7 @@ class RepositoryPaths:
         """
         for directory in (
                 self.cache_for(package_base),
-                self.manual_for(package_base),
-                self.patches_for(package_base),
-                self.sources_for(package_base)):
+        ):
             shutil.rmtree(directory, ignore_errors=True)
 
     def tree_create(self) -> None:
@@ -194,10 +147,8 @@ class RepositoryPaths:
         for directory in (
                 self.cache,
                 self.chroot,
-                self.manual,
                 self.packages,
-                self.patches,
                 self.repository,
-                self.sources):
+        ):
             directory.mkdir(mode=0o755, parents=True, exist_ok=True)
             self.chown(directory)

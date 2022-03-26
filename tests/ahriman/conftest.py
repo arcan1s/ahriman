@@ -3,14 +3,16 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, Type, TypeVar
+from typing import Any, Dict, Type, TypeVar
 from unittest.mock import MagicMock
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.aur_package import AURPackage
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
@@ -46,6 +48,26 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
             return not strict or isinstance(other, cls)
 
     return AnyVar()
+
+
+@pytest.helpers.register
+def get_package_status(package: Package) -> Dict[str, Any]:
+    """
+    helper to extract package status from package
+    :param package: package object
+    :return: simplified package status map (with only status and view)
+    """
+    return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
+
+
+@pytest.helpers.register
+def get_package_status_extended(package: Package) -> Dict[str, Any]:
+    """
+    helper to extract package status from package
+    :param package: package object
+    :return: full package status map (with timestamped build status and view)
+    """
+    return {"status": BuildStatus().view(), "package": package.view()}
 
 
 # generic fixtures
@@ -121,6 +143,18 @@ def configuration(resource_path_root: Path) -> Configuration:
     """
     path = resource_path_root / "core" / "ahriman.ini"
     return Configuration.from_path(path=path, architecture="x86_64", quiet=False)
+
+
+@pytest.fixture
+def database(configuration: Configuration) -> SQLite:
+    """
+    database fixture
+    :param: configuration: configuration fixture
+    :return: database test instance
+    """
+    database = SQLite.load(configuration)
+    yield database
+    database.path.unlink()
 
 
 @pytest.fixture
@@ -267,12 +301,13 @@ def user() -> User:
 
 
 @pytest.fixture
-def watcher(configuration: Configuration, mocker: MockerFixture) -> Watcher:
+def watcher(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Watcher:
     """
     package status watcher fixture
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: package status watcher test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Watcher("x86_64", configuration)
+    return Watcher("x86_64", configuration, database)

@@ -22,11 +22,11 @@ import logging
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.exceptions import UnsafeRun
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Properties:
@@ -35,6 +35,7 @@ class Properties:
     :ivar architecture: repository architecture
     :ivar aur_url: base AUR url
     :ivar configuration: configuration instance
+    :ivar database: database instance
     :ivar ignore_list: package bases which will be ignored during auto updates
     :ivar logger: class logger
     :ivar name: repository name
@@ -45,22 +46,25 @@ class Properties:
     :ivar sign: GPG wrapper instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
+                 no_report: bool, unsafe: bool) -> None:
         """
         default constructor
         :param architecture: repository architecture
         :param configuration: configuration instance
+        :param database: database instance
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
+        self.database = database
 
         self.aur_url = configuration.get("alpm", "aur_url")
         self.name = configuration.get("repository", "name")
 
-        self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
+        self.paths = configuration.repository_paths
         try:
             check_user(self.paths, unsafe)
             self.paths.tree_create()

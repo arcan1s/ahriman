@@ -7,17 +7,20 @@ from ahriman.application.ahriman import _parser
 from ahriman.application.application import Application
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 
 
 @pytest.fixture
-def application(configuration: Configuration, mocker: MockerFixture) -> Application:
+def application(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Application:
     """
     fixture for application
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
     return Application("x86_64", configuration, no_report=True, unsafe=False)
 
 

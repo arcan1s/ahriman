@@ -18,15 +18,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import shutil
 
 from pathlib import Path
-from typing import List, Type
+from typing import List, Optional, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -36,8 +36,6 @@ class Patch(Handler):
     """
     patch control handler
     """
-
-    _print = print
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
@@ -69,25 +67,20 @@ class Patch(Handler):
         """
         package = Package.load(sources_dir, PackageSource.Local, application.repository.pacman,
                                application.repository.aur_url)
-        patch_dir = application.repository.paths.patches_for(package.base)
-
-        Patch.patch_set_remove(application, package.base)  # remove old patches
-        patch_dir.mkdir(mode=0o755, parents=True)
-
-        Sources.patch_create(Path(sources_dir), patch_dir / "00-main.patch", *track)
+        patch = Sources.patch_create(Path(sources_dir), *track)
+        application.database.patches_insert(package.base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: str) -> None:
+    def patch_set_list(application: Application, package_base: Optional[str]) -> None:
         """
         list patches available for the package base
         :param application: application instance
         :param package_base: package base
         """
-        patch_dir = application.repository.paths.patches_for(package_base)
-        if not patch_dir.is_dir():
-            return
-        for patch_path in sorted(patch_dir.glob("*.patch")):
-            Patch._print(patch_path.name)
+        patches = application.database.patches_list(package_base)
+        for base, patch in patches.items():
+            content = base if package_base is None else patch
+            StringPrinter(content).print(verbose=True)
 
     @staticmethod
     def patch_set_remove(application: Application, package_base: str) -> None:
@@ -96,5 +89,4 @@ class Patch(Handler):
         :param application: application instance
         :param package_base: package base
         """
-        patch_dir = application.repository.paths.patches_for(package_base)
-        shutil.rmtree(patch_dir, ignore_errors=True)
+        application.database.patches_remove(package_base)
