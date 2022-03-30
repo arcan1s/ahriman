@@ -22,6 +22,7 @@ from ahriman.application.handlers.handler import Handler
 from ahriman.application.handlers.add import Add
 from ahriman.application.handlers.clean import Clean
 from ahriman.application.handlers.dump import Dump
+from ahriman.application.handlers.help import Help
 from ahriman.application.handlers.key_import import KeyImport
 from ahriman.application.handlers.patch import Patch
 from ahriman.application.handlers.rebuild import Rebuild
