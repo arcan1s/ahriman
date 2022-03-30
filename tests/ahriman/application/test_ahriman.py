@@ -438,6 +438,38 @@ def test_subparsers_user_add_option_role(parser: argparse.ArgumentParser) -> Non
     assert isinstance(args.role, UserAccess)
 
 
+def test_subparsers_user_list(parser: argparse.ArgumentParser) -> None:
+    """
+    user-list command must imply action, architecture, lock, no-report, password, quiet and unsafe
+    """
+    args = parser.parse_args(["user-list"])
+    assert args.action == Action.List
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.password is not None
+    assert args.quiet
+    assert args.unsafe
+
+
+def test_subparsers_user_list_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    user-list command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "user-list"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> None:
+    """
+    user-list command must convert role option to useraccess instance
+    """
+    args = parser.parse_args(["user-list"])
+    assert isinstance(args.role, UserAccess)
+    args = parser.parse_args(["user-list", "--role", "write"])
+    assert isinstance(args.role, UserAccess)
+
+
 def test_subparsers_user_remove(parser: argparse.ArgumentParser) -> None:
     """
     user-remove command must imply action, architecture, lock, no-report, password, quiet, role and unsafe

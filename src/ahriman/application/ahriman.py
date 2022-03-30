@@ -94,6 +94,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_sync_parser(subparsers)
     _set_repo_update_parser(subparsers)
     _set_user_add_parser(subparsers)
+    _set_user_list_parser(subparsers)
     _set_user_remove_parser(subparsers)
     _set_web_parser(subparsers)
 
@@ -126,6 +127,8 @@ def _set_help_commands_unsafe(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
                              description="list unsafe commands as defined in default args", formatter_class=_formatter)
+    parser.add_argument("--command", help="instead of showing commands, just test command line for unsafe subcommand "
+                                          "and return 0 in case if command is safe and 1 otherwise")
     parser.set_defaults(handler=handlers.UnsafeCommands, architecture=[""], lock=None, no_report=True, quiet=True,
                         unsafe=True, parser=_parser)
     return parser
@@ -273,7 +276,7 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("patch-list", help="list patch sets",
                              description="list available patches for the package", formatter_class=_formatter)
-    parser.add_argument("package", help="package base")
+    parser.add_argument("package", help="package base", nargs="?")
     parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, no_report=True)
     return parser
 
@@ -318,12 +321,10 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "you should not run this command manually. Also in case if you are going to clear "
                                     "the chroot directories you will need root privileges.",
                              formatter_class=_formatter)
-    parser.add_argument("--build", help="clear directory with package sources", action="store_true")
     parser.add_argument("--cache", help="clear directory with package caches", action="store_true")
     parser.add_argument("--chroot", help="clear build chroot", action="store_true")
-    parser.add_argument("--manual", help="clear directory with manually added packages", action="store_true")
+    parser.add_argument("--manual", help="clear manually added packages queue", action="store_true")
     parser.add_argument("--packages", help="clear directory with built packages", action="store_true")
-    parser.add_argument("--patches", help="clear directory with patches", action="store_true")
     parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
     return parser
 
@@ -487,7 +488,6 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("--as-service", help="add user as service user", action="store_true")
-    parser.add_argument("--no-reload", help="do not reload authentication module", action="store_true")
     parser.add_argument("-p", "--password", help="user password. Blank password will be treated as empty password, "
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-r", "--role", help="user access level",
@@ -495,6 +495,22 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.User, action=Action.Update, architecture=[""], lock=None, no_report=True,
                         quiet=True, unsafe=True)
+    return parser
+
+
+def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for user list subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("user-list", help="user known users and their access",
+                             description="list users from the user mapping and their roles",
+                             formatter_class=_formatter)
+    parser.add_argument("username", help="filter users by username", nargs="?")
+    parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=UserAccess)
+    parser.set_defaults(handler=handlers.User, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
+                        password="", quiet=True, role=UserAccess.Read, unsafe=True)
     return parser
 
 
@@ -508,7 +524,6 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.add_argument("--no-reload", help="do not reload authentication module", action="store_true")
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.User, action=Action.Remove, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, role=UserAccess.Read, unsafe=True)

@@ -58,7 +58,7 @@ class LoginView(BaseView):
         identity = UserIdentity.from_username(username, self.validator.max_age)
         if identity is not None and await self.validator.known_username(username):
             await remember(self.request, response, identity.to_identity())
-            return response
+            raise response
 
         raise HTTPUnauthorized()
 
@@ -81,6 +81,6 @@ class LoginView(BaseView):
         identity = UserIdentity.from_username(username, self.validator.max_age)
         if identity is not None and await self.validator.check_credentials(username, data.get("password")):
             await remember(self.request, response, identity.to_identity())
-            return response
+            raise response
 
         raise HTTPUnauthorized()

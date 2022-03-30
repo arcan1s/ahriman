@@ -77,11 +77,6 @@ class Client:
         """
         return BuildStatus()
 
-    def reload_auth(self) -> None:
-        """
-        reload authentication module call
-        """
-
     def remove(self, base: str) -> None:
         """
         remove packages from watcher

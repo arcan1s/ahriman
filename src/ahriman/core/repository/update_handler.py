@@ -90,7 +90,7 @@ class UpdateHandler(Cleaner):
                 else:
                     self.reporter.set_success(local)
             except Exception:
-                self.logger.exception("could not procees package at %s", dirname)
+                self.logger.exception("could not process package at %s", dirname)
 
         return result
 
@@ -102,16 +102,15 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}
 
-        for dirname in self.paths.manual.iterdir():
-            try:
-                local = Package.load(str(dirname), PackageSource.Local, self.pacman, self.aur_url)
+        try:
+            for local in self.database.build_queue_get():
                 result.append(local)
                 if local.base not in known_bases:
                     self.reporter.set_unknown(local)
                 else:
                     self.reporter.set_pending(local.base)
-            except Exception:
-                self.logger.exception("could not add package from %s", dirname)
-        self.clear_manual()
+        except Exception:
+            self.logger.exception("could not load packages from database")
+        self.clear_queue()
 
         return result

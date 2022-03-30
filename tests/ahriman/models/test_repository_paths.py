@@ -111,33 +111,6 @@ def test_chown_invalid_path(repository_paths: RepositoryPaths) -> None:
         repository_paths.chown(repository_paths.root.parent)
 
 
-def test_manual_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
-    """
-    must return correct path for manual directory
-    """
-    path = repository_paths.manual_for(package_ahriman.base)
-    assert path.name == package_ahriman.base
-    assert path.parent == repository_paths.manual
-
-
-def test_patches_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
-    """
-    must return correct path for patches directory
-    """
-    path = repository_paths.patches_for(package_ahriman.base)
-    assert path.name == package_ahriman.base
-    assert path.parent == repository_paths.patches
-
-
-def test_sources_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
-    """
-    must return correct path for sources directory
-    """
-    path = repository_paths.sources_for(package_ahriman.base)
-    assert path.name == package_ahriman.base
-    assert path.parent == repository_paths.sources
-
-
 def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove any package related files

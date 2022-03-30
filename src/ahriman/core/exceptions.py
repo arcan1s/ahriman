@@ -26,12 +26,12 @@ class BuildFailed(RuntimeError):
     base exception for failed builds
     """
 
-    def __init__(self, package: str) -> None:
+    def __init__(self, package_base: str) -> None:
         """
         default constructor
-        :param package: package base raised exception
+        :param package_base: package base raised exception
         """
-        RuntimeError.__init__(self, f"Package {package} build failed, check logs for details")
+        RuntimeError.__init__(self, f"Package {package_base} build failed, check logs for details")
 
 
 class DuplicateRun(RuntimeError):
@@ -47,17 +47,10 @@ class DuplicateRun(RuntimeError):
             self, "Another application instance is run. This error can be suppressed by using --force flag.")
 
 
-class DuplicateUser(ValueError):
+class ExitCode(RuntimeError):
     """
-    exception which will be thrown in case if there are two users with different settings
+    special exception which has to be thrown to return non-zero status without error message
     """
-
-    def __init__(self, username: str) -> None:
-        """
-        default constructor
-        :param username: username with duplicates
-        """
-        ValueError.__init__(self, f"Found duplicate user with username {username}")
 
 
 class InitializeException(RuntimeError):
@@ -111,6 +104,19 @@ class InvalidPackageInfo(RuntimeError):
         :param details: error details
         """
         RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
+
+
+class MigrationError(RuntimeError):
+    """
+    exception which will be raised on migration error
+    """
+
+    def __init__(self, details: str) -> None:
+        """
+        default constructor
+        :param details: error details
+        """
+        RuntimeError.__init__(self, details)
 
 
 class MissingArchitecture(ValueError):

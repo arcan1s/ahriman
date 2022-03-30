@@ -42,28 +42,22 @@ class Repository(Properties):
         """
         raise NotImplementedError
 
-    def clean(self, build: bool, cache: bool, chroot: bool, manual: bool, packages: bool, patches: bool) -> None:
+    def clean(self, cache: bool, chroot: bool, manual: bool, packages: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root
-        :param build: clear directory with package sources
         :param cache: clear directory with package caches
         :param chroot: clear build chroot
         :param manual: clear directory with manually added packages
         :param packages: clear directory with built packages
-        :param patches: clear directory with patches
         """
-        if build:
-            self.repository.clear_build()
         if cache:
             self.repository.clear_cache()
         if chroot:
             self.repository.clear_chroot()
         if manual:
-            self.repository.clear_manual()
+            self.repository.clear_queue()
         if packages:
             self.repository.clear_packages()
-        if patches:
-            self.repository.clear_patches()
 
     def report(self, target: Iterable[str], result: Result) -> None:
         """
@@ -154,7 +148,7 @@ class Repository(Properties):
         process_update(packages, Result())
 
         # process manual packages
-        tree = Tree.load(updates, self.repository.paths)
+        tree = Tree.load(updates, self.database)
         for num, level in enumerate(tree.levels()):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
             build_result = self.repository.process_build(level)

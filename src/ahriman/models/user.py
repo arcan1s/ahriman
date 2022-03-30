@@ -79,18 +79,18 @@ class User:
             verified = False  # the absence of evidence is not the evidence of absence (c) Gin Rummy
         return verified
 
-    def hash_password(self, salt: str) -> str:
+    def hash_password(self, salt: str) -> User:
         """
         generate hashed password from plain text
         :param salt: salt for hashed password
-        :return: hashed string to store in configuration
+        :return: user with hashed password to store in configuration
         """
         if not self.password:
             # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider
             # when we do not store any password here
-            return ""
+            return self
         password_hash: str = self._HASHER.hash(self.password + salt)
-        return password_hash
+        return User(self.username, password_hash, self.access)
 
     def verify_access(self, required: UserAccess) -> bool:
         """

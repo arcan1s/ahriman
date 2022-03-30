@@ -8,6 +8,14 @@ from unittest import mock
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeException
+from ahriman.models.repository_paths import RepositoryPaths
+
+
+def test_repository_paths(configuration: Configuration, repository_paths: RepositoryPaths) -> None:
+    """
+    must return repository paths
+    """
+    assert configuration.repository_paths == repository_paths
 
 
 def test_from_path(mocker: MockerFixture) -> None:
@@ -38,6 +46,33 @@ def test_from_path_file_missing(mocker: MockerFixture) -> None:
 
     configuration = Configuration.from_path(Path("path"), "x86_64", True)
     read_mock.assert_called_once_with(configuration.SYSTEM_CONFIGURATION_PATH)
+
+
+def test_check_loaded(configuration: Configuration) -> None:
+    """
+    must return valid path and architecture
+    """
+    path, architecture = configuration.check_loaded()
+    assert path == configuration.path
+    assert architecture == configuration.architecture
+
+
+def test_check_loaded_path(configuration: Configuration) -> None:
+    """
+    must raise exception if path is none
+    """
+    configuration.path = None
+    with pytest.raises(InitializeException):
+        configuration.check_loaded()
+
+
+def test_check_loaded_architecture(configuration: Configuration) -> None:
+    """
+    must raise exception if architecture is none
+    """
+    configuration.architecture = None
+    with pytest.raises(InitializeException):
+        configuration.check_loaded()
 
 
 def test_dump(configuration: Configuration) -> None:

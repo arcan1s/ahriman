@@ -67,24 +67,23 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     must list available patches for the command
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local")])
-    print_mock = mocker.patch("ahriman.application.handlers.patch.Patch._print")
+    get_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.patches_list", return_value={"ahriman": "patch"})
+    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Patch.patch_set_list(application, "ahriman")
-    glob_mock.assert_called_once_with("*.patch")
-    print_mock.assert_called()
+    get_mock.assert_called_once_with("ahriman")
+    print_mock.assert_called_once_with(verbose=True)
 
 
-def test_patch_set_list_no_dir(application: Application, mocker: MockerFixture) -> None:
+def test_patch_set_list_no_patches(application: Application, mocker: MockerFixture) -> None:
     """
     must not fail if no patches directory found
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    glob_mock = mocker.patch("pathlib.Path.glob")
-    print_mock = mocker.patch("ahriman.application.handlers.patch.Patch._print")
+    mocker.patch("ahriman.core.database.sqlite.SQLite.patches_get", return_value=None)
+    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Patch.patch_set_list(application, "ahriman")
-    glob_mock.assert_not_called()
     print_mock.assert_not_called()
 
 
@@ -94,21 +93,17 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     """
     mocker.patch("pathlib.Path.mkdir")
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    remove_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
-    create_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create")
-    patch_dir = application.repository.paths.patches_for(package_ahriman.base)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create", return_value="patch")
+    create_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.patches_insert")
 
-    Patch.patch_set_create(application, Path("path"), ["*.patch"])
-    remove_mock.assert_called_once_with(application, package_ahriman.base)
-    create_mock.assert_called_once_with(Path("path"), patch_dir / "00-main.patch", "*.patch")
+    Patch.patch_set_create(application, "path", ["*.patch"])
+    create_mock.assert_called_once_with(package_ahriman.base, "patch")
 
 
 def test_patch_set_remove(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove patch set for the package
     """
-    remove_mock = mocker.patch("shutil.rmtree")
-    patch_dir = application.repository.paths.patches_for(package_ahriman.base)
-
+    remove_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.patches_remove")
     Patch.patch_set_remove(application, package_ahriman.base)
-    remove_mock.assert_called_once_with(patch_dir, ignore_errors=True)
+    remove_mock.assert_called_once_with(package_ahriman.base)

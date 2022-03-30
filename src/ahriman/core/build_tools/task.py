@@ -21,10 +21,11 @@ import logging
 import shutil
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.exceptions import BuildFailed
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
@@ -61,9 +62,10 @@ class Task:
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    def build(self) -> List[Path]:
+    def build(self, sources_path: Path) -> List[Path]:
         """
         run package build
+        :param sources_path: path to where sources are
         :return: paths of produced packages
         """
         command = [self.build_command, "-r", str(self.paths.chroot)]
@@ -75,24 +77,24 @@ class Task:
         Task._check_output(
             *command,
             exception=BuildFailed(self.package.base),
-            cwd=self.paths.sources_for(self.package.base),
+            cwd=sources_path,
             logger=self.build_logger,
             user=self.uid)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",
                                       exception=BuildFailed(self.package.base),
-                                      cwd=self.paths.sources_for(self.package.base),
+                                      cwd=sources_path,
                                       logger=self.build_logger).splitlines()
         return [Path(package) for package in packages]
 
-    def init(self, path: Optional[Path] = None) -> None:
+    def init(self, path: Path, database: SQLite) -> None:
         """
         fetch package from git
-        :param path: optional local path to fetch. If not set default path will be used
+        :param path: local path to fetch
+        :param database: database instance
         """
-        git_path = path or self.paths.sources_for(self.package.base)
         if self.paths.cache_for(self.package.base).is_dir():
             # no need to clone whole repository, just copy from cache first
-            shutil.copytree(self.paths.cache_for(self.package.base), git_path)
-        Sources.load(git_path, self.package.git_url, self.paths.patches_for(self.package.base))
+            shutil.copytree(self.paths.cache_for(self.package.base), path, dirs_exist_ok=True)
+        Sources.load(path, self.package.git_url, database.patches_get(self.package.base))

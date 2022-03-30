@@ -32,7 +32,6 @@ from ahriman.core.exceptions import DuplicateRun
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Lock:
@@ -56,7 +55,7 @@ class Lock:
         self.force = args.force
         self.unsafe = args.unsafe
 
-        self.paths = RepositoryPaths(configuration.getpath("repository", "root"), architecture)
+        self.paths = configuration.repository_paths
         self.reporter = Client() if args.no_report else Client.load(configuration)
 
     def __enter__(self) -> Lock:

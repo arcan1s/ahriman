@@ -95,3 +95,5 @@ ENV/
 
 *.tar.xz
 status_cache.json
+
+*.db

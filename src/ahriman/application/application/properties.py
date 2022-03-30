@@ -20,6 +20,7 @@
 import logging
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.repository import Repository
 
 
@@ -28,6 +29,7 @@ class Properties:
     application base properties class
     :ivar architecture: repository architecture
     :ivar configuration: configuration instance
+    :ivar database: database instance
     :ivar logger: application logger
     :ivar repository: repository instance
     """
@@ -43,4 +45,5 @@ class Properties:
         self.logger = logging.getLogger("root")
         self.configuration = configuration
         self.architecture = architecture
-        self.repository = Repository(architecture, configuration, no_report, unsafe)
+        self.database = SQLite.load(configuration)
+        self.repository = Repository(architecture, configuration, self.database, no_report, unsafe)

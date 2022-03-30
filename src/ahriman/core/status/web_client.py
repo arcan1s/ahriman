@@ -68,13 +68,6 @@ class WebClient(Client):
         return f"{self.address}/user-api/v1/login"
 
     @property
-    def _reload_auth_url(self) -> str:
-        """
-        :return: full url for web service to reload authentication module
-        """
-        return f"{self.address}/service-api/v1/reload-auth"
-
-    @property
     def _status_url(self) -> str:
         """
         :return: full url for web service for status
@@ -197,18 +190,6 @@ class WebClient(Client):
         except Exception:
             self.logger.exception("could not get service status")
         return BuildStatus()
-
-    def reload_auth(self) -> None:
-        """
-        reload authentication module call
-        """
-        try:
-            response = self.__session.post(self._reload_auth_url)
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not reload auth module: %s", exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not reload auth module")
 
     def remove(self, base: str) -> None:
         """

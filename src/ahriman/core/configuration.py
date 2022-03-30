@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
 from ahriman.core.exceptions import InitializeException
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Configuration(configparser.RawConfigParser):
@@ -71,6 +72,14 @@ class Configuration(configparser.RawConfigParser):
         :return: path to logging configuration
         """
         return self.getpath("settings", "logging")
+
+    @property
+    def repository_paths(self) -> RepositoryPaths:
+        """
+        :return: repository paths instance
+        """
+        _, architecture = self.check_loaded()
+        return RepositoryPaths(self.getpath("repository", "root"), architecture)
 
     @classmethod
     def from_path(cls: Type[Configuration], path: Path, architecture: str, quiet: bool) -> Configuration:
@@ -133,6 +142,15 @@ class Configuration(configparser.RawConfigParser):
         if self.path is None or path.is_absolute():
             return path
         return self.path.parent / path
+
+    def check_loaded(self) -> Tuple[Path, str]:
+        """
+        check if service was actually loaded
+        :return: configuration root path and architecture if loaded
+        """
+        if self.path is None or self.architecture is None:
+            raise InitializeException("Configuration path and/or architecture are not set")
+        return self.path, self.architecture
 
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
@@ -233,12 +251,11 @@ class Configuration(configparser.RawConfigParser):
         """
         reload configuration if possible or raise exception otherwise
         """
-        if self.path is None or self.architecture is None:
-            raise InitializeException("Configuration path and/or architecture are not set")
+        path, architecture = self.check_loaded()
         for section in self.sections():  # clear current content
             self.remove_section(section)
-        self.load(self.path)
-        self.merge_sections(self.architecture)
+        self.load(path)
+        self.merge_sections(architecture)
 
     def set_option(self, section: str, option: str, value: Optional[str]) -> None:
         """

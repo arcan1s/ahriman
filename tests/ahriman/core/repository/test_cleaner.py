@@ -36,15 +36,6 @@ def test_packages_built(cleaner: Cleaner) -> None:
         cleaner.packages_built()
 
 
-def test_clear_build(cleaner: Cleaner, mocker: MockerFixture) -> None:
-    """
-    must remove directories with sources
-    """
-    _mock_clear(mocker)
-    cleaner.clear_build()
-    _mock_clear_check()
-
-
 def test_clear_cache(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
     must remove every cached sources
@@ -63,15 +54,6 @@ def test_clear_chroot(cleaner: Cleaner, mocker: MockerFixture) -> None:
     _mock_clear_check()
 
 
-def test_clear_manual(cleaner: Cleaner, mocker: MockerFixture) -> None:
-    """
-    must clear directory with manual packages
-    """
-    _mock_clear(mocker)
-    cleaner.clear_manual()
-    _mock_clear_check()
-
-
 def test_clear_packages(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
     must delete built packages
@@ -84,10 +66,10 @@ def test_clear_packages(cleaner: Cleaner, mocker: MockerFixture) -> None:
     Path.unlink.assert_has_calls([mock.call(), mock.call(), mock.call()])
 
 
-def test_clear_patches(cleaner: Cleaner, mocker: MockerFixture) -> None:
+def test_clear_queue(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
-    must clear directory with patches
+    must clear queued packages from the database
     """
-    _mock_clear(mocker)
-    cleaner.clear_patches()
-    _mock_clear_check()
+    clear_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_clear")
+    cleaner.clear_queue()
+    clear_mock.assert_called_once_with(None)

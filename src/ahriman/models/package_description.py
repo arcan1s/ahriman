@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from pyalpm import Package  # type: ignore
 from typing import Any, Dict, List, Optional, Type
@@ -94,3 +94,10 @@ class PackageDescription:
             licenses=package.licenses,
             provides=package.provides,
             url=package.url)
+
+    def view(self) -> Dict[str, Any]:
+        """
+        generate json package view
+        :return: json-friendly dictionary
+        """
+        return asdict(self)

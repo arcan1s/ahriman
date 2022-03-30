@@ -5,7 +5,8 @@ set -e
 
 # configuration tune
 sed -i "s|root = /var/lib/ahriman|root = $AHRIMAN_REPOSITORY_ROOT|g" "/etc/ahriman.ini"
-sed -i "s|host = 127.0.0.1|host = 0.0.0.0|g" "/etc/ahriman.ini"
+sed -i "s|database = /var/lib/ahriman/ahriman.db|database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db|g" "/etc/ahriman.ini"
+sed -i "s|host = 127.0.0.1|host = $AHRIMAN_HOST|g" "/etc/ahriman.ini"
 sed -i "s|handlers = syslog_handler|handlers = ${AHRIMAN_OUTPUT}_handler|g" "/etc/ahriman.ini.d/logging.ini"
 
 AHRIMAN_DEFAULT_ARGS=("-a" "$AHRIMAN_ARCHITECTURE")
@@ -40,9 +41,9 @@ systemd-machine-id-setup &> /dev/null
 # otherwise we prepend executable by sudo command
 if [ -n "$AHRIMAN_FORCE_ROOT" ]; then
     AHRIMAN_EXECUTABLE=("ahriman")
-elif ahriman help-commands-unsafe | grep -Fxq "$1"; then
-    AHRIMAN_EXECUTABLE=("ahriman")
-else
+elif ahriman help-commands-unsafe --command="$*" &> /dev/null; then
     AHRIMAN_EXECUTABLE=("sudo" "-u" "$AHRIMAN_USER" "--" "ahriman")
+else
+    AHRIMAN_EXECUTABLE=("ahriman")
 fi
 exec "${AHRIMAN_EXECUTABLE[@]}" "${AHRIMAN_DEFAULT_ARGS[@]}" "$@"

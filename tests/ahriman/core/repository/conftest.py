@@ -3,6 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.executor import Executor
@@ -11,68 +12,71 @@ from ahriman.core.repository.update_handler import UpdateHandler
 
 
 @pytest.fixture
-def cleaner(configuration: Configuration, mocker: MockerFixture) -> Cleaner:
+def cleaner(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Cleaner:
     """
     fixture for cleaner
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: cleaner test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Cleaner("x86_64", configuration, no_report=True, unsafe=False)
+    return Cleaner("x86_64", configuration, database, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def executor(configuration: Configuration, mocker: MockerFixture) -> Executor:
+def executor(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Executor:
     """
     fixture for executor
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: executor test instance
     """
-    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
-    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
+    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Executor("x86_64", configuration, no_report=True, unsafe=False)
+    return Executor("x86_64", configuration, database, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def repository(configuration: Configuration, mocker: MockerFixture) -> Repository:
+def repository(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Repository:
     """
     fixture for repository
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: repository test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return Repository("x86_64", configuration, no_report=True, unsafe=False)
+    return Repository("x86_64", configuration, database, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def properties(configuration: Configuration) -> Properties:
+def properties(configuration: Configuration, database: SQLite) -> Properties:
     """
     fixture for properties
     :param configuration: configuration fixture
+    :param database: database fixture
     :return: properties test instance
     """
-    return Properties("x86_64", configuration, no_report=True, unsafe=False)
+    return Properties("x86_64", configuration, database, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def update_handler(configuration: Configuration, mocker: MockerFixture) -> UpdateHandler:
+def update_handler(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> UpdateHandler:
     """
     fixture for update handler
     :param configuration: configuration fixture
+    :param database: database fixture
     :param mocker: mocker object
     :return: update handler test instance
     """
-    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
-    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
+    mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    return UpdateHandler("x86_64", configuration, no_report=True, unsafe=False)
+    return UpdateHandler("x86_64", configuration, database, no_report=True, unsafe=False)

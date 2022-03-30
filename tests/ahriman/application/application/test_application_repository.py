@@ -17,21 +17,12 @@ def test_finalize(application_repository: Repository) -> None:
         application_repository._finalize([])
 
 
-def test_clean_build(application_repository: Repository, mocker: MockerFixture) -> None:
-    """
-    must clean build directory
-    """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_build")
-    application_repository.clean(True, False, False, False, False, False)
-    clear_mock.assert_called_once_with()
-
-
 def test_clean_cache(application_repository: Repository, mocker: MockerFixture) -> None:
     """
     must clean cache directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
-    application_repository.clean(False, True, False, False, False, False)
+    application_repository.clean(True, False, False, False)
     clear_mock.assert_called_once_with()
 
 
@@ -40,7 +31,7 @@ def test_clean_chroot(application_repository: Repository, mocker: MockerFixture)
     must clean chroot directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
-    application_repository.clean(False, False, True, False, False, False)
+    application_repository.clean(False, True, False, False)
     clear_mock.assert_called_once_with()
 
 
@@ -48,8 +39,8 @@ def test_clean_manual(application_repository: Repository, mocker: MockerFixture)
     """
     must clean manual directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_manual")
-    application_repository.clean(False, False, False, True, False, False)
+    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
+    application_repository.clean(False, False, True, False)
     clear_mock.assert_called_once_with()
 
 
@@ -58,16 +49,7 @@ def test_clean_packages(application_repository: Repository, mocker: MockerFixtur
     must clean packages directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
-    application_repository.clean(False, False, False, False, True, False)
-    clear_mock.assert_called_once_with()
-
-
-def test_clean_patches(application_repository: Repository, mocker: MockerFixture) -> None:
-    """
-    must clean packages directory
-    """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_patches")
-    application_repository.clean(False, False, False, False, False, True)
+    application_repository.clean(False, False, False, True)
     clear_mock.assert_called_once_with()
 
 

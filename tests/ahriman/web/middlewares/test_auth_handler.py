@@ -20,11 +20,18 @@ def _identity(username: str) -> str:
     return f"{username} {UserIdentity.expire_when(60)}"
 
 
-async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user: User) -> None:
+async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user: User, mocker: MockerFixture) -> None:
     """
     must return authorized user id
     """
+    mocker.patch("ahriman.core.database.sqlite.SQLite.user_get", return_value=user)
     assert await authorization_policy.authorized_userid(_identity(user.username)) == user.username
+
+
+async def test_authorized_userid_unknown(authorization_policy: AuthorizationPolicy, user: User) -> None:
+    """
+    must not allow unknown user id for authorization
+    """
     assert await authorization_policy.authorized_userid(_identity("somerandomname")) is None
     assert await authorization_policy.authorized_userid("somerandomname") is None
 

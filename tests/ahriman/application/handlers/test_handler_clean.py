@@ -12,12 +12,10 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :param args: command line arguments fixture
     :return: generated arguments for these test cases
     """
-    args.build = False
     args.cache = False
     args.chroot = False
     args.manual = False
     args.packages = False
-    args.patches = False
     return args
 
 
@@ -30,4 +28,4 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.clean")
 
     Clean.run(args, "x86_64", configuration, True, False)
-    application_mock.assert_called_once_with(False, False, False, False, False, False)
+    application_mock.assert_called_once_with(False, False, False, False)

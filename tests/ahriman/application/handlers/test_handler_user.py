@@ -3,10 +3,11 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
 
 from ahriman.application.handlers import User
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
+from ahriman.core.exceptions import InitializeException
 from ahriman.models.action import Action
 from ahriman.models.user import User as MUser
 from ahriman.models.user_access import UserAccess
@@ -21,96 +22,78 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.username = "user"
     args.action = Action.Update
     args.as_service = False
-    args.no_reload = False
     args.password = "pa55w0rd"
     args.role = UserAccess.Read
     args.secure = False
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    user = MUser(args.username, args.password, args.role)
+    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
-    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
-    create_user_mock = mocker.patch("ahriman.application.handlers.User.user_create")
-    get_salt_mock = mocker.patch("ahriman.application.handlers.User.get_salt")
-    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
+    create_user_mock = mocker.patch("ahriman.application.handlers.User.user_create", return_value=user)
+    get_salt_mock = mocker.patch("ahriman.application.handlers.User.get_salt", return_value="salt")
+    update_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_update")
 
     User.run(args, "x86_64", configuration, True, False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
-    create_configuration_mock.assert_called_once_with(
-        pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), args.as_service)
+    create_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int),
+                                                      pytest.helpers.anyvar(int), args.as_service, args.secure)
     create_user_mock.assert_called_once_with(args)
     get_salt_mock.assert_called_once_with(configuration)
-    write_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.secure)
-    reload_mock.assert_called_once_with()
+    update_mock.assert_called_once_with(user)
 
 
-def test_run_remove(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_list(args: argparse.Namespace, configuration: Configuration, database: SQLite, user: User,
+                  mocker: MockerFixture) -> None:
+    """
+    must list avaiable users
+    """
+    args = _default_args(args)
+    args.action = Action.List
+    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
+    list_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[user])
+
+    User.run(args, "x86_64", configuration, True, False)
+    get_auth_configuration_mock.assert_called_once_with(configuration.include)
+    list_mock.assert_called_once_with("user", UserAccess.Read)
+
+
+def test_run_remove(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                    mocker: MockerFixture) -> None:
     """
     must remove user if remove flag supplied
     """
     args = _default_args(args)
     args.action = Action.Remove
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
-    create_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_create")
-    write_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
-    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
+    remove_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_remove")
 
     User.run(args, "x86_64", configuration, True, False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
-    create_configuration_mock.assert_not_called()
-    write_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.secure)
-    reload_mock.assert_called_once_with()
-
-
-def test_run_no_reload(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must run command with no reload
-    """
-    args = _default_args(args)
-    args.no_reload = True
-    mocker.patch("ahriman.application.handlers.User.configuration_get")
-    mocker.patch("ahriman.application.handlers.User.configuration_create")
-    mocker.patch("ahriman.application.handlers.User.configuration_write")
-    reload_mock = mocker.patch("ahriman.core.status.client.Client.reload_auth")
-
-    User.run(args, "x86_64", configuration, True, False)
-    reload_mock.assert_not_called()
+    remove_mock.assert_called_once_with(args.username)
 
 
 def test_configuration_create(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
     """
     must correctly create configuration file
     """
-    section = Configuration.section_name("auth", user.access.value)
     mocker.patch("pathlib.Path.open")
     set_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
+    write_mock = mocker.patch("ahriman.application.handlers.User.configuration_write")
 
-    User.configuration_create(configuration, user, "salt", False)
-    set_mock.assert_has_calls([
-        mock.call("auth", "salt", pytest.helpers.anyvar(int)),
-        mock.call(section, user.username, pytest.helpers.anyvar(int))
-    ])
-
-
-def test_configuration_create_user_exists(configuration: Configuration, user: MUser, mocker: MockerFixture) -> None:
-    """
-    must correctly update configuration file if user already exists
-    """
-    section = Configuration.section_name("auth", user.access.value)
-    configuration.set_option(section, user.username, "")
-    mocker.patch("pathlib.Path.open")
-
-    User.configuration_create(configuration, user, "salt", False)
-    generated = MUser.from_option(user.username, configuration.get(section, user.username))
-    assert generated.check_credentials(user.password, configuration.get("auth", "salt"))
+    User.configuration_create(configuration, user, "salt", False, False)
+    set_mock.assert_called_once_with("auth", "salt", pytest.helpers.anyvar(int))
+    write_mock.assert_called_once_with(configuration, False)
 
 
 def test_configuration_create_with_plain_password(
@@ -120,12 +103,11 @@ def test_configuration_create_with_plain_password(
     """
     must set plain text password and user for the service
     """
-    section = Configuration.section_name("auth", user.access.value)
     mocker.patch("pathlib.Path.open")
 
-    User.configuration_create(configuration, user, "salt", True)
+    User.configuration_create(configuration, user, "salt", True, False)
 
-    generated = MUser.from_option(user.username, configuration.get(section, user.username))
+    generated = MUser.from_option(user.username, user.password).hash_password("salt")
     service = MUser.from_option(configuration.get("web", "username"), configuration.get("web", "password"))
     assert generated.username == service.username
     assert generated.check_credentials(service.password, configuration.get("auth", "salt"))
@@ -174,12 +156,9 @@ def test_configuration_write_not_loaded(configuration: Configuration, mocker: Mo
     """
     configuration.path = None
     mocker.patch("pathlib.Path.open")
-    write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
-    chmod_mock = mocker.patch("pathlib.Path.chmod")
 
-    User.configuration_write(configuration, secure=True)
-    write_mock.assert_not_called()
-    chmod_mock.assert_not_called()
+    with pytest.raises(InitializeException):
+        User.configuration_write(configuration, secure=True)
 
 
 def test_get_salt_read(configuration: Configuration) -> None:
@@ -198,31 +177,6 @@ def test_get_salt_generate(configuration: Configuration) -> None:
     salt = User.get_salt(configuration, 16)
     assert salt
     assert len(salt) == 16
-
-
-def test_user_clear(configuration: Configuration, user: MUser) -> None:
-    """
-    must clear user from configuration
-    """
-    section = Configuration.section_name("auth", user.access.value)
-    configuration.set_option(section, user.username, user.password)
-
-    User.user_clear(configuration, user)
-    assert configuration.get(section, user.username, fallback=None) is None
-
-
-def test_user_clear_multiple_sections(configuration: Configuration, user: MUser) -> None:
-    """
-    must clear user from configuration from all sections
-    """
-    for role in UserAccess:
-        section = Configuration.section_name("auth", role.value)
-        configuration.set_option(section, user.username, user.password)
-
-    User.user_clear(configuration, user)
-    for role in UserAccess:
-        section = Configuration.section_name("auth", role.value)
-        assert configuration.get(section, user.username, fallback=None) is None
 
 
 def test_user_create(args: argparse.Namespace, user: MUser) -> None:

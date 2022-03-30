@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture, MultipleArchitectures
+from ahriman.core.exceptions import ExitCode, MissingArchitecture, MultipleArchitectures
 
 
 def test_architectures_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -71,8 +71,26 @@ def test_call_exception(args: argparse.Namespace, mocker: MockerFixture) -> None
     """
     must process exception
     """
-    mocker.patch("ahriman.application.lock.Lock.__enter__", side_effect=Exception())
+    args.configuration = Path("")
+    args.quiet = False
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=Exception())
+    logging_mock = mocker.patch("logging.Logger.exception")
+
     assert not Handler.call(args, "x86_64")
+    logging_mock.assert_called_once_with(pytest.helpers.anyvar(str, strict=True))
+
+
+def test_call_exit_code(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must process exitcode exception
+    """
+    args.configuration = Path("")
+    args.quiet = False
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=ExitCode())
+    logging_mock = mocker.patch("logging.Logger.exception")
+
+    assert not Handler.call(args, "x86_64")
+    logging_mock.assert_not_called()
 
 
 def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
@@ -98,11 +116,14 @@ def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: Mocker
         Handler.execute(args)
 
 
-def test_execute_single(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_execute_single(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run execution in current process if only one architecture supplied
     """
     args.architecture = ["x86_64"]
+    args.configuration = Path("")
+    args.quiet = False
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
 
     Handler.execute(args)
