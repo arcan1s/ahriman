@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            arcan1s/ahriman
+          tags: |
+            type=ref,event=tag
+            type=edge
+
       - name: setup QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -26,4 +36,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: arcan1s/ahriman:latest
+          tags: ${{ steps.meta.outputs.tags }}
