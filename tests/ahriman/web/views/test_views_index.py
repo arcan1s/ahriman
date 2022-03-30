@@ -52,7 +52,7 @@ async def test_get_static(client: TestClient) -> None:
 
 async def test_get_static_with_auth(client_with_auth: TestClient) -> None:
     """
-    must return static files
+    must return static files with authorization enabled
     """
     response = await client_with_auth.get("/static/favicon.ico")
     assert response.ok

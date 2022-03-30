@@ -230,32 +230,6 @@ def test_get_self_failed_http_error(web_client: WebClient, mocker: MockerFixture
     assert web_client.get_self().status == BuildStatusEnum.Unknown
 
 
-def test_reload_auth(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must process auth reload
-    """
-    requests_mock = mocker.patch("requests.Session.post")
-
-    web_client.reload_auth()
-    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True))
-
-
-def test_reload_auth_failed(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during auth reload
-    """
-    mocker.patch("requests.Session.post", side_effect=Exception())
-    web_client.reload_auth()
-
-
-def test_reload_auth_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during removal
-    """
-    mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
-    web_client.reload_auth()
-
-
 def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must process package removal

@@ -37,14 +37,6 @@ class Cleaner(Properties):
         """
         raise NotImplementedError
 
-    def clear_build(self) -> None:
-        """
-        clear sources directory
-        """
-        self.logger.info("clear package sources directory")
-        for package in self.paths.sources.iterdir():
-            shutil.rmtree(package)
-
     def clear_cache(self) -> None:
         """
         clear cache directory
@@ -61,14 +53,6 @@ class Cleaner(Properties):
         for chroot in self.paths.chroot.iterdir():
             shutil.rmtree(chroot)
 
-    def clear_manual(self) -> None:
-        """
-        clear directory with manual package updates
-        """
-        self.logger.info("clear manual packages")
-        for package in self.paths.manual.iterdir():
-            shutil.rmtree(package)
-
     def clear_packages(self) -> None:
         """
         clear directory with built packages (NOT repository itself)
@@ -77,10 +61,9 @@ class Cleaner(Properties):
         for package in self.packages_built():
             package.unlink()
 
-    def clear_patches(self) -> None:
+    def clear_queue(self) -> None:
         """
-        clear directory with patches
+        clear packages which were queued for the update
         """
-        self.logger.info("clear patches directory")
-        for package in self.paths.patches.iterdir():
-            shutil.rmtree(package)
+        self.logger.info("clear build queue")
+        self.database.build_queue_clear(None)

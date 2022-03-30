@@ -21,12 +21,11 @@ from __future__ import annotations
 
 import logging
 
-from typing import Dict, Optional, Type
+from typing import Optional, Type
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import DuplicateUser
+from ahriman.core.database.sqlite import SQLite
 from ahriman.models.auth_settings import AuthSettings
-from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
@@ -63,39 +62,21 @@ class Auth:
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
 
     @classmethod
-    def load(cls: Type[Auth], configuration: Configuration) -> Auth:
+    def load(cls: Type[Auth], configuration: Configuration, database: SQLite) -> Auth:
         """
         load authorization module from settings
         :param configuration: configuration instance
+        :param database: database instance
         :return: authorization module according to current settings
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
             from ahriman.core.auth.mapping import Mapping
-            return Mapping(configuration)
+            return Mapping(configuration, database)
         if provider == AuthSettings.OAuth:
             from ahriman.core.auth.oauth import OAuth
-            return OAuth(configuration)
+            return OAuth(configuration, database)
         return cls(configuration)
-
-    @staticmethod
-    def get_users(configuration: Configuration) -> Dict[str, User]:
-        """
-        load users from settings
-        :param configuration: configuration instance
-        :return: map of username to its descriptor
-        """
-        users: Dict[str, User] = {}
-        for role in UserAccess:
-            section = configuration.section_name("auth", role.value)
-            if not configuration.has_section(section):
-                continue
-            for user, password in configuration[section].items():
-                normalized_user = user.lower()
-                if normalized_user in users:
-                    raise DuplicateUser(normalized_user)
-                users[normalized_user] = User(normalized_user, password, role)
-        return users
 
     async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """

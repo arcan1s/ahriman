@@ -23,6 +23,7 @@ from typing import Optional, Type
 
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.exceptions import InvalidOption
 from ahriman.models.auth_settings import AuthSettings
 
@@ -38,13 +39,15 @@ class OAuth(Mapping):
     :ivar scopes: list of scopes required by the application
     """
 
-    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.OAuth) -> None:
+    def __init__(self, configuration: Configuration, database: SQLite,
+                 provider: AuthSettings = AuthSettings.OAuth) -> None:
         """
         default constructor
         :param configuration: configuration instance
+        :param database: database instance
         :param provider: authorization type definition
         """
-        Mapping.__init__(self, configuration, provider)
+        Mapping.__init__(self, configuration, database, provider)
         self.client_id = configuration.get("auth", "client_id")
         self.client_secret = configuration.get("auth", "client_secret")
         # in order to use OAuth feature the service must be publicity available

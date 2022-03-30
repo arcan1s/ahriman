@@ -26,6 +26,7 @@ from ahriman.core.build_tools.task import Task
 from ahriman.core.report.report import Report
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.upload.upload import Upload
+from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -56,25 +57,25 @@ class Executor(Cleaner):
         :param updates: list of packages properties to build
         :return: `packages_built`
         """
-        def build_single(package: Package) -> None:
+        def build_single(package: Package, local_path: Path) -> None:
             self.reporter.set_building(package.base)
             task = Task(package, self.configuration, self.paths)
-            task.init()
-            built = task.build()
+            task.init(local_path, self.database)
+            built = task.build(local_path)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
 
         result = Result()
         for single in updates:
-            try:
-                build_single(single)
-                result.add_success(single)
-            except Exception:
-                self.reporter.set_failed(single.base)
-                result.add_failed(single)
-                self.logger.exception("%s (%s) build exception", single.base, self.architecture)
-        self.clear_build()
+            with tmpdir() as build_dir:
+                try:
+                    build_single(single, build_dir)
+                    result.add_success(single)
+                except Exception:
+                    self.reporter.set_failed(single.base)
+                    result.add_failed(single)
+                    self.logger.exception("%s (%s) build exception", single.base, self.architecture)
 
         return result
 
@@ -87,6 +88,8 @@ class Executor(Cleaner):
         def remove_base(package_base: str) -> None:
             try:
                 self.paths.tree_clear(package_base)  # remove all internal files
+                self.database.build_queue_clear(package_base)
+                self.database.patches_remove(package_base)
                 self.reporter.remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)

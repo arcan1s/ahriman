@@ -23,12 +23,12 @@ import getpass
 from pathlib import Path
 from typing import Type
 
-from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
+from ahriman.core.formatters.user_printer import UserPrinter
 from ahriman.models.action import Action
 from ahriman.models.user import User as MUser
-from ahriman.models.user_access import UserAccess
 
 
 class User(Handler):
@@ -51,33 +51,35 @@ class User(Handler):
         """
         salt = User.get_salt(configuration)
         user = User.user_create(args)
+
         auth_configuration = User.configuration_get(configuration.include)
+        database = SQLite.load(configuration)
 
-        User.user_clear(auth_configuration, user)
-        if args.action == Action.Update:
-            User.configuration_create(auth_configuration, user, salt, args.as_service)
-        User.configuration_write(auth_configuration, args.secure)
-
-        if not args.no_reload:
-            client = Application(architecture, configuration, no_report=False, unsafe=unsafe).repository.reporter
-            client.reload_auth()
+        if args.action == Action.List:
+            for found_user in database.user_list(user.username, user.access):
+                UserPrinter(found_user).print(verbose=True)
+        elif args.action == Action.Remove:
+            database.user_remove(user.username)
+        elif args.action == Action.Update:
+            User.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
+            database.user_update(user.hash_password(salt))
 
     @staticmethod
-    def configuration_create(configuration: Configuration, user: MUser, salt: str, as_service_user: bool) -> None:
+    def configuration_create(configuration: Configuration, user: MUser, salt: str,
+                             as_service_user: bool, secure: bool) -> None:
         """
-        put new user to configuration
+        enable configuration if it has been disabled
         :param configuration: configuration instance
         :param user: user descriptor
         :param salt: password hash salt
         :param as_service_user: add user as service user, also set password and user to configuration
+        :param secure: if true then set file permissions to 0o600
         """
-        section = Configuration.section_name("auth", user.access.value)
         configuration.set_option("auth", "salt", salt)
-        configuration.set_option(section, user.username, user.hash_password(salt))
-
         if as_service_user:
             configuration.set_option("web", "username", user.username)
             configuration.set_option("web", "password", user.password)
+        User.configuration_write(configuration, secure)
 
     @staticmethod
     def configuration_get(include_path: Path) -> Configuration:
@@ -90,6 +92,8 @@ class User(Handler):
         configuration = Configuration()
         configuration.load(target)
 
+        configuration.architecture = ""  # not user anyway
+
         return configuration
 
     @staticmethod
@@ -99,12 +103,11 @@ class User(Handler):
         :param configuration: configuration instance
         :param secure: if true then set file permissions to 0o600
         """
-        if configuration.path is None:
-            return  # should never happen actually
-        with configuration.path.open("w") as ahriman_configuration:
+        path, _ = configuration.check_loaded()
+        with path.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
         if secure:
-            configuration.path.chmod(0o600)
+            path.chmod(0o600)
 
     @staticmethod
     def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
@@ -117,19 +120,6 @@ class User(Handler):
         if salt := configuration.get("auth", "salt", fallback=None):
             return salt
         return MUser.generate_password(salt_length)
-
-    @staticmethod
-    def user_clear(configuration: Configuration, user: MUser) -> None:
-        """
-        remove user user from configuration file in case if it exists
-        :param configuration: configuration instance
-        :param user: user descriptor
-        """
-        for role in UserAccess:
-            section = Configuration.section_name("auth", role.value)
-            if not configuration.has_option(section, user.username):
-                continue
-            configuration.remove_option(section, user.username)
 
     @staticmethod
     def user_create(args: argparse.Namespace) -> MUser:

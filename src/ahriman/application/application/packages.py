@@ -25,7 +25,7 @@ from typing import Any, Iterable, Set
 
 from ahriman.application.application.properties import Properties
 from ahriman.core.build_tools.sources import Sources
-from ahriman.core.util import package_like
+from ahriman.core.util import package_like, tmpdir
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
@@ -67,10 +67,11 @@ class Packages(Properties):
         :param without_dependencies: if set, dependency check will be disabled
         """
         package = Package.load(source, PackageSource.AUR, self.repository.pacman, self.repository.aur_url)
-        local_path = self.repository.paths.manual_for(package.base)
+        self.repository.database.build_queue_insert(package)
 
-        Sources.load(local_path, package.git_url, self.repository.paths.patches_for(package.base))
-        self._process_dependencies(local_path, known_packages, without_dependencies)
+        with tmpdir() as local_path:
+            Sources.load(local_path, package.git_url, self.database.patches_get(package.base))
+            self._process_dependencies(local_path, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
         """
@@ -92,10 +93,9 @@ class Packages(Properties):
         cache_dir = self.repository.paths.cache_for(package.base)
         shutil.copytree(Path(source), cache_dir)  # copy package to store in caches
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
+        self.repository.database.build_queue_insert(package)
 
-        dst = self.repository.paths.manual_for(package.base)
-        shutil.copytree(cache_dir, dst)  # copy package for the build
-        self._process_dependencies(dst, known_packages, without_dependencies)
+        self._process_dependencies(cache_dir, known_packages, without_dependencies)
 
     def _add_remote(self, source: str, *_: Any) -> None:
         """

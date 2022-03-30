@@ -12,6 +12,13 @@ def test_configuration(base: BaseView) -> None:
     assert base.configuration
 
 
+def test_database(base: BaseView) -> None:
+    """
+    must return database
+    """
+    assert base.database
+
+
 def test_service(base: BaseView) -> None:
     """
     must return service

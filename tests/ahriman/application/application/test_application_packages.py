@@ -2,7 +2,6 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
 from unittest.mock import MagicMock
 
 from ahriman.application.application.packages import Packages
@@ -43,16 +42,17 @@ def test_add_aur(application_packages: Packages, package_ahriman: Package, mocke
     must add package from AUR
     """
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    insert_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
 
     application_packages._add_aur(package_ahriman.base, set(), False)
+    insert_mock.assert_called_once_with(package_ahriman)
     load_mock.assert_called_once_with(
-        application_packages.repository.paths.manual_for(package_ahriman.base),
+        pytest.helpers.anyvar(int),
         package_ahriman.git_url,
-        application_packages.repository.paths.patches_for(package_ahriman.base))
-    dependencies_mock.assert_called_once_with(
-        application_packages.repository.paths.manual_for(package_ahriman.base), set(), False)
+        pytest.helpers.anyvar(int))
+    dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
 
 
 def test_add_directory(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -75,18 +75,16 @@ def test_add_local(application_packages: Packages, package_ahriman: Package, moc
     """
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
+    insert_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
     copytree_mock = mocker.patch("shutil.copytree")
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
 
     application_packages._add_local(package_ahriman.base, set(), False)
+    copytree_mock.assert_called_once_with(
+        Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base))
     init_mock.assert_called_once_with(application_packages.repository.paths.cache_for(package_ahriman.base))
-    copytree_mock.assert_has_calls([
-        mock.call(Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base)),
-        mock.call(application_packages.repository.paths.cache_for(package_ahriman.base),
-                  application_packages.repository.paths.manual_for(package_ahriman.base)),
-    ])
-    dependencies_mock.assert_called_once_with(
-        application_packages.repository.paths.manual_for(package_ahriman.base), set(), False)
+    insert_mock.assert_called_once_with(package_ahriman)
+    dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
 
 
 def test_add_remote(application_packages: Packages, package_description_ahriman: PackageDescription,

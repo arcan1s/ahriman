@@ -27,7 +27,7 @@ from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import MissingArchitecture, MultipleArchitectures
+from ahriman.core.exceptions import ExitCode, MissingArchitecture, MultipleArchitectures
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -78,6 +78,8 @@ class Handler:
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration, args.no_report, args.unsafe)
             return True
+        except ExitCode:
+            return False
         except Exception:
             # we are basically always want to print error to stderr instead of default logger
             logging.getLogger("stderr").exception("process exception")

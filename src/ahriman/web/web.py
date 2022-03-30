@@ -25,6 +25,7 @@ from aiohttp import web
 
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.core.exceptions import InitializeException
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
@@ -93,8 +94,11 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     application.logger.info("setup configuration")
     application["configuration"] = configuration
 
+    application.logger.info("setup database and perform migrations")
+    database = application["database"] = SQLite.load(configuration)
+
     application.logger.info("setup watcher")
-    application["watcher"] = Watcher(architecture, configuration)
+    application["watcher"] = Watcher(architecture, configuration, database)
 
     application.logger.info("setup process spawner")
     application["spawn"] = spawner
@@ -108,7 +112,7 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
                                    check_host=configuration.getboolean("web", "debug_check_host", fallback=False))
 
     application.logger.info("setup authorization")
-    validator = application["validator"] = Auth.load(configuration)
+    validator = application["validator"] = Auth.load(configuration, database)
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth
         setup_auth(application, validator)

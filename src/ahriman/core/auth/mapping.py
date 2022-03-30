@@ -20,7 +20,9 @@
 from typing import Optional
 
 from ahriman.core.auth.auth import Auth
+
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.sqlite import SQLite
 from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
@@ -30,18 +32,20 @@ class Mapping(Auth):
     """
     user authorization based on mapping from configuration file
     :ivar salt: random generated string to salt passwords
-    :ivar _users: map of username to its descriptor
+    :ivar database: database instance
     """
 
-    def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Configuration) -> None:
+    def __init__(self, configuration: Configuration, database: SQLite,
+                 provider: AuthSettings = AuthSettings.Configuration) -> None:
         """
         default constructor
         :param configuration: configuration instance
+        :param database: database instance
         :param provider: authorization type definition
         """
         Auth.__init__(self, configuration, provider)
+        self.database = database
         self.salt = configuration.get("auth", "salt")
-        self._users = self.get_users(configuration)
 
     async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
         """
@@ -61,8 +65,7 @@ class Mapping(Auth):
         :param username: username
         :return: user descriptor if username is known and None otherwise
         """
-        normalized_user = username.lower()
-        return self._users.get(normalized_user)
+        return self.database.user_get(username)
 
     async def known_username(self, username: Optional[str]) -> bool:
         """

@@ -44,3 +44,10 @@ def test_from_package(package_description_ahriman: PackageDescription,
     package_description = PackageDescription.from_package(pyalpm_package_description_ahriman,
                                                           package_description_ahriman.filepath)
     assert package_description_ahriman == package_description
+
+
+def test_from_json_view(package_description_ahriman: PackageDescription) -> None:
+    """
+    must generate same description from json view
+    """
+    assert PackageDescription.from_json(package_description_ahriman.view()) == package_description_ahriman

@@ -7,7 +7,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
-from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, walk
+from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, tmpdir, walk
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -205,6 +205,25 @@ def test_pretty_size_empty() -> None:
     must generate empty string for None value
     """
     assert pretty_size(None) == ""
+
+
+def test_tmpdir() -> None:
+    """
+    must create temporary directory and remove it after
+    """
+    with tmpdir() as directory:
+        assert directory.is_dir()
+    assert not directory.exists()
+
+
+def test_tmpdir_failure() -> None:
+    """
+    must create temporary directory and remove it even after exception
+    """
+    with pytest.raises(Exception):
+        with tmpdir() as directory:
+            raise Exception()
+    assert not directory.exists()
 
 
 def test_walk(resource_path_root: Path) -> None:
