@@ -72,7 +72,8 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     _set_aur_search_parser(subparsers)
-    _set_help_commands_unsafe(subparsers)
+    _set_help_parser(subparsers)
+    _set_help_commands_unsafe_parser(subparsers)
     _set_key_import_parser(subparsers)
     _set_package_add_parser(subparsers)
     _set_package_remove_parser(subparsers)
@@ -119,7 +120,22 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_help_commands_unsafe(root: SubParserAction) -> argparse.ArgumentParser:
+def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for listing help subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("help", help="show help message",
+                             description="show help message for application or command and exit",
+                             formatter_class=_formatter)
+    parser.add_argument("command", help="show help message for specific command", nargs="?")
+    parser.set_defaults(handler=handlers.Help, architecture=[""], lock=None, no_report=True, quiet=True,
+                        unsafe=True, parser=_parser)
+    return parser
+
+
+def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for listing unsafe commands
     :param root: subparsers for the commands
