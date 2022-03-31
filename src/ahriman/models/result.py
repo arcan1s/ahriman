@@ -49,6 +49,13 @@ class Result:
         return list(self._failed.values())
 
     @property
+    def is_empty(self) -> bool:
+        """
+        :return: True in case if success list is empty and False otherwise
+        """
+        return not bool(self._success)
+
+    @property
     def success(self) -> List[Package]:
         """
         :return: list of packages with success result

@@ -136,3 +136,14 @@ def test_run(args: argparse.Namespace, configuration: Configuration) -> None:
     """
     with pytest.raises(NotImplementedError):
         Handler.run(args, "x86_64", configuration, True, True)
+
+
+def test_check_if_empty() -> None:
+    """
+    must raise exception in case if predicate is True and enabled
+    """
+    Handler.check_if_empty(False, False)
+    Handler.check_if_empty(True, False)
+    Handler.check_if_empty(False, True)
+    with pytest.raises(ExitCode):
+        Handler.check_if_empty(True, True)

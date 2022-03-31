@@ -37,8 +37,7 @@ class Search(Handler):
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
-    # later we will have to remove some fields from here (lists)
-    SORT_FIELDS = {pair.name for pair in fields(AURPackage)}
+    SORT_FIELDS = {field.name for field in fields(AURPackage) if field.default_factory is not list}
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
@@ -52,6 +51,7 @@ class Search(Handler):
         :param unsafe: if set no user check will be performed before path creation
         """
         packages_list = AUR.multisearch(*args.search)
+        Search.check_if_empty(args.exit_code, not packages_list)
         for package in Search.sort(packages_list, args.sort_by):
             AurPrinter(package).print(args.info)
 
