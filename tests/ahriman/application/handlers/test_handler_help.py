@@ -39,3 +39,10 @@ def test_run_command(args: argparse.Namespace, configuration: Configuration, moc
 
     Help.run(args, "x86_64", configuration, True, False)
     parse_mock.assert_called_once_with(["aur-search", "--help"])
+
+
+def test_disallow_auto_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Help.ALLOW_AUTO_ARCHITECTURE_RUN

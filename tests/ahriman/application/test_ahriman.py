@@ -485,8 +485,6 @@ def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> No
     """
     user-list command must convert role option to useraccess instance
     """
-    args = parser.parse_args(["user-list"])
-    assert isinstance(args.role, UserAccess)
     args = parser.parse_args(["user-list", "--role", "write"])
     assert isinstance(args.role, UserAccess)
 
@@ -502,7 +500,6 @@ def test_subparsers_user_remove(parser: argparse.ArgumentParser) -> None:
     assert args.no_report
     assert args.password is not None
     assert args.quiet
-    assert args.role is not None
     assert args.unsafe
 
 
