@@ -526,7 +526,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=UserAccess)
     parser.set_defaults(handler=handlers.User, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
-                        password="", quiet=True, role=UserAccess.Read, unsafe=True)
+                        password="", quiet=True, unsafe=True)
     return parser
 
 
@@ -542,7 +542,7 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="username for web service")
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.User, action=Action.Remove, architecture=[""], lock=None, no_report=True,  # nosec
-                        password="", quiet=True, role=UserAccess.Read, unsafe=True)
+                        password="", quiet=True, unsafe=True)
     return parser
 
 

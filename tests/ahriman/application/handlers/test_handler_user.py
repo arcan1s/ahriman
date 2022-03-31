@@ -54,17 +54,16 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
 def test_run_list(args: argparse.Namespace, configuration: Configuration, database: SQLite, user: User,
                   mocker: MockerFixture) -> None:
     """
-    must list avaiable users
+    must list available users
     """
     args = _default_args(args)
     args.action = Action.List
+    args.access = None
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
     list_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[user])
 
     User.run(args, "x86_64", configuration, True, False)
-    get_auth_configuration_mock.assert_called_once_with(configuration.include)
-    list_mock.assert_called_once_with("user", UserAccess.Read)
+    list_mock.assert_called_once_with("user", None)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, database: SQLite,
@@ -75,11 +74,9 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, data
     args = _default_args(args)
     args.action = Action.Remove
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.User.configuration_get")
     remove_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_remove")
 
     User.run(args, "x86_64", configuration, True, False)
-    get_auth_configuration_mock.assert_called_once_with(configuration.include)
     remove_mock.assert_called_once_with(args.username)
 
 

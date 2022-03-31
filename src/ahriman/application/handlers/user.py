@@ -49,20 +49,21 @@ class User(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
-        salt = User.get_salt(configuration)
-        user = User.user_create(args)
-
-        auth_configuration = User.configuration_get(configuration.include)
         database = SQLite.load(configuration)
 
-        if args.action == Action.List:
-            for found_user in database.user_list(user.username, user.access):
-                UserPrinter(found_user).print(verbose=True)
-        elif args.action == Action.Remove:
-            database.user_remove(user.username)
-        elif args.action == Action.Update:
+        if args.action == Action.Update:
+            salt = User.get_salt(configuration)
+            user = User.user_create(args)
+
+            auth_configuration = User.configuration_get(configuration.include)
+
             User.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
             database.user_update(user.hash_password(salt))
+        elif args.action == Action.List:
+            for found_user in database.user_list(args.username, args.access):
+                UserPrinter(found_user).print(verbose=True)
+        elif args.action == Action.Remove:
+            database.user_remove(args.username)
 
     @staticmethod
     def configuration_create(configuration: Configuration, user: MUser, salt: str,
