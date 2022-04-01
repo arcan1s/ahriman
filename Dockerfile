@@ -1,7 +1,6 @@
 FROM archlinux:base-devel
 
 # image configuration
-ENV AHRIMAN_API_USER=""
 ENV AHRIMAN_ARCHITECTURE="x86_64"
 ENV AHRIMAN_DEBUG=""
 ENV AHRIMAN_FORCE_ROOT=""

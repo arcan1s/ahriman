@@ -31,14 +31,6 @@ if [ -n "$AHRIMAN_PORT" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
 fi
 ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" repo-setup "${AHRIMAN_SETUP_ARGS[@]}"
-# add user for api if set
-if [ -n "$AHRIMAN_API_USER" ]; then
-    # python getpass does not read from stdin
-    # see thread https://mail.python.org/pipermail/python-dev/2008-February/077235.html
-    # WARNING with debug mode password will be put to stdout
-    ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" user-list --error-on-empty "$AHRIMAN_API_USER" > /dev/null ||
-    ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" user-add --as-service --role write --secure "$AHRIMAN_API_USER" -p "$(openssl rand -base64 20)"
-fi
 
 # refresh database
 runuser -u build -- yay --noconfirm -Syy &> /dev/null
