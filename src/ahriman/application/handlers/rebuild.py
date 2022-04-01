@@ -47,9 +47,12 @@ class Rebuild(Handler):
 
         application = Application(architecture, configuration, no_report, unsafe)
         updates = application.repository.packages_depends_on(depends_on)
+
+        Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:
             for package in updates:
                 UpdatePrinter(package, package.version).print(verbose=True)
             return
 
-        application.update(updates)
+        result = application.update(updates)
+        Rebuild.check_if_empty(args.exit_code, result.is_empty)

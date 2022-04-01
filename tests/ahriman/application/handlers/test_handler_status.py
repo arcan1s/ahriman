@@ -16,6 +16,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.ahriman = True
+    args.exit_code = False
     args.info = False
     args.package = []
     args.status = None
@@ -33,12 +34,29 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Status.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
+    check_mock.assert_called_once_with(False, False)
     print_mock.assert_has_calls([mock.call(False) for _ in range(3)])
+
+
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must raise ExitCode exception on empty status result
+    """
+    args = _default_args(args)
+    args.exit_code = True
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.status.client.Client.get_self")
+    mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+
+    Status.run(args, "x86_64", configuration, True, False)
+    check_mock.assert_called_once_with(True, True)
 
 
 def test_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,

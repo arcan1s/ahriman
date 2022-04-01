@@ -45,10 +45,12 @@ class Update(Handler):
         application = Application(architecture, configuration, no_report, unsafe)
         packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                        Update.log_fn(application, args.dry_run))
+        Update.check_if_empty(args.exit_code, not packages)
         if args.dry_run:
             return
 
-        application.update(packages)
+        result = application.update(packages)
+        Update.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod
     def log_fn(application: Application, dry_run: bool) -> Callable[[str], None]:

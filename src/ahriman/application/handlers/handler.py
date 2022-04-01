@@ -119,3 +119,13 @@ class Handler:
         :param unsafe: if set no user check will be performed before path creation
         """
         raise NotImplementedError
+
+    @staticmethod
+    def check_if_empty(enabled: bool, predicate: bool) -> None:
+        """
+        check condition and flag and raise ExitCode exception in case if it is enabled and condition match
+        :param enabled: if False no check will be performed
+        :param predicate: indicates condition on which exception should be thrown
+        """
+        if enabled and predicate:
+            raise ExitCode()

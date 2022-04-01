@@ -132,7 +132,7 @@ class Repository(Properties):
                 result.extend(unknown_aur(package))  # local package not found
         return result
 
-    def update(self, updates: Iterable[Package]) -> None:
+    def update(self, updates: Iterable[Package]) -> Result:
         """
         run package updates
         :param updates: list of packages to update
@@ -144,8 +144,9 @@ class Repository(Properties):
             self._finalize(result.merge(update_result))
 
         # process built packages
+        build_result = Result()
         packages = self.repository.packages_built()
-        process_update(packages, Result())
+        process_update(packages, build_result)
 
         # process manual packages
         tree = Tree.load(updates, self.database)
@@ -154,6 +155,8 @@ class Repository(Properties):
             build_result = self.repository.process_build(level)
             packages = self.repository.packages_built()
             process_update(packages, build_result)
+
+        return build_result
 
     def updates(self, filter_packages: Iterable[str], no_aur: bool, no_local: bool, no_manual: bool, no_vcs: bool,
                 log_fn: Callable[[str], None]) -> List[Package]:

@@ -48,4 +48,5 @@ class Add(Handler):
             return
 
         packages = application.updates(args.package, True, True, False, True, application.logger.info)
-        application.update(packages)
+        result = application.update(packages)
+        Add.check_if_empty(args.exit_code, result.is_empty)

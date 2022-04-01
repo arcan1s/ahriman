@@ -22,6 +22,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.username = "user"
     args.action = Action.Update
     args.as_service = False
+    args.exit_code = False
     args.password = "pa55w0rd"
     args.role = UserAccess.Read
     args.secure = False
@@ -58,12 +59,29 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     """
     args = _default_args(args)
     args.action = Action.List
-    args.access = None
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
     list_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[user])
 
     User.run(args, "x86_64", configuration, True, False)
-    list_mock.assert_called_once_with("user", None)
+    list_mock.assert_called_once_with("user", args.role)
+    check_mock.assert_called_once_with(False, False)
+
+
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                             mocker: MockerFixture) -> None:
+    """
+    must raise ExitCode exception on empty user list
+    """
+    args = _default_args(args)
+    args.action = Action.List
+    args.exit_code = True
+    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[])
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+
+    User.run(args, "x86_64", configuration, True, False)
+    check_mock.assert_called_once_with(True, True)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, database: SQLite,
