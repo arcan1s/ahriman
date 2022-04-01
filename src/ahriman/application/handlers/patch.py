@@ -51,7 +51,7 @@ class Patch(Handler):
         application = Application(architecture, configuration, no_report, unsafe)
 
         if args.action == Action.List:
-            Patch.patch_set_list(application, args.package)
+            Patch.patch_set_list(application, args.package, args.exit_code)
         elif args.action == Action.Remove:
             Patch.patch_set_remove(application, args.package)
         elif args.action == Action.Update:
@@ -71,13 +71,16 @@ class Patch(Handler):
         application.database.patches_insert(package.base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: Optional[str]) -> None:
+    def patch_set_list(application: Application, package_base: Optional[str], exit_code: bool) -> None:
         """
         list patches available for the package base
         :param application: application instance
         :param package_base: package base
+        :param exit_code: raise ExitCode on empty search result
         """
         patches = application.database.patches_list(package_base)
+        Patch.check_if_empty(exit_code, not patches)
+
         for base, patch in patches.items():
             content = base if package_base is None else patch
             StringPrinter(content).print(verbose=True)

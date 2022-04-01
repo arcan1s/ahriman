@@ -17,6 +17,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     :return: generated arguments for these test cases
     """
     args.search = ["ahriman"]
+    args.exit_code = False
     args.info = False
     args.sort_by = "name"
     return args
@@ -29,11 +30,27 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     """
     args = _default_args(args)
     search_mock = mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True, False)
     search_mock.assert_called_once_with("ahriman")
+    check_mock.assert_called_once_with(False, False)
     print_mock.assert_called_once_with(False)
+
+
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must run command
+    """
+    args = _default_args(args)
+    args.exit_code = True
+    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[])
+    mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+
+    Search.run(args, "x86_64", configuration, True, False)
+    check_mock.assert_called_once_with(True, True)
 
 
 def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
@@ -95,5 +112,5 @@ def test_sort_fields() -> None:
     """
     must store valid field list which are allowed to be used for sorting
     """
-    expected = {pair.name for pair in dataclasses.fields(AURPackage)}
+    expected = {field.name for field in dataclasses.fields(AURPackage)}
     assert all(field in expected for field in Search.SORT_FIELDS)

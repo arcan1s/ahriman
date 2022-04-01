@@ -45,6 +45,7 @@ class RemoveUnknown(Handler):
         """
         application = Application(architecture, configuration, no_report, unsafe)
         unknown_packages = application.unknown()
+
         if args.dry_run:
             for package in sorted(unknown_packages):
                 StringPrinter(package).print(args.info)

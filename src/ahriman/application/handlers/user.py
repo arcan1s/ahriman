@@ -60,8 +60,10 @@ class User(Handler):
             User.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
-            for found_user in database.user_list(args.username, args.access):
-                UserPrinter(found_user).print(verbose=True)
+            users = database.user_list(args.username, args.role)
+            User.check_if_empty(args.exit_code, not users)
+            for user in users:
+                UserPrinter(user).print(verbose=True)
         elif args.action == Action.Remove:
             database.user_remove(args.username)
 

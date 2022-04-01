@@ -112,6 +112,7 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="search for package in AUR using API", formatter_class=_formatter)
     parser.add_argument("search", help="search terms, can be specified multiple times, result will match all terms",
                         nargs="+")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
     parser.add_argument("--sort-by", help="sort field by this field. In case if two packages have the same value of "
                                           "the specified field, they will be always sorted by name",
@@ -189,6 +190,7 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "5) and finally you can add package from AUR.",
                              formatter_class=_formatter)
     parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
     parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                         type=PackageSource, choices=PackageSource, default=PackageSource.Auto)
@@ -222,6 +224,7 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
     parser.add_argument("-s", "--status", help="filter packages by status",
                         type=BuildStatusEnum, choices=BuildStatusEnum)
@@ -293,6 +296,7 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("patch-list", help="list patch sets",
                              description="list available patches for the package", formatter_class=_formatter)
     parser.add_argument("package", help="package base", nargs="?")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, no_report=True)
     return parser
 
@@ -320,6 +324,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="check for packages updates. Same as update --dry-run --no-manual",
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
     parser.set_defaults(handler=handlers.Update, dry_run=True, no_aur=False, no_local=False, no_manual=True)
     return parser
@@ -369,6 +374,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
     parser.add_argument("--dry-run", help="just perform check for packages without rebuild process itself",
                         action="store_true")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 
@@ -484,6 +490,7 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
     parser.add_argument("--no-local", help="do not check local packages for updates", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
@@ -524,6 +531,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="list users from the user mapping and their roles",
                              formatter_class=_formatter)
     parser.add_argument("username", help="filter users by username", nargs="?")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=UserAccess)
     parser.set_defaults(handler=handlers.User, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, unsafe=True)

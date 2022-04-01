@@ -5,6 +5,43 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_is_empty() -> None:
+    """
+    must return is empty for empty builds
+    """
+    result = Result()
+    assert result.is_empty
+
+
+def test_non_empty_success(package_ahriman: Package) -> None:
+    """
+    must be non-empty if there is success build
+    """
+    result = Result()
+    result.add_success(package_ahriman)
+    assert not result.is_empty
+
+
+def test_is_empty_failed(package_ahriman: Package) -> None:
+    """
+    must be empty if there is only failed build
+    """
+    result = Result()
+    result.add_failed(package_ahriman)
+    assert result.is_empty
+
+
+def test_non_empty_full(package_ahriman: Package) -> None:
+    """
+    must be non-empty if there are both failed and success builds
+    """
+    result = Result()
+    result.add_failed(package_ahriman)
+    result.add_success(package_ahriman)
+
+    assert not result.is_empty
+
+
 def test_add_failed(package_ahriman: Package) -> None:
     """
     must add package to failed list

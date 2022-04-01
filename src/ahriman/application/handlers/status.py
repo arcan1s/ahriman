@@ -60,6 +60,8 @@ class Status(Handler):
         else:
             packages = client.get(None)
 
+        Status.check_if_empty(args.exit_code, not packages)
+
         comparator: Callable[[Tuple[Package, BuildStatus]], str] = lambda item: item[0].base
         filter_fn: Callable[[Tuple[Package, BuildStatus]], bool] =\
             lambda item: args.status is None or item[1].status == args.status
