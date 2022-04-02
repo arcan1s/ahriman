@@ -16,8 +16,6 @@ This package contains application (aka executable) related classes and everythin
 
 `ahriman.application.application.application.Application` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
-`ahriman.application.formatters` package provides `Printer` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
-
 `ahriman.application.ahriman` contains only command line parses and executes specified `Handler` on success, `ahriman.application.lock.Lock` is additional class which provides file-based lock and also performs some common checks.
 
 ## `ahriman.core` package
@@ -27,6 +25,8 @@ This package contains everything which is required for any time of application r
 * `ahriman.core.alpm` package controls pacman related functions. It provides wrappers for `pyalpm` library and safe calls for repository tools (`repo-add` and `repo-remove`).
 * `ahriman.core.auth` package provides classes for authorization methods used by web mostly. Base class is `ahriman.core.auth.auth.Auth` which must be called by `load` method.
 * `ahriman.core.build_tools` is a package which provides wrapper for `devtools` commands.
+* `ahriman.core.database` is everything including data and schema migrations for database.
+* `ahriman.core.formatters` package provides `Printer` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * `ahriman.core.report` is a package with reporting classes. Usually it must be called by `ahriman.core.report.report.Report.load` method.
 * `ahriman.core.repository` contains several traits and base repository (`ahriman.core.repository.repository.Repository` class) implementation.
 * `ahriman.core.sign` package provides sign feature (only gpg calls are available).
@@ -61,10 +61,33 @@ Web application. It is important that this package is isolated from any other to
 * In each child process call lock functions.
 * After success checks pass control to `Handler.run` method defined by specific handler class.
 * Return result (success or failure) of each subprocess and exit from application.
+* Some handlers may override their status and throw `ExitCode` exception. This exception is just silently suppressed and changes application exit code to `1`.
 
 In most cases handlers spawn god class `ahriman.application.application.Application` class and call required methods.
 
 Application is designed to run from `systemd` services and provides parametrized by architecture timer and service file for that.
+
+# Database
+
+The service uses SQLite database in order to store some internal info.
+
+## Database instance
+
+All methods related to specific part of database (basically operations per table) are split into different traits located inside `ahriman.core.database.operations` package. The base trait `ahriman.core.database.operations.operations.Operations` also provides generic methods for database access (e.g. row converters and transactional support).
+
+The `ahriman.core.database.sqlite.SQLite` class itself derives from all of these traits and implements methods for initialization, including migrations.
+
+## Schema and data migrations
+
+The schema migration are applied according to current `pragma user_info` values, located at `ahriman.core.database.migrations` package and named as `m000_migration_name.py` (the preceding `m` is required in order to import migration content for tests). Additional class `ahriman.core.database.migrations.Migrations` reads all migrations autmatically and applies them in alphabetical order.
+
+There are also data migrations which are located at `ahriman.core.database.data` package and move data from old-style (e.g. json files in filesystem, directory trees, etc) to the database. They are also part of migration and (unlike schema migrations) are applied only at specific version breakpoints (e.g. if `user_version` is more than 0 no initial migration will be applied).
+
+## Type conversions
+
+By default, it parses rows into python dictionary. In addition, the following pseudo-types are supported:
+
+* `Dict[str, Any]`, `List[Any]` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as `json` datatype and `json.loads` and `json.dumps` methods are used in order to read and write from/to database respectively.
 
 # Basic flows
 
@@ -122,21 +145,21 @@ The package provides several authorization methods: disabled, based on configura
 
 Disabled (default) authorization provider just allows everything for everyone and does not have any specific configuration (it uses some default configuration parameters though). It also provides generic interface for derived classes.
 
-Mapping (aka configuration) provider uses hashed passwords with salt from configuration file in order to authenticate users. This provider also enables user permission checking (read/write) (authorization). Thus, it defines the following methods:
+Mapping (aka configuration) provider uses hashed passwords with salt from the database in order to authenticate users. This provider also enables user permission checking (read/write) (authorization). Thus, it defines the following methods:
 
 * `check_credentials` - user password validation (authentication).
 * `verify_access` - user permission validation (authorization).
 
-Passwords must be stored in configuration as `hash(password + salt)`, where `password` is user defined password (taken from user input), `salt` is random string (any length) defined globally in configuration and `hash` is secure hash function. Thus, the following configuration
+Passwords must be stored in database as `hash(password + salt)`, where `password` is user defined password (taken from user input), `salt` is random string (any length) defined globally in configuration and `hash` is secure hash function. Thus, the following configuration
 
-```ini
-[auth:read]
-username = $6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0
+```csv
+"username","password","access"
+"username","$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0","read"
 ```
 
 means that there is user `username` with `read` access and password `password` hashed by `sha512` with salt `salt`.
 
-OAuth provider uses library definitions (`aioauth-client`) in order _authenticate_ users. It still requires user permission to be set in configuration, thus it inherits mapping provider without any changes. Whereas we could override `check_credentials` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
+OAuth provider uses library definitions (`aioauth-client`) in order _authenticate_ users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override `check_credentials` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature is used by service reporting (aka robots).
 
