@@ -1,13 +1,16 @@
 import datetime
 import logging
 import pytest
+import requests
 import subprocess
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
 
-from ahriman.core.exceptions import InvalidOption, UnsafeRun
-from ahriman.core.util import check_output, check_user, filter_json, package_like, pretty_datetime, pretty_size, tmpdir, walk
+from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
+from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, package_like, \
+    pretty_datetime, pretty_size, tmpdir, walk
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -25,32 +28,77 @@ def test_check_output(mocker: MockerFixture) -> None:
     logger_mock.assert_called_once_with("hello")
 
 
+def test_check_output_stderr(mocker: MockerFixture) -> None:
+    """
+    must run command and log stderr output
+    """
+    logger_mock = mocker.patch("logging.Logger.debug")
+
+    assert check_output("python", "-c", """import sys; print("hello", file=sys.stderr)""", exception=None) == ""
+    logger_mock.assert_not_called()
+
+    assert check_output("python", "-c", """import sys; print("hello", file=sys.stderr)""",
+                        exception=None, logger=logging.getLogger("")) == ""
+    logger_mock.assert_called_once_with("hello")
+
+
+def test_check_output_with_stdin() -> None:
+    """
+    must run command and put string to stdin
+    """
+    assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
+                        exception=None, input_data="single line") == "single line"
+
+
+def test_check_output_with_stdin_newline() -> None:
+    """
+    must run command and put string to stdin ending with new line
+    """
+    assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
+                        exception=None, input_data="single line\n") == "single line"
+
+
+def test_check_output_multiple_with_stdin() -> None:
+    """
+    must run command and put multiple lines to stdin
+    """
+    assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
+                        exception=None, input_data="multiple\nlines") == "multiple\nlines"
+
+
+def test_check_output_multiple_with_stdin_newline() -> None:
+    """
+    must run command and put multiple lines to stdin with new line at the end
+    """
+    assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
+                        exception=None, input_data="multiple\nlines\n") == "multiple\nlines"
+
+
 def test_check_output_failure(mocker: MockerFixture) -> None:
     """
     must process exception correctly
     """
-    logger_mock = mocker.patch("logging.Logger.debug")
-    mocker.patch("subprocess.check_output", side_effect=subprocess.CalledProcessError(1, "echo"))
+    mocker.patch("subprocess.Popen.wait", return_value=1)
 
     with pytest.raises(subprocess.CalledProcessError):
         check_output("echo", "hello", exception=None)
-        logger_mock.assert_not_called()
 
     with pytest.raises(subprocess.CalledProcessError):
         check_output("echo", "hello", exception=None, logger=logging.getLogger(""))
-        logger_mock.assert_not_called()
 
 
-def test_check_output_failure_log(mocker: MockerFixture) -> None:
+def test_check_output_failure_exception(mocker: MockerFixture) -> None:
     """
-    must process exception correctly and log it
+    must raise exception provided instead of default
     """
-    logger_mock = mocker.patch("logging.Logger.debug")
-    mocker.patch("subprocess.check_output", side_effect=subprocess.CalledProcessError(1, "echo", output=b"result"))
+    mocker.patch("subprocess.Popen.wait", return_value=1)
+    exception = BuildFailed("")
 
-    with pytest.raises(subprocess.CalledProcessError):
-        check_output("echo", "hello", exception=None, logger=logging.getLogger(""))
-        logger_mock.assert_called_once_with()
+    with pytest.raises(BuildFailed):
+        check_output("echo", "hello", exception=exception)
+
+    with pytest.raises(BuildFailed):
+        check_output("echo", "hello", exception=exception, logger=logging.getLogger(""))
 
 
 def test_check_user(mocker: MockerFixture) -> None:
@@ -79,6 +127,25 @@ def test_check_user_exception(mocker: MockerFixture) -> None:
 
     with pytest.raises(UnsafeRun):
         check_user(paths, False)
+
+
+def test_exception_response_text() -> None:
+    """
+    must parse HTTP response to string
+    """
+    response_mock = MagicMock()
+    response_mock.text = "hello"
+    exception = requests.exceptions.HTTPError(response=response_mock)
+
+    assert exception_response_text(exception) == "hello"
+
+
+def test_exception_response_text_empty() -> None:
+    """
+    must parse HTTP exception with empty response to empty string
+    """
+    exception = requests.exceptions.HTTPError(response=None)
+    assert exception_response_text(exception) == ""
 
 
 def test_check_unsafe(mocker: MockerFixture) -> None:

@@ -27,7 +27,7 @@ import tempfile
 from contextlib import contextmanager
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, Optional, Union
+from typing import Any, Dict, Generator, Iterable, List, Optional, Union
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
 from ahriman.models.repository_paths import RepositoryPaths
@@ -45,21 +45,39 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     :param user: run process as specified user
     :return: command output
     """
-    try:
-        # universal_newlines is required to read input from string
-        # FIXME additional workaround for linter and type check which do not know that user arg is supported
-        # pylint: disable=unexpected-keyword-arg
-        result: str = subprocess.check_output(args, cwd=cwd, input=input_data, stderr=subprocess.STDOUT,
-                                              universal_newlines=True, user=user).strip()  # type: ignore
+    def log(single: str) -> None:
         if logger is not None:
-            for line in result.splitlines():
-                logger.debug(line)
-        return result
-    except subprocess.CalledProcessError as e:
-        if e.output is not None and logger is not None:
-            for line in e.output.splitlines():
-                logger.debug(line)
-        raise exception or e
+            logger.debug(single)
+
+    # FIXME additional workaround for linter and type check which do not know that user arg is supported
+    # pylint: disable=unexpected-keyword-arg
+    with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                          user=user, text=True, encoding="utf8", bufsize=1) as process:  # type: ignore
+        if input_data is not None:
+            process.stdin.write(input_data)
+            process.stdin.close()
+
+        # read stdout and append to output result
+        result: List[str] = []
+        for line in iter(process.stdout.readline, ""):
+            line = line.strip()
+            if not line:  # skip empty lines
+                continue
+            result.append(line)
+            log(line)
+
+        # read stderr and write info to logs
+        for line in iter(process.stderr.readline, ""):
+            log(line.strip())
+
+        process.terminate()  # make sure that process is terminated
+        status_code = process.wait()
+        if status_code != 0:
+            if exception is not None:
+                raise exception
+            raise subprocess.CalledProcessError(status_code, process.args)
+
+        return "\n".join(result)
 
 
 def check_user(paths: RepositoryPaths, unsafe: bool) -> None:

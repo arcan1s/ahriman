@@ -116,7 +116,6 @@ class GPG:
         """
         key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, exception=None, logger=self.logger)
-        GPG._check_output("gpg", "--quick-lsign-key", key, exception=None, logger=self.logger)
 
     def process(self, path: Path, key: str) -> List[Path]:
         """
