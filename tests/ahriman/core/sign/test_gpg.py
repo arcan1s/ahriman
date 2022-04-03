@@ -3,7 +3,6 @@ import requests
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
 
 from ahriman.core.sign.gpg import GPG
 from ahriman.models.sign_settings import SignSettings
@@ -91,10 +90,8 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
 
     gpg.key_import("pgp.mit.edu", "0xE989490C")
-    check_output_mock.assert_has_calls([
-        mock.call("gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int)),
-        mock.call("gpg", "--quick-lsign-key", "0xE989490C", exception=None, logger=pytest.helpers.anyvar(int))
-    ])
+    check_output_mock.assert_called_once_with(
+        "gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int))
 
 
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:
