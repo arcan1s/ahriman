@@ -24,7 +24,7 @@ archive_directory: $(TARGET_FILES)
 	find "$(PROJECT)" -depth -type d -name "*.egg-info" -execdir rm -rf {} +
 
 archlinux: archive
-	sed -i "s/pkgver=[0-9.]*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
+	sed -i "s/pkgver=.*/pkgver=$(VERSION)/" package/archlinux/PKGBUILD
 
 check: clean
 	tox -e check
@@ -53,4 +53,4 @@ version:
 ifndef VERSION
 	$(error VERSION is required, but not set)
 endif
-	sed -i '/__version__ = "[0-9.]*/s/[^"][^)]*/__version__ = "$(VERSION)"/' src/ahriman/version.py
+	sed -i '/__version__ = .*/s/[^"][^)]*/__version__ = "$(VERSION)"/' src/ahriman/version.py
