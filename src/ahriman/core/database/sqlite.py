@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import sqlite3
 
+from pathlib import Path
 from sqlite3 import Connection
 from typing import Type
 
@@ -46,9 +47,19 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
         :param configuration: configuration instance
         :return: fully initialized instance of the database
         """
-        database = cls(configuration.getpath("settings", "database"))
+        path = cls.database_path(configuration)
+        database = cls(path)
         database.init(configuration)
         return database
+
+    @staticmethod
+    def database_path(configuration: Configuration) -> Path:
+        """
+        read database from configuration
+        :param configuration: configuration instance
+        :return: database path according to the configuration
+        """
+        return configuration.getpath("settings", "database")
 
     def init(self, configuration: Configuration) -> None:
         """

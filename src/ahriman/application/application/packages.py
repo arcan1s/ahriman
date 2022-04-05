@@ -67,7 +67,8 @@ class Packages(Properties):
         :param without_dependencies: if set, dependency check will be disabled
         """
         package = Package.load(source, PackageSource.AUR, self.repository.pacman, self.repository.aur_url)
-        self.repository.database.build_queue_insert(package)
+
+        self.database.build_queue_insert(package)
 
         with tmpdir() as local_path:
             Sources.load(local_path, package.git_url, self.database.patches_get(package.base))
@@ -93,7 +94,8 @@ class Packages(Properties):
         cache_dir = self.repository.paths.cache_for(package.base)
         shutil.copytree(Path(source), cache_dir)  # copy package to store in caches
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
-        self.repository.database.build_queue_insert(package)
+
+        self.database.build_queue_insert(package)
 
         self._process_dependencies(cache_dir, known_packages, without_dependencies)
 

@@ -264,9 +264,7 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
     :param configuration: configuration fixture
     :return: repository paths test instance
     """
-    return RepositoryPaths(
-        architecture="x86_64",
-        root=configuration.getpath("repository", "root"))
+    return configuration.repository_paths
 
 
 @pytest.fixture

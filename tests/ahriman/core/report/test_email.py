@@ -115,7 +115,7 @@ def test_generate_with_built_and_full_path(
         result: Result,
         mocker: MockerFixture) -> None:
     """
-    must generate report with built packages
+    must generate report with built packages and full packages lists
     """
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 

@@ -20,9 +20,9 @@
 from sqlite3 import Connection
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.data.package_statuses import migrate_package_statuses
 from ahriman.core.database.data.patches import migrate_patches
 from ahriman.core.database.data.users import migrate_users_data
-from ahriman.core.database.data.package_statuses import migrate_package_statuses
 from ahriman.models.migration_result import MigrationResult
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -37,7 +37,7 @@ def migrate_data(result: MigrationResult, connection: Connection,
     :param paths: repository paths instance
     """
     # initial data migration
-    if result.old_version == 0:
+    if result.old_version <= 0:
         migrate_package_statuses(connection, paths)
-        migrate_users_data(connection, configuration)
         migrate_patches(connection, paths)
+        migrate_users_data(connection, configuration)
