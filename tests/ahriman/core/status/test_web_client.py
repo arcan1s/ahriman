@@ -23,7 +23,7 @@ def test_ahriman_url(web_client: WebClient) -> None:
 
 def test_status_url(web_client: WebClient) -> None:
     """
-    must generate service status url correctly
+    must generate package status url correctly
     """
     assert web_client._status_url.startswith(web_client.address)
     assert web_client._status_url.endswith("/status-api/v1/status")
@@ -67,7 +67,7 @@ def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) 
 
 def test_login_failed_http_error(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during login
+    must suppress HTTP exception happened during login
     """
     web_client.user = user
     mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
@@ -112,7 +112,7 @@ def test_add_failed(web_client: WebClient, package_ahriman: Package, mocker: Moc
 
 def test_add_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during addition
+    must suppress HTTP exception happened during addition
     """
     mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
     web_client.add(package_ahriman, BuildStatusEnum.Unknown)
@@ -145,7 +145,7 @@ def test_get_failed(web_client: WebClient, mocker: MockerFixture) -> None:
 
 def test_get_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during status getting
+    must suppress HTTP exception happened during status getting
     """
     mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
     assert web_client.get(None) == []
@@ -193,7 +193,7 @@ def test_get_internal_failed(web_client: WebClient, mocker: MockerFixture) -> No
 
 def test_get_internal_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during web service status getting
+    must suppress HTTP exception happened during web service status getting
     """
     mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
     assert web_client.get_internal() == InternalStatus()
@@ -224,7 +224,7 @@ def test_get_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:
 
 def test_get_self_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during service status getting
+    must suppress HTTP exception happened during service status getting
     """
     mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
     assert web_client.get_self().status == BuildStatusEnum.Unknown
@@ -250,7 +250,7 @@ def test_remove_failed(web_client: WebClient, package_ahriman: Package, mocker: 
 
 def test_remove_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during removal
+    must suppress HTTP exception happened during removal
     """
     mocker.patch("requests.Session.delete", side_effect=requests.exceptions.HTTPError())
     web_client.remove(package_ahriman.base)
@@ -277,7 +277,7 @@ def test_update_failed(web_client: WebClient, package_ahriman: Package, mocker: 
 
 def test_update_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during update
+    must suppress HTTP exception happened during update
     """
     mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
     web_client.update(package_ahriman.base, BuildStatusEnum.Unknown)
@@ -304,7 +304,7 @@ def test_update_self_failed(web_client: WebClient, mocker: MockerFixture) -> Non
 
 def test_update_self_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during service update
+    must suppress HTTP exception happened during service update
     """
     mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
     web_client.update_self(BuildStatusEnum.Unknown)

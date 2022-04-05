@@ -26,7 +26,7 @@ def test_load_full_client(configuration: Configuration) -> None:
 
 def test_load_full_client_from_address(configuration: Configuration) -> None:
     """
-    must load full client if settings set
+    must load full client by using address
     """
     configuration.set_option("web", "address", "http://localhost:8080")
     assert isinstance(Client.load(configuration), WebClient)

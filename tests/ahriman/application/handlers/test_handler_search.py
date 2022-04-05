@@ -41,7 +41,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
-    must run command
+    must raise ExitCode exception on empty result list
     """
     args = _default_args(args)
     args.exit_code = True

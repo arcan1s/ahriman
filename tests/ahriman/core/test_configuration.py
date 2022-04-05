@@ -231,7 +231,7 @@ def test_gettype_from_section_with_architecture(configuration: Configuration) ->
 
 def test_gettype_from_section_no_section(configuration: Configuration) -> None:
     """
-    must extract type from section name with architecture
+    must raise NoSectionError during type extraction from section name with architecture
     """
     # technically rsync:x86_64 is valid section
     # but in current configuration it must be considered as missing section

@@ -62,7 +62,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
 def test_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
                      mocker: MockerFixture) -> None:
     """
-    must run command
+    must run command with detailed info
     """
     args = _default_args(args)
     args.info = True

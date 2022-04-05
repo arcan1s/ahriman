@@ -21,7 +21,7 @@ def test_finalize(application_packages: Packages) -> None:
 
 def test_known_packages(application_packages: Packages) -> None:
     """
-    must raise NotImplemented for missing finalize method
+    must raise NotImplemented for missing known_packages method
     """
     with pytest.raises(NotImplementedError):
         application_packages._known_packages()
@@ -42,17 +42,17 @@ def test_add_aur(application_packages: Packages, package_ahriman: Package, mocke
     must add package from AUR
     """
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
-    insert_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
+    build_queue_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
 
     application_packages._add_aur(package_ahriman.base, set(), False)
-    insert_mock.assert_called_once_with(package_ahriman)
     load_mock.assert_called_once_with(
         pytest.helpers.anyvar(int),
         package_ahriman.git_url,
         pytest.helpers.anyvar(int))
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
+    build_queue_mock.assert_called_once_with(package_ahriman)
 
 
 def test_add_directory(application_packages: Packages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -75,16 +75,16 @@ def test_add_local(application_packages: Packages, package_ahriman: Package, moc
     """
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
-    insert_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
     copytree_mock = mocker.patch("shutil.copytree")
     dependencies_mock = mocker.patch("ahriman.application.application.packages.Packages._process_dependencies")
+    build_queue_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
 
     application_packages._add_local(package_ahriman.base, set(), False)
     copytree_mock.assert_called_once_with(
         Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base))
     init_mock.assert_called_once_with(application_packages.repository.paths.cache_for(package_ahriman.base))
-    insert_mock.assert_called_once_with(package_ahriman)
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
+    build_queue_mock.assert_called_once_with(package_ahriman)
 
 
 def test_add_remote(application_packages: Packages, package_description_ahriman: PackageDescription,

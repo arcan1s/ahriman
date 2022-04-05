@@ -59,7 +59,7 @@ def test_check_unsafe() -> None:
 
 def test_check_unsafe_safe() -> None:
     """
-    must check if command is unsafe
+    must check if command is safe
     """
     UnsafeCommands.check_unsafe("package-status", ["repo-clean"], _parser())
 

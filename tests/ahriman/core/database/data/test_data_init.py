@@ -13,10 +13,12 @@ def test_migrate_data_initial(connection: Connection, configuration: Configurati
     must perform initial migration
     """
     packages = mocker.patch("ahriman.core.database.data.migrate_package_statuses")
+    patches = mocker.patch("ahriman.core.database.data.migrate_patches")
     users = mocker.patch("ahriman.core.database.data.migrate_users_data")
 
     migrate_data(MigrationResult(old_version=0, new_version=900), connection, configuration, repository_paths)
     packages.assert_called_once_with(connection, repository_paths)
+    patches.assert_called_once_with(connection, repository_paths)
     users.assert_called_once_with(connection, configuration)
 
 

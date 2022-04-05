@@ -35,6 +35,7 @@ class PackageSource(Enum):
     :cvar Directory: source is a directory which contains packages
     :cvar Local: source is locally stored PKGBUILD
     :cvar Remote: source is remote (http, ftp etc) link
+    :cvar Repository: source is official repository
     """
 
     Auto = "auto"
@@ -43,6 +44,7 @@ class PackageSource(Enum):
     Directory = "directory"
     Local = "local"
     Remote = "remote"
+    Repository = "repository"
 
     def resolve(self, source: str) -> PackageSource:
         """

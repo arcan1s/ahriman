@@ -21,7 +21,7 @@ def test_sign_ascii(package_ahriman: Package) -> None:
 
 def test_sign_utf8(package_ahriman: Package) -> None:
     """
-    must correctly generate sign in ascii
+    must correctly generate sign in utf8
     """
     with pytest.raises(UnicodeEncodeError):
         BuildPrinter(package_ahriman, is_success=True, use_utf=True).title().encode("ascii")
@@ -31,6 +31,6 @@ def test_sign_utf8(package_ahriman: Package) -> None:
 
 def test_title(package_ahriman: Package) -> None:
     """
-    must return non empty title
+    must return non-empty title
     """
     assert BuildPrinter(package_ahriman, is_success=True, use_utf=False).title() is not None

@@ -19,7 +19,7 @@ def test_build_status_enum_badges_color() -> None:
 
 def test_build_status_enum_bootstrap_color() -> None:
     """
-    status color must be one of shields.io supported
+    status color must be one of bootstrap supported
     """
     SUPPORTED_COLORS = [
         "primary", "secondary", "success", "danger", "warning", "info", "light", "dark"

@@ -281,7 +281,7 @@ def test_actual_version_srcinfo_failed(package_tpacpi_bat_git: Package, reposito
 def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
                                    mocker: MockerFixture) -> None:
     """
-    must return same version in case if exception occurred
+    must return same version in case if there are errors during parse
     """
     mocker.patch("pathlib.Path.read_text", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
@@ -292,7 +292,7 @@ def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_p
 
 
 def test_full_depends(package_ahriman: Package, package_python_schedule: Package, pyalpm_package_ahriman: MagicMock,
-                      pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+                      pyalpm_handle: MagicMock) -> None:
     """
     must extract all dependencies from the package
     """

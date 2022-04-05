@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from sqlite3 import Connection
 from typing import List, Optional
 
@@ -75,7 +73,7 @@ class AuthOperations(Operations):
 
     def user_update(self, user: User) -> None:
         """
-        get user by username
+        update user by username
         :param user: user descriptor
         """
         def run(connection: Connection) -> None:
