@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.handlers import Handler
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.package_source import PackageSource
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
 
@@ -336,6 +337,25 @@ def test_subparsers_repo_report_architecture(parser: argparse.ArgumentParser) ->
     args = parser.parse_args(["repo-report"])
     assert args.architecture is None
     args = parser.parse_args(["-a", "x86_64", "repo-report"])
+    assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_repo_restore(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-restore command must imply package and source
+    """
+    args = parser.parse_args(["repo-restore"])
+    assert args.package is None
+    assert args.source == PackageSource.AUR
+
+
+def test_subparsers_repo_restore_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-restore command must correctly parse architecture list
+    """
+    args = parser.parse_args(["repo-restore"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "repo-restore"])
     assert args.architecture == ["x86_64"]
 
 
