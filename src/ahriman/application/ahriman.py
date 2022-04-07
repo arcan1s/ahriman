@@ -89,6 +89,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
     _set_repo_report_parser(subparsers)
+    _set_repo_restore_parser(subparsers)
     _set_repo_setup_parser(subparsers)
     _set_repo_sign_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
@@ -406,6 +407,21 @@ def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
     parser.set_defaults(handler=handlers.Report)
+    return parser
+
+
+def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for package addition subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("repo-restore", aliases=["restore"], help="restore repository",
+                             description="restore repository from database file", formatter_class=_formatter)
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
+    parser.add_argument("-n", "--now", help="run update function after", action="store_true")
+    parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
+    parser.set_defaults(handler=handlers.Add, package=None, source=PackageSource.AUR)
     return parser
 
 
