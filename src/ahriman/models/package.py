@@ -26,12 +26,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Any, Dict, Iterable, List, Set, Type
 
-from ahriman.core.alpm.aur import AUR
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.remote.aur import AUR
+from ahriman.core.alpm.remote.official import Official
 from ahriman.core.exceptions import InvalidPackageInfo
-from ahriman.core.util import check_output
+from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -144,7 +145,7 @@ class Package:
         if errors:
             raise InvalidPackageInfo(errors)
         packages = {key: PackageDescription() for key in srcinfo["packages"]}
-        version = cls.full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+        version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
         return cls(srcinfo["pkgbase"], version, aur_url, packages)
 
@@ -166,6 +167,17 @@ class Package:
             packages=packages)
 
     @classmethod
+    def from_official(cls: Type[Package], name: str, aur_url: str) -> Package:
+        """
+        construct package properties from official repository page
+        :param name: package name (either base or normal name)
+        :param aur_url: AUR root url
+        :return: package properties
+        """
+        package = Official.info(name)
+        return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
+
+    @classmethod
     def load(cls: Type[Package], package: str, source: PackageSource, pacman: Pacman, aur_url: str) -> Package:
         """
         package constructor from available sources
@@ -183,6 +195,8 @@ class Package:
                 return cls.from_aur(package, aur_url)
             if resolved_source == PackageSource.Local:
                 return cls.from_build(Path(package), aur_url)
+            if resolved_source == PackageSource.Repository:
+                return cls.from_official(package, aur_url)
             raise InvalidPackageInfo(f"Unsupported local package source {resolved_source}")
         except InvalidPackageInfo:
             raise
@@ -215,18 +229,6 @@ class Package:
         full_list = set(depends + makedepends) - packages
         return {trim_version(package_name) for package_name in full_list}
 
-    @staticmethod
-    def full_version(epoch: Optional[str], pkgver: str, pkgrel: str) -> str:
-        """
-        generate full version from components
-        :param epoch: package epoch if any
-        :param pkgver: package version
-        :param pkgrel: package release version (arch linux specific)
-        :return: generated version
-        """
-        prefix = f"{epoch}:" if epoch else ""
-        return f"{prefix}{pkgver}-{pkgrel}"
-
     def actual_version(self, paths: RepositoryPaths) -> str:
         """
         additional method to handle VCS package versions
@@ -252,7 +254,7 @@ class Package:
             if errors:
                 raise InvalidPackageInfo(errors)
 
-            return self.full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+            return full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
         except Exception:
             logger.exception("cannot determine version of VCS package, make sure that you have VCS tools installed")
 

@@ -9,8 +9,8 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
-from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, package_like, \
-    pretty_datetime, pretty_size, tmpdir, walk
+from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
+    package_like, pretty_datetime, pretty_size, tmpdir, walk
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -177,6 +177,16 @@ def test_filter_json_empty_value(package_ahriman: Package) -> None:
     assert "base" not in filter_json(probe, probe.keys())
 
 
+def test_full_version() -> None:
+    """
+    must construct full version
+    """
+    assert full_version("1", "r2388.d30e3201", "1") == "1:r2388.d30e3201-1"
+    assert full_version(None, "0.12.1", "1") == "0.12.1-1"
+    assert full_version(0, "0.12.1", "1") == "0.12.1-1"
+    assert full_version(1, "0.12.1", "1") == "1:0.12.1-1"
+
+
 def test_package_like(package_ahriman: Package) -> None:
     """
     package_like must return true for archives
@@ -298,24 +308,26 @@ def test_walk(resource_path_root: Path) -> None:
     must traverse directory recursively
     """
     expected = sorted([
-        resource_path_root / "core/ahriman.ini",
-        resource_path_root / "core/logging.ini",
-        resource_path_root / "models/aur_error",
-        resource_path_root / "models/big_file_checksum",
-        resource_path_root / "models/empty_file_checksum",
-        resource_path_root / "models/package_ahriman_aur",
-        resource_path_root / "models/package_ahriman_srcinfo",
-        resource_path_root / "models/package_tpacpi-bat-git_srcinfo",
-        resource_path_root / "models/package_yay_srcinfo",
-        resource_path_root / "web/templates/build-status/login-modal.jinja2",
-        resource_path_root / "web/templates/build-status/package-actions-modals.jinja2",
-        resource_path_root / "web/templates/build-status/package-actions-script.jinja2",
-        resource_path_root / "web/templates/static/favicon.ico",
-        resource_path_root / "web/templates/utils/bootstrap-scripts.jinja2",
-        resource_path_root / "web/templates/utils/style.jinja2",
-        resource_path_root / "web/templates/build-status.jinja2",
-        resource_path_root / "web/templates/email-index.jinja2",
-        resource_path_root / "web/templates/repo-index.jinja2",
+        resource_path_root / "core" / "ahriman.ini",
+        resource_path_root / "core" / "logging.ini",
+        resource_path_root / "models" / "aur_error",
+        resource_path_root / "models" / "big_file_checksum",
+        resource_path_root / "models" / "empty_file_checksum",
+        resource_path_root / "models" / "official_error",
+        resource_path_root / "models" / "package_ahriman_aur",
+        resource_path_root / "models" / "package_akonadi_aur",
+        resource_path_root / "models" / "package_ahriman_srcinfo",
+        resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo",
+        resource_path_root / "models" / "package_yay_srcinfo",
+        resource_path_root / "web" / "templates" / "build-status" / "login-modal.jinja2",
+        resource_path_root / "web" / "templates" / "build-status" / "package-actions-modals.jinja2",
+        resource_path_root / "web" / "templates" / "build-status" / "package-actions-script.jinja2",
+        resource_path_root / "web" / "templates" / "static" / "favicon.ico",
+        resource_path_root / "web" / "templates" / "utils" / "bootstrap-scripts.jinja2",
+        resource_path_root / "web" / "templates" / "utils" / "style.jinja2",
+        resource_path_root / "web" / "templates" / "build-status.jinja2",
+        resource_path_root / "web" / "templates" / "email-index.jinja2",
+        resource_path_root / "web" / "templates" / "repo-index.jinja2",
     ])
     local_files = list(sorted(walk(resource_path_root)))
     assert local_files == expected

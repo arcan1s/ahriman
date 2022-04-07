@@ -125,6 +125,50 @@ def aur_package_ahriman() -> AURPackage:
 
 
 @pytest.fixture
+def aur_package_akonadi() -> AURPackage:
+    """
+    fixture for AUR package
+    :return: AUR package test instance
+    """
+    return AURPackage(
+        id=0,
+        name="akonadi",
+        package_base_id=0,
+        package_base="akonadi",
+        version="21.12.3-2",
+        description="PIM layer, which provides an asynchronous API to access all kind of PIM data",
+        num_votes=0,
+        popularity=0,
+        first_submitted=datetime.datetime(1970, 1, 1, 0, 0, 0),
+        last_modified=datetime.datetime(2022, 3, 6, 8, 39, 50, 610000),
+        url_path="",
+        url="https://kontact.kde.org",
+        out_of_date=None,
+        maintainer="felixonmars",
+        depends=[
+            "libakonadi",
+            "mariadb",
+        ],
+        make_depends=[
+            "boost",
+            "doxygen",
+            "extra-cmake-modules",
+            "kaccounts-integration",
+            "kitemmodels",
+            "postgresql",
+            "qt5-tools",
+        ],
+        opt_depends=[
+            "postgresql: PostgreSQL backend",
+        ],
+        conflicts=[],
+        provides=[],
+        license=["LGPL"],
+        keywords=[],
+    )
+
+
+@pytest.fixture
 def auth(configuration: Configuration) -> Auth:
     """
     auth provider fixture

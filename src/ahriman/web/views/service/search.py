@@ -20,7 +20,7 @@
 from aiohttp.web import HTTPNotFound, Response, json_response
 from typing import Callable, List
 
-from ahriman.core.alpm.aur import AUR
+from ahriman.core.alpm.remote.aur import AUR
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView

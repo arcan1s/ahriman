@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "limit": 250,
+  "valid": true,
+  "results": [
+    {
+      "pkgname": "akonadi",
+      "pkgbase": "akonadi",
+      "repo": "extra",
+      "arch": "x86_64",
+      "pkgver": "21.12.3",
+      "pkgrel": "2",
+      "epoch": 0,
+      "pkgdesc": "PIM layer, which provides an asynchronous API to access all kind of PIM data",
+      "url": "https://kontact.kde.org",
+      "filename": "akonadi-21.12.3-2-x86_64.pkg.tar.zst",
+      "compressed_size": 789510,
+      "installed_size": 2592656,
+      "build_date": "2022-03-04T11:50:03Z",
+      "last_update": "2022-03-06T08:39:50.610Z",
+      "flag_date": null,
+      "maintainers": [
+        "felixonmars",
+        "arojas"
+      ],
+      "packager": "arojas",
+      "groups": [],
+      "licenses": [
+        "LGPL"
+      ],
+      "conflicts": [],
+      "provides": [],
+      "replaces": [],
+      "depends": [
+        "libakonadi",
+        "mariadb"
+      ],
+      "optdepends": [
+        "postgresql: PostgreSQL backend"
+      ],
+      "makedepends": [
+        "boost",
+        "doxygen",
+        "extra-cmake-modules",
+        "kaccounts-integration",
+        "kitemmodels",
+        "postgresql",
+        "qt5-tools"
+      ],
+      "checkdepends": []
+    }
+  ],
+  "num_pages": 1,
+  "page": 1
+}

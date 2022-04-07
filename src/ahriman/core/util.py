@@ -116,6 +116,18 @@ def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str
     return {key: value for key, value in source.items() if key in known_fields and value is not None}
 
 
+def full_version(epoch: Union[str, int, None], pkgver: str, pkgrel: str) -> str:
+    """
+    generate full version from components
+    :param epoch: package epoch if any
+    :param pkgver: package version
+    :param pkgrel: package release version (arch linux specific)
+    :return: generated version
+    """
+    prefix = f"{epoch}:" if epoch else ""
+    return f"{prefix}{pkgver}-{pkgrel}"
+
+
 def package_like(filename: Path) -> bool:
     """
     check if file looks like package

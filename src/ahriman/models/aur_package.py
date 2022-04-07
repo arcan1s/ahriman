@@ -25,7 +25,7 @@ import inflection
 from dataclasses import dataclass, field, fields
 from typing import Any, Callable, Dict, List, Optional, Type
 
-from ahriman.core.util import filter_json
+from ahriman.core.util import filter_json, full_version
 
 
 @dataclass
@@ -59,12 +59,12 @@ class AURPackage:
     package_base_id: int
     package_base: str
     version: str
-    description: str
     num_votes: int
     popularity: float
     first_submitted: datetime.datetime
     last_modified: datetime.datetime
     url_path: str
+    description: str = ""  # despite the fact that the field is required some packages don't have it
     url: Optional[str] = None
     out_of_date: Optional[datetime.datetime] = None
     maintainer: Optional[str] = None
@@ -87,6 +87,39 @@ class AURPackage:
         known_fields = [pair.name for pair in fields(cls)]
         properties = cls.convert(dump)
         return cls(**filter_json(properties, known_fields))
+
+    @classmethod
+    def from_repo(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
+        """
+        construct package descriptor from official repository RPC properties
+        :param dump: json dump body
+        :return: AUR package descriptor
+        """
+        return cls(
+            id=0,
+            name=dump["pkgname"],
+            package_base_id=0,
+            package_base=dump["pkgbase"],
+            version=full_version(dump["epoch"], dump["pkgver"], dump["pkgrel"]),
+            description=dump["pkgdesc"],
+            num_votes=0,
+            popularity=0.0,
+            first_submitted=datetime.datetime.utcfromtimestamp(0),
+            last_modified=datetime.datetime.strptime(dump["last_update"], "%Y-%m-%dT%H:%M:%S.%fZ"),
+            url_path="",
+            url=dump["url"],
+            out_of_date=datetime.datetime.strptime(
+                dump["flag_date"],
+                "%Y-%m-%dT%H:%M:%S.%fZ") if dump["flag_date"] is not None else None,
+            maintainer=next(iter(dump["maintainers"]), None),
+            depends=dump["depends"],
+            make_depends=dump["makedepends"],
+            opt_depends=dump["optdepends"],
+            conflicts=dump["conflicts"],
+            provides=dump["provides"],
+            license=dump["licenses"],
+            keywords=[],
+        )
 
     @staticmethod
     def convert(descriptor: Dict[str, Any]) -> Dict[str, Any]:

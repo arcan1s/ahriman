@@ -101,7 +101,7 @@ def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, moc
     """
     must construct package from aur
     """
-    mocker.patch("ahriman.core.alpm.aur.AUR.info", return_value=aur_package_ahriman)
+    mocker.patch("ahriman.core.alpm.remote.aur.AUR.info", return_value=aur_package_ahriman)
 
     package = Package.from_aur(package_ahriman.base, package_ahriman.aur_url)
     assert package_ahriman.base == package.base
@@ -154,6 +154,18 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
+def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+    """
+    must construct package from official repository
+    """
+    mocker.patch("ahriman.core.alpm.remote.official.Official.info", return_value=aur_package_ahriman)
+
+    package = Package.from_official(package_ahriman.base, package_ahriman.aur_url)
+    assert package_ahriman.base == package.base
+    assert package_ahriman.version == package.version
+    assert package_ahriman.packages.keys() == package.packages.keys()
+
+
 def test_load_resolve(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
     """
     must resolve source before package loading
@@ -191,6 +203,15 @@ def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, moc
     load_mock = mocker.patch("ahriman.models.package.Package.from_build")
     Package.load("path", PackageSource.Local, pyalpm_handle, package_ahriman.aur_url)
     load_mock.assert_called_once_with(Path("path"), package_ahriman.aur_url)
+
+
+def test_load_from_official(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
+    """
+    must load package from AUR
+    """
+    load_mock = mocker.patch("ahriman.models.package.Package.from_official")
+    Package.load("path", PackageSource.Repository, pyalpm_handle, package_ahriman.aur_url)
+    load_mock.assert_called_once_with("path", package_ahriman.aur_url)
 
 
 def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
@@ -238,14 +259,6 @@ def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Pa
     mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
 
     assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
-
-
-def test_full_version() -> None:
-    """
-    must construct full version
-    """
-    assert Package.full_version("1", "r2388.d30e3201", "1") == "1:r2388.d30e3201-1"
-    assert Package.full_version(None, "0.12.1", "1") == "0.12.1-1"
 
 
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
