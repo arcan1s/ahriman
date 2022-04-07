@@ -261,6 +261,16 @@ def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Pa
     assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
 
 
+def test_dependencies_with_version_and_overlap(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must load correct list of dependencies with version
+    """
+    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
+    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+
+    assert Package.dependencies(Path("path")) == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
+
+
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
     """
     must return same actual_version as version is
