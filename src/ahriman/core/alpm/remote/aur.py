@@ -17,24 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
-import logging
 import requests
 
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional
 
+from ahriman.core.alpm.remote.remote import Remote
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import exception_response_text
 from ahriman.models.aur_package import AURPackage
 
 
-class AUR:
+class AUR(Remote):
     """
     AUR RPC wrapper
     :cvar DEFAULT_RPC_URL: default AUR RPC url
     :cvar DEFAULT_RPC_VERSION: default AUR RPC version
-    :ivar logger: class logger
     :ivar rpc_url: AUR RPC url
     :ivar rpc_version: AUR RPC version
     """
@@ -48,46 +45,9 @@ class AUR:
         :param rpc_url: AUR RPC url
         :param rpc_version: AUR RPC version
         """
+        Remote.__init__(self)
         self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
         self.rpc_version = rpc_version or self.DEFAULT_RPC_VERSION
-        self.logger = logging.getLogger("build_details")
-
-    @classmethod
-    def info(cls: Type[AUR], package_name: str) -> AURPackage:
-        """
-        get package info by its name
-        :param package_name: package name to search
-        :return: package which match the package name
-        """
-        return cls().package_info(package_name)
-
-    @classmethod
-    def multisearch(cls: Type[AUR], *keywords: str) -> List[AURPackage]:
-        """
-        search in AUR by using API with multiple words. This method is required in order to handle
-        https://bugs.archlinux.org/task/49133. In addition short words will be dropped
-        :param keywords: search terms, e.g. "ahriman", "is", "cool"
-        :return: list of packages each of them matches all search terms
-        """
-        instance = cls()
-        packages: Dict[str, AURPackage] = {}
-        for term in filter(lambda word: len(word) > 3, keywords):
-            portion = instance.search(term)
-            packages = {
-                package.package_base: package
-                for package in portion
-                if package.package_base in packages or not packages
-            }
-        return list(packages.values())
-
-    @classmethod
-    def search(cls: Type[AUR], *keywords: str) -> List[AURPackage]:
-        """
-        search package in AUR web
-        :param keywords: keywords to search
-        :return: list of packages which match the criteria
-        """
-        return cls().package_search(*keywords)
 
     @staticmethod
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
@@ -144,11 +104,10 @@ class AUR:
         packages = self.make_request("info", package_name)
         return next(package for package in packages if package.name == package_name)
 
-    def package_search(self, *keywords: str, by: str = "name-desc") -> List[AURPackage]:
+    def package_search(self, *keywords: str) -> List[AURPackage]:
         """
         search package in AUR web
         :param keywords: keywords to search
-        :param by: search by the field
         :return: list of packages which match the criteria
         """
-        return self.make_request("search", *keywords, by=by)
+        return self.make_request("search", *keywords, by="name-desc")

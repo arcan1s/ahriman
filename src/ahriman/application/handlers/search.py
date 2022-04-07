@@ -23,7 +23,8 @@ from dataclasses import fields
 from typing import Callable, Iterable, List, Tuple, Type
 
 from ahriman.application.handlers.handler import Handler
-from ahriman.core.alpm.aur import AUR
+from ahriman.core.alpm.remote.aur import AUR
+from ahriman.core.alpm.remote.official import Official
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidOption
 from ahriman.core.formatters.aur_printer import AurPrinter
@@ -50,10 +51,14 @@ class Search(Handler):
         :param no_report: force disable reporting
         :param unsafe: if set no user check will be performed before path creation
         """
-        packages_list = AUR.multisearch(*args.search)
-        Search.check_if_empty(args.exit_code, not packages_list)
-        for package in Search.sort(packages_list, args.sort_by):
-            AurPrinter(package).print(args.info)
+        official_packages_list = Official.multisearch(*args.search)
+        aur_packages_list = AUR.multisearch(*args.search)
+        Search.check_if_empty(args.exit_code, not official_packages_list and not aur_packages_list)
+
+        for packages_list in (official_packages_list, aur_packages_list):
+            # keep sorting by packages source
+            for package in Search.sort(packages_list, args.sort_by):
+                AurPrinter(package).print(args.info)
 
     @staticmethod
     def sort(packages: Iterable[AURPackage], sort_by: str) -> List[AURPackage]:

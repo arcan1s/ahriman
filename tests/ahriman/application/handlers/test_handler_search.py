@@ -3,6 +3,7 @@ import dataclasses
 import pytest
 
 from pytest_mock import MockerFixture
+from unittest import mock
 
 from ahriman.application.handlers import Search
 from ahriman.core.configuration import Configuration
@@ -29,14 +30,17 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     must run command
     """
     args = _default_args(args)
-    search_mock = mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    aur_search_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    official_search_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch",
+                                        return_value=[aur_package_ahriman])
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True, False)
-    search_mock.assert_called_once_with("ahriman")
+    aur_search_mock.assert_called_once_with("ahriman")
+    official_search_mock.assert_called_once_with("ahriman")
     check_mock.assert_called_once_with(False, False)
-    print_mock.assert_called_once_with(False)
+    print_mock.assert_has_calls([mock.call(False), mock.call(False)])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -45,7 +49,8 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     """
     args = _default_args(args)
     args.exit_code = True
-    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[])
+    mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[])
+    mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.formatters.printer.Printer.print")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
 
@@ -59,11 +64,15 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     must run command with sorting
     """
     args = _default_args(args)
-    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True, False)
-    sort_mock.assert_called_once_with([aur_package_ahriman], "name")
+    sort_mock.assert_has_calls([
+        mock.call([], "name"), mock.call().__iter__(),
+        mock.call([aur_package_ahriman], "name"), mock.call().__iter__()
+    ])
 
 
 def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
@@ -73,11 +82,15 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     """
     args = _default_args(args)
     args.sort_by = "field"
-    mocker.patch("ahriman.core.alpm.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True, False)
-    sort_mock.assert_called_once_with([aur_package_ahriman], "field")
+    sort_mock.assert_has_calls([
+        mock.call([], "field"), mock.call().__iter__(),
+        mock.call([aur_package_ahriman], "field"), mock.call().__iter__()
+    ])
 
 
 def test_sort(aur_package_ahriman: AURPackage) -> None:
