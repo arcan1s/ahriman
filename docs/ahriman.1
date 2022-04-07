@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 .SH OPTIONS
@@ -96,6 +96,9 @@ remove unknown packages
 .TP
 \fBahriman\fR \fI\,repo-report\/\fR
 generate report
+.TP
+\fBahriman\fR \fI\,repo-restore\/\fR
+restore repository
 .TP
 \fBahriman\fR \fI\,repo-setup\/\fR
 initial service configuration
@@ -207,7 +210,7 @@ key server for key import
 
 .SH OPTIONS 'ahriman package-add'
 usage: ahriman package-add [-h] [-e] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -226,7 +229,7 @@ return non\-zero exit status if result is empty
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}
 explicitly specify the package source for this command
 
 .TP
@@ -235,7 +238,7 @@ do not add dependencies
 
 .SH OPTIONS 'ahriman add'
 usage: ahriman package-add [-h] [-e] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -254,7 +257,7 @@ return non\-zero exit status if result is empty
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}
 explicitly specify the package source for this command
 
 .TP
@@ -263,7 +266,7 @@ do not add dependencies
 
 .SH OPTIONS 'ahriman package-update'
 usage: ahriman package-add [-h] [-e] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}]
+                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -282,7 +285,7 @@ return non\-zero exit status if result is empty
 run update function after
 
 .TP
-\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote}
+\fB\-s\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}, \fB\-\-source\fR {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}
 explicitly specify the package source for this command
 
 .TP
@@ -614,6 +617,42 @@ generate repository report according to current settings
 \fBtarget\fR
 target to generate report
 
+
+.SH OPTIONS 'ahriman repo-restore'
+usage: ahriman repo-restore [-h] [-e] [-n] [--without-dependencies]
+
+restore repository from database file
+
+
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if result is empty
+
+.TP
+\fB\-n\fR, \fB\-\-now\fR
+run update function after
+
+.TP
+\fB\-\-without\-dependencies\fR
+do not add dependencies
+
+.SH OPTIONS 'ahriman restore'
+usage: ahriman repo-restore [-h] [-e] [-n] [--without-dependencies]
+
+restore repository from database file
+
+
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if result is empty
+
+.TP
+\fB\-n\fR, \fB\-\-now\fR
+run update function after
+
+.TP
+\fB\-\-without\-dependencies\fR
+do not add dependencies
 
 .SH OPTIONS 'ahriman repo-setup'
 usage: ahriman repo-setup [-h] [--build-as-user BUILD_AS_USER] [--build-command BUILD_COMMAND]
