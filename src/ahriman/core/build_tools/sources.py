@@ -86,7 +86,8 @@ class Sources:
             Sources.logger.warning("%s is not initialized, but no remote provided", sources_dir)
         else:
             Sources.logger.info("clone remote %s to %s", remote, sources_dir)
-            Sources._check_output("git", "clone", remote, str(sources_dir), exception=None, logger=Sources.logger)
+            Sources._check_output("git", "clone", remote, str(sources_dir),
+                                  exception=None, cwd=sources_dir, logger=Sources.logger)
         # and now force reset to our branch
         Sources._check_output("git", "checkout", "--force", Sources._branch,
                               exception=None, cwd=sources_dir, logger=Sources.logger)
