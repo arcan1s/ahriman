@@ -32,12 +32,14 @@ class ReportSettings(Enum):
     :cvar HTML: html report generation
     :cvar Email: email report generation
     :cvar Console: print result to console
+    :cvar Telegram: markdown report to telegram channel
     """
 
     Disabled = "disabled"  # for testing purpose
     HTML = "html"
     Email = "email"
     Console = "console"
+    Telegram = "telegram"
 
     @classmethod
     def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
@@ -52,4 +54,6 @@ class ReportSettings(Enum):
             return cls.Email
         if value.lower() in ("console",):
             return cls.Console
+        if value.lower() in ("telegram",):
+            return cls.Telegram
         raise InvalidOption(value)

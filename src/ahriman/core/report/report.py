@@ -68,6 +68,9 @@ class Report:
         if provider == ReportSettings.Console:
             from ahriman.core.report.console import Console
             return Console(architecture, configuration, section)
+        if provider == ReportSettings.Telegram:
+            from ahriman.core.report.telegram import Telegram
+            return Telegram(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 
     def generate(self, packages: Iterable[Package], result: Result) -> None:

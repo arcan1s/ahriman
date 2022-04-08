@@ -402,6 +402,46 @@ There are several choices:
    
 After these steps `index.html` file will be automatically synced to S3
 
+### I would like to get messages to my telegram account/channel
+
+1. It still requires additional dependencies:
+
+   ```shell
+   yay -S python-jinja
+   ```
+
+2. Register bot in telegram. You can do it by using by talking with [@BotFather](https://t.me/botfather). For more details please refer to [official documentation](https://core.telegram.org/bots).
+
+3. Optionally (if you want to post message in chat):
+
+   1. Create telegram channel. 
+   2. Invite your bot into the channel.
+   3. Make your channel public
+
+4. Get chat id if you want to use by numerical id or just use id prefixed with `@` (e.g. `@ahriman`). If you are not using chat the chat id is your user id. If you don't want to make channel public you can use [this guide](https://stackoverflow.com/a/33862907).
+
+5. Configure the service:
+
+   ```ini
+   [report]
+   target = telegram
+   
+   [telegram]
+   api_key = aaAAbbBBccCC
+   chat_id = @ahriman
+   link_path = http://example.com/x86_64
+   ```
+   
+   `api_key` is the one sent by [@BotFather](https://t.me/botfather), `chat_id` is the value retrieved from previous step.
+
+If you did everything fine you should receive the message with the next update. Quick credentials check can be done by using the following command:
+
+```shell
+curl 'https://api.telegram.org/bot${CHAT_ID}/sendMessage?chat_id=${API_KEY}&text=hello'
+```
+
+(replace `${CHAT_ID}` and `${API_KEY}` with the values from configuration).
+
 ## Web service
 
 ### Readme mentions web interface, how do I use it?
