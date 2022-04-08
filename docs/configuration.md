@@ -124,6 +124,7 @@ Section name must be either `telegram` (plus optional architecture name, e.g. `t
 * `homepage` - link to homepage, string, optional.
 * `link_path` - prefix for HTML links, string, required.
 * `template_path` - path to Jinja2 template, string, required.
+* `template_type` - `parse_mode` to be passed to telegram API, one of `MarkdownV2`, `HTML`, `Markdown`, string, optional, default `HTML`.
 
 ## `upload` group
 

@@ -87,7 +87,7 @@ def test_fetch_new(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, "remote")
     check_output_mock.assert_has_calls([
-        mock.call("git", "clone", "remote", str(local), exception=None, logger=pytest.helpers.anyvar(int)),
+        mock.call("git", "clone", "remote", str(local), exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "checkout", "--force", Sources._branch,
                   exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
         mock.call("git", "reset", "--hard", f"origin/{Sources._branch}",
