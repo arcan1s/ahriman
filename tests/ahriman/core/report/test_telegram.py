@@ -20,7 +20,7 @@ def test_send(configuration: Configuration, mocker: MockerFixture) -> None:
     report._send("a text")
     request_mock.assert_called_once_with(
         pytest.helpers.anyvar(str, strict=True),
-        data={"chat_id": pytest.helpers.anyvar(str, strict=True), "text": "a text"})
+        data={"chat_id": pytest.helpers.anyvar(str, strict=True), "text": "a text", "parse_mode": "HTML"})
 
 
 def test_send_failed(configuration: Configuration, mocker: MockerFixture) -> None:

@@ -1,10 +1,5 @@
-{#simplified version of full report, now in markdown#}
-## {{ repository }} update
-
+{#simplified version of full report#}
+<b>{{ repository }} update</b>
 {% for package in packages %}
-    * [{{ package.name }}]({{ link_path }}/{{ package.filename }}) {{ package.version }} at {{ package.build_date }}
+<a href="{{ link_path }}/{{ package.filename }}">{{ package.name }}</a> {{ package.version }} at {{ package.build_date }}
 {% endfor %}
-
-{% if homepage is not none %}
-[Repository]({{ homepage }})
-{% endif %}
