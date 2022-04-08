@@ -32,9 +32,9 @@ def migrate_users_data(connection: Connection, configuration: Configuration) -> 
         for option, value in configuration[section].items():
             if not section.startswith("auth:"):
                 continue
-            permission = section[5:]
+            access = section[5:]
             connection.execute(
-                """insert into users (username, permission, password) values (:username, :permission, :password)""",
-                {"username": option.lower(), "permission": permission, "password": value})
+                """insert into users (username, access, password) values (:username, :access, :password)""",
+                {"username": option.lower(), "access": access, "password": value})
 
     connection.commit()
