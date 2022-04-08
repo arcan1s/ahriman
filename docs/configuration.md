@@ -114,6 +114,17 @@ Section name must be either `html` (plus optional architecture name, e.g. `html:
 * `link_path` - prefix for HTML links, string, required.
 * `template_path` - path to Jinja2 template, string, required.
 
+### `telegram` type
+
+Section name must be either `telegram` (plus optional architecture name, e.g. `telegram:x86_64`) or random name with `type` set.
+
+* `type` - type of the report, string, optional, must be set to `telegram` if exists.
+* `api_key` - telegram bot API key, string, required. Please refer FAQ about how to create chat and bot
+* `chat_id` - telegram chat id, either string with `@` or integer value, required.
+* `homepage` - link to homepage, string, optional.
+* `link_path` - prefix for HTML links, string, required.
+* `template_path` - path to Jinja2 template, string, required.
+
 ## `upload` group
 
 Remote synchronization settings.

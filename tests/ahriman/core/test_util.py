@@ -329,6 +329,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "build-status.jinja2",
         resource_path_root / "web" / "templates" / "email-index.jinja2",
         resource_path_root / "web" / "templates" / "repo-index.jinja2",
+        resource_path_root / "web" / "templates" / "telegram-index.jinja2",
     ])
     local_files = list(sorted(walk(resource_path_root)))
     assert local_files == expected

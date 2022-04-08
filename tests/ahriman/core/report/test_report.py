@@ -53,3 +53,12 @@ def test_report_html(configuration: Configuration, result: Result, mocker: Mocke
     report_mock = mocker.patch("ahriman.core.report.html.HTML.generate")
     Report.load("x86_64", configuration, "html").run([], result)
     report_mock.assert_called_once_with([], result)
+
+
+def test_report_telegram(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
+    """
+    must generate telegram report
+    """
+    report_mock = mocker.patch("ahriman.core.report.telegram.Telegram.generate")
+    Report.load("x86_64", configuration, "telegram").run([], result)
+    report_mock.assert_called_once_with([], result)
