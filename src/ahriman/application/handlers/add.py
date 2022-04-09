@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import List, Type
+from typing import Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
@@ -43,20 +43,10 @@ class Add(Handler):
         :param unsafe: if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
-        packages = Add.extract_packages(application) if args.package is None else args.package
-        application.add(packages, args.source, args.without_dependencies)
+        application.add(args.package, args.source, args.without_dependencies)
         if not args.now:
             return
 
-        packages = application.updates(packages, True, True, False, True, application.logger.info)
+        packages = application.updates(args.package, True, True, False, True, application.logger.info)
         result = application.update(packages)
         Add.check_if_empty(args.exit_code, result.is_empty)
-
-    @staticmethod
-    def extract_packages(application: Application) -> List[str]:
-        """
-        extract packages from database file
-        :param application: application instance
-        :return: list of packages which were stored in database
-        """
-        return [package.base for (package, _) in application.database.packages_get()]

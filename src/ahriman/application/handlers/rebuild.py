@@ -19,12 +19,13 @@
 #
 import argparse
 
-from typing import Type
+from typing import List, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters.update_printer import UpdatePrinter
+from ahriman.models.package import Package
 
 
 class Rebuild(Handler):
@@ -46,7 +47,10 @@ class Rebuild(Handler):
         depends_on = set(args.depends_on) if args.depends_on else None
 
         application = Application(architecture, configuration, no_report, unsafe)
-        updates = application.repository.packages_depends_on(depends_on)
+        if args.from_database:
+            updates = Rebuild.extract_packages(application)
+        else:
+            updates = application.repository.packages_depends_on(depends_on)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:
@@ -56,3 +60,12 @@ class Rebuild(Handler):
 
         result = application.update(updates)
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
+
+    @staticmethod
+    def extract_packages(application: Application) -> List[Package]:
+        """
+        extract packages from database file
+        :param application: application instance
+        :return: list of packages which were stored in database
+        """
+        return [package for (package, _) in application.database.packages_get()]
