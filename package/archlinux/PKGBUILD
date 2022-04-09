@@ -38,7 +38,7 @@ build() {
 package() {
   cd "$pkgname"
 
-  python -m installer --destdir="$pkgdir" dist/*.whl
+  python -m installer --destdir="$pkgdir" "dist/$pkgname-$pkgver-py3-none-any.whl"
 
   # python-installer actually thinks that you cannot just copy files to root
   # thus we need to copy them manually
