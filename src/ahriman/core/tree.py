@@ -19,14 +19,11 @@
 #
 from __future__ import annotations
 
-import shutil
-import tempfile
-
-from pathlib import Path
 from typing import Iterable, List, Set, Type
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.database.sqlite import SQLite
+from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 
 
@@ -61,12 +58,9 @@ class Leaf:
         :param database: database instance
         :return: loaded class
         """
-        clone_dir = Path(tempfile.mkdtemp())
-        try:
+        with tmpdir() as clone_dir:
             Sources.load(clone_dir, package.git_url, database.patches_get(package.base))
             dependencies = Package.dependencies(clone_dir)
-        finally:
-            shutil.rmtree(clone_dir, ignore_errors=True)
         return cls(package, dependencies)
 
     def is_root(self, packages: Iterable[Leaf]) -> bool:

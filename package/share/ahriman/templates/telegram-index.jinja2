@@ -1,5 +1,4 @@
 {#simplified version of full report#}
 <b>{{ repository }} update</b>
 {% for package in packages %}
-<a href="{{ link_path }}/{{ package.filename }}">{{ package.name }}</a> {{ package.version }} at {{ package.build_date }}
-{% endfor %}
+<a href="{{ link_path }}/{{ package.filename }}">{{ package.name }}</a> {{ package.version }}{% endfor %}

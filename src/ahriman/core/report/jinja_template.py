@@ -101,7 +101,7 @@ class JinjaTemplate:
                 "name": package,
                 "url": properties.url or "",
                 "version": base.version
-            } for base in result.updated for package, properties in base.packages.items()
+            } for base in result.success for package, properties in base.packages.items()
         ]
         comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
 

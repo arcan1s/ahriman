@@ -62,13 +62,6 @@ class Result:
         """
         return list(self._success.values())
 
-    @property
-    def updated(self) -> List[Package]:
-        """
-        :return: list of updated packages inclding both success and failed
-        """
-        return self.success + self.failed
-
     def add_failed(self, package: Package) -> None:
         """
         add new package to failed built
