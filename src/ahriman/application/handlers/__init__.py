@@ -20,6 +20,7 @@
 from ahriman.application.handlers.handler import Handler
 
 from ahriman.application.handlers.add import Add
+from ahriman.application.handlers.backup import Backup
 from ahriman.application.handlers.clean import Clean
 from ahriman.application.handlers.dump import Dump
 from ahriman.application.handlers.help import Help
@@ -29,6 +30,7 @@ from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.application.handlers.remove import Remove
 from ahriman.application.handlers.remove_unknown import RemoveUnknown
 from ahriman.application.handlers.report import Report
+from ahriman.application.handlers.restore import Restore
 from ahriman.application.handlers.search import Search
 from ahriman.application.handlers.setup import Setup
 from ahriman.application.handlers.sign import Sign

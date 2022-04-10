@@ -83,12 +83,14 @@ def _parser() -> argparse.ArgumentParser:
     _set_patch_add_parser(subparsers)
     _set_patch_list_parser(subparsers)
     _set_patch_remove_parser(subparsers)
+    _set_repo_backup_parser(subparsers)
     _set_repo_check_parser(subparsers)
     _set_repo_clean_parser(subparsers)
     _set_repo_config_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
     _set_repo_report_parser(subparsers)
+    _set_repo_restore_parser(subparsers)
     _set_repo_setup_parser(subparsers)
     _set_repo_sign_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
@@ -314,6 +316,19 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
+def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository backup subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("repo-backup", help="backup repository data",
+                             description="backup settings and database", formatter_class=_formatter)
+    parser.add_argument("path", help="path of the output archive", type=Path)
+    parser.set_defaults(handler=handlers.Backup, architecture=[""], lock=None, no_report=True, unsafe=True)
+    return parser
+
+
 def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository check subcommand
@@ -412,6 +427,20 @@ def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("target", help="target to generate report", nargs="*")
     parser.set_defaults(handler=handlers.Report)
+    return parser
+
+
+def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository restore subcommand
+    :param root: subparsers for the commands
+    :return: created argument parser
+    """
+    parser = root.add_parser("repo-restore", help="restore repository data",
+                             description="restore settings and database", formatter_class=_formatter)
+    parser.add_argument("path", help="path of the input archive", type=Path)
+    parser.add_argument("-o", "--output", help="root path of the extracted files", type=Path, default=Path("/"))
+    parser.set_defaults(handler=handlers.Restore, architecture=[""], lock=None, no_report=True, unsafe=True)
     return parser
 
 
