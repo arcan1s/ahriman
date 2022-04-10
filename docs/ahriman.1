@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 .SH OPTIONS
@@ -79,6 +79,9 @@ list patch sets
 \fBahriman\fR \fI\,patch-remove\/\fR
 remove patch set
 .TP
+\fBahriman\fR \fI\,repo-backup\/\fR
+backup repository data
+.TP
 \fBahriman\fR \fI\,repo-check\/\fR
 check for updates
 .TP
@@ -98,7 +101,7 @@ remove unknown packages
 generate report
 .TP
 \fBahriman\fR \fI\,repo-restore\/\fR
-restore repository
+restore repository data
 .TP
 \fBahriman\fR \fI\,repo-setup\/\fR
 initial service configuration
@@ -442,6 +445,16 @@ remove patches for the package
 package base
 
 
+.SH OPTIONS 'ahriman repo-backup'
+usage: ahriman repo-backup [-h] path
+
+backup settings and database
+
+.TP
+\fBpath\fR
+path of the output archive
+
+
 .SH OPTIONS 'ahriman repo-check'
 usage: ahriman repo-check [-h] [-e] [--no-vcs] [package ...]
 
@@ -535,7 +548,7 @@ dump configuration for the specified architecture
 
 
 .SH OPTIONS 'ahriman repo-rebuild'
-usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run] [-e]
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run] [--from-database] [-e]
 
 force rebuild whole repository
 
@@ -547,13 +560,19 @@ only rebuild packages that depend on specified package
 .TP
 \fB\-\-dry\-run\fR
 just perform check for packages without rebuild process itself
+
+.TP
+\fB\-\-from\-database\fR
+read packages from database instead of filesystem. This feature in particular is required in case if you would like to
+restore repository from another repository instance. Note however that in order to restore packages you need to have
+original ahriman instance run with web service and have run repo\-update at least once.
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
 
 .SH OPTIONS 'ahriman rebuild'
-usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run] [-e]
+usage: ahriman repo-rebuild [-h] [--depends-on DEPENDS_ON] [--dry-run] [--from-database] [-e]
 
 force rebuild whole repository
 
@@ -565,6 +584,12 @@ only rebuild packages that depend on specified package
 .TP
 \fB\-\-dry\-run\fR
 just perform check for packages without rebuild process itself
+
+.TP
+\fB\-\-from\-database\fR
+read packages from database instead of filesystem. This feature in particular is required in case if you would like to
+restore repository from another repository instance. Note however that in order to restore packages you need to have
+original ahriman instance run with web service and have run repo\-update at least once.
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
@@ -619,40 +644,17 @@ target to generate report
 
 
 .SH OPTIONS 'ahriman repo-restore'
-usage: ahriman repo-restore [-h] [-e] [-n] [--without-dependencies]
+usage: ahriman repo-restore [-h] [-o OUTPUT] path
 
-restore repository from database file
-
-
-.TP
-\fB\-e\fR, \fB\-\-exit\-code\fR
-return non\-zero exit status if result is empty
+restore settings and database
 
 .TP
-\fB\-n\fR, \fB\-\-now\fR
-run update function after
+\fBpath\fR
+path of the input archive
 
 .TP
-\fB\-\-without\-dependencies\fR
-do not add dependencies
-
-.SH OPTIONS 'ahriman restore'
-usage: ahriman repo-restore [-h] [-e] [-n] [--without-dependencies]
-
-restore repository from database file
-
-
-.TP
-\fB\-e\fR, \fB\-\-exit\-code\fR
-return non\-zero exit status if result is empty
-
-.TP
-\fB\-n\fR, \fB\-\-now\fR
-run update function after
-
-.TP
-\fB\-\-without\-dependencies\fR
-do not add dependencies
+\fB\-o\fR \fI\,OUTPUT\/\fR, \fB\-\-output\fR \fI\,OUTPUT\/\fR
+root path of the extracted files
 
 .SH OPTIONS 'ahriman repo-setup'
 usage: ahriman repo-setup [-h] [--build-as-user BUILD_AS_USER] [--build-command BUILD_COMMAND]
