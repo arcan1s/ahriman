@@ -199,7 +199,7 @@ server {
 
 ## Docker image
 
-We provide official images which can be found under `arcan1s/ahriman` repository. Docker image is being updated on each master commit as well as on each version. If you would like to use last (probably unstable build) you can use `latest` tag; otherwise you can use any version tag available. 
+We provide official images which can be found under `arcan1s/ahriman` repository. Docker image is being updated on each master commit as well as on each version. If you would like to use last (probably unstable) build you can use `edge` tag or `latest` for any tagged versions; otherwise you can use any version tag available. 
 
 The default action (in case if no arguments provided) is `repo-update`. Basically the idea is to run container, e.g.:
 
@@ -410,7 +410,7 @@ After these steps `index.html` file will be automatically synced to S3
    yay -S python-jinja
    ```
 
-2. Register bot in telegram. You can do it by using by talking with [@BotFather](https://t.me/botfather). For more details please refer to [official documentation](https://core.telegram.org/bots).
+2. Register bot in telegram. You can do it by talking with [@BotFather](https://t.me/botfather). For more details please refer to [official documentation](https://core.telegram.org/bots).
 
 3. Optionally (if you want to post message in chat):
 
@@ -602,7 +602,7 @@ You can also edit configuration and forward logs to `stderr`, just change `handl
 sed -i 's/handlers = syslog_handler/handlers = console_handler/g' /etc/ahriman.ini.d/logging.ini
 ```
 
-You can even configure logging as you wish, but kindly refer to python `logging` module configuration.
+You can even configure logging as you wish, but kindly refer to python `logging` module [configuration](https://docs.python.org/3/library/logging.config.html).
 
 ### Html customization
 

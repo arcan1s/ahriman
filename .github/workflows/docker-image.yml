@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     tags:
       - '*'
+      - '!*rc*'
 
 jobs:
   docker-image:
