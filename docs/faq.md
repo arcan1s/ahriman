@@ -242,7 +242,7 @@ You can pass any of these variables by using `-e` argument, e.g.:
 docker run -e AHRIMAN_PORT=8080 arcan1s/ahriman:latest
 ```
 
-### Working with web service
+### Web service setup
 
 Well for that you would need to have web container instance running forever; it can be achieved by the following command:
 
@@ -519,6 +519,36 @@ curl 'https://api.telegram.org/bot${CHAT_ID}/sendMessage?chat_id=${API_KEY}&text
 5. Create end-user `sudo -u ahriman ahriman user-add -r write my-first-user`. When it will ask for the password leave it blank.
 6. Restart web service `systemctl restart ahriman-web@x86_64`.
 
+## Backup and restore
+
+The service provides several commands aim to do easy repository backup and restore. If you would like to move repository from the server `server1.example.com` to another `server2.example.com` you have to perform the following steps:
+
+1. On the source server `server1.example.com` run `repo-backup` command, e.g.:
+
+   ```shell
+   sudo ahriman repo-backup /tmp/repo.tar.gz
+   ```
+   
+   This command will pack all configuration files together with database file into the archive specified as command line argument (i.e. `/tmp/repo.tar.gz`). In addition it will also archive `cache` directory (the one which contains local clones used by e.g. local packages) and `.gnupg` of the `ahriman` user.
+
+2. Copy created archive from source server `server1.example.com` to target `server2.example.com`.
+
+3. Install ahriman as usual on the target server `server2.example.com` if you didn't yet.
+
+4. Extract archive e.g. by using subcommand:
+   
+   ```shell
+   sudo ahriman repo-restore /tmp/repo.tar.gz
+   ```
+   
+   An additional argument `-o`/`--output` can be used to specify extraction root (`/` by default).
+
+5. Rebuild repository:
+
+   ```shell
+   sudo -u ahriman ahriman repo-rebuild --from-database
+   ```
+
 ## Other topics
 
 ### How does it differ from %another-manager%?
@@ -557,6 +587,10 @@ Though originally I've created ahriman by trying to improve the project, it stil
 * And so on.
 
 `repo-scripts` also have bad architecture and bad quality code and uses out-of-dated `yaourt` and `package-query`.
+
+#### [toolbox](https://github.com/chaotic-aur/toolbox)
+
+It is automation tools for `repoctl` mentioned above. Except for using shell it looks pretty cool and also offers some additional features like patches, remote synchronization (isn't it?) and reporting.
 
 ### I would like to check service logs
 

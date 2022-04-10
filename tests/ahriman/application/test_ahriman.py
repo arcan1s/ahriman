@@ -258,6 +258,25 @@ def test_subparsers_patch_remove_architecture(parser: argparse.ArgumentParser) -
     assert args.architecture == [""]
 
 
+def test_subparsers_repo_backup(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-backup command must imply architecture list, lock, no-report and unsafe
+    """
+    args = parser.parse_args(["repo-backup", "output.zip"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.unsafe
+
+
+def test_subparsers_repo_backup_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-backup command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "repo-backup", "output.zip"])
+    assert args.architecture == [""]
+
+
 def test_subparsers_repo_check(parser: argparse.ArgumentParser) -> None:
     """
     repo-check command must imply dry-run, no-aur and no-manual
@@ -337,6 +356,25 @@ def test_subparsers_repo_report_architecture(parser: argparse.ArgumentParser) ->
     assert args.architecture is None
     args = parser.parse_args(["-a", "x86_64", "repo-report"])
     assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_repo_restore(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-restore command must imply architecture list, lock, no-report and unsafe
+    """
+    args = parser.parse_args(["repo-restore", "output.zip"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.unsafe
+
+
+def test_subparsers_repo_restore_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-restore command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "repo-restore", "output.zip"])
+    assert args.architecture == [""]
 
 
 def test_subparsers_repo_setup(parser: argparse.ArgumentParser) -> None:

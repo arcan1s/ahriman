@@ -50,6 +50,7 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     """
     args = _default_args(args)
     args.from_database = True
+    args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.application.application.Application.add")
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
