@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized, Response
+from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
@@ -28,20 +28,20 @@ from ahriman.web.views.base import BaseView
 class LoginView(BaseView):
     """
     login endpoint view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar POST_PERMISSION: post permissions of self
+
+    Attributes:
+      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = POST_PERMISSION = UserAccess.Safe
 
-    async def get(self) -> Response:
+    async def get(self) -> None:
         """
         OAuth2 response handler
-
+        
         In case if code provided it will do a request to get user email. In case if no code provided it will redirect
         to authorization url provided by OAuth client
-
-        :return: redirect to main page
         """
         from ahriman.core.auth.oauth import OAuth
 
@@ -62,17 +62,15 @@ class LoginView(BaseView):
 
         raise HTTPUnauthorized()
 
-    async def post(self) -> Response:
+    async def post(self) -> None:
         """
         login user to service
-
+        
         either JSON body or form data must be supplied the following fields are required:
         {
             "username": "username"  # username to use for login
             "password": "pa55w0rd"  # password to use for login
         }
-
-        :return: redirect to main page
         """
         data = await self.extract_data()
         username = data.get("username")

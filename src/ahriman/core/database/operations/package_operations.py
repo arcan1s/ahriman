@@ -35,8 +35,10 @@ class PackageOperations(Operations):
     def _package_remove_package_base(connection: Connection, package_base: str) -> None:
         """
         remove package base information
-        :param connection: database connection
-        :param package_base: package base name
+
+        Args:
+          connection(Connection): database connection
+          package_base(str): package base name
         """
         connection.execute("""delete from package_statuses where package_base = :package_base""",
                            {"package_base": package_base})
@@ -47,9 +49,11 @@ class PackageOperations(Operations):
     def _package_remove_packages(connection: Connection, package_base: str, current_packages: Iterable[str]) -> None:
         """
         remove packages belong to the package base
-        :param connection: database connection
-        :param package_base: package base name
-        :param current_packages: current packages list which has to be left in database
+
+        Args:
+          connection(Connection): database connection
+          package_base(str): package base name
+          current_packages(Iterable[str]): current packages list which has to be left in database
         """
         packages = [
             package
@@ -63,8 +67,10 @@ class PackageOperations(Operations):
     def _package_update_insert_base(connection: Connection, package: Package) -> None:
         """
         insert base package into table
-        :param connection: database connection
-        :param package: package properties
+
+        Args:
+          connection(Connection): database connection
+          package(Package): package properties
         """
         connection.execute(
             """
@@ -81,8 +87,10 @@ class PackageOperations(Operations):
     def _package_update_insert_packages(connection: Connection, package: Package) -> None:
         """
         insert packages into table
-        :param connection: database connection
-        :param package: package properties
+
+        Args:
+          connection(Connection): database connection
+          package(Package): package properties
         """
         package_list = []
         for name, description in package.packages.items():
@@ -108,9 +116,11 @@ class PackageOperations(Operations):
     def _package_update_insert_status(connection: Connection, package_base: str, status: BuildStatus) -> None:
         """
         insert base package status into table
-        :param connection: database connection
-        :param package_base: package base name
-        :param status: new build status
+
+        Args:
+          connection(Connection): database connection
+          package_base(str): package base name
+          status(BuildStatus): new build status
         """
         connection.execute(
             """
@@ -126,8 +136,12 @@ class PackageOperations(Operations):
     def _packages_get_select_package_bases(connection: Connection) -> Dict[str, Package]:
         """
         select package bases from the table
-        :param connection: database connection
-        :return: map of the package base to its descriptor (without packages themselves)
+
+        Args:
+          connection(Connection): database connection
+
+        Returns:
+          Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
         """
         return {
             row["package_base"]: Package(row["package_base"], row["version"], row["aur_url"], {})
@@ -138,9 +152,13 @@ class PackageOperations(Operations):
     def _packages_get_select_packages(connection: Connection, packages: Dict[str, Package]) -> Dict[str, Package]:
         """
         select packages from the table
-        :param connection: database connection
-        :param packages: packages descriptor map
-        :return: map of the package base to its descriptor including individual packages
+
+        Args:
+          connection(Connection): database connection
+          packages(Dict[str, Package]): packages descriptor map
+
+        Returns:
+          Dict[str, Package]: map of the package base to its descriptor including individual packages
         """
         for row in connection.execute("""select * from packages"""):
             if row["package_base"] not in packages:
@@ -152,8 +170,12 @@ class PackageOperations(Operations):
     def _packages_get_select_statuses(connection: Connection) -> Dict[str, BuildStatus]:
         """
         select package build statuses from the table
-        :param connection: database connection
-        :return: map of the package base to its status
+
+        Args:
+          connection(Connection): database connection
+
+        Returns:
+          Dict[str, BuildStatus]: map of the package base to its status
         """
         return {
             row["package_base"]: BuildStatus.from_json({"status": row["status"], "timestamp": row["last_updated"]})
@@ -163,7 +185,9 @@ class PackageOperations(Operations):
     def package_remove(self, package_base: str) -> None:
         """
         remove package from database
-        :param package_base: package base name
+
+        Args:
+          package_base(str): package base name
         """
         def run(connection: Connection) -> None:
             self._package_remove_packages(connection, package_base, [])
@@ -174,8 +198,10 @@ class PackageOperations(Operations):
     def package_update(self, package: Package, status: BuildStatus) -> None:
         """
         update package status
-        :param package: package properties
-        :param status: new build status
+
+        Args:
+          package(Package): package properties
+          status(BuildStatus): new build status
         """
         def run(connection: Connection) -> None:
             self._package_update_insert_base(connection, package)
@@ -188,7 +214,9 @@ class PackageOperations(Operations):
     def packages_get(self) -> List[Tuple[Package, BuildStatus]]:
         """
         get package list and their build statuses from database
-        :return: list of package properties and their statuses
+
+        Return:
+          List[Tuple[Package, BuildStatus]]: list of package properties and their statuses
         """
         def run(connection: Connection) -> Generator[Tuple[Package, BuildStatus], None, None]:
             packages = self._packages_get_select_package_bases(connection)

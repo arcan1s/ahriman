@@ -36,11 +36,13 @@ class Update(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          args(argparse.Namespace): command line args
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
         packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
@@ -56,9 +58,13 @@ class Update(Handler):
     def log_fn(application: Application, dry_run: bool) -> Callable[[str], None]:
         """
         package updates log function
-        :param application: application instance
-        :param dry_run: do not perform update itself
-        :return: in case if dry_run is set it will return print, logger otherwise
+
+        Args:
+          application(Application): application instance
+          dry_run(bool): do not perform update itself
+
+        Returns:
+          Callable[[str],None]: in case if dry_run is set it will return print, logger otherwise
         """
         def inner(line: str) -> None:
             return print(line) if dry_run else application.logger.info(line)

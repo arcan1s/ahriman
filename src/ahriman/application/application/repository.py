@@ -38,17 +38,21 @@ class Repository(Properties):
     def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
-        :param result: build result
+
+        Args:
+          result(Result): build result
         """
         raise NotImplementedError
 
     def clean(self, cache: bool, chroot: bool, manual: bool, packages: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root
-        :param cache: clear directory with package caches
-        :param chroot: clear build chroot
-        :param manual: clear directory with manually added packages
-        :param packages: clear directory with built packages
+
+        Args:
+          cache(bool): clear directory with package caches
+          chroot(bool): clear build chroot
+          manual(bool): clear directory with manually added packages
+          packages(bool): clear directory with built packages
         """
         if cache:
             self.repository.clear_cache()
@@ -62,8 +66,10 @@ class Repository(Properties):
     def report(self, target: Iterable[str], result: Result) -> None:
         """
         generate report
-        :param target: list of targets to run (e.g. html)
-        :param result: build result
+
+        Args:
+          target(Iterable[str]): list of targets to run (e.g. html)
+          result(Result): build result
         """
         targets = target or None
         self.repository.process_report(targets, result)
@@ -71,7 +77,9 @@ class Repository(Properties):
     def sign(self, packages: Iterable[str]) -> None:
         """
         sign packages and repository
-        :param packages: only sign specified packages
+
+        Args:
+          packages(Iterable[str]): only sign specified packages
         """
         # copy to prebuilt directory
         for package in self.repository.packages():
@@ -94,8 +102,10 @@ class Repository(Properties):
     def sync(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
         """
         sync to remote server
-        :param target: list of targets to run (e.g. s3)
-        :param built_packages: list of packages which has just been built
+
+        Args:
+          target(Iterable[str]): list of targets to run (e.g. s3)
+          built_packages(Iterable[Package]): list of packages which has just been built
         """
         targets = target or None
         self.repository.process_sync(targets, built_packages)
@@ -103,7 +113,9 @@ class Repository(Properties):
     def unknown(self) -> List[str]:
         """
         get packages which were not found in AUR
-        :return: unknown package archive list
+
+        Returns:
+          List[str]: unknown package archive list
         """
         def has_local(probe: Package) -> bool:
             cache_dir = self.repository.paths.cache_for(probe.base)
@@ -135,7 +147,12 @@ class Repository(Properties):
     def update(self, updates: Iterable[Package]) -> Result:
         """
         run package updates
-        :param updates: list of packages to update
+
+        Args:
+          updates(Iterable[Package]): list of packages to update
+
+        Returns:
+          Result: update result
         """
         def process_update(paths: Iterable[Path], result: Result) -> None:
             if not paths:
@@ -162,13 +179,18 @@ class Repository(Properties):
                 log_fn: Callable[[str], None]) -> List[Package]:
         """
         get list of packages to run update process
-        :param filter_packages: do not check every package just specified in the list
-        :param no_aur: do not check for aur updates
-        :param no_local: do not check local packages for updates
-        :param no_manual: do not check for manual updates
-        :param no_vcs: do not check VCS packages
-        :param log_fn: logger function to log updates
-        :return: list of out-of-dated packages
+
+        Args:
+          filter_packages(Iterable[str]): do not check every package just specified in the list
+          no_aur(bool): do not check for aur updates
+          no_local(bool): do not check local packages for updates
+          no_manual(bool): do not check for manual updates
+          no_vcs(bool): do not check VCS packages
+          log_fn(Callable[[str]): logger function to log updates
+          None]: 
+
+        Returns:
+          List[Package]: list of out-of-dated packages
         """
         updates = {}
 

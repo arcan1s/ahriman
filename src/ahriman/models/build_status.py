@@ -31,11 +31,13 @@ from ahriman.core.util import filter_json, pretty_datetime
 class BuildStatusEnum(Enum):
     """
     build status enumeration
-    :cvar Unknown: build status is unknown
-    :cvar Pending: package is out-of-dated and will be built soon
-    :cvar Building: package is building right now
-    :cvar Failed: package build failed
-    :cvar Success: package has been built without errors
+    
+    Attributes:
+      Unknown(BuildStatusEnum): (class attribute) build status is unknown
+      Pending(BuildStatusEnum): (class attribute) package is out-of-dated and will be built soon
+      Building(BuildStatusEnum): (class attribute) package is building right now
+      Failed(BuildStatusEnum): (class attribute) package build failed
+      Success(BuildStatusEnum): (class attribute) package has been built without errors
     """
 
     Unknown = "unknown"
@@ -47,7 +49,9 @@ class BuildStatusEnum(Enum):
     def badges_color(self) -> str:
         """
         convert itself to shield.io badges color
-        :return: shields.io color
+
+        Returns:
+          str: shields.io color
         """
         if self == BuildStatusEnum.Pending:
             return "yellow"
@@ -62,7 +66,9 @@ class BuildStatusEnum(Enum):
     def bootstrap_color(self) -> str:
         """
         converts itself to bootstrap color
-        :return: bootstrap color
+
+        Returns:
+          str: bootstrap color
         """
         if self == BuildStatusEnum.Pending:
             return "warning"
@@ -79,8 +85,10 @@ class BuildStatusEnum(Enum):
 class BuildStatus:
     """
     build status holder
-    :ivar status: build status
-    :ivar timestamp: build status update time
+
+    Attributes:
+      status(BuildStatusEnum): build status
+      timestamp(int): build status update time
     """
 
     status: BuildStatusEnum = BuildStatusEnum.Unknown
@@ -96,8 +104,12 @@ class BuildStatus:
     def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:
         """
         construct status properties from json dump
-        :param dump: json dump body
-        :return: status properties
+
+        Args:
+          dump(Dict[str, Any]): json dump body
+
+        Returns:
+          BuildStatus: status properties
         """
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))
@@ -105,14 +117,18 @@ class BuildStatus:
     def pretty_print(self) -> str:
         """
         generate pretty string representation
-        :return: print-friendly string
+
+        Returns:
+          str: print-friendly string
         """
         return f"{self.status.value} ({pretty_datetime(self.timestamp)})"
 
     def view(self) -> Dict[str, Any]:
         """
         generate json status view
-        :return: json-friendly dictionary
+
+        Returns:
+          Dict[str, Any]: json-friendly dictionary
         """
         return {
             "status": self.status.value,

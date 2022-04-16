@@ -35,11 +35,13 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Task:
     """
     base package build task
-    :ivar build_logger: logger for build process
-    :ivar logger: class logger
-    :ivar package: package definitions
-    :ivar paths: repository paths instance
-    :ivar uid: uid of the repository owner user
+
+    Attributes:
+      build_logger(logging.Logger): logger for build process
+      logger(logging.Logger): class logger
+      package(Package): package definitions
+      paths(RepositoryPaths): repository paths instance
+      uid(int): uid of the repository owner user
     """
 
     _check_output = check_output
@@ -47,9 +49,11 @@ class Task:
     def __init__(self, package: Package, configuration: Configuration, paths: RepositoryPaths) -> None:
         """
         default constructor
-        :param package: package definitions
-        :param configuration: configuration instance
-        :param paths: repository paths instance
+
+        Args:
+          package(Package): package definitions
+          configuration(Configuration): configuration instance
+          paths(RepositoryPaths): repository paths instance
         """
         self.logger = logging.getLogger("root")
         self.build_logger = logging.getLogger("build_details")
@@ -65,8 +69,12 @@ class Task:
     def build(self, sources_path: Path) -> List[Path]:
         """
         run package build
-        :param sources_path: path to where sources are
-        :return: paths of produced packages
+
+        Args:
+          sources_path(Path): path to where sources are
+
+        Returns:
+          List[Path]: paths of produced packages
         """
         command = [self.build_command, "-r", str(self.paths.chroot)]
         command.extend(self.archbuild_flags)
@@ -91,8 +99,10 @@ class Task:
     def init(self, path: Path, database: SQLite) -> None:
         """
         fetch package from git
-        :param path: local path to fetch
-        :param database: database instance
+
+        Args:
+          path(Path): local path to fetch
+          database(SQLite): database instance
         """
         if self.paths.cache_for(self.package.base).is_dir():
             # no need to clone whole repository, just copy from cache first

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPFound, Response
+from aiohttp.web import HTTPBadRequest, HTTPFound
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -26,21 +26,21 @@ from ahriman.web.views.base import BaseView
 class AddView(BaseView):
     """
     add package web view
-    :cvar POST_PERMISSION: post permissions of self
+
+    Attributes:
+      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     POST_PERMISSION = UserAccess.Write
 
-    async def post(self) -> Response:
+    async def post(self) -> None:
         """
         add new package
-
+        
         JSON body must be supplied, the following model is used:
         {
             "packages": "ahriman"   # either list of packages or package name as in AUR
         }
-
-        :return: redirect to main page on success
         """
         try:
             data = await self.extract_data(["packages"])

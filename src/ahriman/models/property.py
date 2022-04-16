@@ -25,9 +25,11 @@ from typing import Any
 class Property:
     """
     holder of object properties descriptor
-    :ivar name: name of the property
-    :ivar value: property value
-    :ivar is_required: if set to True then this property is required
+
+    Attributes:
+      name(str): name of the property
+      value(Any): property value
+      is_required(bool): if set to True then this property is required
     """
 
     name: str

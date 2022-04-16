@@ -29,16 +29,20 @@ from ahriman.models.result import Result
 class HTML(Report, JinjaTemplate):
     """
     html report generator
-    :ivar report_path: output path to html report
-    :ivar template_path: path to template for full package list
+
+    Attributes:
+      report_path(Path): output path to html report
+      template_path(Path): path to template for full package list
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: settings section name
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         JinjaTemplate.__init__(self, section, configuration)
@@ -49,8 +53,10 @@ class HTML(Report, JinjaTemplate):
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+          packages(Iterable[Package]): list of packages to generate report
+          result(Result): build result
         """
         html = self.make_html(Result(success=packages), self.template_path)
         self.report_path.write_text(html)

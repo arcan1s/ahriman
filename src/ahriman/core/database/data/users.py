@@ -25,8 +25,10 @@ from ahriman.core.configuration import Configuration
 def migrate_users_data(connection: Connection, configuration: Configuration) -> None:
     """
     perform migration for users
-    :param connection: database connection
-    :param configuration: configuration instance
+
+    Args:
+      connection(Connection): database connection
+      configuration(Configuration): configuration instance
     """
     for section in configuration.sections():
         for option, value in configuration[section].items():

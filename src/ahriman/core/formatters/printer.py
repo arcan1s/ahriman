@@ -30,9 +30,12 @@ class Printer:
     def print(self, verbose: bool, log_fn: Callable[[str], None] = print, separator: str = ": ") -> None:
         """
         print content
-        :param verbose: print all fields
-        :param log_fn: logger function to log data
-        :param separator: separator for property name and property value
+
+        Args:
+          verbose(bool): print all fields
+          log_fn(Callable[[str]): logger function to log data
+          None]:  (Default value = print)
+          separator(str, optional): separator for property name and property value (Default value = ": ")
         """
         if (title := self.title()) is not None:
             log_fn(title)
@@ -44,12 +47,16 @@ class Printer:
     def properties(self) -> List[Property]:  # pylint: disable=no-self-use
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+          List[Property]: list of content properties
         """
         return []
 
     def title(self) -> Optional[str]:
         """
         generate entry title from content
-        :return: content title if it can be generated and None otherwise
+
+        Returns:
+          Optional[str]: content title if it can be generated and None otherwise
         """

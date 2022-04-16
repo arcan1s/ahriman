@@ -28,10 +28,12 @@ from ahriman.core.exceptions import InvalidOption
 class UploadSettings(Enum):
     """
     remote synchronization targets enumeration
-    :cvar Disabled: no sync will be performed, required for testing purpose
-    :cvar Rsync: sync via rsync
-    :cvar S3: sync to Amazon S3
-    :cvar Github: sync to github releases page
+    
+    Attributes:
+      Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
+      Rsync(UploadSettings): (class attribute) sync via rsync
+      S3(UploadSettings): (class attribute) sync to Amazon S3
+      Github(UploadSettings): (class attribute) sync to github releases page
     """
 
     Disabled = "disabled"  # for testing purpose
@@ -43,8 +45,12 @@ class UploadSettings(Enum):
     def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+          value(str): configuration value
+
+        Returns:
+          UploadSettings: parsed value
         """
         if value.lower() in ("rsync",):
             return cls.Rsync

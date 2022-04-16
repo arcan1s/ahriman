@@ -31,15 +31,19 @@ from ahriman.core.util import exception_response_text
 class HttpUpload(Upload):
     """
     helper for the http based uploads
-    :ivar auth: HTTP auth object
+
+    Attributes:
+      auth(Tuple[str, str]): HTTP auth object
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: configuration section name
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          section(str): configuration section name
         """
         Upload.__init__(self, architecture, configuration)
         password = configuration.get(section, "password")
@@ -50,8 +54,12 @@ class HttpUpload(Upload):
     def calculate_hash(path: Path) -> str:
         """
         calculate file checksum
-        :param path: path to local file
-        :return: calculated checksum of the file
+
+        Args:
+          path(Path): path to local file
+
+        Returns:
+          str: calculated checksum of the file
         """
         with path.open("rb") as local_file:
             md5 = hashlib.md5(local_file.read())  # nosec
@@ -61,8 +69,12 @@ class HttpUpload(Upload):
     def get_body(local_files: Dict[Path, str]) -> str:
         """
         generate release body from the checksums as returned from HttpUpload.get_hashes method
-        :param local_files: map of the paths to its checksum
-        :return: body to be inserted into release
+
+        Args:
+          local_files(Dict[Path, str]): map of the paths to its checksum
+
+        Returns:
+          str: body to be inserted into release
         """
         return "\n".join(f"{file.name} {md5}" for file, md5 in sorted(local_files.items()))
 
@@ -70,8 +82,12 @@ class HttpUpload(Upload):
     def get_hashes(body: str) -> Dict[str, str]:
         """
         get checksums of the content from the repository
-        :param body: release string body object
-        :return: map of the filename to its checksum as it is written in body
+
+        Args:
+          body(str): release string body object
+
+        Returns:
+          Dict[str, str]: map of the filename to its checksum as it is written in body
         """
         files = {}
         for line in body.splitlines():
@@ -82,10 +98,14 @@ class HttpUpload(Upload):
     def _request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
         """
         request wrapper
-        :param method: request method
-        :param url: request url
-        :param kwargs: request parameters to be passed as is
-        :return: request response object
+
+        Args:
+          method(str): request method
+          url(str): request url
+          **kwargs(Any): 
+
+        Returns:
+          requests.Response: request response object
         """
         try:
             response = requests.request(method, url, auth=self.auth, **kwargs)

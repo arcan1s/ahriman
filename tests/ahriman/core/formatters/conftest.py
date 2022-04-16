@@ -17,8 +17,12 @@ from ahriman.models.user import User
 def aur_package_ahriman_printer(aur_package_ahriman: AURPackage) -> AurPrinter:
     """
     fixture for AUR package printer
-    :param aur_package_ahriman: AUR package fixture
-    :return: AUR package printer test instance
+
+    Args:
+      aur_package_ahriman(AURPackage): AUR package fixture
+
+    Returns:
+      AurPrinter: AUR package printer test instance
     """
     return AurPrinter(aur_package_ahriman)
 
@@ -27,7 +31,9 @@ def aur_package_ahriman_printer(aur_package_ahriman: AURPackage) -> AurPrinter:
 def configuration_printer() -> ConfigurationPrinter:
     """
     fixture for configuration printer
-    :return: configuration printer test instance
+
+    Returns:
+      ConfigurationPrinter: configuration printer test instance
     """
     return ConfigurationPrinter("section", {"key_one": "value_one", "key_two": "value_two"})
 
@@ -36,8 +42,12 @@ def configuration_printer() -> ConfigurationPrinter:
 def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
     """
     fixture for package printer
-    :param package_ahriman: package fixture
-    :return: package printer test instance
+
+    Args:
+      package_ahriman(Package): package fixture
+
+    Returns:
+      PackagePrinter: package printer test instance
     """
     return PackagePrinter(package_ahriman, BuildStatus())
 
@@ -46,7 +56,9 @@ def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
 def status_printer() -> StatusPrinter:
     """
     fixture for build status printer
-    :return: build status printer test instance
+
+    Returns:
+      StatusPrinter: build status printer test instance
     """
     return StatusPrinter(BuildStatus())
 
@@ -55,7 +67,9 @@ def status_printer() -> StatusPrinter:
 def string_printer() -> StringPrinter:
     """
     fixture for any string printer
-    :return: any string printer test instance
+
+    Returns:
+      StringPrinter: any string printer test instance
     """
     return StringPrinter("hello, world")
 
@@ -64,7 +78,12 @@ def string_printer() -> StringPrinter:
 def update_printer(package_ahriman: Package) -> UpdatePrinter:
     """
     fixture for build status printer
-    :return: build status printer test instance
+
+    Args:
+      package_ahriman(Package): package fixture
+
+    Returns:
+      UpdatePrinter: build status printer test instance
     """
     return UpdatePrinter(package_ahriman, None)
 
@@ -73,7 +92,11 @@ def update_printer(package_ahriman: Package) -> UpdatePrinter:
 def user_printer(user: User) -> UserPrinter:
     """
     fixture for user printer
-    :param user: user fixture
-    :return: user printer test instance
+
+    Args:
+      user(User): user fixture
+
+    Returns:
+      UserPrinter: user printer test instance
     """
     return UserPrinter(user)

@@ -30,8 +30,10 @@ from ahriman.models.aur_package import AURPackage
 class Official(Remote):
     """
     official repository RPC wrapper
-    :cvar DEFAULT_RPC_URL: default AUR RPC url
-    :ivar rpc_url: AUR RPC url
+
+    Attributes:
+      DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
+      rpc_url(str): AUR RPC url
     """
 
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
@@ -39,7 +41,9 @@ class Official(Remote):
     def __init__(self, rpc_url: Optional[str] = None) -> None:
         """
         default constructor
-        :param rpc_url: AUR RPC url
+
+        Args:
+          rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
         """
         Remote.__init__(self)
         self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
@@ -48,8 +52,12 @@ class Official(Remote):
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
         """
         parse RPC response to package list
-        :param response: RPC response json
-        :return: list of parsed packages
+
+        Args:
+          response(Dict[str, Any]): RPC response json
+
+        Returns:
+          List[AURPackage]: list of parsed packages
         """
         if not response["valid"]:
             raise InvalidPackageInfo("API validation error")
@@ -58,9 +66,13 @@ class Official(Remote):
     def make_request(self, *args: str, by: str) -> List[AURPackage]:
         """
         perform request to official repositories RPC
-        :param args: list of arguments to be passed as args query parameter
-        :param by: search by the field
-        :return: response parsed to package list
+
+        Args:
+          *args(str): list of arguments to be passed as args query parameter
+          by(str): search by the field
+
+        Returns:
+          List[AURPackage]: response parsed to package list
         """
         try:
             response = requests.get(self.rpc_url, params={by: args})
@@ -76,8 +88,12 @@ class Official(Remote):
     def package_info(self, package_name: str) -> AURPackage:
         """
         get package info by its name
-        :param package_name: package name to search
-        :return: package which match the package name
+
+        Args:
+          package_name(str): package name to search
+
+        Returns:
+          AURPackage: package which match the package name
         """
         packages = self.make_request(package_name, by="name")
         return next(package for package in packages if package.name == package_name)
@@ -85,7 +101,11 @@ class Official(Remote):
     def package_search(self, *keywords: str) -> List[AURPackage]:
         """
         search package in AUR web
-        :param keywords: keywords to search
-        :return: list of packages which match the criteria
+
+        Args:
+          *keywords(str): keywords to search
+
+        Returns:
+          List[AURPackage]: list of packages which match the criteria
         """
         return self.make_request(*keywords, by="q")

@@ -33,16 +33,22 @@ class UpdateHandler(Cleaner):
     def packages(self) -> List[Package]:
         """
         generate list of repository packages
-        :return: list of packages properties
+
+        Returns:
+          List[Package]: list of packages properties
         """
         raise NotImplementedError
 
     def updates_aur(self, filter_packages: Iterable[str], no_vcs: bool) -> List[Package]:
         """
         check AUR for updates
-        :param filter_packages: do not check every package just specified in the list
-        :param no_vcs: do not check VCS packages
-        :return: list of packages which are out-of-dated
+
+        Args:
+          filter_packages(Iterable[str]): do not check every package just specified in the list
+          no_vcs(bool): do not check VCS packages
+
+        Returns:
+          List[Package]: list of packages which are out-of-dated
         """
         result: List[Package] = []
 
@@ -70,7 +76,9 @@ class UpdateHandler(Cleaner):
     def updates_local(self) -> List[Package]:
         """
         check local packages for updates
-        :return: list of local packages which are out-of-dated
+
+        Returns:
+          List[Package]: list of local packages which are out-of-dated
         """
         result: List[Package] = []
         packages = {local.base: local for local in self.packages()}
@@ -97,7 +105,9 @@ class UpdateHandler(Cleaner):
     def updates_manual(self) -> List[Package]:
         """
         check for packages for which manual update has been requested
-        :return: list of packages which are out-of-dated
+
+        Returns:
+          List[Package]: list of packages which are out-of-dated
         """
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}

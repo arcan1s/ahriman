@@ -31,10 +31,12 @@ def migrate_data(result: MigrationResult, connection: Connection,
                  configuration: Configuration, paths: RepositoryPaths) -> None:
     """
     perform data migration
-    :param result: result of the schema migration
-    :param connection: database connection
-    :param configuration: configuration instance
-    :param paths: repository paths instance
+
+    Args:
+      result(MigrationResult): result of the schema migration
+      connection(Connection): database connection
+      configuration(Configuration): configuration instance
+      paths(RepositoryPaths): repository paths instance
     """
     # initial data migration
     if result.old_version <= 0:

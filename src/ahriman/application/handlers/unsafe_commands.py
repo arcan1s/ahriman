@@ -40,11 +40,13 @@ class UnsafeCommands(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          args(argparse.Namespace): command line args
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         parser = args.parser()
         unsafe_commands = UnsafeCommands.get_unsafe_commands(parser)
@@ -58,9 +60,11 @@ class UnsafeCommands(Handler):
     def check_unsafe(command: str, unsafe_commands: List[str], parser: argparse.ArgumentParser) -> None:
         """
         check if command is unsafe
-        :param command: command to check
-        :param unsafe_commands: list of unsafe commands
-        :param parser: generated argument parser
+
+        Args:
+          command(str): command to check
+          unsafe_commands(List[str]): list of unsafe commands
+          parser(argparse.ArgumentParser): generated argument parser
         """
         args = parser.parse_args(shlex.split(command))
         if args.command in unsafe_commands:
@@ -70,8 +74,12 @@ class UnsafeCommands(Handler):
     def get_unsafe_commands(parser: argparse.ArgumentParser) -> List[str]:
         """
         extract unsafe commands from argument parser
-        :param parser: generated argument parser
-        :return: list of commands with default unsafe flag
+
+        Args:
+          parser(argparse.ArgumentParser): generated argument parser
+
+        Returns:
+          List[str]: list of commands with default unsafe flag
         """
         # pylint: disable=protected-access
         subparser = next(action for action in parser._actions if isinstance(action, argparse._SubParsersAction))

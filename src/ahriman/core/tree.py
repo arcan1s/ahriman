@@ -30,15 +30,19 @@ from ahriman.models.package import Package
 class Leaf:
     """
     tree leaf implementation
-    :ivar dependencies: list of package dependencies
-    :ivar package: leaf package properties
+
+    Attributes:
+      dependencies(Set[str]): list of package dependencies
+      package(Package): leaf package properties
     """
 
     def __init__(self, package: Package, dependencies: Set[str]) -> None:
         """
         default constructor
-        :param package: package properties
-        :param dependencies: package dependencies
+
+        Args:
+          package(Package): package properties
+          dependencies(Set[str]): package dependencies
         """
         self.package = package
         self.dependencies = dependencies
@@ -46,7 +50,8 @@ class Leaf:
     @property
     def items(self) -> Iterable[str]:
         """
-        :return: packages containing in this leaf
+        Returns:
+          Iterable[str]: packages containing in this leaf
         """
         return self.package.packages.keys()
 
@@ -54,9 +59,13 @@ class Leaf:
     def load(cls: Type[Leaf], package: Package, database: SQLite) -> Leaf:
         """
         load leaf from package with dependencies
-        :param package: package properties
-        :param database: database instance
-        :return: loaded class
+
+        Args:
+          package(Package): package properties
+          database(SQLite): database instance
+
+        Returns:
+          Leaf: loaded class
         """
         with tmpdir() as clone_dir:
             Sources.load(clone_dir, package.git_url, database.patches_get(package.base))
@@ -66,8 +75,12 @@ class Leaf:
     def is_root(self, packages: Iterable[Leaf]) -> bool:
         """
         check if package depends on any other package from list of not
-        :param packages: list of known leaves
-        :return: True if any of packages is dependency of the leaf, False otherwise
+
+        Args:
+          packages(Iterable[Leaf]): list of known leaves
+
+        Returns:
+          bool: True if any of packages is dependency of the leaf, False otherwise
         """
         for leaf in packages:
             if self.dependencies.intersection(leaf.items):
@@ -78,13 +91,17 @@ class Leaf:
 class Tree:
     """
     dependency tree implementation
-    :ivar leaves: list of tree leaves
+
+    Attributes:
+      leaves[List[Leaf]): list of tree leaves
     """
 
     def __init__(self, leaves: List[Leaf]) -> None:
         """
         default constructor
-        :param leaves: leaves to build the tree
+
+        Args:
+          leaves(List[Leaf]): leaves to build the tree
         """
         self.leaves = leaves
 
@@ -92,16 +109,22 @@ class Tree:
     def load(cls: Type[Tree], packages: Iterable[Package], database: SQLite) -> Tree:
         """
         load tree from packages
-        :param packages: packages list
-        :param database: database instance
-        :return: loaded class
+
+        Args:
+          packages(Iterable[Package]): packages list
+          database(SQLite): database instance
+
+        Returns:
+          Tree: loaded class
         """
         return cls([Leaf.load(package, database) for package in packages])
 
     def levels(self) -> List[List[Package]]:
         """
         get build levels starting from the packages which do not require any other package to build
-        :return: list of packages lists
+
+        Returns:
+          List[List[Package]]: list of packages lists
         """
         result: List[List[Package]] = []
 

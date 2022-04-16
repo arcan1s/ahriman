@@ -31,16 +31,22 @@ class PatchOperations(Operations):
     def patches_get(self, package_base: str) -> Optional[str]:
         """
         retrieve patches for the package
-        :param package_base: package base to search for patches
-        :return: plain text patch for the package
+
+        Args:
+          package_base(str): package base to search for patches
+
+        Returns:
+          Optional[str]: plain text patch for the package
         """
         return self.patches_list(package_base).get(package_base)
 
     def patches_insert(self, package_base: str, patch: str) -> None:
         """
         insert or update patch in database
-        :param package_base: package base to insert
-        :param patch: patch content
+
+        Args:
+          package_base(str): package base to insert
+          patch(str): patch content
         """
         def run(connection: Connection) -> None:
             connection.execute(
@@ -59,8 +65,12 @@ class PatchOperations(Operations):
     def patches_list(self, package_base: Optional[str]) -> Dict[str, str]:
         """
         extract all patches
-        :param package_base: optional filter by package base
-        :return: map of package base to patch content
+
+        Args:
+          package_base(Optional[str]): optional filter by package base
+
+        Returns:
+          Dict[str, str]: map of package base to patch content
         """
         def run(connection: Connection) -> Dict[str, str]:
             return {
@@ -75,7 +85,9 @@ class PatchOperations(Operations):
     def patches_remove(self, package_base: str) -> None:
         """
         remove patch set
-        :param package_base: package base to clear patches
+
+        Args:
+          package_base(str): package base to clear patches
         """
         def run(connection: Connection) -> None:
             connection.execute(

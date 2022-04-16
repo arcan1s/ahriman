@@ -27,13 +27,17 @@ from ahriman.models.user import User
 class UserPrinter(StringPrinter):
     """
     print properties of user
-    :ivar user: stored user
+
+    Attributes:
+      user(User): stored user
     """
 
     def __init__(self, user: User) -> None:
         """
         default constructor
-        :param user: user to print
+
+        Args:
+          user(User): user to print
         """
         StringPrinter.__init__(self, user.username)
         self.user = user
@@ -41,6 +45,8 @@ class UserPrinter(StringPrinter):
     def properties(self) -> List[Property]:
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+          List[Property]: list of content properties
         """
         return [Property("role", self.user.access.value, is_required=True)]

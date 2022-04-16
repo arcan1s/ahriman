@@ -29,9 +29,11 @@ class BuildPrinter(StringPrinter):
     def __init__(self, package: Package, is_success: bool, use_utf: bool) -> None:
         """
         default constructor
-        :param package: built package
-        :param is_success: True in case if build has success status and False otherwise
-        :param use_utf: use utf instead of normal symbols
+
+        Args:
+          package(Package): built package
+          is_success(bool): True in case if build has success status and False otherwise
+          use_utf(bool): use utf instead of normal symbols
         """
         StringPrinter.__init__(self, f"{self.sign(is_success, use_utf)} {package.base}")
 
@@ -39,9 +41,13 @@ class BuildPrinter(StringPrinter):
     def sign(is_success: bool, use_utf: bool) -> str:
         """
         generate sign according to settings
-        :param use_utf: use utf instead of normal symbols
-        :param is_success: True in case if build has success status and False otherwise
-        :return: sign symbol according to current settings
+
+        Args:
+          is_success(bool): True in case if build has success status and False otherwise
+          use_utf(bool): use utf instead of normal symbols
+
+        Returns:
+          str: sign symbol according to current settings
         """
         if is_success:
             return "[✔]" if use_utf else "[x]"

@@ -28,7 +28,9 @@ from ahriman.core.util import check_output
 class Sources:
     """
     helper to download package sources (PKGBUILD etc)
-    :cvar logger: class logger
+
+    Attributes:
+      logger(logging.Logger): (class attribute) class logger
     """
 
     logger = logging.getLogger("build_details")
@@ -40,8 +42,10 @@ class Sources:
     def add(sources_dir: Path, *pattern: str) -> None:
         """
         track found files via git
-        :param sources_dir: local path to git repository
-        :param pattern: glob patterns
+
+        Args:
+          sources_dir(Path): local path to git repository
+          *pattern(str): glob patterns
         """
         # glob directory to find files which match the specified patterns
         found_files: List[Path] = []
@@ -59,8 +63,12 @@ class Sources:
     def diff(sources_dir: Path) -> str:
         """
         generate diff from the current version and write it to the output file
-        :param sources_dir: local path to git repository
-        :return: patch as plain string
+
+        Args:
+          sources_dir(Path): local path to git repository
+
+        Returns:
+          str: patch as plain string
         """
         return Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
 
@@ -68,8 +76,10 @@ class Sources:
     def fetch(sources_dir: Path, remote: Optional[str]) -> None:
         """
         either clone repository or update it to origin/`branch`
-        :param sources_dir: local path to fetch
-        :param remote: remote target (from where to fetch)
+
+        Args:
+          sources_dir(Path): local path to fetch
+          remote(Optional[str]): remote target (from where to fetch)
         """
         # local directory exists and there is .git directory
         is_initialized_git = (sources_dir / ".git").is_dir()
@@ -98,8 +108,12 @@ class Sources:
     def has_remotes(sources_dir: Path) -> bool:
         """
         check if there are remotes for the repository
-        :param sources_dir: local path to git repository
-        :return: True in case if there is any remote and false otherwise
+
+        Args:
+          sources_dir(Path): local path to git repository
+
+        Returns:
+          bool: True in case if there is any remote and false otherwise
         """
         remotes = Sources._check_output("git", "remote", exception=None, cwd=sources_dir, logger=Sources.logger)
         return bool(remotes)
@@ -108,7 +122,9 @@ class Sources:
     def init(sources_dir: Path) -> None:
         """
         create empty git repository at the specified path
-        :param sources_dir: local path to sources
+
+        Args:
+          sources_dir(Path): local path to sources
         """
         Sources._check_output("git", "init", "--initial-branch", Sources._branch,
                               exception=None, cwd=sources_dir, logger=Sources.logger)
@@ -117,9 +133,11 @@ class Sources:
     def load(sources_dir: Path, remote: str, patch: Optional[str]) -> None:
         """
         fetch sources from remote and apply patches
-        :param sources_dir: local path to fetch
-        :param remote: remote target (from where to fetch)
-        :param patch: optional patch to be applied
+
+        Args:
+          sources_dir(Path): local path to fetch
+          remote(str): remote target (from where to fetch)
+          patch(Optional[str]): optional patch to be applied
         """
         Sources.fetch(sources_dir, remote)
         if patch is None:
@@ -131,8 +149,10 @@ class Sources:
     def patch_apply(sources_dir: Path, patch: str) -> None:
         """
         apply patches if any
-        :param sources_dir: local path to directory with git sources
-        :param patch: patch to be applied
+
+        Args:
+          sources_dir(Path): local path to directory with git sources
+          patch(str): patch to be applied
         """
         # create patch
         Sources.logger.info("apply patch from database")
@@ -143,9 +163,13 @@ class Sources:
     def patch_create(sources_dir: Path, *pattern: str) -> str:
         """
         create patch set for the specified local path
-        :param sources_dir: local path to git repository
-        :param pattern: glob patterns
-        :return: patch as plain text
+
+        Args:
+          sources_dir(Path): local path to git repository
+          *pattern(str): 
+
+        Returns:
+          str: patch as plain text
         """
         Sources.add(sources_dir, *pattern)
         diff = Sources.diff(sources_dir)

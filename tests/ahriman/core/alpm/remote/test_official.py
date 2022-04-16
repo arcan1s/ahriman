@@ -14,8 +14,12 @@ from ahriman.models.aur_package import AURPackage
 def _get_response(resource_path_root: Path) -> str:
     """
     load response from resource file
-    :param resource_path_root: path to resource root
-    :return: response text
+
+    Args:
+      resource_path_root(Path): path to resource root
+
+    Returns:
+      str: response text
     """
     return (resource_path_root / "models" / "package_akonadi_aur").read_text()
 

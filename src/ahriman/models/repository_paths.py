@@ -33,8 +33,10 @@ from ahriman.core.exceptions import InvalidPath
 class RepositoryPaths:
     """
     repository paths holder. For the most operations with paths you want to use this object
-    :ivar root: repository root (i.e. ahriman home)
-    :ivar architecture: repository architecture
+
+    Attributes:
+      root(Path): repository root (i.e. ahriman home)
+      architecture(str): repository architecture
     """
 
     root: Path
@@ -43,14 +45,16 @@ class RepositoryPaths:
     @property
     def cache(self) -> Path:
         """
-        :return: directory for packages cache (mainly used for VCS packages)
+        Returns:
+          Path: directory for packages cache (mainly used for VCS packages)
         """
         return self.root / "cache"
 
     @property
     def chroot(self) -> Path:
         """
-        :return: directory for devtools chroot
+        Returns:
+          Path: directory for devtools chroot
         """
         # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
         return self.root / "chroot"
@@ -58,21 +62,24 @@ class RepositoryPaths:
     @property
     def packages(self) -> Path:
         """
-        :return: directory for built packages
+        Returns:
+          Path: directory for built packages
         """
         return self.root / "packages" / self.architecture
 
     @property
     def repository(self) -> Path:
         """
-        :return: repository directory
+        Returns:
+          Path: repository directory
         """
         return self.root / "repository" / self.architecture
 
     @property
     def root_owner(self) -> Tuple[int, int]:
         """
-        :return: owner user and group of the root directory
+        Returns:
+          Tuple[int, int]: owner user and group of the root directory
         """
         return self.owner(self.root)
 
@@ -80,8 +87,12 @@ class RepositoryPaths:
     def known_architectures(cls: Type[RepositoryPaths], root: Path) -> Set[str]:
         """
         get known architectures
-        :param root: repository root
-        :return: list of architectures for which tree is created
+
+        Args:
+          root(Path): repository root
+
+        Returns:
+          Set[str]: list of architectures for which tree is created
         """
         paths = cls(root, "")
         return {
@@ -94,8 +105,12 @@ class RepositoryPaths:
     def owner(path: Path) -> Tuple[int, int]:
         """
         retrieve owner information by path
-        :param path: path for which extract ids
-        :return: owner user and group ids of the directory
+
+        Args:
+          path(Path): path for which extract ids
+
+        Returns:
+          Tuple[int, int]: owner user and group ids of the directory
         """
         stat = path.stat()
         return stat.st_uid, stat.st_gid
@@ -103,21 +118,23 @@ class RepositoryPaths:
     def cache_for(self, package_base: str) -> Path:
         """
         get path to cached PKGBUILD and package sources for the package base
-        :param package_base: package base name
-        :return: full path to directory for specified package base cache
+
+        Args:
+          package_base(str): package base name
+
+        Returns:
+          Path: full path to directory for specified package base cache
         """
         return self.cache / package_base
 
     def chown(self, path: Path) -> None:
         """
         set owner of path recursively (from root) to root owner
-        :param path: path to be chown
+
+        Args:
+          path(Path): path to be chown
         """
         def set_owner(current: Path) -> None:
-            """
-            set owner to the specified path
-            :param current: path to set
-            """
             uid, gid = self.owner(current)
             if uid == root_uid and gid == root_gid:
                 return
@@ -133,7 +150,9 @@ class RepositoryPaths:
     def tree_clear(self, package_base: str) -> None:
         """
         clear package specific files
-        :param package_base: package base name
+
+        Args:
+          package_base(str): package base name
         """
         for directory in (
                 self.cache_for(package_base),

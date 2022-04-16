@@ -29,6 +29,8 @@ class StatusPrinter(StringPrinter):
     def __init__(self, status: BuildStatus) -> None:
         """
         default constructor
-        :param status: build status
+
+        Args:
+          status(BuildStatus): build status
         """
         StringPrinter.__init__(self, status.pretty_print())

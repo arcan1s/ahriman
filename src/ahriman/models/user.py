@@ -31,9 +31,11 @@ from ahriman.models.user_access import UserAccess
 class User:
     """
     authorized web user model
-    :ivar username: username
-    :ivar password: hashed user password with salt
-    :ivar access: user role
+
+    Attributes:
+      username(str): username
+      password(str): hashed user password with salt
+      access(UserAccess): user role
     """
 
     username: str
@@ -47,10 +49,14 @@ class User:
                     access: UserAccess = UserAccess.Read) -> Optional[User]:
         """
         build user descriptor from configuration options
-        :param username: username
-        :param password: password as string
-        :param access: optional user access
-        :return: generated user descriptor if all options are supplied and None otherwise
+
+        Args:
+          username(Optional[str]): username
+          password(Optional[str]): password as string
+          access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
+
+        Returns:
+          Optional[User]: generated user descriptor if all options are supplied and None otherwise
         """
         if username is None or password is None:
             return None
@@ -60,8 +66,12 @@ class User:
     def generate_password(length: int) -> str:
         """
         generate password with specified length
-        :param length: password length
-        :return: random string which contains letters and numbers
+
+        Args:
+          length(int): password length
+
+        Returns:
+          str: random string which contains letters and numbers
         """
         password: str = generate_password(length=length)
         return password
@@ -69,9 +79,13 @@ class User:
     def check_credentials(self, password: str, salt: str) -> bool:
         """
         validate user password
-        :param password: entered password
-        :param salt: salt for hashed password
-        :return: True in case if password matches, False otherwise
+
+        Args:
+          password(str): entered password
+          salt(str): salt for hashed password
+
+        Returns:
+          bool: True in case if password matches, False otherwise
         """
         try:
             verified: bool = self._HASHER.verify(password + salt, self.password)
@@ -82,8 +96,12 @@ class User:
     def hash_password(self, salt: str) -> User:
         """
         generate hashed password from plain text
-        :param salt: salt for hashed password
-        :return: user with hashed password to store in configuration
+
+        Args:
+          salt(str): salt for hashed password
+
+        Returns:
+          User: user with hashed password to store in configuration
         """
         if not self.password:
             # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider
@@ -95,8 +113,12 @@ class User:
     def verify_access(self, required: UserAccess) -> bool:
         """
         validate if user has access to requested resource
-        :param required: required access level
-        :return: True in case if user is allowed to do this request and False otherwise
+
+        Args:
+          required(UserAccess): required access level
+
+        Returns:
+          bool: True in case if user is allowed to do this request and False otherwise
         """
         if self.access == UserAccess.Write:
             return True  # everything is allowed
@@ -105,6 +127,8 @@ class User:
     def __repr__(self) -> str:
         """
         generate string representation of object
-        :return: unique string representation
+
+        Returns:
+          str: unique string representation
         """
         return f"User(username={self.username}, access={self.access})"

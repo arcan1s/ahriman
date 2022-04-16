@@ -34,12 +34,14 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Configuration(configparser.RawConfigParser):
     """
     extension for built-in configuration parser
-    :ivar architecture: repository architecture
-    :ivar path: path to root configuration file
-    :cvar ARCHITECTURE_SPECIFIC_SECTIONS: known sections which can be architecture specific (required by dump)
-    :cvar DEFAULT_LOG_FORMAT: default log format (in case of fallback)
-    :cvar DEFAULT_LOG_LEVEL: default log level (in case of fallback)
-    :cvar SYSTEM_CONFIGURATION_PATH: default system configuration path distributed by package
+    
+    Attributes:
+      ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific (required by dump)
+      DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
+      DEFAULT_LOG_LEVEL(int): (class attribute) default log level (in case of fallback)
+      SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
+      architecture(Optional[str]): repository architecture
+      path(Optional[Path]): path to root configuration file
     """
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
@@ -62,21 +64,24 @@ class Configuration(configparser.RawConfigParser):
     @property
     def include(self) -> Path:
         """
-        :return: path to directory with configuration includes
+        Returns:
+          Path: path to directory with configuration includes
         """
         return self.getpath("settings", "include")
 
     @property
     def logging_path(self) -> Path:
         """
-        :return: path to logging configuration
+        Returns:
+          Path: path to logging configuration
         """
         return self.getpath("settings", "logging")
 
     @property
     def repository_paths(self) -> RepositoryPaths:
         """
-        :return: repository paths instance
+        Returns:
+          RepositoryPaths: repository paths instance
         """
         _, architecture = self.check_loaded()
         return RepositoryPaths(self.getpath("repository", "root"), architecture)
@@ -85,10 +90,14 @@ class Configuration(configparser.RawConfigParser):
     def from_path(cls: Type[Configuration], path: Path, architecture: str, quiet: bool) -> Configuration:
         """
         constructor with full object initialization
-        :param path: path to root configuration file
-        :param architecture: repository architecture
-        :param quiet: force disable any log messages
-        :return: configuration instance
+
+        Args:
+          path(Path): path to root configuration file
+          architecture(str): repository architecture
+          quiet(bool): force disable any log messages
+
+        Returns:
+          Configuration: configuration instance
         """
         config = cls()
         config.load(path)
@@ -100,8 +109,12 @@ class Configuration(configparser.RawConfigParser):
     def __convert_list(value: str) -> List[str]:
         """
         convert string value to list of strings
-        :param value: string configuration value
-        :return: list of string from the parsed string
+
+        Args:
+          value(str): string configuration value
+
+        Returns:
+          List[str]: list of string from the parsed string
         """
         def generator() -> Generator[str, None, None]:
             quote_mark = None
@@ -126,17 +139,25 @@ class Configuration(configparser.RawConfigParser):
     def section_name(section: str, suffix: str) -> str:
         """
         generate section name for sections which depends on context
-        :param section: section name
-        :param suffix: session suffix, e.g. repository architecture
-        :return: correct section name for repository specific section
+
+        Args:
+          section(str): section name
+          suffix(str): session suffix, e.g. repository architecture
+
+        Returns:
+          str: correct section name for repository specific section
         """
         return f"{section}:{suffix}"
 
     def __convert_path(self, value: str) -> Path:
         """
         convert string value to path object
-        :param value: string configuration value
-        :return: path object which represents the configuration value
+
+        Args:
+          value(str): string configuration value
+
+        Returns:
+          Path: path object which represents the configuration value
         """
         path = Path(value)
         if self.path is None or path.is_absolute():
@@ -146,7 +167,9 @@ class Configuration(configparser.RawConfigParser):
     def check_loaded(self) -> Tuple[Path, str]:
         """
         check if service was actually loaded
-        :return: configuration root path and architecture if loaded
+
+        Returns:
+          Tuple[Path, str]: configuration root path and architecture if loaded
         """
         if self.path is None or self.architecture is None:
             raise InitializeException("Configuration path and/or architecture are not set")
@@ -155,7 +178,9 @@ class Configuration(configparser.RawConfigParser):
     def dump(self) -> Dict[str, Dict[str, str]]:
         """
         dump configuration to dictionary
-        :return: configuration dump for specific architecture
+
+        Returns:
+          Dict[str, Dict[str, str]]: configuration dump for specific architecture
         """
         return {
             section: dict(self[section])
@@ -172,9 +197,13 @@ class Configuration(configparser.RawConfigParser):
         """
         get type variable with fallback to old logic
         Despite the fact that it has same semantics as other get* methods, but it has different argument list
-        :param section: section name
-        :param architecture: repository architecture
-        :return: section name and found type name
+
+        Args:
+          section(str): section name
+          architecture(str): repository architecture
+
+        Returns:
+          Tuple[str, str]: section name and found type name
         """
         group_type = self.get(section, "type", fallback=None)  # new-style logic
         if group_type is not None:
@@ -191,7 +220,9 @@ class Configuration(configparser.RawConfigParser):
     def load(self, path: Path) -> None:
         """
         fully load configuration
-        :param path: path to root configuration file
+
+        Args:
+          path(Path): path to root configuration file
         """
         if not path.is_file():  # fallback to the system file
             path = self.SYSTEM_CONFIGURATION_PATH
@@ -214,7 +245,9 @@ class Configuration(configparser.RawConfigParser):
     def load_logging(self, quiet: bool) -> None:
         """
         setup logging settings from configuration
-        :param quiet: force disable any log messages
+
+        Args:
+          quiet(bool): force disable any log messages
         """
         try:
             path = self.logging_path
@@ -229,7 +262,9 @@ class Configuration(configparser.RawConfigParser):
     def merge_sections(self, architecture: str) -> None:
         """
         merge architecture specific sections into main configuration
-        :param architecture: repository architecture
+
+        Args:
+          architecture(str): repository architecture
         """
         self.architecture = architecture
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
@@ -260,9 +295,11 @@ class Configuration(configparser.RawConfigParser):
     def set_option(self, section: str, option: str, value: Optional[str]) -> None:
         """
         set option. Unlike default `configparser.RawConfigParser.set` it also creates section if it does not exist
-        :param section: section name
-        :param option: option name
-        :param value: option value as string in parsable format
+
+        Args:
+          section(str): section name
+          option(str): option name
+          value(Optional[str]): option value as string in parsable format
         """
         if not self.has_section(section):
             self.add_section(section)

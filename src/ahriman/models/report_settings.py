@@ -28,11 +28,13 @@ from ahriman.core.exceptions import InvalidOption
 class ReportSettings(Enum):
     """
     report targets enumeration
-    :cvar Disabled: option which generates no report for testing purpose
-    :cvar HTML: html report generation
-    :cvar Email: email report generation
-    :cvar Console: print result to console
-    :cvar Telegram: markdown report to telegram channel
+    
+    Attributes:
+      Disabled(ReportSettings): (class attribute) option which generates no report for testing purpose
+      HTML(ReportSettings): (class attribute) html report generation
+      Email(ReportSettings): (class attribute) email report generation
+      Console(ReportSettings): (class attribute) print result to console
+      Telegram(ReportSettings): (class attribute) markdown report to telegram channel
     """
 
     Disabled = "disabled"  # for testing purpose
@@ -45,8 +47,12 @@ class ReportSettings(Enum):
     def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+          value(str): configuration value
+
+        Returns:
+          ReportSettings: parsed value
         """
         if value.lower() in ("html",):
             return cls.HTML

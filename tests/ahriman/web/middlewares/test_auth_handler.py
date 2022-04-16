@@ -14,8 +14,12 @@ from ahriman.web.middlewares.auth_handler import auth_handler, AuthorizationPoli
 def _identity(username: str) -> str:
     """
     generate identity from user
-    :param username: name of the user
-    :return: user identity string
+
+    Args:
+      username(str): name of the user
+
+    Returns:
+      str: user identity string
     """
     return f"{username} {UserIdentity.expire_when(60)}"
 

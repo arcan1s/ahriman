@@ -28,8 +28,10 @@ from ahriman.core.exceptions import InvalidOption
 class SignSettings(Enum):
     """
     sign targets enumeration
-    :cvar Packages: sign each package
-    :cvar Repository: sign repository database file
+
+    Attributes:
+      Packages(SignSettings): (class attribute) sign each package
+      Repository(SignSettings): (class attribute) sign repository database file
     """
 
     Packages = "pacakges"
@@ -39,8 +41,12 @@ class SignSettings(Enum):
     def from_option(cls: Type[SignSettings], value: str) -> SignSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+          value(str): configuration value
+
+        Returns:
+          SignSettings: parsed value
         """
         if value.lower() in ("package", "packages", "sign-package"):
             return cls.Packages

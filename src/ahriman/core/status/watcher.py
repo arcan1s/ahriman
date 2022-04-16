@@ -32,20 +32,24 @@ from ahriman.models.package import Package
 class Watcher:
     """
     package status watcher
-    :ivar architecture: repository architecture
-    :ivar database: database instance
-    :ivar known: list of known packages. For the most cases `packages` should be used instead
-    :ivar logger: class logger
-    :ivar repository: repository object
-    :ivar status: daemon status
+    
+    Attributes:
+      architecture(str): repository architecture
+      database(SQLite): database instance
+      known(Dict[str, Tuple[Package, BuildStatus]]): list of known packages. For the most cases `packages` should be used instead
+      logger(logging.Logger): class logger
+      repository(Repository): repository object
+      status(BuildStatus): daemon status
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param database: database instance
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          database(SQLite): database instance
         """
         self.logger = logging.getLogger("http")
 
@@ -59,14 +63,20 @@ class Watcher:
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
         """
-        :return: list of packages together with their statuses
+        Returns:
+          List[Tuple[Package, BuildStatus]]: list of packages together with their statuses
         """
         return list(self.known.values())
 
     def get(self, base: str) -> Tuple[Package, BuildStatus]:
         """
         get current package base build status
-        :return: package and its status
+
+        Args:
+          base(str): 
+
+        Returns:
+          Tuple[Package, BuildStatus]: package and its status
         """
         try:
             return self.known[base]
@@ -92,7 +102,9 @@ class Watcher:
     def remove(self, package_base: str) -> None:
         """
         remove package base from known list if any
-        :param package_base: package base
+
+        Args:
+          package_base(str): package base
         """
         self.known.pop(package_base, None)
         self.database.package_remove(package_base)
@@ -100,9 +112,11 @@ class Watcher:
     def update(self, package_base: str, status: BuildStatusEnum, package: Optional[Package]) -> None:
         """
         update package status and description
-        :param package_base: package base to update
-        :param status: new build status
-        :param package: optional new package description. In case if not set current properties will be used
+
+        Args:
+          package_base(str): package base to update
+          status(BuildStatusEnum): new build status
+          package(Optional[Package]): optional new package description. In case if not set current properties will be used
         """
         if package is None:
             try:
@@ -116,6 +130,8 @@ class Watcher:
     def update_self(self, status: BuildStatusEnum) -> None:
         """
         update service status
-        :param status: new service status
+
+        Args:
+          status(BuildStatusEnum): new service status
         """
         self.status = BuildStatus(status)

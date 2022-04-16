@@ -31,12 +31,14 @@ from ahriman.models.package import Package
 class Counters:
     """
     package counters
-    :ivar total: total packages count
-    :ivar unknown: packages in unknown status count
-    :ivar pending: packages in pending status count
-    :ivar building: packages in building status count
-    :ivar failed: packages in failed status count
-    :ivar success: packages in success status count
+    
+    Attributes:
+      total(int): total packages count
+      unknown(int): packages in unknown status count
+      pending(int): packages in pending status count
+      building(int): packages in building status count
+      failed(int): packages in failed status count
+      success(int): packages in success status count
     """
 
     total: int
@@ -50,8 +52,12 @@ class Counters:
     def from_json(cls: Type[Counters], dump: Dict[str, Any]) -> Counters:
         """
         construct counters from json dump
-        :param dump: json dump body
-        :return: status counters
+
+        Args:
+          dump(Dict[str, Any]): json dump body
+
+        Returns:
+          Counters: status counters
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -61,8 +67,12 @@ class Counters:
     def from_packages(cls: Type[Counters], packages: List[Tuple[Package, BuildStatus]]) -> Counters:
         """
         construct counters from packages statuses
-        :param packages: list of package and their status as per watcher property
-        :return: status counters
+
+        Args:
+          packages(List[Tuple[Package, BuildStatus]]): list of package and their status as per watcher property
+
+        Returns:
+          Counters: status counters
         """
         per_status = {"total": len(packages)}
         for _, status in packages:

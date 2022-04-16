@@ -33,16 +33,20 @@ from ahriman.models.upload_settings import UploadSettings
 class Upload:
     """
     base remote sync class
-    :ivar architecture: repository architecture
-    :ivar configuration: configuration instance
-    :ivar logger: application logger
+
+    Attributes:
+      architecture(str): repository architecture
+      configuration(Configuration): configuration instance
+      logger(logging.Logger): application logger
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
@@ -52,10 +56,14 @@ class Upload:
     def load(cls: Type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:
         """
         load client from settings
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param target: target to run sync (e.g. s3)
-        :return: client according to current settings
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          target(str): target to run sync (e.g. s3)
+
+        Returns:
+          Upload: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
         provider = UploadSettings.from_option(provider_name)
@@ -73,8 +81,10 @@ class Upload:
     def run(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         run remote sync
-        :param path: local path to sync
-        :param built_packages: list of packages which has just been built
+
+        Args:
+          path(Path): local path to sync
+          built_packages(Iterable[Package]): list of packages which has just been built
         """
         try:
             self.sync(path, built_packages)
@@ -85,6 +95,8 @@ class Upload:
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         sync data to remote server
-        :param path: local path to sync
-        :param built_packages: list of packages which has just been built
+
+        Args:
+          path(Path): local path to sync
+          built_packages(Iterable[Package]): list of packages which has just been built
         """

@@ -27,20 +27,24 @@ from ahriman.core.repository import Repository
 class Properties:
     """
     application base properties class
-    :ivar architecture: repository architecture
-    :ivar configuration: configuration instance
-    :ivar database: database instance
-    :ivar logger: application logger
-    :ivar repository: repository instance
+
+    Attributes:
+      architecture(str): repository architecture
+      configuration(Configuration): configuration instance
+      database(SQLite): database instance
+      logger(logging.Logger): application logger
+      repository(Repository): repository instance
     """
 
     def __init__(self, architecture: str, configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.configuration = configuration

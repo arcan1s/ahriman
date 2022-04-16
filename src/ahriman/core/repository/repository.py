@@ -35,8 +35,12 @@ class Repository(Executor, UpdateHandler):
     def load_archives(self, packages: Iterable[Path]) -> List[Package]:
         """
         load packages from list of archives
-        :param packages: paths to package archives
-        :return: list of read packages
+
+        Args:
+          packages(Iterable[Path]): paths to package archives
+
+        Returns:
+          List[Package]: list of read packages
         """
         result: Dict[str, Package] = {}
         # we are iterating over bases, not single packages
@@ -58,22 +62,30 @@ class Repository(Executor, UpdateHandler):
     def packages(self) -> List[Package]:
         """
         generate list of repository packages
-        :return: list of packages properties
+
+        Returns:
+          List[Package]: list of packages properties
         """
         return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
 
     def packages_built(self) -> List[Path]:
         """
         get list of files in built packages directory
-        :return: list of filenames from the directory
+
+        Returns:
+          List[Path]: list of filenames from the directory
         """
         return list(filter(package_like, self.paths.packages.iterdir()))
 
     def packages_depends_on(self, depends_on: Optional[Iterable[str]]) -> List[Package]:
         """
         extract list of packages which depends on specified package
-        :param: depends_on: dependencies of the packages
-        :return: list of repository packages which depend on specified packages
+
+        Args:
+          depends_on(Optional[Iterable[str]]): 
+
+        Returns:
+          List[Package]: list of repository packages which depend on specified packages
         """
         packages = self.packages()
         if depends_on is None:

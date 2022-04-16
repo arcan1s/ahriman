@@ -25,8 +25,10 @@ from ahriman.models.repository_paths import RepositoryPaths
 def migrate_patches(connection: Connection, paths: RepositoryPaths) -> None:
     """
     perform migration for patches
-    :param connection: database connection
-    :param paths: repository paths instance
+
+    Args:
+      connection(Connection): database connection
+      paths(RepositoryPaths): repository paths instance
     """
     root = paths.root / "patches"
     if not root.is_dir():

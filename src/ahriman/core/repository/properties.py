@@ -32,29 +32,33 @@ from ahriman.core.util import check_user
 class Properties:
     """
     repository internal objects holder
-    :ivar architecture: repository architecture
-    :ivar aur_url: base AUR url
-    :ivar configuration: configuration instance
-    :ivar database: database instance
-    :ivar ignore_list: package bases which will be ignored during auto updates
-    :ivar logger: class logger
-    :ivar name: repository name
-    :ivar pacman: alpm wrapper instance
-    :ivar paths: repository paths instance
-    :ivar repo: repo commands wrapper instance
-    :ivar reporter: build status reporter instance
-    :ivar sign: GPG wrapper instance
+    
+    Attributes:
+      architecture(str): repository architecture
+      aur_url(str): base AUR url
+      configuration(Configuration): configuration instance
+      database(SQLite): database instance
+      ignore_list(List[str]): package bases which will be ignored during auto updates
+      logger(logging.Logger): class logger
+      name(str): repository name
+      pacman(Pacman): alpm wrapper instance
+      paths(RepositoryPaths): repository paths instance
+      repo(Repo): repo commands wrapper instance
+      reporter(Client): build status reporter instance
+      sign(GPG): GPG wrapper instance
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
                  no_report: bool, unsafe: bool) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param database: database instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          database(SQLite): database instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture

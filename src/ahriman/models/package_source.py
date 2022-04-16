@@ -29,13 +29,15 @@ from ahriman.core.util import package_like
 class PackageSource(Enum):
     """
     package source for addition enumeration
-    :cvar Auto: automatically determine type of the source
-    :cvar Archive: source is a package archive
-    :cvar AUR: source is an AUR package for which it should search
-    :cvar Directory: source is a directory which contains packages
-    :cvar Local: source is locally stored PKGBUILD
-    :cvar Remote: source is remote (http, ftp etc) link
-    :cvar Repository: source is official repository
+    
+    Attributes:
+      Auto(PackageSource): (class attribute) automatically determine type of the source
+      Archive(PackageSource): (class attribute) source is a package archive
+      AUR(PackageSource): (class attribute) source is an AUR package for which it should search
+      Directory(PackageSource): (class attribute) source is a directory which contains packages
+      Local(PackageSource): (class attribute) source is locally stored PKGBUILD
+      Remote(PackageSource): (class attribute) source is remote (http, ftp etc) link
+      Repository(PackageSource): (class attribute) source is official repository
     """
 
     Auto = "auto"
@@ -49,8 +51,12 @@ class PackageSource(Enum):
     def resolve(self, source: str) -> PackageSource:
         """
         resolve auto into the correct type
-        :param source: source of the package
-        :return: non-auto type of the package source
+
+        Args:
+          source(str): source of the package
+
+        Returns:
+          PackageSource: non-auto type of the package source
         """
         if self != PackageSource.Auto:
             return self

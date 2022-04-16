@@ -42,10 +42,12 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Package:
     """
     package properties representation
-    :ivar aur_url: AUR root url
-    :ivar base: package base name
-    :ivar packages: map of package names to their properties. Filled only on load from archive
-    :ivar version: package full version
+
+    Attributes:
+      aur_url(str): AUR root url
+      base(str): package base name
+      packages(Dict[str, PackageDescription): map of package names to their properties. Filled only on load from archive
+      version(str): package full version
     """
 
     base: str
@@ -58,35 +60,40 @@ class Package:
     @property
     def depends(self) -> List[str]:
         """
-        :return: sum of dependencies per arch package
+        Returns:
+          List[str]: sum of dependencies per arch package
         """
         return sorted(set(sum([package.depends for package in self.packages.values()], start=[])))
 
     @property
     def git_url(self) -> str:
         """
-        :return: package git url to clone
+        Returns:
+          str: package git url to clone
         """
         return f"{self.aur_url}/{self.base}.git"
 
     @property
     def groups(self) -> List[str]:
         """
-        :return: sum of groups per each package
+        Returns:
+          List[str]: sum of groups per each package
         """
         return sorted(set(sum([package.groups for package in self.packages.values()], start=[])))
 
     @property
     def is_single_package(self) -> bool:
         """
-        :return: true in case if this base has only one package with the same name
+        Returns:
+          bool: true in case if this base has only one package with the same name
         """
         return self.base in self.packages and len(self.packages) == 1
 
     @property
     def is_vcs(self) -> bool:
         """
-        :return: True in case if package base looks like VCS package and false otherwise
+        Returns:
+          bool: True in case if package base looks like VCS package and false otherwise
         """
         return self.base.endswith("-bzr") \
             or self.base.endswith("-csv")\
@@ -98,14 +105,16 @@ class Package:
     @property
     def licenses(self) -> List[str]:
         """
-        :return: sum of licenses per each package
+        Returns:
+          List[str]: sum of licenses per each package
         """
         return sorted(set(sum([package.licenses for package in self.packages.values()], start=[])))
 
     @property
     def web_url(self) -> str:
         """
-        :return: package AUR url
+        Returns:
+          str: package AUR url
         """
         return f"{self.aur_url}/packages/{self.base}"
 
@@ -113,10 +122,14 @@ class Package:
     def from_archive(cls: Type[Package], path: Path, pacman: Pacman, aur_url: str) -> Package:
         """
         construct package properties from package archive
-        :param path: path to package archive
-        :param pacman: alpm wrapper instance
-        :param aur_url: AUR root url
-        :return: package properties
+
+        Args:
+          path(Path): path to package archive
+          pacman(Pacman): alpm wrapper instance
+          aur_url(str): AUR root url
+
+        Returns:
+          Package: package properties
         """
         package = pacman.handle.load_pkg(str(path))
         return cls(package.base, package.version, aur_url,
@@ -126,9 +139,13 @@ class Package:
     def from_aur(cls: Type[Package], name: str, aur_url: str) -> Package:
         """
         construct package properties from AUR page
-        :param name: package name (either base or normal name)
-        :param aur_url: AUR root url
-        :return: package properties
+
+        Args:
+          name(str): package name (either base or normal name)
+          aur_url(str): AUR root url
+
+        Returns:
+          Package: package properties
         """
         package = AUR.info(name)
         return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
@@ -137,9 +154,13 @@ class Package:
     def from_build(cls: Type[Package], path: Path, aur_url: str) -> Package:
         """
         construct package properties from sources directory
-        :param path: path to package sources directory
-        :param aur_url: AUR root url
-        :return: package properties
+
+        Args:
+          path(Path): path to package sources directory
+          aur_url(str): AUR root url
+
+        Returns:
+          Package: package properties
         """
         srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
         if errors:
@@ -153,8 +174,12 @@ class Package:
     def from_json(cls: Type[Package], dump: Dict[str, Any]) -> Package:
         """
         construct package properties from json dump
-        :param dump: json dump body
-        :return: package properties
+
+        Args:
+          dump(Dict[str, Any]): json dump body
+
+        Returns:
+          Package: package properties
         """
         packages = {
             key: PackageDescription.from_json(value)
@@ -170,9 +195,13 @@ class Package:
     def from_official(cls: Type[Package], name: str, aur_url: str) -> Package:
         """
         construct package properties from official repository page
-        :param name: package name (either base or normal name)
-        :param aur_url: AUR root url
-        :return: package properties
+
+        Args:
+          name(str): package name (either base or normal name)
+          aur_url(str): AUR root url
+
+        Returns:
+          Package: package properties
         """
         package = Official.info(name)
         return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
@@ -181,11 +210,15 @@ class Package:
     def load(cls: Type[Package], package: str, source: PackageSource, pacman: Pacman, aur_url: str) -> Package:
         """
         package constructor from available sources
-        :param package: one of path to sources directory, path to archive or package name/base
-        :param source: source of the package required to define the load method
-        :param pacman: alpm wrapper instance (required to load from archive)
-        :param aur_url: AUR root url
-        :return: package properties
+
+        Args:
+          package(str): one of path to sources directory, path to archive or package name/base
+          source(PackageSource): source of the package required to define the load method
+          pacman(Pacman): alpm wrapper instance (required to load from archive)
+          aur_url(str): AUR root url
+
+        Returns:
+          Package: package properties
         """
         try:
             resolved_source = source.resolve(package)
@@ -207,8 +240,12 @@ class Package:
     def dependencies(path: Path) -> Set[str]:
         """
         load dependencies from package sources
-        :param path: path to package sources directory
-        :return: list of package dependencies including makedepends array, but excluding packages from this base
+
+        Args:
+          path(Path): path to package sources directory
+
+        Returns:
+          Set[str]: list of package dependencies including makedepends array, but excluding packages from this base
         """
         # additional function to remove versions from dependencies
         def extract_packages(raw_packages_list: List[str]) -> Set[str]:
@@ -234,8 +271,12 @@ class Package:
     def actual_version(self, paths: RepositoryPaths) -> str:
         """
         additional method to handle VCS package versions
-        :param paths: repository paths instance
-        :return: package version if package is not VCS and current version according to VCS otherwise
+
+        Args:
+          paths(RepositoryPaths): repository paths instance
+
+        Returns:
+          str: package version if package is not VCS and current version according to VCS otherwise
         """
         if not self.is_vcs:
             return self.version
@@ -265,9 +306,13 @@ class Package:
     def full_depends(self, pacman: Pacman, packages: Iterable[Package]) -> List[str]:
         """
         generate full dependencies list including transitive dependencies
-        :param pacman: alpm wrapper instance
-        :param packages: repository package list
-        :return: all dependencies of the package
+
+        Args:
+          pacman(Pacman): alpm wrapper instance
+          packages(Iterable[Package]): repository package list
+
+        Returns:
+          List[str]: all dependencies of the package
         """
         dependencies = {}
         # load own package dependencies
@@ -295,10 +340,14 @@ class Package:
     def is_outdated(self, remote: Package, paths: RepositoryPaths, calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
-        :param remote: package properties from remote source
-        :param paths: repository paths instance. Required for VCS packages cache
-        :param calculate_version: expand version to actual value (by calculating git versions)
-        :return: True if the package is out-of-dated and False otherwise
+
+        Args:
+          remote(Package): package properties from remote source
+          paths(RepositoryPaths): repository paths instance. Required for VCS packages cache
+          calculate_version(bool, optional): expand version to actual value (by calculating git versions) (Default value = True)
+
+        Returns:
+          bool: True if the package is out-of-dated and False otherwise
         """
         remote_version = remote.actual_version(paths) if calculate_version else remote.version
         result: int = vercmp(self.version, remote_version)
@@ -307,7 +356,9 @@ class Package:
     def pretty_print(self) -> str:
         """
         generate pretty string representation
-        :return: print-friendly string
+
+        Returns:
+          str: print-friendly string
         """
         details = "" if self.is_single_package else f""" ({" ".join(sorted(self.packages.keys()))})"""
         return f"{self.base}{details}"
@@ -315,6 +366,8 @@ class Package:
     def view(self) -> Dict[str, Any]:
         """
         generate json package view
-        :return: json-friendly dictionary
+
+        Returns:
+          Dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

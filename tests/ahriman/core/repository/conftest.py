@@ -15,10 +15,14 @@ from ahriman.core.repository.update_handler import UpdateHandler
 def cleaner(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Cleaner:
     """
     fixture for cleaner
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: cleaner test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Cleaner: cleaner test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Cleaner("x86_64", configuration, database, no_report=True, unsafe=False)
@@ -28,10 +32,14 @@ def cleaner(configuration: Configuration, database: SQLite, mocker: MockerFixtur
 def executor(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Executor:
     """
     fixture for executor
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: executor test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Executor: executor test instance
     """
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
@@ -45,10 +53,14 @@ def executor(configuration: Configuration, database: SQLite, mocker: MockerFixtu
 def repository(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Repository:
     """
     fixture for repository
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: repository test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Repository: repository test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Repository("x86_64", configuration, database, no_report=True, unsafe=False)
@@ -58,9 +70,13 @@ def repository(configuration: Configuration, database: SQLite, mocker: MockerFix
 def properties(configuration: Configuration, database: SQLite) -> Properties:
     """
     fixture for properties
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :return: properties test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+
+    Returns:
+      Properties: properties test instance
     """
     return Properties("x86_64", configuration, database, no_report=True, unsafe=False)
 
@@ -69,10 +85,14 @@ def properties(configuration: Configuration, database: SQLite) -> Properties:
 def update_handler(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> UpdateHandler:
     """
     fixture for update handler
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: update handler test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      UpdateHandler: update handler test instance
     """
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")

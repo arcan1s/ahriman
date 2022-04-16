@@ -33,8 +33,10 @@ class Result:
     def __init__(self, success: Optional[Iterable[Package]] = None, failed: Optional[Iterable[Package]] = None) -> None:
         """
         default constructor
-        :param success: initial list of successes packages
-        :param failed: initial list of failed packages
+
+        Args:
+          success(Optional[Iterable[Package]], optional): initial list of successes packages (Default value = None)
+          failed(Optional[Iterable[Package]], optional): initial list of failed packages (Default value = None)
         """
         success = success or []
         self._success = {package.base: package for package in success}
@@ -44,35 +46,42 @@ class Result:
     @property
     def failed(self) -> List[Package]:
         """
-        :return: list of packages which were failed
+        Returns:
+          List[Package]: list of packages which were failed
         """
         return list(self._failed.values())
 
     @property
     def is_empty(self) -> bool:
         """
-        :return: True in case if success list is empty and False otherwise
+        Returns:
+          bool: True in case if success list is empty and False otherwise
         """
         return not bool(self._success)
 
     @property
     def success(self) -> List[Package]:
         """
-        :return: list of packages with success result
+        Returns:
+          List[Package]: list of packages with success result
         """
         return list(self._success.values())
 
     def add_failed(self, package: Package) -> None:
         """
         add new package to failed built
-        :param package: package with errors during build
+
+        Args:
+          package(Package): package with errors during build
         """
         self._failed[package.base] = package
 
     def add_success(self, package: Package) -> None:
         """
         add new package to success built
-        :param package: package built
+
+        Args:
+          package(Package): package built
         """
         self._success[package.base] = package
 
@@ -80,8 +89,12 @@ class Result:
     def merge(self, other: Result) -> Result:
         """
         merge other result into this one. This method assumes that other has fresh info about status and override it
-        :param other: instance of the newest result
-        :return: updated instance
+
+        Args:
+          other(Result): instance of the newest result
+
+        Returns:
+          Result: updated instance
         """
         for base, package in other._failed.items():
             if base in self._success:
@@ -97,8 +110,12 @@ class Result:
     def __eq__(self, other: Any) -> bool:
         """
         check if other is the same object
-        :param other: other object instance
-        :return: True if the other object is the same and False otherwise
+
+        Args:
+          other(Any): other object instance
+
+        Returns:
+          bool: True if the other object is the same and False otherwise
         """
         if not isinstance(other, Result):
             return False

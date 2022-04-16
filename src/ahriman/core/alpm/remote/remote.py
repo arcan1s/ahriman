@@ -29,7 +29,9 @@ from ahriman.models.aur_package import AURPackage
 class Remote:
     """
     base class for remote package search
-    :ivar logger: class logger
+
+    Attributes:
+      logger(logging.Logger): class logger
     """
 
     def __init__(self) -> None:
@@ -42,8 +44,12 @@ class Remote:
     def info(cls: Type[Remote], package_name: str) -> AURPackage:
         """
         get package info by its name
-        :param package_name: package name to search
-        :return: package which match the package name
+
+        Args:
+          package_name(str): package name to search
+
+        Returns:
+          AURPackage: package which match the package name
         """
         return cls().package_info(package_name)
 
@@ -52,8 +58,12 @@ class Remote:
         """
         search in remote repository by using API with multiple words. This method is required in order to handle
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
-        :param keywords: search terms, e.g. "ahriman", "is", "cool"
-        :return: list of packages each of them matches all search terms
+
+        Args:
+          *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+
+        Returns:
+          List[AURPackage]: list of packages each of them matches all search terms
         """
         instance = cls()
         packages: Dict[str, AURPackage] = {}
@@ -70,23 +80,35 @@ class Remote:
     def search(cls: Type[Remote], *keywords: str) -> List[AURPackage]:
         """
         search package in AUR web
-        :param keywords: keywords to search
-        :return: list of packages which match the criteria
+
+        Args:
+          *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+
+        Returns:
+          List[AURPackage]: list of packages which match the criteria
         """
         return cls().package_search(*keywords)
 
     def package_info(self, package_name: str) -> AURPackage:
         """
         get package info by its name
-        :param package_name: package name to search
-        :return: package which match the package name
+
+        Args:
+          package_name(str): package name to search
+
+        Returns:
+          AURPackage: package which match the package name
         """
         raise NotImplementedError
 
     def package_search(self, *keywords: str) -> List[AURPackage]:
         """
         search package in AUR web
-        :param keywords: keywords to search
-        :return: list of packages which match the criteria
+
+        Args:
+          *keywords(str): keywords to search
+
+        Returns:
+          List[AURPackage]: list of packages which match the criteria
         """
         raise NotImplementedError

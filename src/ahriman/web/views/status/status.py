@@ -29,8 +29,10 @@ from ahriman.web.views.base import BaseView
 class StatusView(BaseView):
     """
     web service status web view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
+
+    Attributes:
+      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -38,7 +40,9 @@ class StatusView(BaseView):
     async def get(self) -> Response:
         """
         get current service status
-        :return: 200 with service status object
+
+        Returns:
+          Response: 200 with service status object
         """
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(

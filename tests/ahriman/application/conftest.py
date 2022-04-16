@@ -14,10 +14,14 @@ from ahriman.core.database.sqlite import SQLite
 def application(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Application:
     """
     fixture for application
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: application test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Application: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
@@ -28,7 +32,9 @@ def application(configuration: Configuration, database: SQLite, mocker: MockerFi
 def args() -> argparse.Namespace:
     """
     fixture for command line arguments
-    :return: command line arguments test instance
+
+    Returns:
+      argparse.Namespace: command line arguments test instance
     """
     return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, no_report=True)
 
@@ -37,9 +43,13 @@ def args() -> argparse.Namespace:
 def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
     """
     fixture for file lock
-    :param args: command line arguments fixture
-    :param configuration: configuration fixture
-    :return: file lock test instance
+
+    Args:
+      args(argparse.Namespace): command line arguments fixture
+      configuration(Configuration): configuration fixture
+
+    Returns:
+      Lock: file lock test instance
     """
     return Lock(args, "x86_64", configuration)
 
@@ -48,6 +58,8 @@ def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
 def parser() -> argparse.ArgumentParser:
     """
     fixture for command line arguments parser
-    :return: command line arguments parser test instance
+
+    Returns:
+      argparse.ArgumentParser: command line arguments parser test instance
     """
     return _parser()

@@ -13,10 +13,14 @@ from ahriman.core.database.sqlite import SQLite
 def application_packages(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Packages:
     """
     fixture for application with package functions
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: application test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Packages: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
@@ -27,10 +31,14 @@ def application_packages(configuration: Configuration, database: SQLite, mocker:
 def application_properties(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Properties:
     """
     fixture for application with properties only
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: application test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Properties: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
@@ -41,10 +49,14 @@ def application_properties(configuration: Configuration, database: SQLite, mocke
 def application_repository(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Repository:
     """
     fixture for application with repository functions
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: application test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Repository: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)

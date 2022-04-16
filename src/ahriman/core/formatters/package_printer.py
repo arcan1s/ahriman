@@ -28,15 +28,19 @@ from ahriman.models.property import Property
 class PackagePrinter(StringPrinter):
     """
     print content of the internal package object
-    :ivar package: package description
-    :ivar status: build status
+
+    Attributes:
+      package(Package): package description
+      status(BuildStatus): build status
     """
 
     def __init__(self, package: Package, status: BuildStatus) -> None:
         """
         default constructor
-        :param package: package description
-        :param status: build status
+
+        Args:
+          package(Package): package description
+          status(BuildStatus): build status
         """
         StringPrinter.__init__(self, package.pretty_print())
         self.package = package
@@ -45,7 +49,9 @@ class PackagePrinter(StringPrinter):
     def properties(self) -> List[Property]:
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+          List[Property]: list of content properties
         """
         return [
             Property("Version", self.package.version, is_required=True),

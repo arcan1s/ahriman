@@ -26,8 +26,10 @@ from ahriman.core.exceptions import MigrationError
 class MigrationResult:
     """
     migration result implementation model
-    :ivar old_version: old schema version before migrations
-    :ivar new_version: new schema version after migrations
+
+    Attributes:
+      old_version(int): old schema version before migrations
+      new_version(int): new schema version after migrations
     """
 
     old_version: int
@@ -36,7 +38,8 @@ class MigrationResult:
     @property
     def is_outdated(self) -> bool:
         """
-        :return: True in case if it requires migrations and False otherwise
+        Returns:
+          bool: True in case if it requires migrations and False otherwise
         """
         self.validate()
         return self.new_version > self.old_version

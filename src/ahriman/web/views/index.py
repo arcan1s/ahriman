@@ -31,11 +31,9 @@ from ahriman.web.views.base import BaseView
 class IndexView(BaseView):
     """
     root view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
-
+    
     It uses jinja2 templates for report generation, the following variables are allowed:
-
+    
         architecture - repository architecture, string, required
         auth - authorization descriptor, required
                    * authenticated - alias to check if user can see the page, boolean, required
@@ -60,6 +58,10 @@ class IndexView(BaseView):
                    * status_color, string based on enum value
                    * timestamp, pretty printed datetime, string
         version - ahriman version, string, required
+
+    Attributes:
+      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Safe
@@ -68,7 +70,9 @@ class IndexView(BaseView):
     async def get(self) -> Dict[str, Any]:
         """
         process get request. No parameters supported here
-        :return: parameters for jinja template
+
+        Returns:
+          Dict[str, Any]: parameters for jinja template
         """
         # some magic to make it jinja-friendly
         packages = [

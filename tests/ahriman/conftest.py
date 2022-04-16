@@ -30,20 +30,25 @@ T = TypeVar("T")
 def anyvar(cls: Type[T], strict: bool = False) -> T:
     """
     any value helper for mocker calls check
-    :param cls: type class
-    :param strict: if True then check type of supplied argument
-    :return: any wrapper
+
+    Args:
+      strict(bool, optional): if True then check type of supplied argument (Default value = False)
+
+    Returns:
+      T: any wrapper
     """
     class AnyVar(cls):
-        """
-        any value wrapper
-        """
+        """any value wrapper"""
 
         def __eq__(self, other: Any) -> bool:
             """
             compare object to other
-            :param other: other object to compare
-            :return: True in case if objects are equal
+
+            Args:
+              other(Any): other object to compare
+
+            Returns:
+              bool: True in case if objects are equal
             """
             return not strict or isinstance(other, cls)
 
@@ -54,8 +59,12 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 def get_package_status(package: Package) -> Dict[str, Any]:
     """
     helper to extract package status from package
-    :param package: package object
-    :return: simplified package status map (with only status and view)
+
+    Args:
+      package(Package): package object
+
+    Returns:
+      Dict[str, Any]: simplified package status map (with only status and view)
     """
     return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
 
@@ -64,8 +73,12 @@ def get_package_status(package: Package) -> Dict[str, Any]:
 def get_package_status_extended(package: Package) -> Dict[str, Any]:
     """
     helper to extract package status from package
-    :param package: package object
-    :return: full package status map (with timestamped build status and view)
+
+    Args:
+      package(Package): package object
+
+    Returns:
+      Dict[str, Any]: full package status map (with timestamped build status and view)
     """
     return {"status": BuildStatus().view(), "package": package.view()}
 
@@ -75,7 +88,9 @@ def get_package_status_extended(package: Package) -> Dict[str, Any]:
 def aur_package_ahriman() -> AURPackage:
     """
     fixture for AUR package
-    :return: AUR package test instance
+
+    Returns:
+      AURPackage: AUR package test instance
     """
     return AURPackage(
         id=1009791,
@@ -128,7 +143,9 @@ def aur_package_ahriman() -> AURPackage:
 def aur_package_akonadi() -> AURPackage:
     """
     fixture for AUR package
-    :return: AUR package test instance
+
+    Returns:
+      AURPackage: AUR package test instance
     """
     return AURPackage(
         id=0,
@@ -172,8 +189,12 @@ def aur_package_akonadi() -> AURPackage:
 def auth(configuration: Configuration) -> Auth:
     """
     auth provider fixture
-    :param configuration: configuration fixture
-    :return: auth service instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+
+    Returns:
+      Auth: auth service instance
     """
     return Auth(configuration)
 
@@ -182,8 +203,12 @@ def auth(configuration: Configuration) -> Auth:
 def configuration(resource_path_root: Path) -> Configuration:
     """
     configuration fixture
-    :param resource_path_root: resource path root directory
-    :return: configuration test instance
+
+    Args:
+      resource_path_root(Path): resource path root directory
+
+    Returns:
+      Configuration: configuration test instance
     """
     path = resource_path_root / "core" / "ahriman.ini"
     return Configuration.from_path(path=path, architecture="x86_64", quiet=False)
@@ -193,8 +218,12 @@ def configuration(resource_path_root: Path) -> Configuration:
 def database(configuration: Configuration) -> SQLite:
     """
     database fixture
-    :param: configuration: configuration fixture
-    :return: database test instance
+
+    Args:
+      configuration(Configuration): 
+
+    Returns:
+      SQLite: database test instance
     """
     database = SQLite.load(configuration)
     yield database
@@ -205,8 +234,12 @@ def database(configuration: Configuration) -> SQLite:
 def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     """
     package fixture
-    :param package_description_ahriman: description fixture
-    :return: package test instance
+
+    Args:
+      package_description_ahriman(PackageDescription): description fixture
+
+    Returns:
+      Package: package test instance
     """
     packages = {"ahriman": package_description_ahriman}
     return Package(
@@ -222,9 +255,13 @@ def package_python_schedule(
         package_description_python2_schedule: PackageDescription) -> Package:
     """
     multi package fixture
-    :param package_description_python_schedule: description fixture
-    :param package_description_python2_schedule: description fixture
-    :return: multi package test instance
+
+    Args:
+      package_description_python_schedule(PackageDescription): description fixture
+      package_description_python2_schedule(PackageDescription): description fixture
+
+    Returns:
+      Package: multi package test instance
     """
     packages = {
         "python-schedule": package_description_python_schedule,
@@ -241,7 +278,9 @@ def package_python_schedule(
 def package_description_ahriman() -> PackageDescription:
     """
     package description fixture
-    :return: package description test instance
+
+    Returns:
+      PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -267,7 +306,9 @@ def package_description_ahriman() -> PackageDescription:
 def package_description_python_schedule() -> PackageDescription:
     """
     package description fixture
-    :return: package description test instance
+
+    Returns:
+      PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -286,7 +327,9 @@ def package_description_python_schedule() -> PackageDescription:
 def package_description_python2_schedule() -> PackageDescription:
     """
     package description fixture
-    :return: package description test instance
+
+    Returns:
+      PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -305,8 +348,12 @@ def package_description_python2_schedule() -> PackageDescription:
 def repository_paths(configuration: Configuration) -> RepositoryPaths:
     """
     repository paths fixture
-    :param configuration: configuration fixture
-    :return: repository paths test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+
+    Returns:
+      RepositoryPaths: repository paths test instance
     """
     return configuration.repository_paths
 
@@ -315,8 +362,12 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
 def result(package_ahriman: Package) -> Result:
     """
     result fixture
-    :param package_ahriman: package fixture
-    :return: result test instance
+
+    Args:
+      package_ahriman(Package): package fixture
+
+    Returns:
+      Result: result test instance
     """
     result = Result()
     result.add_success(package_ahriman)
@@ -327,8 +378,12 @@ def result(package_ahriman: Package) -> Result:
 def spawner(configuration: Configuration) -> Spawn:
     """
     spawner fixture
-    :param configuration: configuration fixture
-    :return: spawner fixture
+
+    Args:
+      configuration(Configuration): configuration fixture
+
+    Returns:
+      Spawn: spawner fixture
     """
     return Spawn(MagicMock(), "x86_64", configuration)
 
@@ -337,7 +392,9 @@ def spawner(configuration: Configuration) -> Spawn:
 def user() -> User:
     """
     fixture for user descriptor
-    :return: user descriptor instance
+
+    Returns:
+      User: user descriptor instance
     """
     return User("user", "pa55w0rd", UserAccess.Read)
 
@@ -346,10 +403,14 @@ def user() -> User:
 def watcher(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Watcher:
     """
     package status watcher fixture
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :param mocker: mocker object
-    :return: package status watcher test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+      database(SQLite): database fixture
+      mocker(MockerFixture): mocker object
+
+    Returns:
+      Watcher: package status watcher test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Watcher("x86_64", configuration, database)

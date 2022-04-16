@@ -34,7 +34,9 @@ from ahriman.models.aur_package import AURPackage
 class Search(Handler):
     """
     packages search handler
-    :cvar SORT_FIELDS: allowed fields to sort the package list
+
+    Attributes:
+      SORT_FIELDS(Set[str]): (class attribute) allowed fields to sort the package list
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
@@ -45,11 +47,13 @@ class Search(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          args(argparse.Namespace): command line args
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         official_packages_list = Official.multisearch(*args.search)
         aur_packages_list = AUR.multisearch(*args.search)
@@ -64,9 +68,13 @@ class Search(Handler):
     def sort(packages: Iterable[AURPackage], sort_by: str) -> List[AURPackage]:
         """
         sort package list by specified field
-        :param packages: packages list to sort
-        :param sort_by: AUR package field name to sort by
-        :return: sorted list for packages
+
+        Args:
+          packages(Iterable[AURPackage]): packages list to sort
+          sort_by(str): AUR package field name to sort by
+
+        Returns:
+          List[AURPackage]: sorted list for packages
         """
         if sort_by not in Search.SORT_FIELDS:
             raise InvalidOption(sort_by)

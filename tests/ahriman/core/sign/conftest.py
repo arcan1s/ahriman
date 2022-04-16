@@ -8,8 +8,12 @@ from ahriman.core.sign.gpg import GPG
 def gpg(configuration: Configuration) -> GPG:
     """
     fixture for empty GPG
-    :param configuration: configuration fixture
-    :return: GPG test instance
+
+    Args:
+      configuration(Configuration): configuration fixture
+
+    Returns:
+      GPG: GPG test instance
     """
     return GPG("x86_64", configuration)
 
@@ -18,8 +22,12 @@ def gpg(configuration: Configuration) -> GPG:
 def gpg_with_key(gpg: GPG) -> GPG:
     """
     fixture for correct GPG
-    :param gpg: empty GPG fixture
-    :return: GPG test instance
+
+    Args:
+      gpg(GPG): empty GPG fixture
+
+    Returns:
+      GPG: GPG test instance
     """
     gpg.default_key = "key"
     return gpg

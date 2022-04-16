@@ -29,8 +29,10 @@ from ahriman.models.repository_paths import RepositoryPaths
 def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> None:
     """
     perform migration for package statuses
-    :param connection: database connection
-    :param paths: repository paths instance
+
+    Args:
+      connection(Connection): database connection
+      paths(RepositoryPaths): repository paths instance
     """
     def insert_base(metadata: Package, last_status: BuildStatus) -> None:
         connection.execute(

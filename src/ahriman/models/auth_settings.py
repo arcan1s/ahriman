@@ -28,9 +28,11 @@ from ahriman.core.exceptions import InvalidOption
 class AuthSettings(Enum):
     """
     web authorization type
-    :cvar Disabled: authorization is disabled
-    :cvar Configuration: configuration based authorization
-    :cvar OAuth: OAuth based provider
+
+    Attributes:
+      Disabled(AuthSettings): (class attribute) authorization is disabled
+      Configuration(AuthSettings): (class attribute) configuration based authorization
+      OAuth(AuthSettings): (class attribute) OAuth based provider
     """
 
     Disabled = "disabled"
@@ -41,8 +43,12 @@ class AuthSettings(Enum):
     def from_option(cls: Type[AuthSettings], value: str) -> AuthSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+          value(str): configuration value
+
+        Returns:
+          AuthSettings: parsed value
         """
         if value.lower() in ("disabled", "no"):
             return cls.Disabled
@@ -55,7 +61,8 @@ class AuthSettings(Enum):
     @property
     def is_enabled(self) -> bool:
         """
-        :return: False in case if authorization is disabled and True otherwise
+        Returns:
+          bool: False in case if authorization is disabled and True otherwise
         """
         if self == AuthSettings.Disabled:
             return False

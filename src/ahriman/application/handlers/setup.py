@@ -31,10 +31,12 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Setup(Handler):
     """
     setup handler
-    :cvar ARCHBUILD_COMMAND_PATH: default devtools command
-    :cvar BIN_DIR_PATH: directory for custom binaries
-    :cvar MIRRORLIST_PATH: path to pacman default mirrorlist (used by multilib repository)
-    :cvar SUDOERS_PATH: path to sudoers.d include configuration
+
+    Attributes:
+      ARCHBUILD_COMMAND_PATH(Path): (class attribute) default devtools command
+      BIN_DIR_PATH(Path): (class attribute) directory for custom binaries
+      MIRRORLIST_PATH(Path): (class attribute) path to pacman default mirrorlist (used by multilib repository)
+      SUDOERS_PATH(Path): (class attribute) path to sudoers.d include configuration
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
@@ -49,11 +51,13 @@ class Setup(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+          args(argparse.Namespace): command line args
+          architecture(str): repository architecture
+          configuration(Configuration): configuration instance
+          no_report(bool): force disable reporting
+          unsafe(bool): if set no user check will be performed before path creation
         """
         Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include)
         configuration.reload()
@@ -72,9 +76,13 @@ class Setup(Handler):
     def build_command(prefix: str, architecture: str) -> Path:
         """
         generate build command name
-        :param prefix: command prefix in {prefix}-{architecture}-build
-        :param architecture: repository architecture
-        :return: valid devtools command name
+
+        Args:
+          prefix(str): command prefix in {prefix}-{architecture}-build
+          architecture(str): repository architecture
+
+        Returns:
+          Path: valid devtools command name
         """
         return Setup.BIN_DIR_PATH / f"{prefix}-{architecture}-build"
 
@@ -83,10 +91,12 @@ class Setup(Handler):
                                      include_path: Path) -> None:
         """
         create service specific configuration
-        :param args: command line args
-        :param architecture: repository architecture
-        :param repository: repository name
-        :param include_path: path to directory with configuration includes
+
+        Args:
+          args(argparse.Namespace): command line args
+          architecture(str): repository architecture
+          repository(str): repository name
+          include_path(Path): path to directory with configuration includes
         """
         configuration = Configuration()
 
@@ -114,12 +124,14 @@ class Setup(Handler):
                                       no_multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on `source` configuration
-        :param prefix: command prefix in {prefix}-{architecture}-build
-        :param architecture: repository architecture
-        :param source: path to source configuration file
-        :param no_multilib: do not add multilib repository
-        :param repository: repository name
-        :param paths: repository paths instance
+
+        Args:
+          prefix(str): command prefix in {prefix}-{architecture}-build
+          architecture(str): repository architecture
+          source(Path): path to source configuration file
+          no_multilib(bool): do not add multilib repository
+          repository(str): repository name
+          paths(RepositoryPaths): repository paths instance
         """
         configuration = Configuration()
         # preserve case
@@ -149,8 +161,10 @@ class Setup(Handler):
     def configuration_create_makepkg(packager: str, paths: RepositoryPaths) -> None:
         """
         create configuration for makepkg
-        :param packager: packager identifier (e.g. name, email)
-        :param paths: repository paths instance
+
+        Args:
+          packager(str): packager identifier (e.g. name, email)
+          paths(RepositoryPaths): repository paths instance
         """
         (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
 
@@ -158,8 +172,10 @@ class Setup(Handler):
     def configuration_create_sudo(prefix: str, architecture: str) -> None:
         """
         create configuration to run build command with sudo without password
-        :param prefix: command prefix in {prefix}-{architecture}-build
-        :param architecture: repository architecture
+
+        Args:
+          prefix(str): command prefix in {prefix}-{architecture}-build
+          architecture(str): repository architecture
         """
         command = Setup.build_command(prefix, architecture)
         Setup.SUDOERS_PATH.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
@@ -169,8 +185,10 @@ class Setup(Handler):
     def executable_create(prefix: str, architecture: str) -> None:
         """
         create executable for the service
-        :param prefix: command prefix in {prefix}-{architecture}-build
-        :param architecture: repository architecture
+
+        Args:
+          prefix(str): command prefix in {prefix}-{architecture}-build
+          architecture(str): repository architecture
         """
         command = Setup.build_command(prefix, architecture)
         command.unlink(missing_ok=True)
