@@ -23,9 +23,11 @@ from enum import Enum
 class Action(Enum):
     """
     base action enumeration
-    :cvar List: list available values
-    :cvar Remove: remove everything from local storage
-    :cvar Update: update local storage or add to
+
+    Attributes:
+        List(Action): (class attribute) list available values
+        Remove(Action): (class attribute) remove everything from local storage
+        Update(Action): (class attribute) update local storage or add to
     """
 
     List = "list"

@@ -43,11 +43,13 @@ class User(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         database = SQLite.load(configuration)
 
@@ -72,11 +74,13 @@ class User(Handler):
                              as_service_user: bool, secure: bool) -> None:
         """
         enable configuration if it has been disabled
-        :param configuration: configuration instance
-        :param user: user descriptor
-        :param salt: password hash salt
-        :param as_service_user: add user as service user, also set password and user to configuration
-        :param secure: if true then set file permissions to 0o600
+
+        Args:
+            configuration(Configuration): configuration instance
+            user(MUser): user descriptor
+            salt(str): password hash salt
+            as_service_user(bool): add user as service user, also set password and user to configuration
+            secure(bool): if true then set file permissions to 0o600
         """
         configuration.set_option("auth", "salt", salt)
         if as_service_user:
@@ -88,8 +92,12 @@ class User(Handler):
     def configuration_get(include_path: Path) -> Configuration:
         """
         create configuration instance
-        :param include_path: path to directory with configuration includes
-        :return: configuration instance. In case if there are local settings they will be loaded
+
+        Args:
+            include_path(Path): path to directory with configuration includes
+
+        Returns:
+            Configuration: configuration instance. In case if there are local settings they will be loaded
         """
         target = include_path / "auth.ini"
         configuration = Configuration()
@@ -103,8 +111,10 @@ class User(Handler):
     def configuration_write(configuration: Configuration, secure: bool) -> None:
         """
         write configuration file
-        :param configuration: configuration instance
-        :param secure: if true then set file permissions to 0o600
+
+        Args:
+            configuration(Configuration): configuration instance
+            secure(bool): if true then set file permissions to 0o600
         """
         path, _ = configuration.check_loaded()
         with path.open("w") as ahriman_configuration:
@@ -116,9 +126,13 @@ class User(Handler):
     def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
         """
         get salt from configuration or create new string
-        :param configuration: configuration instance
-        :param salt_length: salt length
-        :return: current salt
+
+        Args:
+            configuration(Configuration): configuration instance
+            salt_length(int, optional): salt length (Default value = 20)
+
+        Returns:
+            str: current salt
         """
         if salt := configuration.get("auth", "salt", fallback=None):
             return salt
@@ -128,8 +142,12 @@ class User(Handler):
     def user_create(args: argparse.Namespace) -> MUser:
         """
         create user descriptor from arguments
-        :param args: command line args
-        :return: built user descriptor
+
+        Args:
+            args(argparse.Namespace): command line args
+
+        Returns:
+            MUser: built user descriptor
         """
         user = MUser(args.username, args.password, args.role)
         if user.password is None:

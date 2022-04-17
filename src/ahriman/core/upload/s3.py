@@ -32,16 +32,21 @@ from ahriman.models.package import Package
 
 class S3(Upload):
     """
-    aws-cli wrapper
-    :ivar bucket: boto3 S3 bucket object
-    :ivar chunk_size: chunk size for calculating checksums
+    boto3 wrapper
+
+    Attributes
+        bucket(Any): boto3 S3 bucket object
+        chunk_size(int): chunk size for calculating checksums
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Upload.__init__(self, architecture, configuration)
         self.bucket = self.get_bucket(configuration, section)
@@ -53,9 +58,13 @@ class S3(Upload):
         calculate amazon s3 etag
         credits to https://teppen.io/2018/10/23/aws_s3_verify_etags/
         For this method we have to define nosec because it is out of any security context and provided by AWS
-        :param path: path to local file
-        :param chunk_size: read chunk size, which depends on client settings
-        :return: calculated entity tag for local file
+
+        Args:
+            path(Path): path to local file
+            chunk_size(int): read chunk size, which depends on client settings
+
+        Returns:
+            str: calculated entity tag for local file
         """
         md5s = []
         with path.open("rb") as local_file:
@@ -73,9 +82,13 @@ class S3(Upload):
     def get_bucket(configuration: Configuration, section: str) -> Any:
         """
         create resource client from configuration
-        :param configuration: configuration instance
-        :param section: settings section name
-        :return: amazon client
+
+        Args:
+            configuration(Configuration): configuration instance
+            section(str): settings section name
+
+        Returns:
+            Any: amazon client
         """
         client = boto3.resource(service_name="s3",
                                 region_name=configuration.get(section, "region"),
@@ -87,8 +100,10 @@ class S3(Upload):
     def files_remove(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
         """
         remove files which have been removed locally
-        :param local_files: map of local path object to its checksum
-        :param remote_objects: map of remote path object to the remote s3 object
+
+        Args:
+            local_files(Dict[Path, str]): map of local path object to its checksum
+            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, remote_object in remote_objects.items():
             if local_file in local_files:
@@ -98,9 +113,11 @@ class S3(Upload):
     def files_upload(self, path: Path, local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
         """
         upload changed files to s3
-        :param path: local path to sync
-        :param local_files: map of local path object to its checksum
-        :param remote_objects: map of remote path object to the remote s3 object
+
+        Args:
+            path(Path): local path to sync
+            local_files(Dict[Path, str]): map of local path object to its checksum
+            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, checksum in local_files.items():
             remote_object = remote_objects.get(local_file)
@@ -119,8 +136,12 @@ class S3(Upload):
     def get_local_files(self, path: Path) -> Dict[Path, str]:
         """
         get all local files and their calculated checksums
-        :param path: local path to sync
-        :return: map of path object to its checksum
+
+        Args:
+            path(Path): local path to sync
+
+        Returns:
+            Dict[Path, str]: map of path object to its checksum
         """
         return {
             local_file.relative_to(path): self.calculate_etag(local_file, self.chunk_size)
@@ -130,7 +151,9 @@ class S3(Upload):
     def get_remote_objects(self) -> Dict[Path, Any]:
         """
         get all remote objects and their checksums
-        :return: map of path object to the remote s3 object
+
+        Returns:
+            Dict[Path, Any]: map of path object to the remote s3 object
         """
         objects = self.bucket.objects.filter(Prefix=self.architecture)
         return {Path(item.key).relative_to(self.architecture): item for item in objects}
@@ -138,8 +161,10 @@ class S3(Upload):
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         sync data to remote server
-        :param path: local path to sync
-        :param built_packages: list of packages which has just been built
+
+        Args:
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         remote_objects = self.get_remote_objects()
         local_files = self.get_local_files(path)

@@ -27,15 +27,19 @@ from ahriman.models.property import Property
 class UpdatePrinter(StringPrinter):
     """
     print content of the package update
-    :ivar package: remote (new) package object
-    :ivar local_version: local version of the package if any
+
+    Attributes:
+        package(Package): remote (new) package object
+        local_version(Optional[str]): local version of the package if any
     """
 
     def __init__(self, remote: Package, local_version: Optional[str]) -> None:
         """
         default constructor
-        :param remote: remote (new) package object
-        :param local_version: local version of the package if any
+
+        Args:
+            remote(Package): remote (new) package object
+            local_version(Optional[str]): local version of the package if any
         """
         StringPrinter.__init__(self, remote.base)
         self.package = remote
@@ -44,6 +48,8 @@ class UpdatePrinter(StringPrinter):
     def properties(self) -> List[Property]:
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+            List[Property]: list of content properties
         """
         return [Property(self.local_version, self.package.version, is_required=True)]

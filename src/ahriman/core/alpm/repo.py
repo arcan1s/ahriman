@@ -30,11 +30,13 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Repo:
     """
     repo-add and repo-remove wrapper
-    :ivar logger: class logger
-    :ivar name: repository name
-    :ivar paths: repository paths instance
-    :ivar sign_args: additional args which have to be used to sign repository archive
-    :ivar uid: uid of the repository owner user
+
+    Attributes:
+        logger(logging.Logger): class logger
+        name(str): repository name
+        paths(RepositoryPaths): repository paths instance
+        sign_args(List[str]): additional args which have to be used to sign repository archive
+        uid(int): uid of the repository owner user
     """
 
     _check_output = check_output
@@ -42,9 +44,11 @@ class Repo:
     def __init__(self, name: str, paths: RepositoryPaths, sign_args: List[str]) -> None:
         """
         default constructor
-        :param name: repository name
-        :param paths: repository paths instance
-        :param sign_args: additional args which have to be used to sign repository archive
+
+        Args:
+            name(str): repository name
+            paths(RepositoryPaths): repository paths instance
+            sign_args(List[str]): additional args which have to be used to sign repository archive
         """
         self.logger = logging.getLogger("build_details")
         self.name = name
@@ -55,14 +59,19 @@ class Repo:
     @property
     def repo_path(self) -> Path:
         """
-        :return: path to repository database
+        get full path to the repository database
+
+        Returns:
+            Path: path to repository database
         """
         return self.paths.repository / f"{self.name}.db.tar.gz"
 
     def add(self, path: Path) -> None:
         """
         add new package to repository
-        :param path: path to archive to add
+
+        Args:
+            path(Path): path to archive to add
         """
         Repo._check_output(
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
@@ -85,8 +94,10 @@ class Repo:
     def remove(self, package: str, filename: Path) -> None:
         """
         remove package from repository
-        :param package: package name to remove
-        :param filename: package filename to remove
+
+        Args:
+            package(str): package name to remove
+            filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
         for full_path in self.paths.repository.glob(f"{filename}*"):

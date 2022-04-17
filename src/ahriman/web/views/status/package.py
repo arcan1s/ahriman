@@ -29,10 +29,12 @@ from ahriman.web.views.base import BaseView
 class PackageView(BaseView):
     """
     package base specific web view
-    :cvar DELETE_PERMISSION: delete permissions of self
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
-    :cvar POST_PERMISSION: post permissions of self
+
+    Attributes:
+        DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Write
@@ -41,7 +43,12 @@ class PackageView(BaseView):
     async def get(self) -> Response:
         """
         get current package base status
-        :return: 200 with package description on success
+
+        Returns:
+            Response: 200 with package description on success
+
+        Raises:
+            HTTPNotFound: if no package was found
         """
         base = self.request.match_info["package"]
 
@@ -58,28 +65,33 @@ class PackageView(BaseView):
         ]
         return json_response(response)
 
-    async def delete(self) -> Response:
+    async def delete(self) -> None:
         """
         delete package base from status page
-        :return: 204 on success
+
+        Raises:
+            HTTPNoContent: on success response
         """
         base = self.request.match_info["package"]
         self.service.remove(base)
 
         raise HTTPNoContent()
 
-    async def post(self) -> Response:
+    async def post(self) -> None:
         """
         update package build status
 
         JSON body must be supplied, the following model is used:
-        {
-            "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
-            "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
-                           # Must be supplied in case if package base is unknown
-        }
 
-        :return: 204 on success
+        >>> {
+        >>>     "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
+        >>>     "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
+        >>>                    # Must be supplied in case if package base is unknown
+        >>> }
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
         """
         base = self.request.match_info["package"]
         data = await self.extract_data()

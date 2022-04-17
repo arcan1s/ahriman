@@ -32,7 +32,9 @@ class BuildOperations(Operations):
     def build_queue_clear(self, package_base: Optional[str]) -> None:
         """
         remove packages from build queue
-        :param package_base: optional filter by package base
+
+        Args:
+            package_base(Optional[str]): optional filter by package base
         """
         def run(connection: Connection) -> None:
             connection.execute(
@@ -47,7 +49,9 @@ class BuildOperations(Operations):
     def build_queue_get(self) -> List[Package]:
         """
         retrieve packages from build queue
-        :return: list of packages to be built
+
+        Return:
+            List[Package]: list of packages to be built
         """
         def run(connection: Connection) -> List[Package]:
             return [
@@ -60,7 +64,9 @@ class BuildOperations(Operations):
     def build_queue_insert(self, package: Package) -> None:
         """
         insert packages to build queue
-        :param package: package to be inserted
+
+        Args:
+            package(Package): package to be inserted
         """
         def run(connection: Connection) -> None:
             connection.execute(

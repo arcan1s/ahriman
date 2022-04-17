@@ -39,21 +39,33 @@ class Packages(Properties):
     def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
-        :param result: build result
+
+        Args:
+            result(Result): build result
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
     def _known_packages(self) -> Set[str]:
         """
         load packages from repository and pacman repositories
-        :return: list of known packages
+
+        Returns:
+            Set[str]: list of known packages
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
     def _add_archive(self, source: str, *_: Any) -> None:
         """
         add package from archive
-        :param source: path to package archive
+
+        Args:
+            source(str): path to package archive
         """
         local_path = Path(source)
         dst = self.repository.paths.packages / local_path.name
@@ -62,9 +74,11 @@ class Packages(Properties):
     def _add_aur(self, source: str, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         add package from AUR
-        :param source: package base name
-        :param known_packages: list of packages which are known by the service
-        :param without_dependencies: if set, dependency check will be disabled
+
+        Args:
+            source(str): package base name
+            known_packages(Set[str]): list of packages which are known by the service
+            without_dependencies(bool): if set, dependency check will be disabled
         """
         package = Package.load(source, PackageSource.AUR, self.repository.pacman, self.repository.aur_url)
 
@@ -77,7 +91,9 @@ class Packages(Properties):
     def _add_directory(self, source: str, *_: Any) -> None:
         """
         add packages from directory
-        :param source: path to local directory
+
+        Args:
+            source(str): path to local directory
         """
         local_path = Path(source)
         for full_path in filter(package_like, local_path.iterdir()):
@@ -86,9 +102,11 @@ class Packages(Properties):
     def _add_local(self, source: str, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         add package from local PKGBUILDs
-        :param source: path to directory with local source files
-        :param known_packages: list of packages which are known by the service
-        :param without_dependencies: if set, dependency check will be disabled
+
+        Args:
+            source(str): path to directory with local source files
+            known_packages(Set[str]): list of packages which are known by the service
+            without_dependencies(bool): if set, dependency check will be disabled
         """
         package = Package.load(source, PackageSource.Local, self.repository.pacman, self.repository.aur_url)
         cache_dir = self.repository.paths.cache_for(package.base)
@@ -102,7 +120,9 @@ class Packages(Properties):
     def _add_remote(self, source: str, *_: Any) -> None:
         """
         add package from remote sources (e.g. HTTP)
-        :param remote_url: remote URL to the package archive
+
+        Args:
+            source(str): remote URL of the package archive
         """
         dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         response = requests.get(source, stream=True)
@@ -115,9 +135,11 @@ class Packages(Properties):
     def _process_dependencies(self, local_path: Path, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         process package dependencies
-        :param local_path: path to local package sources (i.e. cloned AUR repository)
-        :param known_packages: list of packages which are known by the service
-        :param without_dependencies: if set, dependency check will be disabled
+
+        Args:
+            local_path(Path): path to local package sources (i.e. cloned AUR repository)
+            known_packages(Set[str]): list of packages which are known by the service
+            without_dependencies(bool): if set, dependency check will be disabled
         """
         if without_dependencies:
             return
@@ -128,9 +150,11 @@ class Packages(Properties):
     def add(self, names: Iterable[str], source: PackageSource, without_dependencies: bool) -> None:
         """
         add packages for the next build
-        :param names: list of package bases to add
-        :param source: package source to add
-        :param without_dependencies: if set, dependency check will be disabled
+
+        Args:
+            names(Iterable[str]): list of package bases to add
+            source(PackageSource): package source to add
+            without_dependencies(bool): if set, dependency check will be disabled
         """
         known_packages = self._known_packages()  # speedup dependencies processing
 
@@ -142,7 +166,9 @@ class Packages(Properties):
     def remove(self, names: Iterable[str]) -> None:
         """
         remove packages from repository
-        :param names: list of packages (either base or name) to remove
+
+        Args:
+            names(Iterable[str]): list of packages (either base or name) to remove
         """
         self.repository.process_remove(names)
         self._finalize(Result())

@@ -42,11 +42,13 @@ class Patch(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
 
@@ -61,9 +63,11 @@ class Patch(Handler):
     def patch_set_create(application: Application, sources_dir: str, track: List[str]) -> None:
         """
         create patch set for the package base
-        :param application: application instance
-        :param sources_dir: path to directory with the package sources
-        :param track: track files which match the glob before creating the patch
+
+        Args:
+            application(Application): application instance
+            sources_dir(str): path to directory with the package sources
+            track(List[str]): track files which match the glob before creating the patch
         """
         package = Package.load(sources_dir, PackageSource.Local, application.repository.pacman,
                                application.repository.aur_url)
@@ -74,9 +78,11 @@ class Patch(Handler):
     def patch_set_list(application: Application, package_base: Optional[str], exit_code: bool) -> None:
         """
         list patches available for the package base
-        :param application: application instance
-        :param package_base: package base
-        :param exit_code: raise ExitCode on empty search result
+
+        Args:
+            application(Application): application instance
+            package_base(Optional[str]): package base
+            exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base)
         Patch.check_if_empty(exit_code, not patches)
@@ -89,7 +95,9 @@ class Patch(Handler):
     def patch_set_remove(application: Application, package_base: str) -> None:
         """
         remove patch set for the package base
-        :param application: application instance
-        :param package_base: package base
+
+        Args:
+            application(Application): application instance
+            package_base(str): package base
         """
         application.database.patches_remove(package_base)

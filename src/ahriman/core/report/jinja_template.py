@@ -35,38 +35,41 @@ class JinjaTemplate:
 
     It uses jinja2 templates for report generation, the following variables are allowed:
 
-        homepage - link to homepage, string, optional
-        link_path - prefix fo packages to download, string, required
-        has_package_signed - True in case if package sign enabled, False otherwise, required
-        has_repo_signed - True in case if repository database sign enabled, False otherwise, required
-        packages - sorted list of packages properties, required
-                   * architecture, string
-                   * archive_size, pretty printed size, string
-                   * build_date, pretty printed datetime, string
-                   * depends, sorted list of strings
-                   * description, string
-                   * filename, string,
-                   * groups, sorted list of strings
-                   * installed_size, pretty printed datetime, string
-                   * licenses, sorted list of strings
-                   * name, string
-                   * url, string
-                   * version, string
-        pgp_key - default PGP key ID, string, optional
-        repository - repository name, string, required
+        * homepage - link to homepage, string, optional
+        * link_path - prefix fo packages to download, string, required
+        * has_package_signed - True in case if package sign enabled, False otherwise, required
+        * has_repo_signed - True in case if repository database sign enabled, False otherwise, required
+        * packages - sorted list of packages properties, required
+            * architecture, string
+            * archive_size, pretty printed size, string
+            * build_date, pretty printed datetime, string
+            * depends, sorted list of strings
+            * description, string
+            * filename, string,
+            * groups, sorted list of strings
+            * installed_size, pretty printed datetime, string
+            * licenses, sorted list of strings
+            * name, string
+            * url, string
+            * version, string
+        * pgp_key - default PGP key ID, string, optional
+        * repository - repository name, string, required
 
-    :ivar homepage: homepage link if any (for footer)
-    :ivar link_path: prefix fo packages to download
-    :ivar name: repository name
-    :ivar default_pgp_key: default PGP key
-    :ivar sign_targets: targets to sign enabled in configuration
+    Attributes:
+        homepage(Optional[str]): homepage link if any (for footer)
+        link_path(str): prefix fo packages to download
+        name(str): repository name
+        default_pgp_key(Optional[str]): default PGP key
+        sign_targets(Set[SignSettings]): targets to sign enabled in configuration
     """
 
     def __init__(self, section: str, configuration: Configuration) -> None:
         """
         default constructor
-        :param section: settings section name
-        :param configuration: configuration instance
+
+        Args:
+            section(str): settings section name
+            configuration(Configuration): configuration instance
         """
         self.link_path = configuration.get(section, "link_path")
 
@@ -79,8 +82,10 @@ class JinjaTemplate:
     def make_html(self, result: Result, template_path: Path) -> str:
         """
         generate report for the specified packages
-        :param result: build result
-        :param template_path: path to jinja template
+
+        Args:
+            result(Result): build result
+            template_path(Path): path to jinja template
         """
         # idea comes from https://stackoverflow.com/a/38642558
         loader = jinja2.FileSystemLoader(searchpath=template_path.parent)

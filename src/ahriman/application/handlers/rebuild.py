@@ -38,11 +38,13 @@ class Rebuild(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         depends_on = set(args.depends_on) if args.depends_on else None
 
@@ -65,7 +67,11 @@ class Rebuild(Handler):
     def extract_packages(application: Application) -> List[Package]:
         """
         extract packages from database file
-        :param application: application instance
-        :return: list of packages which were stored in database
+
+        Args:
+            application(Application): application instance
+
+        Returns:
+            List[Package]: list of packages which were stored in database
         """
         return [package for (package, _) in application.database.packages_get()]

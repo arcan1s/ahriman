@@ -26,13 +26,17 @@ from ahriman.core.configuration import Configuration
 class Pacman:
     """
     alpm wrapper
-    :ivar handle: pyalpm root `Handle`
+
+    Attributes:
+        handle(Handle): pyalpm root `Handle`
     """
 
     def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
-        :param configuration: configuration instance
+
+        Args:
+            configuration(Configuration): configuration instance
         """
         root = configuration.get("alpm", "root")
         pacman_root = configuration.getpath("alpm", "database")
@@ -43,7 +47,9 @@ class Pacman:
     def all_packages(self) -> Set[str]:
         """
         get list of packages known for alpm
-        :return: list of package names
+
+        Returns:
+            Set[str]: list of package names
         """
         result: Set[str] = set()
         for database in self.handle.get_syncdbs():

@@ -26,14 +26,18 @@ from ahriman.models.property import Property
 class ConfigurationPrinter(StringPrinter):
     """
     print content of the configuration section
-    :ivar values: configuration values dictionary
+
+    Attributes:
+        values(Dict[str, str]): configuration values dictionary
     """
 
     def __init__(self, section: str, values: Dict[str, str]) -> None:
         """
         default constructor
-        :param section: section name
-        :param values: configuration values dictionary
+
+        Args:
+            section(str): section name
+            values(Dict[str, str]): configuration values dictionary
         """
         StringPrinter.__init__(self, f"[{section}]")
         self.values = values
@@ -41,7 +45,9 @@ class ConfigurationPrinter(StringPrinter):
     def properties(self) -> List[Property]:
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+            List[Property]: list of content properties
         """
         return [
             Property(key, value, is_required=True)

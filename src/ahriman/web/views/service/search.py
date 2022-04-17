@@ -29,8 +29,10 @@ from ahriman.web.views.base import BaseView
 class SearchView(BaseView):
     """
     AUR search web view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
+
+    Attributes:
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -41,7 +43,11 @@ class SearchView(BaseView):
 
         search string (non empty) must be supplied as `for` parameter
 
-        :return: 200 with found package bases and descriptions sorted by base
+        Returns:
+            Response: 200 with found package bases and descriptions sorted by base
+
+        Raises:
+            HTTPNotFound: if no packages found
         """
         search: List[str] = self.request.query.getall("for", default=[])
         packages = AUR.multisearch(*search)

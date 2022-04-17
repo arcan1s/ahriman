@@ -32,16 +32,21 @@ from ahriman.models.user_access import UserAccess
 class Auth:
     """
     helper to deal with user authorization
-    :ivar enabled: indicates if authorization is enabled
-    :ivar max_age: session age in seconds. It will be used for both client side and server side checks
-    :ivar safe_build_status: allow read only access to the index page
+
+    Attributes:
+        enabled(bool): indicates if authorization is enabled
+        logger(logging.Logger): class logger
+        max_age(int): session age in seconds. It will be used for both client side and server side checks
+        safe_build_status(bool): allow read only access to the index page
     """
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """
         default constructor
-        :param configuration: configuration instance
-        :param provider: authorization type definition
+
+        Args:
+            configuration(Configuration): configuration instance
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
         """
         self.logger = logging.getLogger("http")
 
@@ -57,7 +62,9 @@ class Auth:
         In case of internal authentication it must provide an interface (modal form) to login with button sends POST
         request. But for an external providers behaviour can be different: e.g. OAuth provider requires sending GET
         request to external resource
-        :return: login control as html code to insert
+
+        Returns:
+            str: login control as html code to insert
         """
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
 
@@ -65,9 +72,13 @@ class Auth:
     def load(cls: Type[Auth], configuration: Configuration, database: SQLite) -> Auth:
         """
         load authorization module from settings
-        :param configuration: configuration instance
-        :param database: database instance
-        :return: authorization module according to current settings
+
+        Args:
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+
+        Returns:
+            Auth: authorization module according to current settings
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
@@ -81,9 +92,13 @@ class Auth:
     async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         validate user password
-        :param username: username
-        :param password: entered password
-        :return: True in case if password matches, False otherwise
+
+        Args:
+            username(Optional[str]): username
+            password(Optional[str]): entered password
+
+        Returns:
+            bool: True in case if password matches, False otherwise
         """
         del username, password
         return True
@@ -91,8 +106,12 @@ class Auth:
     async def known_username(self, username: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         check if user is known
-        :param username: username
-        :return: True in case if user is known and can be authorized and False otherwise
+
+        Args:
+            username(Optional[str]): username
+
+        Returns:
+            bool: True in case if user is known and can be authorized and False otherwise
         """
         del username
         return True
@@ -100,10 +119,14 @@ class Auth:
     async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:  # pylint: disable=no-self-use
         """
         validate if user has access to requested resource
-        :param username: username
-        :param required: required access level
-        :param context: URI request path
-        :return: True in case if user is allowed to do this request and False otherwise
+
+        Args:
+            username(str): username
+            required(UserAccess): required access level
+            context(Optional[str]): URI request path
+
+        Returns:
+            bool: True in case if user is allowed to do this request and False otherwise
         """
         del username, required, context
         return True

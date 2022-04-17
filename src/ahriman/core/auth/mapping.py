@@ -31,17 +31,21 @@ from ahriman.models.user_access import UserAccess
 class Mapping(Auth):
     """
     user authorization based on mapping from configuration file
-    :ivar salt: random generated string to salt passwords
-    :ivar database: database instance
+
+    Attributes:
+        salt(str): random generated string to salt passwords
+        database(SQLite): database instance
     """
 
     def __init__(self, configuration: Configuration, database: SQLite,
                  provider: AuthSettings = AuthSettings.Configuration) -> None:
         """
         default constructor
-        :param configuration: configuration instance
-        :param database: database instance
-        :param provider: authorization type definition
+
+        Args:
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Configuration)
         """
         Auth.__init__(self, configuration, provider)
         self.database = database
@@ -50,9 +54,13 @@ class Mapping(Auth):
     async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
         """
         validate user password
-        :param username: username
-        :param password: entered password
-        :return: True in case if password matches, False otherwise
+
+        Args:
+            username(Optional[str]): username
+            password(Optional[str]): entered password
+
+        Returns:
+            bool: True in case if password matches, False otherwise
         """
         if username is None or password is None:
             return False  # invalid data supplied
@@ -62,26 +70,38 @@ class Mapping(Auth):
     def get_user(self, username: str) -> Optional[User]:
         """
         retrieve user from in-memory mapping
-        :param username: username
-        :return: user descriptor if username is known and None otherwise
+
+        Args:
+            username(str): username
+
+        Returns:
+            Optional[User]: user descriptor if username is known and None otherwise
         """
         return self.database.user_get(username)
 
     async def known_username(self, username: Optional[str]) -> bool:
         """
         check if user is known
-        :param username: username
-        :return: True in case if user is known and can be authorized and False otherwise
+
+        Args:
+            username(Optional[str]): username
+
+        Returns:
+            bool: True in case if user is known and can be authorized and False otherwise
         """
         return username is not None and self.get_user(username) is not None
 
     async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
         """
         validate if user has access to requested resource
-        :param username: username
-        :param required: required access level
-        :param context: URI request path
-        :return: True in case if user is allowed to do this request and False otherwise
+
+        Args:
+            username(str): username
+            required(UserAccess): required access level
+            context(Optional[str]): URI request path
+
+        Returns:
+            bool: True in case if user is allowed to do this request and False otherwise
         """
         user = self.get_user(username)
         return user is not None and user.verify_access(required)

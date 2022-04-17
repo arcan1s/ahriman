@@ -30,10 +30,12 @@ from ahriman.models.aur_package import AURPackage
 class AUR(Remote):
     """
     AUR RPC wrapper
-    :cvar DEFAULT_RPC_URL: default AUR RPC url
-    :cvar DEFAULT_RPC_VERSION: default AUR RPC version
-    :ivar rpc_url: AUR RPC url
-    :ivar rpc_version: AUR RPC version
+
+    Attributes:
+        DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
+        DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
+        rpc_url(str): AUR RPC url
+        rpc_version(str): AUR RPC version
     """
 
     DEFAULT_RPC_URL = "https://aur.archlinux.org/rpc"
@@ -42,8 +44,10 @@ class AUR(Remote):
     def __init__(self, rpc_url: Optional[str] = None, rpc_version: Optional[str] = None) -> None:
         """
         default constructor
-        :param rpc_url: AUR RPC url
-        :param rpc_version: AUR RPC version
+
+        Args:
+            rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
+            rpc_version(Optional[str], optional): AUR RPC version (Default value = None)
         """
         Remote.__init__(self)
         self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
@@ -53,8 +57,15 @@ class AUR(Remote):
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
         """
         parse RPC response to package list
-        :param response: RPC response json
-        :return: list of parsed packages
+
+        Args:
+            response(Dict[str, Any]): RPC response json
+
+        Returns:
+            List[AURPackage]: list of parsed packages
+
+        Raises:
+            InvalidPackageInfo: for error API response
         """
         response_type = response["type"]
         if response_type == "error":
@@ -65,10 +76,14 @@ class AUR(Remote):
     def make_request(self, request_type: str, *args: str, **kwargs: str) -> List[AURPackage]:
         """
         perform request to AUR RPC
-        :param request_type: AUR request type, e.g. search, info
-        :param args: list of arguments to be passed as args query parameter
-        :param kwargs: list of additional named parameters like by
-        :return: response parsed to package list
+
+        Args:
+            request_type(str): AUR request type, e.g. search, info
+            *args(str): list of arguments to be passed as args query parameter
+            **kwargs(str): list of additional named parameters like by
+
+        Returns:
+            List[AURPackage]: response parsed to package list
         """
         query: Dict[str, Any] = {
             "type": request_type,
@@ -98,8 +113,12 @@ class AUR(Remote):
     def package_info(self, package_name: str) -> AURPackage:
         """
         get package info by its name
-        :param package_name: package name to search
-        :return: package which match the package name
+
+        Args:
+            package_name(str): package name to search
+
+        Returns:
+            AURPackage: package which match the package name
         """
         packages = self.make_request("info", package_name)
         return next(package for package in packages if package.name == package_name)
@@ -107,7 +126,11 @@ class AUR(Remote):
     def package_search(self, *keywords: str) -> List[AURPackage]:
         """
         search package in AUR web
-        :param keywords: keywords to search
-        :return: list of packages which match the criteria
+
+        Args:
+            *keywords(str): keywords to search
+
+        Returns:
+            List[AURPackage]: list of packages which match the criteria
         """
         return self.make_request("search", *keywords, by="name-desc")

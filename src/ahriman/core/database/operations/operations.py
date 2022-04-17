@@ -31,14 +31,18 @@ T = TypeVar("T")
 class Operations:
     """
     base operation class
-    :ivar logger: class logger
-    :ivar path: path to the database file
+
+    Attributes:
+        logger(logging.Logger): class logger
+        path(Path): path to the database file
     """
 
     def __init__(self, path: Path) -> None:
         """
         default constructor
-        :param path: path to the database file
+
+        Args:
+            path(Path): path to the database file
         """
         self.path = path
         self.logger = logging.getLogger("database")
@@ -47,9 +51,13 @@ class Operations:
     def factory(cursor: Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:
         """
         dictionary factory based on official documentation
-        :param cursor: cursor descriptor
-        :param row: fetched row
-        :return: row converted to dictionary
+
+        Args:
+            cursor(Cursor): cursor descriptor
+            row(Tuple[Any, ...]): fetched row
+
+        Returns:
+            Dict[str, Any]: row converted to dictionary
         """
         result = {}
         for index, column in enumerate(cursor.description):
@@ -59,9 +67,13 @@ class Operations:
     def with_connection(self, query: Callable[[Connection], T], commit: bool = False) -> T:
         """
         perform operation in connection
-        :param query: function to be called with connection
-        :param commit: if True commit() will be called on success
-        :return: result of the `query` call
+
+        Args:
+            query(Callable[[Connection], T]): function to be called with connection
+            commit(bool, optional): if True commit() will be called on success (Default value = False)
+
+        Returns:
+            T: result of the `query` call
         """
         with sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES) as connection:
             connection.row_factory = self.factory

@@ -11,7 +11,14 @@ from ahriman.web.middlewares.auth_handler import AuthorizationPolicy
 def authorization_policy(configuration: Configuration, database: SQLite, user: User) -> AuthorizationPolicy:
     """
     fixture for authorization policy
-    :return: authorization policy fixture
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+        user(User): user fixture
+
+    Returns:
+        AuthorizationPolicy: authorization policy fixture
     """
     configuration.set_option("auth", "target", "configuration")
     validator = Auth.load(configuration, database)

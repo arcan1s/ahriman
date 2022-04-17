@@ -2,7 +2,6 @@ import pytest
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
-from ahriman.core.auth.auth import Auth
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
 from ahriman.core.tree import Leaf
@@ -14,8 +13,12 @@ from ahriman.models.repository_paths import RepositoryPaths
 def leaf_ahriman(package_ahriman: Package) -> Leaf:
     """
     fixture for tree leaf with package
-    :param package_ahriman: package fixture
-    :return: tree leaf test instance
+
+    Args:
+        package_ahriman(Package): package fixture
+
+    Returns:
+        Leaf: tree leaf test instance
     """
     return Leaf(package_ahriman, set())
 
@@ -24,8 +27,12 @@ def leaf_ahriman(package_ahriman: Package) -> Leaf:
 def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
     """
     fixture for tree leaf with package
-    :param package_python_schedule: package fixture
-    :return: tree leaf test instance
+
+    Args:
+        package_python_schedule(Package): package fixture
+
+    Returns:
+        Leaf: tree leaf test instance
     """
     return Leaf(package_python_schedule, set())
 
@@ -34,8 +41,12 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
 def pacman(configuration: Configuration) -> Pacman:
     """
     fixture for pacman wrapper
-    :param configuration: configuration fixture
-    :return: pacman wrapper test instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        Pacman: pacman wrapper test instance
     """
     return Pacman(configuration)
 
@@ -44,9 +55,13 @@ def pacman(configuration: Configuration) -> Pacman:
 def repo(configuration: Configuration, repository_paths: RepositoryPaths) -> Repo:
     """
     fixture for repository wrapper
-    :param configuration: configuration fixture
-    :param repository_paths: repository paths fixture
-    :return: repository wrapper test instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+        repository_paths(RepositoryPaths): repository paths fixture
+
+    Returns:
+        Repo: repository wrapper test instance
     """
     return Repo(configuration.get("repository", "name"), repository_paths, [])
 
@@ -55,9 +70,13 @@ def repo(configuration: Configuration, repository_paths: RepositoryPaths) -> Rep
 def task_ahriman(package_ahriman: Package, configuration: Configuration, repository_paths: RepositoryPaths) -> Task:
     """
     fixture for built task
-    :param package_ahriman: package fixture
-    :param configuration: configuration fixture
-    :param repository_paths: repository paths fixture
-    :return: built task test instance
+
+    Args:
+        package_ahriman(Package): package fixture
+        configuration(Configuration): configuration fixture
+        repository_paths(RepositoryPaths): repository paths fixture
+
+    Returns:
+        Task: built task test instance
     """
     return Task(package_ahriman, configuration, repository_paths)

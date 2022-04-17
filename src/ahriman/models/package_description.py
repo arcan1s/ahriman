@@ -31,17 +31,19 @@ from ahriman.core.util import filter_json
 class PackageDescription:
     """
     package specific properties
-    :ivar architecture: package architecture
-    :ivar archive_size: package archive size
-    :ivar build_date: package build date
-    :ivar depends: package dependencies list
-    :ivar description: package description
-    :ivar filename: package archive name
-    :ivar groups: package groups
-    :ivar installed_size: package installed size
-    :ivar licenses: package licenses list
-    :ivar provides: list of provided packages
-    :ivar url: package url
+
+    Attributes:
+        architecture(Optional[str]): package architecture
+        archive_size(Optional[int]): package archive size
+        build_date(Optional[int]): package build date
+        depends(List[str]): package dependencies list
+        description(Optional[str]): package description
+        filename(Optional[str]): package archive name
+        groups(List[str]): package groups
+        installed_size(Optional[int]): package installed size
+        licenses(List[str]): package licenses list
+        provides(List[str]): list of provided packages
+        url(Optional[str]): package url
     """
 
     architecture: Optional[str] = None
@@ -59,7 +61,10 @@ class PackageDescription:
     @property
     def filepath(self) -> Optional[Path]:
         """
-        :return: path object for current filename
+        wrapper for filename, convert it to Path object
+
+        Returns:
+            Optional[Path]: path object for current filename
         """
         return Path(self.filename) if self.filename is not None else None
 
@@ -67,8 +72,12 @@ class PackageDescription:
     def from_json(cls: Type[PackageDescription], dump: Dict[str, Any]) -> PackageDescription:
         """
         construct package properties from json dump
-        :param dump: json dump body
-        :return: package properties
+
+        Args:
+            dump(Dict[str, Any]): json dump body
+
+        Returns:
+            PackageDescription: package properties
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -78,9 +87,13 @@ class PackageDescription:
     def from_package(cls: Type[PackageDescription], package: Package, path: Path) -> PackageDescription:
         """
         construct class from alpm package class
-        :param package: alpm generated object
-        :param path: path to package archive
-        :return: package properties based on tarball
+
+        Args:
+            package(Package): alpm generated object
+            path(Path): path to package archive
+
+        Returns:
+            PackageDescription: package properties based on tarball
         """
         return cls(
             architecture=package.arch,
@@ -98,6 +111,8 @@ class PackageDescription:
     def view(self) -> Dict[str, Any]:
         """
         generate json package view
-        :return: json-friendly dictionary
+
+        Returns:
+            Dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

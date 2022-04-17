@@ -36,8 +36,12 @@ class Client:
     def load(cls: Type[Client], configuration: Configuration) -> Client:
         """
         load client from settings
-        :param configuration: configuration instance
-        :return: client according to current settings
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            Client: client according to current settings
         """
         address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
@@ -50,15 +54,21 @@ class Client:
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
-        :param package: package properties
-        :param status: current package build status
+
+        Args:
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
         """
 
     def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:  # pylint: disable=no-self-use
         """
         get package status
-        :param base: package base to get
-        :return: list of current package description and status if it has been found
+
+        Args:
+            base(Optional[str]): package base to get
+
+        Returns:
+            List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         del base
         return []
@@ -66,67 +76,87 @@ class Client:
     def get_internal(self) -> InternalStatus:  # pylint: disable=no-self-use
         """
         get internal service status
-        :return: current internal (web) service status
+
+        Returns:
+            InternalStatus: current internal (web) service status
         """
         return InternalStatus()
 
     def get_self(self) -> BuildStatus:  # pylint: disable=no-self-use
         """
         get ahriman status itself
-        :return: current ahriman status
+
+        Returns:
+            BuildStatus: current ahriman status
         """
         return BuildStatus()
 
     def remove(self, base: str) -> None:
         """
         remove packages from watcher
-        :param base: package base to remove
+
+        Args:
+            base(str): package base to remove
         """
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike `add` it does not update package properties
-        :param base: package base to update
-        :param status: current package build status
+
+        Args:
+            base(str): package base to update
+            status(BuildStatusEnum): current package build status
         """
 
     def update_self(self, status: BuildStatusEnum) -> None:
         """
         update ahriman status itself
-        :param status: current ahriman status
+
+        Args:
+            status(BuildStatusEnum): current ahriman status
         """
 
     def set_building(self, base: str) -> None:
         """
         set package status to building
-        :param base: package base to update
+
+        Args:
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Building)
 
     def set_failed(self, base: str) -> None:
         """
         set package status to failed
-        :param base: package base to update
+
+        Args:
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Failed)
 
     def set_pending(self, base: str) -> None:
         """
         set package status to pending
-        :param base: package base to update
+
+        Args:
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Pending)
 
     def set_success(self, package: Package) -> None:
         """
         set package status to success
-        :param package: current package properties
+
+        Args:
+            package(Package): current package properties
         """
         return self.add(package, BuildStatusEnum.Success)
 
     def set_unknown(self, package: Package) -> None:
         """
         set package status to unknown
-        :param package: current package properties
+
+        Args:
+            package(Package): current package properties
         """
         return self.add(package, BuildStatusEnum.Unknown)

@@ -8,6 +8,8 @@ from unittest.mock import MagicMock
 def connection() -> Connection:
     """
     mock object for sqlite3 connection
-    :return: sqlite3 connection test instance
+
+    Returns:
+        Connection: sqlite3 connection test instance
     """
     return MagicMock()

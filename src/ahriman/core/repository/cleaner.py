@@ -33,7 +33,12 @@ class Cleaner(Properties):
     def packages_built(self) -> List[Path]:
         """
         get list of files in built packages directory
-        :return: list of filenames from the directory
+
+        Returns:
+            List[Path]: list of filenames from the directory
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 

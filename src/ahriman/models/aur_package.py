@@ -32,26 +32,28 @@ from ahriman.core.util import filter_json, full_version
 class AURPackage:
     """
     AUR package descriptor
-    :ivar id: package ID
-    :ivar name: package name
-    :ivar package_base_id: package base ID
-    :ivar version: package base version
-    :ivar description: package base description
-    :ivar url: package upstream URL
-    :ivar num_votes: number of votes for the package
-    :ivar polularity: package popularity
-    :ivar out_of_date: package out of date timestamp if any
-    :ivar maintainer: package maintainer
-    :ivar first_submitted: timestamp of the first package submission
-    :ivar last_modified: timestamp of the last package submission
-    :ivar url_path: AUR package path
-    :ivar depends: list of package dependencies
-    :ivar make_depends: list of package make dependencies
-    :ivar opt_depends: list of package optional dependencies
-    :ivar conflicts: conflicts list for the package
-    :ivar provides: list of packages which this package provides
-    :ivar license: list of package licenses
-    :ivar keywords: list of package keywords
+
+    Attributes:
+        id(int): package ID
+        name(str): package name
+        package_base_id(int): package base ID
+        version(str): package base version
+        description(str): package base description
+        url(Optional[str]): package upstream URL
+        num_votes(int): number of votes for the package
+        polularity(float): package popularity
+        out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
+        maintainer(Optional[str]): package maintainer
+        first_submitted(datetime.datetime): timestamp of the first package submission
+        last_modified(datetime.datetime): timestamp of the last package submission
+        url_path(str): AUR package path
+        depends(List[str]): list of package dependencies
+        make_depends(List[str]): list of package make dependencies
+        opt_depends(List[str]): list of package optional dependencies
+        conflicts(List[str]): conflicts list for the package
+        provides(List[str]): list of packages which this package provides
+        license(List[str]): list of package licenses
+        keywords(List[str]): list of package keywords
     """
 
     id: int
@@ -80,8 +82,12 @@ class AURPackage:
     def from_json(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
         """
         construct package descriptor from RPC properties
-        :param dump: json dump body
-        :return: AUR package descriptor
+
+        Args:
+            dump(Dict[str, Any]): json dump body
+
+        Returns:
+            AURPackage: AUR package descriptor
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -92,8 +98,12 @@ class AURPackage:
     def from_repo(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
         """
         construct package descriptor from official repository RPC properties
-        :param dump: json dump body
-        :return: AUR package descriptor
+
+        Args:
+            dump(Dict[str, Any]): json dump body
+
+        Returns:
+            AURPackage: AUR package descriptor
         """
         return cls(
             id=0,
@@ -125,8 +135,12 @@ class AURPackage:
     def convert(descriptor: Dict[str, Any]) -> Dict[str, Any]:
         """
         covert AUR RPC key names to package keys
-        :param descriptor: RPC package descriptor
-        :return: package descriptor with names converted to snake case
+
+        Args:
+            descriptor(Dict[str, Any]): RPC package descriptor
+
+        Returns:
+            Dict[str, Any]: package descriptor with names converted to snake case
         """
         identity_mapper: Callable[[Any], Any] = lambda value: value
         value_mapper: Dict[str, Callable[[Any], Any]] = {

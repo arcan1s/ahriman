@@ -26,9 +26,11 @@ from typing import Type
 class SmtpSSLSettings(Enum):
     """
     SMTP SSL mode enumeration
-    :cvar Disabled: no SSL enabled
-    :cvar SSL: use SMTP_SSL instead of normal SMTP client
-    :cvar STARTTLS: use STARTTLS in normal SMTP client
+
+    Attributes:
+        Disabled(SmtpSSLSettings): (class attribute) no SSL enabled
+        SSL(SmtpSSLSettings): (class attribute) use SMTP_SSL instead of normal SMTP client
+        STARTTLS(SmtpSSLSettings): (class attribute) use STARTTLS in normal SMTP client
     """
 
     Disabled = "disabled"
@@ -39,8 +41,12 @@ class SmtpSSLSettings(Enum):
     def from_option(cls: Type[SmtpSSLSettings], value: str) -> SmtpSSLSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+            value(str): configuration value
+
+        Returns:
+            SmtpSSLSettings: parsed value
         """
         if value.lower() in ("ssl", "ssl/tls"):
             return cls.SSL

@@ -30,13 +30,17 @@ class StringPrinter(Printer):
     def __init__(self, content: str) -> None:
         """
         default constructor
-        :param content: any content string
+
+        Args:
+            content(str): any content string
         """
         self.content = content
 
     def title(self) -> Optional[str]:
         """
         generate entry title from content
-        :return: content title if it can be generated and None otherwise
+
+        Returns:
+            Optional[str]: content title if it can be generated and None otherwise
         """
         return self.content

@@ -23,9 +23,12 @@ from enum import Enum
 class UserAccess(Enum):
     """
     web user access enumeration
-    :cvar Safe: user can access the page without authorization, should not be user for user configuration
-    :cvar Read: user can read the page
-    :cvar Write: user can modify task and package list
+
+    Attributes:
+        Safe(UserAccess): (class attribute) user can access the page without authorization,
+            should not be used for user configuration
+        Read(UserAccess): (class attribute) user can read the page
+        Write(UserAccess): (class attribute) user can modify task and package list
     """
 
     Safe = "safe"

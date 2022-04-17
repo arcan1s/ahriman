@@ -13,8 +13,12 @@ from ahriman.web.middlewares.exception_handler import exception_handler
 def _extract_body(response: Any) -> Any:
     """
     extract json body from given object
-    :param response: response (any actually) object
-    :return: body key from the object converted to json
+
+    Args:
+        response(Any): response (any actually) object
+
+    Returns:
+        Any: body key from the object converted to json
     """
     return json.loads(getattr(response, "body"))
 

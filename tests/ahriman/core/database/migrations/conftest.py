@@ -9,7 +9,11 @@ from ahriman.core.database.migrations import Migrations
 def migrations(connection: Connection) -> Migrations:
     """
     fixture for migrations object
-    :param connection: sqlite connection fixture
-    :return: migrations test instance
+
+    Args:
+        connection(Connection): sqlite connection fixture
+
+    Returns:
+        Migrations: migrations test instance
     """
     return Migrations(connection)

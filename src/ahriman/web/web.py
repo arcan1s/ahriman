@@ -36,7 +36,9 @@ from ahriman.web.routes import setup_routes
 async def on_shutdown(application: web.Application) -> None:
     """
     web application shutdown handler
-    :param application: web application instance
+
+    Args:
+        application(web.Application): web application instance
     """
     application.logger.warning("server terminated")
 
@@ -44,7 +46,12 @@ async def on_shutdown(application: web.Application) -> None:
 async def on_startup(application: web.Application) -> None:
     """
     web application start handler
-    :param application: web application instance
+
+    Args:
+        application(web.Application): web application instance
+
+    Raises:
+        InitializeException: in case if matched could not be loaded
     """
     application.logger.info("server started")
     try:
@@ -58,7 +65,9 @@ async def on_startup(application: web.Application) -> None:
 def run_server(application: web.Application) -> None:
     """
     run web application
-    :param application: web application instance
+
+    Args:
+        application(web.Application): web application instance
     """
     application.logger.info("start server")
 
@@ -73,10 +82,14 @@ def run_server(application: web.Application) -> None:
 def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> web.Application:
     """
     create web application
-    :param architecture: repository architecture
-    :param configuration: configuration instance
-    :param spawner: spawner thread
-    :return: web application instance
+
+    Args:
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        spawner(Spawn): spawner thread
+
+    Returns:
+        web.Application: web application instance
     """
     application = web.Application(logger=logging.getLogger("http"))
     application.on_shutdown.append(on_shutdown)

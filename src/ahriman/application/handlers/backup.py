@@ -41,11 +41,13 @@ class Backup(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         backup_paths = Backup.get_paths(configuration)
         with TarFile(args.path, mode="w") as archive:  # well we don't actually use compression
@@ -56,8 +58,12 @@ class Backup(Handler):
     def get_paths(configuration: Configuration) -> Set[Path]:
         """
         extract paths to backup
-        :param configuration: configuration instance
-        :return: map of the filesystem paths
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            Set[Path]: map of the filesystem paths
         """
         paths = set(configuration.include.glob("*.ini"))
 

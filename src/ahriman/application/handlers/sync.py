@@ -28,7 +28,7 @@ from ahriman.core.configuration import Configuration
 
 class Sync(Handler):
     """
-    remove sync handler
+    remote sync handler
     """
 
     @classmethod
@@ -36,10 +36,12 @@ class Sync(Handler):
             configuration: Configuration, no_report: bool, unsafe: bool) -> None:
         """
         callback for command line
-        :param args: command line args
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param no_report: force disable reporting
-        :param unsafe: if set no user check will be performed before path creation
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         Application(architecture, configuration, no_report, unsafe).sync(args.target, [])

@@ -39,23 +39,39 @@ class Executor(Cleaner):
     def load_archives(self, packages: Iterable[Path]) -> List[Package]:
         """
         load packages from list of archives
-        :param packages: paths to package archives
-        :return: list of read packages
+
+        Args:
+            packages(Iterable[Path]): paths to package archives
+
+        Returns:
+            List[Package]: list of read packages
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
     def packages(self) -> List[Package]:
         """
         generate list of repository packages
-        :return: list of packages properties
+
+        Returns:
+            List[Package]: list of packages properties
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
     def process_build(self, updates: Iterable[Package]) -> Result:
         """
         build packages
-        :param updates: list of packages properties to build
-        :return: `packages_built`
+
+        Args:
+            updates(Iterable[Package]): list of packages properties to build
+
+        Returns:
+            Result: build result
         """
         def build_single(package: Package, local_path: Path) -> None:
             self.reporter.set_building(package.base)
@@ -82,8 +98,12 @@ class Executor(Cleaner):
     def process_remove(self, packages: Iterable[str]) -> Path:
         """
         remove packages from list
-        :param packages: list of package names or bases to remove
-        :return: path to repository database
+
+        Args:
+            packages(Iterable[str]): list of package names or bases to remove
+
+        Returns:
+            Path: path to repository database
         """
         def remove_base(package_base: str) -> None:
             try:
@@ -126,8 +146,11 @@ class Executor(Cleaner):
     def process_report(self, targets: Optional[Iterable[str]], result: Result) -> None:
         """
         generate reports
-        :param targets: list of targets to generate reports. Configuration option will be used if it is not set
-        :param result: build result
+
+        Args:
+            targets(Optional[Iterable[str]]): list of targets to generate reports. Configuration option will be used
+                if it is not set
+            result(Result): build result
         """
         if targets is None:
             targets = self.configuration.getlist("report", "target")
@@ -138,8 +161,11 @@ class Executor(Cleaner):
     def process_sync(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
         """
         process synchronization to remote servers
-        :param targets: list of targets to sync. Configuration option will be used if it is not set
-        :param built_packages: list of packages which has just been built
+
+        Args:
+            targets(Optional[Iterable[str]]): list of targets to sync. Configuration option will be used
+                if it is not set
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         if targets is None:
             targets = self.configuration.getlist("upload", "target")
@@ -150,8 +176,12 @@ class Executor(Cleaner):
     def process_update(self, packages: Iterable[Path]) -> Result:
         """
         sign packages, add them to repository and update repository database
-        :param packages: list of filenames to run
-        :return: path to repository database
+
+        Args:
+            packages(Iterable[Path]): list of filenames to run
+
+        Returns:
+            Result: path to repository database
         """
         def update_single(name: Optional[str], base: str) -> None:
             if name is None:
