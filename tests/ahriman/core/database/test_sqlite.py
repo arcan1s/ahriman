@@ -20,9 +20,5 @@ def test_init(database: SQLite, configuration: Configuration, mocker: MockerFixt
     must run migrations on init
     """
     migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
-    migrate_data_mock = mocker.patch("ahriman.core.database.sqlite.migrate_data")
-
     database.init(configuration)
-    migrate_schema_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-    migrate_data_mock.assert_called_once_with(
-        pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), configuration, configuration.repository_paths)
+    migrate_schema_mock.assert_called_once_with(pytest.helpers.anyvar(int), configuration)

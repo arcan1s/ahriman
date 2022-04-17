@@ -24,11 +24,10 @@ from ahriman.core.database.data.package_statuses import migrate_package_statuses
 from ahriman.core.database.data.patches import migrate_patches
 from ahriman.core.database.data.users import migrate_users_data
 from ahriman.models.migration_result import MigrationResult
-from ahriman.models.repository_paths import RepositoryPaths
 
 
-def migrate_data(result: MigrationResult, connection: Connection,
-                 configuration: Configuration, paths: RepositoryPaths) -> None:
+def migrate_data(
+        result: MigrationResult, connection: Connection, configuration: Configuration) -> None:
     """
     perform data migration
 
@@ -36,10 +35,11 @@ def migrate_data(result: MigrationResult, connection: Connection,
         result(MigrationResult): result of the schema migration
         connection(Connection): database connection
         configuration(Configuration): configuration instance
-        paths(RepositoryPaths): repository paths instance
     """
     # initial data migration
+    repository_paths = configuration.repository_paths
+
     if result.old_version <= 0:
-        migrate_package_statuses(connection, paths)
-        migrate_patches(connection, paths)
+        migrate_package_statuses(connection, repository_paths)
+        migrate_patches(connection, repository_paths)
         migrate_users_data(connection, configuration)

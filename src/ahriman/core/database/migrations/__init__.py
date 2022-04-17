@@ -27,6 +27,8 @@ from pkgutil import iter_modules
 from sqlite3 import Connection
 from typing import List, Type
 
+from ahriman.core.configuration import Configuration
+from ahriman.core.database.data import migrate_data
 from ahriman.models.migration import Migration
 from ahriman.models.migration_result import MigrationResult
 
@@ -37,32 +39,36 @@ class Migrations:
     idea comes from https://www.ash.dev/blog/simple-migration-system-in-sqlite/
 
     Attributes:
+        configuration(Configuration): configuration instance
         connection(Connection): database connection
         logger(logging.Logger): class logger
     """
 
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: Connection, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
             connection(Connection): database connection
+            configuration(Configuration): configuration instance
         """
         self.connection = connection
+        self.configuration = configuration
         self.logger = logging.getLogger("database")
 
     @classmethod
-    def migrate(cls: Type[Migrations], connection: Connection) -> MigrationResult:
+    def migrate(cls: Type[Migrations], connection: Connection, configuration: Configuration) -> MigrationResult:
         """
         perform migrations implicitly
 
         Args:
             connection(Connection): database connection
+            configuration(Configuration): configuration instance
 
         Returns:
             MigrationResult: current schema version
         """
-        return cls(connection).run()
+        return cls(connection, configuration).run()
 
     def migrations(self) -> List[Migration]:
         """
@@ -111,6 +117,8 @@ class Migrations:
                     for statement in migration.steps:
                         cursor.execute(statement)
                     self.logger.info("migration %s at index %s has been applied", migration.name, migration.index)
+
+                migrate_data(result, self.connection, self.configuration)
 
                 cursor.execute(f"pragma user_version = {expected_version}")  # no support for ? placeholders
             except Exception:

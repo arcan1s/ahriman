@@ -5,17 +5,18 @@ from sqlite3 import Connection
 from unittest import mock
 from unittest.mock import MagicMock
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
 from ahriman.models.migration import Migration
 from ahriman.models.migration_result import MigrationResult
 
 
-def test_migrate(connection: Connection, mocker: MockerFixture) -> None:
+def test_migrate(connection: Connection, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must perform migrations
     """
     run_mock = mocker.patch("ahriman.core.database.migrations.Migrations.run")
-    Migrations.migrate(connection)
+    Migrations.migrate(connection, configuration)
     run_mock.assert_called_once_with()
 
 
@@ -46,6 +47,7 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
                  return_value=[Migration(0, "test", ["select 1"])])
     migrations.connection.cursor.return_value = cursor
     validate_mock = mocker.patch("ahriman.models.migration_result.MigrationResult.validate")
+    migrate_data_mock = mocker.patch("ahriman.core.database.migrations.migrate_data")
 
     migrations.run()
     validate_mock.assert_called_once_with()
@@ -56,6 +58,7 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
         mock.call("commit"),
     ])
     cursor.close.assert_called_once_with()
+    migrate_data_mock.assert_called_once_with(MigrationResult(0, 1), migrations.connection, migrations.configuration)
 
 
 def test_run_migration_exception(migrations: Migrations, mocker: MockerFixture) -> None:

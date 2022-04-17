@@ -23,7 +23,6 @@ def test_migrate_patches(connection: Connection, repository_paths: RepositoryPat
     iterdir_mock.assert_called_once_with()
     read_mock.assert_called_once_with(encoding="utf8")
     connection.execute.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
-    connection.commit.assert_called_once_with()
 
 
 def test_migrate_patches_skip(connection: Connection, repository_paths: RepositoryPaths,
