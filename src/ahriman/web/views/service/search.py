@@ -31,8 +31,8 @@ class SearchView(BaseView):
     AUR search web view
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read

@@ -49,7 +49,7 @@ def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
         configuration(Configuration): configuration fixture
 
     Returns:
-      Lock: file lock test instance
+        Lock: file lock test instance
     """
     return Lock(args, "x86_64", configuration)
 

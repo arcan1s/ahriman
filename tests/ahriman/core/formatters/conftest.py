@@ -19,7 +19,7 @@ def aur_package_ahriman_printer(aur_package_ahriman: AURPackage) -> AurPrinter:
     fixture for AUR package printer
 
     Args:
-      aur_package_ahriman(AURPackage): AUR package fixture
+        aur_package_ahriman(AURPackage): AUR package fixture
 
     Returns:
         AurPrinter: AUR package printer test instance

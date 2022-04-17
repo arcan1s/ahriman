@@ -82,7 +82,7 @@ class Configuration(configparser.RawConfigParser):
     def repository_paths(self) -> RepositoryPaths:
         """
         Returns:
-          RepositoryPaths: repository paths instance
+            RepositoryPaths: repository paths instance
         """
         _, architecture = self.check_loaded()
         return RepositoryPaths(self.getpath("repository", "root"), architecture)

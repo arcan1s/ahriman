@@ -77,6 +77,6 @@ def task_ahriman(package_ahriman: Package, configuration: Configuration, reposit
         repository_paths(RepositoryPaths): repository paths fixture
 
     Returns:
-      Task: built task test instance
+        Task: built task test instance
     """
     return Task(package_ahriman, configuration, repository_paths)

@@ -28,7 +28,7 @@ class ConfigurationPrinter(StringPrinter):
     print content of the configuration section
 
     Attributes:
-      values(Dict[str, str]): configuration values dictionary
+        values(Dict[str, str]): configuration values dictionary
     """
 
     def __init__(self, section: str, values: Dict[str, str]) -> None:

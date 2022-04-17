@@ -31,12 +31,12 @@ class Remote:
     base class for remote package search
 
     Attributes:
-      logger(logging.Logger): class logger
+        logger(logging.Logger): class logger
     """
 
     def __init__(self) -> None:
         """
-            default constructor
+        default constructor
         """
         self.logger = logging.getLogger("build_details")
 

@@ -33,10 +33,10 @@ def migrate_data(result: MigrationResult, connection: Connection,
     perform data migration
 
     Args:
-      result(MigrationResult): result of the schema migration
-      connection(Connection): database connection
-      configuration(Configuration): configuration instance
-      paths(RepositoryPaths): repository paths instance
+        result(MigrationResult): result of the schema migration
+        connection(Connection): database connection
+        configuration(Configuration): configuration instance
+        paths(RepositoryPaths): repository paths instance
     """
     # initial data migration
     if result.old_version <= 0:
