@@ -46,7 +46,7 @@ class S3(Upload):
         Args:
           architecture(str): repository architecture
           configuration(Configuration): configuration instance
-          section(str): 
+          section(str): settings section name
         """
         Upload.__init__(self, architecture, configuration)
         self.bucket = self.get_bucket(configuration, section)

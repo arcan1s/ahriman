@@ -42,6 +42,9 @@ class Packages(Properties):
 
         Args:
           result(Result): build result
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -51,6 +54,9 @@ class Packages(Properties):
 
         Returns:
           Set[str]: list of known packages
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -116,7 +122,7 @@ class Packages(Properties):
         add package from remote sources (e.g. HTTP)
 
         Args:
-          source(str): 
+          source(str): remote URL of the package archive
         """
         dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         response = requests.get(source, stream=True)

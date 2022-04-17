@@ -54,6 +54,9 @@ class PackagesView(BaseView):
     async def post(self) -> None:
         """
         reload all packages from repository. No parameters supported here
+
+        Raises:
+          HTTPNoContent: on success response
         """
         self.service.load()
 

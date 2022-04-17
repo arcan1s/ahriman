@@ -1,15 +1,11 @@
-import pytest
-
-from ahriman.core.exceptions import InvalidOption
 from ahriman.models.report_settings import ReportSettings
 
 
 def test_from_option_invalid() -> None:
     """
-    must raise exception on invalid option
+    must return disabled on invalid option
     """
-    with pytest.raises(InvalidOption, match=".* `invalid`$"):
-        ReportSettings.from_option("invalid")
+    assert ReportSettings.from_option("invalid") == ReportSettings.Disabled
 
 
 def test_from_option_valid() -> None:

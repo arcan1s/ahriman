@@ -75,6 +75,9 @@ class Search(Handler):
 
         Returns:
           List[AURPackage]: sorted list for packages
+
+        Raises:
+          InvalidOption: if search fields is not in list of allowed ones
         """
         if sort_by not in Search.SORT_FIELDS:
             raise InvalidOption(sort_by)

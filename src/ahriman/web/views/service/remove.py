@@ -36,11 +36,15 @@ class RemoveView(BaseView):
     async def post(self) -> None:
         """
         remove existing packages
-        
+
         JSON body must be supplied, the following model is used:
         {
             "packages": "ahriman",   # either list of packages or package name
         }
+
+        Raises:
+          HTTPBadRequest: if bad data is supplied
+          HTTPFound: in case of success response
         """
         try:
             data = await self.extract_data(["packages"])

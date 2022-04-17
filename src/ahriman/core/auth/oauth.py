@@ -79,6 +79,9 @@ class OAuth(Mapping):
 
         Returns:
           Type[aioauth_client.OAuth2Client]: loaded provider type
+
+        Raises:
+          InvalidOption: in case if invalid OAuth provider name supplied
         """
         provider: Type[aioauth_client.OAuth2Client] = getattr(aioauth_client, name)
         try:

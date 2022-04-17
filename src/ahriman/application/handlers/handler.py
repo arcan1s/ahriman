@@ -53,6 +53,9 @@ class Handler:
 
         Returns:
           List[str]: list of architectures for which tree is created
+
+        Raises:
+          MissingArchitecture: if no architecture set and automatic detection is not allowed or failed
         """
         if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
             # for some parsers (e.g. config) we need to run with specific architecture
@@ -105,6 +108,9 @@ class Handler:
 
         Returns:
           int: 0 on success, 1 otherwise
+
+        Raises:
+          MultipleArchitectures: if more than one architecture supplied and no multi architecture supported
         """
         architectures = cls.architectures_extract(args)
 
@@ -133,6 +139,9 @@ class Handler:
           configuration(Configuration): configuration instance
           no_report(bool): force disable reporting
           unsafe(bool): if set no user check will be performed before path creation
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -144,6 +153,9 @@ class Handler:
         Args:
           enabled(bool): if False no check will be performed
           predicate(bool): indicates condition on which exception should be thrown
+
+        Raises:
+          ExitCode: if result is empty and check is enabled
         """
         if enabled and predicate:
             raise ExitCode()

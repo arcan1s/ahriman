@@ -37,6 +37,9 @@ class LogoutView(BaseView):
     async def post(self) -> None:
         """
         logout user from the service. No parameters supported here
+
+        Raises:
+          HTTPFound: on success response
         """
         await check_authorized(self.request)
         await forget(self.request, HTTPFound("/"))

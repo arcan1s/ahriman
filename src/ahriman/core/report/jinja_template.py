@@ -32,9 +32,9 @@ from ahriman.models.sign_settings import SignSettings
 class JinjaTemplate:
     """
     jinja based report generator
-    
+
     It uses jinja2 templates for report generation, the following variables are allowed:
-    
+
         homepage - link to homepage, string, optional
         link_path - prefix fo packages to download, string, required
         has_package_signed - True in case if package sign enabled, False otherwise, required

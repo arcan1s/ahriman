@@ -31,9 +31,9 @@ from ahriman.web.views.base import BaseView
 class IndexView(BaseView):
     """
     root view
-    
+
     It uses jinja2 templates for report generation, the following variables are allowed:
-    
+
         architecture - repository architecture, string, required
         auth - authorization descriptor, required
                    * authenticated - alias to check if user can see the page, boolean, required

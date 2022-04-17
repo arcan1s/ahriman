@@ -49,6 +49,9 @@ async def on_startup(application: web.Application) -> None:
 
     Args:
       application(web.Application): web application instance
+
+    Raises:
+      InitializeException: in case if matched could not be loaded
     """
     application.logger.info("server started")
     try:

@@ -22,13 +22,11 @@ from __future__ import annotations
 from enum import Enum
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
-
 
 class ReportSettings(Enum):
     """
     report targets enumeration
-    
+
     Attributes:
       Disabled(ReportSettings): (class attribute) option which generates no report for testing purpose
       HTML(ReportSettings): (class attribute) html report generation
@@ -62,4 +60,4 @@ class ReportSettings(Enum):
             return cls.Console
         if value.lower() in ("telegram",):
             return cls.Telegram
-        raise InvalidOption(value)
+        return cls.Disabled

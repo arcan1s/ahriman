@@ -97,6 +97,9 @@ class Report:
         Args:
           packages(Iterable[Package]): list of packages to generate report
           result(Result): build result
+
+        Raises:
+          ReportFailed: in case of any report unmatched exception
         """
         try:
             self.generate(packages, result)

@@ -22,13 +22,11 @@ from __future__ import annotations
 from enum import Enum
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
-
 
 class UploadSettings(Enum):
     """
     remote synchronization targets enumeration
-    
+
     Attributes:
       Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
       Rsync(UploadSettings): (class attribute) sync via rsync
@@ -58,4 +56,4 @@ class UploadSettings(Enum):
             return cls.S3
         if value.lower() in ("github",):
             return cls.Github
-        raise InvalidOption(value)
+        return cls.Disabled

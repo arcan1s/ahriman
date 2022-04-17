@@ -40,6 +40,9 @@ class MigrationResult:
         """
         Returns:
           bool: True in case if it requires migrations and False otherwise
+
+        Raises:
+          MigrationError: if old version is newer than new one or negative
         """
         self.validate()
         return self.new_version > self.old_version

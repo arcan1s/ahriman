@@ -220,7 +220,7 @@ def database(configuration: Configuration) -> SQLite:
     database fixture
 
     Args:
-      configuration(Configuration): 
+      configuration(Configuration): configuration fixture
 
     Returns:
       SQLite: database test instance

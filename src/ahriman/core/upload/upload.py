@@ -85,6 +85,9 @@ class Upload:
         Args:
           path(Path): local path to sync
           built_packages(Iterable[Package]): list of packages which has just been built
+
+        Raises:
+          SyncFailed: in case of any synchronization unmatched exception
         """
         try:
             self.sync(path, built_packages)

@@ -32,7 +32,7 @@ from ahriman.models.package import Package
 class Watcher:
     """
     package status watcher
-    
+
     Attributes:
       architecture(str): repository architecture
       database(SQLite): database instance
@@ -73,10 +73,13 @@ class Watcher:
         get current package base build status
 
         Args:
-          base(str): 
+          base(str): package base
 
         Returns:
           Tuple[Package, BuildStatus]: package and its status
+
+        Raises:
+          UnknownPackage: if no package found
         """
         try:
             return self.known[base]
@@ -117,6 +120,9 @@ class Watcher:
           package_base(str): package base to update
           status(BuildStatusEnum): new build status
           package(Optional[Package]): optional new package description. In case if not set current properties will be used
+
+        Raises:
+          UnknownPackage: if no package found
         """
         if package is None:
             try:

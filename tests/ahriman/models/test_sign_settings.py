@@ -1,15 +1,11 @@
-import pytest
-
-from ahriman.core.exceptions import InvalidOption
 from ahriman.models.sign_settings import SignSettings
 
 
 def test_from_option_invalid() -> None:
     """
-    must raise exception on invalid option
+    must return disabled on invalid option
     """
-    with pytest.raises(InvalidOption, match=".* `invalid`$"):
-        SignSettings.from_option("invalid")
+    assert SignSettings.from_option("invalid") == SignSettings.Disabled
 
 
 def test_from_option_valid() -> None:

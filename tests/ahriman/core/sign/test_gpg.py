@@ -4,6 +4,7 @@ import requests
 from pathlib import Path
 from pytest_mock import MockerFixture
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
 from ahriman.models.sign_settings import SignSettings
 
@@ -61,6 +62,18 @@ def test_sign_command(gpg_with_key: GPG) -> None:
     must generate sign command
     """
     assert gpg_with_key.sign_command(Path("a"), gpg_with_key.default_key)
+
+
+def test_sign_options(configuration: Configuration) -> None:
+    """
+    must correctly parse sign options
+    """
+    configuration.set_option("sign", "target", "repository disabled")
+    configuration.set_option("sign", "key", "default-key")
+
+    target, default_key = GPG.sign_options(configuration)
+    assert target == {SignSettings.Repository}
+    assert default_key == "default-key"
 
 
 def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:

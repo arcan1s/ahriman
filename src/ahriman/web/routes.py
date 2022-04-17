@@ -36,34 +36,34 @@ from ahriman.web.views.user.logout import LogoutView
 def setup_routes(application: Application, static_path: Path) -> None:
     """
     setup all defined routes
-    
+
     Available routes are:
-    
+
         GET /                                  get build status page
         GET /index.html                        same as above
-    
+
         POST /service-api/v1/add               add new packages to repository
-    
+
         POST /service-api/v1/remove            remove existing package from repository
-    
+
         POST /service-api/v1/request           request to add new packages to repository
-    
+
         GET /service-api/v1/search             search for substring in AUR
-    
+
         POST /service-api/v1/update            update packages in repository, actually it is just alias for add
-    
+
         GET /status-api/v1/ahriman             get current service status
         POST /status-api/v1/ahriman            update service status
-    
+
         GET /status-api/v1/packages            get all known packages
         POST /status-api/v1/packages           force update every package from repository
-    
+
         DELETE /status-api/v1/package/:base    delete package base from status page
         GET /status-api/v1/package/:base       get package base status
         POST /status-api/v1/package/:base      update package base status
-    
+
         GET /status-api/v1/status              get web service status itself
-    
+
         GET /user-api/v1/login                 OAuth2 handler for login
         POST /user-api/v1/login                login to service
         POST /user-api/v1/logout               logout from service

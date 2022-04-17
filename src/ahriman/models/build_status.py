@@ -31,7 +31,7 @@ from ahriman.core.util import filter_json, pretty_datetime
 class BuildStatusEnum(Enum):
     """
     build status enumeration
-    
+
     Attributes:
       Unknown(BuildStatusEnum): (class attribute) build status is unknown
       Pending(BuildStatusEnum): (class attribute) package is out-of-dated and will be built soon

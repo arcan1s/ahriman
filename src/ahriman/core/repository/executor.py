@@ -45,6 +45,9 @@ class Executor(Cleaner):
 
         Returns:
           List[Package]: list of read packages
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -54,6 +57,9 @@ class Executor(Cleaner):
 
         Returns:
           List[Package]: list of packages properties
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 

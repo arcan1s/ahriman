@@ -32,7 +32,7 @@ from ahriman.core.util import check_user
 class Properties:
     """
     repository internal objects holder
-    
+
     Attributes:
       architecture(str): repository architecture
       aur_url(str): base AUR url

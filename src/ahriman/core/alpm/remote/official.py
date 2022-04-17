@@ -58,6 +58,9 @@ class Official(Remote):
 
         Returns:
           List[AURPackage]: list of parsed packages
+
+        Raises:
+          InvalidPackageInfo: for error API response
         """
         if not response["valid"]:
             raise InvalidPackageInfo("API validation error")

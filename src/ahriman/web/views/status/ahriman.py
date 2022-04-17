@@ -49,11 +49,15 @@ class AhrimanView(BaseView):
     async def post(self) -> None:
         """
         update service status
-        
+
         JSON body must be supplied, the following model is used:
         {
             "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
         }
+
+        Raises:
+          HTTPBadRequest: if bad data is supplied
+          HTTPNoContent: in case of success response
         """
         try:
             data = await self.extract_data()

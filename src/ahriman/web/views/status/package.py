@@ -46,6 +46,9 @@ class PackageView(BaseView):
 
         Returns:
           Response: 200 with package description on success
+
+        Raises:
+          HTTPNotFound: if no package was found
         """
         base = self.request.match_info["package"]
 
@@ -65,6 +68,9 @@ class PackageView(BaseView):
     async def delete(self) -> None:
         """
         delete package base from status page
+
+        Raises:
+          HTTPNoContent: on success response
         """
         base = self.request.match_info["package"]
         self.service.remove(base)
@@ -74,13 +80,17 @@ class PackageView(BaseView):
     async def post(self) -> None:
         """
         update package build status
-        
+
         JSON body must be supplied, the following model is used:
         {
             "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
             "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
                            # Must be supplied in case if package base is unknown
         }
+
+        Raises:
+          HTTPBadRequest: if bad data is supplied
+          HTTPNoContent: in case of success response
         """
         base = self.request.match_info["package"]
         data = await self.extract_data()

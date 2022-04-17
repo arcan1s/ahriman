@@ -166,7 +166,7 @@ class Sources:
 
         Args:
           sources_dir(Path): local path to git repository
-          *pattern(str): 
+          *pattern(str): glob patterns
 
         Returns:
           str: patch as plain text

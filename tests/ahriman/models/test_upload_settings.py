@@ -1,15 +1,11 @@
-import pytest
-
-from ahriman.core.exceptions import InvalidOption
 from ahriman.models.upload_settings import UploadSettings
 
 
 def test_from_option_invalid() -> None:
     """
-    must raise exception on invalid option
+    must return disabled on invalid option
     """
-    with pytest.raises(InvalidOption, match=".* `invalid`$"):
-        UploadSettings.from_option("invalid")
+    assert UploadSettings.from_option("invalid") == UploadSettings.Disabled
 
 
 def test_from_option_valid() -> None:

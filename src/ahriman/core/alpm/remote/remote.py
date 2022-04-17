@@ -98,6 +98,9 @@ class Remote:
 
         Returns:
           AURPackage: package which match the package name
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -110,5 +113,8 @@ class Remote:
 
         Returns:
           List[AURPackage]: list of packages which match the criteria
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError

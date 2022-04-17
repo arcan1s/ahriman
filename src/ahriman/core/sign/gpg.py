@@ -94,10 +94,12 @@ class GPG:
         Returns:
           Tuple[Set[SignSettings], Optional[str]]: tuple of sign targets and default PGP key
         """
-        targets = {
-            SignSettings.from_option(option)
-            for option in configuration.getlist("sign", "target")
-        }
+        targets: Set[SignSettings] = set()
+        for option in configuration.getlist("sign", "target"):
+            target = SignSettings.from_option(option)
+            if target == SignSettings.Disabled:
+                continue
+            targets.add(target)
         default_key = configuration.get("sign", "key") if targets else None
         return targets, default_key
 

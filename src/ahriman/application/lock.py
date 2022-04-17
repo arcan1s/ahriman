@@ -65,7 +65,7 @@ class Lock:
     def __enter__(self) -> Lock:
         """
         default workflow is the following:
-        
+
             check user UID
             check if there is lock file
             check web status watcher status
@@ -124,6 +124,9 @@ class Lock:
     def create(self) -> None:
         """
         create lock file
+
+        Raises:
+          DuplicateRun: if lock exists and no force flag supplied
         """
         if self.path is None:
             return

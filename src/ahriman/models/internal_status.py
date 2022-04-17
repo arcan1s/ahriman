@@ -29,7 +29,7 @@ from ahriman.models.counters import Counters
 class InternalStatus:
     """
     internal server status
-    
+
     Attributes:
       architecture(Optional[str]): repository architecture
       packages(Counters): packages statuses counter object

@@ -36,6 +36,9 @@ class UpdateHandler(Cleaner):
 
         Returns:
           List[Package]: list of packages properties
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 

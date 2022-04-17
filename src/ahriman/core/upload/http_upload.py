@@ -102,7 +102,7 @@ class HttpUpload(Upload):
         Args:
           method(str): request method
           url(str): request url
-          **kwargs(Any): 
+          **kwargs(Any): request parameters to be passed as is
 
         Returns:
           requests.Response: request response object

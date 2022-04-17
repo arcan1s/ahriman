@@ -63,6 +63,9 @@ class AUR(Remote):
 
         Returns:
           List[AURPackage]: list of parsed packages
+
+        Raises:
+          InvalidPackageInfo: for error API response
         """
         response_type = response["type"]
         if response_type == "error":

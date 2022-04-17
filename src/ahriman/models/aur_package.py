@@ -32,7 +32,7 @@ from ahriman.core.util import filter_json, full_version
 class AURPackage:
     """
     AUR package descriptor
-    
+
     Attributes:
       id(int): package ID
       name(str): package name

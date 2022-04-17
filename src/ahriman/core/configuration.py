@@ -34,7 +34,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Configuration(configparser.RawConfigParser):
     """
     extension for built-in configuration parser
-    
+
     Attributes:
       ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific (required by dump)
       DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
@@ -115,6 +115,9 @@ class Configuration(configparser.RawConfigParser):
 
         Returns:
           List[str]: list of string from the parsed string
+
+        Raises:
+          ValueError: in case if option value contains unclosed quotes
         """
         def generator() -> Generator[str, None, None]:
             quote_mark = None
@@ -170,6 +173,9 @@ class Configuration(configparser.RawConfigParser):
 
         Returns:
           Tuple[Path, str]: configuration root path and architecture if loaded
+
+        Raises:
+          InitializeException: in case if architecture and/or path are not set
         """
         if self.path is None or self.architecture is None:
             raise InitializeException("Configuration path and/or architecture are not set")
@@ -204,6 +210,9 @@ class Configuration(configparser.RawConfigParser):
 
         Returns:
           Tuple[str, str]: section name and found type name
+
+        Raises:
+          configparser.NoSectionError: in case if no section found
         """
         group_type = self.get(section, "type", fallback=None)  # new-style logic
         if group_type is not None:

@@ -48,6 +48,9 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
 
     Returns:
       str: command output
+
+    Raises:
+      subprocess.CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
     """
     def log(single: str) -> None:
         if logger is not None:
@@ -91,6 +94,9 @@ def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
     Args:
       paths(RepositoryPaths): repository paths object
       unsafe(bool): if set no user check will be performed before path creation
+
+    Raises:
+      UnsafeRun: if root uid differs from current uid and check is enabled
     """
     if not paths.root.exists():
         return  # no directory found, skip check
@@ -187,6 +193,9 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
 
     Returns:
       str: pretty printable size as string
+
+    Raises:
+      InvalidOption: if size is more than 1TiB
     """
     def str_level() -> str:
         if level == 0:

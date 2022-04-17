@@ -39,9 +39,14 @@ class LoginView(BaseView):
     async def get(self) -> None:
         """
         OAuth2 response handler
-        
+
         In case if code provided it will do a request to get user email. In case if no code provided it will redirect
         to authorization url provided by OAuth client
+
+        Raises:
+          HTTPFound: on success response
+          HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
+          HTTPUnauthorized: if case of authorization error
         """
         from ahriman.core.auth.oauth import OAuth
 
@@ -65,12 +70,16 @@ class LoginView(BaseView):
     async def post(self) -> None:
         """
         login user to service
-        
+
         either JSON body or form data must be supplied the following fields are required:
         {
             "username": "username"  # username to use for login
             "password": "pa55w0rd"  # password to use for login
         }
+
+        Raises:
+          HTTPFound: on success response
+          HTTPUnauthorized: if case of authorization error
         """
         data = await self.extract_data()
         username = data.get("username")

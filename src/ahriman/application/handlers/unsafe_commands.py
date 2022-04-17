@@ -24,7 +24,6 @@ from typing import List, Type
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import ExitCode
 from ahriman.core.formatters.string_printer import StringPrinter
 
 
@@ -67,8 +66,7 @@ class UnsafeCommands(Handler):
           parser(argparse.ArgumentParser): generated argument parser
         """
         args = parser.parse_args(shlex.split(command))
-        if args.command in unsafe_commands:
-            raise ExitCode()
+        UnsafeCommands.check_if_empty(True, args.command in unsafe_commands)
 
     @staticmethod
     def get_unsafe_commands(parser: argparse.ArgumentParser) -> List[str]:

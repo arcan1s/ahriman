@@ -31,7 +31,7 @@ from ahriman.core.util import filter_json
 class PackageDescription:
     """
     package specific properties
-    
+
     Attributes:
       architecture(Optional[str]): package architecture
       archive_size(Optional[int]): package archive size

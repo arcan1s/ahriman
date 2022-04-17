@@ -82,7 +82,7 @@ class Repository(Executor, UpdateHandler):
         extract list of packages which depends on specified package
 
         Args:
-          depends_on(Optional[Iterable[str]]): 
+          depends_on(Optional[Iterable[str]]): dependencies of the packages
 
         Returns:
           List[Package]: list of repository packages which depend on specified packages

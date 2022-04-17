@@ -22,8 +22,6 @@ from __future__ import annotations
 from enum import Enum
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
-
 
 class AuthSettings(Enum):
     """
@@ -50,13 +48,11 @@ class AuthSettings(Enum):
         Returns:
           AuthSettings: parsed value
         """
-        if value.lower() in ("disabled", "no"):
-            return cls.Disabled
         if value.lower() in ("configuration", "mapping"):
             return cls.Configuration
         if value.lower() in ('oauth', 'oauth2'):
             return cls.OAuth
-        raise InvalidOption(value)
+        return cls.Disabled
 
     @property
     def is_enabled(self) -> bool:

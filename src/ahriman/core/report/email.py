@@ -36,7 +36,7 @@ from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 class Email(Report, JinjaTemplate):
     """
     email report generator
-    
+
     Attributes:
       full_template_path(Path): path to template for full package list
       host(str): SMTP host to connect

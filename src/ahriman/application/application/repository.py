@@ -41,6 +41,9 @@ class Repository(Properties):
 
         Args:
           result(Result): build result
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -187,7 +190,7 @@ class Repository(Properties):
           no_manual(bool): do not check for manual updates
           no_vcs(bool): do not check VCS packages
           log_fn(Callable[[str]): logger function to log updates
-          None]: 
+          None]:
 
         Returns:
           List[Package]: list of out-of-dated packages

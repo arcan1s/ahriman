@@ -82,7 +82,7 @@ class Patch(Handler):
         Args:
           application(Application): application instance
           package_base(Optional[str]): package base
-          exit_code(bool): raise ExitCode on empty search result
+          exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base)
         Patch.check_if_empty(exit_code, not patches)

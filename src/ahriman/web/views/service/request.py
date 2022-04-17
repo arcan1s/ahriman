@@ -36,11 +36,15 @@ class RequestView(BaseView):
     async def post(self) -> None:
         """
         request to add new package
-        
+
         JSON body must be supplied, the following model is used:
         {
             "packages": "ahriman"   # either list of packages or package name as in AUR
         }
+
+        Raises:
+          HTTPBadRequest: if bad data is supplied
+          HTTPFound: in case of success response
         """
         try:
             data = await self.extract_data(["packages"])

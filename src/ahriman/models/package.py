@@ -161,6 +161,9 @@ class Package:
 
         Returns:
           Package: package properties
+
+        Raises:
+          InvalidPackageInfo: if there are parsing errors
         """
         srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
         if errors:
@@ -219,6 +222,9 @@ class Package:
 
         Returns:
           Package: package properties
+
+        Raises:
+          InvalidPackageInfo: if supplied package source is not valid
         """
         try:
             resolved_source = source.resolve(package)
@@ -246,6 +252,9 @@ class Package:
 
         Returns:
           Set[str]: list of package dependencies including makedepends array, but excluding packages from this base
+
+        Raises:
+          InvalidPackageInfo: if there are parsing errors
         """
         # additional function to remove versions from dependencies
         def extract_packages(raw_packages_list: List[str]) -> Set[str]:
@@ -277,6 +286,9 @@ class Package:
 
         Returns:
           str: package version if package is not VCS and current version according to VCS otherwise
+
+        Raises:
+          InvalidPackageInfo: if there are parsing errors
         """
         if not self.is_vcs:
             return self.version

@@ -31,7 +31,7 @@ from ahriman.models.package import Package
 class Counters:
     """
     package counters
-    
+
     Attributes:
       total(int): total packages count
       unknown(int): packages in unknown status count

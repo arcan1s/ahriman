@@ -36,6 +36,9 @@ class Cleaner(Properties):
 
         Returns:
           List[Path]: list of filenames from the directory
+
+        Raises:
+          NotImplementedError: not implemented method
         """
         raise NotImplementedError
 

@@ -29,7 +29,7 @@ from ahriman.core.util import package_like
 class PackageSource(Enum):
     """
     package source for addition enumeration
-    
+
     Attributes:
       Auto(PackageSource): (class attribute) automatically determine type of the source
       Archive(PackageSource): (class attribute) source is a package archive
