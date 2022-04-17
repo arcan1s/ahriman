@@ -1,4 +1,4 @@
-.PHONY: architecture archive archive_directory archlinux check clean directory docs docs-source man push tests version
+.PHONY: architecture archive archive_directory archlinux check clean directory docs-clean docs-html docs-source man push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -32,16 +32,18 @@ check: clean
 clean:
 	find . -type f -name "$(PROJECT)-*-src.tar.xz" -delete
 	rm -rf "$(PROJECT)"
-	find docs/source -type f -name "$(PROJECT)*.rst" -delete
-	rm -rf docs/html docs/source/modules.rst
 
 directory: clean
 	mkdir "$(PROJECT)"
 
-docs: docs-source
+docs-clean: clean
+	find docs/source -type f -name "$(PROJECT)*.rst" -delete
+	rm -rf docs/html docs/source/modules.rst
+
+docs-html: docs-source
 	sphinx-build -b html -a -j auto docs/source docs/html
 
-docs-source: clean
+docs-source: docs-clean
 	SPHINX_APIDOC_OPTIONS=members,no-undoc-members,show-inheritance sphinx-apidoc --force --private -o docs/source src
 
 man:
