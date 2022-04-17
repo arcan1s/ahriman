@@ -59,6 +59,8 @@ class Repo:
     @property
     def repo_path(self) -> Path:
         """
+        get full path to the repository database
+
         Returns:
             Path: path to repository database
         """

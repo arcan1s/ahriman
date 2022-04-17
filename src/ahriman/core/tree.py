@@ -50,6 +50,8 @@ class Leaf:
     @property
     def items(self) -> Iterable[str]:
         """
+        extract all packages from the leaf
+
         Returns:
             Iterable[str]: packages containing in this leaf
         """

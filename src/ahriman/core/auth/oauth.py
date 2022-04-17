@@ -64,6 +64,8 @@ class OAuth(Mapping):
     @property
     def auth_control(self) -> str:
         """
+        get authorization html control
+
         Returns:
             str: login control as html code to insert
         """

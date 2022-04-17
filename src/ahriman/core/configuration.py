@@ -65,6 +65,8 @@ class Configuration(configparser.RawConfigParser):
     @property
     def include(self) -> Path:
         """
+        get full path to include directory
+
         Returns:
             Path: path to directory with configuration includes
         """
@@ -73,6 +75,8 @@ class Configuration(configparser.RawConfigParser):
     @property
     def logging_path(self) -> Path:
         """
+        get full path to logging configuration
+
         Returns:
             Path: path to logging configuration
         """
@@ -81,6 +85,8 @@ class Configuration(configparser.RawConfigParser):
     @property
     def repository_paths(self) -> RepositoryPaths:
         """
+        construct RepositoryPaths instance based on the configuration
+
         Returns:
             RepositoryPaths: repository paths instance
         """

@@ -60,14 +60,18 @@ class Package:
     @property
     def depends(self) -> List[str]:
         """
+        get package base dependencies
+
         Returns:
-            List[str]: sum of dependencies per arch package
+            List[str]: sum of dependencies per each package
         """
         return sorted(set(sum([package.depends for package in self.packages.values()], start=[])))
 
     @property
     def git_url(self) -> str:
         """
+        get git clone url
+
         Returns:
             str: package git url to clone
         """
@@ -76,6 +80,8 @@ class Package:
     @property
     def groups(self) -> List[str]:
         """
+        get package base groups
+
         Returns:
             List[str]: sum of groups per each package
         """
@@ -84,6 +90,8 @@ class Package:
     @property
     def is_single_package(self) -> bool:
         """
+        is it possible to transform package base to single package or not
+
         Returns:
             bool: true in case if this base has only one package with the same name
         """
@@ -92,8 +100,10 @@ class Package:
     @property
     def is_vcs(self) -> bool:
         """
+        get VCS flag based on the package base
+
         Returns:
-            bool: True in case if package base looks like VCS package and false otherwise
+            bool: True in case if package base looks like VCS package and False otherwise
         """
         return self.base.endswith("-bzr") \
             or self.base.endswith("-csv")\
@@ -105,6 +115,8 @@ class Package:
     @property
     def licenses(self) -> List[str]:
         """
+        get package base licenses
+
         Returns:
             List[str]: sum of licenses per each package
         """
@@ -113,6 +125,8 @@ class Package:
     @property
     def web_url(self) -> str:
         """
+        get package url which can be used to see package in web
+
         Returns:
             str: package AUR url
         """

@@ -59,6 +59,8 @@ class GPG:
     @property
     def repository_sign_args(self) -> List[str]:
         """
+        get command line arguments based on settings
+
         Returns:
             List[str]: command line arguments for repo-add command to sign database
         """

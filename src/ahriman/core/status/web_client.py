@@ -60,6 +60,8 @@ class WebClient(Client):
     @property
     def _ahriman_url(self) -> str:
         """
+        get url for the service status api
+
         Returns:
             str: full url for web service for ahriman service itself
         """
@@ -68,6 +70,8 @@ class WebClient(Client):
     @property
     def _login_url(self) -> str:
         """
+        get url for the login api
+
         Returns:
             str: full url for web service to login
         """
@@ -76,6 +80,8 @@ class WebClient(Client):
     @property
     def _status_url(self) -> str:
         """
+        get url for the status api
+
         Returns:
             str: full url for web service for status
         """

@@ -46,6 +46,8 @@ class Result:
     @property
     def failed(self) -> List[Package]:
         """
+        get list of failed packages
+
         Returns:
             List[Package]: list of packages which were failed
         """
@@ -54,6 +56,8 @@ class Result:
     @property
     def is_empty(self) -> bool:
         """
+        get if build result is empty or not
+
         Returns:
             bool: True in case if success list is empty and False otherwise
         """
@@ -62,6 +66,8 @@ class Result:
     @property
     def success(self) -> List[Package]:
         """
+        get list of success builds
+
         Returns:
             List[Package]: list of packages with success result
         """

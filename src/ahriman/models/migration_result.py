@@ -38,11 +38,10 @@ class MigrationResult:
     @property
     def is_outdated(self) -> bool:
         """
+        check migration and check if there are pending migrations
+
         Returns:
             bool: True in case if it requires migrations and False otherwise
-
-        Raises:
-            MigrationError: if old version is newer than new one or negative
         """
         self.validate()
         return self.new_version > self.old_version
@@ -50,6 +49,9 @@ class MigrationResult:
     def validate(self) -> None:
         """
         perform version validation
+
+        Raises:
+            MigrationError: if old version is newer than new one or negative
         """
         if self.old_version < 0 or self.old_version > self.new_version:
             raise MigrationError(f"Invalid current schema version, expected less or equal to {self.new_version}, "

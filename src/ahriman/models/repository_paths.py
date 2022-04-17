@@ -45,16 +45,20 @@ class RepositoryPaths:
     @property
     def cache(self) -> Path:
         """
+        get directory for packages cache (mainly used for VCS packages)
+
         Returns:
-            Path: directory for packages cache (mainly used for VCS packages)
+            Path: full path to cache directory
         """
         return self.root / "cache"
 
     @property
     def chroot(self) -> Path:
         """
+        get directory for devtools chroot
+
         Returns:
-            Path: directory for devtools chroot
+            Path: full patch to devtools chroot directory
         """
         # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
         return self.root / "chroot"
@@ -62,22 +66,28 @@ class RepositoryPaths:
     @property
     def packages(self) -> Path:
         """
+        get directory for built packages
+
         Returns:
-            Path: directory for built packages
+            Path: full path to built packages directory
         """
         return self.root / "packages" / self.architecture
 
     @property
     def repository(self) -> Path:
         """
+        get repository directory
+
         Returns:
-            Path: repository directory
+            Path: full path to the repository directory
         """
         return self.root / "repository" / self.architecture
 
     @property
     def root_owner(self) -> Tuple[int, int]:
         """
+        get UID and GID of the root directory
+
         Returns:
             Tuple[int, int]: owner user and group of the root directory
         """

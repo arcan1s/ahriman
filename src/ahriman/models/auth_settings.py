@@ -57,6 +57,8 @@ class AuthSettings(Enum):
     @property
     def is_enabled(self) -> bool:
         """
+        get enabled flag
+
         Returns:
             bool: False in case if authorization is disabled and True otherwise
         """

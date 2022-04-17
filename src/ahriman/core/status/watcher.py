@@ -63,6 +63,8 @@ class Watcher:
     @property
     def packages(self) -> List[Tuple[Package, BuildStatus]]:
         """
+        get current known packages list
+
         Returns:
             List[Tuple[Package, BuildStatus]]: list of packages together with their statuses
         """

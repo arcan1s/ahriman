@@ -38,6 +38,8 @@ class BaseView(View):
     @property
     def configuration(self) -> Configuration:
         """
+        get configuration instance
+
         Returns:
             Configuration: configuration instance
         """
@@ -47,6 +49,8 @@ class BaseView(View):
     @property
     def database(self) -> SQLite:
         """
+        get database instance
+
         Returns:
             SQLite: database instance
         """
@@ -56,6 +60,8 @@ class BaseView(View):
     @property
     def service(self) -> Watcher:
         """
+        get status watcher instance
+
         Returns:
             Watcher: build status watcher instance
         """
@@ -65,6 +71,8 @@ class BaseView(View):
     @property
     def spawner(self) -> Spawn:
         """
+        get process spawner instance
+
         Returns:
             Spawn: external process spawner instance
         """
@@ -74,6 +82,8 @@ class BaseView(View):
     @property
     def validator(self) -> Auth:
         """
+        get authorization instance
+
         Returns:
             Auth: authorization service instance
         """

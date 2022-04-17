@@ -61,6 +61,8 @@ class PackageDescription:
     @property
     def filepath(self) -> Optional[Path]:
         """
+        wrapper for filename, convert it to Path object
+
         Returns:
             Optional[Path]: path object for current filename
         """
