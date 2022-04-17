@@ -31,10 +31,10 @@ class InternalStatus:
     internal server status
 
     Attributes:
-      architecture(Optional[str]): repository architecture
-      packages(Counters): packages statuses counter object
-      repository(Optional[str]): repository name
-      version(Optional[str]): service version
+        architecture(Optional[str]): repository architecture
+        packages(Counters): packages statuses counter object
+        repository(Optional[str]): repository name
+        version(Optional[str]): service version
     """
 
     architecture: Optional[str] = None
@@ -48,10 +48,10 @@ class InternalStatus:
         construct internal status from json dump
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          InternalStatus: internal status
+            InternalStatus: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
         return cls(architecture=dump.get("architecture"),
@@ -64,6 +64,6 @@ class InternalStatus:
         generate json status view
 
         Returns:
-          Dict[str, Any]: json-friendly dictionary
+            Dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

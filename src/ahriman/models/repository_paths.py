@@ -35,8 +35,8 @@ class RepositoryPaths:
     repository paths holder. For the most operations with paths you want to use this object
 
     Attributes:
-      root(Path): repository root (i.e. ahriman home)
-      architecture(str): repository architecture
+        root(Path): repository root (i.e. ahriman home)
+        architecture(str): repository architecture
     """
 
     root: Path
@@ -46,7 +46,7 @@ class RepositoryPaths:
     def cache(self) -> Path:
         """
         Returns:
-          Path: directory for packages cache (mainly used for VCS packages)
+            Path: directory for packages cache (mainly used for VCS packages)
         """
         return self.root / "cache"
 
@@ -54,7 +54,7 @@ class RepositoryPaths:
     def chroot(self) -> Path:
         """
         Returns:
-          Path: directory for devtools chroot
+            Path: directory for devtools chroot
         """
         # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
         return self.root / "chroot"
@@ -63,7 +63,7 @@ class RepositoryPaths:
     def packages(self) -> Path:
         """
         Returns:
-          Path: directory for built packages
+            Path: directory for built packages
         """
         return self.root / "packages" / self.architecture
 
@@ -71,7 +71,7 @@ class RepositoryPaths:
     def repository(self) -> Path:
         """
         Returns:
-          Path: repository directory
+            Path: repository directory
         """
         return self.root / "repository" / self.architecture
 
@@ -79,7 +79,7 @@ class RepositoryPaths:
     def root_owner(self) -> Tuple[int, int]:
         """
         Returns:
-          Tuple[int, int]: owner user and group of the root directory
+            Tuple[int, int]: owner user and group of the root directory
         """
         return self.owner(self.root)
 
@@ -89,10 +89,10 @@ class RepositoryPaths:
         get known architectures
 
         Args:
-          root(Path): repository root
+            root(Path): repository root
 
         Returns:
-          Set[str]: list of architectures for which tree is created
+            Set[str]: list of architectures for which tree is created
         """
         paths = cls(root, "")
         return {
@@ -107,10 +107,10 @@ class RepositoryPaths:
         retrieve owner information by path
 
         Args:
-          path(Path): path for which extract ids
+            path(Path): path for which extract ids
 
         Returns:
-          Tuple[int, int]: owner user and group ids of the directory
+            Tuple[int, int]: owner user and group ids of the directory
         """
         stat = path.stat()
         return stat.st_uid, stat.st_gid
@@ -120,10 +120,10 @@ class RepositoryPaths:
         get path to cached PKGBUILD and package sources for the package base
 
         Args:
-          package_base(str): package base name
+            package_base(str): package base name
 
         Returns:
-          Path: full path to directory for specified package base cache
+            Path: full path to directory for specified package base cache
         """
         return self.cache / package_base
 
@@ -132,10 +132,10 @@ class RepositoryPaths:
         set owner of path recursively (from root) to root owner
 
         Args:
-          path(Path): path to be chown
+            path(Path): path to be chown
 
         Raises:
-          InvalidPath: if path does not belong to root
+            InvalidPath: if path does not belong to root
         """
         def set_owner(current: Path) -> None:
             uid, gid = self.owner(current)
@@ -155,7 +155,7 @@ class RepositoryPaths:
         clear package specific files
 
         Args:
-          package_base(str): package base name
+            package_base(str): package base name
         """
         for directory in (
                 self.cache_for(package_base),

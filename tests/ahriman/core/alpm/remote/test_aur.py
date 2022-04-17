@@ -16,10 +16,10 @@ def _get_response(resource_path_root: Path) -> str:
     load response from resource file
 
     Args:
-      resource_path_root(Path): path to resource root
+        resource_path_root(Path): path to resource root
 
     Returns:
-      str: response text
+        str: response text
     """
     return (resource_path_root / "models" / "package_ahriman_aur").read_text()
 

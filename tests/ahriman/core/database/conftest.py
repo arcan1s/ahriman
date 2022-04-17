@@ -10,6 +10,6 @@ def connection() -> Connection:
     mock object for sqlite3 connection
 
     Returns:
-      Connection: sqlite3 connection test instance
+        Connection: sqlite3 connection test instance
     """
     return MagicMock()

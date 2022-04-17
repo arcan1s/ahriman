@@ -38,10 +38,10 @@ class Client:
         load client from settings
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
 
         Returns:
-          Client: client according to current settings
+            Client: client according to current settings
         """
         address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
@@ -56,8 +56,8 @@ class Client:
         add new package with status
 
         Args:
-          package(Package): package properties
-          status(BuildStatusEnum): current package build status
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
         """
 
     def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:  # pylint: disable=no-self-use
@@ -65,10 +65,10 @@ class Client:
         get package status
 
         Args:
-          base(Optional[str]): package base to get
+            base(Optional[str]): package base to get
 
         Returns:
-          List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
+            List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         del base
         return []
@@ -78,7 +78,7 @@ class Client:
         get internal service status
 
         Returns:
-          InternalStatus: current internal (web) service status
+            InternalStatus: current internal (web) service status
         """
         return InternalStatus()
 
@@ -87,7 +87,7 @@ class Client:
         get ahriman status itself
 
         Returns:
-          BuildStatus: current ahriman status
+            BuildStatus: current ahriman status
         """
         return BuildStatus()
 
@@ -96,7 +96,7 @@ class Client:
         remove packages from watcher
 
         Args:
-          base(str): package base to remove
+            base(str): package base to remove
         """
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
@@ -104,8 +104,8 @@ class Client:
         update package build status. Unlike `add` it does not update package properties
 
         Args:
-          base(str): package base to update
-          status(BuildStatusEnum): current package build status
+            base(str): package base to update
+            status(BuildStatusEnum): current package build status
         """
 
     def update_self(self, status: BuildStatusEnum) -> None:
@@ -113,7 +113,7 @@ class Client:
         update ahriman status itself
 
         Args:
-          status(BuildStatusEnum): current ahriman status
+            status(BuildStatusEnum): current ahriman status
         """
 
     def set_building(self, base: str) -> None:
@@ -121,7 +121,7 @@ class Client:
         set package status to building
 
         Args:
-          base(str): package base to update
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Building)
 
@@ -130,7 +130,7 @@ class Client:
         set package status to failed
 
         Args:
-          base(str): package base to update
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Failed)
 
@@ -139,7 +139,7 @@ class Client:
         set package status to pending
 
         Args:
-          base(str): package base to update
+            base(str): package base to update
         """
         return self.update(base, BuildStatusEnum.Pending)
 
@@ -148,7 +148,7 @@ class Client:
         set package status to success
 
         Args:
-          package(Package): current package properties
+            package(Package): current package properties
         """
         return self.add(package, BuildStatusEnum.Success)
 
@@ -157,6 +157,6 @@ class Client:
         set package status to unknown
 
         Args:
-          package(Package): current package properties
+            package(Package): current package properties
         """
         return self.add(package, BuildStatusEnum.Unknown)

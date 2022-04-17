@@ -14,10 +14,10 @@ def _get_aur_data(resource_path_root: Path) -> Dict[str, Any]:
     load package description from resource file
 
     Args:
-      resource_path_root(Path): path to resource root
+        resource_path_root(Path): path to resource root
 
     Returns:
-      Dict[str, Any]: json descriptor
+        Dict[str, Any]: json descriptor
     """
     response = (resource_path_root / "models" / "package_ahriman_aur").read_text()
     return json.loads(response)["results"][0]
@@ -28,10 +28,10 @@ def _get_official_data(resource_path_root: Path) -> Dict[str, Any]:
     load package description from resource file
 
     Args:
-      resource_path_root(Path): path to resource root
+        resource_path_root(Path): path to resource root
 
     Returns:
-      Dict[str, Any]: json descriptor
+        Dict[str, Any]: json descriptor
     """
     response = (resource_path_root / "models" / "package_akonadi_aur").read_text()
     return json.loads(response)["results"][0]

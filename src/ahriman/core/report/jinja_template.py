@@ -56,11 +56,11 @@ class JinjaTemplate:
         * repository - repository name, string, required
 
     Attributes:
-      homepage(Optional[str]): homepage link if any (for footer)
-      link_path(str): prefix fo packages to download
-      name(str): repository name
-      default_pgp_key(Optional[str]): default PGP key
-      sign_targets(Set[SignSettings]): targets to sign enabled in configuration
+        homepage(Optional[str]): homepage link if any (for footer)
+        link_path(str): prefix fo packages to download
+        name(str): repository name
+        default_pgp_key(Optional[str]): default PGP key
+        sign_targets(Set[SignSettings]): targets to sign enabled in configuration
     """
 
     def __init__(self, section: str, configuration: Configuration) -> None:
@@ -68,8 +68,8 @@ class JinjaTemplate:
         default constructor
 
         Args:
-          section(str): settings section name
-          configuration(Configuration): configuration instance
+            section(str): settings section name
+            configuration(Configuration): configuration instance
         """
         self.link_path = configuration.get(section, "link_path")
 
@@ -84,8 +84,8 @@ class JinjaTemplate:
         generate report for the specified packages
 
         Args:
-          result(Result): build result
-          template_path(Path): path to jinja template
+            result(Result): build result
+            template_path(Path): path to jinja template
         """
         # idea comes from https://stackoverflow.com/a/38642558
         loader = jinja2.FileSystemLoader(searchpath=template_path.parent)

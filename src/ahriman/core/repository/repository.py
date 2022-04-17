@@ -37,10 +37,10 @@ class Repository(Executor, UpdateHandler):
         load packages from list of archives
 
         Args:
-          packages(Iterable[Path]): paths to package archives
+            packages(Iterable[Path]): paths to package archives
 
         Returns:
-          List[Package]: list of read packages
+            List[Package]: list of read packages
         """
         result: Dict[str, Package] = {}
         # we are iterating over bases, not single packages
@@ -64,7 +64,7 @@ class Repository(Executor, UpdateHandler):
         generate list of repository packages
 
         Returns:
-          List[Package]: list of packages properties
+            List[Package]: list of packages properties
         """
         return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
 
@@ -73,7 +73,7 @@ class Repository(Executor, UpdateHandler):
         get list of files in built packages directory
 
         Returns:
-          List[Path]: list of filenames from the directory
+            List[Path]: list of filenames from the directory
         """
         return list(filter(package_like, self.paths.packages.iterdir()))
 
@@ -82,10 +82,10 @@ class Repository(Executor, UpdateHandler):
         extract list of packages which depends on specified package
 
         Args:
-          depends_on(Optional[Iterable[str]]): dependencies of the packages
+            depends_on(Optional[Iterable[str]]): dependencies of the packages
 
         Returns:
-          List[Package]: list of repository packages which depend on specified packages
+            List[Package]: list of repository packages which depend on specified packages
         """
         packages = self.packages()
         if depends_on is None:

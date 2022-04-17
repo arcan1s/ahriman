@@ -41,7 +41,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
     authorization policy implementation
 
     Attributes:
-      validator(Auth): validator instance
+        validator(Auth): validator instance
     """
 
     def __init__(self, validator: Auth) -> None:
@@ -49,7 +49,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         default constructor
 
         Args:
-          validator(Auth): authorization module instance
+            validator(Auth): authorization module instance
         """
         self.validator = validator
 
@@ -58,10 +58,10 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         retrieve authenticated username
 
         Args:
-          identity(str): username
+            identity(str): username
 
         Returns:
-          Optional[str]: user identity (username) in case if user exists and None otherwise
+            Optional[str]: user identity (username) in case if user exists and None otherwise
         """
         user = UserIdentity.from_identity(identity)
         if user is None:
@@ -73,12 +73,12 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         check user permissions
 
         Args:
-          identity(str): username
-          permission(UserAccess): requested permission level
-          context(Optional[str], optional): URI request path (Default value = None)
+            identity(str): username
+            permission(UserAccess): requested permission level
+            context(Optional[str], optional): URI request path (Default value = None)
 
         Returns:
-          bool: True in case if user is allowed to perform this request and False otherwise
+            bool: True in case if user is allowed to perform this request and False otherwise
         """
         user = UserIdentity.from_identity(identity)
         if user is None:
@@ -91,7 +91,7 @@ def auth_handler() -> MiddlewareType:
     authorization and authentication middleware
 
     Returns:
-      MiddlewareType: built middleware
+        MiddlewareType: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
@@ -115,11 +115,11 @@ def setup_auth(application: web.Application, validator: Auth) -> web.Application
     setup authorization policies for the application
 
     Args:
-      application(web.Application): web application instance
-      validator(Auth): authorization module instance
+        application(web.Application): web application instance
+        validator(Auth): authorization module instance
 
     Returns:
-      web.Application: configured web application
+        web.Application: configured web application
     """
     fernet_key = fernet.Fernet.generate_key()
     secret_key = base64.urlsafe_b64decode(fernet_key)

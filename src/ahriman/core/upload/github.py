@@ -34,8 +34,8 @@ class Github(HttpUpload):
     upload files to github releases
 
     Attributes:
-      gh_owner(str): github repository owner
-      gh_repository(str): github repository name
+        github_owner(str): github repository owner
+        github_repository(str): github repository name
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -43,21 +43,21 @@ class Github(HttpUpload):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         HttpUpload.__init__(self, architecture, configuration, section)
-        self.gh_owner = configuration.get(section, "owner")
-        self.gh_repository = configuration.get(section, "repository")
+        self.github_owner = configuration.get(section, "owner")
+        self.github_repository = configuration.get(section, "repository")
 
     def asset_remove(self, release: Dict[str, Any], name: str) -> None:
         """
         remove asset from the release by name
 
         Args:
-          release(Dict[str, Any]): release object
-          name(str): asset name
+            release(Dict[str, Any]): release object
+            name(str): asset name
         """
         try:
             asset = next(asset for asset in release["assets"] if asset["name"] == name)
@@ -70,8 +70,8 @@ class Github(HttpUpload):
         upload asset to the release
 
         Args:
-          release(Dict[str, Any]): release object
-          path(Path): path to local file
+            release(Dict[str, Any]): release object
+            path(Path): path to local file
         """
         exists = any(path.name == asset["name"] for asset in release["assets"])
         if exists:
@@ -86,10 +86,10 @@ class Github(HttpUpload):
         get all local files and their calculated checksums
 
         Args:
-          path(Path): local path to sync
+            path(Path): local path to sync
 
         Returns:
-          Dict[Path, str]: map of path objects to its checksum
+            Dict[Path, str]: map of path objects to its checksum
         """
         return {
             local_file: self.calculate_hash(local_file)
@@ -101,9 +101,9 @@ class Github(HttpUpload):
         remove files from github
 
         Args:
-          release(Dict[str, Any]): release object
-          local_files(Dict[Path, str]): map of local file paths to its checksum
-          remote_files(Dict[str, str]): map of the remote files and its checksum
+            release(Dict[str, Any]): release object
+            local_files(Dict[Path, str]): map of local file paths to its checksum
+            remote_files(Dict[str, str]): map of the remote files and its checksum
         """
         local_filenames = {local_file.name for local_file in local_files}
         for remote_file in remote_files:
@@ -116,9 +116,9 @@ class Github(HttpUpload):
         upload files to github
 
         Args:
-          release(Dict[str, Any]): release object
-          local_files(Dict[Path, str]): map of local file paths to its checksum
-          remote_files(Dict[str, str]): map of the remote files and its checksum
+            release(Dict[str, Any]): release object
+            local_files(Dict[Path, str]): map of local file paths to its checksum
+            remote_files(Dict[str, str]): map of the remote files and its checksum
         """
         for local_file, checksum in local_files.items():
             remote_checksum = remote_files.get(local_file.name)
@@ -131,10 +131,10 @@ class Github(HttpUpload):
         create empty release
 
         Returns:
-          Dict[str, Any]: github API release object for the new release
+            Dict[str, Any]: github API release object for the new release
         """
-        response = self._request("POST", f"https://api.github.com/repos/{self.gh_owner}/{self.gh_repository}/releases",
-                                 json={"tag_name": self.architecture, "name": self.architecture})
+        url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases"
+        response = self._request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
         release: Dict[str, Any] = response.json()
         return release
 
@@ -143,12 +143,11 @@ class Github(HttpUpload):
         get release object if any
 
         Returns:
-          Optional[Dict[str, Any]]: github API release object if release found and None otherwise
+            Optional[Dict[str, Any]]: github API release object if release found and None otherwise
         """
+        url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.architecture}"
         try:
-            response = self._request(
-                "GET",
-                f"https://api.github.com/repos/{self.gh_owner}/{self.gh_repository}/releases/tags/{self.architecture}")
+            response = self._request("GET", url)
             release: Dict[str, Any] = response.json()
             return release
         except requests.HTTPError as e:
@@ -162,8 +161,8 @@ class Github(HttpUpload):
         update release
 
         Args:
-          release(Dict[str, Any]): release object
-          body(str): new release body
+            release(Dict[str, Any]): release object
+            body(str): new release body
         """
         self._request("POST", release["url"], json={"body": body})
 
@@ -172,8 +171,8 @@ class Github(HttpUpload):
         sync data to remote server
 
         Args:
-          path(Path): local path to sync
-          built_packages(Iterable[Package]): list of packages which has just been built
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         release = self.release_get()
         if release is None:

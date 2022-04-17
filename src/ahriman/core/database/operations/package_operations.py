@@ -37,8 +37,8 @@ class PackageOperations(Operations):
         remove package base information
 
         Args:
-          connection(Connection): database connection
-          package_base(str): package base name
+            connection(Connection): database connection
+            package_base(str): package base name
         """
         connection.execute("""delete from package_statuses where package_base = :package_base""",
                            {"package_base": package_base})
@@ -51,9 +51,9 @@ class PackageOperations(Operations):
         remove packages belong to the package base
 
         Args:
-          connection(Connection): database connection
-          package_base(str): package base name
-          current_packages(Iterable[str]): current packages list which has to be left in database
+            connection(Connection): database connection
+            package_base(str): package base name
+            current_packages(Iterable[str]): current packages list which has to be left in database
         """
         packages = [
             package
@@ -69,8 +69,8 @@ class PackageOperations(Operations):
         insert base package into table
 
         Args:
-          connection(Connection): database connection
-          package(Package): package properties
+            connection(Connection): database connection
+            package(Package): package properties
         """
         connection.execute(
             """
@@ -89,8 +89,8 @@ class PackageOperations(Operations):
         insert packages into table
 
         Args:
-          connection(Connection): database connection
-          package(Package): package properties
+            connection(Connection): database connection
+            package(Package): package properties
         """
         package_list = []
         for name, description in package.packages.items():
@@ -118,9 +118,9 @@ class PackageOperations(Operations):
         insert base package status into table
 
         Args:
-          connection(Connection): database connection
-          package_base(str): package base name
-          status(BuildStatus): new build status
+            connection(Connection): database connection
+            package_base(str): package base name
+            status(BuildStatus): new build status
         """
         connection.execute(
             """
@@ -138,10 +138,10 @@ class PackageOperations(Operations):
         select package bases from the table
 
         Args:
-          connection(Connection): database connection
+            connection(Connection): database connection
 
         Returns:
-          Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
+            Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
         """
         return {
             row["package_base"]: Package(row["package_base"], row["version"], row["aur_url"], {})

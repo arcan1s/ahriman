@@ -31,10 +31,10 @@ async def authorized_userid(*args: Any) -> Any:
     handle aiohttp security methods
 
     Args:
-      *args(Any): argument list as provided by authorized_userid function
+        *args(Any): argument list as provided by authorized_userid function
 
     Returns:
-      Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.authorized_userid(*args)  # pylint: disable=no-value-for-parameter
@@ -46,10 +46,10 @@ async def check_authorized(*args: Any) -> Any:
     handle aiohttp security methods
 
     Args:
-      *args(Any): argument list as provided by check_authorized function
+        *args(Any): argument list as provided by check_authorized function
 
     Returns:
-      Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.check_authorized(*args)  # pylint: disable=no-value-for-parameter
@@ -61,10 +61,10 @@ async def forget(*args: Any) -> Any:
     handle aiohttp security methods
 
     Args:
-      *args(Any): argument list as provided by forget function
+        *args(Any): argument list as provided by forget function
 
     Returns:
-      Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.forget(*args)  # pylint: disable=no-value-for-parameter
@@ -76,10 +76,10 @@ async def remember(*args: Any) -> Any:
     handle disabled auth
 
     Args:
-      *args(Any): argument list as provided by remember function
+        *args(Any): argument list as provided by remember function
 
     Returns:
-      Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.remember(*args)  # pylint: disable=no-value-for-parameter

@@ -40,11 +40,11 @@ class Rebuild(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         depends_on = set(args.depends_on) if args.depends_on else None
 
@@ -69,9 +69,9 @@ class Rebuild(Handler):
         extract packages from database file
 
         Args:
-          application(Application): application instance
+            application(Application): application instance
 
         Returns:
-          List[Package]: list of packages which were stored in database
+            List[Package]: list of packages which were stored in database
         """
         return [package for (package, _) in application.database.packages_get()]

@@ -30,10 +30,10 @@ def exception_handler(logger: Logger) -> MiddlewareType:
     exception handler middleware. Just log any exception (except for client ones)
 
     Args:
-      logger(Logger): class logger
+        logger(Logger): class logger
 
     Returns:
-      MiddlewareType: built middleware
+        MiddlewareType: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:

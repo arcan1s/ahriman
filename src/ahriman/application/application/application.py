@@ -34,7 +34,7 @@ class Application(Packages, Repository):
         generate report and sync to remote server
 
         Args:
-          result(Result): build result
+            result(Result): build result
         """
         self.report([], result)
         self.sync([], result.success)
@@ -44,7 +44,7 @@ class Application(Packages, Repository):
         load packages from repository and pacman repositories
 
         Returns:
-          Set[str]: list of known packages
+            Set[str]: list of known packages
         """
         known_packages: Set[str] = set()
         # local set

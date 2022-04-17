@@ -31,10 +31,10 @@ class PackageView(BaseView):
     package base specific web view
 
     Attributes:
-      DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
-      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Write
@@ -45,10 +45,10 @@ class PackageView(BaseView):
         get current package base status
 
         Returns:
-          Response: 200 with package description on success
+            Response: 200 with package description on success
 
         Raises:
-          HTTPNotFound: if no package was found
+            HTTPNotFound: if no package was found
         """
         base = self.request.match_info["package"]
 
@@ -70,7 +70,7 @@ class PackageView(BaseView):
         delete package base from status page
 
         Raises:
-          HTTPNoContent: on success response
+            HTTPNoContent: on success response
         """
         base = self.request.match_info["package"]
         self.service.remove(base)
@@ -90,8 +90,8 @@ class PackageView(BaseView):
         >>> }
 
         Raises:
-          HTTPBadRequest: if bad data is supplied
-          HTTPNoContent: in case of success response
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
         """
         base = self.request.match_info["package"]
         data = await self.extract_data()

@@ -27,8 +27,8 @@ def migrate_users_data(connection: Connection, configuration: Configuration) -> 
     perform migration for users
 
     Args:
-      connection(Connection): database connection
-      configuration(Configuration): configuration instance
+        connection(Connection): database connection
+        configuration(Configuration): configuration instance
     """
     for section in configuration.sections():
         for option, value in configuration[section].items():

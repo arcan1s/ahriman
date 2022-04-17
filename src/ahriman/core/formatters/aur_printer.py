@@ -30,7 +30,7 @@ class AurPrinter(StringPrinter):
     print content of the AUR package
 
     Attributes:
-      package(AURPackage): AUR package description
+        package(AURPackage): AUR package description
     """
 
     def __init__(self, package: AURPackage) -> None:
@@ -38,7 +38,7 @@ class AurPrinter(StringPrinter):
         default constructor
 
         Args:
-          package(AURPackage): AUR package description
+            package(AURPackage): AUR package description
         """
         StringPrinter.__init__(self, f"{package.name} {package.version} ({package.num_votes})")
         self.package = package
@@ -48,7 +48,7 @@ class AurPrinter(StringPrinter):
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return [
             Property("Package base", self.package.package_base),

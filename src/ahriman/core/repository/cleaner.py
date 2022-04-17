@@ -35,10 +35,10 @@ class Cleaner(Properties):
         get list of files in built packages directory
 
         Returns:
-          List[Path]: list of filenames from the directory
+            List[Path]: list of filenames from the directory
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 

@@ -32,10 +32,10 @@ class Printer:
         print content
 
         Args:
-          verbose(bool): print all fields
-          log_fn(Callable[[str]): logger function to log data
-          None]:  (Default value = print)
-          separator(str, optional): separator for property name and property value (Default value = ": ")
+            verbose(bool): print all fields
+            log_fn(Callable[[str]): logger function to log data
+            None]:  (Default value = print)
+            separator(str, optional): separator for property name and property value (Default value = ": ")
         """
         if (title := self.title()) is not None:
             log_fn(title)
@@ -49,7 +49,7 @@ class Printer:
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return []
 
@@ -58,5 +58,5 @@ class Printer:
         generate entry title from content
 
         Returns:
-          Optional[str]: content title if it can be generated and None otherwise
+            Optional[str]: content title if it can be generated and None otherwise
         """

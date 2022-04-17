@@ -16,10 +16,10 @@ def _identity(username: str) -> str:
     generate identity from user
 
     Args:
-      username(str): name of the user
+        username(str): name of the user
 
     Returns:
-      str: user identity string
+        str: user identity string
     """
     return f"{username} {UserIdentity.expire_when(60)}"
 

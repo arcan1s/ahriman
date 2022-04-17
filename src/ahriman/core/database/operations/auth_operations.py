@@ -35,10 +35,10 @@ class AuthOperations(Operations):
         get user by username
 
         Args:
-          username(str): username
+            username(str): username
 
         Returns:
-          Optional[User]: user if it was found
+            Optional[User]: user if it was found
         """
         return next(iter(self.user_list(username, None)), None)
 
@@ -47,11 +47,11 @@ class AuthOperations(Operations):
         get users by filter
 
         Args:
-          username(Optional[str]): optional filter by username
-          access(Optional[UserAccess]): optional filter by role
+            username(Optional[str]): optional filter by username
+            access(Optional[UserAccess]): optional filter by role
 
         Returns:
-          List[User]: list of users who match criteria
+            List[User]: list of users who match criteria
         """
         username_filter = username.lower() if username is not None else username
         access_filter = access.value if access is not None else access
@@ -74,7 +74,7 @@ class AuthOperations(Operations):
         remove user from storage
 
         Args:
-          username(str): username
+            username(str): username
         """
         def run(connection: Connection) -> None:
             connection.execute("""delete from users where username = :username""", {"username": username.lower()})
@@ -86,7 +86,7 @@ class AuthOperations(Operations):
         update user by username
 
         Args:
-          user(User): user descriptor
+            user(User): user descriptor
         """
         def run(connection: Connection) -> None:
             connection.execute(

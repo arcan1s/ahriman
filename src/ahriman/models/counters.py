@@ -33,12 +33,12 @@ class Counters:
     package counters
 
     Attributes:
-      total(int): total packages count
-      unknown(int): packages in unknown status count
-      pending(int): packages in pending status count
-      building(int): packages in building status count
-      failed(int): packages in failed status count
-      success(int): packages in success status count
+        total(int): total packages count
+        unknown(int): packages in unknown status count
+        pending(int): packages in pending status count
+        building(int): packages in building status count
+        failed(int): packages in failed status count
+        success(int): packages in success status count
     """
 
     total: int
@@ -54,10 +54,10 @@ class Counters:
         construct counters from json dump
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          Counters: status counters
+            Counters: status counters
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -69,10 +69,10 @@ class Counters:
         construct counters from packages statuses
 
         Args:
-          packages(List[Tuple[Package, BuildStatus]]): list of package and their status as per watcher property
+            packages(List[Tuple[Package, BuildStatus]]): list of package and their status as per watcher property
 
         Returns:
-          Counters: status counters
+            Counters: status counters
         """
         per_status = {"total": len(packages)}
         for _, status in packages:

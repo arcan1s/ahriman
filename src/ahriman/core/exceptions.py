@@ -31,7 +31,7 @@ class BuildFailed(RuntimeError):
         default constructor
 
         Args:
-          package_base(str): package base raised exception
+            package_base(str): package base raised exception
         """
         RuntimeError.__init__(self, f"Package {package_base} build failed, check logs for details")
 
@@ -65,7 +65,7 @@ class InitializeException(RuntimeError):
         default constructor
 
         Args:
-          details(str): details of the exception
+            details(str): details of the exception
         """
         RuntimeError.__init__(self, f"Could not load service: {details}")
 
@@ -80,7 +80,7 @@ class InvalidOption(ValueError):
         default constructor
 
         Args:
-          value(Any): option value
+            value(Any): option value
         """
         ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
 
@@ -95,8 +95,8 @@ class InvalidPath(ValueError):
         default constructor
 
         Args:
-          path(Path): path which raised an exception
-          root(Path): repository root (i.e. ahriman home)
+            path(Path): path which raised an exception
+            root(Path): repository root (i.e. ahriman home)
         """
         ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
 
@@ -111,7 +111,7 @@ class InvalidPackageInfo(RuntimeError):
         default constructor
 
         Args:
-          details(Any): error details
+            details(Any): error details
         """
         RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
 
@@ -126,7 +126,7 @@ class MigrationError(RuntimeError):
         default constructor
 
         Args:
-          details(str): error details
+            details(str): error details
         """
         RuntimeError.__init__(self, details)
 
@@ -141,7 +141,7 @@ class MissingArchitecture(ValueError):
         default constructor
 
         Args:
-          command(str): command name which throws exception
+            command(str): command name which throws exception
         """
         ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
@@ -156,7 +156,7 @@ class MultipleArchitectures(ValueError):
         default constructor
 
         Args:
-          command(str): command name which throws exception
+            command(str): command name which throws exception
         """
         ValueError.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
 
@@ -183,7 +183,7 @@ class SuccessFailed(ValueError):
         default constructor
 
         Args:
-          package_base(str): package base name
+            package_base(str): package base name
         """
         ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
 
@@ -210,7 +210,7 @@ class UnknownPackage(ValueError):
         default constructor
 
         Args:
-          package_base(str): package base name
+            package_base(str): package base name
         """
         ValueError.__init__(self, f"Package base {package_base} is unknown")
 
@@ -225,8 +225,8 @@ class UnsafeRun(RuntimeError):
         default constructor
 
         Args:
-          current_uid(int): current user ID
-          root_uid(int): ID of the owner of root directory
+            current_uid(int): current user ID
+            root_uid(int): ID of the owner of root directory
         """
         RuntimeError.__init__(self, f"Current UID {current_uid} differs from root owner {root_uid}. "
                                     f"Note that for the most actions it is unsafe to run application as different user."

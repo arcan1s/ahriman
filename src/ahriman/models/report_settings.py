@@ -28,11 +28,11 @@ class ReportSettings(Enum):
     report targets enumeration
 
     Attributes:
-      Disabled(ReportSettings): (class attribute) option which generates no report for testing purpose
-      HTML(ReportSettings): (class attribute) html report generation
-      Email(ReportSettings): (class attribute) email report generation
-      Console(ReportSettings): (class attribute) print result to console
-      Telegram(ReportSettings): (class attribute) markdown report to telegram channel
+        Disabled(ReportSettings): (class attribute) option which generates no report for testing purpose
+        HTML(ReportSettings): (class attribute) html report generation
+        Email(ReportSettings): (class attribute) email report generation
+        Console(ReportSettings): (class attribute) print result to console
+        Telegram(ReportSettings): (class attribute) markdown report to telegram channel
     """
 
     Disabled = "disabled"  # for testing purpose
@@ -47,10 +47,10 @@ class ReportSettings(Enum):
         construct value from configuration
 
         Args:
-          value(str): configuration value
+            value(str): configuration value
 
         Returns:
-          ReportSettings: parsed value
+            ReportSettings: parsed value
         """
         if value.lower() in ("html",):
             return cls.HTML

@@ -29,9 +29,9 @@ class AhrimanView(BaseView):
     service status web view
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
-      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -42,7 +42,7 @@ class AhrimanView(BaseView):
         get current service status
 
         Returns:
-          Response: 200 with service status object
+            Response: 200 with service status object
         """
         return json_response(self.service.status.view())
 
@@ -57,8 +57,8 @@ class AhrimanView(BaseView):
         >>> }
 
         Raises:
-          HTTPBadRequest: if bad data is supplied
-          HTTPNoContent: in case of success response
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
         """
         try:
             data = await self.extract_data()

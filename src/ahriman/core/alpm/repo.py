@@ -32,11 +32,11 @@ class Repo:
     repo-add and repo-remove wrapper
 
     Attributes:
-      logger(logging.Logger): class logger
-      name(str): repository name
-      paths(RepositoryPaths): repository paths instance
-      sign_args(List[str]): additional args which have to be used to sign repository archive
-      uid(int): uid of the repository owner user
+        logger(logging.Logger): class logger
+        name(str): repository name
+        paths(RepositoryPaths): repository paths instance
+        sign_args(List[str]): additional args which have to be used to sign repository archive
+        uid(int): uid of the repository owner user
     """
 
     _check_output = check_output
@@ -46,9 +46,9 @@ class Repo:
         default constructor
 
         Args:
-          name(str): repository name
-          paths(RepositoryPaths): repository paths instance
-          sign_args(List[str]): additional args which have to be used to sign repository archive
+            name(str): repository name
+            paths(RepositoryPaths): repository paths instance
+            sign_args(List[str]): additional args which have to be used to sign repository archive
         """
         self.logger = logging.getLogger("build_details")
         self.name = name
@@ -60,7 +60,7 @@ class Repo:
     def repo_path(self) -> Path:
         """
         Returns:
-          Path: path to repository database
+            Path: path to repository database
         """
         return self.paths.repository / f"{self.name}.db.tar.gz"
 
@@ -69,7 +69,7 @@ class Repo:
         add new package to repository
 
         Args:
-          path(Path): path to archive to add
+            path(Path): path to archive to add
         """
         Repo._check_output(
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
@@ -94,8 +94,8 @@ class Repo:
         remove package from repository
 
         Args:
-          package(str): package name to remove
-          filename(Path): package filename to remove
+            package(str): package name to remove
+            filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
         for full_path in self.paths.repository.glob(f"{filename}*"):

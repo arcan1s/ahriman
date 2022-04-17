@@ -33,17 +33,17 @@ class PackageDescription:
     package specific properties
 
     Attributes:
-      architecture(Optional[str]): package architecture
-      archive_size(Optional[int]): package archive size
-      build_date(Optional[int]): package build date
-      depends(List[str]): package dependencies list
-      description(Optional[str]): package description
-      filename(Optional[str]): package archive name
-      groups(List[str]): package groups
-      installed_size(Optional[int]): package installed size
-      licenses(List[str]): package licenses list
-      provides(List[str]): list of provided packages
-      url(Optional[str]): package url
+        architecture(Optional[str]): package architecture
+        archive_size(Optional[int]): package archive size
+        build_date(Optional[int]): package build date
+        depends(List[str]): package dependencies list
+        description(Optional[str]): package description
+        filename(Optional[str]): package archive name
+        groups(List[str]): package groups
+        installed_size(Optional[int]): package installed size
+        licenses(List[str]): package licenses list
+        provides(List[str]): list of provided packages
+        url(Optional[str]): package url
     """
 
     architecture: Optional[str] = None
@@ -62,7 +62,7 @@ class PackageDescription:
     def filepath(self) -> Optional[Path]:
         """
         Returns:
-          Optional[Path]: path object for current filename
+            Optional[Path]: path object for current filename
         """
         return Path(self.filename) if self.filename is not None else None
 
@@ -72,10 +72,10 @@ class PackageDescription:
         construct package properties from json dump
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          PackageDescription: package properties
+            PackageDescription: package properties
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -87,11 +87,11 @@ class PackageDescription:
         construct class from alpm package class
 
         Args:
-          package(Package): alpm generated object
-          path(Path): path to package archive
+            package(Package): alpm generated object
+            path(Path): path to package archive
 
         Returns:
-          PackageDescription: package properties based on tarball
+            PackageDescription: package properties based on tarball
         """
         return cls(
             architecture=package.arch,
@@ -111,6 +111,6 @@ class PackageDescription:
         generate json package view
 
         Returns:
-          Dict[str, Any]: json-friendly dictionary
+            Dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

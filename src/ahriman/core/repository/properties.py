@@ -34,18 +34,18 @@ class Properties:
     repository internal objects holder
 
     Attributes:
-      architecture(str): repository architecture
-      aur_url(str): base AUR url
-      configuration(Configuration): configuration instance
-      database(SQLite): database instance
-      ignore_list(List[str]): package bases which will be ignored during auto updates
-      logger(logging.Logger): class logger
-      name(str): repository name
-      pacman(Pacman): alpm wrapper instance
-      paths(RepositoryPaths): repository paths instance
-      repo(Repo): repo commands wrapper instance
-      reporter(Client): build status reporter instance
-      sign(GPG): GPG wrapper instance
+        architecture(str): repository architecture
+        aur_url(str): base AUR url
+        configuration(Configuration): configuration instance
+        database(SQLite): database instance
+        ignore_list(List[str]): package bases which will be ignored during auto updates
+        logger(logging.Logger): class logger
+        name(str): repository name
+        pacman(Pacman): alpm wrapper instance
+        paths(RepositoryPaths): repository paths instance
+        repo(Repo): repo commands wrapper instance
+        reporter(Client): build status reporter instance
+        sign(GPG): GPG wrapper instance
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
@@ -54,11 +54,11 @@ class Properties:
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          database(SQLite): database instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture

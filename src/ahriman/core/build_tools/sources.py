@@ -30,7 +30,7 @@ class Sources:
     helper to download package sources (PKGBUILD etc)
 
     Attributes:
-      logger(logging.Logger): (class attribute) class logger
+        logger(logging.Logger): (class attribute) class logger
     """
 
     logger = logging.getLogger("build_details")
@@ -44,8 +44,8 @@ class Sources:
         track found files via git
 
         Args:
-          sources_dir(Path): local path to git repository
-          *pattern(str): glob patterns
+            sources_dir(Path): local path to git repository
+            *pattern(str): glob patterns
         """
         # glob directory to find files which match the specified patterns
         found_files: List[Path] = []
@@ -65,10 +65,10 @@ class Sources:
         generate diff from the current version and write it to the output file
 
         Args:
-          sources_dir(Path): local path to git repository
+            sources_dir(Path): local path to git repository
 
         Returns:
-          str: patch as plain string
+            str: patch as plain string
         """
         return Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
 
@@ -78,8 +78,8 @@ class Sources:
         either clone repository or update it to origin/`branch`
 
         Args:
-          sources_dir(Path): local path to fetch
-          remote(Optional[str]): remote target (from where to fetch)
+            sources_dir(Path): local path to fetch
+            remote(Optional[str]): remote target (from where to fetch)
         """
         # local directory exists and there is .git directory
         is_initialized_git = (sources_dir / ".git").is_dir()
@@ -110,10 +110,10 @@ class Sources:
         check if there are remotes for the repository
 
         Args:
-          sources_dir(Path): local path to git repository
+            sources_dir(Path): local path to git repository
 
         Returns:
-          bool: True in case if there is any remote and false otherwise
+            bool: True in case if there is any remote and false otherwise
         """
         remotes = Sources._check_output("git", "remote", exception=None, cwd=sources_dir, logger=Sources.logger)
         return bool(remotes)
@@ -124,7 +124,7 @@ class Sources:
         create empty git repository at the specified path
 
         Args:
-          sources_dir(Path): local path to sources
+            sources_dir(Path): local path to sources
         """
         Sources._check_output("git", "init", "--initial-branch", Sources._branch,
                               exception=None, cwd=sources_dir, logger=Sources.logger)
@@ -135,9 +135,9 @@ class Sources:
         fetch sources from remote and apply patches
 
         Args:
-          sources_dir(Path): local path to fetch
-          remote(str): remote target (from where to fetch)
-          patch(Optional[str]): optional patch to be applied
+            sources_dir(Path): local path to fetch
+            remote(str): remote target (from where to fetch)
+            patch(Optional[str]): optional patch to be applied
         """
         Sources.fetch(sources_dir, remote)
         if patch is None:
@@ -151,8 +151,8 @@ class Sources:
         apply patches if any
 
         Args:
-          sources_dir(Path): local path to directory with git sources
-          patch(str): patch to be applied
+            sources_dir(Path): local path to directory with git sources
+            patch(str): patch to be applied
         """
         # create patch
         Sources.logger.info("apply patch from database")
@@ -165,11 +165,11 @@ class Sources:
         create patch set for the specified local path
 
         Args:
-          sources_dir(Path): local path to git repository
-          *pattern(str): glob patterns
+            sources_dir(Path): local path to git repository
+            *pattern(str): glob patterns
 
         Returns:
-          str: patch as plain text
+            str: patch as plain text
         """
         Sources.add(sources_dir, *pattern)
         diff = Sources.diff(sources_dir)

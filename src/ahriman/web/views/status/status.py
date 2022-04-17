@@ -31,8 +31,8 @@ class StatusView(BaseView):
     web service status web view
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -42,7 +42,7 @@ class StatusView(BaseView):
         get current service status
 
         Returns:
-          Response: 200 with service status object
+            Response: 200 with service status object
         """
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(

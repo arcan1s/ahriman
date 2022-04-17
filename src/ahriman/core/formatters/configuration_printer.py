@@ -36,8 +36,8 @@ class ConfigurationPrinter(StringPrinter):
         default constructor
 
         Args:
-          section(str): section name
-          values(Dict[str, str]): configuration values dictionary
+            section(str): section name
+            values(Dict[str, str]): configuration values dictionary
         """
         StringPrinter.__init__(self, f"[{section}]")
         self.values = values
@@ -47,7 +47,7 @@ class ConfigurationPrinter(StringPrinter):
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return [
             Property(key, value, is_required=True)

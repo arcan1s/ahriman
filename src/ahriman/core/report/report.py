@@ -35,9 +35,9 @@ class Report:
     base report generator
 
     Attributes:
-      architecture(str): repository architecture
-      configuration(Configuration): configuration instance
-      logger(logging.Logger): class logger
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        logger(logging.Logger): class logger
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -45,8 +45,8 @@ class Report:
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
@@ -58,12 +58,12 @@ class Report:
         load client from settings
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          target(str): target to generate report aka section name (e.g. html)
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            target(str): target to generate report aka section name (e.g. html)
 
         Returns:
-          Report: client according to current settings
+            Report: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
         provider = ReportSettings.from_option(provider_name)
@@ -86,8 +86,8 @@ class Report:
         generate report for the specified packages
 
         Args:
-          packages(Iterable[Package]): list of packages to generate report
-          result(Result): build result
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
 
     def run(self, packages: Iterable[Package], result: Result) -> None:
@@ -95,11 +95,11 @@ class Report:
         run report generation
 
         Args:
-          packages(Iterable[Package]): list of packages to generate report
-          result(Result): build result
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
 
         Raises:
-          ReportFailed: in case of any report unmatched exception
+            ReportFailed: in case of any report unmatched exception
         """
         try:
             self.generate(packages, result)

@@ -46,10 +46,10 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
         construct instance from configuration
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
 
         Returns:
-          SQLite: fully initialized instance of the database
+            SQLite: fully initialized instance of the database
         """
         path = cls.database_path(configuration)
         database = cls(path)
@@ -62,10 +62,10 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
         read database from configuration
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
 
         Returns:
-          Path: database path according to the configuration
+            Path: database path according to the configuration
         """
         return configuration.getpath("settings", "database")
 
@@ -74,7 +74,7 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
         perform database migrations
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
         """
         # custom types support
         sqlite3.register_adapter(dict, json.dumps)

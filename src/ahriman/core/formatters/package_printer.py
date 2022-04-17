@@ -30,8 +30,8 @@ class PackagePrinter(StringPrinter):
     print content of the internal package object
 
     Attributes:
-      package(Package): package description
-      status(BuildStatus): build status
+        package(Package): package description
+        status(BuildStatus): build status
     """
 
     def __init__(self, package: Package, status: BuildStatus) -> None:
@@ -39,8 +39,8 @@ class PackagePrinter(StringPrinter):
         default constructor
 
         Args:
-          package(Package): package description
-          status(BuildStatus): build status
+            package(Package): package description
+            status(BuildStatus): build status
         """
         StringPrinter.__init__(self, package.pretty_print())
         self.package = package
@@ -51,7 +51,7 @@ class PackagePrinter(StringPrinter):
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return [
             Property("Version", self.package.version, is_required=True),

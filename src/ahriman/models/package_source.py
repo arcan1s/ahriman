@@ -31,13 +31,13 @@ class PackageSource(Enum):
     package source for addition enumeration
 
     Attributes:
-      Auto(PackageSource): (class attribute) automatically determine type of the source
-      Archive(PackageSource): (class attribute) source is a package archive
-      AUR(PackageSource): (class attribute) source is an AUR package for which it should search
-      Directory(PackageSource): (class attribute) source is a directory which contains packages
-      Local(PackageSource): (class attribute) source is locally stored PKGBUILD
-      Remote(PackageSource): (class attribute) source is remote (http, ftp etc) link
-      Repository(PackageSource): (class attribute) source is official repository
+        Auto(PackageSource): (class attribute) automatically determine type of the source
+        Archive(PackageSource): (class attribute) source is a package archive
+        AUR(PackageSource): (class attribute) source is an AUR package for which it should search
+        Directory(PackageSource): (class attribute) source is a directory which contains packages
+        Local(PackageSource): (class attribute) source is locally stored PKGBUILD
+        Remote(PackageSource): (class attribute) source is remote (http, ftp etc) link
+        Repository(PackageSource): (class attribute) source is official repository
     """
 
     Auto = "auto"
@@ -53,10 +53,10 @@ class PackageSource(Enum):
         resolve auto into the correct type
 
         Args:
-          source(str): source of the package
+            source(str): source of the package
 
         Returns:
-          PackageSource: non-auto type of the package source
+            PackageSource: non-auto type of the package source
         """
         if self != PackageSource.Auto:
             return self

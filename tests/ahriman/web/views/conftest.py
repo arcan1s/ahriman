@@ -17,10 +17,10 @@ def base(application: web.Application) -> BaseView:
     base view fixture
 
     Args:
-      application(web.Application): application fixture
+        application(web.Application): application fixture
 
     Returns:
-      BaseView: generated base view fixture
+        BaseView: generated base view fixture
     """
     return BaseView(pytest.helpers.request(application, "", ""))
 
@@ -32,13 +32,13 @@ def client(application: web.Application, event_loop: BaseEventLoop,
     web client fixture
 
     Args:
-      application(web.Application): application fixture
-      event_loop(BaseEventLoop): context event loop
-      aiohttp_client(Any): aiohttp client fixture
-      mocker(MockerFixture): mocker object
+        application(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      TestClient: web client test instance
+        TestClient: web client test instance
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
     return event_loop.run_until_complete(aiohttp_client(application))
@@ -51,13 +51,13 @@ def client_with_auth(application_with_auth: web.Application, event_loop: BaseEve
     web client fixture with full authorization functions
 
     Args:
-      application_with_auth(web.Application): application fixture
-      event_loop(BaseEventLoop): context event loop
-      aiohttp_client(Any): aiohttp client fixture
-      mocker(MockerFixture): mocker object
+        application_with_auth(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      TestClient: web client test instance
+        TestClient: web client test instance
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
     return event_loop.run_until_complete(aiohttp_client(application_with_auth))
@@ -70,13 +70,13 @@ def client_with_oauth_auth(application_with_auth: web.Application, event_loop: B
     web client fixture with full authorization functions
 
     Args:
-      application_with_auth(web.Application): application fixture
-      event_loop(BaseEventLoop): context event loop
-      aiohttp_client(Any): aiohttp client fixture
-      mocker(MockerFixture): mocker object
+        application_with_auth(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      TestClient: web client test instance
+        TestClient: web client test instance
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
     application_with_auth["validator"] = MagicMock(spec=OAuth)

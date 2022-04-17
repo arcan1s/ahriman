@@ -39,11 +39,11 @@ class Help(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         parser: argparse.ArgumentParser = args.parser()
         if args.command is None:

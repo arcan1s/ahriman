@@ -44,11 +44,11 @@ class Patch(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
 
@@ -65,9 +65,9 @@ class Patch(Handler):
         create patch set for the package base
 
         Args:
-          application(Application): application instance
-          sources_dir(str): path to directory with the package sources
-          track(List[str]): track files which match the glob before creating the patch
+            application(Application): application instance
+            sources_dir(str): path to directory with the package sources
+            track(List[str]): track files which match the glob before creating the patch
         """
         package = Package.load(sources_dir, PackageSource.Local, application.repository.pacman,
                                application.repository.aur_url)
@@ -80,9 +80,9 @@ class Patch(Handler):
         list patches available for the package base
 
         Args:
-          application(Application): application instance
-          package_base(Optional[str]): package base
-          exit_code(bool): exit with error on empty search result
+            application(Application): application instance
+            package_base(Optional[str]): package base
+            exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base)
         Patch.check_if_empty(exit_code, not patches)
@@ -97,7 +97,7 @@ class Patch(Handler):
         remove patch set for the package base
 
         Args:
-          application(Application): application instance
-          package_base(str): package base
+            application(Application): application instance
+            package_base(str): package base
         """
         application.database.patches_remove(package_base)

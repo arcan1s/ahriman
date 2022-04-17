@@ -34,26 +34,26 @@ class AURPackage:
     AUR package descriptor
 
     Attributes:
-      id(int): package ID
-      name(str): package name
-      package_base_id(int): package base ID
-      version(str): package base version
-      description(str): package base description
-      url(Optional[str]): package upstream URL
-      num_votes(int): number of votes for the package
-      polularity(float): package popularity
-      out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
-      maintainer(Optional[str]): package maintainer
-      first_submitted(datetime.datetime): timestamp of the first package submission
-      last_modified(datetime.datetime): timestamp of the last package submission
-      url_path(str): AUR package path
-      depends(List[str]): list of package dependencies
-      make_depends(List[str]): list of package make dependencies
-      opt_depends(List[str]): list of package optional dependencies
-      conflicts(List[str]): conflicts list for the package
-      provides(List[str]): list of packages which this package provides
-      license(List[str]): list of package licenses
-      keywords(List[str]): list of package keywords
+        id(int): package ID
+        name(str): package name
+        package_base_id(int): package base ID
+        version(str): package base version
+        description(str): package base description
+        url(Optional[str]): package upstream URL
+        num_votes(int): number of votes for the package
+        polularity(float): package popularity
+        out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
+        maintainer(Optional[str]): package maintainer
+        first_submitted(datetime.datetime): timestamp of the first package submission
+        last_modified(datetime.datetime): timestamp of the last package submission
+        url_path(str): AUR package path
+        depends(List[str]): list of package dependencies
+        make_depends(List[str]): list of package make dependencies
+        opt_depends(List[str]): list of package optional dependencies
+        conflicts(List[str]): conflicts list for the package
+        provides(List[str]): list of packages which this package provides
+        license(List[str]): list of package licenses
+        keywords(List[str]): list of package keywords
     """
 
     id: int
@@ -84,10 +84,10 @@ class AURPackage:
         construct package descriptor from RPC properties
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          AURPackage: AUR package descriptor
+            AURPackage: AUR package descriptor
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -100,10 +100,10 @@ class AURPackage:
         construct package descriptor from official repository RPC properties
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          AURPackage: AUR package descriptor
+            AURPackage: AUR package descriptor
         """
         return cls(
             id=0,
@@ -137,10 +137,10 @@ class AURPackage:
         covert AUR RPC key names to package keys
 
         Args:
-          descriptor(Dict[str, Any]): RPC package descriptor
+            descriptor(Dict[str, Any]): RPC package descriptor
 
         Returns:
-          Dict[str, Any]: package descriptor with names converted to snake case
+            Dict[str, Any]: package descriptor with names converted to snake case
         """
         identity_mapper: Callable[[Any], Any] = lambda value: value
         value_mapper: Dict[str, Callable[[Any], Any]] = {

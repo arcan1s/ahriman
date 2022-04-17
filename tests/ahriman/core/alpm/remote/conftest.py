@@ -11,7 +11,7 @@ def aur() -> AUR:
     aur helper fixture
 
     Returns:
-      AUR: aur helper instance
+        AUR: aur helper instance
     """
     return AUR()
 
@@ -22,7 +22,7 @@ def official() -> Official:
     official repository fixture
 
     Returns:
-      Official: official repository helper instance
+        Official: official repository helper instance
     """
     return Official()
 
@@ -33,6 +33,6 @@ def remote() -> Remote:
     official repository fixture
 
     Returns:
-      Remote: official repository helper instance
+        Remote: official repository helper instance
     """
     return Remote()

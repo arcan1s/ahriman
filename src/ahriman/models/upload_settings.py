@@ -28,10 +28,10 @@ class UploadSettings(Enum):
     remote synchronization targets enumeration
 
     Attributes:
-      Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
-      Rsync(UploadSettings): (class attribute) sync via rsync
-      S3(UploadSettings): (class attribute) sync to Amazon S3
-      Github(UploadSettings): (class attribute) sync to github releases page
+        Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
+        Rsync(UploadSettings): (class attribute) sync via rsync
+        S3(UploadSettings): (class attribute) sync to Amazon S3
+        Github(UploadSettings): (class attribute) sync to github releases page
     """
 
     Disabled = "disabled"  # for testing purpose
@@ -45,10 +45,10 @@ class UploadSettings(Enum):
         construct value from configuration
 
         Args:
-          value(str): configuration value
+            value(str): configuration value
 
         Returns:
-          UploadSettings: parsed value
+            UploadSettings: parsed value
         """
         if value.lower() in ("rsync",):
             return cls.Rsync

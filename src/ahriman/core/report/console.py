@@ -31,7 +31,7 @@ class Console(Report):
     html report generator
 
     Attributes:
-      use_utf(bool): print utf8 symbols instead of ASCII
+        use_utf(bool): print utf8 symbols instead of ASCII
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -39,9 +39,9 @@ class Console(Report):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         self.use_utf = configuration.getboolean(section, "use_utf", fallback=True)
@@ -51,8 +51,8 @@ class Console(Report):
         generate report for the specified packages
 
         Args:
-          packages(Iterable[Package]): list of packages to generate report
-          result(Result): build result
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
         for package in result.success:
             BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)

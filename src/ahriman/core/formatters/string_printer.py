@@ -32,7 +32,7 @@ class StringPrinter(Printer):
         default constructor
 
         Args:
-          content(str): any content string
+            content(str): any content string
         """
         self.content = content
 
@@ -41,6 +41,6 @@ class StringPrinter(Printer):
         generate entry title from content
 
         Returns:
-          Optional[str]: content title if it can be generated and None otherwise
+            Optional[str]: content title if it can be generated and None otherwise
         """
         return self.content

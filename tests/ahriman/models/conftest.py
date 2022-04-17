@@ -18,7 +18,7 @@ def build_status_failed() -> BuildStatus:
     build result fixture with failed status
 
     Returns:
-      BuildStatus: failed build status test instance
+        BuildStatus: failed build status test instance
     """
     return BuildStatus(BuildStatusEnum.Failed, 42)
 
@@ -29,7 +29,7 @@ def counters() -> Counters:
     counters fixture
 
     Returns:
-      Counters: counters test instance
+        Counters: counters test instance
     """
     return Counters(total=10,
                     unknown=1,
@@ -45,10 +45,10 @@ def internal_status(counters: Counters) -> InternalStatus:
     internal status fixture
 
     Args:
-      counters(Counters): counters fixture
+        counters(Counters): counters fixture
 
     Returns:
-      InternalStatus: internal status test instance
+        InternalStatus: internal status test instance
     """
     return InternalStatus(architecture="x86_64",
                           packages=counters,
@@ -62,7 +62,7 @@ def package_tpacpi_bat_git() -> Package:
     git package fixture
 
     Returns:
-      Package: git package test instance
+        Package: git package test instance
     """
     return Package(
         base="tpacpi-bat-git",
@@ -77,10 +77,10 @@ def pyalpm_handle(pyalpm_package_ahriman: MagicMock) -> MagicMock:
     mock object for pyalpm
 
     Args:
-      pyalpm_package_ahriman(MagicMock): mock object for pyalpm package
+        pyalpm_package_ahriman(MagicMock): mock object for pyalpm package
 
     Returns:
-      MagicMock: pyalpm mock
+        MagicMock: pyalpm mock
     """
     mock = MagicMock()
     mock.handle.load_pkg.return_value = pyalpm_package_ahriman
@@ -93,10 +93,10 @@ def pyalpm_package_ahriman(package_ahriman: Package) -> MagicMock:
     mock object for pyalpm package
 
     Args:
-      package_ahriman(Package): package fixture
+        package_ahriman(Package): package fixture
 
     Returns:
-      MagicMock: pyalpm package mock
+        MagicMock: pyalpm package mock
     """
     mock = MagicMock()
     type(mock).base = PropertyMock(return_value=package_ahriman.base)
@@ -113,10 +113,10 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     mock object for pyalpm package description
 
     Args:
-      package_description_ahriman(PackageDescription): package description fixture
+        package_description_ahriman(PackageDescription): package description fixture
 
     Returns:
-      MagicMock: pyalpm package description mock
+        MagicMock: pyalpm package description mock
     """
     mock = MagicMock()
     type(mock).arch = PropertyMock(return_value=package_description_ahriman.architecture)
@@ -138,6 +138,6 @@ def user_identity() -> UserIdentity:
     identity fixture
 
     Returns:
-      UserIdentity: user identity test instance
+        UserIdentity: user identity test instance
     """
     return UserIdentity("username", int(time.time()) + 30)

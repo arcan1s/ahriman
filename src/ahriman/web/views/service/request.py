@@ -28,7 +28,7 @@ class RequestView(BaseView):
     request package web view. It is actually the same as AddView, but without now
 
     Attributes:
-      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     POST_PERMISSION = UserAccess.Read
@@ -44,8 +44,8 @@ class RequestView(BaseView):
         >>> }
 
         Raises:
-          HTTPBadRequest: if bad data is supplied
-          HTTPFound: in case of success response
+            HTTPBadRequest: if bad data is supplied
+            HTTPFound: in case of success response
         """
         try:
             data = await self.extract_data(["packages"])

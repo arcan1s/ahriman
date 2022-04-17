@@ -37,11 +37,11 @@ class Spawn(Thread):
     MUST NOT be used directly, the only one usage allowed is to spawn process from web services
 
     Attributes:
-      active(Dict[str, Process]): map of active child processes required to avoid zombies
-      architecture(str): repository architecture
-      configuration(Configuration): configuration instance
-      logger(logging.Logger): spawner logger
-      queue(Queue[Tuple[str, bool]]): multiprocessing queue to read updates from processes
+        active(Dict[str, Process]): map of active child processes required to avoid zombies
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        logger(logging.Logger): spawner logger
+        queue(Queue[Tuple[str, bool]]): multiprocessing queue to read updates from processes
     """
 
     def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, configuration: Configuration) -> None:
@@ -49,9 +49,9 @@ class Spawn(Thread):
         default constructor
 
         Args:
-          args_parser(argparse.ArgumentParser): command line parser for the application
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
+            args_parser(argparse.ArgumentParser): command line parser for the application
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         Thread.__init__(self, name="spawn")
         self.architecture = architecture
@@ -71,11 +71,11 @@ class Spawn(Thread):
         helper to run external process
 
         Args:
-          callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. Handler.run method)
-          args(argparse.Namespace): command line arguments
-          architecture(str): repository architecture
-          process_id(str): process unique identifier
-          queue(Queue[Tuple[str, bool]]): output queue
+            callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. Handler.run method)
+            args(argparse.Namespace): command line arguments
+            architecture(str): repository architecture
+            process_id(str): process unique identifier
+            queue(Queue[Tuple[str, bool]]): output queue
         """
         result = callback(args, architecture)
         queue.put((process_id, result))
@@ -85,8 +85,8 @@ class Spawn(Thread):
         add packages
 
         Args:
-          packages(Iterable[str]): packages list to add
-          now(bool): build packages now
+            packages(Iterable[str]): packages list to add
+            now(bool): build packages now
         """
         kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
         if now:
@@ -98,7 +98,7 @@ class Spawn(Thread):
         remove packages
 
         Args:
-          packages(Iterable[str]): packages list to remove
+            packages(Iterable[str]): packages list to remove
         """
         self.spawn_process("remove", *packages)
 
@@ -107,9 +107,9 @@ class Spawn(Thread):
         spawn external ahriman process with supplied arguments
 
         Args:
-          command(str): subcommand to run
-          *args(str): positional command arguments
-          **kwargs(str): named command arguments
+            command(str): subcommand to run
+            *args(str): positional command arguments
+            **kwargs(str): named command arguments
         """
         # default arguments
         arguments = ["--architecture", self.architecture]

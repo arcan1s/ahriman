@@ -31,8 +31,8 @@ def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> 
     perform migration for package statuses
 
     Args:
-      connection(Connection): database connection
-      paths(RepositoryPaths): repository paths instance
+        connection(Connection): database connection
+        paths(RepositoryPaths): repository paths instance
     """
     def insert_base(metadata: Package, last_status: BuildStatus) -> None:
         connection.execute(

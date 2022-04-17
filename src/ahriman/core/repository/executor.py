@@ -41,13 +41,13 @@ class Executor(Cleaner):
         load packages from list of archives
 
         Args:
-          packages(Iterable[Path]): paths to package archives
+            packages(Iterable[Path]): paths to package archives
 
         Returns:
-          List[Package]: list of read packages
+            List[Package]: list of read packages
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -56,10 +56,10 @@ class Executor(Cleaner):
         generate list of repository packages
 
         Returns:
-          List[Package]: list of packages properties
+            List[Package]: list of packages properties
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -68,10 +68,10 @@ class Executor(Cleaner):
         build packages
 
         Args:
-          updates(Iterable[Package]): list of packages properties to build
+            updates(Iterable[Package]): list of packages properties to build
 
         Returns:
-          Result: build result
+            Result: build result
         """
         def build_single(package: Package, local_path: Path) -> None:
             self.reporter.set_building(package.base)
@@ -100,10 +100,10 @@ class Executor(Cleaner):
         remove packages from list
 
         Args:
-          packages(Iterable[str]): list of package names or bases to remove
+            packages(Iterable[str]): list of package names or bases to remove
 
         Returns:
-          Path: path to repository database
+            Path: path to repository database
         """
         def remove_base(package_base: str) -> None:
             try:
@@ -148,8 +148,9 @@ class Executor(Cleaner):
         generate reports
 
         Args:
-          targets(Optional[Iterable[str]]): list of targets to generate reports. Configuration option will be used if it is not set
-          result(Result): build result
+            targets(Optional[Iterable[str]]): list of targets to generate reports. Configuration option will be used
+                if it is not set
+            result(Result): build result
         """
         if targets is None:
             targets = self.configuration.getlist("report", "target")
@@ -162,8 +163,9 @@ class Executor(Cleaner):
         process synchronization to remote servers
 
         Args:
-          targets(Optional[Iterable[str]]): list of targets to sync. Configuration option will be used if it is not set
-          built_packages(Iterable[Package]): list of packages which has just been built
+            targets(Optional[Iterable[str]]): list of targets to sync. Configuration option will be used
+                if it is not set
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         if targets is None:
             targets = self.configuration.getlist("upload", "target")
@@ -176,10 +178,10 @@ class Executor(Cleaner):
         sign packages, add them to repository and update repository database
 
         Args:
-          packages(Iterable[Path]): list of filenames to run
+            packages(Iterable[Path]): list of filenames to run
 
         Returns:
-          Result: path to repository database
+            Result: path to repository database
         """
         def update_single(name: Optional[str], base: str) -> None:
             if name is None:

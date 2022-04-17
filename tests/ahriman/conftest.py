@@ -32,10 +32,10 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
     any value helper for mocker calls check
 
     Args:
-      strict(bool, optional): if True then check type of supplied argument (Default value = False)
+        strict(bool, optional): if True then check type of supplied argument (Default value = False)
 
     Returns:
-      T: any wrapper
+        T: any wrapper
     """
     class AnyVar(cls):
         """any value wrapper"""
@@ -45,10 +45,10 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
             compare object to other
 
             Args:
-              other(Any): other object to compare
+                other(Any): other object to compare
 
             Returns:
-              bool: True in case if objects are equal
+                bool: True in case if objects are equal
             """
             return not strict or isinstance(other, cls)
 
@@ -61,10 +61,10 @@ def get_package_status(package: Package) -> Dict[str, Any]:
     helper to extract package status from package
 
     Args:
-      package(Package): package object
+        package(Package): package object
 
     Returns:
-      Dict[str, Any]: simplified package status map (with only status and view)
+        Dict[str, Any]: simplified package status map (with only status and view)
     """
     return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
 
@@ -75,10 +75,10 @@ def get_package_status_extended(package: Package) -> Dict[str, Any]:
     helper to extract package status from package
 
     Args:
-      package(Package): package object
+        package(Package): package object
 
     Returns:
-      Dict[str, Any]: full package status map (with timestamped build status and view)
+        Dict[str, Any]: full package status map (with timestamped build status and view)
     """
     return {"status": BuildStatus().view(), "package": package.view()}
 
@@ -90,7 +90,7 @@ def aur_package_ahriman() -> AURPackage:
     fixture for AUR package
 
     Returns:
-      AURPackage: AUR package test instance
+        AURPackage: AUR package test instance
     """
     return AURPackage(
         id=1009791,
@@ -145,7 +145,7 @@ def aur_package_akonadi() -> AURPackage:
     fixture for AUR package
 
     Returns:
-      AURPackage: AUR package test instance
+        AURPackage: AUR package test instance
     """
     return AURPackage(
         id=0,
@@ -191,10 +191,10 @@ def auth(configuration: Configuration) -> Auth:
     auth provider fixture
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      Auth: auth service instance
+        Auth: auth service instance
     """
     return Auth(configuration)
 
@@ -205,10 +205,10 @@ def configuration(resource_path_root: Path) -> Configuration:
     configuration fixture
 
     Args:
-      resource_path_root(Path): resource path root directory
+        resource_path_root(Path): resource path root directory
 
     Returns:
-      Configuration: configuration test instance
+        Configuration: configuration test instance
     """
     path = resource_path_root / "core" / "ahriman.ini"
     return Configuration.from_path(path=path, architecture="x86_64", quiet=False)
@@ -220,10 +220,10 @@ def database(configuration: Configuration) -> SQLite:
     database fixture
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      SQLite: database test instance
+        SQLite: database test instance
     """
     database = SQLite.load(configuration)
     yield database
@@ -236,10 +236,10 @@ def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     package fixture
 
     Args:
-      package_description_ahriman(PackageDescription): description fixture
+        package_description_ahriman(PackageDescription): description fixture
 
     Returns:
-      Package: package test instance
+        Package: package test instance
     """
     packages = {"ahriman": package_description_ahriman}
     return Package(
@@ -257,11 +257,11 @@ def package_python_schedule(
     multi package fixture
 
     Args:
-      package_description_python_schedule(PackageDescription): description fixture
-      package_description_python2_schedule(PackageDescription): description fixture
+        package_description_python_schedule(PackageDescription): description fixture
+        package_description_python2_schedule(PackageDescription): description fixture
 
     Returns:
-      Package: multi package test instance
+        Package: multi package test instance
     """
     packages = {
         "python-schedule": package_description_python_schedule,
@@ -280,7 +280,7 @@ def package_description_ahriman() -> PackageDescription:
     package description fixture
 
     Returns:
-      PackageDescription: package description test instance
+        PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -308,7 +308,7 @@ def package_description_python_schedule() -> PackageDescription:
     package description fixture
 
     Returns:
-      PackageDescription: package description test instance
+        PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -329,7 +329,7 @@ def package_description_python2_schedule() -> PackageDescription:
     package description fixture
 
     Returns:
-      PackageDescription: package description test instance
+        PackageDescription: package description test instance
     """
     return PackageDescription(
         architecture="x86_64",
@@ -350,10 +350,10 @@ def repository_paths(configuration: Configuration) -> RepositoryPaths:
     repository paths fixture
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      RepositoryPaths: repository paths test instance
+        RepositoryPaths: repository paths test instance
     """
     return configuration.repository_paths
 
@@ -364,10 +364,10 @@ def result(package_ahriman: Package) -> Result:
     result fixture
 
     Args:
-      package_ahriman(Package): package fixture
+        package_ahriman(Package): package fixture
 
     Returns:
-      Result: result test instance
+        Result: result test instance
     """
     result = Result()
     result.add_success(package_ahriman)
@@ -380,10 +380,10 @@ def spawner(configuration: Configuration) -> Spawn:
     spawner fixture
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      Spawn: spawner fixture
+        Spawn: spawner fixture
     """
     return Spawn(MagicMock(), "x86_64", configuration)
 
@@ -394,7 +394,7 @@ def user() -> User:
     fixture for user descriptor
 
     Returns:
-      User: user descriptor instance
+        User: user descriptor instance
     """
     return User("user", "pa55w0rd", UserAccess.Read)
 
@@ -405,12 +405,12 @@ def watcher(configuration: Configuration, database: SQLite, mocker: MockerFixtur
     package status watcher fixture
 
     Args:
-      configuration(Configuration): configuration fixture
-      database(SQLite): database fixture
-      mocker(MockerFixture): mocker object
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      Watcher: package status watcher test instance
+        Watcher: package status watcher test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Watcher("x86_64", configuration, database)

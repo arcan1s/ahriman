@@ -34,7 +34,7 @@ class BuildOperations(Operations):
         remove packages from build queue
 
         Args:
-          package_base(Optional[str]): optional filter by package base
+            package_base(Optional[str]): optional filter by package base
         """
         def run(connection: Connection) -> None:
             connection.execute(
@@ -51,7 +51,7 @@ class BuildOperations(Operations):
         retrieve packages from build queue
 
         Return:
-          List[Package]: list of packages to be built
+            List[Package]: list of packages to be built
         """
         def run(connection: Connection) -> List[Package]:
             return [
@@ -66,7 +66,7 @@ class BuildOperations(Operations):
         insert packages to build queue
 
         Args:
-          package(Package): package to be inserted
+            package(Package): package to be inserted
         """
         def run(connection: Connection) -> None:
             connection.execute(

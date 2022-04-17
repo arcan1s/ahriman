@@ -33,8 +33,8 @@ class Mapping(Auth):
     user authorization based on mapping from configuration file
 
     Attributes:
-      salt(str): random generated string to salt passwords
-      database(SQLite): database instance
+        salt(str): random generated string to salt passwords
+        database(SQLite): database instance
     """
 
     def __init__(self, configuration: Configuration, database: SQLite,
@@ -43,9 +43,9 @@ class Mapping(Auth):
         default constructor
 
         Args:
-          configuration(Configuration): configuration instance
-          database(SQLite): database instance
-          provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Configuration)
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Configuration)
         """
         Auth.__init__(self, configuration, provider)
         self.database = database
@@ -56,11 +56,11 @@ class Mapping(Auth):
         validate user password
 
         Args:
-          username(Optional[str]): username
-          password(Optional[str]): entered password
+            username(Optional[str]): username
+            password(Optional[str]): entered password
 
         Returns:
-          bool: True in case if password matches, False otherwise
+            bool: True in case if password matches, False otherwise
         """
         if username is None or password is None:
             return False  # invalid data supplied
@@ -72,10 +72,10 @@ class Mapping(Auth):
         retrieve user from in-memory mapping
 
         Args:
-          username(str): username
+            username(str): username
 
         Returns:
-          Optional[User]: user descriptor if username is known and None otherwise
+            Optional[User]: user descriptor if username is known and None otherwise
         """
         return self.database.user_get(username)
 
@@ -84,10 +84,10 @@ class Mapping(Auth):
         check if user is known
 
         Args:
-          username(Optional[str]): username
+            username(Optional[str]): username
 
         Returns:
-          bool: True in case if user is known and can be authorized and False otherwise
+            bool: True in case if user is known and can be authorized and False otherwise
         """
         return username is not None and self.get_user(username) is not None
 
@@ -96,12 +96,12 @@ class Mapping(Auth):
         validate if user has access to requested resource
 
         Args:
-          username(str): username
-          required(UserAccess): required access level
-          context(Optional[str]): URI request path
+            username(str): username
+            required(UserAccess): required access level
+            context(Optional[str]): URI request path
 
         Returns:
-          bool: True in case if user is allowed to do this request and False otherwise
+            bool: True in case if user is allowed to do this request and False otherwise
         """
         user = self.get_user(username)
         return user is not None and user.verify_access(required)

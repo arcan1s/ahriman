@@ -30,8 +30,8 @@ class LoginView(BaseView):
     login endpoint view
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = POST_PERMISSION = UserAccess.Safe
@@ -44,9 +44,9 @@ class LoginView(BaseView):
         to authorization url provided by OAuth client
 
         Raises:
-          HTTPFound: on success response
-          HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
-          HTTPUnauthorized: if case of authorization error
+            HTTPFound: on success response
+            HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
+            HTTPUnauthorized: if case of authorization error
         """
         from ahriman.core.auth.oauth import OAuth
 
@@ -79,8 +79,8 @@ class LoginView(BaseView):
         >>> }
 
         Raises:
-          HTTPFound: on success response
-          HTTPUnauthorized: if case of authorization error
+            HTTPFound: on success response
+            HTTPUnauthorized: if case of authorization error
         """
         data = await self.extract_data()
         username = data.get("username")

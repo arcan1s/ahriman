@@ -23,14 +23,14 @@ def request(app: web.Application, path: str, method: str, json: Any = None, data
     request generator helper
 
     Args:
-      app(web.Application): application fixture
-      path(str): path for the request
-      method(str): method for the request
-      json(Any, optional): json payload of the request (Default value = None)
-      data(Any, optional): form data payload of the request (Default value = None)
+        app(web.Application): application fixture
+        path(str): path for the request
+        method(str): method for the request
+        json(Any, optional): json payload of the request (Default value = None)
+        data(Any, optional): form data payload of the request (Default value = None)
 
     Returns:
-      _request: dummy request object
+        _request: dummy request object
     """
     return _request(app, path, method, json, data)
 
@@ -42,13 +42,13 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite,
     application fixture
 
     Args:
-      configuration(Configuration): configuration fixture
-      spawner(Spawn): spawner fixture
-      database(SQLite): database fixture
-      mocker(MockerFixture): mocker object
+        configuration(Configuration): configuration fixture
+        spawner(Spawn): spawner fixture
+        database(SQLite): database fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      web.Application: application test instance
+        web.Application: application test instance
     """
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
@@ -63,14 +63,14 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     application fixture with auth enabled
 
     Args:
-      configuration(Configuration): configuration fixture
-      user(User): user descriptor fixture
-      spawner(Spawn): spawner fixture
-      database(SQLite): database fixture
-      mocker(MockerFixture): mocker object
+        configuration(Configuration): configuration fixture
+        user(User): user descriptor fixture
+        spawner(Spawn): spawner fixture
+        database(SQLite): database fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      web.Application: application test instance
+        web.Application: application test instance
     """
     configuration.set_option("auth", "target", "configuration")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
@@ -91,14 +91,14 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     application fixture with debug enabled
 
     Args:
-      configuration(Configuration): configuration fixture
-      user(User): user descriptor fixture
-      spawner(Spawn): spawner fixture
-      database(SQLite): database fixture
-      mocker(MockerFixture): mocker object
+        configuration(Configuration): configuration fixture
+        user(User): user descriptor fixture
+        spawner(Spawn): spawner fixture
+        database(SQLite): database fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
-      web.Application: application test instance
+        web.Application: application test instance
     """
     configuration.set_option("web", "debug", "yes")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)

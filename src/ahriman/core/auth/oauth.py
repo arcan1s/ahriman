@@ -34,11 +34,11 @@ class OAuth(Mapping):
     It is required to create application first and put application credentials.
 
     Attributes:
-      client_id(str): application client id
-      client_secret(str): application client secret key
-      provider(aioauth_client.OAuth2Client): provider class, should be one of aiohttp-client provided classes
-      redirect_uri(str): redirect URI registered in provider
-      scopes(str): list of scopes required by the application
+        client_id(str): application client id
+        client_secret(str): application client secret key
+        provider(aioauth_client.OAuth2Client): provider class, should be one of aiohttp-client provided classes
+        redirect_uri(str): redirect URI registered in provider
+        scopes(str): list of scopes required by the application
     """
 
     def __init__(self, configuration: Configuration, database: SQLite,
@@ -47,9 +47,9 @@ class OAuth(Mapping):
         default constructor
 
         Args:
-          configuration(Configuration): configuration instance
-          database(SQLite): database instance
-          provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.OAuth)
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.OAuth)
         """
         Mapping.__init__(self, configuration, database, provider)
         self.client_id = configuration.get("auth", "client_id")
@@ -65,7 +65,7 @@ class OAuth(Mapping):
     def auth_control(self) -> str:
         """
         Returns:
-          str: login control as html code to insert
+            str: login control as html code to insert
         """
         return """<a class="nav-link" href="/user-api/v1/login" title="login via OAuth2">login</a>"""
 
@@ -75,13 +75,13 @@ class OAuth(Mapping):
         load OAuth2 provider by name
 
         Args:
-          name(str): name of the provider. Must be valid class defined in aioauth-client library
+            name(str): name of the provider. Must be valid class defined in aioauth-client library
 
         Returns:
-          Type[aioauth_client.OAuth2Client]: loaded provider type
+            Type[aioauth_client.OAuth2Client]: loaded provider type
 
         Raises:
-          InvalidOption: in case if invalid OAuth provider name supplied
+            InvalidOption: in case if invalid OAuth provider name supplied
         """
         provider: Type[aioauth_client.OAuth2Client] = getattr(aioauth_client, name)
         try:
@@ -97,7 +97,7 @@ class OAuth(Mapping):
         load client from parameters
 
         Returns:
-          aioauth_client.OAuth2Client: generated client according to current settings
+            aioauth_client.OAuth2Client: generated client according to current settings
         """
         return self.provider(client_id=self.client_id, client_secret=self.client_secret)
 
@@ -106,7 +106,7 @@ class OAuth(Mapping):
         get authorization URI for the specified settings
 
         Returns:
-          str: authorization URI as a string
+            str: authorization URI as a string
         """
         client = self.get_client()
         uri: str = client.get_authorize_url(scope=self.scopes, redirect_uri=self.redirect_uri)
@@ -117,10 +117,10 @@ class OAuth(Mapping):
         extract OAuth username from remote
 
         Args:
-          code(str): authorization code provided by external service
+            code(str): authorization code provided by external service
 
         Returns:
-          Optional[str]: username as is in OAuth provider
+            Optional[str]: username as is in OAuth provider
         """
         try:
             client = self.get_client()

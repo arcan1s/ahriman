@@ -29,8 +29,8 @@ class UpdatePrinter(StringPrinter):
     print content of the package update
 
     Attributes:
-      package(Package): remote (new) package object
-      local_version(Optional[str]): local version of the package if any
+        package(Package): remote (new) package object
+        local_version(Optional[str]): local version of the package if any
     """
 
     def __init__(self, remote: Package, local_version: Optional[str]) -> None:
@@ -38,8 +38,8 @@ class UpdatePrinter(StringPrinter):
         default constructor
 
         Args:
-          remote(Package): remote (new) package object
-          local_version(Optional[str]): local version of the package if any
+            remote(Package): remote (new) package object
+            local_version(Optional[str]): local version of the package if any
         """
         StringPrinter.__init__(self, remote.base)
         self.package = remote
@@ -50,6 +50,6 @@ class UpdatePrinter(StringPrinter):
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return [Property(self.local_version, self.package.version, is_required=True)]

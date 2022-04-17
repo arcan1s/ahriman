@@ -31,6 +31,6 @@ class StatusPrinter(StringPrinter):
         default constructor
 
         Args:
-          status(BuildStatus): build status
+            status(BuildStatus): build status
         """
         StringPrinter.__init__(self, status.pretty_print())

@@ -31,8 +31,8 @@ class Rsync(Upload):
     rsync wrapper
 
     Attributes:
-      command(List[str]): command arguments for sync
-      remote(str): remote address to sync
+        command(List[str]): command arguments for sync
+        remote(str): remote address to sync
     """
 
     _check_output = check_output
@@ -42,9 +42,9 @@ class Rsync(Upload):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Upload.__init__(self, architecture, configuration)
         self.command = configuration.getlist(section, "command")
@@ -55,7 +55,7 @@ class Rsync(Upload):
         sync data to remote server
 
         Args:
-          path(Path): local path to sync
-          built_packages(Iterable[Package]): list of packages which has just been built
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         Rsync._check_output(*self.command, str(path), self.remote, exception=None, logger=self.logger)

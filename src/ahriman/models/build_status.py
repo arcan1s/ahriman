@@ -33,11 +33,11 @@ class BuildStatusEnum(Enum):
     build status enumeration
 
     Attributes:
-      Unknown(BuildStatusEnum): (class attribute) build status is unknown
-      Pending(BuildStatusEnum): (class attribute) package is out-of-dated and will be built soon
-      Building(BuildStatusEnum): (class attribute) package is building right now
-      Failed(BuildStatusEnum): (class attribute) package build failed
-      Success(BuildStatusEnum): (class attribute) package has been built without errors
+        Unknown(BuildStatusEnum): (class attribute) build status is unknown
+        Pending(BuildStatusEnum): (class attribute) package is out-of-dated and will be built soon
+        Building(BuildStatusEnum): (class attribute) package is building right now
+        Failed(BuildStatusEnum): (class attribute) package build failed
+        Success(BuildStatusEnum): (class attribute) package has been built without errors
     """
 
     Unknown = "unknown"
@@ -51,7 +51,7 @@ class BuildStatusEnum(Enum):
         convert itself to shield.io badges color
 
         Returns:
-          str: shields.io color
+            str: shields.io color
         """
         if self == BuildStatusEnum.Pending:
             return "yellow"
@@ -68,7 +68,7 @@ class BuildStatusEnum(Enum):
         converts itself to bootstrap color
 
         Returns:
-          str: bootstrap color
+            str: bootstrap color
         """
         if self == BuildStatusEnum.Pending:
             return "warning"
@@ -87,8 +87,8 @@ class BuildStatus:
     build status holder
 
     Attributes:
-      status(BuildStatusEnum): build status
-      timestamp(int): build status update time
+        status(BuildStatusEnum): build status
+        timestamp(int): build status update time
     """
 
     status: BuildStatusEnum = BuildStatusEnum.Unknown
@@ -106,10 +106,10 @@ class BuildStatus:
         construct status properties from json dump
 
         Args:
-          dump(Dict[str, Any]): json dump body
+            dump(Dict[str, Any]): json dump body
 
         Returns:
-          BuildStatus: status properties
+            BuildStatus: status properties
         """
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))
@@ -119,7 +119,7 @@ class BuildStatus:
         generate pretty string representation
 
         Returns:
-          str: print-friendly string
+            str: print-friendly string
         """
         return f"{self.status.value} ({pretty_datetime(self.timestamp)})"
 
@@ -128,7 +128,7 @@ class BuildStatus:
         generate json status view
 
         Returns:
-          Dict[str, Any]: json-friendly dictionary
+            Dict[str, Any]: json-friendly dictionary
         """
         return {
             "status": self.status.value,

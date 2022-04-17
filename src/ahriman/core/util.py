@@ -39,18 +39,18 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     subprocess wrapper
 
     Args:
-      *args(str): command line arguments
-      exception(Optional[Exception]): exception which has to be reraised instead of default subprocess exception
-      cwd(Optional[Path], optional): current working directory (Default value = None)
-      input_data(Optional[str], optional): data which will be written to command stdin (Default value = None)
-      logger(Optional[Logger], optional): logger to log command result if required (Default value = None)
-      user(Optional[int], optional): run process as specified user (Default value = None)
+        *args(str): command line arguments
+        exception(Optional[Exception]): exception which has to be reraised instead of default subprocess exception
+        cwd(Optional[Path], optional): current working directory (Default value = None)
+        input_data(Optional[str], optional): data which will be written to command stdin (Default value = None)
+        logger(Optional[Logger], optional): logger to log command result if required (Default value = None)
+        user(Optional[int], optional): run process as specified user (Default value = None)
 
     Returns:
-      str: command output
+        str: command output
 
     Raises:
-      subprocess.CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
+        subprocess.CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
     """
     def log(single: str) -> None:
         if logger is not None:
@@ -92,11 +92,11 @@ def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
     check if current user is the owner of the root
 
     Args:
-      paths(RepositoryPaths): repository paths object
-      unsafe(bool): if set no user check will be performed before path creation
+        paths(RepositoryPaths): repository paths object
+        unsafe(bool): if set no user check will be performed before path creation
 
     Raises:
-      UnsafeRun: if root uid differs from current uid and check is enabled
+        UnsafeRun: if root uid differs from current uid and check is enabled
     """
     if not paths.root.exists():
         return  # no directory found, skip check
@@ -113,10 +113,10 @@ def exception_response_text(exception: requests.exceptions.HTTPError) -> str:
     safe response exception text generation
 
     Args:
-      exception(requests.exceptions.HTTPError): exception raised
+        exception(requests.exceptions.HTTPError): exception raised
 
     Returns:
-      str: text of the response if it is not None and empty string otherwise
+        str: text of the response if it is not None and empty string otherwise
     """
     result: str = exception.response.text if exception.response is not None else ""
     return result
@@ -127,11 +127,11 @@ def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str
     filter json object by fields used for json-to-object conversion
 
     Args:
-      source(Dict[str, Any]): raw json object
-      known_fields(Iterable[str]): list of fields which have to be known for the target object
+        source(Dict[str, Any]): raw json object
+        known_fields(Iterable[str]): list of fields which have to be known for the target object
 
     Returns:
-      Dict[str, Any]: json object without unknown and empty fields
+        Dict[str, Any]: json object without unknown and empty fields
     """
     return {key: value for key, value in source.items() if key in known_fields and value is not None}
 
@@ -141,12 +141,12 @@ def full_version(epoch: Union[str, int, None], pkgver: str, pkgrel: str) -> str:
     generate full version from components
 
     Args:
-      epoch(Union[str, int, None]): package epoch if any
-      pkgver(str): package version
-      pkgrel(str): package release version (arch linux specific)
+        epoch(Union[str, int, None]): package epoch if any
+        pkgver(str): package version
+        pkgrel(str): package release version (arch linux specific)
 
     Returns:
-      str: generated version
+        str: generated version
     """
     prefix = f"{epoch}:" if epoch else ""
     return f"{prefix}{pkgver}-{pkgrel}"
@@ -157,10 +157,10 @@ def package_like(filename: Path) -> bool:
     check if file looks like package
 
     Args:
-      filename(Path): name of file to check
+        filename(Path): name of file to check
 
     Returns:
-      bool: True in case if name contains `.pkg.` and not signature, False otherwise
+        bool: True in case if name contains `.pkg.` and not signature, False otherwise
     """
     name = filename.name
     return ".pkg." in name and not name.endswith(".sig")
@@ -171,10 +171,10 @@ def pretty_datetime(timestamp: Optional[Union[datetime.datetime, float, int]]) -
     convert datetime object to string
 
     Args:
-      timestamp(Optional[Union[datetime.datetime, float, int]]): datetime to convert
+        timestamp(Optional[Union[datetime.datetime, float, int]]): datetime to convert
 
     Returns:
-      str: pretty printable datetime as string
+        str: pretty printable datetime as string
     """
     if timestamp is None:
         return ""
@@ -188,14 +188,14 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
     convert size to string
 
     Args:
-      size(Optional[float]): size to convert
-      level(int, optional): represents current units, 0 is B, 1 is KiB etc (Default value = 0)
+        size(Optional[float]): size to convert
+        level(int, optional): represents current units, 0 is B, 1 is KiB etc (Default value = 0)
 
     Returns:
-      str: pretty printable size as string
+        str: pretty printable size as string
 
     Raises:
-      InvalidOption: if size is more than 1TiB
+        InvalidOption: if size is more than 1TiB
     """
     def str_level() -> str:
         if level == 0:
@@ -221,7 +221,7 @@ def tmpdir() -> Generator[Path, None, None]:
     wrapper for tempfile to remove directory after all
 
     Yields:
-      Path: path to the created directory
+        Path: path to the created directory
     """
     path = Path(tempfile.mkdtemp())
     try:
@@ -236,10 +236,10 @@ def walk(directory_path: Path) -> Generator[Path, None, None]:
     Credits to https://stackoverflow.com/a/64915960
 
     Args:
-      directory_path(Path): root directory path
+        directory_path(Path): root directory path
 
     Yields:
-      Path: all found files in given directory with full path
+        Path: all found files in given directory with full path
     """
     for element in directory_path.iterdir():
         if element.is_dir():

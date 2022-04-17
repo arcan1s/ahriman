@@ -41,11 +41,11 @@ class UnsafeCommands(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         parser = args.parser()
         unsafe_commands = UnsafeCommands.get_unsafe_commands(parser)
@@ -61,9 +61,9 @@ class UnsafeCommands(Handler):
         check if command is unsafe
 
         Args:
-          command(str): command to check
-          unsafe_commands(List[str]): list of unsafe commands
-          parser(argparse.ArgumentParser): generated argument parser
+            command(str): command to check
+            unsafe_commands(List[str]): list of unsafe commands
+            parser(argparse.ArgumentParser): generated argument parser
         """
         args = parser.parse_args(shlex.split(command))
         UnsafeCommands.check_if_empty(True, args.command in unsafe_commands)
@@ -74,10 +74,10 @@ class UnsafeCommands(Handler):
         extract unsafe commands from argument parser
 
         Args:
-          parser(argparse.ArgumentParser): generated argument parser
+            parser(argparse.ArgumentParser): generated argument parser
 
         Returns:
-          List[str]: list of commands with default unsafe flag
+            List[str]: list of commands with default unsafe flag
         """
         # pylint: disable=protected-access
         subparser = next(action for action in parser._actions if isinstance(action, argparse._SubParsersAction))

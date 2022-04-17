@@ -12,14 +12,11 @@ def mapping(configuration: Configuration, database: SQLite) -> Mapping:
     auth provider fixture
 
     Args:
-      configuration(Configuration): configuration fixture
-      database(SQLite): database fixture
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
 
     Returns:
-      Mapping: auth service instance
-
-    Raises:
-
+        Mapping: auth service instance
     """
     return Mapping(configuration, database)
 
@@ -30,14 +27,11 @@ def oauth(configuration: Configuration, database: SQLite) -> OAuth:
     OAuth provider fixture
 
     Args:
-      configuration(Configuration): configuration fixture
-      database(SQLite): database fixture
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
 
     Returns:
-      OAuth: OAuth2 service instance
-
-    Raises:
-
+        OAuth: OAuth2 service instance
     """
     configuration.set("web", "address", "https://example.com")
     return OAuth(configuration, database)

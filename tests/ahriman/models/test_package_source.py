@@ -11,11 +11,11 @@ def _is_file_mock(is_any_file: bool, is_pkgbuild: bool) -> Callable[[Path], bool
     helper to mock is_file method
 
     Args:
-      is_any_file(bool): value which will be return for any file
-      is_pkgbuild(bool): value which will be return if PKGBUILD like path asked
+        is_any_file(bool): value which will be return for any file
+        is_pkgbuild(bool): value which will be return if PKGBUILD like path asked
 
     Returns:
-      Callable[[Path], bool]: side effect function for the mocker object
+        Callable[[Path], bool]: side effect function for the mocker object
     """
     side_effect: Callable[[Path], bool] = lambda source: is_pkgbuild if source.name == "PKGBUILD" else is_any_file
     return side_effect

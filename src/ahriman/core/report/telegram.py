@@ -35,12 +35,12 @@ class Telegram(Report, JinjaTemplate):
     telegram report generator
 
     Attributes:
-      TELEGRAM_API_URL(str): (class attribute) telegram api base url
-      TELEGRAM_MAX_CONTENT_LENGTH(int): (class attribute) max content length of the message
-      api_key(str): bot api key
-      chat_id(str): chat id to post message, either string with @ or integer
-      template_path(Path): path to template for built packages
-      template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
+        TELEGRAM_API_URL(str): (class attribute) telegram api base url
+        TELEGRAM_MAX_CONTENT_LENGTH(int): (class attribute) max content length of the message
+        api_key(str): bot api key
+        chat_id(str): chat id to post message, either string with @ or integer
+        template_path(Path): path to template for built packages
+        template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
     """
 
     TELEGRAM_API_URL = "https://api.telegram.org"
@@ -51,9 +51,9 @@ class Telegram(Report, JinjaTemplate):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         JinjaTemplate.__init__(self, section, configuration)
@@ -68,7 +68,7 @@ class Telegram(Report, JinjaTemplate):
         send message to telegram channel
 
         Args:
-          text(str): message body text
+            text(str): message body text
         """
         try:
             response = requests.post(
@@ -87,8 +87,8 @@ class Telegram(Report, JinjaTemplate):
         generate report for the specified packages
 
         Args:
-          packages(Iterable[Package]): list of packages to generate report
-          result(Result): build result
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
         if not result.success:
             return

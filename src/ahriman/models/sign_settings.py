@@ -28,9 +28,9 @@ class SignSettings(Enum):
     sign targets enumeration
 
     Attributes:
-      Disabled(SignSettings): (class attribute) option which generates no report for testing purpose
-      Packages(SignSettings): (class attribute) sign each package
-      Repository(SignSettings): (class attribute) sign repository database file
+        Disabled(SignSettings): (class attribute) option which generates no report for testing purpose
+        Packages(SignSettings): (class attribute) sign each package
+        Repository(SignSettings): (class attribute) sign repository database file
     """
 
     Disabled = "disabled"
@@ -43,13 +43,10 @@ class SignSettings(Enum):
         construct value from configuration
 
         Args:
-          value(str): configuration value
+            value(str): configuration value
 
         Returns:
-          SignSettings: parsed value
-
-        Raises:
-          InvalidOption: if unsupported option suppled
+            SignSettings: parsed value
         """
         if value.lower() in ("package", "packages", "sign-package"):
             return cls.Packages

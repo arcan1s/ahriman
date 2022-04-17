@@ -36,7 +36,7 @@ class Remote:
 
     def __init__(self) -> None:
         """
-        default constructor
+            default constructor
         """
         self.logger = logging.getLogger("build_details")
 
@@ -46,10 +46,10 @@ class Remote:
         get package info by its name
 
         Args:
-          package_name(str): package name to search
+            package_name(str): package name to search
 
         Returns:
-          AURPackage: package which match the package name
+            AURPackage: package which match the package name
         """
         return cls().package_info(package_name)
 
@@ -60,10 +60,10 @@ class Remote:
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
 
         Args:
-          *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+            *keywords(str): search terms, e.g. "ahriman", "is", "cool"
 
         Returns:
-          List[AURPackage]: list of packages each of them matches all search terms
+            List[AURPackage]: list of packages each of them matches all search terms
         """
         instance = cls()
         packages: Dict[str, AURPackage] = {}
@@ -82,10 +82,10 @@ class Remote:
         search package in AUR web
 
         Args:
-          *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+            *keywords(str): search terms, e.g. "ahriman", "is", "cool"
 
         Returns:
-          List[AURPackage]: list of packages which match the criteria
+            List[AURPackage]: list of packages which match the criteria
         """
         return cls().package_search(*keywords)
 
@@ -94,13 +94,13 @@ class Remote:
         get package info by its name
 
         Args:
-          package_name(str): package name to search
+            package_name(str): package name to search
 
         Returns:
-          AURPackage: package which match the package name
+            AURPackage: package which match the package name
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -109,12 +109,12 @@ class Remote:
         search package in AUR web
 
         Args:
-          *keywords(str): keywords to search
+            *keywords(str): keywords to search
 
         Returns:
-          List[AURPackage]: list of packages which match the criteria
+            List[AURPackage]: list of packages which match the criteria
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError

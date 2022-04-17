@@ -11,9 +11,9 @@ def migrations(connection: Connection) -> Migrations:
     fixture for migrations object
 
     Args:
-      connection(Connection): sqlite connection fixture
+        connection(Connection): sqlite connection fixture
 
     Returns:
-      Migrations: migrations test instance
+        Migrations: migrations test instance
     """
     return Migrations(connection)

@@ -36,12 +36,13 @@ class Configuration(configparser.RawConfigParser):
     extension for built-in configuration parser
 
     Attributes:
-      ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific (required by dump)
-      DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
-      DEFAULT_LOG_LEVEL(int): (class attribute) default log level (in case of fallback)
-      SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
-      architecture(Optional[str]): repository architecture
-      path(Optional[Path]): path to root configuration file
+        ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific.
+            Required by dump and merging functions
+        DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
+        DEFAULT_LOG_LEVEL(int): (class attribute) default log level (in case of fallback)
+        SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
+        architecture(Optional[str]): repository architecture
+        path(Optional[Path]): path to root configuration file
     """
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
@@ -65,7 +66,7 @@ class Configuration(configparser.RawConfigParser):
     def include(self) -> Path:
         """
         Returns:
-          Path: path to directory with configuration includes
+            Path: path to directory with configuration includes
         """
         return self.getpath("settings", "include")
 
@@ -73,7 +74,7 @@ class Configuration(configparser.RawConfigParser):
     def logging_path(self) -> Path:
         """
         Returns:
-          Path: path to logging configuration
+            Path: path to logging configuration
         """
         return self.getpath("settings", "logging")
 
@@ -92,12 +93,12 @@ class Configuration(configparser.RawConfigParser):
         constructor with full object initialization
 
         Args:
-          path(Path): path to root configuration file
-          architecture(str): repository architecture
-          quiet(bool): force disable any log messages
+            path(Path): path to root configuration file
+            architecture(str): repository architecture
+            quiet(bool): force disable any log messages
 
         Returns:
-          Configuration: configuration instance
+            Configuration: configuration instance
         """
         config = cls()
         config.load(path)
@@ -111,13 +112,13 @@ class Configuration(configparser.RawConfigParser):
         convert string value to list of strings
 
         Args:
-          value(str): string configuration value
+            value(str): string configuration value
 
         Returns:
-          List[str]: list of string from the parsed string
+            List[str]: list of string from the parsed string
 
         Raises:
-          ValueError: in case if option value contains unclosed quotes
+            ValueError: in case if option value contains unclosed quotes
         """
         def generator() -> Generator[str, None, None]:
             quote_mark = None
@@ -127,7 +128,7 @@ class Configuration(configparser.RawConfigParser):
                     quote_mark = char
                 elif char == quote_mark:  # quoted part ended, reset quotation
                     quote_mark = None
-                elif char == " " and quote_mark is None:  # found space outside of the quotation, yield the word
+                elif char == " " and quote_mark is None:  # found space outside the quotation, yield the word
                     yield word
                     word = ""
                 else:  # append character to the buffer
@@ -144,11 +145,11 @@ class Configuration(configparser.RawConfigParser):
         generate section name for sections which depends on context
 
         Args:
-          section(str): section name
-          suffix(str): session suffix, e.g. repository architecture
+            section(str): section name
+            suffix(str): session suffix, e.g. repository architecture
 
         Returns:
-          str: correct section name for repository specific section
+            str: correct section name for repository specific section
         """
         return f"{section}:{suffix}"
 
@@ -157,10 +158,10 @@ class Configuration(configparser.RawConfigParser):
         convert string value to path object
 
         Args:
-          value(str): string configuration value
+            value(str): string configuration value
 
         Returns:
-          Path: path object which represents the configuration value
+            Path: path object which represents the configuration value
         """
         path = Path(value)
         if self.path is None or path.is_absolute():
@@ -172,10 +173,10 @@ class Configuration(configparser.RawConfigParser):
         check if service was actually loaded
 
         Returns:
-          Tuple[Path, str]: configuration root path and architecture if loaded
+            Tuple[Path, str]: configuration root path and architecture if loaded
 
         Raises:
-          InitializeException: in case if architecture and/or path are not set
+            InitializeException: in case if architecture and/or path are not set
         """
         if self.path is None or self.architecture is None:
             raise InitializeException("Configuration path and/or architecture are not set")
@@ -186,7 +187,7 @@ class Configuration(configparser.RawConfigParser):
         dump configuration to dictionary
 
         Returns:
-          Dict[str, Dict[str, str]]: configuration dump for specific architecture
+            Dict[str, Dict[str, str]]: configuration dump for specific architecture
         """
         return {
             section: dict(self[section])
@@ -205,14 +206,14 @@ class Configuration(configparser.RawConfigParser):
         Despite the fact that it has same semantics as other get* methods, but it has different argument list
 
         Args:
-          section(str): section name
-          architecture(str): repository architecture
+            section(str): section name
+            architecture(str): repository architecture
 
         Returns:
-          Tuple[str, str]: section name and found type name
+            Tuple[str, str]: section name and found type name
 
         Raises:
-          configparser.NoSectionError: in case if no section found
+            configparser.NoSectionError: in case if no section found
         """
         group_type = self.get(section, "type", fallback=None)  # new-style logic
         if group_type is not None:
@@ -231,7 +232,7 @@ class Configuration(configparser.RawConfigParser):
         fully load configuration
 
         Args:
-          path(Path): path to root configuration file
+            path(Path): path to root configuration file
         """
         if not path.is_file():  # fallback to the system file
             path = self.SYSTEM_CONFIGURATION_PATH
@@ -256,7 +257,7 @@ class Configuration(configparser.RawConfigParser):
         setup logging settings from configuration
 
         Args:
-          quiet(bool): force disable any log messages
+            quiet(bool): force disable any log messages
         """
         try:
             path = self.logging_path
@@ -273,7 +274,7 @@ class Configuration(configparser.RawConfigParser):
         merge architecture specific sections into main configuration
 
         Args:
-          architecture(str): repository architecture
+            architecture(str): repository architecture
         """
         self.architecture = architecture
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
@@ -306,9 +307,9 @@ class Configuration(configparser.RawConfigParser):
         set option. Unlike default `configparser.RawConfigParser.set` it also creates section if it does not exist
 
         Args:
-          section(str): section name
-          option(str): option name
-          value(Optional[str]): option value as string in parsable format
+            section(str): section name
+            option(str): option name
+            value(Optional[str]): option value as string in parsable format
         """
         if not self.has_section(section):
             self.add_section(section)

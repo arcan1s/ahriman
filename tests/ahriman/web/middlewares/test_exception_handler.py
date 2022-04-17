@@ -15,10 +15,10 @@ def _extract_body(response: Any) -> Any:
     extract json body from given object
 
     Args:
-      response(Any): response (any actually) object
+        response(Any): response (any actually) object
 
     Returns:
-      Any: body key from the object converted to json
+        Any: body key from the object converted to json
     """
     return json.loads(getattr(response, "body"))
 

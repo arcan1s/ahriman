@@ -35,10 +35,10 @@ class UpdateHandler(Cleaner):
         generate list of repository packages
 
         Returns:
-          List[Package]: list of packages properties
+            List[Package]: list of packages properties
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -47,11 +47,11 @@ class UpdateHandler(Cleaner):
         check AUR for updates
 
         Args:
-          filter_packages(Iterable[str]): do not check every package just specified in the list
-          no_vcs(bool): do not check VCS packages
+            filter_packages(Iterable[str]): do not check every package just specified in the list
+            no_vcs(bool): do not check VCS packages
 
         Returns:
-          List[Package]: list of packages which are out-of-dated
+            List[Package]: list of packages which are out-of-dated
         """
         result: List[Package] = []
 
@@ -81,7 +81,7 @@ class UpdateHandler(Cleaner):
         check local packages for updates
 
         Returns:
-          List[Package]: list of local packages which are out-of-dated
+            List[Package]: list of local packages which are out-of-dated
         """
         result: List[Package] = []
         packages = {local.base: local for local in self.packages()}
@@ -110,7 +110,7 @@ class UpdateHandler(Cleaner):
         check for packages for which manual update has been requested
 
         Returns:
-          List[Package]: list of packages which are out-of-dated
+            List[Package]: list of packages which are out-of-dated
         """
         result: List[Package] = []
         known_bases = {package.base for package in self.packages()}

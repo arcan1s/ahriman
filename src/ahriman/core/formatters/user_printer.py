@@ -29,7 +29,7 @@ class UserPrinter(StringPrinter):
     print properties of user
 
     Attributes:
-      user(User): stored user
+        user(User): stored user
     """
 
     def __init__(self, user: User) -> None:
@@ -37,7 +37,7 @@ class UserPrinter(StringPrinter):
         default constructor
 
         Args:
-          user(User): user to print
+            user(User): user to print
         """
         StringPrinter.__init__(self, user.username)
         self.user = user
@@ -47,6 +47,6 @@ class UserPrinter(StringPrinter):
         convert content into printable data
 
         Returns:
-          List[Property]: list of content properties
+            List[Property]: list of content properties
         """
         return [Property("role", self.user.access.value, is_required=True)]

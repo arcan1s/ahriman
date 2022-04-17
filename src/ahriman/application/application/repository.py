@@ -40,10 +40,10 @@ class Repository(Properties):
         generate report and sync to remote server
 
         Args:
-          result(Result): build result
+            result(Result): build result
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -52,10 +52,10 @@ class Repository(Properties):
         run all clean methods. Warning: some functions might not be available under non-root
 
         Args:
-          cache(bool): clear directory with package caches
-          chroot(bool): clear build chroot
-          manual(bool): clear directory with manually added packages
-          packages(bool): clear directory with built packages
+            cache(bool): clear directory with package caches
+            chroot(bool): clear build chroot
+            manual(bool): clear directory with manually added packages
+            packages(bool): clear directory with built packages
         """
         if cache:
             self.repository.clear_cache()
@@ -71,8 +71,8 @@ class Repository(Properties):
         generate report
 
         Args:
-          target(Iterable[str]): list of targets to run (e.g. html)
-          result(Result): build result
+            target(Iterable[str]): list of targets to run (e.g. html)
+            result(Result): build result
         """
         targets = target or None
         self.repository.process_report(targets, result)
@@ -82,7 +82,7 @@ class Repository(Properties):
         sign packages and repository
 
         Args:
-          packages(Iterable[str]): only sign specified packages
+            packages(Iterable[str]): only sign specified packages
         """
         # copy to prebuilt directory
         for package in self.repository.packages():
@@ -107,8 +107,8 @@ class Repository(Properties):
         sync to remote server
 
         Args:
-          target(Iterable[str]): list of targets to run (e.g. s3)
-          built_packages(Iterable[Package]): list of packages which has just been built
+            target(Iterable[str]): list of targets to run (e.g. s3)
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         targets = target or None
         self.repository.process_sync(targets, built_packages)
@@ -118,7 +118,7 @@ class Repository(Properties):
         get packages which were not found in AUR
 
         Returns:
-          List[str]: unknown package archive list
+            List[str]: unknown package archive list
         """
         def has_local(probe: Package) -> bool:
             cache_dir = self.repository.paths.cache_for(probe.base)
@@ -152,10 +152,10 @@ class Repository(Properties):
         run package updates
 
         Args:
-          updates(Iterable[Package]): list of packages to update
+            updates(Iterable[Package]): list of packages to update
 
         Returns:
-          Result: update result
+            Result: update result
         """
         def process_update(paths: Iterable[Path], result: Result) -> None:
             if not paths:
@@ -184,16 +184,15 @@ class Repository(Properties):
         get list of packages to run update process
 
         Args:
-          filter_packages(Iterable[str]): do not check every package just specified in the list
-          no_aur(bool): do not check for aur updates
-          no_local(bool): do not check local packages for updates
-          no_manual(bool): do not check for manual updates
-          no_vcs(bool): do not check VCS packages
-          log_fn(Callable[[str]): logger function to log updates
-          None]:
+            filter_packages(Iterable[str]): do not check every package just specified in the list
+            no_aur(bool): do not check for aur updates
+            no_local(bool): do not check local packages for updates
+            no_manual(bool): do not check for manual updates
+            no_vcs(bool): do not check VCS packages
+            log_fn(Callable[[str], None]): logger function to log updates
 
         Returns:
-          List[Package]: list of out-of-dated packages
+            List[Package]: list of out-of-dated packages
         """
         updates = {}
 

@@ -28,8 +28,8 @@ class MigrationResult:
     migration result implementation model
 
     Attributes:
-      old_version(int): old schema version before migrations
-      new_version(int): new schema version after migrations
+        old_version(int): old schema version before migrations
+        new_version(int): new schema version after migrations
     """
 
     old_version: int
@@ -39,10 +39,10 @@ class MigrationResult:
     def is_outdated(self) -> bool:
         """
         Returns:
-          bool: True in case if it requires migrations and False otherwise
+            bool: True in case if it requires migrations and False otherwise
 
         Raises:
-          MigrationError: if old version is newer than new one or negative
+            MigrationError: if old version is newer than new one or negative
         """
         self.validate()
         return self.new_version > self.old_version

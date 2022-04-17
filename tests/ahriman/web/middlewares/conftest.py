@@ -13,12 +13,12 @@ def authorization_policy(configuration: Configuration, database: SQLite, user: U
     fixture for authorization policy
 
     Args:
-      configuration(Configuration): configuration fixture
-      database(SQLite): database fixture
-      user(User): user fixture
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+        user(User): user fixture
 
     Returns:
-      AuthorizationPolicy: authorization policy fixture
+        AuthorizationPolicy: authorization policy fixture
     """
     configuration.set_option("auth", "target", "configuration")
     validator = Auth.load(configuration, database)

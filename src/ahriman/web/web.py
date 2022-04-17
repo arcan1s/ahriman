@@ -38,7 +38,7 @@ async def on_shutdown(application: web.Application) -> None:
     web application shutdown handler
 
     Args:
-      application(web.Application): web application instance
+        application(web.Application): web application instance
     """
     application.logger.warning("server terminated")
 
@@ -48,10 +48,10 @@ async def on_startup(application: web.Application) -> None:
     web application start handler
 
     Args:
-      application(web.Application): web application instance
+        application(web.Application): web application instance
 
     Raises:
-      InitializeException: in case if matched could not be loaded
+        InitializeException: in case if matched could not be loaded
     """
     application.logger.info("server started")
     try:
@@ -67,7 +67,7 @@ def run_server(application: web.Application) -> None:
     run web application
 
     Args:
-      application(web.Application): web application instance
+        application(web.Application): web application instance
     """
     application.logger.info("start server")
 
@@ -84,12 +84,12 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     create web application
 
     Args:
-      architecture(str): repository architecture
-      configuration(Configuration): configuration instance
-      spawner(Spawn): spawner thread
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        spawner(Spawn): spawner thread
 
     Returns:
-      web.Application: web application instance
+        web.Application: web application instance
     """
     application = web.Application(logger=logging.getLogger("http"))
     application.on_shutdown.append(on_shutdown)

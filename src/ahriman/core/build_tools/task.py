@@ -37,11 +37,11 @@ class Task:
     base package build task
 
     Attributes:
-      build_logger(logging.Logger): logger for build process
-      logger(logging.Logger): class logger
-      package(Package): package definitions
-      paths(RepositoryPaths): repository paths instance
-      uid(int): uid of the repository owner user
+        build_logger(logging.Logger): logger for build process
+        logger(logging.Logger): class logger
+        package(Package): package definitions
+        paths(RepositoryPaths): repository paths instance
+        uid(int): uid of the repository owner user
     """
 
     _check_output = check_output
@@ -51,9 +51,9 @@ class Task:
         default constructor
 
         Args:
-          package(Package): package definitions
-          configuration(Configuration): configuration instance
-          paths(RepositoryPaths): repository paths instance
+            package(Package): package definitions
+            configuration(Configuration): configuration instance
+            paths(RepositoryPaths): repository paths instance
         """
         self.logger = logging.getLogger("root")
         self.build_logger = logging.getLogger("build_details")
@@ -71,10 +71,10 @@ class Task:
         run package build
 
         Args:
-          sources_path(Path): path to where sources are
+            sources_path(Path): path to where sources are
 
         Returns:
-          List[Path]: paths of produced packages
+            List[Path]: paths of produced packages
         """
         command = [self.build_command, "-r", str(self.paths.chroot)]
         command.extend(self.archbuild_flags)
@@ -101,8 +101,8 @@ class Task:
         fetch package from git
 
         Args:
-          path(Path): local path to fetch
-          database(SQLite): database instance
+            path(Path): local path to fetch
+            database(SQLite): database instance
         """
         if self.paths.cache_for(self.package.base).is_dir():
             # no need to clone whole repository, just copy from cache first

@@ -32,10 +32,10 @@ class AUR(Remote):
     AUR RPC wrapper
 
     Attributes:
-      DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
-      DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
-      rpc_url(str): AUR RPC url
-      rpc_version(str): AUR RPC version
+        DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
+        DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
+        rpc_url(str): AUR RPC url
+        rpc_version(str): AUR RPC version
     """
 
     DEFAULT_RPC_URL = "https://aur.archlinux.org/rpc"
@@ -46,8 +46,8 @@ class AUR(Remote):
         default constructor
 
         Args:
-          rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
-          rpc_version(Optional[str], optional): AUR RPC version (Default value = None)
+            rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
+            rpc_version(Optional[str], optional): AUR RPC version (Default value = None)
         """
         Remote.__init__(self)
         self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
@@ -59,13 +59,13 @@ class AUR(Remote):
         parse RPC response to package list
 
         Args:
-          response(Dict[str, Any]): RPC response json
+            response(Dict[str, Any]): RPC response json
 
         Returns:
-          List[AURPackage]: list of parsed packages
+            List[AURPackage]: list of parsed packages
 
         Raises:
-          InvalidPackageInfo: for error API response
+            InvalidPackageInfo: for error API response
         """
         response_type = response["type"]
         if response_type == "error":
@@ -78,12 +78,12 @@ class AUR(Remote):
         perform request to AUR RPC
 
         Args:
-          request_type(str): AUR request type, e.g. search, info
-          *args(str): list of arguments to be passed as args query parameter
-          **kwargs(str): list of additional named parameters like by
+            request_type(str): AUR request type, e.g. search, info
+            *args(str): list of arguments to be passed as args query parameter
+            **kwargs(str): list of additional named parameters like by
 
         Returns:
-          List[AURPackage]: response parsed to package list
+            List[AURPackage]: response parsed to package list
         """
         query: Dict[str, Any] = {
             "type": request_type,
@@ -115,10 +115,10 @@ class AUR(Remote):
         get package info by its name
 
         Args:
-          package_name(str): package name to search
+            package_name(str): package name to search
 
         Returns:
-          AURPackage: package which match the package name
+            AURPackage: package which match the package name
         """
         packages = self.make_request("info", package_name)
         return next(package for package in packages if package.name == package_name)
@@ -128,9 +128,9 @@ class AUR(Remote):
         search package in AUR web
 
         Args:
-          *keywords(str): keywords to search
+            *keywords(str): keywords to search
 
         Returns:
-          List[AURPackage]: list of packages which match the criteria
+            List[AURPackage]: list of packages which match the criteria
         """
         return self.make_request("search", *keywords, by="name-desc")

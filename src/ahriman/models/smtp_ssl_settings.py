@@ -28,9 +28,9 @@ class SmtpSSLSettings(Enum):
     SMTP SSL mode enumeration
 
     Attributes:
-      Disabled(SmtpSSLSettings): (class attribute) no SSL enabled
-      SSL(SmtpSSLSettings): (class attribute) use SMTP_SSL instead of normal SMTP client
-      STARTTLS(SmtpSSLSettings): (class attribute) use STARTTLS in normal SMTP client
+        Disabled(SmtpSSLSettings): (class attribute) no SSL enabled
+        SSL(SmtpSSLSettings): (class attribute) use SMTP_SSL instead of normal SMTP client
+        STARTTLS(SmtpSSLSettings): (class attribute) use STARTTLS in normal SMTP client
     """
 
     Disabled = "disabled"
@@ -43,10 +43,10 @@ class SmtpSSLSettings(Enum):
         construct value from configuration
 
         Args:
-          value(str): configuration value
+            value(str): configuration value
 
         Returns:
-          SmtpSSLSettings: parsed value
+            SmtpSSLSettings: parsed value
         """
         if value.lower() in ("ssl", "ssl/tls"):
             return cls.SSL

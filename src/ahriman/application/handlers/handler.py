@@ -36,8 +36,8 @@ class Handler:
     base handler class for command callbacks
 
     Attributes:
-      ALLOW_AUTO_ARCHITECTURE_RUN(bool): (class attribute) allow defining architecture from existing repositories
-      ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
+        ALLOW_AUTO_ARCHITECTURE_RUN(bool): (class attribute) allow defining architecture from existing repositories
+        ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = True
@@ -49,13 +49,13 @@ class Handler:
         get known architectures
 
         Args:
-          args(argparse.Namespace): command line args
+            args(argparse.Namespace): command line args
 
         Returns:
-          List[str]: list of architectures for which tree is created
+            List[str]: list of architectures for which tree is created
 
         Raises:
-          MissingArchitecture: if no architecture set and automatic detection is not allowed or failed
+            MissingArchitecture: if no architecture set and automatic detection is not allowed or failed
         """
         if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
             # for some parsers (e.g. config) we need to run with specific architecture
@@ -80,11 +80,11 @@ class Handler:
         additional function to wrap all calls for multiprocessing library
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
 
         Returns:
-          bool: True on success, False otherwise
+            bool: True on success, False otherwise
         """
         try:
             configuration = Configuration.from_path(args.configuration, architecture, args.quiet)
@@ -104,13 +104,13 @@ class Handler:
         execute function for all aru
 
         Args:
-          args(argparse.Namespace): command line args
+            args(argparse.Namespace): command line args
 
         Returns:
-          int: 0 on success, 1 otherwise
+            int: 0 on success, 1 otherwise
 
         Raises:
-          MultipleArchitectures: if more than one architecture supplied and no multi architecture supported
+            MultipleArchitectures: if more than one architecture supplied and no multi architecture supported
         """
         architectures = cls.architectures_extract(args)
 
@@ -134,14 +134,14 @@ class Handler:
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
 
         Raises:
-          NotImplementedError: not implemented method
+            NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
@@ -151,11 +151,11 @@ class Handler:
         check condition and flag and raise ExitCode exception in case if it is enabled and condition match
 
         Args:
-          enabled(bool): if False no check will be performed
-          predicate(bool): indicates condition on which exception should be thrown
+            enabled(bool): if False no check will be performed
+            predicate(bool): indicates condition on which exception should be thrown
 
         Raises:
-          ExitCode: if result is empty and check is enabled
+            ExitCode: if result is empty and check is enabled
         """
         if enabled and predicate:
             raise ExitCode()

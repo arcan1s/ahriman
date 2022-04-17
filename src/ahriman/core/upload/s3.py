@@ -35,8 +35,8 @@ class S3(Upload):
     boto3 wrapper
 
     Attributes
-      bucket(Any): boto3 S3 bucket object
-      chunk_size(int): chunk size for calculating checksums
+        bucket(Any): boto3 S3 bucket object
+        chunk_size(int): chunk size for calculating checksums
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -44,9 +44,9 @@ class S3(Upload):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Upload.__init__(self, architecture, configuration)
         self.bucket = self.get_bucket(configuration, section)
@@ -60,11 +60,11 @@ class S3(Upload):
         For this method we have to define nosec because it is out of any security context and provided by AWS
 
         Args:
-          path(Path): path to local file
-          chunk_size(int): read chunk size, which depends on client settings
+            path(Path): path to local file
+            chunk_size(int): read chunk size, which depends on client settings
 
         Returns:
-          str: calculated entity tag for local file
+            str: calculated entity tag for local file
         """
         md5s = []
         with path.open("rb") as local_file:
@@ -84,11 +84,11 @@ class S3(Upload):
         create resource client from configuration
 
         Args:
-          configuration(Configuration): configuration instance
-          section(str): settings section name
+            configuration(Configuration): configuration instance
+            section(str): settings section name
 
         Returns:
-          Any: amazon client
+            Any: amazon client
         """
         client = boto3.resource(service_name="s3",
                                 region_name=configuration.get(section, "region"),
@@ -102,8 +102,8 @@ class S3(Upload):
         remove files which have been removed locally
 
         Args:
-          local_files(Dict[Path, str]): map of local path object to its checksum
-          remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
+            local_files(Dict[Path, str]): map of local path object to its checksum
+            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, remote_object in remote_objects.items():
             if local_file in local_files:
@@ -115,9 +115,9 @@ class S3(Upload):
         upload changed files to s3
 
         Args:
-          path(Path): local path to sync
-          local_files(Dict[Path, str]): map of local path object to its checksum
-          remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
+            path(Path): local path to sync
+            local_files(Dict[Path, str]): map of local path object to its checksum
+            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, checksum in local_files.items():
             remote_object = remote_objects.get(local_file)
@@ -138,10 +138,10 @@ class S3(Upload):
         get all local files and their calculated checksums
 
         Args:
-          path(Path): local path to sync
+            path(Path): local path to sync
 
         Returns:
-          Dict[Path, str]: map of path object to its checksum
+            Dict[Path, str]: map of path object to its checksum
         """
         return {
             local_file.relative_to(path): self.calculate_etag(local_file, self.chunk_size)
@@ -153,7 +153,7 @@ class S3(Upload):
         get all remote objects and their checksums
 
         Returns:
-          Dict[Path, Any]: map of path object to the remote s3 object
+            Dict[Path, Any]: map of path object to the remote s3 object
         """
         objects = self.bucket.objects.filter(Prefix=self.architecture)
         return {Path(item.key).relative_to(self.architecture): item for item in objects}
@@ -163,8 +163,8 @@ class S3(Upload):
         sync data to remote server
 
         Args:
-          path(Path): local path to sync
-          built_packages(Iterable[Package]): list of packages which has just been built
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         remote_objects = self.get_remote_objects()
         local_files = self.get_local_files(path)

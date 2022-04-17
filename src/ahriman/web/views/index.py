@@ -60,8 +60,8 @@ class IndexView(BaseView):
         * version - ahriman version, string, required
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Safe
@@ -72,7 +72,7 @@ class IndexView(BaseView):
         process get request. No parameters supported here
 
         Returns:
-          Dict[str, Any]: parameters for jinja template
+            Dict[str, Any]: parameters for jinja template
         """
         # some magic to make it jinja-friendly
         packages = [

@@ -39,7 +39,7 @@ class BaseView(View):
     def configuration(self) -> Configuration:
         """
         Returns:
-          Configuration: configuration instance
+            Configuration: configuration instance
         """
         configuration: Configuration = self.request.app["configuration"]
         return configuration
@@ -48,7 +48,7 @@ class BaseView(View):
     def database(self) -> SQLite:
         """
         Returns:
-          SQLite: database instance
+            SQLite: database instance
         """
         database: SQLite = self.request.app["database"]
         return database
@@ -57,7 +57,7 @@ class BaseView(View):
     def service(self) -> Watcher:
         """
         Returns:
-          Watcher: build status watcher instance
+            Watcher: build status watcher instance
         """
         watcher: Watcher = self.request.app["watcher"]
         return watcher
@@ -66,7 +66,7 @@ class BaseView(View):
     def spawner(self) -> Spawn:
         """
         Returns:
-          Spawn: external process spawner instance
+            Spawn: external process spawner instance
         """
         spawner: Spawn = self.request.app["spawn"]
         return spawner
@@ -75,7 +75,7 @@ class BaseView(View):
     def validator(self) -> Auth:
         """
         Returns:
-          Auth: authorization service instance
+            Auth: authorization service instance
         """
         validator: Auth = self.request.app["validator"]
         return validator
@@ -86,10 +86,10 @@ class BaseView(View):
         retrieve user permission from the request
 
         Args:
-          request(Request): request object
+            request(Request): request object
 
         Returns:
-          UserAccess: extracted permission
+            UserAccess: extracted permission
         """
         permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Write)
         return permission
@@ -99,10 +99,11 @@ class BaseView(View):
         extract json data from either json or form data
 
         Args:
-          list_keys(Optional[List[str]], optional): optional list of keys which must be forced to list from form data (Default value = None)
+            list_keys(Optional[List[str]], optional): optional list of keys which must be forced to list from form data
+                (Default value = None)
 
         Returns:
-          Dict[str, Any]: raw json object or form data converted to json
+            Dict[str, Any]: raw json object or form data converted to json
         """
         try:
             json: Dict[str, Any] = await self.request.json()
@@ -115,10 +116,11 @@ class BaseView(View):
         extract form data and convert it to json object
 
         Args:
-          list_keys(List[str]): list of keys which must be forced to list from form data
+            list_keys(List[str]): list of keys which must be forced to list from form data
 
         Returns:
-          Dict[str, Any]: form data converted to json. In case if a key is found multiple times it will be returned as list
+            Dict[str, Any]: form data converted to json. In case if a key is found multiple times
+                it will be returned as list
         """
         raw = await self.request.post()
         json: Dict[str, Any] = {}

@@ -34,11 +34,11 @@ class GPG:
     gnupg wrapper
 
     Attributes:
-      architecture(str): repository architecture
-      configuration(Configuration): configuration instance
-      default_key(Optional[str]): default PGP key ID to use
-      logger(logging.Logger): class logger
-      targets(Set[SignSettings]): list of targets to sign (repository, package etc)
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        default_key(Optional[str]): default PGP key ID to use
+        logger(logging.Logger): class logger
+        targets(Set[SignSettings]): list of targets to sign (repository, package etc)
     """
 
     _check_output = check_output
@@ -48,8 +48,8 @@ class GPG:
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("build_details")
         self.architecture = architecture
@@ -60,7 +60,7 @@ class GPG:
     def repository_sign_args(self) -> List[str]:
         """
         Returns:
-          List[str]: command line arguments for repo-add command to sign database
+            List[str]: command line arguments for repo-add command to sign database
         """
         if SignSettings.Repository not in self.targets:
             return []
@@ -75,11 +75,11 @@ class GPG:
         gpg command to run
 
         Args:
-          path(Path): path to file to sign
-          key(str): PGP key ID
+            path(Path): path to file to sign
+            key(str): PGP key ID
 
         Returns:
-          List[str]: gpg command with all required arguments
+            List[str]: gpg command with all required arguments
         """
         return ["gpg", "-u", key, "-b", str(path)]
 
@@ -89,10 +89,10 @@ class GPG:
         extract default sign options from configuration
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
 
         Returns:
-          Tuple[Set[SignSettings], Optional[str]]: tuple of sign targets and default PGP key
+            Tuple[Set[SignSettings], Optional[str]]: tuple of sign targets and default PGP key
         """
         targets: Set[SignSettings] = set()
         for option in configuration.getlist("sign", "target"):
@@ -108,11 +108,11 @@ class GPG:
         download key from public PGP server
 
         Args:
-          server(str): public PGP server which will be used to download the key
-          key(str): key ID to download
+            server(str): public PGP server which will be used to download the key
+            key(str): key ID to download
 
         Returns:
-          str: key as plain text
+            str: key as plain text
         """
         key = key if key.startswith("0x") else f"0x{key}"
         try:
@@ -132,8 +132,8 @@ class GPG:
         import key to current user and sign it locally
 
         Args:
-          server(str): public PGP server which will be used to download the key
-          key(str): key ID to import
+            server(str): public PGP server which will be used to download the key
+            key(str): key ID to import
         """
         key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, exception=None, logger=self.logger)
@@ -143,11 +143,11 @@ class GPG:
         gpg command wrapper
 
         Args:
-          path(Path): path to file to sign
-          key(str): PGP key ID
+            path(Path): path to file to sign
+            key(str): PGP key ID
 
         Returns:
-          List[Path]: list of generated files including original file
+            List[Path]: list of generated files including original file
         """
         GPG._check_output(
             *GPG.sign_command(path, key),
@@ -160,11 +160,11 @@ class GPG:
         sign package if required by configuration
 
         Args:
-          path(Path): path to file to sign
-          base(str): package base required to check for key overrides
+            path(Path): path to file to sign
+            base(str): package base required to check for key overrides
 
         Returns:
-          List[Path]: list of generated files including original file
+            List[Path]: list of generated files including original file
         """
         if SignSettings.Packages not in self.targets:
             return [path]
@@ -180,10 +180,10 @@ class GPG:
         :note: more likely you just want to pass `repository_sign_args` to repo wrapper
 
         Args:
-          path(Path): path to repository database
+            path(Path): path to repository database
 
         Returns:
-          List[Path]: list of generated files including original file
+            List[Path]: list of generated files including original file
         """
         if SignSettings.Repository not in self.targets:
             return [path]

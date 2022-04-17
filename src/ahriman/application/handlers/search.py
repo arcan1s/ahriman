@@ -36,7 +36,7 @@ class Search(Handler):
     packages search handler
 
     Attributes:
-      SORT_FIELDS(Set[str]): (class attribute) allowed fields to sort the package list
+        SORT_FIELDS(Set[str]): (class attribute) allowed fields to sort the package list
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
@@ -49,11 +49,11 @@ class Search(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         official_packages_list = Official.multisearch(*args.search)
         aur_packages_list = AUR.multisearch(*args.search)
@@ -70,14 +70,14 @@ class Search(Handler):
         sort package list by specified field
 
         Args:
-          packages(Iterable[AURPackage]): packages list to sort
-          sort_by(str): AUR package field name to sort by
+            packages(Iterable[AURPackage]): packages list to sort
+            sort_by(str): AUR package field name to sort by
 
         Returns:
-          List[AURPackage]: sorted list for packages
+            List[AURPackage]: sorted list for packages
 
         Raises:
-          InvalidOption: if search fields is not in list of allowed ones
+            InvalidOption: if search fields is not in list of allowed ones
         """
         if sort_by not in Search.SORT_FIELDS:
             raise InvalidOption(sort_by)

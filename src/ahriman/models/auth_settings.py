@@ -28,9 +28,9 @@ class AuthSettings(Enum):
     web authorization type
 
     Attributes:
-      Disabled(AuthSettings): (class attribute) authorization is disabled
-      Configuration(AuthSettings): (class attribute) configuration based authorization
-      OAuth(AuthSettings): (class attribute) OAuth based provider
+        Disabled(AuthSettings): (class attribute) authorization is disabled
+        Configuration(AuthSettings): (class attribute) configuration based authorization
+        OAuth(AuthSettings): (class attribute) OAuth based provider
     """
 
     Disabled = "disabled"
@@ -43,10 +43,10 @@ class AuthSettings(Enum):
         construct value from configuration
 
         Args:
-          value(str): configuration value
+            value(str): configuration value
 
         Returns:
-          AuthSettings: parsed value
+            AuthSettings: parsed value
         """
         if value.lower() in ("configuration", "mapping"):
             return cls.Configuration
@@ -58,7 +58,7 @@ class AuthSettings(Enum):
     def is_enabled(self) -> bool:
         """
         Returns:
-          bool: False in case if authorization is disabled and True otherwise
+            bool: False in case if authorization is disabled and True otherwise
         """
         if self == AuthSettings.Disabled:
             return False

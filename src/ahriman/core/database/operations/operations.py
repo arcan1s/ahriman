@@ -33,8 +33,8 @@ class Operations:
     base operation class
 
     Attributes:
-      logger(logging.Logger): class logger
-      path(Path): path to the database file
+        logger(logging.Logger): class logger
+        path(Path): path to the database file
     """
 
     def __init__(self, path: Path) -> None:
@@ -42,7 +42,7 @@ class Operations:
         default constructor
 
         Args:
-          path(Path): path to the database file
+            path(Path): path to the database file
         """
         self.path = path
         self.logger = logging.getLogger("database")
@@ -53,11 +53,11 @@ class Operations:
         dictionary factory based on official documentation
 
         Args:
-          cursor(Cursor): cursor descriptor
-          row(Tuple[Any, ...]): fetched row
+            cursor(Cursor): cursor descriptor
+            row(Tuple[Any, ...]): fetched row
 
         Returns:
-          Dict[str, Any]: row converted to dictionary
+            Dict[str, Any]: row converted to dictionary
         """
         result = {}
         for index, column in enumerate(cursor.description):
@@ -69,11 +69,11 @@ class Operations:
         perform operation in connection
 
         Args:
-          query(Callable[[Connection], T]): function to be called with connection
-          commit(bool, optional): if True commit() will be called on success (Default value = False)
+            query(Callable[[Connection], T]): function to be called with connection
+            commit(bool, optional): if True commit() will be called on success (Default value = False)
 
         Returns:
-          T: result of the `query` call
+            T: result of the `query` call
         """
         with sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES) as connection:
             connection.row_factory = self.factory

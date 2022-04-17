@@ -32,8 +32,8 @@ class Official(Remote):
     official repository RPC wrapper
 
     Attributes:
-      DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
-      rpc_url(str): AUR RPC url
+        DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
+        rpc_url(str): AUR RPC url
     """
 
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
@@ -43,7 +43,7 @@ class Official(Remote):
         default constructor
 
         Args:
-          rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
+            rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
         """
         Remote.__init__(self)
         self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
@@ -54,13 +54,13 @@ class Official(Remote):
         parse RPC response to package list
 
         Args:
-          response(Dict[str, Any]): RPC response json
+            response(Dict[str, Any]): RPC response json
 
         Returns:
-          List[AURPackage]: list of parsed packages
+            List[AURPackage]: list of parsed packages
 
         Raises:
-          InvalidPackageInfo: for error API response
+            InvalidPackageInfo: for error API response
         """
         if not response["valid"]:
             raise InvalidPackageInfo("API validation error")
@@ -71,11 +71,11 @@ class Official(Remote):
         perform request to official repositories RPC
 
         Args:
-          *args(str): list of arguments to be passed as args query parameter
-          by(str): search by the field
+            *args(str): list of arguments to be passed as args query parameter
+            by(str): search by the field
 
         Returns:
-          List[AURPackage]: response parsed to package list
+            List[AURPackage]: response parsed to package list
         """
         try:
             response = requests.get(self.rpc_url, params={by: args})
@@ -93,10 +93,10 @@ class Official(Remote):
         get package info by its name
 
         Args:
-          package_name(str): package name to search
+            package_name(str): package name to search
 
         Returns:
-          AURPackage: package which match the package name
+            AURPackage: package which match the package name
         """
         packages = self.make_request(package_name, by="name")
         return next(package for package in packages if package.name == package_name)
@@ -106,9 +106,9 @@ class Official(Remote):
         search package in AUR web
 
         Args:
-          *keywords(str): keywords to search
+            *keywords(str): keywords to search
 
         Returns:
-          List[AURPackage]: list of packages which match the criteria
+            List[AURPackage]: list of packages which match the criteria
         """
         return self.make_request(*keywords, by="q")

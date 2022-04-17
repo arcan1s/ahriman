@@ -33,9 +33,9 @@ class User:
     authorized web user model
 
     Attributes:
-      username(str): username
-      password(str): hashed user password with salt
-      access(UserAccess): user role
+        username(str): username
+        password(str): hashed user password with salt
+        access(UserAccess): user role
     """
 
     username: str
@@ -51,12 +51,12 @@ class User:
         build user descriptor from configuration options
 
         Args:
-          username(Optional[str]): username
-          password(Optional[str]): password as string
-          access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
+            username(Optional[str]): username
+            password(Optional[str]): password as string
+            access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
 
         Returns:
-          Optional[User]: generated user descriptor if all options are supplied and None otherwise
+            Optional[User]: generated user descriptor if all options are supplied and None otherwise
         """
         if username is None or password is None:
             return None
@@ -68,10 +68,10 @@ class User:
         generate password with specified length
 
         Args:
-          length(int): password length
+            length(int): password length
 
         Returns:
-          str: random string which contains letters and numbers
+            str: random string which contains letters and numbers
         """
         password: str = generate_password(length=length)
         return password
@@ -81,11 +81,11 @@ class User:
         validate user password
 
         Args:
-          password(str): entered password
-          salt(str): salt for hashed password
+            password(str): entered password
+            salt(str): salt for hashed password
 
         Returns:
-          bool: True in case if password matches, False otherwise
+            bool: True in case if password matches, False otherwise
         """
         try:
             verified: bool = self._HASHER.verify(password + salt, self.password)
@@ -98,10 +98,10 @@ class User:
         generate hashed password from plain text
 
         Args:
-          salt(str): salt for hashed password
+            salt(str): salt for hashed password
 
         Returns:
-          User: user with hashed password to store in configuration
+            User: user with hashed password to store in configuration
         """
         if not self.password:
             # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider
@@ -115,10 +115,10 @@ class User:
         validate if user has access to requested resource
 
         Args:
-          required(UserAccess): required access level
+            required(UserAccess): required access level
 
         Returns:
-          bool: True in case if user is allowed to do this request and False otherwise
+            bool: True in case if user is allowed to do this request and False otherwise
         """
         if self.access == UserAccess.Write:
             return True  # everything is allowed
@@ -129,6 +129,6 @@ class User:
         generate string representation of object
 
         Returns:
-          str: unique string representation
+            str: unique string representation
         """
         return f"User(username={self.username}, access={self.access})"

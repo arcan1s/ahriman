@@ -44,10 +44,10 @@ class SearchView(BaseView):
         search string (non empty) must be supplied as `for` parameter
 
         Returns:
-          Response: 200 with found package bases and descriptions sorted by base
+            Response: 200 with found package bases and descriptions sorted by base
 
         Raises:
-          HTTPNotFound: if no packages found
+            HTTPNotFound: if no packages found
         """
         search: List[str] = self.request.query.getall("for", default=[])
         packages = AUR.multisearch(*search)

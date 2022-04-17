@@ -11,7 +11,7 @@ def client() -> Client:
     fixture for dummy client
 
     Returns:
-      Client: dummy client test instance
+        Client: dummy client test instance
     """
     return Client()
 
@@ -22,10 +22,10 @@ def web_client(configuration: Configuration) -> WebClient:
     fixture for web client
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      WebClient: web client test instance
+        WebClient: web client test instance
     """
     configuration.set("web", "port", "8080")
     return WebClient(configuration)

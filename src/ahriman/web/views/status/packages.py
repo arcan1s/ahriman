@@ -28,9 +28,9 @@ class PackagesView(BaseView):
     global watcher view
 
     Attributes:
-      GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-      HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
-      POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -41,7 +41,7 @@ class PackagesView(BaseView):
         get current packages status
 
         Returns:
-          Response: 200 with package description on success
+            Response: 200 with package description on success
         """
         response = [
             {
@@ -56,7 +56,7 @@ class PackagesView(BaseView):
         reload all packages from repository. No parameters supported here
 
         Raises:
-          HTTPNoContent: on success response
+            HTTPNoContent: on success response
         """
         self.service.load()
 

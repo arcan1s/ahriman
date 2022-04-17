@@ -35,9 +35,9 @@ class Upload:
     base remote sync class
 
     Attributes:
-      architecture(str): repository architecture
-      configuration(Configuration): configuration instance
-      logger(logging.Logger): application logger
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        logger(logging.Logger): application logger
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -45,8 +45,8 @@ class Upload:
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
@@ -58,12 +58,12 @@ class Upload:
         load client from settings
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          target(str): target to run sync (e.g. s3)
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            target(str): target to run sync (e.g. s3)
 
         Returns:
-          Upload: client according to current settings
+            Upload: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
         provider = UploadSettings.from_option(provider_name)
@@ -83,11 +83,11 @@ class Upload:
         run remote sync
 
         Args:
-          path(Path): local path to sync
-          built_packages(Iterable[Package]): list of packages which has just been built
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
 
         Raises:
-          SyncFailed: in case of any synchronization unmatched exception
+            SyncFailed: in case of any synchronization unmatched exception
         """
         try:
             self.sync(path, built_packages)
@@ -100,6 +100,6 @@ class Upload:
         sync data to remote server
 
         Args:
-          path(Path): local path to sync
-          built_packages(Iterable[Package]): list of packages which has just been built
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """

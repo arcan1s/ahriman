@@ -15,10 +15,10 @@ def leaf_ahriman(package_ahriman: Package) -> Leaf:
     fixture for tree leaf with package
 
     Args:
-      package_ahriman(Package): package fixture
+        package_ahriman(Package): package fixture
 
     Returns:
-      Leaf: tree leaf test instance
+        Leaf: tree leaf test instance
     """
     return Leaf(package_ahriman, set())
 
@@ -29,10 +29,10 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
     fixture for tree leaf with package
 
     Args:
-      package_python_schedule(Package): package fixture
+        package_python_schedule(Package): package fixture
 
     Returns:
-      Leaf: tree leaf test instance
+        Leaf: tree leaf test instance
     """
     return Leaf(package_python_schedule, set())
 
@@ -43,10 +43,10 @@ def pacman(configuration: Configuration) -> Pacman:
     fixture for pacman wrapper
 
     Args:
-      configuration(Configuration): configuration fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
-      Pacman: pacman wrapper test instance
+        Pacman: pacman wrapper test instance
     """
     return Pacman(configuration)
 
@@ -57,11 +57,11 @@ def repo(configuration: Configuration, repository_paths: RepositoryPaths) -> Rep
     fixture for repository wrapper
 
     Args:
-      configuration(Configuration): configuration fixture
-      repository_paths(RepositoryPaths): repository paths fixture
+        configuration(Configuration): configuration fixture
+        repository_paths(RepositoryPaths): repository paths fixture
 
     Returns:
-      Repo: repository wrapper test instance
+        Repo: repository wrapper test instance
     """
     return Repo(configuration.get("repository", "name"), repository_paths, [])
 
@@ -72,9 +72,9 @@ def task_ahriman(package_ahriman: Package, configuration: Configuration, reposit
     fixture for built task
 
     Args:
-      package_ahriman(Package): package fixture
-      configuration(Configuration): configuration fixture
-      repository_paths(RepositoryPaths): repository paths fixture
+        package_ahriman(Package): package fixture
+        configuration(Configuration): configuration fixture
+        repository_paths(RepositoryPaths): repository paths fixture
 
     Returns:
       Task: built task test instance

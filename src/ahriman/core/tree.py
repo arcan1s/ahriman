@@ -32,8 +32,8 @@ class Leaf:
     tree leaf implementation
 
     Attributes:
-      dependencies(Set[str]): list of package dependencies
-      package(Package): leaf package properties
+        dependencies(Set[str]): list of package dependencies
+        package(Package): leaf package properties
     """
 
     def __init__(self, package: Package, dependencies: Set[str]) -> None:
@@ -41,8 +41,8 @@ class Leaf:
         default constructor
 
         Args:
-          package(Package): package properties
-          dependencies(Set[str]): package dependencies
+            package(Package): package properties
+            dependencies(Set[str]): package dependencies
         """
         self.package = package
         self.dependencies = dependencies
@@ -51,7 +51,7 @@ class Leaf:
     def items(self) -> Iterable[str]:
         """
         Returns:
-          Iterable[str]: packages containing in this leaf
+            Iterable[str]: packages containing in this leaf
         """
         return self.package.packages.keys()
 
@@ -61,11 +61,11 @@ class Leaf:
         load leaf from package with dependencies
 
         Args:
-          package(Package): package properties
-          database(SQLite): database instance
+            package(Package): package properties
+            database(SQLite): database instance
 
         Returns:
-          Leaf: loaded class
+            Leaf: loaded class
         """
         with tmpdir() as clone_dir:
             Sources.load(clone_dir, package.git_url, database.patches_get(package.base))
@@ -77,10 +77,10 @@ class Leaf:
         check if package depends on any other package from list of not
 
         Args:
-          packages(Iterable[Leaf]): list of known leaves
+            packages(Iterable[Leaf]): list of known leaves
 
         Returns:
-          bool: True if any of packages is dependency of the leaf, False otherwise
+            bool: True if any of packages is dependency of the leaf, False otherwise
         """
         for leaf in packages:
             if self.dependencies.intersection(leaf.items):
@@ -93,7 +93,7 @@ class Tree:
     dependency tree implementation
 
     Attributes:
-      leaves[List[Leaf]): list of tree leaves
+        leaves[List[Leaf]): list of tree leaves
     """
 
     def __init__(self, leaves: List[Leaf]) -> None:
@@ -101,7 +101,7 @@ class Tree:
         default constructor
 
         Args:
-          leaves(List[Leaf]): leaves to build the tree
+            leaves(List[Leaf]): leaves to build the tree
         """
         self.leaves = leaves
 
@@ -111,11 +111,11 @@ class Tree:
         load tree from packages
 
         Args:
-          packages(Iterable[Package]): packages list
-          database(SQLite): database instance
+            packages(Iterable[Package]): packages list
+            database(SQLite): database instance
 
         Returns:
-          Tree: loaded class
+            Tree: loaded class
         """
         return cls([Leaf.load(package, database) for package in packages])
 
@@ -124,7 +124,7 @@ class Tree:
         get build levels starting from the packages which do not require any other package to build
 
         Returns:
-          List[List[Package]]: list of packages lists
+            List[List[Package]]: list of packages lists
         """
         result: List[List[Package]] = []
 

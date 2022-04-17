@@ -28,7 +28,7 @@ class Pacman:
     alpm wrapper
 
     Attributes:
-      handle(Handle): pyalpm root `Handle`
+        handle(Handle): pyalpm root `Handle`
     """
 
     def __init__(self, configuration: Configuration) -> None:
@@ -36,7 +36,7 @@ class Pacman:
         default constructor
 
         Args:
-          configuration(Configuration): configuration instance
+            configuration(Configuration): configuration instance
         """
         root = configuration.get("alpm", "root")
         pacman_root = configuration.getpath("alpm", "database")
@@ -49,7 +49,7 @@ class Pacman:
         get list of packages known for alpm
 
         Returns:
-          Set[str]: list of package names
+            Set[str]: list of package names
         """
         result: Set[str] = set()
         for database in self.handle.get_syncdbs():

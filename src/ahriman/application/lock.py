@@ -39,11 +39,11 @@ class Lock:
     wrapper for application lock file
 
     Attributes:
-      force(bool): remove lock file on start if any
-      path(Path): path to lock file if any
-      reporter(Client): build status reporter instance
-      paths(RepositoryPaths): repository paths instance
-      unsafe(bool): skip user check
+        force(bool): remove lock file on start if any
+        path(Path): path to lock file if any
+        reporter(Client): build status reporter instance
+        paths(RepositoryPaths): repository paths instance
+        unsafe(bool): skip user check
     """
 
     def __init__(self, args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
@@ -51,9 +51,9 @@ class Lock:
         default constructor
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         self.path = Path(f"{args.lock}_{architecture}") if args.lock is not None else None
         self.force = args.force
@@ -66,11 +66,11 @@ class Lock:
         """
         default workflow is the following:
 
-            check user UID
-            check if there is lock file
-            check web status watcher status
-            create lock file
-            report to status page if enabled
+            1. Check user UID
+            2. Check if there is lock file
+            3. Check web status watcher status
+            4. Create lock file
+            5. Report to status page if enabled
         """
         self.check_user()
         self.check_version()
@@ -84,12 +84,12 @@ class Lock:
         remove lock file when done
 
         Args:
-          exc_type(Optional[Type[Exception]]): exception type name if any
-          exc_val(Optional[Exception]): exception raised if any
-          exc_tb(TracebackType): exception traceback if any
+            exc_type(Optional[Type[Exception]]): exception type name if any
+            exc_val(Optional[Exception]): exception raised if any
+            exc_tb(TracebackType): exception traceback if any
 
         Returns:
-          Literal[False]: always False (do not suppress any exception)
+            Literal[False]: always False (do not suppress any exception)
         """
         self.clear()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
@@ -126,7 +126,7 @@ class Lock:
         create lock file
 
         Raises:
-          DuplicateRun: if lock exists and no force flag supplied
+            DuplicateRun: if lock exists and no force flag supplied
         """
         if self.path is None:
             return

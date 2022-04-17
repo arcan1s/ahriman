@@ -34,10 +34,10 @@ class Auth:
     helper to deal with user authorization
 
     Attributes:
-      enabled(bool): indicates if authorization is enabled
-      logger(logging.Logger): class logger
-      max_age(int): session age in seconds. It will be used for both client side and server side checks
-      safe_build_status(bool): allow read only access to the index page
+        enabled(bool): indicates if authorization is enabled
+        logger(logging.Logger): class logger
+        max_age(int): session age in seconds. It will be used for both client side and server side checks
+        safe_build_status(bool): allow read only access to the index page
     """
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
@@ -45,8 +45,8 @@ class Auth:
         default constructor
 
         Args:
-          configuration(Configuration): configuration instance
-          provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
+            configuration(Configuration): configuration instance
+            provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
         """
         self.logger = logging.getLogger("http")
 
@@ -64,7 +64,7 @@ class Auth:
         request to external resource
 
         Returns:
-          str: login control as html code to insert
+            str: login control as html code to insert
         """
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
 
@@ -74,11 +74,11 @@ class Auth:
         load authorization module from settings
 
         Args:
-          configuration(Configuration): configuration instance
-          database(SQLite): database instance
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
 
         Returns:
-          Auth: authorization module according to current settings
+            Auth: authorization module according to current settings
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
@@ -94,11 +94,11 @@ class Auth:
         validate user password
 
         Args:
-          username(Optional[str]): username
-          password(Optional[str]): entered password
+            username(Optional[str]): username
+            password(Optional[str]): entered password
 
         Returns:
-          bool: True in case if password matches, False otherwise
+            bool: True in case if password matches, False otherwise
         """
         del username, password
         return True
@@ -108,10 +108,10 @@ class Auth:
         check if user is known
 
         Args:
-          username(Optional[str]): username
+            username(Optional[str]): username
 
         Returns:
-          bool: True in case if user is known and can be authorized and False otherwise
+            bool: True in case if user is known and can be authorized and False otherwise
         """
         del username
         return True
@@ -121,12 +121,12 @@ class Auth:
         validate if user has access to requested resource
 
         Args:
-          username(str): username
-          required(UserAccess): required access level
-          context(Optional[str]): URI request path
+            username(str): username
+            required(UserAccess): required access level
+            context(Optional[str]): URI request path
 
         Returns:
-          bool: True in case if user is allowed to do this request and False otherwise
+            bool: True in case if user is allowed to do this request and False otherwise
         """
         del username, required, context
         return True

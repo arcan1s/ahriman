@@ -22,7 +22,7 @@ def aur_package_ahriman_printer(aur_package_ahriman: AURPackage) -> AurPrinter:
       aur_package_ahriman(AURPackage): AUR package fixture
 
     Returns:
-      AurPrinter: AUR package printer test instance
+        AurPrinter: AUR package printer test instance
     """
     return AurPrinter(aur_package_ahriman)
 
@@ -33,7 +33,7 @@ def configuration_printer() -> ConfigurationPrinter:
     fixture for configuration printer
 
     Returns:
-      ConfigurationPrinter: configuration printer test instance
+        ConfigurationPrinter: configuration printer test instance
     """
     return ConfigurationPrinter("section", {"key_one": "value_one", "key_two": "value_two"})
 
@@ -44,10 +44,10 @@ def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
     fixture for package printer
 
     Args:
-      package_ahriman(Package): package fixture
+        package_ahriman(Package): package fixture
 
     Returns:
-      PackagePrinter: package printer test instance
+        PackagePrinter: package printer test instance
     """
     return PackagePrinter(package_ahriman, BuildStatus())
 
@@ -58,7 +58,7 @@ def status_printer() -> StatusPrinter:
     fixture for build status printer
 
     Returns:
-      StatusPrinter: build status printer test instance
+        StatusPrinter: build status printer test instance
     """
     return StatusPrinter(BuildStatus())
 
@@ -69,7 +69,7 @@ def string_printer() -> StringPrinter:
     fixture for any string printer
 
     Returns:
-      StringPrinter: any string printer test instance
+        StringPrinter: any string printer test instance
     """
     return StringPrinter("hello, world")
 
@@ -80,10 +80,10 @@ def update_printer(package_ahriman: Package) -> UpdatePrinter:
     fixture for build status printer
 
     Args:
-      package_ahriman(Package): package fixture
+        package_ahriman(Package): package fixture
 
     Returns:
-      UpdatePrinter: build status printer test instance
+        UpdatePrinter: build status printer test instance
     """
     return UpdatePrinter(package_ahriman, None)
 
@@ -94,9 +94,9 @@ def user_printer(user: User) -> UserPrinter:
     fixture for user printer
 
     Args:
-      user(User): user fixture
+        user(User): user fixture
 
     Returns:
-      UserPrinter: user printer test instance
+        UserPrinter: user printer test instance
     """
     return UserPrinter(user)

@@ -35,8 +35,8 @@ class Result:
         default constructor
 
         Args:
-          success(Optional[Iterable[Package]], optional): initial list of successes packages (Default value = None)
-          failed(Optional[Iterable[Package]], optional): initial list of failed packages (Default value = None)
+            success(Optional[Iterable[Package]], optional): initial list of successes packages (Default value = None)
+            failed(Optional[Iterable[Package]], optional): initial list of failed packages (Default value = None)
         """
         success = success or []
         self._success = {package.base: package for package in success}
@@ -47,7 +47,7 @@ class Result:
     def failed(self) -> List[Package]:
         """
         Returns:
-          List[Package]: list of packages which were failed
+            List[Package]: list of packages which were failed
         """
         return list(self._failed.values())
 
@@ -55,7 +55,7 @@ class Result:
     def is_empty(self) -> bool:
         """
         Returns:
-          bool: True in case if success list is empty and False otherwise
+            bool: True in case if success list is empty and False otherwise
         """
         return not bool(self._success)
 
@@ -63,7 +63,7 @@ class Result:
     def success(self) -> List[Package]:
         """
         Returns:
-          List[Package]: list of packages with success result
+            List[Package]: list of packages with success result
         """
         return list(self._success.values())
 
@@ -72,7 +72,7 @@ class Result:
         add new package to failed built
 
         Args:
-          package(Package): package with errors during build
+            package(Package): package with errors during build
         """
         self._failed[package.base] = package
 
@@ -81,7 +81,7 @@ class Result:
         add new package to success built
 
         Args:
-          package(Package): package built
+            package(Package): package built
         """
         self._success[package.base] = package
 
@@ -91,13 +91,13 @@ class Result:
         merge other result into this one. This method assumes that other has fresh info about status and override it
 
         Args:
-          other(Result): instance of the newest result
+            other(Result): instance of the newest result
 
         Returns:
-          Result: updated instance
+            Result: updated instance
 
         Raises:
-          SuccessFailed: if there is previously failed package which is masked as success
+            SuccessFailed: if there is previously failed package which is masked as success
         """
         for base, package in other._failed.items():
             if base in self._success:
@@ -115,10 +115,10 @@ class Result:
         check if other is the same object
 
         Args:
-          other(Any): other object instance
+            other(Any): other object instance
 
         Returns:
-          bool: True if the other object is the same and False otherwise
+            bool: True if the other object is the same and False otherwise
         """
         if not isinstance(other, Result):
             return False

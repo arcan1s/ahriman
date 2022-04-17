@@ -27,8 +27,8 @@ def migrate_patches(connection: Connection, paths: RepositoryPaths) -> None:
     perform migration for patches
 
     Args:
-      connection(Connection): database connection
-      paths(RepositoryPaths): repository paths instance
+        connection(Connection): database connection
+        paths(RepositoryPaths): repository paths instance
     """
     root = paths.root / "patches"
     if not root.is_dir():

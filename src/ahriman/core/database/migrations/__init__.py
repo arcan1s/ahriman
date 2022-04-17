@@ -37,8 +37,8 @@ class Migrations:
     idea comes from https://www.ash.dev/blog/simple-migration-system-in-sqlite/
 
     Attributes:
-      connection(Connection): database connection
-      logger(logging.Logger): class logger
+        connection(Connection): database connection
+        logger(logging.Logger): class logger
     """
 
     def __init__(self, connection: Connection) -> None:
@@ -46,7 +46,7 @@ class Migrations:
         default constructor
 
         Args:
-          connection(Connection): database connection
+            connection(Connection): database connection
         """
         self.connection = connection
         self.logger = logging.getLogger("database")
@@ -57,10 +57,10 @@ class Migrations:
         perform migrations implicitly
 
         Args:
-          connection(Connection): database connection
+            connection(Connection): database connection
 
         Returns:
-          MigrationResult: current schema version
+            MigrationResult: current schema version
         """
         return cls(connection).run()
 
@@ -70,7 +70,7 @@ class Migrations:
         idea comes from https://julienharbulot.com/python-dynamical-import.html
 
         Returns:
-          List[Migration]: list of found migrations
+            List[Migration]: list of found migrations
         """
         migrations: List[Migration] = []
         package_dir = Path(__file__).resolve().parent
@@ -89,7 +89,7 @@ class Migrations:
         perform migrations
 
         Return:
-          MigrationResult: current schema version
+            MigrationResult: current schema version
         """
         migrations = self.migrations()
         current_version = self.user_version()
@@ -132,7 +132,7 @@ class Migrations:
         get schema version from sqlite database
 
         Returns:
-          int: current schema version
+            int: current schema version
         """
         cursor = self.connection.execute("pragma user_version")
         current_version: int = cursor.fetchone()["user_version"]

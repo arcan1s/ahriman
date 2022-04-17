@@ -27,9 +27,9 @@ class Migration:
     migration implementation
 
     Attributes:
-      index(int): migration position
-      name(str): migration name
-      steps(List[str]): migration steps
+        index(int): migration position
+        name(str): migration name
+        steps(List[str]): migration steps
     """
 
     index: int

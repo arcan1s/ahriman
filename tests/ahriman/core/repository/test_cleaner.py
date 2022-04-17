@@ -13,7 +13,7 @@ def _mock_clear(mocker: MockerFixture) -> None:
     mocker helper for clear function
 
     Args:
-      mocker(MockerFixture): mocker object
+        mocker(MockerFixture): mocker object
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[Path("a"), Path("b"), Path("c")])
     mocker.patch("shutil.rmtree")

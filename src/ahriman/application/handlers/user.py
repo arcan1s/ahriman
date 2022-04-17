@@ -45,11 +45,11 @@ class User(Handler):
         callback for command line
 
         Args:
-          args(argparse.Namespace): command line args
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          no_report(bool): force disable reporting
-          unsafe(bool): if set no user check will be performed before path creation
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            no_report(bool): force disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
         """
         database = SQLite.load(configuration)
 
@@ -76,11 +76,11 @@ class User(Handler):
         enable configuration if it has been disabled
 
         Args:
-          configuration(Configuration): configuration instance
-          user(MUser): user descriptor
-          salt(str): password hash salt
-          as_service_user(bool): add user as service user, also set password and user to configuration
-          secure(bool): if true then set file permissions to 0o600
+            configuration(Configuration): configuration instance
+            user(MUser): user descriptor
+            salt(str): password hash salt
+            as_service_user(bool): add user as service user, also set password and user to configuration
+            secure(bool): if true then set file permissions to 0o600
         """
         configuration.set_option("auth", "salt", salt)
         if as_service_user:
@@ -94,10 +94,10 @@ class User(Handler):
         create configuration instance
 
         Args:
-          include_path(Path): path to directory with configuration includes
+            include_path(Path): path to directory with configuration includes
 
         Returns:
-          Configuration: configuration instance. In case if there are local settings they will be loaded
+            Configuration: configuration instance. In case if there are local settings they will be loaded
         """
         target = include_path / "auth.ini"
         configuration = Configuration()
@@ -113,8 +113,8 @@ class User(Handler):
         write configuration file
 
         Args:
-          configuration(Configuration): configuration instance
-          secure(bool): if true then set file permissions to 0o600
+            configuration(Configuration): configuration instance
+            secure(bool): if true then set file permissions to 0o600
         """
         path, _ = configuration.check_loaded()
         with path.open("w") as ahriman_configuration:
@@ -128,11 +128,11 @@ class User(Handler):
         get salt from configuration or create new string
 
         Args:
-          configuration(Configuration): configuration instance
-          salt_length(int, optional): salt length (Default value = 20)
+            configuration(Configuration): configuration instance
+            salt_length(int, optional): salt length (Default value = 20)
 
         Returns:
-          str: current salt
+            str: current salt
         """
         if salt := configuration.get("auth", "salt", fallback=None):
             return salt
@@ -144,10 +144,10 @@ class User(Handler):
         create user descriptor from arguments
 
         Args:
-          args(argparse.Namespace): command line args
+            args(argparse.Namespace): command line args
 
         Returns:
-          MUser: built user descriptor
+            MUser: built user descriptor
         """
         user = MUser(args.username, args.password, args.role)
         if user.password is None:

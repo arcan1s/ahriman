@@ -33,7 +33,7 @@ class HttpUpload(Upload):
     helper for the http based uploads
 
     Attributes:
-      auth(Tuple[str, str]): HTTP auth object
+        auth(Tuple[str, str]): HTTP auth object
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -41,9 +41,9 @@ class HttpUpload(Upload):
         default constructor
 
         Args:
-          architecture(str): repository architecture
-          configuration(Configuration): configuration instance
-          section(str): configuration section name
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): configuration section name
         """
         Upload.__init__(self, architecture, configuration)
         password = configuration.get(section, "password")
@@ -56,10 +56,10 @@ class HttpUpload(Upload):
         calculate file checksum
 
         Args:
-          path(Path): path to local file
+            path(Path): path to local file
 
         Returns:
-          str: calculated checksum of the file
+            str: calculated checksum of the file
         """
         with path.open("rb") as local_file:
             md5 = hashlib.md5(local_file.read())  # nosec
@@ -71,10 +71,10 @@ class HttpUpload(Upload):
         generate release body from the checksums as returned from HttpUpload.get_hashes method
 
         Args:
-          local_files(Dict[Path, str]): map of the paths to its checksum
+            local_files(Dict[Path, str]): map of the paths to its checksum
 
         Returns:
-          str: body to be inserted into release
+            str: body to be inserted into release
         """
         return "\n".join(f"{file.name} {md5}" for file, md5 in sorted(local_files.items()))
 
@@ -84,10 +84,10 @@ class HttpUpload(Upload):
         get checksums of the content from the repository
 
         Args:
-          body(str): release string body object
+            body(str): release string body object
 
         Returns:
-          Dict[str, str]: map of the filename to its checksum as it is written in body
+            Dict[str, str]: map of the filename to its checksum as it is written in body
         """
         files = {}
         for line in body.splitlines():
@@ -100,12 +100,12 @@ class HttpUpload(Upload):
         request wrapper
 
         Args:
-          method(str): request method
-          url(str): request url
-          **kwargs(Any): request parameters to be passed as is
+            method(str): request method
+            url(str): request url
+            **kwargs(Any): request parameters to be passed as is
 
         Returns:
-          requests.Response: request response object
+            requests.Response: request response object
         """
         try:
             response = requests.request(method, url, auth=self.auth, **kwargs)

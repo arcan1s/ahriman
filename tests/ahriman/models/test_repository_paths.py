@@ -16,11 +16,11 @@ def _get_owner(root: Path, same: bool) -> Callable[[Path], Tuple[int, int]]:
     mocker function for owner definition
 
     Args:
-      root(Path): root directory
-      same(bool): if True then returns the same as root directory and different otherwise
+        root(Path): root directory
+        same(bool): if True then returns the same as root directory and different otherwise
 
     Returns:
-      Callable[[Path], Tuple[int, int]]: function which can define ownership
+        Callable[[Path], Tuple[int, int]]: function which can define ownership
     """
     root_owner = (42, 42)
     nonroot_owner = (42, 42) if same else (1, 1)
