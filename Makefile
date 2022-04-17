@@ -1,4 +1,4 @@
-.PHONY: architecture archive archive_directory archlinux check clean directory man push tests version
+.PHONY: architecture archive archive_directory archlinux check clean directory docs docs-source man push tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -32,14 +32,22 @@ check: clean
 clean:
 	find . -type f -name "$(PROJECT)-*-src.tar.xz" -delete
 	rm -rf "$(PROJECT)"
+	find docs/source -type f -name "$(PROJECT)*.rst" -delete
+	rm -rf docs/html docs/source/modules.rst
 
 directory: clean
 	mkdir "$(PROJECT)"
 
+docs: docs-source
+	sphinx-build -b html -a -j auto docs/source docs/html
+
+docs-source: clean
+	SPHINX_APIDOC_OPTIONS=members,no-undoc-members,show-inheritance sphinx-apidoc --force --private -o docs/source src
+
 man:
 	cd src &&  PYTHONPATH=. argparse-manpage --module ahriman.application.ahriman --function _parser --author "ahriman team" --project-name ahriman --author-email "" --url https://github.com/arcan1s/ahriman --output ../docs/ahriman.1
 
-push: architecture man archlinux
+push: architecture docs-source man archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
