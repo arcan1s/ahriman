@@ -19,4 +19,3 @@ def test_migrate_users_data(connection: Connection, configuration: Configuration
         mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
         mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
     ])
-    connection.commit.assert_called_once_with()

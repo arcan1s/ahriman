@@ -42,5 +42,3 @@ def migrate_patches(connection: Connection, paths: RepositoryPaths) -> None:
         connection.execute(
             """insert into patches (package_base, patch) values (:package_base, :patch)""",
             {"package_base": package.name, "patch": content})
-
-    connection.commit()

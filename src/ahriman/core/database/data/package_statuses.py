@@ -77,6 +77,3 @@ def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> 
         status = BuildStatus.from_json(item["status"])
         insert_base(package, status)
         insert_packages(package)
-
-    connection.commit()
-    cache_path.unlink()

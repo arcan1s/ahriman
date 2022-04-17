@@ -16,20 +16,19 @@ def test_migrate_data_initial(connection: Connection, configuration: Configurati
     patches = mocker.patch("ahriman.core.database.data.migrate_patches")
     users = mocker.patch("ahriman.core.database.data.migrate_users_data")
 
-    migrate_data(MigrationResult(old_version=0, new_version=900), connection, configuration, repository_paths)
+    migrate_data(MigrationResult(old_version=0, new_version=900), connection, configuration)
     packages.assert_called_once_with(connection, repository_paths)
     patches.assert_called_once_with(connection, repository_paths)
     users.assert_called_once_with(connection, configuration)
 
 
-def test_migrate_data_skip(connection: Connection, configuration: Configuration,
-                           repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_migrate_data_skip(connection: Connection, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must not migrate data if version is up-to-date
     """
     packages = mocker.patch("ahriman.core.database.data.migrate_package_statuses")
     users = mocker.patch("ahriman.core.database.data.migrate_users_data")
 
-    migrate_data(MigrationResult(old_version=900, new_version=900), connection, configuration, repository_paths)
+    migrate_data(MigrationResult(old_version=900, new_version=900), connection, configuration)
     packages.assert_not_called()
     users.assert_not_called()

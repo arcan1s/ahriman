@@ -23,11 +23,9 @@ import json
 import sqlite3
 
 from pathlib import Path
-from sqlite3 import Connection
 from typing import Type
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.data import migrate_data
 from ahriman.core.database.migrations import Migrations
 from ahriman.core.database.operations.auth_operations import AuthOperations
 from ahriman.core.database.operations.build_operations import BuildOperations
@@ -83,9 +81,5 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
 
         paths = configuration.repository_paths
 
-        def run(connection: Connection) -> None:
-            result = Migrations.migrate(connection)
-            migrate_data(result, connection, configuration, paths)
-
-        self.with_connection(run)
+        self.with_connection(lambda conn: Migrations.migrate(conn, configuration))
         paths.chown(self.path)

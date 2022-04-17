@@ -19,10 +19,8 @@ def test_migrate_package_statuses(connection: Connection, package_ahriman: Packa
     mocker.patch("pathlib.Path.is_file", return_value=True)
     mocker.patch("pathlib.Path.open")
     mocker.patch("json.load", return_value=response)
-    unlink_mock = mocker.patch("pathlib.Path.unlink")
 
     migrate_package_statuses(connection, repository_paths)
-    unlink_mock.assert_called_once_with()
     connection.execute.assert_has_calls([
         mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
         mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
@@ -30,7 +28,6 @@ def test_migrate_package_statuses(connection: Connection, package_ahriman: Packa
     connection.executemany.assert_has_calls([
         mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
     ])
-    connection.commit.assert_called_once_with()
 
 
 def test_migrate_package_statuses_skip(connection: Connection, repository_paths: RepositoryPaths,
@@ -40,4 +37,3 @@ def test_migrate_package_statuses_skip(connection: Connection, repository_paths:
     """
     mocker.patch("pathlib.Path.is_file", return_value=False)
     migrate_package_statuses(connection, repository_paths)
-    connection.commit.assert_not_called()

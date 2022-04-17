@@ -38,5 +38,3 @@ def migrate_users_data(connection: Connection, configuration: Configuration) -> 
             connection.execute(
                 """insert into users (username, access, password) values (:username, :access, :password)""",
                 {"username": option.lower(), "access": access, "password": value})
-
-    connection.commit()
