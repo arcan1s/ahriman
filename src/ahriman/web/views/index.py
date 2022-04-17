@@ -34,30 +34,30 @@ class IndexView(BaseView):
 
     It uses jinja2 templates for report generation, the following variables are allowed:
 
-        architecture - repository architecture, string, required
-        auth - authorization descriptor, required
-                   * authenticated - alias to check if user can see the page, boolean, required
-                   * control - HTML to insert for login control, HTML string, required
-                   * enabled - whether authorization is enabled by configuration or not, boolean, required
-                   * username - authenticated username if any, string, null means not authenticated
-        index_url - url to the repository index, string, optional
-        packages - sorted list of packages properties, required
-                   * base, string
-                   * depends, sorted list of strings
-                   * groups, sorted list of strings
-                   * licenses, sorted list of strings
-                   * packages, sorted list of strings
-                   * status, string based on enum value
-                   * status_color, string based on enum value
-                   * timestamp, pretty printed datetime, string
-                   * version, string
-                   * web_url, string
-        repository - repository name, string, required
-        service - service status properties, required
-                   * status, string based on enum value
-                   * status_color, string based on enum value
-                   * timestamp, pretty printed datetime, string
-        version - ahriman version, string, required
+        * architecture - repository architecture, string, required
+        * auth - authorization descriptor, required
+            * authenticated - alias to check if user can see the page, boolean, required
+            * control - HTML to insert for login control, HTML string, required
+            * enabled - whether authorization is enabled by configuration or not, boolean, required
+            * username - authenticated username if any, string, null means not authenticated
+        * index_url - url to the repository index, string, optional
+        * packages - sorted list of packages properties, required
+            * base, string
+            * depends, sorted list of strings
+            * groups, sorted list of strings
+            * licenses, sorted list of strings
+            * packages, sorted list of strings
+            * status, string based on enum value
+            * status_color, string based on enum value
+            * timestamp, pretty printed datetime, string
+            * version, string
+            * web_url, string
+        * repository - repository name, string, required
+        * service - service status properties, required
+            * status, string based on enum value
+            * status_color, string based on enum value
+            * timestamp, pretty printed datetime, string
+        * version - ahriman version, string, required
 
     Attributes:
       GET_PERMISSION(UserAccess): (class attribute) get permissions of self

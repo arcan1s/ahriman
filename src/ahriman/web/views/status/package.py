@@ -82,11 +82,12 @@ class PackageView(BaseView):
         update package build status
 
         JSON body must be supplied, the following model is used:
-        {
-            "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
-            "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
-                           # Must be supplied in case if package base is unknown
-        }
+
+        >>> {
+        >>>     "status": "unknown",   # package build status string, must be valid `BuildStatusEnum`
+        >>>     "package": {}  # package body (use `dataclasses.asdict` to generate one), optional.
+        >>>                    # Must be supplied in case if package base is unknown
+        >>> }
 
         Raises:
           HTTPBadRequest: if bad data is supplied

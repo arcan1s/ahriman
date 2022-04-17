@@ -72,10 +72,11 @@ class LoginView(BaseView):
         login user to service
 
         either JSON body or form data must be supplied the following fields are required:
-        {
-            "username": "username"  # username to use for login
-            "password": "pa55w0rd"  # password to use for login
-        }
+
+        >>> {
+        >>>     "username": "username"  # username to use for login
+        >>>     "password": "pa55w0rd"  # password to use for login
+        >>> }
 
         Raises:
           HTTPFound: on success response

@@ -35,25 +35,25 @@ class JinjaTemplate:
 
     It uses jinja2 templates for report generation, the following variables are allowed:
 
-        homepage - link to homepage, string, optional
-        link_path - prefix fo packages to download, string, required
-        has_package_signed - True in case if package sign enabled, False otherwise, required
-        has_repo_signed - True in case if repository database sign enabled, False otherwise, required
-        packages - sorted list of packages properties, required
-                   * architecture, string
-                   * archive_size, pretty printed size, string
-                   * build_date, pretty printed datetime, string
-                   * depends, sorted list of strings
-                   * description, string
-                   * filename, string,
-                   * groups, sorted list of strings
-                   * installed_size, pretty printed datetime, string
-                   * licenses, sorted list of strings
-                   * name, string
-                   * url, string
-                   * version, string
-        pgp_key - default PGP key ID, string, optional
-        repository - repository name, string, required
+        * homepage - link to homepage, string, optional
+        * link_path - prefix fo packages to download, string, required
+        * has_package_signed - True in case if package sign enabled, False otherwise, required
+        * has_repo_signed - True in case if repository database sign enabled, False otherwise, required
+        * packages - sorted list of packages properties, required
+            * architecture, string
+            * archive_size, pretty printed size, string
+            * build_date, pretty printed datetime, string
+            * depends, sorted list of strings
+            * description, string
+            * filename, string,
+            * groups, sorted list of strings
+            * installed_size, pretty printed datetime, string
+            * licenses, sorted list of strings
+            * name, string
+            * url, string
+            * version, string
+        * pgp_key - default PGP key ID, string, optional
+        * repository - repository name, string, required
 
     Attributes:
       homepage(Optional[str]): homepage link if any (for footer)
