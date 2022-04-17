@@ -27,9 +27,11 @@ from ahriman.web.views.base import BaseView
 class AhrimanView(BaseView):
     """
     service status web view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
-    :cvar POST_PERMISSION: post permissions of self
+
+    Attributes:
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -38,20 +40,25 @@ class AhrimanView(BaseView):
     async def get(self) -> Response:
         """
         get current service status
-        :return: 200 with service status object
+
+        Returns:
+            Response: 200 with service status object
         """
         return json_response(self.service.status.view())
 
-    async def post(self) -> Response:
+    async def post(self) -> None:
         """
         update service status
 
         JSON body must be supplied, the following model is used:
-        {
-            "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
-        }
 
-        :return: 204 on success
+        >>> {
+        >>>     "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
+        >>> }
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
         """
         try:
             data = await self.extract_data()

@@ -44,8 +44,12 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
     def load(cls: Type[SQLite], configuration: Configuration) -> SQLite:
         """
         construct instance from configuration
-        :param configuration: configuration instance
-        :return: fully initialized instance of the database
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            SQLite: fully initialized instance of the database
         """
         path = cls.database_path(configuration)
         database = cls(path)
@@ -56,15 +60,21 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
     def database_path(configuration: Configuration) -> Path:
         """
         read database from configuration
-        :param configuration: configuration instance
-        :return: database path according to the configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            Path: database path according to the configuration
         """
         return configuration.getpath("settings", "database")
 
     def init(self, configuration: Configuration) -> None:
         """
         perform database migrations
-        :param configuration: configuration instance
+
+        Args:
+            configuration(Configuration): configuration instance
         """
         # custom types support
         sqlite3.register_adapter(dict, json.dumps)

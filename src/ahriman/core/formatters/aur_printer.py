@@ -28,13 +28,17 @@ from ahriman.models.property import Property
 class AurPrinter(StringPrinter):
     """
     print content of the AUR package
-    :ivar package: AUR package description
+
+    Attributes:
+        package(AURPackage): AUR package description
     """
 
     def __init__(self, package: AURPackage) -> None:
         """
         default constructor
-        :param package: AUR package description
+
+        Args:
+            package(AURPackage): AUR package description
         """
         StringPrinter.__init__(self, f"{package.name} {package.version} ({package.num_votes})")
         self.package = package
@@ -42,7 +46,9 @@ class AurPrinter(StringPrinter):
     def properties(self) -> List[Property]:
         """
         convert content into printable data
-        :return: list of content properties
+
+        Returns:
+            List[Property]: list of content properties
         """
         return [
             Property("Package base", self.package.package_base),

@@ -22,15 +22,15 @@ from __future__ import annotations
 from enum import Enum
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
-
 
 class AuthSettings(Enum):
     """
     web authorization type
-    :cvar Disabled: authorization is disabled
-    :cvar Configuration: configuration based authorization
-    :cvar OAuth: OAuth based provider
+
+    Attributes:
+        Disabled(AuthSettings): (class attribute) authorization is disabled
+        Configuration(AuthSettings): (class attribute) configuration based authorization
+        OAuth(AuthSettings): (class attribute) OAuth based provider
     """
 
     Disabled = "disabled"
@@ -41,21 +41,26 @@ class AuthSettings(Enum):
     def from_option(cls: Type[AuthSettings], value: str) -> AuthSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+            value(str): configuration value
+
+        Returns:
+            AuthSettings: parsed value
         """
-        if value.lower() in ("disabled", "no"):
-            return cls.Disabled
         if value.lower() in ("configuration", "mapping"):
             return cls.Configuration
         if value.lower() in ('oauth', 'oauth2'):
             return cls.OAuth
-        raise InvalidOption(value)
+        return cls.Disabled
 
     @property
     def is_enabled(self) -> bool:
         """
-        :return: False in case if authorization is disabled and True otherwise
+        get enabled flag
+
+        Returns:
+            bool: False in case if authorization is disabled and True otherwise
         """
         if self == AuthSettings.Disabled:
             return False

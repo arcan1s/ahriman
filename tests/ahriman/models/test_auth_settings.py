@@ -1,15 +1,11 @@
-import pytest
-
-from ahriman.core.exceptions import InvalidOption
 from ahriman.models.auth_settings import AuthSettings
 
 
 def test_from_option_invalid() -> None:
     """
-    must raise exception on invalid option
+    return disabled on invalid option
     """
-    with pytest.raises(InvalidOption, match=".* `invalid`$"):
-        AuthSettings.from_option("invalid")
+    assert AuthSettings.from_option("invalid") == AuthSettings.Disabled
 
 
 def test_from_option_valid() -> None:

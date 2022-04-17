@@ -29,10 +29,12 @@ from ahriman.models.counters import Counters
 class InternalStatus:
     """
     internal server status
-    :ivar architecture: repository architecture
-    :ivar packages: packages statuses counter object
-    :ivar repository: repository name
-    :ivar version: service version
+
+    Attributes:
+        architecture(Optional[str]): repository architecture
+        packages(Counters): packages statuses counter object
+        repository(Optional[str]): repository name
+        version(Optional[str]): service version
     """
 
     architecture: Optional[str] = None
@@ -44,8 +46,12 @@ class InternalStatus:
     def from_json(cls: Type[InternalStatus], dump: Dict[str, Any]) -> InternalStatus:
         """
         construct internal status from json dump
-        :param dump: json dump body
-        :return: internal status
+
+        Args:
+            dump(Dict[str, Any]): json dump body
+
+        Returns:
+            InternalStatus: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
         return cls(architecture=dump.get("architecture"),
@@ -56,6 +62,8 @@ class InternalStatus:
     def view(self) -> Dict[str, Any]:
         """
         generate json status view
-        :return: json-friendly dictionary
+
+        Returns:
+            Dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

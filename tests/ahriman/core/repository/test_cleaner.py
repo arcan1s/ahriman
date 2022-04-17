@@ -11,7 +11,9 @@ from ahriman.core.repository.cleaner import Cleaner
 def _mock_clear(mocker: MockerFixture) -> None:
     """
     mocker helper for clear function
-    :param mocker: mocker object
+
+    Args:
+        mocker(MockerFixture): mocker object
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[Path("a"), Path("b"), Path("c")])
     mocker.patch("shutil.rmtree")

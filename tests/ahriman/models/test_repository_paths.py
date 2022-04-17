@@ -14,9 +14,13 @@ from ahriman.models.repository_paths import RepositoryPaths
 def _get_owner(root: Path, same: bool) -> Callable[[Path], Tuple[int, int]]:
     """
     mocker function for owner definition
-    :param root: root directory
-    :param same: if True then returns the same as root directory and different otherwise
-    :return: function which can define ownership
+
+    Args:
+        root(Path): root directory
+        same(bool): if True then returns the same as root directory and different otherwise
+
+    Returns:
+        Callable[[Path], Tuple[int, int]]: function which can define ownership
     """
     root_owner = (42, 42)
     nonroot_owner = (42, 42) if same else (1, 1)

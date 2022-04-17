@@ -29,7 +29,9 @@ class BuildFailed(RuntimeError):
     def __init__(self, package_base: str) -> None:
         """
         default constructor
-        :param package_base: package base raised exception
+
+        Args:
+            package_base(str): package base raised exception
         """
         RuntimeError.__init__(self, f"Package {package_base} build failed, check logs for details")
 
@@ -61,7 +63,9 @@ class InitializeException(RuntimeError):
     def __init__(self, details: str) -> None:
         """
         default constructor
-        :param details: details of the exception
+
+        Args:
+            details(str): details of the exception
         """
         RuntimeError.__init__(self, f"Could not load service: {details}")
 
@@ -74,7 +78,9 @@ class InvalidOption(ValueError):
     def __init__(self, value: Any) -> None:
         """
         default constructor
-        :param value: option value
+
+        Args:
+            value(Any): option value
         """
         ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
 
@@ -87,8 +93,10 @@ class InvalidPath(ValueError):
     def __init__(self, path: Path, root: Path) -> None:
         """
         default constructor
-        :param path: path which raised an exception
-        :param root: repository root (i.e. ahriman home)
+
+        Args:
+            path(Path): path which raised an exception
+            root(Path): repository root (i.e. ahriman home)
         """
         ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
 
@@ -101,7 +109,9 @@ class InvalidPackageInfo(RuntimeError):
     def __init__(self, details: Any) -> None:
         """
         default constructor
-        :param details: error details
+
+        Args:
+            details(Any): error details
         """
         RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
 
@@ -114,7 +124,9 @@ class MigrationError(RuntimeError):
     def __init__(self, details: str) -> None:
         """
         default constructor
-        :param details: error details
+
+        Args:
+            details(str): error details
         """
         RuntimeError.__init__(self, details)
 
@@ -127,7 +139,9 @@ class MissingArchitecture(ValueError):
     def __init__(self, command: str) -> None:
         """
         default constructor
-        :param command: command name which throws exception
+
+        Args:
+            command(str): command name which throws exception
         """
         ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
@@ -140,7 +154,9 @@ class MultipleArchitectures(ValueError):
     def __init__(self, command: str) -> None:
         """
         default constructor
-        :param command: command name which throws exception
+
+        Args:
+            command(str): command name which throws exception
         """
         ValueError.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
 
@@ -165,7 +181,9 @@ class SuccessFailed(ValueError):
     def __init__(self, package_base: str) -> None:
         """
         default constructor
-        :param package_base: package base name
+
+        Args:
+            package_base(str): package base name
         """
         ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
 
@@ -190,7 +208,9 @@ class UnknownPackage(ValueError):
     def __init__(self, package_base: str) -> None:
         """
         default constructor
-        :param package_base: package base name
+
+        Args:
+            package_base(str): package base name
         """
         ValueError.__init__(self, f"Package base {package_base} is unknown")
 
@@ -203,8 +223,10 @@ class UnsafeRun(RuntimeError):
     def __init__(self, current_uid: int, root_uid: int) -> None:
         """
         default constructor
-        :param current_uid: current user ID
-        :param root_uid: ID of the owner of root directory
+
+        Args:
+            current_uid(int): current user ID
+            root_uid(int): ID of the owner of root directory
         """
         RuntimeError.__init__(self, f"Current UID {current_uid} differs from root owner {root_uid}. "
                                     f"Note that for the most actions it is unsafe to run application as different user."

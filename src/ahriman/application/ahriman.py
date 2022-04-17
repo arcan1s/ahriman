@@ -43,8 +43,12 @@ SubParserAction = TypeVar("SubParserAction", bound="argparse._SubParsersAction[a
 def _formatter(prog: str) -> argparse.HelpFormatter:
     """
     formatter for the help message
-    :param prog: application name
-    :return: formatter used by default
+
+    Args:
+        prog(str): application name
+
+    Returns:
+        argparse.HelpFormatter: formatter used by default
     """
     return argparse.ArgumentDefaultsHelpFormatter(prog, width=120)
 
@@ -52,7 +56,9 @@ def _formatter(prog: str) -> argparse.HelpFormatter:
 def _parser() -> argparse.ArgumentParser:
     """
     command line parser generator
-    :return: command line parser for the application
+
+    Returns:
+        argparse.ArgumentParser: command line parser for the application
     """
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcH Linux ReposItory MANager",
                                      epilog="Argument list can also be read from file by using @ prefix.",
@@ -107,8 +113,12 @@ def _parser() -> argparse.ArgumentParser:
 def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for AUR search subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("aur-search", aliases=["search"], help="search for package",
                              description="search for package in AUR using API", formatter_class=_formatter)
@@ -126,8 +136,12 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for listing help subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("help", help="show help message",
                              description="show help message for application or command and exit",
@@ -141,8 +155,12 @@ def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for listing unsafe commands
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
                              description="list unsafe commands as defined in default args", formatter_class=_formatter)
@@ -156,8 +174,12 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
 def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for key import subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("key-import", help="import PGP key",
                              description="import PGP key from public sources to the repository user",
@@ -175,8 +197,12 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for package addition subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-add", aliases=["add", "package-update"], help="add package",
                              description="add existing or new package to the build queue",
@@ -204,8 +230,12 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_package_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for package removal subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-remove", aliases=["remove"], help="remove package",
                              description="remove package from the repository", formatter_class=_formatter)
@@ -217,8 +247,12 @@ def _set_package_remove_parser(root: SubParserAction) -> argparse.ArgumentParser
 def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for package status subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-status", aliases=["status"], help="get package status",
                              description="request status of the package",
@@ -237,8 +271,12 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
 def _set_package_status_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for package status remove subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-status-remove", help="remove package status",
                              description="remove the package from the status page",
@@ -254,8 +292,12 @@ def _set_package_status_remove_parser(root: SubParserAction) -> argparse.Argumen
 def _set_package_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for package status update subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-status-update", aliases=["status-update"], help="update package status",
                              description="update package status on the status page", formatter_class=_formatter)
@@ -272,8 +314,12 @@ def _set_package_status_update_parser(root: SubParserAction) -> argparse.Argumen
 def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for new patch subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("patch-add", help="add patch set", description="create or update source patches",
                              epilog="In order to add a patch set for the package you will need to clone "
@@ -292,8 +338,12 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for list patches subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("patch-list", help="list patch sets",
                              description="list available patches for the package", formatter_class=_formatter)
@@ -306,8 +356,12 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for remove patches subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("patch-remove", help="remove patch set", description="remove patches for the package",
                              formatter_class=_formatter)
@@ -319,8 +373,12 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository backup subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-backup", help="backup repository data",
                              description="backup settings and database", formatter_class=_formatter)
@@ -332,8 +390,12 @@ def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository check subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-check", aliases=["check"], help="check for updates",
                              description="check for packages updates. Same as update --dry-run --no-manual",
@@ -348,8 +410,12 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository clean subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-clean", aliases=["clean"], help="clean local caches",
                              description="remove local caches",
@@ -368,8 +434,12 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for config subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-config", aliases=["config"], help="dump configuration",
                              description="dump configuration for the specified architecture",
@@ -381,8 +451,12 @@ def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository rebuild subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
                              description="force rebuild whole repository", formatter_class=_formatter)
@@ -403,8 +477,12 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for remove unknown packages subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-remove-unknown", aliases=["remove-unknown"], help="remove unknown packages",
                              description="remove packages which are missing in AUR and do not have local PKGBUILDs",
@@ -418,8 +496,12 @@ def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentP
 def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for report subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-report", aliases=["report"], help="generate report",
                              description="generate repository report according to current settings",
@@ -433,8 +515,12 @@ def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository restore subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-restore", help="restore repository data",
                              description="restore settings and database", formatter_class=_formatter)
@@ -447,8 +533,12 @@ def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for setup subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-setup", aliases=["init", "repo-init", "setup"], help="initial service configuration",
                              description="create initial service configuration, requires root",
@@ -472,8 +562,12 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for sign subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-sign", aliases=["sign"], help="sign packages",
                              description="(re-)sign packages and repository database according to current settings",
@@ -487,8 +581,12 @@ def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository status update subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-status-update", help="update repository status",
                              description="update repository status on the status page", formatter_class=_formatter)
@@ -502,8 +600,12 @@ def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentPa
 def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository sync subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-sync", aliases=["sync"], help="sync repository",
                              description="sync repository files to remote server according to current settings",
@@ -517,8 +619,12 @@ def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository update subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-update", aliases=["update"], help="update packages",
                              description="check for packages updates and run build process if requested",
@@ -537,8 +643,12 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for create user subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
@@ -559,8 +669,12 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for user list subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("user-list", help="user known users and their access",
                              description="list users from the user mapping and their roles",
@@ -576,8 +690,12 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for user removal subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("user-remove", help="remove user",
                              description="remove user from the user mapping and update the configuration",
@@ -592,8 +710,12 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
 def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for web subcommand
-    :param root: subparsers for the commands
-    :return: created argument parser
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("web", help="web server", description="start web server", formatter_class=_formatter)
     parser.set_defaults(handler=handlers.Web, lock=None, no_report=True, parser=_parser)

@@ -25,9 +25,11 @@ from typing import List
 class Migration:
     """
     migration implementation
-    :ivar index: migration position
-    :ivar name: migration name
-    :ivar steps: migration steps
+
+    Attributes:
+        index(int): migration position
+        name(str): migration name
+        steps(List[str]): migration steps
     """
 
     index: int

@@ -29,8 +29,10 @@ from typing import Optional, Type
 class UserIdentity:
     """
     user identity used inside web service
-    :ivar username: username
-    :ivar expire_at: identity expiration timestamp
+
+    Attributes:
+        username(str): username
+        expire_at(int): identity expiration timestamp
     """
 
     username: str
@@ -40,8 +42,12 @@ class UserIdentity:
     def from_identity(cls: Type[UserIdentity], identity: str) -> Optional[UserIdentity]:
         """
         parse identity into object
-        :param identity: identity from session data
-        :return: user identity object if it can be parsed and not expired and None otherwise
+
+        Args:
+            identity(str): identity from session data
+
+        Returns:
+            Optional[UserIdentity]: user identity object if it can be parsed and not expired and None otherwise
         """
         try:
             username, expire_at = identity.split()
@@ -54,9 +60,13 @@ class UserIdentity:
     def from_username(cls: Type[UserIdentity], username: Optional[str], max_age: int) -> Optional[UserIdentity]:
         """
         generate identity from username
-        :param username: username
-        :param max_age: time to expire, seconds
-        :return: constructed identity object
+
+        Args:
+            username(Optional[str]): username
+            max_age(int): time to expire, seconds
+
+        Returns:
+            Optional[UserIdentity]: constructed identity object
         """
         return cls(username, cls.expire_when(max_age)) if username is not None else None
 
@@ -64,21 +74,29 @@ class UserIdentity:
     def expire_when(max_age: int) -> int:
         """
         generate expiration time using delta
-        :param max_age: time delta to generate. Must be usually TTE
-        :return: expiration timestamp
+
+        Args:
+            max_age(int): time delta to generate. Must be usually TTE
+
+        Returns:
+            int: expiration timestamp
         """
         return int(time.time()) + max_age
 
     def is_expired(self) -> bool:
         """
         compare timestamp with current timestamp and return True in case if identity is expired
-        :return: True in case if identity is expired and False otherwise
+
+        Returns:
+            bool: True in case if identity is expired and False otherwise
         """
         return self.expire_when(0) > self.expire_at
 
     def to_identity(self) -> str:
         """
         convert object to identity representation
-        :return: web service identity
+
+        Returns:
+            str: web service identity
         """
         return f"{self.username} {self.expire_at}"

@@ -13,8 +13,12 @@ from ahriman.models.package import Package
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     default arguments for these test cases
-    :param args: command line arguments fixture
-    :return: generated arguments for these test cases
+
+    Args:
+        args(argparse.Namespace): command line arguments fixture
+
+    Returns:
+        argparse.Namespace: generated arguments for these test cases
     """
     args.package = "ahriman"
     args.exit_code = False

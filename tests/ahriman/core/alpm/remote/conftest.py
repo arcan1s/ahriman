@@ -9,7 +9,9 @@ from ahriman.core.alpm.remote.remote import Remote
 def aur() -> AUR:
     """
     aur helper fixture
-    :return: aur helper instance
+
+    Returns:
+        AUR: aur helper instance
     """
     return AUR()
 
@@ -18,7 +20,9 @@ def aur() -> AUR:
 def official() -> Official:
     """
     official repository fixture
-    :return: official repository helper instance
+
+    Returns:
+        Official: official repository helper instance
     """
     return Official()
 
@@ -27,6 +31,8 @@ def official() -> Official:
 def remote() -> Remote:
     """
     official repository fixture
-    :return: official repository helper instance
+
+    Returns:
+        Remote: official repository helper instance
     """
     return Remote()

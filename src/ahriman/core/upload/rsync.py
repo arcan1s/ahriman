@@ -29,8 +29,10 @@ from ahriman.models.package import Package
 class Rsync(Upload):
     """
     rsync wrapper
-    :ivar command: command arguments for sync
-    :ivar remote: remote address to sync
+
+    Attributes:
+        command(List[str]): command arguments for sync
+        remote(str): remote address to sync
     """
 
     _check_output = check_output
@@ -38,9 +40,11 @@ class Rsync(Upload):
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: settings section name
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Upload.__init__(self, architecture, configuration)
         self.command = configuration.getlist(section, "command")
@@ -49,7 +53,9 @@ class Rsync(Upload):
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """
         sync data to remote server
-        :param path: local path to sync
-        :param built_packages: list of packages which has just been built
+
+        Args:
+            path(Path): local path to sync
+            built_packages(Iterable[Package]): list of packages which has just been built
         """
         Rsync._check_output(*self.command, str(path), self.remote, exception=None, logger=self.logger)

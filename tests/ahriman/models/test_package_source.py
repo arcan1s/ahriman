@@ -9,9 +9,13 @@ from ahriman.models.package_source import PackageSource
 def _is_file_mock(is_any_file: bool, is_pkgbuild: bool) -> Callable[[Path], bool]:
     """
     helper to mock is_file method
-    :param is_any_file: value which will be return for any file
-    :param is_pkgbuild: value which will be return if PKGBUILD like path asked
-    :return: side effect function for the mocker object
+
+    Args:
+        is_any_file(bool): value which will be return for any file
+        is_pkgbuild(bool): value which will be return if PKGBUILD like path asked
+
+    Returns:
+        Callable[[Path], bool]: side effect function for the mocker object
     """
     side_effect: Callable[[Path], bool] = lambda source: is_pkgbuild if source.name == "PKGBUILD" else is_any_file
     return side_effect

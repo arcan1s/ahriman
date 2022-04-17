@@ -33,16 +33,20 @@ from ahriman.models.result import Result
 class Report:
     """
     base report generator
-    :ivar architecture: repository architecture
-    :ivar configuration: configuration instance
-    :ivar logger: class logger
+
+    Attributes:
+        architecture(str): repository architecture
+        configuration(Configuration): configuration instance
+        logger(logging.Logger): class logger
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
@@ -52,10 +56,14 @@ class Report:
     def load(cls: Type[Report], architecture: str, configuration: Configuration, target: str) -> Report:
         """
         load client from settings
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param target: target to generate report aka section name (e.g. html)
-        :return: client according to current settings
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            target(str): target to generate report aka section name (e.g. html)
+
+        Returns:
+            Report: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
         provider = ReportSettings.from_option(provider_name)
@@ -76,15 +84,22 @@ class Report:
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
 
     def run(self, packages: Iterable[Package], result: Result) -> None:
         """
         run report generation
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
+
+        Raises:
+            ReportFailed: in case of any report unmatched exception
         """
         try:
             self.generate(packages, result)

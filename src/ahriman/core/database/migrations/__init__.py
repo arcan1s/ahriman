@@ -35,14 +35,18 @@ class Migrations:
     """
     simple migration wrapper for the sqlite
     idea comes from https://www.ash.dev/blog/simple-migration-system-in-sqlite/
-    :ivar connection: database connection
-    :ivar logger: class logger
+
+    Attributes:
+        connection(Connection): database connection
+        logger(logging.Logger): class logger
     """
 
     def __init__(self, connection: Connection) -> None:
         """
         default constructor
-        :param connection: database connection
+
+        Args:
+            connection(Connection): database connection
         """
         self.connection = connection
         self.logger = logging.getLogger("database")
@@ -51,8 +55,12 @@ class Migrations:
     def migrate(cls: Type[Migrations], connection: Connection) -> MigrationResult:
         """
         perform migrations implicitly
-        :param connection: database connection
-        :return: current schema version
+
+        Args:
+            connection(Connection): database connection
+
+        Returns:
+            MigrationResult: current schema version
         """
         return cls(connection).run()
 
@@ -61,6 +69,8 @@ class Migrations:
         extract all migrations from the current package
         idea comes from https://julienharbulot.com/python-dynamical-import.html
 
+        Returns:
+            List[Migration]: list of found migrations
         """
         migrations: List[Migration] = []
         package_dir = Path(__file__).resolve().parent
@@ -77,7 +87,9 @@ class Migrations:
     def run(self) -> MigrationResult:
         """
         perform migrations
-        :return: current schema version
+
+        Return:
+            MigrationResult: current schema version
         """
         migrations = self.migrations()
         current_version = self.user_version()
@@ -118,7 +130,9 @@ class Migrations:
     def user_version(self) -> int:
         """
         get schema version from sqlite database
-        ;return: current schema version
+
+        Returns:
+            int: current schema version
         """
         cursor = self.connection.execute("pragma user_version")
         current_version: int = cursor.fetchone()["user_version"]

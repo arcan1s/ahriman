@@ -1,0 +1,50 @@
+ahriman.web.views.status package
+================================
+
+Submodules
+----------
+
+ahriman.web.views.status.ahriman module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.status.ahriman
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+   :private-members:
+
+ahriman.web.views.status.package module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.status.package
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+   :private-members:
+
+ahriman.web.views.status.packages module
+----------------------------------------
+
+.. automodule:: ahriman.web.views.status.packages
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+   :private-members:
+
+ahriman.web.views.status.status module
+--------------------------------------
+
+.. automodule:: ahriman.web.views.status.status
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+   :private-members:
+
+Module contents
+---------------
+
+.. automodule:: ahriman.web.views.status
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+   :private-members:

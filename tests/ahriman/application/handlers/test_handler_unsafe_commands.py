@@ -6,14 +6,17 @@ from pytest_mock import MockerFixture
 from ahriman.application.ahriman import _parser
 from ahriman.application.handlers import UnsafeCommands
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import ExitCode
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     default arguments for these test cases
-    :param args: command line arguments fixture
-    :return: generated arguments for these test cases
+
+    Args:
+        args(argparse.Namespace): command line arguments fixture
+
+    Returns:
+        argparse.Namespace: generated arguments for these test cases
     """
     args.parser = _parser
     args.command = None
@@ -49,19 +52,22 @@ def test_run_check(args: argparse.Namespace, configuration: Configuration, mocke
     check_mock.assert_called_once_with("clean", ["command"], pytest.helpers.anyvar(int))
 
 
-def test_check_unsafe() -> None:
+def test_check_unsafe(mocker: MockerFixture) -> None:
     """
     must check if command is unsafe
     """
-    with pytest.raises(ExitCode):
-        UnsafeCommands.check_unsafe("repo-clean", ["repo-clean"], _parser())
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    UnsafeCommands.check_unsafe("repo-clean", ["repo-clean"], _parser())
+    check_mock.assert_called_once_with(True, True)
 
 
-def test_check_unsafe_safe() -> None:
+def test_check_unsafe_safe(mocker: MockerFixture) -> None:
     """
     must check if command is safe
     """
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
     UnsafeCommands.check_unsafe("package-status", ["repo-clean"], _parser())
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_get_unsafe_commands() -> None:

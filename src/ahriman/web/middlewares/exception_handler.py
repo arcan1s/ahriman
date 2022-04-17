@@ -28,8 +28,12 @@ from ahriman.web.middlewares import HandlerType, MiddlewareType
 def exception_handler(logger: Logger) -> MiddlewareType:
     """
     exception handler middleware. Just log any exception (except for client ones)
-    :param logger: class logger
-    :return: built middleware
+
+    Args:
+        logger(Logger): class logger
+
+    Returns:
+        MiddlewareType: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
@@ -40,8 +44,8 @@ def exception_handler(logger: Logger) -> MiddlewareType:
         except HTTPServerError as e:
             logger.exception("server exception during performing request to %s", request.path)
             return json_response(data={"error": e.reason}, status=e.status_code)
-        except HTTPException:
-            raise  # just raise 2xx and 3xx codes
+        except HTTPException:  # just raise 2xx and 3xx codes
+            raise
         except Exception as e:
             logger.exception("unknown exception during performing request to %s", request.path)
             return json_response(data={"error": str(e)}, status=500)

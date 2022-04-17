@@ -32,7 +32,9 @@ class Application(Packages, Repository):
     def _finalize(self, result: Result) -> None:
         """
         generate report and sync to remote server
-        :param result: build result
+
+        Args:
+            result(Result): build result
         """
         self.report([], result)
         self.sync([], result.success)
@@ -40,7 +42,9 @@ class Application(Packages, Repository):
     def _known_packages(self) -> Set[str]:
         """
         load packages from repository and pacman repositories
-        :return: list of known packages
+
+        Returns:
+            Set[str]: list of known packages
         """
         known_packages: Set[str] = set()
         # local set

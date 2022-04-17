@@ -29,15 +29,19 @@ from ahriman.models.result import Result
 class Console(Report):
     """
     html report generator
-    :ivar use_utf: print utf8 symbols instead of ASCII
+
+    Attributes:
+        use_utf(bool): print utf8 symbols instead of ASCII
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: settings section name
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         self.use_utf = configuration.getboolean(section, "use_utf", fallback=True)
@@ -45,8 +49,10 @@ class Console(Report):
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
         for package in result.success:
             BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)

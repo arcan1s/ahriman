@@ -17,8 +17,12 @@ _s3_object = namedtuple("s3_object", ["key", "e_tag", "delete"])
 def github(configuration: Configuration) -> Github:
     """
     fixture for github synchronization
-    :param configuration: configuration fixture
-    :return: github test instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        Github: github test instance
     """
     return Github("x86_64", configuration, "github:x86_64")
 
@@ -27,7 +31,9 @@ def github(configuration: Configuration) -> Github:
 def github_release() -> Dict[str, Any]:
     """
     fixture for the github release object
-    :return: github test release object
+
+    Returns:
+        Dict[str, Any]: github test release object
     """
     return {
         "url": "release_url",
@@ -47,8 +53,12 @@ def github_release() -> Dict[str, Any]:
 def rsync(configuration: Configuration) -> Rsync:
     """
     fixture for rsync synchronization
-    :param configuration: configuration fixture
-    :return: rsync test instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        Rsync: rsync test instance
     """
     return Rsync("x86_64", configuration, "rsync")
 
@@ -57,8 +67,12 @@ def rsync(configuration: Configuration) -> Rsync:
 def s3(configuration: Configuration) -> S3:
     """
     fixture for S3 synchronization
-    :param configuration: configuration fixture
-    :return: S3 test instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        S3: S3 test instance
     """
     return S3("x86_64", configuration, "customs3")
 
@@ -67,7 +81,9 @@ def s3(configuration: Configuration) -> S3:
 def s3_remote_objects() -> List[_s3_object]:
     """
     fixture for boto3 like S3 objects
-    :return: boto3 like S3 objects test instance
+
+    Returns:
+        List[_s3_object]: boto3 like S3 objects test instance
     """
     delete_mock = MagicMock()
     return list(map(lambda item: _s3_object(f"x86_64/{item}", f"\"{item}\"", delete_mock), ["a", "b", "c"]))

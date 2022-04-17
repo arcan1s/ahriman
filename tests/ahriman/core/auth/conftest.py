@@ -10,9 +10,13 @@ from ahriman.core.database.sqlite import SQLite
 def mapping(configuration: Configuration, database: SQLite) -> Mapping:
     """
     auth provider fixture
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :return: auth service instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+
+    Returns:
+        Mapping: auth service instance
     """
     return Mapping(configuration, database)
 
@@ -21,9 +25,13 @@ def mapping(configuration: Configuration, database: SQLite) -> Mapping:
 def oauth(configuration: Configuration, database: SQLite) -> OAuth:
     """
     OAuth provider fixture
-    :param configuration: configuration fixture
-    :param database: database fixture
-    :return: OAuth2 service instance
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+
+    Returns:
+        OAuth: OAuth2 service instance
     """
     configuration.set("web", "address", "https://example.com")
     return OAuth(configuration, database)

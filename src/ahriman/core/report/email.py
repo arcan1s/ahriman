@@ -36,24 +36,28 @@ from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 class Email(Report, JinjaTemplate):
     """
     email report generator
-    :ivar full_template_path: path to template for full package list
-    :ivar host: SMTP host to connect
-    :ivar no_empty_report: skip empty report generation
-    :ivar password: password to authenticate via SMTP
-    :ivar port: SMTP port to connect
-    :ivar receivers: list of receivers emails
-    :ivar sender: sender email address
-    :ivar ssl: SSL mode for SMTP connection
-    :ivar template_path: path to template for built packages
-    :ivar user: username to authenticate via SMTP
+
+    Attributes:
+        full_template_path(Path): path to template for full package list
+        host(str): SMTP host to connect
+        no_empty_report(bool): skip empty report generation
+        password(Optional[str]): password to authenticate via SMTP
+        port(int): SMTP port to connect
+        receivers(List[str]): list of receivers emails
+        sender(str): sender email address
+        ssl(SmtpSSLSettings): SSL mode for SMTP connection
+        template_path(Path): path to template for built packages
+        user(Optional[str]): username to authenticate via SMTP
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: settings section name
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         JinjaTemplate.__init__(self, section, configuration)
@@ -74,8 +78,10 @@ class Email(Report, JinjaTemplate):
     def _send(self, text: str, attachment: Dict[str, str]) -> None:
         """
         send email callback
-        :param text: email body text
-        :param attachment: map of attachment filename to attachment content
+
+        Args:
+            text(str): email body text
+            attachment(Dict[str, str]): map of attachment filename to attachment content
         """
         message = MIMEMultipart()
         message["From"] = self.sender
@@ -102,8 +108,10 @@ class Email(Report, JinjaTemplate):
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
         if self.no_empty_report and not result.success:
             return

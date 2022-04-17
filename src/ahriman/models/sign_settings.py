@@ -22,16 +22,18 @@ from __future__ import annotations
 from enum import Enum
 from typing import Type
 
-from ahriman.core.exceptions import InvalidOption
-
 
 class SignSettings(Enum):
     """
     sign targets enumeration
-    :cvar Packages: sign each package
-    :cvar Repository: sign repository database file
+
+    Attributes:
+        Disabled(SignSettings): (class attribute) option which generates no report for testing purpose
+        Packages(SignSettings): (class attribute) sign each package
+        Repository(SignSettings): (class attribute) sign repository database file
     """
 
+    Disabled = "disabled"
     Packages = "pacakges"
     Repository = "repository"
 
@@ -39,11 +41,15 @@ class SignSettings(Enum):
     def from_option(cls: Type[SignSettings], value: str) -> SignSettings:
         """
         construct value from configuration
-        :param value: configuration value
-        :return: parsed value
+
+        Args:
+            value(str): configuration value
+
+        Returns:
+            SignSettings: parsed value
         """
         if value.lower() in ("package", "packages", "sign-package"):
             return cls.Packages
         if value.lower() in ("repository", "sign-repository"):
             return cls.Repository
-        raise InvalidOption(value)
+        return cls.Disabled

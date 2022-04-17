@@ -34,15 +34,19 @@ from ahriman.models.user import User
 class WebClient(Client):
     """
     build status reporter web client
-    :ivar address: address of the web service
-    :ivar logger: class logger
-    :ivar user: web service user descriptor
+
+    Attributes:
+        address(str): address of the web service
+        logger(logging.Logger): class logger
+        user(Optional[User]): web service user descriptor
     """
 
     def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
-        :param configuration: configuration instance
+
+        Args:
+            configuration(Configuration): configuration instance
         """
         self.logger = logging.getLogger("http")
         self.address = self.parse_address(configuration)
@@ -56,21 +60,30 @@ class WebClient(Client):
     @property
     def _ahriman_url(self) -> str:
         """
-        :return: full url for web service for ahriman service itself
+        get url for the service status api
+
+        Returns:
+            str: full url for web service for ahriman service itself
         """
         return f"{self.address}/status-api/v1/ahriman"
 
     @property
     def _login_url(self) -> str:
         """
-        :return: full url for web service to login
+        get url for the login api
+
+        Returns:
+            str: full url for web service to login
         """
         return f"{self.address}/user-api/v1/login"
 
     @property
     def _status_url(self) -> str:
         """
-        :return: full url for web service for status
+        get url for the status api
+
+        Returns:
+            str: full url for web service for status
         """
         return f"{self.address}/status-api/v1/status"
 
@@ -78,8 +91,12 @@ class WebClient(Client):
     def parse_address(configuration: Configuration) -> str:
         """
         parse address from configuration
-        :param configuration: configuration instance
-        :return: valid http address
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            str: valid http address
         """
         address = configuration.get("web", "address", fallback=None)
         if not address:
@@ -112,16 +129,22 @@ class WebClient(Client):
     def _package_url(self, base: str = "") -> str:
         """
         url generator
-        :param base: package base to generate url
-        :return: full url of web service for specific package base
+
+        Args:
+            base(str, optional): package base to generate url (Default value = "")
+
+        Returns:
+            str: full url of web service for specific package base
         """
         return f"{self.address}/status-api/v1/packages/{base}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
-        :param package: package properties
-        :param status: current package build status
+
+        Args:
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
         """
         payload = {
             "status": status.value,
@@ -139,8 +162,12 @@ class WebClient(Client):
     def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
         get package status
-        :param base: package base to get
-        :return: list of current package description and status if it has been found
+
+        Args:
+            base(Optional[str]): package base to get
+
+        Returns:
+            List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         try:
             response = self.__session.get(self._package_url(base or ""))
@@ -160,7 +187,9 @@ class WebClient(Client):
     def get_internal(self) -> InternalStatus:
         """
         get internal service status
-        :return: current internal (web) service status
+
+        Returns:
+            InternalStatus: current internal (web) service status
         """
         try:
             response = self.__session.get(self._status_url)
@@ -177,7 +206,9 @@ class WebClient(Client):
     def get_self(self) -> BuildStatus:
         """
         get ahriman status itself
-        :return: current ahriman status
+
+        Returns:
+            BuildStatus: current ahriman status
         """
         try:
             response = self.__session.get(self._ahriman_url)
@@ -194,7 +225,9 @@ class WebClient(Client):
     def remove(self, base: str) -> None:
         """
         remove packages from watcher
-        :param base: basename to remove
+
+        Args:
+            base(str): basename to remove
         """
         try:
             response = self.__session.delete(self._package_url(base))
@@ -207,8 +240,10 @@ class WebClient(Client):
     def update(self, base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike `add` it does not update package properties
-        :param base: package base to update
-        :param status: current package build status
+
+        Args:
+            base(str): package base to update
+            status(BuildStatusEnum): current package build status
         """
         payload = {"status": status.value}
 
@@ -223,7 +258,9 @@ class WebClient(Client):
     def update_self(self, status: BuildStatusEnum) -> None:
         """
         update ahriman status itself
-        :param status: current ahriman status
+
+        Args:
+            status(BuildStatusEnum): current ahriman status
         """
         payload = {"status": status.value}
 

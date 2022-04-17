@@ -33,12 +33,14 @@ from ahriman.models.result import Result
 class Telegram(Report, JinjaTemplate):
     """
     telegram report generator
-    :cvar TELEGRAM_API_URL: telegram api base url
-    :cvar TELEGRAM_MAX_CONTENT_LENGTH: max content length of the message
-    :ivar api_key: bot api key
-    :ivar chat_id: chat id to post message, either string with @ or integer
-    :ivar template_path: path to template for built packages
-    :ivar template_type: template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
+
+    Attributes:
+        TELEGRAM_API_URL(str): (class attribute) telegram api base url
+        TELEGRAM_MAX_CONTENT_LENGTH(int): (class attribute) max content length of the message
+        api_key(str): bot api key
+        chat_id(str): chat id to post message, either string with @ or integer
+        template_path(Path): path to template for built packages
+        template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
     """
 
     TELEGRAM_API_URL = "https://api.telegram.org"
@@ -47,9 +49,11 @@ class Telegram(Report, JinjaTemplate):
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
         """
         default constructor
-        :param architecture: repository architecture
-        :param configuration: configuration instance
-        :param section: settings section name
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         Report.__init__(self, architecture, configuration)
         JinjaTemplate.__init__(self, section, configuration)
@@ -62,7 +66,9 @@ class Telegram(Report, JinjaTemplate):
     def _send(self, text: str) -> None:
         """
         send message to telegram channel
-        :param text: message body text
+
+        Args:
+            text(str): message body text
         """
         try:
             response = requests.post(
@@ -79,8 +85,10 @@ class Telegram(Report, JinjaTemplate):
     def generate(self, packages: Iterable[Package], result: Result) -> None:
         """
         generate report for the specified packages
-        :param packages: list of packages to generate report
-        :param result: build result
+
+        Args:
+            packages(Iterable[Package]): list of packages to generate report
+            result(Result): build result
         """
         if not result.success:
             return

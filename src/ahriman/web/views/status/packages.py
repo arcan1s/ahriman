@@ -26,9 +26,11 @@ from ahriman.web.views.base import BaseView
 class PackagesView(BaseView):
     """
     global watcher view
-    :cvar GET_PERMISSION: get permissions of self
-    :cvar HEAD_PERMISSION: head permissions of self
-    :cvar POST_PERMISSION: post permissions of self
+
+    Attributes:
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
+        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
@@ -37,7 +39,9 @@ class PackagesView(BaseView):
     async def get(self) -> Response:
         """
         get current packages status
-        :return: 200 with package description on success
+
+        Returns:
+            Response: 200 with package description on success
         """
         response = [
             {
@@ -47,10 +51,12 @@ class PackagesView(BaseView):
         ]
         return json_response(response)
 
-    async def post(self) -> Response:
+    async def post(self) -> None:
         """
         reload all packages from repository. No parameters supported here
-        :return: 204 on success
+
+        Raises:
+            HTTPNoContent: on success response
         """
         self.service.load()
 
