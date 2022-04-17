@@ -93,6 +93,12 @@ setup(
             "mypy",
             "pylint",
         ],
+        "docs": [
+            "Sphinx",
+            "argparse-manpage",
+            "pydeps",
+            "sphinxcontrib-napoleon",
+        ],
         "s3": [
             "boto3",
         ],

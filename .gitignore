@@ -97,3 +97,5 @@ ENV/
 status_cache.json
 
 *.db
+
+docs/html/

@@ -1,4 +1,4 @@
-.PHONY: architecture archive archive_directory archlinux check clean directory docs-clean docs-html docs-source man push tests version
+.PHONY: archive archive_directory archlinux check clean directory push spec spec-html tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -9,9 +9,6 @@ IGNORE_FILES := package/archlinux src/.mypy_cache
 
 $(TARGET_FILES) : $(addprefix $(PROJECT), %) : $(addprefix ., %) directory version
 	@cp -rp $< $@
-
-architecture:
-	cd src && pydeps ahriman -o ../docs/ahriman-architecture.svg --no-show --cluster
 
 archive: archive_directory
 	tar cJf "$(PROJECT)-$(VERSION)-src.tar.xz" "$(PROJECT)"
@@ -36,25 +33,22 @@ clean:
 directory: clean
 	mkdir "$(PROJECT)"
 
-docs-clean: clean
-	find docs/source -type f -name "$(PROJECT)*.rst" -delete
-	rm -rf docs/html docs/source/modules.rst
-
-docs-html: docs-source
-	sphinx-build -b html -a -j auto docs/source docs/html
-
-docs-source: docs-clean
-	SPHINX_APIDOC_OPTIONS=members,no-undoc-members,show-inheritance sphinx-apidoc --force --private -o docs/source src
-
-man:
-	cd src &&  PYTHONPATH=. argparse-manpage --module ahriman.application.ahriman --function _parser --author "ahriman team" --project-name ahriman --author-email "" --url https://github.com/arcan1s/ahriman --output ../docs/ahriman.1
-
-push: architecture docs-source man archlinux
+push: spec archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
 	git push
 	git push --tags
+
+spec:
+	# make sure that old files are removed
+	find docs/source -type f -name "$(PROJECT)*.rst" -delete
+	rm -f docs/source/modules.rst
+	tox -e docs
+
+spec-html: spec
+	rm -rf docs/html
+	tox -e docs-html
 
 tests: clean
 	tox -e tests
