@@ -29,7 +29,7 @@ from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 
 
-class Properties:
+class RepositoryProperties:
     """
     repository internal objects holder
 

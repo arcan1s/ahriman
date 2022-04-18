@@ -3,13 +3,13 @@ import pytest
 from pytest_mock import MockerFixture
 from unittest import mock
 
-from ahriman.application.application.repository import Repository
+from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-def test_finalize(application_repository: Repository) -> None:
+def test_finalize(application_repository: ApplicationRepository) -> None:
     """
     must raise NotImplemented for missing finalize method
     """
@@ -17,7 +17,7 @@ def test_finalize(application_repository: Repository) -> None:
         application_repository._finalize([])
 
 
-def test_clean_cache(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_clean_cache(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean cache directory
     """
@@ -26,7 +26,7 @@ def test_clean_cache(application_repository: Repository, mocker: MockerFixture) 
     clear_mock.assert_called_once_with()
 
 
-def test_clean_chroot(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_clean_chroot(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean chroot directory
     """
@@ -35,7 +35,7 @@ def test_clean_chroot(application_repository: Repository, mocker: MockerFixture)
     clear_mock.assert_called_once_with()
 
 
-def test_clean_manual(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_clean_manual(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean manual directory
     """
@@ -44,7 +44,7 @@ def test_clean_manual(application_repository: Repository, mocker: MockerFixture)
     clear_mock.assert_called_once_with()
 
 
-def test_clean_packages(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_clean_packages(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean packages directory
     """
@@ -53,7 +53,7 @@ def test_clean_packages(application_repository: Repository, mocker: MockerFixtur
     clear_mock.assert_called_once_with()
 
 
-def test_report(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_report(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must generate report
     """
@@ -62,7 +62,7 @@ def test_report(application_repository: Repository, mocker: MockerFixture) -> No
     executor_mock.assert_called_once_with(["a"], [])
 
 
-def test_sign(application_repository: Repository, package_ahriman: Package, package_python_schedule: Package,
+def test_sign(application_repository: ApplicationRepository, package_ahriman: Package, package_python_schedule: Package,
               mocker: MockerFixture) -> None:
     """
     must sign world
@@ -70,9 +70,10 @@ def test_sign(application_repository: Repository, package_ahriman: Package, pack
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
     copy_mock = mocker.patch("shutil.copy")
-    update_mock = mocker.patch("ahriman.application.application.repository.Repository.update")
+    update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
-    finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
+    finalize_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
 
     application_repository.sign([])
     copy_mock.assert_has_calls([
@@ -84,29 +85,31 @@ def test_sign(application_repository: Repository, package_ahriman: Package, pack
     finalize_mock.assert_called_once_with(Result())
 
 
-def test_sign_skip(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_sign_skip(application_repository: ApplicationRepository, package_ahriman: Package,
+                   mocker: MockerFixture) -> None:
     """
     must skip sign packages with empty filename
     """
     package_ahriman.packages[package_ahriman.base].filename = None
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.application.application.repository.Repository.update")
-    mocker.patch("ahriman.application.application.repository.Repository._finalize")
+    mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
+    mocker.patch("ahriman.application.application.application_repository.ApplicationRepository._finalize")
 
     application_repository.sign([])
 
 
-def test_sign_specific(application_repository: Repository, package_ahriman: Package, package_python_schedule: Package,
-                       mocker: MockerFixture) -> None:
+def test_sign_specific(application_repository: ApplicationRepository, package_ahriman: Package,
+                       package_python_schedule: Package, mocker: MockerFixture) -> None:
     """
     must sign only specified packages
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
     copy_mock = mocker.patch("shutil.copy")
-    update_mock = mocker.patch("ahriman.application.application.repository.Repository.update")
+    update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
-    finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
+    finalize_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
 
     filename = package_ahriman.packages[package_ahriman.base].filepath
     application_repository.sign([package_ahriman.base])
@@ -118,7 +121,7 @@ def test_sign_specific(application_repository: Repository, package_ahriman: Pack
     finalize_mock.assert_called_once_with(Result())
 
 
-def test_sync(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_sync(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must sync to remote
     """
@@ -127,7 +130,8 @@ def test_sync(application_repository: Repository, mocker: MockerFixture) -> None
     executor_mock.assert_called_once_with(["a"], [])
 
 
-def test_unknown_no_aur(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_aur(application_repository: ApplicationRepository, package_ahriman: Package,
+                        mocker: MockerFixture) -> None:
     """
     must return empty list in case if there is locally stored PKGBUILD
     """
@@ -140,7 +144,7 @@ def test_unknown_no_aur(application_repository: Repository, package_ahriman: Pac
     assert not application_repository.unknown()
 
 
-def test_unknown_no_aur_no_local(application_repository: Repository, package_ahriman: Package,
+def test_unknown_no_aur_no_local(application_repository: ApplicationRepository, package_ahriman: Package,
                                  mocker: MockerFixture) -> None:
     """
     must return list of packages missing in aur and in local storage
@@ -153,7 +157,8 @@ def test_unknown_no_aur_no_local(application_repository: Repository, package_ahr
     assert packages == list(package_ahriman.packages.keys())
 
 
-def test_unknown_no_local(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_unknown_no_local(application_repository: ApplicationRepository, package_ahriman: Package,
+                          mocker: MockerFixture) -> None:
     """
     must return empty list in case if there is package in AUR
     """
@@ -164,7 +169,7 @@ def test_unknown_no_local(application_repository: Repository, package_ahriman: P
     assert not application_repository.unknown()
 
 
-def test_update(application_repository: Repository, package_ahriman: Package, result: Result,
+def test_update(application_repository: ApplicationRepository, package_ahriman: Package, result: Result,
                 mocker: MockerFixture) -> None:
     """
     must process package updates
@@ -177,7 +182,8 @@ def test_update(application_repository: Repository, package_ahriman: Package, re
     mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
-    finalize_mock = mocker.patch("ahriman.application.application.repository.Repository._finalize")
+    finalize_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
 
     application_repository.update([package_ahriman])
     build_mock.assert_called_once_with([package_ahriman])
@@ -185,7 +191,8 @@ def test_update(application_repository: Repository, package_ahriman: Package, re
     finalize_mock.assert_has_calls([mock.call(result), mock.call(result)])
 
 
-def test_update_empty(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package,
+                      mocker: MockerFixture) -> None:
     """
     must skip updating repository if no packages supplied
     """
@@ -202,7 +209,8 @@ def test_update_empty(application_repository: Repository, package_ahriman: Packa
     update_mock.assert_not_called()
 
 
-def test_updates_all(application_repository: Repository, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_updates_all(application_repository: ApplicationRepository, package_ahriman: Package,
+                     mocker: MockerFixture) -> None:
     """
     must get updates for all
     """
@@ -218,7 +226,7 @@ def test_updates_all(application_repository: Repository, package_ahriman: Packag
     updates_manual_mock.assert_called_once_with()
 
 
-def test_updates_disabled(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_disabled(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates without anything
     """
@@ -233,7 +241,7 @@ def test_updates_disabled(application_repository: Repository, mocker: MockerFixt
     updates_manual_mock.assert_not_called()
 
 
-def test_updates_no_aur(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_no_aur(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates without aur
     """
@@ -248,7 +256,7 @@ def test_updates_no_aur(application_repository: Repository, mocker: MockerFixtur
     updates_manual_mock.assert_called_once_with()
 
 
-def test_updates_no_local(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_no_local(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates without local packages
     """
@@ -263,7 +271,7 @@ def test_updates_no_local(application_repository: Repository, mocker: MockerFixt
     updates_manual_mock.assert_called_once_with()
 
 
-def test_updates_no_manual(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_no_manual(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates without manual
     """
@@ -278,7 +286,7 @@ def test_updates_no_manual(application_repository: Repository, mocker: MockerFix
     updates_manual_mock.assert_not_called()
 
 
-def test_updates_no_vcs(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_no_vcs(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates without VCS
     """
@@ -293,7 +301,7 @@ def test_updates_no_vcs(application_repository: Repository, mocker: MockerFixtur
     updates_manual_mock.assert_called_once_with()
 
 
-def test_updates_with_filter(application_repository: Repository, mocker: MockerFixture) -> None:
+def test_updates_with_filter(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must get updates with filter
     """

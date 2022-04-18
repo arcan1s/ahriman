@@ -19,12 +19,12 @@
 #
 from typing import Set
 
-from ahriman.application.application.packages import Packages
-from ahriman.application.application.repository import Repository
+from ahriman.application.application.application_packages import ApplicationPackages
+from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.models.result import Result
 
 
-class Application(Packages, Repository):
+class Application(ApplicationPackages, ApplicationRepository):
     """
     base application class
     """

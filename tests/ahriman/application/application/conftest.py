@@ -2,15 +2,15 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.application.packages import Packages
-from ahriman.application.application.properties import Properties
-from ahriman.application.application.repository import Repository
+from ahriman.application.application.application_packages import ApplicationPackages
+from ahriman.application.application.application_properties import ApplicationProperties
+from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.sqlite import SQLite
 
 
 @pytest.fixture
-def application_packages(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Packages:
+def application_packages(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> ApplicationPackages:
     """
     fixture for application with package functions
 
@@ -20,15 +20,16 @@ def application_packages(configuration: Configuration, database: SQLite, mocker:
         mocker(MockerFixture): mocker object
 
     Returns:
-        Packages: application test instance
+        ApplicationPackages: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    return Packages("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationPackages("x86_64", configuration, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def application_properties(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Properties:
+def application_properties(configuration: Configuration, database: SQLite,
+                           mocker: MockerFixture) -> ApplicationProperties:
     """
     fixture for application with properties only
 
@@ -38,15 +39,16 @@ def application_properties(configuration: Configuration, database: SQLite, mocke
         mocker(MockerFixture): mocker object
 
     Returns:
-        Properties: application test instance
+        ApplicationProperties: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    return Properties("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationProperties("x86_64", configuration, no_report=True, unsafe=False)
 
 
 @pytest.fixture
-def application_repository(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Repository:
+def application_repository(configuration: Configuration, database: SQLite,
+                           mocker: MockerFixture) -> ApplicationRepository:
     """
     fixture for application with repository functions
 
@@ -56,8 +58,8 @@ def application_repository(configuration: Configuration, database: SQLite, mocke
         mocker(MockerFixture): mocker object
 
     Returns:
-        Repository: application test instance
+        ApplicationRepository: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    return Repository("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationRepository("x86_64", configuration, no_report=True, unsafe=False)
