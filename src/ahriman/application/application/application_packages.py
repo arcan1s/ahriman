@@ -23,7 +23,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Iterable, Set
 
-from ahriman.application.application.properties import Properties
+from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.util import package_like, tmpdir
 from ahriman.models.package import Package
@@ -31,7 +31,7 @@ from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
 
 
-class Packages(Properties):
+class ApplicationPackages(ApplicationProperties):
     """
     package control class
     """

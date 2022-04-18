@@ -193,10 +193,10 @@ ahriman.application.handlers.update module
    :show-inheritance:
    :private-members:
 
-ahriman.application.handlers.user module
-----------------------------------------
+ahriman.application.handlers.users module
+-----------------------------------------
 
-.. automodule:: ahriman.application.handlers.user
+.. automodule:: ahriman.application.handlers.users
    :members:
    :no-undoc-members:
    :show-inheritance:

@@ -22,19 +22,19 @@ ahriman.core.repository.executor module
    :show-inheritance:
    :private-members:
 
-ahriman.core.repository.properties module
+ahriman.core.repository.repository module
 -----------------------------------------
 
-.. automodule:: ahriman.core.repository.properties
+.. automodule:: ahriman.core.repository.repository
    :members:
    :no-undoc-members:
    :show-inheritance:
    :private-members:
 
-ahriman.core.repository.repository module
------------------------------------------
+ahriman.core.repository.repository\_properties module
+-----------------------------------------------------
 
-.. automodule:: ahriman.core.repository.repository
+.. automodule:: ahriman.core.repository.repository_properties
    :members:
    :no-undoc-members:
    :show-inheritance:

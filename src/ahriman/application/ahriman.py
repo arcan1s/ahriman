@@ -661,7 +661,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-r", "--role", help="user access level",
                         type=UserAccess, choices=UserAccess, default=UserAccess.Read)
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
-    parser.set_defaults(handler=handlers.User, action=Action.Update, architecture=[""], lock=None, no_report=True,
+    parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, no_report=True,
                         quiet=True, unsafe=True)
     return parser
 
@@ -682,7 +682,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=UserAccess)
-    parser.set_defaults(handler=handlers.User, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
+    parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, unsafe=True)
     return parser
 
@@ -702,7 +702,7 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
-    parser.set_defaults(handler=handlers.User, action=Action.Remove, architecture=[""], lock=None, no_report=True,  # nosec
+    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, unsafe=True)
     return parser
 

@@ -28,10 +28,10 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database.sqlite import SQLite
 from ahriman.core.formatters.user_printer import UserPrinter
 from ahriman.models.action import Action
-from ahriman.models.user import User as MUser
+from ahriman.models.user import User
 
 
-class User(Handler):
+class Users(Handler):
     """
     user management handler
     """
@@ -54,30 +54,30 @@ class User(Handler):
         database = SQLite.load(configuration)
 
         if args.action == Action.Update:
-            salt = User.get_salt(configuration)
-            user = User.user_create(args)
+            salt = Users.get_salt(configuration)
+            user = Users.user_create(args)
 
-            auth_configuration = User.configuration_get(configuration.include)
+            auth_configuration = Users.configuration_get(configuration.include)
 
-            User.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
+            Users.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
             users = database.user_list(args.username, args.role)
-            User.check_if_empty(args.exit_code, not users)
+            Users.check_if_empty(args.exit_code, not users)
             for user in users:
                 UserPrinter(user).print(verbose=True)
         elif args.action == Action.Remove:
             database.user_remove(args.username)
 
     @staticmethod
-    def configuration_create(configuration: Configuration, user: MUser, salt: str,
+    def configuration_create(configuration: Configuration, user: User, salt: str,
                              as_service_user: bool, secure: bool) -> None:
         """
         enable configuration if it has been disabled
 
         Args:
             configuration(Configuration): configuration instance
-            user(MUser): user descriptor
+            user(User): user descriptor
             salt(str): password hash salt
             as_service_user(bool): add user as service user, also set password and user to configuration
             secure(bool): if true then set file permissions to 0o600
@@ -86,7 +86,7 @@ class User(Handler):
         if as_service_user:
             configuration.set_option("web", "username", user.username)
             configuration.set_option("web", "password", user.password)
-        User.configuration_write(configuration, secure)
+        Users.configuration_write(configuration, secure)
 
     @staticmethod
     def configuration_get(include_path: Path) -> Configuration:
@@ -136,10 +136,10 @@ class User(Handler):
         """
         if salt := configuration.get("auth", "salt", fallback=None):
             return salt
-        return MUser.generate_password(salt_length)
+        return User.generate_password(salt_length)
 
     @staticmethod
-    def user_create(args: argparse.Namespace) -> MUser:
+    def user_create(args: argparse.Namespace) -> User:
         """
         create user descriptor from arguments
 
@@ -147,9 +147,9 @@ class User(Handler):
             args(argparse.Namespace): command line args
 
         Returns:
-            MUser: built user descriptor
+            User: built user descriptor
         """
-        user = MUser(args.username, args.password, args.role)
+        user = User(args.username, args.password, args.role)
         if user.password is None:
             user.password = getpass.getpass()
         return user

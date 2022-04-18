@@ -13,28 +13,28 @@ ahriman.application.application.application module
    :show-inheritance:
    :private-members:
 
-ahriman.application.application.packages module
------------------------------------------------
+ahriman.application.application.application\_packages module
+------------------------------------------------------------
 
-.. automodule:: ahriman.application.application.packages
+.. automodule:: ahriman.application.application.application_packages
    :members:
    :no-undoc-members:
    :show-inheritance:
    :private-members:
 
-ahriman.application.application.properties module
--------------------------------------------------
+ahriman.application.application.application\_properties module
+--------------------------------------------------------------
 
-.. automodule:: ahriman.application.application.properties
+.. automodule:: ahriman.application.application.application_properties
    :members:
    :no-undoc-members:
    :show-inheritance:
    :private-members:
 
-ahriman.application.application.repository module
--------------------------------------------------
+ahriman.application.application.application\_repository module
+--------------------------------------------------------------
 
-.. automodule:: ahriman.application.application.repository
+.. automodule:: ahriman.application.application.application_repository
    :members:
    :no-undoc-members:
    :show-inheritance:

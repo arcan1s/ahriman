@@ -22,10 +22,10 @@ import shutil
 from pathlib import Path
 from typing import List
 
-from ahriman.core.repository.properties import Properties
+from ahriman.core.repository.repository_properties import RepositoryProperties
 
 
-class Cleaner(Properties):
+class Cleaner(RepositoryProperties):
     """
     trait to clean common repository objects
     """

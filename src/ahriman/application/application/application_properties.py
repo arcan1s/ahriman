@@ -24,7 +24,7 @@ from ahriman.core.database.sqlite import SQLite
 from ahriman.core.repository import Repository
 
 
-class Properties:
+class ApplicationProperties:
     """
     application base properties class
 

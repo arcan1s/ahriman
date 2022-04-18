@@ -22,7 +22,7 @@ import shutil
 from pathlib import Path
 from typing import Callable, Iterable, List
 
-from ahriman.application.application.properties import Properties
+from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.formatters.update_printer import UpdatePrinter
 from ahriman.core.tree import Tree
@@ -30,7 +30,7 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-class Repository(Properties):
+class ApplicationRepository(ApplicationProperties):
     """
     repository control class
     """

@@ -7,7 +7,6 @@ from ahriman.core.database.sqlite import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.executor import Executor
-from ahriman.core.repository.properties import Properties
 from ahriman.core.repository.update_handler import UpdateHandler
 
 
@@ -64,21 +63,6 @@ def repository(configuration: Configuration, database: SQLite, mocker: MockerFix
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     return Repository("x86_64", configuration, database, no_report=True, unsafe=False)
-
-
-@pytest.fixture
-def properties(configuration: Configuration, database: SQLite) -> Properties:
-    """
-    fixture for properties
-
-    Args:
-        configuration(Configuration): configuration fixture
-        database(SQLite): database fixture
-
-    Returns:
-        Properties: properties test instance
-    """
-    return Properties("x86_64", configuration, database, no_report=True, unsafe=False)
 
 
 @pytest.fixture
