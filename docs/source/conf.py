@@ -10,19 +10,29 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
+
+from pathlib import Path
 # import sys
 # sys.path.insert(0, os.path.abspath("."))
+
+basedir = Path(__file__).resolve().parent.parent.parent
+metadata_path = basedir / "src/ahriman/version.py"
+metadata = {}
+with metadata_path.open() as metadata_file:
+    exec(metadata_file.read(), metadata)  # pylint: disable=exec-used
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 
 # -- Project information -----------------------------------------------------
 
 project = "ahriman"
-copyright = "2022, ahriman team"
+copyright = "2021-2022, ahriman team"
 author = "ahriman team"
 
 # The full version, including alpha/beta/rc tags
-release = "2021-2022"
+release = metadata["__version__"]
 
 
 # -- General configuration ---------------------------------------------------
@@ -56,7 +66,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "default" if on_rtd else "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
