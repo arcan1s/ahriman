@@ -31,7 +31,6 @@ setup(
     install_requires=[
         "inflection",
         "passlib",
-        "pyalpm",
         "requests",
         "srcinfo",
     ],
@@ -98,6 +97,12 @@ setup(
             "argparse-manpage",
             "pydeps",
             "sphinxcontrib-napoleon",
+        ],
+        # FIXME technically this dependency is required, but in some cases we do not have access to
+        # the libalpm which is required in order to install the package. Thus in case if we do not
+        # really need to run the application we can move it to "optional" dependencies
+        "pacman": [
+            "pyalpm",
         ],
         "s3": [
             "boto3",
