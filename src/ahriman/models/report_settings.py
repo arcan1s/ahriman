@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Type
 
 
-class ReportSettings(Enum):
+class ReportSettings(str, Enum):
     """
     report targets enumeration
 

@@ -17,19 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from enum import Enum
 
-
-class Action(str, Enum):
+steps = [
     """
-    base action enumeration
-
-    Attributes:
-        List(Action): (class attribute) list available values
-        Remove(Action): (class attribute) remove everything from local storage
-        Update(Action): (class attribute) update local storage or add to
+    alter table package_bases add column branch text
+    """,
     """
-
-    List = "list"
-    Remove = "remove"
-    Update = "update"
+    alter table package_bases add column git_url text
+    """,
+    """
+    alter table package_bases add column path text
+    """,
+    """
+    alter table package_bases add column web_url text
+    """,
+    """
+    alter table package_bases add column source text
+    """,
+    """
+    alter table package_bases drop column aur_url
+    """,
+]

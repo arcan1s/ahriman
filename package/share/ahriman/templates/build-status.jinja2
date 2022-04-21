@@ -74,7 +74,7 @@
                     {% for package in packages %}
                         <tr data-package-base="{{ package.base }}">
                             <td data-checkbox="true"></td>
-                            <td><a href="{{ package.web_url }}" title="{{ package.base }}">{{ package.base }}</a></td>
+                            <td>{% if package.web_url is not none %}<a href="{{ package.web_url }}" title="{{ package.base }}">{{ package.base }}</a>{% else %}{{ package.base }}{% endif %}</td>
                             <td>{{ package.version }}</td>
                             <td>{{ package.packages|join("<br>"|safe) }}</td>
                             <td>{{ package.groups|join("<br>"|safe) }}</td>

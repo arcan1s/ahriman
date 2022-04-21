@@ -128,14 +128,14 @@ class ApplicationRepository(ApplicationProperties):
             packages: List[str] = []
             for single in probe.packages:
                 try:
-                    _ = Package.from_aur(single, probe.aur_url)
+                    _ = Package.from_aur(single, self.repository.pacman)
                 except Exception:
                     packages.append(single)
             return packages
 
         def unknown_local(probe: Package) -> List[str]:
             cache_dir = self.repository.paths.cache_for(probe.base)
-            local = Package.from_build(cache_dir, probe.aur_url)
+            local = Package.from_build(cache_dir)
             packages = set(probe.packages.keys()).difference(local.packages.keys())
             return list(packages)
 

@@ -50,7 +50,7 @@ class SearchView(BaseView):
             HTTPNotFound: if no packages found
         """
         search: List[str] = self.request.query.getall("for", default=[])
-        packages = AUR.multisearch(*search)
+        packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 

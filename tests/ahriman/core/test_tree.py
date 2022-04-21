@@ -51,7 +51,7 @@ def test_leaf_load(package_ahriman: Package, database: SQLite, mocker: MockerFix
     assert leaf.dependencies == {"ahriman-dependency"}
     tempdir_mock.assert_called_once_with()
     load_mock.assert_called_once_with(
-        pytest.helpers.anyvar(int), package_ahriman.git_url, database.patches_get(package_ahriman.base))
+        pytest.helpers.anyvar(int), package_ahriman.remote, database.patches_get(package_ahriman.base))
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     rmtree_mock.assert_called_once_with(pytest.helpers.anyvar(int), ignore_errors=True)
 

@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Type
 
 
-class SmtpSSLSettings(Enum):
+class SmtpSSLSettings(str, Enum):
     """
     SMTP SSL mode enumeration
 

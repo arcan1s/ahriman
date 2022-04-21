@@ -22,7 +22,7 @@ This package contains application (aka executable) related classes and everythin
 
 This package contains everything which is required for any time of application run and separated to several packages:
 
-* `ahriman.core.alpm` package controls pacman related functions. It provides wrappers for `pyalpm` library and safe calls for repository tools (`repo-add` and `repo-remove`).
+* `ahriman.core.alpm` package controls pacman related functions. It provides wrappers for `pyalpm` library and safe calls for repository tools (`repo-add` and `repo-remove`). Also this package contains `ahriman.core.alpm.remote` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
 * `ahriman.core.auth` package provides classes for authorization methods used by web mostly. Base class is `ahriman.core.auth.auth.Auth` which must be called by `load` method.
 * `ahriman.core.build_tools` is a package which provides wrapper for `devtools` commands.
 * `ahriman.core.database` is everything including data and schema migrations for database.

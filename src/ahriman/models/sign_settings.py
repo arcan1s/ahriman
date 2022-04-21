@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Type
 
 
-class SignSettings(Enum):
+class SignSettings(str, Enum):
     """
     sign targets enumeration
 

@@ -9,7 +9,7 @@ from ahriman.core.database.data import migrate_users_data
 
 def test_migrate_users_data(connection: Connection, configuration: Configuration) -> None:
     """
-    must users to database
+    must put users to database
     """
     configuration.set_option("auth:read", "user1", "password1")
     configuration.set_option("auth:write", "user2", "password2")

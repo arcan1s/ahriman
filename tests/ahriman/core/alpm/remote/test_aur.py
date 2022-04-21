@@ -6,6 +6,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.aur import AUR
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.models.aur_package import AURPackage
@@ -47,6 +48,23 @@ def test_parse_response_unknown_error() -> None:
     """
     with pytest.raises(InvalidPackageInfo, match="Unknown API error"):
         AUR.parse_response({"type": "error"})
+
+
+def test_remote_git_url(aur_package_ahriman: AURPackage) -> None:
+    """
+    must generate package git url
+    """
+    git_url = AUR.remote_git_url(aur_package_ahriman.package_base, aur_package_ahriman.repository)
+    assert git_url.endswith(".git")
+    assert git_url.startswith(AUR.DEFAULT_AUR_URL)
+
+
+def test_remote_web_url(aur_package_ahriman: AURPackage) -> None:
+    """
+    must generate package git url
+    """
+    web_url = AUR.remote_web_url(aur_package_ahriman.package_base)
+    assert web_url.startswith(AUR.DEFAULT_AUR_URL)
 
 
 def test_make_request(aur: AUR, aur_package_ahriman: AURPackage,
@@ -109,19 +127,19 @@ def test_make_request_failed_http_error(aur: AUR, mocker: MockerFixture) -> None
         aur.make_request("info", "ahriman")
 
 
-def test_package_info(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+def test_package_info(aur: AUR, aur_package_ahriman: AURPackage, pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must make request for info
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.make_request", return_value=[aur_package_ahriman])
-    assert aur.package_info(aur_package_ahriman.name) == aur_package_ahriman
+    assert aur.package_info(aur_package_ahriman.name, pacman=pacman) == aur_package_ahriman
     request_mock.assert_called_once_with("info", aur_package_ahriman.name)
 
 
-def test_package_search(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+def test_package_search(aur: AUR, aur_package_ahriman: AURPackage, pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must make request for search
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.make_request", return_value=[aur_package_ahriman])
-    assert aur.package_search(aur_package_ahriman.name) == [aur_package_ahriman]
+    assert aur.package_search(aur_package_ahriman.name, pacman=pacman) == [aur_package_ahriman]
     request_mock.assert_called_once_with("search", aur_package_ahriman.name, by="name-desc")

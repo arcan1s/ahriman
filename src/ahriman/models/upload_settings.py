@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Type
 
 
-class UploadSettings(Enum):
+class UploadSettings(str, Enum):
     """
     remote synchronization targets enumeration
 

@@ -26,15 +26,17 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, Iterable, List, Set, Type
+from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.aur import AUR
 from ahriman.core.alpm.remote.official import Official
+from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -44,15 +46,16 @@ class Package:
     package properties representation
 
     Attributes:
-        aur_url(str): AUR root url
         base(str): package base name
-        packages(Dict[str, PackageDescription): map of package names to their properties. Filled only on load from archive
+        packages(Dict[str, PackageDescription): map of package names to their properties.
+            Filled only on load from archive
+        remote(Optional[RemoteSource]): package remote source if applicable
         version(str): package full version
     """
 
     base: str
     version: str
-    aur_url: str
+    remote: Optional[RemoteSource]
     packages: Dict[str, PackageDescription]
 
     _check_output = check_output
@@ -66,16 +69,6 @@ class Package:
             List[str]: sum of dependencies per each package
         """
         return sorted(set(sum([package.depends for package in self.packages.values()], start=[])))
-
-    @property
-    def git_url(self) -> str:
-        """
-        get git clone url
-
-        Returns:
-            str: package git url to clone
-        """
-        return f"{self.aur_url}/{self.base}.git"
 
     @property
     def groups(self) -> List[str]:
@@ -122,56 +115,46 @@ class Package:
         """
         return sorted(set(sum([package.licenses for package in self.packages.values()], start=[])))
 
-    @property
-    def web_url(self) -> str:
-        """
-        get package url which can be used to see package in web
-
-        Returns:
-            str: package AUR url
-        """
-        return f"{self.aur_url}/packages/{self.base}"
-
     @classmethod
-    def from_archive(cls: Type[Package], path: Path, pacman: Pacman, aur_url: str) -> Package:
+    def from_archive(cls: Type[Package], path: Path, pacman: Pacman, remote: Optional[RemoteSource]) -> Package:
         """
         construct package properties from package archive
 
         Args:
             path(Path): path to package archive
             pacman(Pacman): alpm wrapper instance
-            aur_url(str): AUR root url
+            remote(RemoteSource): package remote source if applicable
 
         Returns:
             Package: package properties
         """
         package = pacman.handle.load_pkg(str(path))
-        return cls(package.base, package.version, aur_url,
-                   {package.name: PackageDescription.from_package(package, path)})
+        description = PackageDescription.from_package(package, path)
+        return cls(package.base, package.version, remote, {package.name: description})
 
     @classmethod
-    def from_aur(cls: Type[Package], name: str, aur_url: str) -> Package:
+    def from_aur(cls: Type[Package], name: str, pacman: Pacman) -> Package:
         """
         construct package properties from AUR page
 
         Args:
             name(str): package name (either base or normal name)
-            aur_url(str): AUR root url
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             Package: package properties
         """
-        package = AUR.info(name)
-        return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
+        package = AUR.info(name, pacman=pacman)
+        remote = RemoteSource.from_remote(PackageSource.AUR, package.package_base, package.repository)
+        return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
 
     @classmethod
-    def from_build(cls: Type[Package], path: Path, aur_url: str) -> Package:
+    def from_build(cls: Type[Package], path: Path) -> Package:
         """
         construct package properties from sources directory
 
         Args:
             path(Path): path to package sources directory
-            aur_url(str): AUR root url
 
         Returns:
             Package: package properties
@@ -179,13 +162,14 @@ class Package:
         Raises:
             InvalidPackageInfo: if there are parsing errors
         """
-        srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise InvalidPackageInfo(errors)
         packages = {key: PackageDescription() for key in srcinfo["packages"]}
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
-        return cls(srcinfo["pkgbase"], version, aur_url, packages)
+        return cls(srcinfo["pkgbase"], version, None, packages)
 
     @classmethod
     def from_json(cls: Type[Package], dump: Dict[str, Any]) -> Package:
@@ -202,59 +186,29 @@ class Package:
             key: PackageDescription.from_json(value)
             for key, value in dump.get("packages", {}).items()
         }
-        return Package(
+        remote = dump.get("remote", {})
+        return cls(
             base=dump["base"],
             version=dump["version"],
-            aur_url=dump["aur_url"],
+            remote=RemoteSource.from_json(remote),
             packages=packages)
 
     @classmethod
-    def from_official(cls: Type[Package], name: str, aur_url: str) -> Package:
+    def from_official(cls: Type[Package], name: str, pacman: Pacman, use_syncdb: bool = True) -> Package:
         """
         construct package properties from official repository page
 
         Args:
             name(str): package name (either base or normal name)
-            aur_url(str): AUR root url
+            pacman(Pacman): alpm wrapper instance
+            use_syncdb(bool): use pacman databases instead of official repositories RPC (Default value = True)
 
         Returns:
             Package: package properties
         """
-        package = Official.info(name)
-        return cls(package.package_base, package.version, aur_url, {package.name: PackageDescription()})
-
-    @classmethod
-    def load(cls: Type[Package], package: str, source: PackageSource, pacman: Pacman, aur_url: str) -> Package:
-        """
-        package constructor from available sources
-
-        Args:
-            package(str): one of path to sources directory, path to archive or package name/base
-            source(PackageSource): source of the package required to define the load method
-            pacman(Pacman): alpm wrapper instance (required to load from archive)
-            aur_url(str): AUR root url
-
-        Returns:
-            Package: package properties
-
-        Raises:
-            InvalidPackageInfo: if supplied package source is not valid
-        """
-        try:
-            resolved_source = source.resolve(package)
-            if resolved_source == PackageSource.Archive:
-                return cls.from_archive(Path(package), pacman, aur_url)
-            if resolved_source == PackageSource.AUR:
-                return cls.from_aur(package, aur_url)
-            if resolved_source == PackageSource.Local:
-                return cls.from_build(Path(package), aur_url)
-            if resolved_source == PackageSource.Repository:
-                return cls.from_official(package, aur_url)
-            raise InvalidPackageInfo(f"Unsupported local package source {resolved_source}")
-        except InvalidPackageInfo:
-            raise
-        except Exception as e:
-            raise InvalidPackageInfo(str(e))
+        package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
+        remote = RemoteSource.from_remote(PackageSource.Repository, package.package_base, package.repository)
+        return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
 
     @staticmethod
     def dependencies(path: Path) -> Set[str]:
@@ -279,7 +233,8 @@ class Package:
                 package_name = package_name.split(symbol)[0]
             return package_name
 
-        srcinfo, errors = parse_srcinfo((path / ".SRCINFO").read_text())
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise InvalidPackageInfo(errors)
         makedepends = extract_packages(srcinfo.get("makedepends", []))
@@ -310,7 +265,7 @@ class Package:
         from ahriman.core.build_tools.sources import Sources
 
         logger = logging.getLogger("build_details")
-        Sources.load(paths.cache_for(self.base), self.git_url, None)
+        Sources.load(paths.cache_for(self.base), self.remote, None)
 
         try:
             # update pkgver first

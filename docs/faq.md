@@ -113,6 +113,14 @@ Well it is supported also.
 
 The last command will calculate diff from current tree to the `HEAD` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 
+### Hey, I would like to rebuild the official repository package
+
+So it is the same as adding any other package, but due to restrictions you must specify source explicitly, e.g.:
+
+```shell
+sudo -u ahriman ahriman package-add pacmann -s repository
+```
+
 ### Package build fails because it cannot validate PGP signature of source files
 
 TL;DR

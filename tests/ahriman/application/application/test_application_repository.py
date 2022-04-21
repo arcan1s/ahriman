@@ -14,7 +14,7 @@ def test_finalize(application_repository: ApplicationRepository) -> None:
     must raise NotImplemented for missing finalize method
     """
     with pytest.raises(NotImplementedError):
-        application_repository._finalize([])
+        application_repository._finalize(Result())
 
 
 def test_clean_cache(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
@@ -58,8 +58,8 @@ def test_report(application_repository: ApplicationRepository, mocker: MockerFix
     must generate report
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_report")
-    application_repository.report(["a"], [])
-    executor_mock.assert_called_once_with(["a"], [])
+    application_repository.report(["a"], Result())
+    executor_mock.assert_called_once_with(["a"], Result())
 
 
 def test_sign(application_repository: ApplicationRepository, package_ahriman: Package, package_python_schedule: Package,
@@ -179,7 +179,6 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
 
     mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
     finalize_mock = mocker.patch(
@@ -201,7 +200,6 @@ def test_update_empty(application_repository: ApplicationRepository, package_ahr
 
     mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
     mocker.patch("ahriman.core.repository.executor.Executor.process_build")
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
 

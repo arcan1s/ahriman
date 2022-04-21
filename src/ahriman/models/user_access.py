@@ -20,7 +20,7 @@
 from enum import Enum
 
 
-class UserAccess(Enum):
+class UserAccess(str, Enum):
     """
     web user access enumeration
 

@@ -26,7 +26,7 @@ from urllib.parse import urlparse
 from ahriman.core.util import package_like
 
 
-class PackageSource(Enum):
+class PackageSource(str, Enum):
     """
     package source for addition enumeration
 

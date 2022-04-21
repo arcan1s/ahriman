@@ -15,11 +15,11 @@ def test_load_archives(package_ahriman: Package, package_python_schedule: Packag
     single_packages = [
         Package(base=package_python_schedule.base,
                 version=package_python_schedule.version,
-                aur_url=package_python_schedule.aur_url,
+                remote=package_python_schedule.remote,
                 packages={package: props})
         for package, props in package_python_schedule.packages.items()
     ] + [package_ahriman]
-    mocker.patch("ahriman.models.package.Package.load", side_effect=single_packages)
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=single_packages)
 
     packages = repository.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz"), Path("c.pkg.tar.xz")])
     assert len(packages) == 2
@@ -36,7 +36,7 @@ def test_load_archives_failed(repository: Repository, mocker: MockerFixture) -> 
     """
     must skip packages which cannot be loaded
     """
-    mocker.patch("ahriman.models.package.Package.load", side_effect=Exception())
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=Exception())
     assert not repository.load_archives([Path("a.pkg.tar.xz")])
 
 
@@ -55,12 +55,12 @@ def test_load_archives_different_version(repository: Repository, package_python_
     single_packages = [
         Package(base=package_python_schedule.base,
                 version=package_python_schedule.version,
-                aur_url=package_python_schedule.aur_url,
+                remote=package_python_schedule.remote,
                 packages={package: props})
         for package, props in package_python_schedule.packages.items()
     ]
     single_packages[0].version = "0.0.1-1"
-    mocker.patch("ahriman.models.package.Package.load", side_effect=single_packages)
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=single_packages)
 
     packages = repository.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz")])
     assert len(packages) == 1

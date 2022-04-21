@@ -70,7 +70,7 @@ class Leaf:
             Leaf: loaded class
         """
         with tmpdir() as clone_dir:
-            Sources.load(clone_dir, package.git_url, database.patches_get(package.base))
+            Sources.load(clone_dir, package.remote, database.patches_get(package.base))
             dependencies = Package.dependencies(clone_dir)
         return cls(package, dependencies)
 
