@@ -25,6 +25,9 @@ from logging import Logger
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
+__all__ = ["exception_handler"]
+
+
 def exception_handler(logger: Logger) -> MiddlewareType:
     """
     exception handler middleware. Just log any exception (except for client ones)

@@ -22,6 +22,9 @@ from sqlite3 import Connection
 from ahriman.core.configuration import Configuration
 
 
+__all__ = ["migrate_users_data"]
+
+
 def migrate_users_data(connection: Connection, configuration: Configuration) -> None:
     """
     perform migration for users

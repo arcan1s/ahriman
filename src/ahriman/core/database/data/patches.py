@@ -22,6 +22,9 @@ from sqlite3 import Connection
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+__all__ = ["migrate_patches"]
+
+
 def migrate_patches(connection: Connection, paths: RepositoryPaths) -> None:
     """
     perform migration for patches
