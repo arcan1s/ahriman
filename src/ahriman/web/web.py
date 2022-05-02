@@ -33,6 +33,9 @@ from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
+__all__ = ["on_shutdown", "on_startup", "run_server", "setup_service"]
+
+
 async def on_shutdown(application: web.Application) -> None:
     """
     web application shutdown handler

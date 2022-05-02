@@ -36,6 +36,9 @@ from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
+__all__ = ["AuthorizationPolicy", "auth_handler", "setup_auth"]
+
+
 class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type: ignore
     """
     authorization policy implementation

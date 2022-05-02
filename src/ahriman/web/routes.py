@@ -33,6 +33,9 @@ from ahriman.web.views.user.login import LoginView
 from ahriman.web.views.user.logout import LogoutView
 
 
+__all__ = ["setup_routes"]
+
+
 def setup_routes(application: Application, static_path: Path) -> None:
     """
     setup all defined routes

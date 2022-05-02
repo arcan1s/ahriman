@@ -24,6 +24,9 @@ from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+__all__ = ["migrate_package_remotes"]
+
+
 # pylint: disable=protected-access
 def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> None:
     """

@@ -26,6 +26,9 @@ except ImportError:
     _has_aiohttp_security = False
 
 
+__all__ = ["authorized_userid", "check_authorized", "forget", "remember"]
+
+
 async def authorized_userid(*args: Any) -> Any:
     """
     handle aiohttp security methods

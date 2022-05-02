@@ -22,7 +22,7 @@ import sys
 import tempfile
 
 from pathlib import Path
-from typing import TypeVar
+from typing import List, TypeVar
 
 from ahriman import version
 from ahriman.application import handlers
@@ -31,6 +31,9 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package_source import PackageSource
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
+
+
+__all__: List[str] = []
 
 
 # this workaround is for several things
