@@ -26,6 +26,9 @@ from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+__all__ = ["migrate_package_statuses"]
+
+
 def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> None:
     """
     perform migration for package statuses
