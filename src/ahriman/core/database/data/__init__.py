@@ -20,6 +20,7 @@
 from sqlite3 import Connection
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database.data.package_remotes import migrate_package_remotes
 from ahriman.core.database.data.package_statuses import migrate_package_statuses
 from ahriman.core.database.data.patches import migrate_patches
 from ahriman.core.database.data.users import migrate_users_data
@@ -43,3 +44,5 @@ def migrate_data(
         migrate_package_statuses(connection, repository_paths)
         migrate_patches(connection, repository_paths)
         migrate_users_data(connection, configuration)
+    if result.old_version <= 1:
+        migrate_package_remotes(connection, repository_paths)

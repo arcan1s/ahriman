@@ -34,6 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     must run command
     """
     args = _default_args(args)
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     aur_search_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     official_search_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch",
                                         return_value=[aur_package_ahriman])
@@ -41,8 +42,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
 
     Search.run(args, "x86_64", configuration, True, False)
-    aur_search_mock.assert_called_once_with("ahriman")
-    official_search_mock.assert_called_once_with("ahriman")
+    aur_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
+    official_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with(False, False)
     print_mock.assert_has_calls([mock.call(False), mock.call(False)])
 
@@ -56,6 +57,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[])
     mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
 
     Search.run(args, "x86_64", configuration, True, False)
@@ -70,6 +72,7 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     args = _default_args(args)
     mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True, False)
@@ -88,6 +91,7 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     args.sort_by = "field"
     mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.official.Official.multisearch", return_value=[])
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     Search.run(args, "x86_64", configuration, True, False)

@@ -44,19 +44,21 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     """
     must add package from AUR
     """
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch(
         "ahriman.application.application.application_packages.ApplicationPackages._process_dependencies")
     build_queue_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
+    update_remote_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.remote_update")
 
     application_packages._add_aur(package_ahriman.base, set(), False)
     load_mock.assert_called_once_with(
         pytest.helpers.anyvar(int),
-        package_ahriman.git_url,
+        package_ahriman.remote,
         pytest.helpers.anyvar(int))
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
     build_queue_mock.assert_called_once_with(package_ahriman)
+    update_remote_mock.assert_called_once_with(package_ahriman)
 
 
 def test_add_directory(
@@ -80,7 +82,7 @@ def test_add_local(application_packages: ApplicationPackages, package_ahriman: P
     """
     must add package from local sources
     """
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
     copytree_mock = mocker.patch("shutil.copytree")
     dependencies_mock = mocker.patch(
@@ -110,6 +112,20 @@ def test_add_remote(application_packages: ApplicationPackages, package_descripti
     open_mock.assert_called_once_with("wb")
     request_mock.assert_called_once_with(url, stream=True)
     response_mock.raise_for_status.assert_called_once_with()
+
+
+def test_add_repository(application_packages: ApplicationPackages, package_ahriman: Package,
+                        mocker: MockerFixture) -> None:
+    """
+    must add package from official repository
+    """
+    mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
+    build_queue_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_insert")
+    update_remote_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.remote_update")
+
+    application_packages._add_repository(package_ahriman.base)
+    build_queue_mock.assert_called_once_with(package_ahriman)
+    update_remote_mock.assert_called_once_with(package_ahriman)
 
 
 def test_process_dependencies(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:

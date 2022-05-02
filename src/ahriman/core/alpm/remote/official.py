@@ -19,8 +19,9 @@
 #
 import requests
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.remote import Remote
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import exception_response_text
@@ -32,21 +33,14 @@ class Official(Remote):
     official repository RPC wrapper
 
     Attributes:
-        DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
-        rpc_url(str): AUR RPC url
+        DEFAULT_ARCHLINUX_URL(str): (class attribute) default archlinux url
+        DEFAULT_SEARCH_REPOSITORIES(List[str]): (class attribute) default list of repositories to search
+        DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
     """
 
+    DEFAULT_ARCHLINUX_URL = "https://archlinux.org"
+    DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib", "Community"]
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
-
-    def __init__(self, rpc_url: Optional[str] = None) -> None:
-        """
-        default constructor
-
-        Args:
-            rpc_url(Optional[str], optional): AUR RPC url (Default value = None)
-        """
-        Remote.__init__(self)
-        self.rpc_url = rpc_url or self.DEFAULT_RPC_URL
 
     @staticmethod
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
@@ -66,6 +60,35 @@ class Official(Remote):
             raise InvalidPackageInfo("API validation error")
         return [AURPackage.from_repo(package) for package in response["results"]]
 
+    @staticmethod
+    def remote_git_url(package_base: str, repository: str) -> str:
+        """
+        generate remote git url from the package base
+
+        Args
+            package_base(str): package base
+            repository(str): repository name
+
+        Returns:
+            str: git url for the specific base
+        """
+        if repository.lower() in ("core", "extra", "testing", "kde-unstable"):
+            return "https://github.com/archlinux/svntogit-packages.git"  # hardcoded, ok
+        return "https://github.com/archlinux/svntogit-community.git"
+
+    @staticmethod
+    def remote_web_url(package_base: str) -> str:
+        """
+        generate remote web url from the package base
+
+        Args
+            package_base(str): package base
+
+        Returns:
+            str: web url for the specific base
+        """
+        return f"{Official.DEFAULT_ARCHLINUX_URL}/packages/{package_base}"
+
     def make_request(self, *args: str, by: str) -> List[AURPackage]:
         """
         perform request to official repositories RPC
@@ -78,7 +101,7 @@ class Official(Remote):
             List[AURPackage]: response parsed to package list
         """
         try:
-            response = requests.get(self.rpc_url, params={by: args})
+            response = requests.get(self.DEFAULT_RPC_URL, params={by: args, "repo": self.DEFAULT_SEARCH_REPOSITORIES})
             response.raise_for_status()
             return self.parse_response(response.json())
         except requests.HTTPError as e:
@@ -88,12 +111,13 @@ class Official(Remote):
             self.logger.exception("could not perform request")
             raise
 
-    def package_info(self, package_name: str) -> AURPackage:
+    def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             AURPackage: package which match the package name
@@ -101,12 +125,13 @@ class Official(Remote):
         packages = self.make_request(package_name, by="name")
         return next(package for package in packages if package.name == package_name)
 
-    def package_search(self, *keywords: str) -> List[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             List[AURPackage]: list of packages which match the criteria

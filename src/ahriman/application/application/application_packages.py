@@ -80,12 +80,13 @@ class ApplicationPackages(ApplicationProperties):
             known_packages(Set[str]): list of packages which are known by the service
             without_dependencies(bool): if set, dependency check will be disabled
         """
-        package = Package.load(source, PackageSource.AUR, self.repository.pacman, self.repository.aur_url)
+        package = Package.from_aur(source, self.repository.pacman)
 
         self.database.build_queue_insert(package)
+        self.database.remote_update(package)
 
         with tmpdir() as local_path:
-            Sources.load(local_path, package.git_url, self.database.patches_get(package.base))
+            Sources.load(local_path, package.remote, self.database.patches_get(package.base))
             self._process_dependencies(local_path, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
@@ -108,9 +109,10 @@ class ApplicationPackages(ApplicationProperties):
             known_packages(Set[str]): list of packages which are known by the service
             without_dependencies(bool): if set, dependency check will be disabled
         """
-        package = Package.load(source, PackageSource.Local, self.repository.pacman, self.repository.aur_url)
+        source_dir = Path(source)
+        package = Package.from_build(source_dir)
         cache_dir = self.repository.paths.cache_for(package.base)
-        shutil.copytree(Path(source), cache_dir)  # copy package to store in caches
+        shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
 
         self.database.build_queue_insert(package)
@@ -131,6 +133,18 @@ class ApplicationPackages(ApplicationProperties):
         with dst.open("wb") as local_file:
             for chunk in response.iter_content(chunk_size=1024):
                 local_file.write(chunk)
+
+    def _add_repository(self, source: str, *_: Any) -> None:
+        """
+        add package from official repository
+
+        Args:
+            source(str): package base name
+        """
+        package = Package.from_official(source, self.repository.pacman)
+        self.database.build_queue_insert(package)
+        self.database.remote_update(package)
+        # repository packages must not depend on unknown packages, thus we are not going to process dependencies
 
     def _process_dependencies(self, local_path: Path, known_packages: Set[str], without_dependencies: bool) -> None:
         """

@@ -1,5 +1,6 @@
 import datetime
 import json
+import pyalpm  # typing: ignore
 
 from dataclasses import asdict, fields
 from pathlib import Path
@@ -51,6 +52,22 @@ def test_from_json_2(aur_package_ahriman: AURPackage, mocker: MockerFixture) -> 
     """
     mocker.patch("ahriman.models.aur_package.AURPackage.convert", side_effect=lambda v: v)
     assert AURPackage.from_json(asdict(aur_package_ahriman)) == aur_package_ahriman
+
+
+def test_from_pacman(pyalpm_package_ahriman: pyalpm.Package, aur_package_ahriman: AURPackage,
+                     resource_path_root: Path) -> None:
+    """
+    must load package from repository database
+    """
+    model = AURPackage.from_pacman(pyalpm_package_ahriman)
+    # some fields are missing so we are changing them
+    model.id = aur_package_ahriman.id
+    model.package_base_id = aur_package_ahriman.package_base_id
+    model.first_submitted = aur_package_ahriman.first_submitted
+    model.url_path = aur_package_ahriman.url_path
+    model.maintainer = aur_package_ahriman.maintainer
+
+    assert model == aur_package_ahriman
 
 
 def test_from_repo(aur_package_akonadi: AURPackage, resource_path_root: Path) -> None:

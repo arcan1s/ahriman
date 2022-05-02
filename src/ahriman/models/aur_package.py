@@ -23,6 +23,7 @@ import datetime
 import inflection
 
 from dataclasses import dataclass, field, fields
+from pyalpm import Package  # type: ignore
 from typing import Any, Callable, Dict, List, Optional, Type
 
 from ahriman.core.util import filter_json, full_version
@@ -47,6 +48,7 @@ class AURPackage:
         first_submitted(datetime.datetime): timestamp of the first package submission
         last_modified(datetime.datetime): timestamp of the last package submission
         url_path(str): AUR package path
+        repository(str): repository name of the package
         depends(List[str]): list of package dependencies
         make_depends(List[str]): list of package make dependencies
         opt_depends(List[str]): list of package optional dependencies
@@ -70,6 +72,7 @@ class AURPackage:
     url: Optional[str] = None
     out_of_date: Optional[datetime.datetime] = None
     maintainer: Optional[str] = None
+    repository: str = "aur"
     depends: List[str] = field(default_factory=list)
     make_depends: List[str] = field(default_factory=list)
     opt_depends: List[str] = field(default_factory=list)
@@ -93,6 +96,42 @@ class AURPackage:
         known_fields = [pair.name for pair in fields(cls)]
         properties = cls.convert(dump)
         return cls(**filter_json(properties, known_fields))
+
+    @classmethod
+    def from_pacman(cls: Type[AURPackage], package: Package) -> AURPackage:
+        """
+        construct package descriptor from official repository wrapper
+
+        Args:
+            package(Package): pyalpm package descriptor
+
+        Returns:
+            AURPackage: AUR package descriptor
+        """
+        return cls(
+            id=0,
+            name=package.name,
+            package_base_id=0,
+            package_base=package.base,
+            version=package.version,
+            description=package.desc,
+            num_votes=0,
+            popularity=0.0,
+            first_submitted=datetime.datetime.utcfromtimestamp(0),
+            last_modified=datetime.datetime.utcfromtimestamp(package.builddate),
+            url_path="",
+            url=package.url,
+            out_of_date=None,
+            maintainer=None,
+            repository=package.db.name,
+            depends=package.depends,
+            make_depends=package.makedepends,
+            opt_depends=package.optdepends,
+            conflicts=package.conflicts,
+            provides=package.provides,
+            license=package.licenses,
+            keywords=[],
+        )
 
     @classmethod
     def from_repo(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
@@ -122,6 +161,7 @@ class AURPackage:
                 dump["flag_date"],
                 "%Y-%m-%dT%H:%M:%S.%fZ") if dump["flag_date"] is not None else None,
             maintainer=next(iter(dump["maintainers"]), None),
+            repository=dump["repo"],
             depends=dump["depends"],
             make_depends=dump["makedepends"],
             opt_depends=dump["optdepends"],

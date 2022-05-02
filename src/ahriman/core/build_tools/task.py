@@ -107,4 +107,4 @@ class Task:
         if self.paths.cache_for(self.package.base).is_dir():
             # no need to clone whole repository, just copy from cache first
             shutil.copytree(self.paths.cache_for(self.package.base), path, dirs_exist_ok=True)
-        Sources.load(path, self.package.git_url, database.patches_get(self.package.base))
+        Sources.load(path, self.package.remote, database.patches_get(self.package.base))

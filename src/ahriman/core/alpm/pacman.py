@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from pyalpm import Handle  # type: ignore
-from typing import Set
+from pyalpm import Handle, Package, SIG_PACKAGE  # type: ignore
+from typing import Generator, Set
 
 from ahriman.core.configuration import Configuration
 
@@ -42,7 +42,7 @@ class Pacman:
         pacman_root = configuration.getpath("alpm", "database")
         self.handle = Handle(root, str(pacman_root))
         for repository in configuration.getlist("alpm", "repositories"):
-            self.handle.register_syncdb(repository, 0)  # 0 is pgp_level
+            self.handle.register_syncdb(repository, SIG_PACKAGE)
 
     def all_packages(self) -> Set[str]:
         """
@@ -58,3 +58,19 @@ class Pacman:
                 result.update(package.provides)  # provides list for meta-packages
 
         return result
+
+    def get(self, package_name: str) -> Generator[Package, None, None]:
+        """
+        retrieve list of the packages from the repository by name
+
+        Args:
+            package_name(str): package name to search
+
+        Yields:
+            Package: list of packages which were returned by the query
+        """
+        for database in self.handle.get_syncdbs():
+            package = database.get_pkg(package_name)
+            if package is None:
+                continue
+            yield package

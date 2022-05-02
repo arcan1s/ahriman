@@ -18,11 +18,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
+import shutil
 
 from pathlib import Path
 from typing import List, Optional
 
-from ahriman.core.util import check_output
+from ahriman.core.util import check_output, walk
+from ahriman.models.remote_source import RemoteSource
 
 
 class Sources:
@@ -30,12 +32,14 @@ class Sources:
     helper to download package sources (PKGBUILD etc)
 
     Attributes:
+        DEFAULT_BRANCH(str): (class attribute) default branch to process git repositories.
+            Must be used only for local stored repositories, use RemoteSource descriptor instead for real packages
         logger(logging.Logger): (class attribute) class logger
     """
 
+    DEFAULT_BRANCH = "master"  # default fallback branch
     logger = logging.getLogger("build_details")
 
-    _branch = "master"  # in case if BLM would like to change it
     _check_output = check_output
 
     @staticmethod
@@ -73,13 +77,13 @@ class Sources:
         return Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def fetch(sources_dir: Path, remote: Optional[str]) -> None:
+    def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
         """
         either clone repository or update it to origin/`branch`
 
         Args:
             sources_dir(Path): local path to fetch
-            remote(Optional[str]): remote target (from where to fetch)
+            remote(Optional[RemoteSource]): remote target (from where to fetch)
         """
         # local directory exists and there is .git directory
         is_initialized_git = (sources_dir / ".git").is_dir()
@@ -88,21 +92,29 @@ class Sources:
             Sources.logger.info("skip update at %s because there are no branches configured", sources_dir)
             return
 
+        branch = remote.branch if remote is not None else Sources.DEFAULT_BRANCH
         if is_initialized_git:
-            Sources.logger.info("update HEAD to remote at %s", sources_dir)
-            Sources._check_output("git", "fetch", "origin", Sources._branch,
+            Sources.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
+            Sources._check_output("git", "fetch", "origin", branch,
                                   exception=None, cwd=sources_dir, logger=Sources.logger)
-        elif remote is None:
-            Sources.logger.warning("%s is not initialized, but no remote provided", sources_dir)
+        elif remote is not None:
+            Sources.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
+            Sources._check_output("git", "clone", "--branch", branch, "--single-branch",
+                                  remote.git_url, str(sources_dir),
+                                  exception=None, cwd=sources_dir, logger=Sources.logger)
         else:
-            Sources.logger.info("clone remote %s to %s", remote, sources_dir)
-            Sources._check_output("git", "clone", remote, str(sources_dir),
-                                  exception=None, cwd=sources_dir, logger=Sources.logger)
+            Sources.logger.warning("%s is not initialized, but no remote provided", sources_dir)
+
         # and now force reset to our branch
-        Sources._check_output("git", "checkout", "--force", Sources._branch,
+        Sources._check_output("git", "checkout", "--force", branch,
                               exception=None, cwd=sources_dir, logger=Sources.logger)
-        Sources._check_output("git", "reset", "--hard", f"origin/{Sources._branch}",
+        Sources._check_output("git", "reset", "--hard", f"origin/{branch}",
                               exception=None, cwd=sources_dir, logger=Sources.logger)
+
+        # move content if required
+        # we are using full path to source directory in order to make append possible
+        pkgbuild_dir = remote.pkgbuild_dir if remote is not None else sources_dir.resolve()
+        Sources.move((sources_dir / pkgbuild_dir).resolve(), sources_dir)
 
     @staticmethod
     def has_remotes(sources_dir: Path) -> bool:
@@ -126,17 +138,17 @@ class Sources:
         Args:
             sources_dir(Path): local path to sources
         """
-        Sources._check_output("git", "init", "--initial-branch", Sources._branch,
+        Sources._check_output("git", "init", "--initial-branch", Sources.DEFAULT_BRANCH,
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def load(sources_dir: Path, remote: str, patch: Optional[str]) -> None:
+    def load(sources_dir: Path, remote: Optional[RemoteSource], patch: Optional[str]) -> None:
         """
         fetch sources from remote and apply patches
 
         Args:
             sources_dir(Path): local path to fetch
-            remote(str): remote target (from where to fetch)
+            remote(Optional[RemoteSource]): remote target (from where to fetch)
             patch(Optional[str]): optional patch to be applied
         """
         Sources.fetch(sources_dir, remote)
@@ -144,6 +156,21 @@ class Sources:
             Sources.logger.info("no patches found")
             return
         Sources.patch_apply(sources_dir, patch)
+
+    @staticmethod
+    def move(pkgbuild_dir: Path, sources_dir: Path) -> None:
+        """
+        move content from pkgbuild_dir to sources_dir
+
+        Args:
+            pkgbuild_dir(Path): path to directory with pkgbuild from which need to move
+            sources_dir(Path): path to target directory
+        """
+        if pkgbuild_dir == sources_dir:
+            return  # directories are the same, no need to move
+        for src in walk(pkgbuild_dir):
+            dst = sources_dir / src.relative_to(pkgbuild_dir)
+            shutil.move(src, dst)
 
     @staticmethod
     def patch_apply(sources_dir: Path, patch: str) -> None:

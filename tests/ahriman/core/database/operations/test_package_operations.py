@@ -7,6 +7,8 @@ from unittest import mock
 from ahriman.core.database.sqlite import SQLite
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 
 
 def test_package_remove_package_base(database: SQLite, connection: Connection) -> None:
@@ -166,3 +168,23 @@ def test_package_update_update(database: SQLite, package_ahriman: Package) -> No
     assert next(db_status.status
                 for db_package, db_status in database.packages_get()
                 if db_package.base == package_ahriman.base) == BuildStatusEnum.Failed
+
+
+def test_remote_update_get(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert and retrieve package remote
+    """
+    database.remote_update(package_ahriman)
+    assert database.remotes_get()[package_ahriman.base] == package_ahriman.remote
+
+
+def test_remote_update_update(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must perform package remote update for existing package
+    """
+    database.remote_update(package_ahriman)
+    remote_source = RemoteSource.from_remote(PackageSource.Repository, package_ahriman.base, "community")
+    package_ahriman.remote = remote_source
+
+    database.remote_update(package_ahriman)
+    assert database.remotes_get()[package_ahriman.base] == remote_source

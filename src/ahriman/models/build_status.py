@@ -28,7 +28,7 @@ from typing import Any, Dict, Type
 from ahriman.core.util import filter_json, pretty_datetime
 
 
-class BuildStatusEnum(Enum):
+class BuildStatusEnum(str, Enum):
     """
     build status enumeration
 

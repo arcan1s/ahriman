@@ -2,6 +2,7 @@ import pytest
 
 from ahriman.core.alpm.remote.aur import AUR
 from ahriman.core.alpm.remote.official import Official
+from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb
 from ahriman.core.alpm.remote.remote import Remote
 
 
@@ -25,6 +26,17 @@ def official() -> Official:
         Official: official repository helper instance
     """
     return Official()
+
+
+@pytest.fixture
+def official_syncdb() -> OfficialSyncdb:
+    """
+    official repository fixture with database processing
+
+    Returns:
+        OfficialSyncdb: official repository with database processing helper instance
+    """
+    return OfficialSyncdb()
 
 
 @pytest.fixture

@@ -1,6 +1,5 @@
 import pytest
 
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.build_tools.task import Task
 from ahriman.core.configuration import Configuration
@@ -35,20 +34,6 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
         Leaf: tree leaf test instance
     """
     return Leaf(package_python_schedule, set())
-
-
-@pytest.fixture
-def pacman(configuration: Configuration) -> Pacman:
-    """
-    fixture for pacman wrapper
-
-    Args:
-        configuration(Configuration): configuration fixture
-
-    Returns:
-        Pacman: pacman wrapper test instance
-    """
-    return Pacman(configuration)
 
 
 @pytest.fixture

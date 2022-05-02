@@ -22,6 +22,7 @@ import argparse
 from dataclasses import fields
 from typing import Callable, Iterable, List, Tuple, Type
 
+from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.remote.aur import AUR
 from ahriman.core.alpm.remote.official import Official
@@ -55,8 +56,10 @@ class Search(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        official_packages_list = Official.multisearch(*args.search)
-        aur_packages_list = AUR.multisearch(*args.search)
+        application = Application(architecture, configuration, no_report, unsafe)
+
+        official_packages_list = Official.multisearch(*args.search, pacman=application.repository.pacman)
+        aur_packages_list = AUR.multisearch(*args.search, pacman=application.repository.pacman)
         Search.check_if_empty(args.exit_code, not official_packages_list and not aur_packages_list)
 
         for packages_list in (official_packages_list, aur_packages_list):

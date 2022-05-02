@@ -35,7 +35,6 @@ class RepositoryProperties:
 
     Attributes:
         architecture(str): repository architecture
-        aur_url(str): base AUR url
         configuration(Configuration): configuration instance
         database(SQLite): database instance
         ignore_list(List[str]): package bases which will be ignored during auto updates
@@ -65,7 +64,6 @@ class RepositoryProperties:
         self.configuration = configuration
         self.database = database
 
-        self.aur_url = configuration.get("alpm", "aur_url")
         self.name = configuration.get("repository", "name")
 
         self.paths = configuration.repository_paths
