@@ -1,6 +1,7 @@
 import argparse
 import pytest
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.application.application import Application
@@ -37,7 +38,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
     Patch.run(args, "x86_64", configuration, True, False)
-    application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, args.track)
+    application_mock.assert_called_once_with(pytest.helpers.anyvar(int), Path(args.package), args.track)
 
 
 def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -96,11 +97,11 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     must create patch set for the package
     """
     mocker.patch("pathlib.Path.mkdir")
-    mocker.patch("ahriman.models.package.Package.load", return_value=package_ahriman)
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create", return_value="patch")
     create_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.patches_insert")
 
-    Patch.patch_set_create(application, "path", ["*.patch"])
+    Patch.patch_set_create(application, Path("path"), ["*.patch"])
     create_mock.assert_called_once_with(package_ahriman.base, "patch")
 
 

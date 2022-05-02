@@ -62,13 +62,18 @@ class UpdateHandler(Cleaner):
                 continue
             if filter_packages and local.base not in filter_packages:
                 continue
+            source = local.remote.source if local.remote is not None else None
 
             try:
-                remote = Package.load(local.base, PackageSource.AUR, self.pacman, self.aur_url)
+                if source == PackageSource.Repository:
+                    remote = Package.from_official(local.base, self.pacman)
+                else:
+                    remote = Package.from_aur(local.base, self.pacman)
                 if local.is_outdated(remote, self.paths):
                     self.reporter.set_pending(local.base)
                     result.append(remote)
-                self.reporter.set_success(local)
+                else:
+                    self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
                 self.logger.exception("could not load remote package %s", local.base)
@@ -89,7 +94,7 @@ class UpdateHandler(Cleaner):
         for dirname in self.paths.cache.iterdir():
             try:
                 Sources.fetch(dirname, remote=None)
-                remote = Package.load(str(dirname), PackageSource.Local, self.pacman, self.aur_url)
+                remote = Package.from_build(dirname)
 
                 local = packages.get(remote.base)
                 if local is None:

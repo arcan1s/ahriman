@@ -23,7 +23,6 @@ Base configuration settings.
 
 libalpm and AUR related configuration.
 
-* `aur_url` - base url for AUR, string, required.
 * `database` - path to pacman local database cache, string, required.
 * `repositories` - list of pacman repositories, space separated list of strings, required.
 * `root` - root for alpm library, string, required.

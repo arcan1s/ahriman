@@ -86,7 +86,7 @@ class IndexView(BaseView):
                 "status_color": status.status.bootstrap_color(),
                 "timestamp": pretty_datetime(status.timestamp),
                 "version": package.version,
-                "web_url": package.web_url,
+                "web_url": package.remote.web_url if package.remote is not None else None,
             } for package, status in sorted(self.service.packages, key=lambda item: item[0].base)
         ]
         service = {

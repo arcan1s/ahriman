@@ -29,7 +29,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
 
 
 class Patch(Handler):
@@ -57,21 +56,20 @@ class Patch(Handler):
         elif args.action == Action.Remove:
             Patch.patch_set_remove(application, args.package)
         elif args.action == Action.Update:
-            Patch.patch_set_create(application, args.package, args.track)
+            Patch.patch_set_create(application, Path(args.package), args.track)
 
     @staticmethod
-    def patch_set_create(application: Application, sources_dir: str, track: List[str]) -> None:
+    def patch_set_create(application: Application, sources_dir: Path, track: List[str]) -> None:
         """
         create patch set for the package base
 
         Args:
             application(Application): application instance
-            sources_dir(str): path to directory with the package sources
+            sources_dir(Path): path to directory with the package sources
             track(List[str]): track files which match the glob before creating the patch
         """
-        package = Package.load(sources_dir, PackageSource.Local, application.repository.pacman,
-                               application.repository.aur_url)
-        patch = Sources.patch_create(Path(sources_dir), *track)
+        package = Package.from_build(sources_dir)
+        patch = Sources.patch_create(sources_dir, *track)
         application.database.patches_insert(package.base, patch)
 
     @staticmethod

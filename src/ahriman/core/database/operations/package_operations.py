@@ -24,6 +24,7 @@ from ahriman.core.database.operations.operations import Operations
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.remote_source import RemoteSource
 
 
 class PackageOperations(Operations):
@@ -75,13 +76,22 @@ class PackageOperations(Operations):
         connection.execute(
             """
             insert into package_bases
-            (package_base, version, aur_url)
+            (package_base, version, source, branch, git_url, path, web_url)
             values
-            (:package_base, :version, :aur_url)
+            (:package_base, :version, :source, :branch, :git_url, :path, :web_url)
             on conflict (package_base) do update set
-            version = :version, aur_url = :aur_url
+            version = :version, branch = :branch, git_url = :git_url, path = :path, web_url = :web_url, source = :source
             """,
-            dict(package_base=package.base, version=package.version, aur_url=package.aur_url))
+            dict(
+                package_base=package.base,
+                version=package.version,
+                branch=package.remote.branch if package.remote is not None else None,
+                git_url=package.remote.git_url if package.remote is not None else None,
+                path=package.remote.path if package.remote is not None else None,
+                web_url=package.remote.web_url if package.remote is not None else None,
+                source=package.remote.source.value if package.remote is not None else None,
+            )
+        )
 
     @staticmethod
     def _package_update_insert_packages(connection: Connection, package: Package) -> None:
@@ -144,7 +154,7 @@ class PackageOperations(Operations):
             Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
         """
         return {
-            row["package_base"]: Package(row["package_base"], row["version"], row["aur_url"], {})
+            row["package_base"]: Package(row["package_base"], row["version"], RemoteSource.from_json(row), {})
             for row in connection.execute("""select * from package_bases""")
         }
 
@@ -225,3 +235,28 @@ class PackageOperations(Operations):
                 yield package, statuses.get(package_base, BuildStatus())
 
         return self.with_connection(lambda connection: list(run(connection)))
+
+    def remote_update(self, package: Package) -> None:
+        """
+        update package remote source
+
+        Args:
+            package(Package): package properties
+        """
+        return self.with_connection(
+            lambda connection: self._package_update_insert_base(connection, package),
+            commit=True)
+
+    def remotes_get(self) -> Dict[str, RemoteSource]:
+        """
+        get packages remotes based on current settings
+
+        Returns:
+            Dict[str, RemoteSource]: map of package base to its remote sources
+        """
+        packages = self.with_connection(self._packages_get_select_package_bases)
+        return {
+            package_base: package.remote
+            for package_base, package in packages.items()
+            if package.remote is not None
+        }

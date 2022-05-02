@@ -24,7 +24,6 @@ from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
 
 
 class Repository(Executor, UpdateHandler):
@@ -42,11 +41,15 @@ class Repository(Executor, UpdateHandler):
         Returns:
             List[Package]: list of read packages
         """
+        sources = self.database.remotes_get()
+
         result: Dict[str, Package] = {}
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
-                local = Package.load(str(full_path), PackageSource.Archive, self.pacman, self.aur_url)
+                local = Package.from_archive(full_path, self.pacman, None)
+                local.remote = sources.get(local.base)
+
                 current = result.setdefault(local.base, local)
                 if current.version != local.version:
                     # force version to max of them
@@ -95,5 +98,5 @@ class Repository(Executor, UpdateHandler):
         return [
             package
             for package in packages
-            if depends_on is None or depends_on.intersection(package.full_depends(self.pacman, packages))
+            if depends_on.intersection(package.full_depends(self.pacman, packages))
         ]

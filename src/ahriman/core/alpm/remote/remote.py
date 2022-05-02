@@ -23,6 +23,7 @@ import logging
 
 from typing import Dict, List, Type
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.models.aur_package import AURPackage
 
 
@@ -41,26 +42,28 @@ class Remote:
         self.logger = logging.getLogger("build_details")
 
     @classmethod
-    def info(cls: Type[Remote], package_name: str) -> AURPackage:
+    def info(cls: Type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             AURPackage: package which match the package name
         """
-        return cls().package_info(package_name)
+        return cls().package_info(package_name, pacman=pacman)
 
     @classmethod
-    def multisearch(cls: Type[Remote], *keywords: str) -> List[AURPackage]:
+    def multisearch(cls: Type[Remote], *keywords: str, pacman: Pacman) -> List[AURPackage]:
         """
         search in remote repository by using API with multiple words. This method is required in order to handle
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
 
         Args:
             *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             List[AURPackage]: list of packages each of them matches all search terms
@@ -68,7 +71,7 @@ class Remote:
         instance = cls()
         packages: Dict[str, AURPackage] = {}
         for term in filter(lambda word: len(word) > 3, keywords):
-            portion = instance.search(term)
+            portion = instance.search(term, pacman=pacman)
             packages = {
                 package.name: package  # not mistake to group them by name
                 for package in portion
@@ -76,25 +79,60 @@ class Remote:
             }
         return list(packages.values())
 
+    @staticmethod
+    def remote_git_url(package_base: str, repository: str) -> str:
+        """
+        generate remote git url from the package base
+
+        Args
+            package_base(str): package base
+            repository(str): repository name
+
+        Returns:
+            str: git url for the specific base
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
+    @staticmethod
+    def remote_web_url(package_base: str) -> str:
+        """
+        generate remote web url from the package base
+
+        Args
+            package_base(str): package base
+
+        Returns:
+            str: web url for the specific base
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
     @classmethod
-    def search(cls: Type[Remote], *keywords: str) -> List[AURPackage]:
+    def search(cls: Type[Remote], *keywords: str, pacman: Pacman) -> List[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): search terms, e.g. "ahriman", "is", "cool"
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             List[AURPackage]: list of packages which match the criteria
         """
-        return cls().package_search(*keywords)
+        return cls().package_search(*keywords, pacman=pacman)
 
-    def package_info(self, package_name: str) -> AURPackage:
+    def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             AURPackage: package which match the package name
@@ -104,12 +142,13 @@ class Remote:
         """
         raise NotImplementedError
 
-    def package_search(self, *keywords: str) -> List[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
+            pacman(Pacman): alpm wrapper instance
 
         Returns:
             List[AURPackage]: list of packages which match the criteria

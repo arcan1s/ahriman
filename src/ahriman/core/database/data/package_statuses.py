@@ -42,7 +42,7 @@ def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> 
             values
             (:package_base, :version, :aur_url)
             """,
-            dict(package_base=metadata.base, version=metadata.version, aur_url=metadata.aur_url))
+            dict(package_base=metadata.base, version=metadata.version, aur_url=""))
         connection.execute(
             """
             insert into package_statuses

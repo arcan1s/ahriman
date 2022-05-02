@@ -4,10 +4,10 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -19,15 +19,6 @@ def test_depends(package_python_schedule: Package) -> None:
         set(package_python_schedule.depends).intersection(package.depends)
         for package in package_python_schedule.packages.values()
     )
-
-
-def test_git_url(package_ahriman: Package) -> None:
-    """
-    must generate valid git url
-    """
-    assert package_ahriman.git_url.endswith(".git")
-    assert package_ahriman.git_url.startswith(package_ahriman.aur_url)
-    assert package_ahriman.base in package_ahriman.git_url
 
 
 def test_groups(package_ahriman: Package) -> None:
@@ -80,30 +71,23 @@ def test_licenses(package_ahriman: Package) -> None:
     assert sorted(package_ahriman.licenses) == package_ahriman.licenses
 
 
-def test_web_url(package_ahriman: Package) -> None:
-    """
-    must generate valid web url
-    """
-    assert package_ahriman.web_url.startswith(package_ahriman.aur_url)
-    assert package_ahriman.base in package_ahriman.web_url
-
-
 def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
     """
     must construct package from alpm library
     """
     mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
                  return_value=package_ahriman.packages[package_ahriman.base])
-    assert Package.from_archive(Path("path"), pyalpm_handle, package_ahriman.aur_url) == package_ahriman
+    assert Package.from_archive(Path("path"), pyalpm_handle, package_ahriman.remote) == package_ahriman
 
 
-def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
+                  mocker: MockerFixture) -> None:
     """
     must construct package from aur
     """
     mocker.patch("ahriman.core.alpm.remote.aur.AUR.info", return_value=aur_package_ahriman)
 
-    package = Package.from_aur(package_ahriman.base, package_ahriman.aur_url)
+    package = Package.from_aur(package_ahriman.base, pacman)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
@@ -114,11 +98,12 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     must construct package from srcinfo
     """
     srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
-    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"), package_ahriman.aur_url)
+    package = Package.from_build(Path("path"))
     assert package_ahriman.packages.keys() == package.packages.keys()
     package_ahriman.packages = package.packages  # we are not going to test PackageDescription here
+    package_ahriman.remote = None
     assert package_ahriman == package
 
 
@@ -126,11 +111,11 @@ def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> N
     """
     must raise exception if there are errors during srcinfo load
     """
-    mocker.patch("pathlib.Path.read_text", return_value="")
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(InvalidPackageInfo):
-        Package.from_build(Path("path"), package_ahriman.aur_url)
+        Package.from_build(Path("path"))
 
 
 def test_from_json_view_1(package_ahriman: Package) -> None:
@@ -154,97 +139,24 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
-def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
+                       mocker: MockerFixture) -> None:
     """
     must construct package from official repository
     """
     mocker.patch("ahriman.core.alpm.remote.official.Official.info", return_value=aur_package_ahriman)
 
-    package = Package.from_official(package_ahriman.base, package_ahriman.aur_url)
+    package = Package.from_official(package_ahriman.base, pacman)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
-
-
-def test_load_resolve(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must resolve source before package loading
-    """
-    resolve_mock = mocker.patch("ahriman.models.package_source.PackageSource.resolve",
-                                return_value=PackageSource.Archive)
-    mocker.patch("ahriman.models.package.Package.from_archive")
-
-    Package.load("path", PackageSource.Archive, pyalpm_handle, package_ahriman.aur_url)
-    resolve_mock.assert_called_once_with("path")
-
-
-def test_load_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must load package from package archive
-    """
-    load_mock = mocker.patch("ahriman.models.package.Package.from_archive")
-    Package.load("path", PackageSource.Archive, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once_with(Path("path"), pyalpm_handle, package_ahriman.aur_url)
-
-
-def test_load_from_aur(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must load package from AUR
-    """
-    load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
-    Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once_with("path", package_ahriman.aur_url)
-
-
-def test_load_from_build(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must load package from build directory
-    """
-    load_mock = mocker.patch("ahriman.models.package.Package.from_build")
-    Package.load("path", PackageSource.Local, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once_with(Path("path"), package_ahriman.aur_url)
-
-
-def test_load_from_official(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must load package from AUR
-    """
-    load_mock = mocker.patch("ahriman.models.package.Package.from_official")
-    Package.load("path", PackageSource.Repository, pyalpm_handle, package_ahriman.aur_url)
-    load_mock.assert_called_once_with("path", package_ahriman.aur_url)
-
-
-def test_load_failure(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must raise InvalidPackageInfo on exception
-    """
-    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=InvalidPackageInfo("exception!"))
-    with pytest.raises(InvalidPackageInfo):
-        Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
-
-
-def test_load_failure_exception(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
-    """
-    must raise InvalidPackageInfo on random eexception
-    """
-    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
-    with pytest.raises(InvalidPackageInfo):
-        Package.load("path", PackageSource.AUR, pyalpm_handle, package_ahriman.aur_url)
-
-
-def test_load_invalid_source(package_ahriman: Package, pyalpm_handle: MagicMock) -> None:
-    """
-    must raise InvalidPackageInfo on unsupported source
-    """
-    with pytest.raises(InvalidPackageInfo):
-        Package.load("path", PackageSource.Remote, pyalpm_handle, package_ahriman.aur_url)
 
 
 def test_dependencies_failed(mocker: MockerFixture) -> None:
     """
     must raise exception if there are errors during srcinfo load
     """
-    mocker.patch("pathlib.Path.read_text", return_value="")
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(InvalidPackageInfo):
@@ -256,7 +168,7 @@ def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Pa
     must load correct list of dependencies with version
     """
     srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
     assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
 
@@ -266,7 +178,7 @@ def test_dependencies_with_version_and_overlap(mocker: MockerFixture, resource_p
     must load correct list of dependencies with version
     """
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("pathlib.Path.read_text", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
     assert Package.dependencies(Path("path")) == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
 
@@ -328,7 +240,7 @@ def test_full_depends(package_ahriman: Package, package_python_schedule: Package
     assert package_ahriman.full_depends(pyalpm_handle, [package_python_schedule]) == package_ahriman.depends
 
     package_python_schedule.packages[package_python_schedule.base].depends = [package_ahriman.base]
-    expected = sorted(set(package_python_schedule.depends + ["python-aur"]))
+    expected = sorted(set(package_python_schedule.depends + package_ahriman.depends))
     assert package_python_schedule.full_depends(pyalpm_handle, [package_python_schedule]) == expected
 
 

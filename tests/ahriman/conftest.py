@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from typing import Any, Dict, Type, TypeVar
 from unittest.mock import MagicMock
 
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.auth.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.sqlite import SQLite
@@ -15,6 +16,8 @@ from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.result import Result
 from ahriman.models.user import User
@@ -101,8 +104,8 @@ def aur_package_ahriman() -> AURPackage:
         description="ArcH Linux ReposItory MANager",
         num_votes=0,
         popularity=0,
-        first_submitted=datetime.datetime(2021, 4, 9, 22, 44, 45),
-        last_modified=datetime.datetime(2021, 12, 25, 23, 11, 11),
+        first_submitted=datetime.datetime.utcfromtimestamp(1618008285),
+        last_modified=datetime.datetime.utcfromtimestamp(1640473871),
         url_path="/cgit/aur.git/snapshot/ahriman.tar.gz",
         url="https://github.com/arcan1s/ahriman",
         out_of_date=None,
@@ -155,13 +158,14 @@ def aur_package_akonadi() -> AURPackage:
         version="21.12.3-2",
         description="PIM layer, which provides an asynchronous API to access all kind of PIM data",
         num_votes=0,
-        popularity=0,
-        first_submitted=datetime.datetime(1970, 1, 1, 0, 0, 0),
-        last_modified=datetime.datetime(2022, 3, 6, 8, 39, 50, 610000),
+        popularity=0.0,
+        first_submitted=datetime.datetime.utcfromtimestamp(0),
+        last_modified=datetime.datetime.utcfromtimestamp(1646555990.610),
         url_path="",
         url="https://kontact.kde.org",
         out_of_date=None,
         maintainer="felixonmars",
+        repository="extra",
         depends=[
             "libakonadi",
             "mariadb",
@@ -245,7 +249,7 @@ def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     return Package(
         base="ahriman",
         version="1.7.0-1",
-        aur_url="https://aur.archlinux.org",
+        remote=RemoteSource.from_remote(PackageSource.AUR, "ahriman", "aur"),
         packages=packages)
 
 
@@ -270,7 +274,7 @@ def package_python_schedule(
     return Package(
         base="python-schedule",
         version="1.0.0-2",
-        aur_url="https://aur.archlinux.org",
+        remote=RemoteSource.from_remote(PackageSource.AUR, "python-schedule", "aur"),
         packages=packages)
 
 
@@ -342,6 +346,34 @@ def package_description_python2_schedule() -> PackageDescription:
         installed_size=4200002,
         licenses=["MIT"],
         url="https://github.com/dbader/schedule")
+
+
+@pytest.fixture
+def pacman(configuration: Configuration) -> Pacman:
+    """
+    fixture for pacman wrapper
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        Pacman: pacman wrapper test instance
+    """
+    return Pacman(configuration)
+
+
+@pytest.fixture
+def remote_source(package_ahriman: Package) -> RemoteSource:
+    """
+    remote source fixture
+
+    Args:
+        package_ahriman(Package): package fixture
+
+    Returns:
+        RemoteSource: remote source test instance
+    """
+    return RemoteSource.from_remote(PackageSource.AUR, "ahriman", "aur")
 
 
 @pytest.fixture

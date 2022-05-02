@@ -1,14 +1,18 @@
+import datetime
 import pytest
 import time
 
 from unittest.mock import MagicMock, PropertyMock
 
 from ahriman import version
+from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 from ahriman.models.user_identity import UserIdentity
 
 
@@ -67,7 +71,7 @@ def package_tpacpi_bat_git() -> Package:
     return Package(
         base="tpacpi-bat-git",
         version="3.1.r12.g4959b52-1",
-        aur_url="https://aur.archlinux.org",
+        remote=RemoteSource.from_remote(PackageSource.AUR, "tpacpi-bat-git", "aur"),
         packages={"tpacpi-bat-git": PackageDescription()})
 
 
@@ -88,22 +92,34 @@ def pyalpm_handle(pyalpm_package_ahriman: MagicMock) -> MagicMock:
 
 
 @pytest.fixture
-def pyalpm_package_ahriman(package_ahriman: Package) -> MagicMock:
+def pyalpm_package_ahriman(aur_package_ahriman: AURPackage) -> MagicMock:
     """
     mock object for pyalpm package
 
     Args:
-        package_ahriman(Package): package fixture
+        aur_package_ahriman(AURPackage): package fixture
 
     Returns:
         MagicMock: pyalpm package mock
     """
     mock = MagicMock()
-    type(mock).base = PropertyMock(return_value=package_ahriman.base)
-    type(mock).depends = PropertyMock(return_value=["python-aur"])
-    type(mock).name = PropertyMock(return_value=package_ahriman.base)
-    type(mock).provides = PropertyMock(return_value=["python-ahriman"])
-    type(mock).version = PropertyMock(return_value=package_ahriman.version)
+    db = type(mock).db = MagicMock()
+
+    type(mock).base = PropertyMock(return_value=aur_package_ahriman.package_base)
+    type(mock).builddate = PropertyMock(
+        return_value=aur_package_ahriman.last_modified.replace(tzinfo=datetime.timezone.utc).timestamp())
+    type(mock).conflicts = PropertyMock(return_value=aur_package_ahriman.conflicts)
+    type(db).name = PropertyMock(return_value="aur")
+    type(mock).depends = PropertyMock(return_value=aur_package_ahriman.depends)
+    type(mock).desc = PropertyMock(return_value=aur_package_ahriman.description)
+    type(mock).licenses = PropertyMock(return_value=aur_package_ahriman.license)
+    type(mock).makedepends = PropertyMock(return_value=aur_package_ahriman.make_depends)
+    type(mock).name = PropertyMock(return_value=aur_package_ahriman.name)
+    type(mock).optdepends = PropertyMock(return_value=aur_package_ahriman.opt_depends)
+    type(mock).provides = PropertyMock(return_value=aur_package_ahriman.provides)
+    type(mock).version = PropertyMock(return_value=aur_package_ahriman.version)
+    type(mock).url = PropertyMock(return_value=aur_package_ahriman.url)
+
     return mock
 
 

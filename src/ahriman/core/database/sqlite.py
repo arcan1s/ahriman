@@ -81,5 +81,5 @@ class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations
 
         paths = configuration.repository_paths
 
-        self.with_connection(lambda conn: Migrations.migrate(conn, configuration))
+        self.with_connection(lambda connection: Migrations.migrate(connection, configuration))
         paths.chown(self.path)

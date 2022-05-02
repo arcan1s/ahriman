@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Type
 
 
-class AuthSettings(Enum):
+class AuthSettings(str, Enum):
     """
     web authorization type
 
