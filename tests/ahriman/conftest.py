@@ -235,12 +235,13 @@ def database(configuration: Configuration) -> SQLite:
 
 
 @pytest.fixture
-def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
+def package_ahriman(package_description_ahriman: PackageDescription, remote_source: RemoteSource) -> Package:
     """
     package fixture
 
     Args:
         package_description_ahriman(PackageDescription): description fixture
+        remote_source(RemoteSource): remote source fixture
 
     Returns:
         Package: package test instance
@@ -249,7 +250,7 @@ def package_ahriman(package_description_ahriman: PackageDescription) -> Package:
     return Package(
         base="ahriman",
         version="1.7.0-1",
-        remote=RemoteSource.from_remote(PackageSource.AUR, "ahriman", "aur"),
+        remote=remote_source,
         packages=packages)
 
 
@@ -274,7 +275,7 @@ def package_python_schedule(
     return Package(
         base="python-schedule",
         version="1.0.0-2",
-        remote=RemoteSource.from_remote(PackageSource.AUR, "python-schedule", "aur"),
+        remote=RemoteSource.from_source(PackageSource.AUR, "python-schedule", "aur"),
         packages=packages)
 
 
@@ -363,17 +364,14 @@ def pacman(configuration: Configuration) -> Pacman:
 
 
 @pytest.fixture
-def remote_source(package_ahriman: Package) -> RemoteSource:
+def remote_source() -> RemoteSource:
     """
     remote source fixture
-
-    Args:
-        package_ahriman(Package): package fixture
 
     Returns:
         RemoteSource: remote source test instance
     """
-    return RemoteSource.from_remote(PackageSource.AUR, "ahriman", "aur")
+    return RemoteSource.from_source(PackageSource.AUR, "ahriman", "aur")
 
 
 @pytest.fixture

@@ -36,7 +36,8 @@ class Watcher:
     Attributes:
         architecture(str): repository architecture
         database(SQLite): database instance
-        known(Dict[str, Tuple[Package, BuildStatus]]): list of known packages. For the most cases `packages` should be used instead
+        known(Dict[str, Tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
+            be used instead
         logger(logging.Logger): class logger
         repository(Repository): repository object
         status(BuildStatus): daemon status

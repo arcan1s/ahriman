@@ -35,7 +35,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     """
     must provide updates based on repository data
     """
-    package_ahriman.remote = RemoteSource.from_remote(PackageSource.Repository, package_ahriman.base, "community")
+    package_ahriman.remote = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)

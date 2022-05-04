@@ -58,7 +58,7 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
         local_cache = paths.cache_for(package_base)
         if local_cache.exists() and not package.is_vcs:
             continue  # skip packages which are not VCS and with local cache
-        remote_source = RemoteSource.from_remote(PackageSource.AUR, package_base, "aur")
+        remote_source = RemoteSource.from_source(PackageSource.AUR, package_base, "aur")
         if remote_source is None:
             continue  # should never happen
         insert_remote(package_base, remote_source)

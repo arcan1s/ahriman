@@ -183,7 +183,7 @@ def test_remote_update_update(database: SQLite, package_ahriman: Package) -> Non
     must perform package remote update for existing package
     """
     database.remote_update(package_ahriman)
-    remote_source = RemoteSource.from_remote(PackageSource.Repository, package_ahriman.base, "community")
+    remote_source = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
     package_ahriman.remote = remote_source
 
     database.remote_update(package_ahriman)

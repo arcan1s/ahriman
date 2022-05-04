@@ -27,6 +27,26 @@ from ahriman.models.result import Result
 class Application(ApplicationPackages, ApplicationRepository):
     """
     base application class
+
+    Examples:
+        This class groups ``Repository`` methods into specific method which process all supposed actions caused by
+        underlying action. E.g.::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>> from ahriman.models.package_source import PackageSource
+            >>>
+            >>> configuration = Configuration()
+            >>> application = Application("x86_64", configuration, no_report=False, unsafe=False)
+            >>> # add packages to build queue
+            >>> application.add(["ahriman"], PackageSource.AUR, without_dependencies=False)
+            >>>
+            >>> # check for updates
+            >>> updates = application.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
+            >>> # updates for specified packages
+            >>> application.update(updates)
+
+        In case if specific actions or their order are required, the direct access to ``Repository`` must
+        be used instead.
     """
 
     def _finalize(self, result: Result) -> None:

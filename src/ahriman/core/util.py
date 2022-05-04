@@ -55,6 +55,23 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
 
     Raises:
         subprocess.CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
+
+    Examples:
+        Simply call the function::
+
+            >>> check_output("echo", "hello world", exception=None)
+
+        The more complicated calls which include result logging and input data are also possible::
+
+            >>> import logging
+            >>>
+            >>> logger = logging.getLogger()
+            >>> check_output("python", "-c", "greeting = input('say hello: '); print(); print(greeting)",
+            >>>              exception=None, input_data="hello world", logger=logger)
+
+        An additional argument ``exception`` can be supplied in order to override the default exception::
+
+            >>> check_output("false", exception=RuntimeError("An exception occurred"))
     """
     def log(single: str) -> None:
         if logger is not None:
@@ -101,6 +118,11 @@ def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
 
     Raises:
         UnsafeRun: if root uid differs from current uid and check is enabled
+
+    Examples:
+        Simply run function with arguments::
+
+            >>> check_user(paths, unsafe=False)
     """
     if not paths.root.exists():
         return  # no directory found, skip check
@@ -136,6 +158,16 @@ def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str
 
     Returns:
         Dict[str, Any]: json object without unknown and empty fields
+
+    Examples:
+        This wrapper is mainly used for the dataclasses, thus the flow must be something like this::
+
+            >>> from dataclasses import fields
+            >>> from ahriman.models.package import Package
+            >>>
+            >>> known_fields = [pair.name for pair in fields(Package)]
+            >>> properties = filter_json(dump, known_fields)
+            >>> package = Package(**properties)
     """
     return {key: value for key, value in source.items() if key in known_fields and value is not None}
 
@@ -164,7 +196,7 @@ def package_like(filename: Path) -> bool:
         filename(Path): name of file to check
 
     Returns:
-        bool: True in case if name contains `.pkg.` and not signature, False otherwise
+        bool: True in case if name contains ``.pkg.`` and not signature, False otherwise
     """
     name = filename.name
     return ".pkg." in name and not name.endswith(".sig")
@@ -193,7 +225,7 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
 
     Args:
         size(Optional[float]): size to convert
-        level(int, optional): represents current units, 0 is B, 1 is KiB etc (Default value = 0)
+        level(int, optional): represents current units, 0 is B, 1 is KiB, etc (Default value = 0)
 
     Returns:
         str: pretty printable size as string
@@ -226,6 +258,13 @@ def tmpdir() -> Generator[Path, None, None]:
 
     Yields:
         Path: path to the created directory
+
+    Examples:
+        This function must be used only inside context manager as decorator states::
+
+            >>> with tmpdir() as path:
+            >>>     do_something(path)
+            >>>     raise Exception("Clear me after exception please")
     """
     path = Path(tempfile.mkdtemp())
     try:
@@ -244,6 +283,16 @@ def walk(directory_path: Path) -> Generator[Path, None, None]:
 
     Yields:
         Path: all found files in given directory with full path
+
+    Examples:
+        Since the ``pathlib`` module does not provide an alternative to ``os.walk``, this wrapper can be used instead::
+
+            >>> from pathlib import Path
+            >>>
+            >>> for file_path in walk(Path.cwd()):
+            >>>     print(file_path)
+
+        Note, however, that unlike the original method, it does not yield directories.
     """
     for element in directory_path.iterdir():
         if element.is_dir():

@@ -123,7 +123,7 @@ class Setup(Handler):
     def configuration_create_devtools(prefix: str, architecture: str, source: Path,
                                       no_multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
-        create configuration for devtools based on `source` configuration
+        create configuration for devtools based on ``source`` configuration
 
         Args:
             prefix(str): command prefix in {prefix}-{architecture}-build

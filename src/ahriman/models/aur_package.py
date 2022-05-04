@@ -56,6 +56,21 @@ class AURPackage:
         provides(List[str]): list of packages which this package provides
         license(List[str]): list of package licenses
         keywords(List[str]): list of package keywords
+
+    Examples:
+        Mainly this class must be used from class methods instead of default ``__init__``::
+
+            >>> package = AURPackage.from_json(metadata)  # load package from json dump
+            >>> # ...or alternatively...
+            >>> package = AURPackage.from_repo(metadata)  # load package from official repository RPC
+            >>> # properties of the class are built based on ones from AUR RPC, thus additional method is required
+            >>>
+            >>>
+            >>> from ahriman.core.alpm.pacman import Pacman
+            >>>
+            >>> pacman = Pacman(configuration)
+            >>> metadata = pacman.get("pacman")
+            >>> package = AURPackage.from_pacman(next(metadata))  # load package from pyalpm wrapper
     """
 
     id: int

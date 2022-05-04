@@ -73,7 +73,7 @@ class Operations:
             commit(bool, optional): if True commit() will be called on success (Default value = False)
 
         Returns:
-            T: result of the `query` call
+            T: result of the ``query`` call
         """
         with sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES) as connection:
             connection.row_factory = self.factory
