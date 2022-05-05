@@ -380,8 +380,10 @@ How do I configure S3?
 How do I configure Github?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#. Create a repository.
-#. `Create API key <https://github.com/settings/tokens>`_ with scope ``public_repo``.
+#. 
+   Create a repository.
+#. 
+   `Create API key <https://github.com/settings/tokens>`_ with scope ``public_repo``.
 #. 
    Configure the service as following:
 
@@ -556,7 +558,8 @@ I would like to limit user access to the status page
 I would like to use OAuth
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#. Create OAuth web application, download its ``client_id`` and ``client_secret``.
+#. 
+   Create OAuth web application, download its ``client_id`` and ``client_secret``.
 #. 
    Guess what? Install dependencies:
 
