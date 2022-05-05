@@ -179,7 +179,9 @@ class GPG:
     def process_sign_repository(self, path: Path) -> List[Path]:
         """
         sign repository if required by configuration
-        :note: more likely you just want to pass `repository_sign_args` to repo wrapper
+
+        Note:
+            more likely you just want to pass ``repository_sign_args`` to repo wrapper
 
         Args:
             path(Path): path to repository database

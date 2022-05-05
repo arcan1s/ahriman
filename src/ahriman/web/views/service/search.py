@@ -41,7 +41,7 @@ class SearchView(BaseView):
         """
         search packages in AUR
 
-        search string (non empty) must be supplied as `for` parameter
+        search string (non empty) must be supplied as ``for`` parameter
 
         Returns:
             Response: 200 with found package bases and descriptions sorted by base

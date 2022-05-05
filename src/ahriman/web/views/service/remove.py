@@ -37,11 +37,11 @@ class RemoveView(BaseView):
         """
         remove existing packages
 
-        JSON body must be supplied, the following model is used:
+        JSON body must be supplied, the following model is used::
 
-        >>> {
-        >>>     "packages": "ahriman",   # either list of packages or package name
-        >>> }
+            {
+                "packages": "ahriman",   # either list of packages or package name
+            }
 
         Raises:
             HTTPBadRequest: if bad data is supplied

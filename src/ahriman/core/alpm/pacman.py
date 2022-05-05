@@ -28,7 +28,7 @@ class Pacman:
     alpm wrapper
 
     Attributes:
-        handle(Handle): pyalpm root `Handle`
+        handle(Handle): pyalpm root ``Handle``
     """
 
     def __init__(self, configuration: Configuration) -> None:

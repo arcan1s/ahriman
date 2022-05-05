@@ -44,6 +44,23 @@ class PackageDescription:
         licenses(List[str]): package licenses list
         provides(List[str]): list of provided packages
         url(Optional[str]): package url
+
+    Examples:
+        Unlike the ``Package`` class, this implementation only holds properties. The recommended way to deal with it is
+        to read data based on the source type - either json or ``pyalpm.Package`` instance::
+
+            >>> description = PackageDescription.from_json(dump)
+            >>>
+            >>>
+            >>> from pathlib import Path
+            >>> from ahriman.core.alpm.pacman import Pacman
+            >>> from ahriman.core.configuration import Configuration
+            >>>
+            >>> configuration = Configuration()
+            >>> pacman = Pacman(configuration)
+            >>> pyalpm_description = next(package for package in pacman.get("pacman"))
+            >>> description = PackageDescription.from_package(
+            >>>     pyalpm_description, Path("/var/cache/pacman/pkg/pacman-6.0.1-4-x86_64.pkg.tar.zst"))
     """
 
     architecture: Optional[str] = None

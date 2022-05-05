@@ -38,6 +38,24 @@ class Upload:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         logger(logging.Logger): application logger
+
+    Examples:
+        These classes provide the way to upload packages to remote sources as it is described in their implementations.
+        Basic flow includes class instantiating by using the ``load`` method and then calling the ``run`` method which
+        wraps any internal exceptions into the ``SyncFailed`` exception::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>>
+            >>> configuration = Configuration()
+            >>> upload = Upload.load("x86_64", configuration, "s3")
+            >>> upload.run(configuration.repository_paths.repository, [])
+
+        Or in case if direct access to exception is required, the ``sync`` method can be used::
+
+            >>> try:
+            >>>     upload.sync(configuration.repository_paths.repository, [])
+            >>> except Exception as exception:
+            >>>     handle_exceptions(exception)
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

@@ -43,6 +43,25 @@ class Configuration(configparser.RawConfigParser):
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
         architecture(Optional[str]): repository architecture
         path(Optional[Path]): path to root configuration file
+
+    Examples:
+        Configuration class provides additional method in order to handle application configuration. Since this class is
+        derived from built-in ``configparser.RawConfigParser`` class, the same flow is applicable here. Nevertheless,
+        it is recommended to use ``from_path`` class method which also calls initialization methods::
+
+            >>> from pathlib import Path
+            >>>
+            >>> configuration = Configuration.from_path(Path("/etc/ahriman.ini"), "x86_64", quiet=False)
+            >>> repository_name = configuration.get("repository", "name")
+            >>> makepkg_flags = configuration.getlist("build", "makepkg_flags")
+
+        The configuration instance loaded in this way will contain only sections which are defined for the specified
+        architecture according to the merge rules. Moreover, the architecture names will be removed from section names.
+
+        In order to get current settings, the ``check_loaded`` method can be used. This method will raise an
+        ``InitializeException`` in case if configuration was not yet loaded::
+
+            >>> path, architecture = configuration.check_loaded()
     """
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
@@ -310,7 +329,7 @@ class Configuration(configparser.RawConfigParser):
 
     def set_option(self, section: str, option: str, value: Optional[str]) -> None:
         """
-        set option. Unlike default `configparser.RawConfigParser.set` it also creates section if it does not exist
+        set option. Unlike default ``configparser.RawConfigParser.set`` it also creates section if it does not exist
 
         Args:
             section(str): section name

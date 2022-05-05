@@ -29,6 +29,25 @@ from ahriman.models.package import Package
 class Repository(Executor, UpdateHandler):
     """
     base repository control class
+
+    Examples:
+        This class along with traits provides access to local repository actions, e.g. remove packages, update packages,
+        sync local repository to remote, generate report, etc::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>> from ahriman.core.database.sqlite import SQLite
+            >>>
+            >>> configuration = Configuration()
+            >>> database = SQLite.load(configuration)
+            >>> repository = Repository("x86_64", configuration, database, no_report=False, unsafe=False)
+            >>> known_packages = repository.packages()
+            >>>
+            >>> build_result = repository.process_build(known_packages)
+            >>> built_packages = repository.packages_built()
+            >>> update_result = repository.process_update(built_packages)
+            >>>
+            >>> repository.process_report(["email"], update_result)
+            >>> repository.process_sync(["s3"], update_result.success)
     """
 
     def load_archives(self, packages: Iterable[Path]) -> List[Package]:

@@ -96,6 +96,36 @@ class Tree:
 
     Attributes:
         leaves[List[Leaf]): list of tree leaves
+
+    Examples:
+        The most important feature here is to generate tree levels one by one which can be achieved by using class
+        method::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>> from ahriman.core.database.sqlite import SQLite
+            >>> from ahriman.core.repository import Repository
+            >>>
+            >>> configuration = Configuration()
+            >>> database = SQLite.load(configuration)
+            >>> repository = Repository("x86_64", configuration, database, no_report=False, unsafe=False)
+            >>> packages = repository.packages()
+            >>>
+            >>> tree = Tree.load(packages, database)
+            >>> for tree_level in tree.levels():
+            >>>     for package in tree_level:
+            >>>         print(package.base)
+            >>>     print()
+
+        The direct constructor call is also possible but requires tree leaves to be instantioned in advance, e.g.::
+
+            >>> leaves = [Leaf.load(package, database) for package in packages]
+            >>> tree = Tree(leaves)
+
+        Using the default ``Leaf()`` method is possible, but not really recommended because it requires from the user to
+        build the dependency list by himself::
+
+            >>> leaf = Leaf(package, dependecies)
+            >>> tree = Tree([leaf])
     """
 
     def __init__(self, leaves: List[Leaf]) -> None:

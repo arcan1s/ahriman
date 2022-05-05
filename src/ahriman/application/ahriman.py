@@ -327,7 +327,7 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("patch-add", help="add patch set", description="create or update source patches",
                              epilog="In order to add a patch set for the package you will need to clone "
                                     "the AUR package manually, add required changes (e.g. external patches, "
-                                    "edit PKGBUILD) and run command, e.g. `ahriman patch path/to/directory`. "
+                                    "edit PKGBUILD) and run command, e.g. ``ahriman patch path/to/directory``. "
                                     "By default it tracks *.patch and *.diff files, but this behavior can be changed "
                                     "by using --track option",
                              formatter_class=_formatter)

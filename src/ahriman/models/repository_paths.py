@@ -37,6 +37,20 @@ class RepositoryPaths:
     Attributes:
         root(Path): repository root (i.e. ahriman home)
         architecture(str): repository architecture
+
+    Examples:
+        This class can be used in order to access the repository tree structure::
+
+            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), "x86_64")
+
+        Additional methods can be used in order to ensure that tree is created::
+
+            >>> paths.tree_create()
+
+        Access to directories inside can be done by either using properties or specifying the package base::
+
+            >>> cache_dir = paths.cache
+            >>> ahriman_cache_dir = paths.cache_for("ahriman")
     """
 
     root: Path

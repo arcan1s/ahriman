@@ -101,7 +101,7 @@ class Client:
 
     def update(self, base: str, status: BuildStatusEnum) -> None:
         """
-        update package build status. Unlike `add` it does not update package properties
+        update package build status. Unlike ``add`` it does not update package properties
 
         Args:
             base(str): package base to update

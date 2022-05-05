@@ -38,6 +38,25 @@ class Report:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         logger(logging.Logger): class logger
+
+    Examples:
+        ``Report`` classes provide several method in order to operate with the report generation and additional class
+        method ``load`` which can be used in order to determine right report instance::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>>
+            >>> configuration = Configuration()
+            >>> report = Report.load("x86_64", configuration, "email")
+
+        The ``generate`` method can be used in order to perform the report itself, whereas ``run`` method handles
+        exception and raises ``ReportFailed`` instead::
+
+            >>> try:
+            >>>     report.generate([], Result())
+            >>> except Exception as exception:
+            >>>     handle_exceptions(exception)
+            >>>
+            >>> report.run([], Result())
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

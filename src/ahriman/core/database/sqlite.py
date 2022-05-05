@@ -36,6 +36,16 @@ from ahriman.core.database.operations.patch_operations import PatchOperations
 class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations):
     """
     wrapper for sqlite3 database
+
+    Examples:
+        Database wrapper must be used together with migration and SQLite3 setup. In order to perform it there is
+        ``load`` class method::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>>
+            >>> configuration = Configuration()
+            >>> database = SQLite.load(configuration)
+            >>> packages = database.packages_get()
     """
 
     @classmethod

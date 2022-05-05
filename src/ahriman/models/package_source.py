@@ -38,6 +38,13 @@ class PackageSource(str, Enum):
         Local(PackageSource): (class attribute) source is locally stored PKGBUILD
         Remote(PackageSource): (class attribute) source is remote (http, ftp etc) link
         Repository(PackageSource): (class attribute) source is official repository
+
+    Examples:
+        In case if source is unknown the ``resolve()`` and the source descriptor is available method must be used::
+
+            >>> real_source = PackageSource.Auto.resolve("ahriman")
+
+        the code above will ensure that the presudo-source ``PackageSource.Auto`` will not be processed later.
     """
 
     Auto = "auto"

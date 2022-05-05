@@ -19,7 +19,7 @@
 #
 import requests
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.remote import Remote
@@ -62,8 +62,8 @@ class AUR(Remote):
             raise InvalidPackageInfo(error_details)
         return [AURPackage.from_json(package) for package in response["results"]]
 
-    @staticmethod
-    def remote_git_url(package_base: str, repository: str) -> str:
+    @classmethod
+    def remote_git_url(cls: Type[Remote], package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -76,8 +76,8 @@ class AUR(Remote):
         """
         return f"{AUR.DEFAULT_AUR_URL}/{package_base}.git"
 
-    @staticmethod
-    def remote_web_url(package_base: str) -> str:
+    @classmethod
+    def remote_web_url(cls: Type[Remote], package_base: str) -> str:
         """
         generate remote web url from the package base
 

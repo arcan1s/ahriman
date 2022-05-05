@@ -37,11 +37,11 @@ class RequestView(BaseView):
         """
         request to add new package
 
-        JSON body must be supplied, the following model is used:
+        JSON body must be supplied, the following model is used::
 
-        >>> {
-        >>>     "packages": "ahriman"   # either list of packages or package name as in AUR
-        >>> }
+            {
+                "packages": "ahriman"   # either list of packages or package name as in AUR
+            }
 
         Raises:
             HTTPBadRequest: if bad data is supplied
