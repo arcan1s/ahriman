@@ -50,11 +50,11 @@ class AhrimanView(BaseView):
         """
         update service status
 
-        JSON body must be supplied, the following model is used:
+        JSON body must be supplied, the following model is used::
 
-        >>> {
-        >>>     "status": "unknown",   # service status string, must be valid `BuildStatusEnum`
-        >>> }
+            {
+                "status": "unknown",   # service status string, must be valid ``BuildStatusEnum``
+            }
 
         Raises:
             HTTPBadRequest: if bad data is supplied

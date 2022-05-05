@@ -44,6 +44,19 @@ class Lock:
         reporter(Client): build status reporter instance
         paths(RepositoryPaths): repository paths instance
         unsafe(bool): skip user check
+
+    Examples:
+        Instance of this class except for controlling file-based lock is also required for basic applications checks.
+        The common flow is to create instance in ``with`` block and handle exceptions after all::
+
+            >>> from ahriman.core.configuration import Configuration
+            >>>
+            >>> configuration = Configuration()
+            >>> try:
+            >>>     with Lock(args, "x86_64", configuration):
+            >>>         perform_actions()
+            >>> except Exception as exception:
+            >>>     handle_exceptions(exception)
     """
 
     def __init__(self, args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:

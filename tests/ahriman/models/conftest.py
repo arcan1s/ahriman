@@ -71,7 +71,7 @@ def package_tpacpi_bat_git() -> Package:
     return Package(
         base="tpacpi-bat-git",
         version="3.1.r12.g4959b52-1",
-        remote=RemoteSource.from_remote(PackageSource.AUR, "tpacpi-bat-git", "aur"),
+        remote=RemoteSource.from_source(PackageSource.AUR, "tpacpi-bat-git", "aur"),
         packages={"tpacpi-bat-git": PackageDescription()})
 
 

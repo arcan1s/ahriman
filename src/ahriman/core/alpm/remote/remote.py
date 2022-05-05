@@ -33,6 +33,19 @@ class Remote:
 
     Attributes:
         logger(logging.Logger): class logger
+
+    Examples:
+        These classes are designed to be used without instancing. In order to achieve it several class methods are
+        provided: ``info``, ``multisearch`` and ``search``. Thus, the basic flow is the following::
+
+            >>> from ahriman.core.alpm.remote.aur import AUR
+            >>> from ahriman.core.alpm.remote.official import Official
+            >>>
+            >>> package = AUR.info("ahriman", pacman=pacman)
+            >>> search_result = Official.multisearch("pacman", "manager", pacman=pacman)
+
+        Differnece between ``search`` and ``multisearch`` is that ``search`` passes all arguments to underlying wrapper
+        directly, whereas ``multisearch`` splits search one by one and finds intersection between search results.
     """
 
     def __init__(self) -> None:
@@ -79,8 +92,8 @@ class Remote:
             }
         return list(packages.values())
 
-    @staticmethod
-    def remote_git_url(package_base: str, repository: str) -> str:
+    @classmethod
+    def remote_git_url(cls: Type[Remote], package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -96,8 +109,8 @@ class Remote:
         """
         raise NotImplementedError
 
-    @staticmethod
-    def remote_web_url(package_base: str) -> str:
+    @classmethod
+    def remote_web_url(cls: Type[Remote], package_base: str) -> str:
         """
         generate remote web url from the package base
 

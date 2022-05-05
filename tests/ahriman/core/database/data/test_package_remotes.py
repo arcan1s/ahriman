@@ -60,7 +60,7 @@ def test_migrate_package_remotes_no_remotes(package_ahriman: Package, connection
         "ahriman.core.database.operations.package_operations.PackageOperations._packages_get_select_package_bases",
         return_value={package_ahriman.base: package_ahriman})
     mocker.patch("pathlib.Path.exists", return_value=False)
-    mocker.patch("ahriman.models.remote_source.RemoteSource.from_remote", return_value=None)
+    mocker.patch("ahriman.models.remote_source.RemoteSource.from_source", return_value=None)
 
     migrate_package_remotes(connection, repository_paths)
     connection.execute.assert_not_called()

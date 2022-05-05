@@ -81,7 +81,7 @@ class RemoteSource:
         return None
 
     @classmethod
-    def from_remote(cls: Type[RemoteSource], source: PackageSource, package_base: str,
+    def from_source(cls: Type[RemoteSource], source: PackageSource, package_base: str,
                     repository: str) -> Optional[RemoteSource]:
         """
         generate remote source from the package base

@@ -42,14 +42,14 @@ def test_from_json_empty() -> None:
     assert RemoteSource.from_json({}) is None
 
 
-def test_from_remote_aur(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_from_source_aur(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must construct remote from AUR source
     """
     remote_git_url_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.remote_git_url")
     remote_web_url_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.remote_web_url")
 
-    remote = RemoteSource.from_remote(PackageSource.AUR, package_ahriman.base, "aur")
+    remote = RemoteSource.from_source(PackageSource.AUR, package_ahriman.base, "aur")
     remote_git_url_mock.assert_called_once_with(package_ahriman.base, "aur")
     remote_web_url_mock.assert_called_once_with(package_ahriman.base)
     assert remote.pkgbuild_dir == Path(".")
@@ -57,14 +57,14 @@ def test_from_remote_aur(package_ahriman: Package, mocker: MockerFixture) -> Non
     assert remote.source == PackageSource.AUR
 
 
-def test_from_remote_official(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_from_source_official(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must construct remote from official repository source
     """
     remote_git_url_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.remote_git_url")
     remote_web_url_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.remote_web_url")
 
-    remote = RemoteSource.from_remote(PackageSource.Repository, package_ahriman.base, "community")
+    remote = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
     remote_git_url_mock.assert_called_once_with(package_ahriman.base, "community")
     remote_web_url_mock.assert_called_once_with(package_ahriman.base)
     assert remote.pkgbuild_dir == Path("trunk")
@@ -72,11 +72,11 @@ def test_from_remote_official(package_ahriman: Package, mocker: MockerFixture) -
     assert remote.source == PackageSource.Repository
 
 
-def test_from_remote_other() -> None:
+def test_from_source_other() -> None:
     """
     must return None in case if source is not one of AUR or Repository
     """
-    assert RemoteSource.from_remote(PackageSource.Archive, "package", "repository") is None
-    assert RemoteSource.from_remote(PackageSource.Directory, "package", "repository") is None
-    assert RemoteSource.from_remote(PackageSource.Local, "package", "repository") is None
-    assert RemoteSource.from_remote(PackageSource.Remote, "package", "repository") is None
+    assert RemoteSource.from_source(PackageSource.Archive, "package", "repository") is None
+    assert RemoteSource.from_source(PackageSource.Directory, "package", "repository") is None
+    assert RemoteSource.from_source(PackageSource.Local, "package", "repository") is None
+    assert RemoteSource.from_source(PackageSource.Remote, "package", "repository") is None

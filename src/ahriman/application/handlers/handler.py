@@ -38,6 +38,13 @@ class Handler:
     Attributes:
         ALLOW_AUTO_ARCHITECTURE_RUN(bool): (class attribute) allow defining architecture from existing repositories
         ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
+
+    Examples:
+        Wrapper for all command line actions, though each derived class implements ``run`` method, it usually must not
+        be called directly. The recommended way is to call ``execute`` class method, e.g.::
+
+            >>> from ahriman.application.handlers import Add
+            >>> Add.execute(args)
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = True

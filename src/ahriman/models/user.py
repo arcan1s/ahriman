@@ -36,6 +36,28 @@ class User:
         username(str): username
         password(str): hashed user password with salt
         access(UserAccess): user role
+
+    Examples:
+        Simply create user from database data and perform required validation::
+
+            >>> password = User.generate_password(24)
+            >>> user = User("ahriman", password, UserAccess.Write)
+
+        Since the password supplied may be plain text, the ``hash_password`` method can be used to hash the password::
+
+            >>> user.password = user.hash_password("salt")
+
+        Having the user instance and password, it can be validated::
+
+            >>> if user.check_credentials(password, "salt"):
+            >>>     print("password is valid")
+            >>> else:
+            >>>     print("password is invalid")
+
+        ...and finally access can be verified::
+
+            >>> if user.verify_access(UserAccess.Read):
+            >>>     print(f"user {user.username} has read access")
     """
 
     username: str

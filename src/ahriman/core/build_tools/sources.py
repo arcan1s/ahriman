@@ -79,7 +79,7 @@ class Sources:
     @staticmethod
     def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
         """
-        either clone repository or update it to origin/`branch`
+        either clone repository or update it to origin/``remote.branch``
 
         Args:
             sources_dir(Path): local path to fetch

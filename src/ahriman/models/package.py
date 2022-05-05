@@ -51,6 +51,25 @@ class Package:
             Filled only on load from archive
         remote(Optional[RemoteSource]): package remote source if applicable
         version(str): package full version
+
+    Examples:
+        Different usages of this class may generate different (incomplete) data, e.g. if instantiating class from json::
+
+            >>> package = Package.from_json(dump)
+
+        it will contain every data available in the json body. Otherwise, if generate package from local archive::
+
+            >>> package = Package.from_archive(local_path, pacman, remote=None)
+
+        it will probably miss file descriptions (in case if there are multiple packages which belong to the base).
+
+        The specific class load method must be defined based on the source provided. The following methods (mostly) must
+        be used: ``from_archive``, ``from_aur``, ``from_build``, ``from_official`` for sources
+        ``PackageSource.Archive``, ``PackageSource.AUR``, ``PackageSource.Local`` and ``PackageSource.Repository``
+        repsectively:
+
+            >>> ahriman_package = Package.from_aur("ahriman", pacman)
+            >>> pacman_package = Package.from_official("pacman", pacman)
     """
 
     base: str
@@ -145,7 +164,7 @@ class Package:
             Package: package properties
         """
         package = AUR.info(name, pacman=pacman)
-        remote = RemoteSource.from_remote(PackageSource.AUR, package.package_base, package.repository)
+        remote = RemoteSource.from_source(PackageSource.AUR, package.package_base, package.repository)
         return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
 
     @classmethod
@@ -207,7 +226,7 @@ class Package:
             Package: package properties
         """
         package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
-        remote = RemoteSource.from_remote(PackageSource.Repository, package.package_base, package.repository)
+        remote = RemoteSource.from_source(PackageSource.Repository, package.package_base, package.repository)
         return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
 
     @staticmethod

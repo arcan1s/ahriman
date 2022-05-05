@@ -42,8 +42,7 @@ push: spec archlinux
 
 spec:
 	# make sure that old files are removed
-	find docs/source -type f -name "$(PROJECT)*.rst" -delete
-	rm -f docs/source/modules.rst
+	find docs -type f -name "$(PROJECT)*.rst" -delete
 	tox -e docs
 
 spec-html: spec
