@@ -96,6 +96,7 @@ setup(
             "Sphinx",
             "argparse-manpage",
             "pydeps",
+            "sphinx-argparse",
             "sphinxcontrib-napoleon",
         ],
         # FIXME technically this dependency is required, but in some cases we do not have access to

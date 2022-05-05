@@ -21,7 +21,12 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   usage
+   setup
+   configuration
+   command-line
+   faq
+   architecture
+   advanced-usage
 
 Indices and tables
 ------------------

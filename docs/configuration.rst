@@ -1,5 +1,5 @@
-ahriman configuration
-=====================
+Configuration
+=============
 
 Some groups can be specified for each architecture separately. E.g. if there are ``build`` and ``build:x86_64`` groups it will use the option from ``build:x86_64`` for the ``x86_64`` architecture and ``build`` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them.
 
@@ -13,7 +13,7 @@ There are two variable types which have been added to default ones, they are pat
 Path values, except for casting to ``pathlib.Path`` type, will be also expanded to absolute paths relative to the configuration path. E.g. if path is set to ``ahriman.ini.d/logging.ini`` and root configuration path is ``/etc/ahriman.ini``\ , the value will be expanded to ``/etc/ahriman.ini.d/logging.ini``. In order to disable path expand, use the full path, e.g. ``/etc/ahriman.ini.d/logging.ini``. 
 
 ``settings`` group
-^^^^^^^^^^^^^^^^^^
+------------------
 
 Base configuration settings.
 
@@ -22,7 +22,7 @@ Base configuration settings.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 
 ``alpm`` group
-^^^^^^^^^^^^^^
+--------------
 
 libalpm and AUR related configuration.
 
@@ -31,7 +31,7 @@ libalpm and AUR related configuration.
 * ``root`` - root for alpm library, string, required.
 
 ``auth`` group
-^^^^^^^^^^^^^^
+--------------
 
 Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` library to be installed.
 
@@ -47,7 +47,7 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 Authorized users are stored inside internal database, if any of external provides are used the password field for non-service users must be empty. 
 
 ``build:*`` groups
-^^^^^^^^^^^^^^^^^^
+------------------
 
 Build related configuration. Group name can refer to architecture, e.g. ``build:x86_64`` can be used for x86_64 architecture specific settings.
 
@@ -58,7 +58,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
 
 ``repository`` group
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 Base repository settings.
 
@@ -66,7 +66,7 @@ Base repository settings.
 * ``root`` - root path for application, string, required.
 
 ``sign:*`` groups
-^^^^^^^^^^^^^^^^^
+-----------------
 
 Settings for signing packages or repository. Group name can refer to architecture, e.g. ``sign:x86_64`` can be used for x86_64 architecture specific settings.
 
@@ -75,7 +75,7 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``key_*`` settings - PGP key which will be used for specific packages, string, optional. For example, if there is ``key_yay`` option the specified key will be used for yay package and default key for others.
 
 ``report`` group
-^^^^^^^^^^^^^^^^
+----------------
 
 Report generation settings.
 
@@ -88,14 +88,14 @@ Type will be read from several ways:
 * And finally, it will use section name as type.
 
 ``console`` type
-""""""""""""""""
+^^^^^^^^^^^^^^^^
 
 Section name must be either ``console`` (plus optional architecture name, e.g. ``console:x86_64``\ ) or random name with ``type`` set.
 
 * ``use_utf`` - use utf8 symbols in output if set and ascii otherwise, boolean, optional, default ``yes``.
 
 ``email`` type
-""""""""""""""
+^^^^^^^^^^^^^^
 
 Section name must be either ``email`` (plus optional architecture name, e.g. ``email:x86_64``\ ) or random name with ``type`` set.
 
@@ -114,7 +114,7 @@ Section name must be either ``email`` (plus optional architecture name, e.g. ``e
 * ``user`` - SMTP user to authenticate, string, optional.
 
 ``html`` type
-"""""""""""""
+^^^^^^^^^^^^^
 
 Section name must be either ``html`` (plus optional architecture name, e.g. ``html:x86_64``\ ) or random name with ``type`` set.
 
@@ -125,7 +125,7 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``template_path`` - path to Jinja2 template, string, required.
 
 ``telegram`` type
-"""""""""""""""""
+^^^^^^^^^^^^^^^^^
 
 Section name must be either ``telegram`` (plus optional architecture name, e.g. ``telegram:x86_64``\ ) or random name with ``type`` set.
 
@@ -138,7 +138,7 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``\ , ``HTML``\ , ``Markdown``\ , string, optional, default ``HTML``.
 
 ``upload`` group
-^^^^^^^^^^^^^^^^
+----------------
 
 Remote synchronization settings.
 
@@ -151,7 +151,7 @@ Type will be read from several ways:
 * And finally, it will use section name as type.
 
 ``github`` type
-"""""""""""""""
+^^^^^^^^^^^^^^^
 
 This feature requires Github key creation (see below). Section name must be either ``github`` (plus optional architecture name, e.g. ``github:x86_64``\ ) or random name with ``type`` set.
 
@@ -168,7 +168,7 @@ This feature requires Github key creation (see below). Section name must be eith
 * ``username`` - Github authorization user, string, required. Basically the same as ``owner``.
 
 ``rsync`` type
-""""""""""""""
+^^^^^^^^^^^^^^
 
 Requires ``rsync`` package to be installed. Do not forget to configure ssh for user ``ahriman``. Section name must be either ``rsync`` (plus optional architecture name, e.g. ``rsync:x86_64``\ ) or random name with ``type`` set.
 
@@ -177,7 +177,7 @@ Requires ``rsync`` package to be installed. Do not forget to configure ssh for u
 * ``remote`` - remote server to rsync (e.g. ``1.2.3.4:path/to/sync``\ ), string, required.
 
 ``s3`` type
-"""""""""""
+^^^^^^^^^^^
 
 Requires ``boto3`` library to be installed. Section name must be either ``s3`` (plus optional architecture name, e.g. ``s3:x86_64``\ ) or random name with ``type`` set.
 
@@ -189,7 +189,7 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 * ``secret_key`` - AWS secret access key, string, required.
 
 ``web:*`` groups
-^^^^^^^^^^^^^^^^
+----------------
 
 Web server settings. If any of ``host``\ /\ ``port`` is not set, web integration will be disabled. Group name can refer to architecture, e.g. ``web:x86_64`` can be used for x86_64 architecture specific settings. This feature requires ``aiohttp`` libraries to be installed.
 

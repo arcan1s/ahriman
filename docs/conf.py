@@ -11,17 +11,16 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import sys
 
 from pathlib import Path
-# import sys
-# sys.path.insert(0, os.path.abspath("."))
 
-basedir = Path(__file__).resolve().parent.parent.parent
-metadata_path = basedir / "src/ahriman/version.py"
-metadata = {}
-with metadata_path.open() as metadata_file:
-    exec(metadata_file.read(), metadata)  # pylint: disable=exec-used
 
+basedir = Path(__file__).resolve().parent.parent / "src"
+sys.path.insert(0, str(basedir))
+
+
+from ahriman.version import __version__
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 
@@ -32,7 +31,7 @@ copyright = "2021-2022, ahriman team"
 author = "ahriman team"
 
 # The full version, including alpha/beta/rc tags
-release = metadata["__version__"]
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -43,6 +42,7 @@ release = metadata["__version__"]
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinxarg.ext",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

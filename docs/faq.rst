@@ -316,7 +316,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-    After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``\ ) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``\ ).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``\ ) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``\ ).
 
 How do I configure S3?
 ^^^^^^^^^^^^^^^^^^^^^^

@@ -23,10 +23,10 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 
 ## Installation and run
 
-For installation details please refer to the [documentation](docs/setup.md). For command help, `--help` subcommand must be used. Subcommands have own help message as well. The package also provides a [man page](docs/ahriman.1).
+For installation details please refer to the [documentation](docs/setup.rst). For command help, `--help` subcommand must be used. Subcommands have own help message as well. The package also provides a [man page](docs/ahriman.1).
 
 ## Configuration
 
-Every available option is described in the [documentation](docs/configuration.md).
+Every available option is described in the [documentation](docs/configuration.rst).
 
-## [FAQ](docs/faq.md)
+## [FAQ](docs/faq.rst)

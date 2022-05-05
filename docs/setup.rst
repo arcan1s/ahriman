@@ -1,5 +1,5 @@
-Setup instructions
-==================
+Initial setup
+=============
 
 #. 
    Install package as usual.
@@ -74,8 +74,3 @@ Setup instructions
    .. code-block:: shell
 
        sudo -u ahriman ahriman -a x86_64 package-add ahriman --now
-
-User creation
--------------
-
-``user-add`` subcommand is recommended for new user creation.
