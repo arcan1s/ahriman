@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest import mock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report.telegram import Telegram
+from ahriman.core.report import Telegram
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -50,7 +50,7 @@ def test_generate(configuration: Configuration, package_ahriman: Package, result
     """
     must generate report
     """
-    send_mock = mocker.patch("ahriman.core.report.telegram.Telegram._send")
+    send_mock = mocker.patch("ahriman.core.report.Telegram._send")
 
     report = Telegram("x86_64", configuration, "telegram")
     report.generate([package_ahriman], result)
@@ -62,8 +62,8 @@ def test_generate_big_text(configuration: Configuration, package_ahriman: Packag
     """
     must generate report with big text
     """
-    mocker.patch("ahriman.core.report.jinja_template.JinjaTemplate.make_html", return_value="a\n" * 4096)
-    send_mock = mocker.patch("ahriman.core.report.telegram.Telegram._send")
+    mocker.patch("ahriman.core.report.JinjaTemplate.make_html", return_value="a\n" * 4096)
+    send_mock = mocker.patch("ahriman.core.report.Telegram._send")
 
     report = Telegram("x86_64", configuration, "telegram")
     report.generate([package_ahriman], result)
@@ -76,7 +76,7 @@ def test_generate_no_empty(configuration: Configuration, package_ahriman: Packag
     """
     must generate report
     """
-    send_mock = mocker.patch("ahriman.core.report.telegram.Telegram._send")
+    send_mock = mocker.patch("ahriman.core.report.Telegram._send")
 
     report = Telegram("x86_64", configuration, "telegram")
     report.generate([package_ahriman], Result())

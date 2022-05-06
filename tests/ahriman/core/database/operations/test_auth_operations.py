@@ -1,4 +1,4 @@
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 

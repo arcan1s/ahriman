@@ -1,9 +1,6 @@
 import pytest
 
-from ahriman.core.alpm.remote.aur import AUR
-from ahriman.core.alpm.remote.official import Official
-from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb
-from ahriman.core.alpm.remote.remote import Remote
+from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb, Remote
 
 
 @pytest.fixture

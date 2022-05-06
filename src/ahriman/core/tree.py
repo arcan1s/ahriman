@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Iterable, List, Set, Type
 
 from ahriman.core.build_tools.sources import Sources
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 
@@ -102,7 +102,7 @@ class Tree:
         method::
 
             >>> from ahriman.core.configuration import Configuration
-            >>> from ahriman.core.database.sqlite import SQLite
+            >>> from ahriman.core.database import SQLite
             >>> from ahriman.core.repository import Repository
             >>>
             >>> configuration = Configuration()

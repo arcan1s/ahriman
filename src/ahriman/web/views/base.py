@@ -22,9 +22,9 @@ from __future__ import annotations
 from aiohttp.web import Request, View
 from typing import Any, Dict, List, Optional, Type
 
-from ahriman.core.auth.auth import Auth
+from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.user_access import UserAccess

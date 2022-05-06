@@ -1,12 +1,9 @@
 import pytest
-import tempfile
 
-from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import PropertyMock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackage
 from ahriman.core.status.watcher import Watcher
 from ahriman.core.status.web_client import WebClient
@@ -51,7 +48,7 @@ def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture)
     must correctly load packages
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
-    cache_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.packages_get")
+    cache_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
 
     watcher.load()
     cache_mock.assert_called_once_with()
@@ -66,7 +63,7 @@ def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
     """
     status = BuildStatus(BuildStatusEnum.Success)
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.database.sqlite.SQLite.packages_get", return_value=[(package_ahriman, status)])
+    mocker.patch("ahriman.core.database.SQLite.packages_get", return_value=[(package_ahriman, status)])
     watcher.known = {package_ahriman.base: (package_ahriman, status)}
 
     watcher.load()
@@ -78,7 +75,7 @@ def test_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
     """
     must remove package base
     """
-    cache_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.package_remove")
+    cache_mock = mocker.patch("ahriman.core.database.SQLite.package_remove")
     watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.remove(package_ahriman.base)
@@ -90,7 +87,7 @@ def test_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: Mock
     """
     must not fail on unknown base removal
     """
-    cache_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.package_remove")
+    cache_mock = mocker.patch("ahriman.core.database.SQLite.package_remove")
 
     watcher.remove(package_ahriman.base)
     cache_mock.assert_called_once_with(package_ahriman.base)
@@ -100,7 +97,7 @@ def test_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
     """
     must update package status
     """
-    cache_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.package_update")
+    cache_mock = mocker.patch("ahriman.core.database.SQLite.package_update")
 
     watcher.update(package_ahriman.base, BuildStatusEnum.Unknown, package_ahriman)
     cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int))
@@ -113,7 +110,7 @@ def test_update_ping(watcher: Watcher, package_ahriman: Package, mocker: MockerF
     """
     must update package status only for known package
     """
-    cache_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.package_update")
+    cache_mock = mocker.patch("ahriman.core.database.SQLite.package_update")
     watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.update(package_ahriman.base, BuildStatusEnum.Success, None)

@@ -190,7 +190,7 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
     """
     must create record for known package via reporter
     """
-    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.database.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
@@ -203,7 +203,7 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
     """
     must create record for unknown package via reporter
     """
-    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.database.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
@@ -216,6 +216,6 @@ def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahr
     """
     must process manual through the packages with failure
     """
-    mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_get", side_effect=Exception())
+    mocker.patch("ahriman.core.database.SQLite.build_queue_get", side_effect=Exception())
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     assert update_handler.updates_manual() == []

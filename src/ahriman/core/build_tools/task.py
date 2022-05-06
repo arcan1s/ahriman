@@ -25,7 +25,7 @@ from typing import List
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import BuildFailed
 from ahriman.core.util import check_output
 from ahriman.models.package import Package

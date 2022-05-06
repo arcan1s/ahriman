@@ -8,7 +8,7 @@ Depending on the goal the package can be used in different ways. Nevertheless, i
    from pathlib import Path
 
    from ahriman.core.configuration import Configuration
-   from ahriman.core.database.sqlite import SQLite
+   from ahriman.core.database import SQLite
 
    architecture = "x86_64"
    configuration = Configuration.from_path(Path("/etc/ahriman.ini"), architecture, quiet=False)

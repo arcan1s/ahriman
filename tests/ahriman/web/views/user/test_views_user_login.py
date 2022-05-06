@@ -2,9 +2,7 @@ import pytest
 
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
 
-from ahriman.core.auth.oauth import OAuth
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.user.login import LoginView

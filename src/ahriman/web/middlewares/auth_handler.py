@@ -30,7 +30,7 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 from typing import Optional
 
-from ahriman.core.auth.auth import Auth
+from ahriman.core.auth import Auth
 from ahriman.models.user_access import UserAccess
 from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares import HandlerType, MiddlewareType

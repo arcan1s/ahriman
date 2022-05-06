@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnsafeRun
 from ahriman.core.repository.repository_properties import RepositoryProperties
 from ahriman.core.status.web_client import WebClient

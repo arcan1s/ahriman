@@ -20,7 +20,7 @@
 import logging
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 
 

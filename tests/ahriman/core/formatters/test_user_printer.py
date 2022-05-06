@@ -1,4 +1,4 @@
-from ahriman.core.formatters.user_printer import UserPrinter
+from ahriman.core.formatters import UserPrinter
 
 
 def test_properties(user_printer: UserPrinter) -> None:

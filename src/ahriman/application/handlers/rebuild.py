@@ -22,9 +22,9 @@ import argparse
 from typing import List, Type
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters.update_printer import UpdatePrinter
+from ahriman.core.formatters import UpdatePrinter
 from ahriman.models.package import Package
 
 

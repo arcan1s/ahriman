@@ -5,9 +5,9 @@ from pytest_mock import MockerFixture
 from unittest import mock
 from unittest.mock import MagicMock
 
-from ahriman.core.report.report import Report
+from ahriman.core.report import Report
 from ahriman.core.repository.executor import Executor
-from ahriman.core.upload.upload import Upload
+from ahriman.core.upload import Upload
 from ahriman.models.package import Package
 
 
@@ -64,8 +64,8 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     tree_clear_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    build_queue_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_clear")
-    patches_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.patches_remove")
+    build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
+    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
     executor.process_remove([package_ahriman.base])
@@ -150,8 +150,8 @@ def test_process_report(executor: Executor, package_ahriman: Package, mocker: Mo
     must process report
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.report.report.Report.load", return_value=Report("x86_64", executor.configuration))
-    report_mock = mocker.patch("ahriman.core.report.report.Report.run")
+    mocker.patch("ahriman.core.report.Report.load", return_value=Report("x86_64", executor.configuration))
+    report_mock = mocker.patch("ahriman.core.report.Report.run")
 
     executor.process_report(["dummy"], [])
     report_mock.assert_called_once_with([package_ahriman], [])
@@ -170,8 +170,8 @@ def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
     """
     must process sync
     """
-    mocker.patch("ahriman.core.upload.upload.Upload.load", return_value=Upload("x86_64", executor.configuration))
-    upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.run")
+    mocker.patch("ahriman.core.upload.Upload.load", return_value=Upload("x86_64", executor.configuration))
+    upload_mock = mocker.patch("ahriman.core.upload.Upload.run")
 
     executor.process_sync(["dummy"], [])
     upload_mock.assert_called_once_with(executor.paths.repository, [])

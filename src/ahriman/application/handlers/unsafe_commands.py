@@ -22,9 +22,9 @@ import shlex
 
 from typing import List, Type
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters import StringPrinter
 
 
 class UnsafeCommands(Handler):

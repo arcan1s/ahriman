@@ -3,7 +3,7 @@ import sqlite3
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 
 
 def test_factory(database: SQLite) -> None:

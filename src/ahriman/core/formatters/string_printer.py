@@ -19,7 +19,7 @@
 #
 from typing import Optional
 
-from ahriman.core.formatters.printer import Printer
+from ahriman.core.formatters import Printer
 
 
 class StringPrinter(Printer):

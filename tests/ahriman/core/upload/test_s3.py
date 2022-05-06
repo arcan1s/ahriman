@@ -1,12 +1,10 @@
-import pytest
-
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, List, Optional, Tuple
 from unittest import mock
 from unittest.mock import MagicMock
 
-from ahriman.core.upload.s3 import S3
+from ahriman.core.upload import S3
 
 
 _chunk_size = 8 * 1024 * 1024
@@ -106,10 +104,10 @@ def test_sync(s3: S3, mocker: MockerFixture) -> None:
     """
     must run sync command
     """
-    local_files_mock = mocker.patch("ahriman.core.upload.s3.S3.get_local_files", return_value=["a"])
-    remote_objects_mock = mocker.patch("ahriman.core.upload.s3.S3.get_remote_objects", return_value=["b"])
-    remove_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_remove")
-    upload_files_mock = mocker.patch("ahriman.core.upload.s3.S3.files_upload")
+    local_files_mock = mocker.patch("ahriman.core.upload.S3.get_local_files", return_value=["a"])
+    remote_objects_mock = mocker.patch("ahriman.core.upload.S3.get_remote_objects", return_value=["b"])
+    remove_files_mock = mocker.patch("ahriman.core.upload.S3.files_remove")
+    upload_files_mock = mocker.patch("ahriman.core.upload.S3.files_upload")
 
     s3.sync(Path("root"), [])
     remote_objects_mock.assert_called_once_with()

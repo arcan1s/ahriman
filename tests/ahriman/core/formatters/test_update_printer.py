@@ -1,4 +1,4 @@
-from ahriman.core.formatters.update_printer import UpdatePrinter
+from ahriman.core.formatters import UpdatePrinter
 
 
 def test_properties(update_printer: UpdatePrinter) -> None:

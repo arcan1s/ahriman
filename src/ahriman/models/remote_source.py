@@ -95,7 +95,7 @@ class RemoteSource:
             Optional[RemoteSource]: generated remote source if any, None otherwise
         """
         if source == PackageSource.AUR:
-            from ahriman.core.alpm.remote.aur import AUR
+            from ahriman.core.alpm.remote import AUR
             return RemoteSource(
                 git_url=AUR.remote_git_url(package_base, repository),
                 web_url=AUR.remote_web_url(package_base),
@@ -104,7 +104,7 @@ class RemoteSource:
                 source=source,
             )
         if source == PackageSource.Repository:
-            from ahriman.core.alpm.remote.official import Official
+            from ahriman.core.alpm.remote import Official
             return RemoteSource(
                 git_url=Official.remote_git_url(package_base, repository),
                 web_url=Official.remote_web_url(package_base),

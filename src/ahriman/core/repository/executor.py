@@ -23,9 +23,9 @@ from pathlib import Path
 from typing import Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
-from ahriman.core.report.report import Report
+from ahriman.core.report import Report
 from ahriman.core.repository.cleaner import Cleaner
-from ahriman.core.upload.upload import Upload
+from ahriman.core.upload import Upload
 from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 from ahriman.models.result import Result

@@ -46,7 +46,7 @@ def test_get_paths(configuration: Configuration, mocker: MockerFixture) -> None:
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     getpwuid_mock = mocker.patch("pwd.getpwuid", return_value=MagicMock())
     # well database does not exist so we override it
-    database_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.database_path", return_value=configuration.path)
+    database_mock = mocker.patch("ahriman.core.database.SQLite.database_path", return_value=configuration.path)
 
     paths = Backup.get_paths(configuration)
     getpwuid_mock.assert_called_once_with(42)

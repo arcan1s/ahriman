@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from sqlite3 import Connection
 from unittest import mock
 
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -97,8 +97,8 @@ def test_package_remove(database: SQLite, package_ahriman: Package, mocker: Mock
     """
     must totally remove package from the database
     """
-    remove_package_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_remove_package_base")
-    remove_packages_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_remove_packages")
+    remove_package_mock = mocker.patch("ahriman.core.database.SQLite._package_remove_package_base")
+    remove_packages_mock = mocker.patch("ahriman.core.database.SQLite._package_remove_packages")
 
     database.package_remove(package_ahriman.base)
     remove_package_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.base)
@@ -110,10 +110,10 @@ def test_package_update(database: SQLite, package_ahriman: Package, mocker: Mock
     must update package status
     """
     status = BuildStatus()
-    insert_base_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_update_insert_base")
-    insert_status_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_update_insert_status")
-    insert_packages_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_update_insert_packages")
-    remove_packages_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._package_remove_packages")
+    insert_base_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_base")
+    insert_status_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_status")
+    insert_packages_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_packages")
+    remove_packages_mock = mocker.patch("ahriman.core.database.SQLite._package_remove_packages")
 
     database.package_update(package_ahriman, status)
     insert_base_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman)
@@ -127,10 +127,10 @@ def test_packages_get(database: SQLite, package_ahriman: Package, mocker: Mocker
     """
     must return all packages
     """
-    select_bases_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._packages_get_select_package_bases",
+    select_bases_mock = mocker.patch("ahriman.core.database.SQLite._packages_get_select_package_bases",
                                      return_value={package_ahriman.base: package_ahriman})
-    select_packages_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._packages_get_select_packages")
-    select_statuses_mock = mocker.patch("ahriman.core.database.sqlite.SQLite._packages_get_select_statuses")
+    select_packages_mock = mocker.patch("ahriman.core.database.SQLite._packages_get_select_packages")
+    select_statuses_mock = mocker.patch("ahriman.core.database.SQLite._packages_get_select_statuses")
 
     database.packages_get()
     select_bases_mock.assert_called_once_with(pytest.helpers.anyvar(int))

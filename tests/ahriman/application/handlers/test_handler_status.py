@@ -38,8 +38,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
-    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Status.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with()
@@ -57,7 +57,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.status.client.Client.get_self")
     mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Status.run(args, "x86_64", configuration, True, False)
     check_mock.assert_called_once_with(True, True)
@@ -73,7 +73,7 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, pac
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.status.client.Client.get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
-    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Status.run(args, "x86_64", configuration, True, False)
     print_mock.assert_has_calls([mock.call(True) for _ in range(2)])
@@ -105,7 +105,7 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Status.run(args, "x86_64", configuration, True, False)
     print_mock.assert_has_calls([mock.call(False) for _ in range(2)])

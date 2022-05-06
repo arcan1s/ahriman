@@ -72,6 +72,6 @@ def test_clear_queue(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
     must clear queued packages from the database
     """
-    clear_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.build_queue_clear")
+    clear_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
     cleaner.clear_queue()
     clear_mock.assert_called_once_with(None)

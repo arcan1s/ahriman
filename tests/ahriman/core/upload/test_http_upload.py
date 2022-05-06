@@ -5,8 +5,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.upload.github import Github
-from ahriman.core.upload.http_upload import HttpUpload
+from ahriman.core.upload import Github, HttpUpload
 
 
 def test_calculate_hash_empty(resource_path_root: Path) -> None:

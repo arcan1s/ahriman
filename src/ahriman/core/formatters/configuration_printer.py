@@ -19,7 +19,7 @@
 #
 from typing import Dict, List
 
-from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters import StringPrinter
 from ahriman.models.property import Property
 
 

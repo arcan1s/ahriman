@@ -87,16 +87,16 @@ class Report:
         section, provider_name = configuration.gettype(target, architecture)
         provider = ReportSettings.from_option(provider_name)
         if provider == ReportSettings.HTML:
-            from ahriman.core.report.html import HTML
+            from ahriman.core.report import HTML
             return HTML(architecture, configuration, section)
         if provider == ReportSettings.Email:
-            from ahriman.core.report.email import Email
+            from ahriman.core.report import Email
             return Email(architecture, configuration, section)
         if provider == ReportSettings.Console:
-            from ahriman.core.report.console import Console
+            from ahriman.core.report import Console
             return Console(architecture, configuration, section)
         if provider == ReportSettings.Telegram:
-            from ahriman.core.report.telegram import Telegram
+            from ahriman.core.report import Telegram
             return Telegram(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 

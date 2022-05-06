@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb
+from ahriman.core.alpm.remote import OfficialSyncdb
 from ahriman.models.aur_package import AURPackage
 
 

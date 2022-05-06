@@ -1,6 +1,6 @@
 import pytest
 
-from ahriman.core.formatters.build_printer import BuildPrinter
+from ahriman.core.formatters import BuildPrinter
 from ahriman.models.package import Package
 
 

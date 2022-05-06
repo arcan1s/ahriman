@@ -19,7 +19,7 @@
 #
 from typing import List
 
-from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters import StringPrinter
 from ahriman.core.util import pretty_datetime
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.property import Property

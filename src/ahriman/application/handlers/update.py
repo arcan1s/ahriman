@@ -22,7 +22,7 @@ import argparse
 from typing import Callable, Type
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 
 

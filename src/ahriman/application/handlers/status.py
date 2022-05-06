@@ -22,10 +22,9 @@ import argparse
 from typing import Callable, Iterable, Tuple, Type
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters.package_printer import PackagePrinter
-from ahriman.core.formatters.status_printer import StatusPrinter
+from ahriman.core.formatters import PackagePrinter, StatusPrinter
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 

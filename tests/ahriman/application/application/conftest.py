@@ -6,7 +6,7 @@ from ahriman.application.application.application_packages import ApplicationPack
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def application_packages(configuration: Configuration, database: SQLite, mocker:
         ApplicationPackages: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationPackages("x86_64", configuration, no_report=True, unsafe=False)
 
 
@@ -42,7 +42,7 @@ def application_properties(configuration: Configuration, database: SQLite,
         ApplicationProperties: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationProperties("x86_64", configuration, no_report=True, unsafe=False)
 
 
@@ -61,5 +61,5 @@ def application_repository(configuration: Configuration, database: SQLite,
         ApplicationRepository: application test instance
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationRepository("x86_64", configuration, no_report=True, unsafe=False)

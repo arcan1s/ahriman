@@ -1,4 +1,4 @@
-from ahriman.core.formatters.aur_printer import AurPrinter
+from ahriman.core.formatters import AurPrinter
 
 
 def test_properties(aur_package_ahriman_printer: AurPrinter) -> None:

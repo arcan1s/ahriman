@@ -41,7 +41,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     result.add_success(package_ahriman)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
 
     Update.run(args, "x86_64", configuration, True, False)
@@ -60,7 +60,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.application.application.Application.updates", return_value=[])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Update.run(args, "x86_64", configuration, True, False)
     check_mock.assert_called_once_with(True, True)
@@ -76,7 +76,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Update.run(args, "x86_64", configuration, True, False)
     check_mock.assert_has_calls([mock.call(True, False), mock.call(True, True)])
@@ -90,7 +90,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update")
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
     Update.run(args, "x86_64", configuration, True, False)

@@ -1,8 +1,8 @@
 import pytest
 
-from ahriman.core.auth.auth import Auth
+from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.models.user import User
 from ahriman.web.middlewares.auth_handler import AuthorizationPolicy
 

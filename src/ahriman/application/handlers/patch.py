@@ -23,10 +23,10 @@ from pathlib import Path
 from typing import List, Optional, Type
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters import StringPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
 
