@@ -22,7 +22,7 @@ import requests
 from typing import Any, Dict, List, Type
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote.remote import Remote
+from ahriman.core.alpm.remote import Remote
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import exception_response_text
 from ahriman.models.aur_package import AURPackage

@@ -17,3 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman.core.alpm.remote.remote import Remote
+
+from ahriman.core.alpm.remote.aur import AUR
+from ahriman.core.alpm.remote.official import Official
+from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb

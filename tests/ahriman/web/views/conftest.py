@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import MagicMock
 
-from ahriman.core.auth.oauth import OAuth
+from ahriman.core.auth import OAuth
 from ahriman.web.views.base import BaseView
 
 

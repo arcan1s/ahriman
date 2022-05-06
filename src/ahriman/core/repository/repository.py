@@ -35,7 +35,7 @@ class Repository(Executor, UpdateHandler):
         sync local repository to remote, generate report, etc::
 
             >>> from ahriman.core.configuration import Configuration
-            >>> from ahriman.core.database.sqlite import SQLite
+            >>> from ahriman.core.database import SQLite
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)

@@ -24,7 +24,7 @@ import logging
 from typing import Optional, Type
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user_access import UserAccess
 
@@ -82,10 +82,10 @@ class Auth:
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
-            from ahriman.core.auth.mapping import Mapping
+            from ahriman.core.auth import Mapping
             return Mapping(configuration, database)
         if provider == AuthSettings.OAuth:
-            from ahriman.core.auth.oauth import OAuth
+            from ahriman.core.auth import OAuth
             return OAuth(configuration, database)
         return cls(configuration)
 

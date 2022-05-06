@@ -27,8 +27,7 @@ from ahriman.core.database.data.users import migrate_users_data
 from ahriman.models.migration_result import MigrationResult
 
 
-def migrate_data(
-        result: MigrationResult, connection: Connection, configuration: Configuration) -> None:
+def migrate_data(result: MigrationResult, connection: Connection, configuration: Configuration) -> None:
     """
     perform data migration
 

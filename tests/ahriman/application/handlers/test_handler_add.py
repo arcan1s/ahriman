@@ -52,7 +52,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
 
     Add.run(args, "x86_64", configuration, True, False)
@@ -72,7 +72,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     mocker.patch("ahriman.application.application.Application.updates")
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Add.run(args, "x86_64", configuration, True, False)
     check_mock.assert_called_once_with(True, True)

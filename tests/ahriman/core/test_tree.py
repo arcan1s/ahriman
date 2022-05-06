@@ -2,7 +2,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
 

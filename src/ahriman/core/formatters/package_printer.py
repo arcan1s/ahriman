@@ -19,7 +19,7 @@
 #
 from typing import List
 
-from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.formatters import StringPrinter
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.property import Property

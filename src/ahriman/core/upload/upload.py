@@ -86,13 +86,13 @@ class Upload:
         section, provider_name = configuration.gettype(target, architecture)
         provider = UploadSettings.from_option(provider_name)
         if provider == UploadSettings.Rsync:
-            from ahriman.core.upload.rsync import Rsync
+            from ahriman.core.upload import Rsync
             return Rsync(architecture, configuration, section)
         if provider == UploadSettings.S3:
-            from ahriman.core.upload.s3 import S3
+            from ahriman.core.upload import S3
             return S3(architecture, configuration, section)
         if provider == UploadSettings.Github:
-            from ahriman.core.upload.github import Github
+            from ahriman.core.upload import Github
             return Github(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 

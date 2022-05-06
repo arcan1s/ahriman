@@ -4,7 +4,7 @@ from aiohttp import web
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
-from ahriman.core.auth.auth import Auth
+from ahriman.core.auth import Auth
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 from ahriman.models.user_identity import UserIdentity
@@ -28,7 +28,7 @@ async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user
     """
     must return authorized user id
     """
-    mocker.patch("ahriman.core.database.sqlite.SQLite.user_get", return_value=user)
+    mocker.patch("ahriman.core.database.SQLite.user_get", return_value=user)
     assert await authorization_policy.authorized_userid(_identity(user.username)) == user.username
 
 

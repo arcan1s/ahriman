@@ -5,9 +5,7 @@ from typing import Any, Dict, List
 from unittest.mock import MagicMock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload.github import Github
-from ahriman.core.upload.rsync import Rsync
-from ahriman.core.upload.s3 import S3
+from ahriman.core.upload import Github, Rsync, S3
 
 
 _s3_object = namedtuple("s3_object", ["key", "e_tag", "delete"])

@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote.official import Official
+from ahriman.core.alpm.remote import Official
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.models.aur_package import AURPackage
 
@@ -111,7 +111,7 @@ def test_package_info(official: Official, aur_package_akonadi: AURPackage, pacma
     """
     must make request for info
     """
-    request_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.make_request",
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.make_request",
                                 return_value=[aur_package_akonadi])
     assert official.package_info(aur_package_akonadi.name, pacman=pacman) == aur_package_akonadi
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="name")
@@ -122,7 +122,7 @@ def test_package_search(official: Official, aur_package_akonadi: AURPackage, pac
     """
     must make request for search
     """
-    request_mock = mocker.patch("ahriman.core.alpm.remote.official.Official.make_request",
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.make_request",
                                 return_value=[aur_package_akonadi])
     assert official.package_search(aur_package_akonadi.name, pacman=pacman) == [aur_package_akonadi]
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="q")

@@ -22,7 +22,7 @@ import logging
 from typing import Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackage
 from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum

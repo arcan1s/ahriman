@@ -40,7 +40,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on",
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Rebuild.run(args, "x86_64", configuration, True, False)
     application_packages_mock.assert_called_once_with(None)
@@ -73,7 +73,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Rebuild.run(args, "x86_64", configuration, True, False)
     application_mock.assert_not_called()
@@ -117,7 +117,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on", return_value=[])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Rebuild.run(args, "x86_64", configuration, True, False)
     check_mock.assert_called_once_with(True, True)
@@ -133,7 +133,7 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depends_on", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Rebuild.run(args, "x86_64", configuration, True, False)
     check_mock.assert_has_calls([mock.call(True, False), mock.call(True, True)])
@@ -143,6 +143,6 @@ def test_extract_packages(application: Application, mocker: MockerFixture) -> No
     """
     must extract packages from database
     """
-    packages_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.packages_get")
+    packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
     Rebuild.extract_packages(application)
     packages_mock.assert_called_once_with()

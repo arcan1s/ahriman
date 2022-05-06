@@ -39,11 +39,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
-    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
-    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
-    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
-    executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
+    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_ahriman")
+    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
+    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")
+    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_sudo")
+    executable_mock = mocker.patch("ahriman.application.handlers.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
     paths = RepositoryPaths(configuration.getpath("repository", "root"), "x86_64")
 

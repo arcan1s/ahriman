@@ -3,14 +3,14 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 
 
 def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must correctly load instance
     """
-    init_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.init")
+    init_mock = mocker.patch("ahriman.core.database.SQLite.init")
     SQLite.load(configuration)
     init_mock.assert_called_once_with(configuration)
 

@@ -8,7 +8,7 @@ from typing import Any
 import ahriman.core.auth.helpers
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.spawn import Spawn
 from ahriman.models.user import User
 from ahriman.web.web import setup_service
@@ -50,7 +50,7 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite,
     Returns:
         web.Application: application test instance
     """
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     return setup_service("x86_64", configuration, spawner)
@@ -73,13 +73,13 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
         web.Application: application test instance
     """
     configuration.set_option("auth", "target", "configuration")
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
     application = setup_service("x86_64", configuration, spawner)
 
     generated = user.hash_password(application["validator"].salt)
-    mocker.patch("ahriman.core.database.sqlite.SQLite.user_get", return_value=generated)
+    mocker.patch("ahriman.core.database.SQLite.user_get", return_value=generated)
 
     return application
 
@@ -101,7 +101,7 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
         web.Application: application test instance
     """
     configuration.set_option("web", "debug", "yes")
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     return setup_service("x86_64", configuration, spawner)

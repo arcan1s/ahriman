@@ -23,10 +23,10 @@ import getpass
 from pathlib import Path
 from typing import Type
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
-from ahriman.core.formatters.user_printer import UserPrinter
+from ahriman.core.database import SQLite
+from ahriman.core.formatters import UserPrinter
 from ahriman.models.action import Action
 from ahriman.models.user import User
 

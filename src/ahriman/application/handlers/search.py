@@ -23,12 +23,11 @@ from dataclasses import fields
 from typing import Callable, Iterable, List, Tuple, Type
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
-from ahriman.core.alpm.remote.aur import AUR
-from ahriman.core.alpm.remote.official import Official
+from ahriman.application.handlers import Handler
+from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidOption
-from ahriman.core.formatters.aur_printer import AurPrinter
+from ahriman.core.formatters import AurPrinter
 from ahriman.models.aur_package import AURPackage
 
 

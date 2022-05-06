@@ -85,7 +85,7 @@ def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, pac
     """
     must construct package from aur
     """
-    mocker.patch("ahriman.core.alpm.remote.aur.AUR.info", return_value=aur_package_ahriman)
+    mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
 
     package = Package.from_aur(package_ahriman.base, pacman)
     assert package_ahriman.base == package.base
@@ -144,7 +144,7 @@ def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage
     """
     must construct package from official repository
     """
-    mocker.patch("ahriman.core.alpm.remote.official.Official.info", return_value=aur_package_ahriman)
+    mocker.patch("ahriman.core.alpm.remote.Official.info", return_value=aur_package_ahriman)
 
     package = Package.from_official(package_ahriman.base, pacman)
     assert package_ahriman.base == package.base

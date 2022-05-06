@@ -38,8 +38,7 @@ class Remote:
         These classes are designed to be used without instancing. In order to achieve it several class methods are
         provided: ``info``, ``multisearch`` and ``search``. Thus, the basic flow is the following::
 
-            >>> from ahriman.core.alpm.remote.aur import AUR
-            >>> from ahriman.core.alpm.remote.official import Official
+            >>> from ahriman.core.alpm.remote import AUR, Official
             >>>
             >>> package = AUR.info("ahriman", pacman=pacman)
             >>> search_result = Official.multisearch("pacman", "manager", pacman=pacman)

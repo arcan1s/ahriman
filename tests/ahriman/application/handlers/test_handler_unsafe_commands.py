@@ -30,7 +30,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args = _default_args(args)
     commands_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.get_unsafe_commands",
                                  return_value=["command"])
-    print_mock = mocker.patch("ahriman.core.formatters.printer.Printer.print")
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     UnsafeCommands.run(args, "x86_64", configuration, True, False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
@@ -56,7 +56,7 @@ def test_check_unsafe(mocker: MockerFixture) -> None:
     """
     must check if command is unsafe
     """
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     UnsafeCommands.check_unsafe("repo-clean", ["repo-clean"], _parser())
     check_mock.assert_called_once_with(True, True)
 
@@ -65,7 +65,7 @@ def test_check_unsafe_safe(mocker: MockerFixture) -> None:
     """
     must check if command is safe
     """
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     UnsafeCommands.check_unsafe("package-status", ["repo-clean"], _parser())
     check_mock.assert_called_once_with(True, False)
 

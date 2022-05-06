@@ -22,7 +22,7 @@ import logging
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnsafeRun
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client

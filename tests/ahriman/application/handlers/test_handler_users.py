@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Users
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.sqlite import SQLite
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import InitializeException
 from ahriman.models.action import Action
 from ahriman.models.user import User
@@ -39,13 +39,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
     """
     args = _default_args(args)
     user = User(args.username, args.password, args.role)
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_create")
     create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
     get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value="salt")
-    update_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_update")
+    update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
     Users.run(args, "x86_64", configuration, True, False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
@@ -63,9 +63,9 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     """
     args = _default_args(args)
     args.action = Action.List
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
-    list_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[user])
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    list_mock = mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[user])
 
     Users.run(args, "x86_64", configuration, True, False)
     list_mock.assert_called_once_with("user", args.role)
@@ -80,9 +80,9 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args = _default_args(args)
     args.action = Action.List
     args.exit_code = True
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    mocker.patch("ahriman.core.database.sqlite.SQLite.user_list", return_value=[])
-    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_if_empty")
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[])
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Users.run(args, "x86_64", configuration, True, False)
     check_mock.assert_called_once_with(True, True)
@@ -95,8 +95,8 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, data
     """
     args = _default_args(args)
     args.action = Action.Remove
-    mocker.patch("ahriman.core.database.sqlite.SQLite.load", return_value=database)
-    remove_mock = mocker.patch("ahriman.core.database.sqlite.SQLite.user_remove")
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    remove_mock = mocker.patch("ahriman.core.database.SQLite.user_remove")
 
     Users.run(args, "x86_64", configuration, True, False)
     remove_mock.assert_called_once_with(args.username)

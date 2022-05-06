@@ -21,7 +21,7 @@ async def test_get(client: TestClient, aur_package_ahriman: AURPackage, mocker: 
     """
     must call get request correctly
     """
-    mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[aur_package_ahriman])
+    mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     response = await client.get("/service-api/v1/search", params={"for": "ahriman"})
 
     assert response.ok
@@ -33,7 +33,7 @@ async def test_get_exception(client: TestClient, mocker: MockerFixture) -> None:
     """
     must raise 400 on empty search string
     """
-    search_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch", return_value=[])
+    search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[])
     response = await client.get("/service-api/v1/search")
 
     assert response.status == 404
@@ -44,7 +44,7 @@ async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     """
     must join search args with space
     """
-    search_mock = mocker.patch("ahriman.core.alpm.remote.aur.AUR.multisearch")
+    search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch")
     response = await client.get("/service-api/v1/search", params=[("for", "ahriman"), ("for", "maybe")])
 
     assert response.ok

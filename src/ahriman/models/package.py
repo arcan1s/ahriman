@@ -29,9 +29,7 @@ from srcinfo.parse import parse_srcinfo  # type: ignore
 from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote.aur import AUR
-from ahriman.core.alpm.remote.official import Official
-from ahriman.core.alpm.remote.official_syncdb import OfficialSyncdb
+from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import InvalidPackageInfo
 from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
