@@ -27,6 +27,7 @@ Contents
    faq
    architecture
    advanced-usage
+   triggers
    modules
 
 Indices and tables

@@ -70,6 +70,12 @@ class InitializeException(RuntimeError):
         RuntimeError.__init__(self, f"Could not load service: {details}")
 
 
+class InvalidExtension(RuntimeError):
+    """
+    exception being raised by trigger load in case of errors
+    """
+
+
 class InvalidOption(ValueError):
     """
     exception which will be raised on configuration errors

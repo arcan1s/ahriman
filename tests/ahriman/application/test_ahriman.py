@@ -348,16 +348,6 @@ def test_subparsers_repo_remove_unknown_architecture(parser: argparse.ArgumentPa
     assert args.architecture == ["x86_64"]
 
 
-def test_subparsers_repo_report_architecture(parser: argparse.ArgumentParser) -> None:
-    """
-    repo-report command must correctly parse architecture list
-    """
-    args = parser.parse_args(["repo-report"])
-    assert args.architecture is None
-    args = parser.parse_args(["-a", "x86_64", "repo-report"])
-    assert args.architecture == ["x86_64"]
-
-
 def test_subparsers_repo_restore(parser: argparse.ArgumentParser) -> None:
     """
     repo-restore command must imply architecture list, lock, no-report and unsafe
@@ -446,13 +436,13 @@ def test_subparsers_repo_status_update_option_status(parser: argparse.ArgumentPa
     assert isinstance(args.status, BuildStatusEnum)
 
 
-def test_subparsers_repo_sync_architecture(parser: argparse.ArgumentParser) -> None:
+def test_subparsers_repo_triggers_architecture(parser: argparse.ArgumentParser) -> None:
     """
-    repo-sync command must correctly parse architecture list
+    repo-triggers command must correctly parse architecture list
     """
-    args = parser.parse_args(["repo-sync"])
+    args = parser.parse_args(["repo-triggers"])
     assert args.architecture is None
-    args = parser.parse_args(["-a", "x86_64", "repo-sync"])
+    args = parser.parse_args(["-a", "x86_64", "repo-triggers"])
     assert args.architecture == ["x86_64"]
 
 

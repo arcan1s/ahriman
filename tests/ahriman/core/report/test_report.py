@@ -24,7 +24,7 @@ def test_report_dummy(configuration: Configuration, result: Result, mocker: Mock
     """
     mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
     report_mock = mocker.patch("ahriman.core.report.Report.generate")
-    Report.load("x86_64", configuration, "disabled").run([], result)
+    Report.load("x86_64", configuration, "disabled").run(result, [])
     report_mock.assert_called_once_with([], result)
 
 
@@ -33,7 +33,7 @@ def test_report_console(configuration: Configuration, result: Result, mocker: Mo
     must generate console report
     """
     report_mock = mocker.patch("ahriman.core.report.Console.generate")
-    Report.load("x86_64", configuration, "console").run([], result)
+    Report.load("x86_64", configuration, "console").run(result, [])
     report_mock.assert_called_once_with([], result)
 
 
@@ -42,7 +42,7 @@ def test_report_email(configuration: Configuration, result: Result, mocker: Mock
     must generate email report
     """
     report_mock = mocker.patch("ahriman.core.report.Email.generate")
-    Report.load("x86_64", configuration, "email").run([], result)
+    Report.load("x86_64", configuration, "email").run(result, [])
     report_mock.assert_called_once_with([], result)
 
 
@@ -51,7 +51,7 @@ def test_report_html(configuration: Configuration, result: Result, mocker: Mocke
     must generate html report
     """
     report_mock = mocker.patch("ahriman.core.report.HTML.generate")
-    Report.load("x86_64", configuration, "html").run([], result)
+    Report.load("x86_64", configuration, "html").run(result, [])
     report_mock.assert_called_once_with([], result)
 
 
@@ -60,5 +60,5 @@ def test_report_telegram(configuration: Configuration, result: Result, mocker: M
     must generate telegram report
     """
     report_mock = mocker.patch("ahriman.core.report.Telegram.generate")
-    Report.load("x86_64", configuration, "telegram").run([], result)
+    Report.load("x86_64", configuration, "telegram").run(result, [])
     report_mock.assert_called_once_with([], result)

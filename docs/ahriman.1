@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-update,update,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-v] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-triggers,repo-update,update,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH Linux ReposItory MANager
 
@@ -97,9 +97,6 @@ rebuild repository
 \fBahriman\fR \fI\,repo-remove-unknown\/\fR
 remove unknown packages
 .TP
-\fBahriman\fR \fI\,repo-report\/\fR
-generate report
-.TP
 \fBahriman\fR \fI\,repo-restore\/\fR
 restore repository data
 .TP
@@ -112,8 +109,8 @@ sign packages
 \fBahriman\fR \fI\,repo-status-update\/\fR
 update repository status
 .TP
-\fBahriman\fR \fI\,repo-sync\/\fR
-sync repository
+\fBahriman\fR \fI\,repo-triggers\/\fR
+run triggers
 .TP
 \fBahriman\fR \fI\,repo-update\/\fR
 update packages
@@ -408,15 +405,6 @@ just perform check for packages without removal
 \fB\-i\fR, \fB\-\-info\fR
 show additional package information
 
-.SH COMMAND \fI\,'ahriman repo-report'\/\fR
-usage: ahriman repo-report [-h] [target ...]
-
-generate repository report according to current settings
-
-.TP
-\fBtarget\fR
-target to generate report
-
 .SH COMMAND \fI\,'ahriman repo-restore'\/\fR
 usage: ahriman repo-restore [-h] [-o OUTPUT] path
 
@@ -497,14 +485,10 @@ update repository status on the status page
 \fB\-s\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR, \fB\-\-status\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR
 new status
 
-.SH COMMAND \fI\,'ahriman repo-sync'\/\fR
-usage: ahriman repo-sync [-h] [target ...]
+.SH COMMAND \fI\,'ahriman repo-triggers'\/\fR
+usage: ahriman repo-triggers [-h]
 
-sync repository files to remote server according to current settings
-
-.TP
-\fBtarget\fR
-target to sync
+run triggers on empty build result as configured by settings
 
 .SH COMMAND \fI\,'ahriman repo-update'\/\fR
 usage: ahriman repo-update [-h] [--dry-run] [-e] [--no-aur] [--no-local] [--no-manual] [--no-vcs] [package ...]

@@ -7,7 +7,7 @@ Package structure
 Packages have strict rules of importing:
 
 * ``ahriman.application`` package must not be used anywhere except for itself.
-* ``ahriman.core`` and ``ahriman.models`` packages don't have any import restriction. Actually we would like to totally restrict importing of ``core`` package from ``models``\ , but it is impossible at the moment.
+* ``ahriman.core`` and ``ahriman.models`` packages don't have any import restriction. Actually we would like to totally restrict importing of ``core`` package from ``models``, but it is impossible at the moment.
 * ``ahriman.web`` package is allowed to be imported from ``ahriman.application`` (web handler only, only ``ahriman.web.web`` methods). It also must not be imported globally, only local import is allowed. 
 
 Full dependency diagram:
@@ -30,13 +30,13 @@ This package contains application (aka executable) related classes and everythin
 
 This package contains everything which is required for any time of application run and separated to several packages:
 
-* ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (\ ``repo-add`` and ``repo-remove``\ ). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
+* ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
 * ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.auth.Auth`` which must be called by ``load`` method.
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.report`` is a package with reporting classes. Usually it must be called by ``ahriman.core.report.report.Report.load`` method.
-* ``ahriman.core.repository`` contains several traits and base repository (\ ``ahriman.core.repository.repository.Repository`` class) implementation.
+* ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
 * ``ahriman.core.upload`` package provides sync feature, must be called by ``ahriman.core.upload.upload.Upload.load`` method.
@@ -68,7 +68,7 @@ Application run
 
 * Parse command line arguments, find command and related handler which is set by parser.
 * Call ``Handler.execute`` method.
-* Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``\ ) which should be able to spawn child process in daemon mode (it is impossible to do for daemonic processes).
+* Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do for daemonic processes).
 * In each child process call lock functions.
 * After success checks pass control to ``Handler.run`` method defined by specific handler class.
 * Return result (success or failure) of each subprocess and exit from application.
@@ -102,7 +102,7 @@ Type conversions
 
 By default, it parses rows into python dictionary. In addition, the following pseudo-types are supported:
 
-* ``Dict[str, Any]``\ , ``List[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` datatype and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
+* ``Dict[str, Any]``, ``List[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` datatype and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
 
 Basic flows
 -----------
@@ -113,7 +113,7 @@ Add new packages or rebuild existing
 Idea is to copy package to the directory from which it will be handled at the next update run. Different variants are supported:
 
 * If supplied argument is file then application moves the file to the directory with built packages. Same rule applies for directory, but in this case it copies every package-like file from the specified directory.
-* If supplied argument is directory and there is ``PKGBUILD`` file there it will be treated as local package. In this case it will queue this package to build and copy source files (\ ``PKGBUILD`` and ``.SRCINFO``\ ) to caches.
+* If supplied argument is directory and there is ``PKGBUILD`` file there it will be treated as local package. In this case it will queue this package to build and copy source files (``PKGBUILD`` and ``.SRCINFO``) to caches.
 * If supplied argument iis not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
 
 This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR.
@@ -142,7 +142,7 @@ This feature is divided into to stages: check AUR for updates and run rebuild fo
    #. Build every package in clean chroot.
    #. Sign packages if required.
    #. Add packages to database and sign database if required.
-   #. Process sync and report methods.
+   #. Process triggers.
 
 After any step any package data is being removed.
 
@@ -152,7 +152,7 @@ Core functions reference
 Configuration
 ^^^^^^^^^^^^^
 
-``ahriman.core.configuration.Configuration`` class provides some additional methods (e.g. ``getpath`` and ``getlist``\ ) and also combines multiple files into single configuration dictionary using architecture overrides. It is the recommended way to deal with settings.
+``ahriman.core.configuration.Configuration`` class provides some additional methods (e.g. ``getpath`` and ``getlist``) and also combines multiple files into single configuration dictionary using architecture overrides. It is the recommended way to deal with settings.
 
 Utils
 ^^^^^
@@ -176,7 +176,7 @@ Mapping (aka configuration) provider uses hashed passwords with salt from the da
 * ``check_credentials`` - user password validation (authentication).
 * ``verify_access`` - user permission validation (authorization).
 
-Passwords must be stored in database as ``hash(password + salt)``\ , where ``password`` is user defined password (taken from user input), ``salt`` is random string (any length) defined globally in configuration and ``hash`` is secure hash function. Thus, the following configuration
+Passwords must be stored in database as ``hash(password + salt)``, where ``password`` is user defined password (taken from user input), ``salt`` is random string (any length) defined globally in configuration and ``hash`` is secure hash function. Thus, the following configuration
 
 .. code-block::
 
@@ -185,20 +185,31 @@ Passwords must be stored in database as ``hash(password + salt)``\ , where ``pas
 
 means that there is user ``username`` with ``read`` access and password ``password`` hashed by ``sha512`` with salt ``salt``.
 
-OAuth provider uses library definitions (\ ``aioauth-client``\ ) in order *authenticate* users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override ``check_credentials`` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
+OAuth provider uses library definitions (``aioauth-client``) in order *authenticate* users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override ``check_credentials`` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature is used by service reporting (aka robots).
 
 In order to configure users there are special commands.
 
+Triggers
+^^^^^^^^
+
+Triggers are extensions which can be used in order to perform any actions after the update process. The package provides two default extensions - one is report generation and another one is remote upload feature.
+
+The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join remain part by ``.`` and interpret as module path, import module and extract attribute from it.
+
+The loaded triggers will be called with ``ahriman.models.result.Result`` and ``List[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
+
+For more details how to deal with the triggers, refer to :doc:`documentation <triggers>` and modules descriptions.
+
 Remote synchronization
 ^^^^^^^^^^^^^^^^^^^^^^
 
-There are several supported synchronization providers, currently they are ``rsync``\ , ``s3``\ , ``github``. 
+There are several supported synchronization providers, currently they are ``rsync``, ``s3``, ``github``.
 
 ``rsync`` provider does not have any specific logic except for running external rsync application with configured arguments. The service does not handle SSH configuration, thus it has to be configured before running application manually.
 
-``s3`` provider uses ``boto3`` package and implements sync feature. The files are stored in architecture directory (e.g. if bucket is ``repository``\ , packages will be stored in ``repository/x86_64`` for the ``x86_64`` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, used realization is described `here <https://teppen.io/2018/10/23/aws_s3_verify_etags/>`_. 
+``s3`` provider uses ``boto3`` package and implements sync feature. The files are stored in architecture directory (e.g. if bucket is ``repository``, packages will be stored in ``repository/x86_64`` for the ``x86_64`` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, used realization is described `here <https://teppen.io/2018/10/23/aws_s3_verify_etags/>`_.
 
 ``github`` provider authenticates through basic auth, API key with repository write permissions is required. There will be created a release with the name of the architecture in case if it does not exist; files will be uploaded to the release assets. It also stores array of files and their MD5 checksums in release body in order to upload only changed ones. According to the Github API in case if there is already uploaded asset with the same name (e.g. database files), asset will be removed first.
 
@@ -207,7 +218,7 @@ Additional features
 
 Some features require optional dependencies to be installed:
 
-* Version control executables (e.g. ``git``\ , ``svn``\ ) for VCS packages.
+* Version control executables (e.g. ``git``, ``svn``) for VCS packages.
 * ``gnupg`` application for package and repository sign feature.
 * ``rsync`` application for rsync based repository sync.
 * ``boto3`` python package for ``S3`` sync.
@@ -220,7 +231,7 @@ Web application requires the following python packages to be installed:
 
 * Core part requires ``aiohttp`` (application itself), ``aiohttp_jinja2`` and ``Jinja2`` (HTML generation from templates).
 * In addition, ``aiohttp_debugtoolbar`` is required for debug panel. Please note that this option does not work together with authorization and basically must not be used in production.
-* In addition, authorization feature requires ``aiohttp_security``\ , ``aiohttp_session`` and ``cryptography``.
+* In addition, authorization feature requires ``aiohttp_security``, ``aiohttp_session`` and ``cryptography``.
 * In addition to base authorization dependencies, OAuth2 also requires ``aioauth-client`` library.
 
 Middlewares

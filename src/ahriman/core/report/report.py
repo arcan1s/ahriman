@@ -109,13 +109,13 @@ class Report:
             result(Result): build result
         """
 
-    def run(self, packages: Iterable[Package], result: Result) -> None:
+    def run(self, result: Result, packages: Iterable[Package]) -> None:
         """
         run report generation
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
             result(Result): build result
+            packages(Iterable[Package]): list of packages to generate report
 
         Raises:
             ReportFailed: in case of any report unmatched exception

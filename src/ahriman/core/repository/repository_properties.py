@@ -26,6 +26,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnsafeRun
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
+from ahriman.core.triggers import TriggerLoader
 from ahriman.core.util import check_user
 
 
@@ -45,6 +46,7 @@ class RepositoryProperties:
         repo(Repo): repo commands wrapper instance
         reporter(Client): build status reporter instance
         sign(GPG): GPG wrapper instance
+        triggers(TriggerLoader): triggers holder
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
@@ -78,3 +80,4 @@ class RepositoryProperties:
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client() if no_report else Client.load(configuration)
+        self.triggers = TriggerLoader(architecture, configuration)

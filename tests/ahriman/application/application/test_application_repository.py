@@ -53,15 +53,6 @@ def test_clean_packages(application_repository: ApplicationRepository, mocker: M
     clear_mock.assert_called_once_with()
 
 
-def test_report(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
-    """
-    must generate report
-    """
-    executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_report")
-    application_repository.report(["a"], Result())
-    executor_mock.assert_called_once_with(["a"], Result())
-
-
 def test_sign(application_repository: ApplicationRepository, package_ahriman: Package, package_python_schedule: Package,
               mocker: MockerFixture) -> None:
     """
@@ -119,15 +110,6 @@ def test_sign_specific(application_repository: ApplicationRepository, package_ah
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
     finalize_mock.assert_called_once_with(Result())
-
-
-def test_sync(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
-    """
-    must sync to remote
-    """
-    executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_sync")
-    application_repository.sync(["a"], [])
-    executor_mock.assert_called_once_with(["a"], [])
 
 
 def test_unknown_no_aur(application_repository: ApplicationRepository, package_ahriman: Package,
