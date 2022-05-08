@@ -86,7 +86,7 @@ class ApplicationPackages(ApplicationProperties):
         self.database.remote_update(package)
 
         with tmpdir() as local_path:
-            Sources.load(local_path, package.remote, self.database.patches_get(package.base))
+            Sources.load(local_path, package, self.database.patches_get(package.base), self.repository.paths)
             self._process_dependencies(local_path, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:

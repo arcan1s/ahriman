@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import logging
-import shutil
 
 from pathlib import Path
 from typing import List
@@ -66,12 +65,12 @@ class Task:
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    def build(self, sources_path: Path) -> List[Path]:
+    def build(self, sources_dir: Path) -> List[Path]:
         """
         run package build
 
         Args:
-            sources_path(Path): path to where sources are
+            sources_dir(Path): path to where sources are
 
         Returns:
             List[Path]: paths of produced packages
@@ -85,26 +84,23 @@ class Task:
         Task._check_output(
             *command,
             exception=BuildFailed(self.package.base),
-            cwd=sources_path,
+            cwd=sources_dir,
             logger=self.build_logger,
             user=self.uid)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",
                                       exception=BuildFailed(self.package.base),
-                                      cwd=sources_path,
+                                      cwd=sources_dir,
                                       logger=self.build_logger).splitlines()
         return [Path(package) for package in packages]
 
-    def init(self, path: Path, database: SQLite) -> None:
+    def init(self, sources_dir: Path, database: SQLite) -> None:
         """
         fetch package from git
 
         Args:
-            path(Path): local path to fetch
+            sources_dir(Path): local path to fetch
             database(SQLite): database instance
         """
-        if self.paths.cache_for(self.package.base).is_dir():
-            # no need to clone whole repository, just copy from cache first
-            shutil.copytree(self.paths.cache_for(self.package.base), path, dirs_exist_ok=True)
-        Sources.load(path, self.package.remote, database.patches_get(self.package.base))
+        Sources.load(sources_dir, self.package, database.patches_get(self.package.base), self.paths)

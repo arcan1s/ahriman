@@ -24,7 +24,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from ahriman.core.util import check_output, walk
+from ahriman.models.package import Package
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Sources:
@@ -43,7 +45,7 @@ class Sources:
     _check_output = check_output
 
     @staticmethod
-    def add(sources_dir: Path, *pattern: str) -> None:
+    def _add(sources_dir: Path, *pattern: str) -> None:
         """
         track found files via git
 
@@ -64,7 +66,7 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def diff(sources_dir: Path) -> str:
+    def _diff(sources_dir: Path) -> str:
         """
         generate diff from the current version and write it to the output file
 
@@ -75,6 +77,21 @@ class Sources:
             str: patch as plain string
         """
         return Sources._check_output("git", "diff", exception=None, cwd=sources_dir, logger=Sources.logger)
+
+    @staticmethod
+    def _move(pkgbuild_dir: Path, sources_dir: Path) -> None:
+        """
+        move content from pkgbuild_dir to sources_dir
+
+        Args:
+            pkgbuild_dir(Path): path to directory with pkgbuild from which need to move
+            sources_dir(Path): path to target directory
+        """
+        if pkgbuild_dir == sources_dir:
+            return  # directories are the same, no need to move
+        for src in walk(pkgbuild_dir):
+            dst = sources_dir / src.relative_to(pkgbuild_dir)
+            shutil.move(src, dst)
 
     @staticmethod
     def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
@@ -103,7 +120,8 @@ class Sources:
                                   remote.git_url, str(sources_dir),
                                   exception=None, cwd=sources_dir, logger=Sources.logger)
         else:
-            Sources.logger.warning("%s is not initialized, but no remote provided", sources_dir)
+            # it will cause an exception later
+            Sources.logger.error("%s is not initialized, but no remote provided", sources_dir)
 
         # and now force reset to our branch
         Sources._check_output("git", "checkout", "--force", branch,
@@ -114,7 +132,7 @@ class Sources:
         # move content if required
         # we are using full path to source directory in order to make append possible
         pkgbuild_dir = remote.pkgbuild_dir if remote is not None else sources_dir.resolve()
-        Sources.move((sources_dir / pkgbuild_dir).resolve(), sources_dir)
+        Sources._move((sources_dir / pkgbuild_dir).resolve(), sources_dir)
 
     @staticmethod
     def has_remotes(sources_dir: Path) -> bool:
@@ -142,35 +160,25 @@ class Sources:
                               exception=None, cwd=sources_dir, logger=Sources.logger)
 
     @staticmethod
-    def load(sources_dir: Path, remote: Optional[RemoteSource], patch: Optional[str]) -> None:
+    def load(sources_dir: Path, package: Package, patch: Optional[str], paths: RepositoryPaths) -> None:
         """
         fetch sources from remote and apply patches
 
         Args:
             sources_dir(Path): local path to fetch
-            remote(Optional[RemoteSource]): remote target (from where to fetch)
+            package(Package): package definitions
             patch(Optional[str]): optional patch to be applied
+            paths(RepositoryPaths): repository paths instance
         """
-        Sources.fetch(sources_dir, remote)
+        if (cache_dir := paths.cache_for(package.base)).is_dir() and cache_dir != sources_dir:
+            # no need to clone whole repository, just copy from cache first
+            shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
+        Sources.fetch(sources_dir, package.remote)
+
         if patch is None:
             Sources.logger.info("no patches found")
             return
         Sources.patch_apply(sources_dir, patch)
-
-    @staticmethod
-    def move(pkgbuild_dir: Path, sources_dir: Path) -> None:
-        """
-        move content from pkgbuild_dir to sources_dir
-
-        Args:
-            pkgbuild_dir(Path): path to directory with pkgbuild from which need to move
-            sources_dir(Path): path to target directory
-        """
-        if pkgbuild_dir == sources_dir:
-            return  # directories are the same, no need to move
-        for src in walk(pkgbuild_dir):
-            dst = sources_dir / src.relative_to(pkgbuild_dir)
-            shutil.move(src, dst)
 
     @staticmethod
     def patch_apply(sources_dir: Path, patch: str) -> None:
@@ -198,6 +206,6 @@ class Sources:
         Returns:
             str: patch as plain text
         """
-        Sources.add(sources_dir, *pattern)
-        diff = Sources.diff(sources_dir)
+        Sources._add(sources_dir, *pattern)
+        diff = Sources._diff(sources_dir)
         return f"{diff}\n"  # otherwise, patch will be broken
