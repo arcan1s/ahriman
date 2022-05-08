@@ -25,6 +25,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.database import SQLite
 from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Leaf:
@@ -58,19 +59,20 @@ class Leaf:
         return self.package.packages.keys()
 
     @classmethod
-    def load(cls: Type[Leaf], package: Package, database: SQLite) -> Leaf:
+    def load(cls: Type[Leaf], package: Package, paths: RepositoryPaths, database: SQLite) -> Leaf:
         """
         load leaf from package with dependencies
 
         Args:
             package(Package): package properties
+            paths(RepositoryPaths): repository paths instance
             database(SQLite): database instance
 
         Returns:
             Leaf: loaded class
         """
         with tmpdir() as clone_dir:
-            Sources.load(clone_dir, package.remote, database.patches_get(package.base))
+            Sources.load(clone_dir, package, database.patches_get(package.base), paths)
             dependencies = Package.dependencies(clone_dir)
         return cls(package, dependencies)
 
@@ -110,7 +112,7 @@ class Tree:
             >>> repository = Repository("x86_64", configuration, database, no_report=False, unsafe=False)
             >>> packages = repository.packages()
             >>>
-            >>> tree = Tree.load(packages, database)
+            >>> tree = Tree.load(packages, configuration.repository_paths, database)
             >>> for tree_level in tree.levels():
             >>>     for package in tree_level:
             >>>         print(package.base)
@@ -138,18 +140,19 @@ class Tree:
         self.leaves = leaves
 
     @classmethod
-    def load(cls: Type[Tree], packages: Iterable[Package], database: SQLite) -> Tree:
+    def load(cls: Type[Tree], packages: Iterable[Package], paths: RepositoryPaths, database: SQLite) -> Tree:
         """
         load tree from packages
 
         Args:
             packages(Iterable[Package]): packages list
+            paths(RepositoryPaths): repository paths instance
             database(SQLite): database instance
 
         Returns:
             Tree: loaded class
         """
-        return cls([Leaf.load(package, database) for package in packages])
+        return cls([Leaf.load(package, paths, database) for package in packages])
 
     def levels(self) -> List[List[Package]]:
         """

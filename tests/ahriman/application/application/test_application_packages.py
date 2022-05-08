@@ -54,8 +54,9 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     application_packages._add_aur(package_ahriman.base, set(), False)
     load_mock.assert_called_once_with(
         pytest.helpers.anyvar(int),
-        package_ahriman.remote,
-        pytest.helpers.anyvar(int))
+        package_ahriman,
+        pytest.helpers.anyvar(int),
+        application_packages.repository.paths)
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
     build_queue_mock.assert_called_once_with(package_ahriman)
     update_remote_mock.assert_called_once_with(package_ahriman)

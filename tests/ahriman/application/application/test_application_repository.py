@@ -195,7 +195,6 @@ def test_update_empty(application_repository: ApplicationRepository, package_ahr
     """
     must skip updating repository if no packages supplied
     """
-    paths = [package.filepath for package in package_ahriman.packages.values()]
     tree = Tree([Leaf(package_ahriman, set())])
 
     mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)

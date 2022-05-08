@@ -14,13 +14,10 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
     check_output_mock.assert_called()
 
 
-def test_init_with_cache(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
+def test_init(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
     """
     must copy tree instead of fetch
     """
-    mocker.patch("pathlib.Path.is_dir", return_value=True)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
-    copytree_mock = mocker.patch("shutil.copytree")
-
+    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     task_ahriman.init(Path("ahriman"), database)
-    copytree_mock.assert_called_once()  # we do not check full command here, sorry
+    load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, None, task_ahriman.paths)

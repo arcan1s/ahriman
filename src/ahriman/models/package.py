@@ -282,7 +282,7 @@ class Package:
         from ahriman.core.build_tools.sources import Sources
 
         logger = logging.getLogger("build_details")
-        Sources.load(paths.cache_for(self.base), self.remote, None)
+        Sources.load(paths.cache_for(self.base), self, None, paths)
 
         try:
             # update pkgver first

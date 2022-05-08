@@ -169,7 +169,7 @@ class ApplicationRepository(ApplicationProperties):
         process_update(packages, build_result)
 
         # process manual packages
-        tree = Tree.load(updates, self.database)
+        tree = Tree.load(updates, self.repository.paths, self.database)
         for num, level in enumerate(tree.levels()):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
             build_result = self.repository.process_build(level)
