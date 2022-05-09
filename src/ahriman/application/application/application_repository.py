@@ -66,17 +66,6 @@ class ApplicationRepository(ApplicationProperties):
         if packages:
             self.repository.clear_packages()
 
-    def report(self, target: Iterable[str], result: Result) -> None:
-        """
-        generate report
-
-        Args:
-            target(Iterable[str]): list of targets to run (e.g. html)
-            result(Result): build result
-        """
-        targets = target or None
-        self.repository.process_report(targets, result)
-
     def sign(self, packages: Iterable[str]) -> None:
         """
         sign packages and repository
@@ -101,17 +90,6 @@ class ApplicationRepository(ApplicationProperties):
         # sign repository database if set
         self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
         self._finalize(Result())
-
-    def sync(self, target: Iterable[str], built_packages: Iterable[Package]) -> None:
-        """
-        sync to remote server
-
-        Args:
-            target(Iterable[str]): list of targets to run (e.g. s3)
-            built_packages(Iterable[Package]): list of packages which has just been built
-        """
-        targets = target or None
-        self.repository.process_sync(targets, built_packages)
 
     def unknown(self) -> List[str]:
         """

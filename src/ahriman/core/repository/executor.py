@@ -23,9 +23,7 @@ from pathlib import Path
 from typing import Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
-from ahriman.core.report import Report
 from ahriman.core.repository.cleaner import Cleaner
-from ahriman.core.upload import Upload
 from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 from ahriman.models.result import Result
@@ -143,35 +141,14 @@ class Executor(Cleaner):
 
         return self.repo.repo_path
 
-    def process_report(self, targets: Optional[Iterable[str]], result: Result) -> None:
+    def process_triggers(self, result: Result) -> None:
         """
-        generate reports
+        process triggers setup by settings
 
         Args:
-            targets(Optional[Iterable[str]]): list of targets to generate reports. Configuration option will be used
-                if it is not set
             result(Result): build result
         """
-        if targets is None:
-            targets = self.configuration.getlist("report", "target")
-        for target in targets:
-            runner = Report.load(self.architecture, self.configuration, target)
-            runner.run(self.packages(), result)
-
-    def process_sync(self, targets: Optional[Iterable[str]], built_packages: Iterable[Package]) -> None:
-        """
-        process synchronization to remote servers
-
-        Args:
-            targets(Optional[Iterable[str]]): list of targets to sync. Configuration option will be used
-                if it is not set
-            built_packages(Iterable[Package]): list of packages which has just been built
-        """
-        if targets is None:
-            targets = self.configuration.getlist("upload", "target")
-        for target in targets:
-            runner = Upload.load(self.architecture, self.configuration, target)
-            runner.run(self.paths.repository, built_packages)
+        self.triggers.process(result, self.packages())
 
     def process_update(self, packages: Iterable[Path]) -> Result:
         """

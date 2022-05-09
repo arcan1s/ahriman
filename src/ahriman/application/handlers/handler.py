@@ -71,10 +71,10 @@ class Handler:
         if args.architecture:  # architecture is specified explicitly
             return sorted(set(args.architecture))
 
-        config = Configuration()
-        config.load(args.configuration)
+        configuration = Configuration()
+        configuration.load(args.configuration)
         # wtf???
-        root = config.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
+        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
         architectures = RepositoryPaths.known_architectures(root)
 
         if not architectures:  # well we did not find anything

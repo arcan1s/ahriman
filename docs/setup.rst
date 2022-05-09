@@ -15,7 +15,7 @@ Initial setup
    ``repo-setup`` literally does the following steps:
 
    #.
-      Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``\ ):
+      Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``):
 
       .. code-block:: shell
 
@@ -25,9 +25,9 @@ Initial setup
       Configure build tools (it is required for correct dependency management system):
 
       #. 
-         Create build command, e.g. ``ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build`` (you can choose any name for command, basically it should be ``{name}-{arch}-build``\ ).
+         Create build command, e.g. ``ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build`` (you can choose any name for command, basically it should be ``{name}-{arch}-build``).
       #. 
-         Create configuration file, e.g. ``cp /usr/share/devtools/pacman-{extra,ahriman}.conf`` (same as previous ``pacman-{name}.conf``\ ).
+         Create configuration file, e.g. ``cp /usr/share/devtools/pacman-{extra,ahriman}.conf`` (same as previous ``pacman-{name}.conf``).
       #. 
          Change configuration file, add your own repository, add multilib repository etc;
       #. 
@@ -55,7 +55,7 @@ Initial setup
             chmod 400 /etc/sudoers.d/ahriman
 
 #. 
-   Start and enable ``ahriman@.timer`` via ``systemctl``\ :
+   Start and enable ``ahriman@.timer`` via ``systemctl``:
 
    .. code-block:: shell
 

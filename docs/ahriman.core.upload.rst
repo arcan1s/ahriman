@@ -44,6 +44,14 @@ ahriman.core.upload.upload module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.upload.upload\_trigger module
+------------------------------------------
+
+.. automodule:: ahriman.core.upload.upload_trigger
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

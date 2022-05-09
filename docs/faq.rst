@@ -118,7 +118,7 @@ But I just wanted to change PKGBUILD from AUR a bit!
 Well it is supported also.
 
 #. Clone sources from AUR.
-#. Make changes you would like to (e.g. edit ``PKGBUILD``\ , add external patches).
+#. Make changes you would like to (e.g. edit ``PKGBUILD``, add external patches).
 #. Run ``sudo -u ahriman ahriman patch-add /path/to/local/directory/with/PKGBUILD``.
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
@@ -177,7 +177,7 @@ However, note that you do not need to rebuild repository in case if you just cha
 Hmm, I have packages built, but how can I use it?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Add the following lines to your ``pacman.conf``\ :
+Add the following lines to your ``pacman.conf``:
 
 .. code-block:: ini
 
@@ -238,7 +238,7 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
    docker run -v /path/to/local/repo:/var/lib/ahriman -v /etc/ahriman.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
 
-By default, it runs ``repo-update``\ , but it can be overwritten to any other command you would like to, e.g.:
+By default, it runs ``repo-update``, but it can be overwritten to any other command you would like to, e.g.:
 
 .. code-block:: shell
 
@@ -255,7 +255,7 @@ The following environment variables are supported:
 * ``AHRIMAN_DEBUG`` - if set all commands will be logged to console.
 * ``AHRIMAN_FORCE_ROOT`` - force run ahriman as root instead of guessing by subcommand.
 * ``AHRIMAN_HOST`` - host for the web interface, default is ``0.0.0.0``.
-* ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``\ , ``console``. The name must be found in logging configuration. Note that if ``syslog`` (the default) handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
+* ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``, ``console``. The name must be found in logging configuration. Note that if ``syslog`` (the default) handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
@@ -279,7 +279,7 @@ Well for that you would need to have web container instance running forever; it 
 
 Note about ``AHRIMAN_PORT`` environment variable which is required in order to enable web service. An additional port bind by ``-p 8080:8080`` is required to pass docker port outside of container.
 
-For every next container run use arguments ``-e AHRIMAN_PORT=8080 --net=host``\ , e.g.:
+For every next container run use arguments ``-e AHRIMAN_PORT=8080 --net=host``, e.g.:
 
 .. code-block:: shell
 
@@ -294,7 +294,7 @@ Wait I would like to use the repository from another server
 There are several choices:
 
 #. 
-   Easy and cheap, just share your local files through the internet, e.g. for ``nginx``\ :
+   Easy and cheap, just share your local files through the internet, e.g. for ``nginx``:
 
    .. code-block::
 
@@ -316,7 +316,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``\ ) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``\ ).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``).
 
 How do I configure S3?
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -474,7 +474,7 @@ I would like to get messages to my telegram account/channel
    #. Make your channel public
 
 #. 
-   Get chat id if you want to use by numerical id or just use id prefixed with ``@`` (e.g. ``@ahriman``\ ). If you are not using chat the chat id is your user id. If you don't want to make channel public you can use `this guide <https://stackoverflow.com/a/33862907>`_.
+   Get chat id if you want to use by numerical id or just use id prefixed with ``@`` (e.g. ``@ahriman``). If you are not using chat the chat id is your user id. If you don't want to make channel public you can use `this guide <https://stackoverflow.com/a/33862907>`_.
 
 #. 
    Configure the service:
@@ -489,7 +489,7 @@ I would like to get messages to my telegram account/channel
       chat_id = @ahriman
       link_path = http://example.com/x86_64
 
-   ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`_\ , ``chat_id`` is the value retrieved from previous step.
+   ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`_, ``chat_id`` is the value retrieved from previous step.
 
 If you did everything fine you should receive the message with the next update. Quick credentials check can be done by using the following command:
 
@@ -606,7 +606,7 @@ The service provides several commands aim to do easy repository backup and resto
 
       sudo ahriman repo-backup /tmp/repo.tar.gz
 
-   This command will pack all configuration files together with database file into the archive specified as command line argument (i.e. ``/tmp/repo.tar.gz``\ ). In addition it will also archive ``cache`` directory (the one which contains local clones used by e.g. local packages) and ``.gnupg`` of the ``ahriman`` user.
+   This command will pack all configuration files together with database file into the archive specified as command line argument (i.e. ``/tmp/repo.tar.gz``). In addition it will also archive ``cache`` directory (the one which contains local clones used by e.g. local packages) and ``.gnupg`` of the ``ahriman`` user.
 
 #. 
    Copy created archive from source server ``server1.example.com`` to target ``server2.example.com``.
@@ -621,7 +621,7 @@ The service provides several commands aim to do easy repository backup and resto
 
       sudo ahriman repo-restore /tmp/repo.tar.gz
 
-   An additional argument ``-o``\ /\ ``--output`` can be used to specify extraction root (\ ``/`` by default).
+   An additional argument ``-o``/``--output`` can be used to specify extraction root (``/`` by default).
 
 #. 
    Rebuild repository:
@@ -684,7 +684,7 @@ I would like to check service logs
 
 By default, the service writes logs to ``/dev/log`` which can be accessed by using ``journalctl`` command (logs are written to the journal of the user under which command is run).
 
-You can also edit configuration and forward logs to ``stderr``\ , just change ``handlers`` value, e.g.:
+You can also edit configuration and forward logs to ``stderr``, just change ``handlers`` value, e.g.:
 
 .. code-block:: shell
 

@@ -3,12 +3,11 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
-from unittest.mock import MagicMock
 
 from ahriman.core.report import Report
 from ahriman.core.repository.executor import Executor
-from ahriman.core.upload import Upload
 from ahriman.models.package import Package
+from ahriman.models.result import Result
 
 
 def test_load_archives(executor: Executor) -> None:
@@ -145,45 +144,15 @@ def test_process_remove_nothing(executor: Executor, package_ahriman: Package, pa
     repo_remove_mock.assert_not_called()
 
 
-def test_process_report(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_process_triggers(executor: Executor, package_ahriman: Package, result: Result, mocker: MockerFixture) -> None:
     """
     must process report
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.report.Report.load", return_value=Report("x86_64", executor.configuration))
-    report_mock = mocker.patch("ahriman.core.report.Report.run")
+    triggers_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.process")
 
-    executor.process_report(["dummy"], [])
-    report_mock.assert_called_once_with([package_ahriman], [])
-
-
-def test_process_report_auto(executor: Executor) -> None:
-    """
-    must process report in auto mode if no targets supplied
-    """
-    configuration_mock = executor.configuration = MagicMock()
-    executor.process_report(None, [])
-    configuration_mock.getlist.assert_called_once_with("report", "target")
-
-
-def test_process_upload(executor: Executor, mocker: MockerFixture) -> None:
-    """
-    must process sync
-    """
-    mocker.patch("ahriman.core.upload.Upload.load", return_value=Upload("x86_64", executor.configuration))
-    upload_mock = mocker.patch("ahriman.core.upload.Upload.run")
-
-    executor.process_sync(["dummy"], [])
-    upload_mock.assert_called_once_with(executor.paths.repository, [])
-
-
-def test_process_upload_auto(executor: Executor) -> None:
-    """
-    must process sync in auto mode if no targets supplied
-    """
-    configuration_mock = executor.configuration = MagicMock()
-    executor.process_sync(None, [])
-    configuration_mock.getlist.assert_called_once_with("upload", "target")
+    executor.process_triggers(result)
+    triggers_mock.assert_called_once_with(result, [package_ahriman])
 
 
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

@@ -92,14 +92,6 @@ ahriman.application.handlers.remove\_unknown module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.application.handlers.report module
-------------------------------------------
-
-.. automodule:: ahriman.application.handlers.report
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.application.handlers.restore module
 -------------------------------------------
 
@@ -148,10 +140,10 @@ ahriman.application.handlers.status\_update module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.application.handlers.sync module
-----------------------------------------
+ahriman.application.handlers.triggers module
+--------------------------------------------
 
-.. automodule:: ahriman.application.handlers.sync
+.. automodule:: ahriman.application.handlers.triggers
    :members:
    :no-undoc-members:
    :show-inheritance:

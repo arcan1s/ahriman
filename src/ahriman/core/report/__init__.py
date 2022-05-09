@@ -24,3 +24,5 @@ from ahriman.core.report.console import Console
 from ahriman.core.report.email import Email
 from ahriman.core.report.html import HTML
 from ahriman.core.report.telegram import Telegram
+
+from ahriman.core.report.report_trigger import ReportTrigger
