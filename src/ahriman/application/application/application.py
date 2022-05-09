@@ -56,8 +56,7 @@ class Application(ApplicationPackages, ApplicationRepository):
         Args:
             result(Result): build result
         """
-        self.report([], result)
-        self.sync([], result.success)
+        self.repository.process_triggers(result)
 
     def _known_packages(self) -> Set[str]:
         """

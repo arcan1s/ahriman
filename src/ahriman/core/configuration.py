@@ -125,11 +125,11 @@ class Configuration(configparser.RawConfigParser):
         Returns:
             Configuration: configuration instance
         """
-        config = cls()
-        config.load(path)
-        config.merge_sections(architecture)
-        config.load_logging(quiet)
-        return config
+        configuration = cls()
+        configuration.load(path)
+        configuration.merge_sections(architecture)
+        configuration.load_logging(quiet)
+        return configuration
 
     @staticmethod
     def __convert_list(value: str) -> List[str]:

@@ -85,9 +85,9 @@ class ApplicationPackages(ApplicationProperties):
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
-        with tmpdir() as local_path:
-            Sources.load(local_path, package, self.database.patches_get(package.base), self.repository.paths)
-            self._process_dependencies(local_path, known_packages, without_dependencies)
+        with tmpdir() as local_dir:
+            Sources.load(local_dir, package, self.database.patches_get(package.base), self.repository.paths)
+            self._process_dependencies(local_dir, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
         """
@@ -96,8 +96,8 @@ class ApplicationPackages(ApplicationProperties):
         Args:
             source(str): path to local directory
         """
-        local_path = Path(source)
-        for full_path in filter(package_like, local_path.iterdir()):
+        local_dir = Path(source)
+        for full_path in filter(package_like, local_dir.iterdir()):
             self._add_archive(str(full_path))
 
     def _add_local(self, source: str, known_packages: Set[str], without_dependencies: bool) -> None:
@@ -146,19 +146,19 @@ class ApplicationPackages(ApplicationProperties):
         self.database.remote_update(package)
         # repository packages must not depend on unknown packages, thus we are not going to process dependencies
 
-    def _process_dependencies(self, local_path: Path, known_packages: Set[str], without_dependencies: bool) -> None:
+    def _process_dependencies(self, local_dir: Path, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         process package dependencies
 
         Args:
-            local_path(Path): path to local package sources (i.e. cloned AUR repository)
+            local_dir(Path): path to local package sources (i.e. cloned AUR repository)
             known_packages(Set[str]): list of packages which are known by the service
             without_dependencies(bool): if set, dependency check will be disabled
         """
         if without_dependencies:
             return
 
-        dependencies = Package.dependencies(local_path)
+        dependencies = Package.dependencies(local_dir)
         self.add(dependencies.difference(known_packages), PackageSource.AUR, without_dependencies)
 
     def add(self, names: Iterable[str], source: PackageSource, without_dependencies: bool) -> None:

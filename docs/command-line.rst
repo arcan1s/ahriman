@@ -1,5 +1,5 @@
-Commands help
-=============
+Commands reference
+==================
 
 ahriman
 -------

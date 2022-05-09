@@ -17,32 +17,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import argparse
+from typing import Iterable
 
-from typing import Type
-
-from ahriman.application.application import Application
-from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.triggers import Trigger
+from ahriman.core.upload import Upload
+from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-class Report(Handler):
+class UploadTrigger(Trigger):
     """
-    generate report handler
+    synchronization trigger
+
+    Attributes:
+        targets(List[str]): upload target list
     """
 
-    @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
-        callback for command line
+        default constructor
 
         Args:
-            args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).report(args.target, Result())
+        Trigger.__init__(self, architecture, configuration)
+        self.targets = configuration.getlist("upload", "target")
+
+    def run(self, result: Result, packages: Iterable[Package]) -> None:
+        """
+        run trigger
+
+        Args:
+            result(Result): build result
+            packages(Iterable[Package]): list of all available packages
+        """
+        for target in self.targets:
+            runner = Upload.load(self.architecture, self.configuration, target)
+            runner.run(self.configuration.repository_paths.repository, result.success)

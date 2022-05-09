@@ -68,7 +68,7 @@ class Upload:
         """
         self.logger = logging.getLogger("root")
         self.architecture = architecture
-        self.config = configuration
+        self.configuration = configuration
 
     @classmethod
     def load(cls: Type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:

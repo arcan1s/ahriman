@@ -14,7 +14,7 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * Multi-architecture support.
 * VCS packages support.
 * Sign support with gpg (repository, package, per package settings).
-* Synchronization to remote services (rsync, s3 and github) and report generation (email, html, telegram).
+* Synchronization to remote services (rsync, s3 and github) and report generation (email, html, telegram) and even ability to write own extensions.
 * Dependency manager.
 * Ability to patch AUR packages and even create package from local PKGBUILDs.
 * Repository status interface with optional authorization and control options:

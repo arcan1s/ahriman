@@ -9,12 +9,10 @@ def test_finalize(application: Application, mocker: MockerFixture) -> None:
     """
     must report and sync at the last
     """
-    report_mock = mocker.patch("ahriman.application.application.Application.report")
-    sync_mock = mocker.patch("ahriman.application.application.Application.sync")
+    triggers_mock = mocker.patch("ahriman.core.repository.Repository.process_triggers")
 
     application._finalize(Result())
-    report_mock.assert_called_once_with([], Result())
-    sync_mock.assert_called_once_with([], [])
+    triggers_mock.assert_called_once_with(Result())
 
 
 def test_known_packages(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
