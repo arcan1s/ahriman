@@ -19,6 +19,7 @@
 #
 import importlib
 import logging
+import os
 
 from pathlib import Path
 from types import ModuleType
@@ -123,7 +124,8 @@ class TriggerLoader:
         *package_path_parts, class_name = module_path.split(".")
         package_or_path = ".".join(package_path_parts)
 
-        if Path(package_or_path).is_file():
+        # it works for both missing permission and file does not exist
+        if os.access(Path(package_or_path), os.R_OK):
             module = self._load_module_from_file(package_or_path, class_name)
         else:
             module = self._load_module_from_package(package_or_path)
