@@ -130,7 +130,9 @@ So it is the same as adding any other package, but due to restrictions you must 
 
 .. code-block:: shell
 
-   sudo -u ahriman ahriman package-add pacmann -s repository
+   sudo -u ahriman ahriman package-add pacman -s repository
+
+This feature is heavily depends on local pacman cache. In order to use this feature it is recommended to either run ``pacman -Sy`` before the interaction or configure timer for this.
 
 Package build fails because it cannot validate PGP signature of source files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
