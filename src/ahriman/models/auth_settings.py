@@ -50,7 +50,7 @@ class AuthSettings(str, Enum):
         """
         if value.lower() in ("configuration", "mapping"):
             return cls.Configuration
-        if value.lower() in ('oauth', 'oauth2'):
+        if value.lower() in ("oauth", "oauth2"):
             return cls.OAuth
         return cls.Disabled
 

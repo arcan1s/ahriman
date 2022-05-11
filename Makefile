@@ -1,9 +1,9 @@
-.PHONY: archive archive_directory archlinux check clean directory push spec spec-html tests version
+.PHONY: archive archlinux check clean directory html push specification tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
 
-FILES := AUTHORS COPYING README.md docs package src setup.py tox.ini web.png
+FILES := AUTHORS CONTRIBUTING.md COPYING README.md docs package src setup.py tox.ini web.png
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
@@ -33,21 +33,21 @@ clean:
 directory: clean
 	mkdir "$(PROJECT)"
 
-push: spec archlinux
+html: specification
+	rm -rf docs/html
+	tox -e docs-html
+
+push: specification archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
 	git push
 	git push --tags
 
-spec:
+specification:
 	# make sure that old files are removed
 	find docs -type f -name "$(PROJECT)*.rst" -delete
 	tox -e docs
-
-spec-html: spec
-	rm -rf docs/html
-	tox -e docs-html
 
 tests: clean
 	tox -e tests
