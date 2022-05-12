@@ -71,7 +71,7 @@ class TriggerLoader:
         self.configuration = configuration
 
         self.triggers = [
-            self._load_trigger(trigger)
+            self.load_trigger(trigger)
             for trigger in configuration.getlist("build", "triggers")
         ]
 
@@ -114,7 +114,7 @@ class TriggerLoader:
         except ModuleNotFoundError:
             raise InvalidExtension(f"Module {package} not found")
 
-    def _load_trigger(self, module_path: str) -> Trigger:
+    def load_trigger(self, module_path: str) -> Trigger:
         """
         load trigger by module path
 

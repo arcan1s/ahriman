@@ -98,10 +98,12 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_config_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
+    _set_repo_report_parser(subparsers)
     _set_repo_restore_parser(subparsers)
     _set_repo_setup_parser(subparsers)
     _set_repo_sign_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
+    _set_repo_sync_parser(subparsers)
     _set_repo_triggers_parser(subparsers)
     _set_repo_update_parser(subparsers)
     _set_user_add_parser(subparsers)
@@ -495,6 +497,24 @@ def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentP
     return parser
 
 
+def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for report subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-report", aliases=["report"], help="generate report",
+                             description="generate repository report according to current settings",
+                             epilog="Create and/or update repository report as configured.",
+                             formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.report.ReportTrigger"])
+    return parser
+
+
 def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository restore subcommand
@@ -580,9 +600,27 @@ def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentPa
     return parser
 
 
-def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
+def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for repository sync subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-sync", aliases=["sync"], help="sync repository",
+                             description="sync repository files to remote server according to current settings",
+                             epilog="Synchronize the repository to remote services as configured.",
+                             formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.upload.UploadTrigger"])
+    return parser
+
+
+def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository triggers subcommand
 
     Args:
         root(SubParserAction): subparsers for the commands
@@ -593,6 +631,8 @@ def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-triggers", help="run triggers",
                              description="run triggers on empty build result as configured by settings",
                              formatter_class=_formatter)
+    parser.add_argument("trigger", help="instead of running all triggers as set by configuration, just process "
+                                        "specified ones oin order of metion", nargs="*")
     parser.set_defaults(handler=handlers.Triggers)
     return parser
 
