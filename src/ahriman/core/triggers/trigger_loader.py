@@ -104,6 +104,9 @@ class TriggerLoader:
 
         Returns:
             ModuleType: module loaded from the imported module
+
+        Raises:
+            InvalidExtension: in case if module cannot be loaded from specified package
         """
         self.logger.info("load module from package %s", package)
         try:
@@ -119,13 +122,17 @@ class TriggerLoader:
             module_path(str): module import path to load
 
         Returns:
-             Trigger: loaded trigger based on settings
+            Trigger: loaded trigger based on settings
+
+        Raises:
+            InvalidExtension: in case if module cannot be loaded from the specified module path or is not a trigger
         """
         *package_path_parts, class_name = module_path.split(".")
         package_or_path = ".".join(package_path_parts)
 
         # it works for both missing permission and file does not exist
-        if os.access(Path(package_or_path), os.R_OK):
+        path_like = Path(package_or_path)
+        if os.access(path_like, os.R_OK) and path_like.is_file():
             module = self._load_module_from_file(package_or_path, class_name)
         else:
             module = self._load_module_from_package(package_or_path)
