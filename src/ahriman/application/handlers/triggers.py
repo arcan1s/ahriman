@@ -45,4 +45,8 @@ class Triggers(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).repository.process_triggers(Result())
+        application = Application(architecture, configuration, no_report, unsafe)
+        if args.trigger:
+            loader = application.repository.triggers
+            loader.triggers = [loader.load_trigger(trigger) for trigger in args.trigger]
+        application.repository.process_triggers(Result())
