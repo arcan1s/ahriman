@@ -58,6 +58,15 @@ def test_load_trigger_path(trigger_loader: TriggerLoader, resource_path_root: Pa
     assert trigger_loader._load_trigger(f"{path}.ReportTrigger")
 
 
+def test_load_trigger_path_directory(trigger_loader: TriggerLoader, resource_path_root: Path) -> None:
+    """
+    must raise InvalidExtension if provided import path is directory
+    """
+    path = resource_path_root.parent.parent / "src" / "ahriman" / "core" / "report"
+    with pytest.raises(InvalidExtension):
+        trigger_loader._load_trigger(f"{path}.ReportTrigger")
+
+
 def test_load_trigger_path_not_found(trigger_loader: TriggerLoader) -> None:
     """
     must raise InvalidExtension if file cannot be found
