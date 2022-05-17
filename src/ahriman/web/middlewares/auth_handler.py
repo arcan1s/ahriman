@@ -89,9 +89,12 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         return await self.validator.verify_access(user.username, permission, context)
 
 
-def auth_handler() -> MiddlewareType:
+def auth_handler(allow_read_only: bool) -> MiddlewareType:
     """
     authorization and authentication middleware
+
+    Args:
+        allow_read_only: allow
 
     Returns:
         MiddlewareType: built middleware
@@ -102,10 +105,14 @@ def auth_handler() -> MiddlewareType:
             permission = await permission_method(request)
         elif isinstance(handler, types.MethodType):  # additional wrapper for static resources
             handler_instance = getattr(handler, "__self__", None)
-            permission = UserAccess.Safe if isinstance(handler_instance, StaticResource) else UserAccess.Write
+            permission = UserAccess.Unauthorized if isinstance(handler_instance, StaticResource) else UserAccess.Full
         else:
-            permission = UserAccess.Write
-        if permission != UserAccess.Safe:
+            permission = UserAccess.Full
+        if permission == UserAccess.Unauthorized:  # explicit if elif else for better code coverage
+            pass
+        elif allow_read_only and UserAccess.Read.permits(permission):
+            pass
+        else:
             await aiohttp_security.check_permission(request, permission, request.path)
 
         return await handler(request)
@@ -133,6 +140,6 @@ def setup_auth(application: web.Application, validator: Auth) -> web.Application
     identity_policy = aiohttp_security.SessionIdentityPolicy()
 
     aiohttp_security.setup(application, identity_policy, authorization_policy)
-    application.middlewares.append(auth_handler())
+    application.middlewares.append(auth_handler(validator.allow_read_only))
 
     return application

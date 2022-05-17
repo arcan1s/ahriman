@@ -13,14 +13,6 @@ from ahriman.models.package import Package
 from ahriman.models.user import User
 
 
-def test_ahriman_url(web_client: WebClient) -> None:
-    """
-    must generate service status url correctly
-    """
-    assert web_client._ahriman_url.startswith(web_client.address)
-    assert web_client._ahriman_url.endswith("/status-api/v1/ahriman")
-
-
 def test_status_url(web_client: WebClient) -> None:
     """
     must generate package status url correctly
@@ -173,7 +165,7 @@ def test_get_internal(web_client: WebClient, mocker: MockerFixture) -> None:
     must return web service status
     """
     response_obj = Response()
-    response_obj._content = json.dumps(InternalStatus(architecture="x86_64").view()).encode("utf8")
+    response_obj._content = json.dumps(InternalStatus(BuildStatus(), architecture="x86_64").view()).encode("utf8")
     response_obj.status_code = 200
 
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
@@ -188,7 +180,7 @@ def test_get_internal_failed(web_client: WebClient, mocker: MockerFixture) -> No
     must suppress any exception happened during web service status getting
     """
     mocker.patch("requests.Session.get", side_effect=Exception())
-    assert web_client.get_internal() == InternalStatus()
+    assert web_client.get_internal().architecture is None
 
 
 def test_get_internal_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -196,38 +188,7 @@ def test_get_internal_failed_http_error(web_client: WebClient, mocker: MockerFix
     must suppress HTTP exception happened during web service status getting
     """
     mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
-    assert web_client.get_internal() == InternalStatus()
-
-
-def test_get_self(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must return service status
-    """
-    response_obj = Response()
-    response_obj._content = json.dumps(BuildStatus().view()).encode("utf8")
-    response_obj.status_code = 200
-
-    requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)
-
-    result = web_client.get_self()
-    requests_mock.assert_called_once_with(web_client._ahriman_url)
-    assert result.status == BuildStatusEnum.Unknown
-
-
-def test_get_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during service status getting
-    """
-    mocker.patch("requests.Session.get", side_effect=Exception())
-    assert web_client.get_self().status == BuildStatusEnum.Unknown
-
-
-def test_get_self_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must suppress HTTP exception happened during service status getting
-    """
-    mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
-    assert web_client.get_self().status == BuildStatusEnum.Unknown
+    assert web_client.get_internal().architecture is None
 
 
 def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

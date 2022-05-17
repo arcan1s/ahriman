@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await LogoutView.get_permission(request) == UserAccess.Safe
+        assert await LogoutView.get_permission(request) == UserAccess.Unauthorized
 
 
 async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None:

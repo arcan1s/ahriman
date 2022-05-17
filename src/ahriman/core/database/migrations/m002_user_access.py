@@ -17,31 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound
-
-from ahriman.core.auth.helpers import check_authorized, forget
-from ahriman.models.user_access import UserAccess
-from ahriman.web.views.base import BaseView
+__all__ = ["steps"]
 
 
-class LogoutView(BaseView):
+steps = [
     """
-    logout endpoint view
-
-    Attributes:
-        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+    update users set access = 'read' where access = 'safe'
+    """,
     """
-
-    POST_PERMISSION = UserAccess.Unauthorized
-
-    async def post(self) -> None:
-        """
-        logout user from the service. No parameters supported here
-
-        Raises:
-            HTTPFound: on success response
-        """
-        await check_authorized(self.request)
-        await forget(self.request, HTTPFound("/"))
-
-        raise HTTPFound("/")
+    update users set access = 'reporter' where access = 'read'
+    """,
+    """
+    update users set access = 'full' where access = 'write'
+    """,
+]

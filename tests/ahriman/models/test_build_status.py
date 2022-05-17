@@ -4,31 +4,6 @@ import time
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 
 
-def test_build_status_enum_badges_color() -> None:
-    """
-    status color must be one of shields.io supported
-    """
-    SUPPORTED_COLORS = [
-        "brightgreen", "green", "yellowgreen", "yellow", "orange", "red", "blue", "lightgrey",
-        "success", "important", "critical", "informational", "inactive", "blueviolet"
-    ]
-
-    for status in BuildStatusEnum:
-        assert status.badges_color() in SUPPORTED_COLORS
-
-
-def test_build_status_enum_bootstrap_color() -> None:
-    """
-    status color must be one of bootstrap supported
-    """
-    SUPPORTED_COLORS = [
-        "primary", "secondary", "success", "danger", "warning", "info", "light", "dark"
-    ]
-
-    for status in BuildStatusEnum:
-        assert status.bootstrap_color() in SUPPORTED_COLORS
-
-
 def test_build_status_init_1() -> None:
     """
     must construct status object from None

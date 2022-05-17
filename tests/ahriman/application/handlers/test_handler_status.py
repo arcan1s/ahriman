@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     """
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    application_mock = mocker.patch("ahriman.core.status.client.Client.get_self")
+    application_mock = mocker.patch("ahriman.core.status.client.Client.get_internal")
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
@@ -55,7 +55,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    mocker.patch("ahriman.core.status.client.Client.get_self")
+    mocker.patch("ahriman.core.status.client.Client.get_internal")
     mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 

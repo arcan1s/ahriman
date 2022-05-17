@@ -101,7 +101,7 @@ class BaseView(View):
         Returns:
             UserAccess: extracted permission
         """
-        permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Write)
+        permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Full)
         return permission
 
     async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:

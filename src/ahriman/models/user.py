@@ -142,9 +142,7 @@ class User:
         Returns:
             bool: True in case if user is allowed to do this request and False otherwise
         """
-        if self.access == UserAccess.Write:
-            return True  # everything is allowed
-        return self.access == required
+        return self.access.permits(required)
 
     def __repr__(self) -> str:
         """

@@ -37,7 +37,7 @@ class PackageView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Write
+    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
 
     async def get(self) -> Response:

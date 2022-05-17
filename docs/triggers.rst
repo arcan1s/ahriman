@@ -52,7 +52,7 @@ Obviously you can implement the specified method in class, but for guide purpose
            self.username = configuration.get("slack", "username")
 
        def run(self, result, packages):
-           notify(result, self.slack_url, channel, username)
+           notify(result, self.slack_url, self.channel, self.username)
 
 Setup the trigger
 -----------------

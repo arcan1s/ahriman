@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.client import Client
 from ahriman.core.status.web_client import WebClient
-from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 
@@ -51,14 +51,11 @@ def test_get_internal(client: Client) -> None:
     """
     must return dummy status for web service
     """
-    assert client.get_internal() == InternalStatus()
+    expected = InternalStatus(BuildStatus())
+    actual = client.get_internal()
+    actual.status.timestamp = expected.status.timestamp
 
-
-def test_get_self(client: Client) -> None:
-    """
-    must return unknown status for service
-    """
-    assert client.get_self().status == BuildStatusEnum.Unknown
+    assert actual == expected
 
 
 def test_remove(client: Client, package_ahriman: Package) -> None:

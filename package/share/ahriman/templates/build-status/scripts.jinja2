@@ -1,0 +1,196 @@
+<script>
+    const addButton = $("#add-btn");
+    const removeButton = $("#remove-btn");
+    const updateButton = $("#update-btn");
+
+    const table = $("#packages");
+    table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
+        () => {
+            removeButton.prop("disabled", !table.bootstrapTable("getSelections").length);
+            updateButton.prop("disabled", !table.bootstrapTable("getSelections").length);
+        });
+
+    const successForm = $("#success-form");
+    const successDetails = $("#success-details");
+    successForm.on("hidden.bs.modal", () => { reload(); });
+
+    const failedForm = $("#failed-form");
+    const errorDetails = $("#error-details");
+    failedForm.on("hidden.bs.modal", () => { reload(); });
+
+    const packageInput = $("#package-form");
+    const knownPackages = $("#known-packages-dlist");
+    packageInput.keyup(() => {
+        clearTimeout(packageInput.data("timeout"));
+        packageInput.data("timeout", setTimeout($.proxy(() => {
+            const value = packageInput.val();
+
+            $.ajax({
+                url: "/service-api/v1/search",
+                data: {"for": value},
+                type: "GET",
+                dataType: "json",
+                success: response => {
+                    const options = response.map(pkg => {
+                        const option = document.createElement("option");
+                        option.value = pkg.package;
+                        option.innerText = `${pkg.package} (${pkg.description})`;
+                        return option;
+                    });
+                    knownPackages.empty().append(options);
+                    packageInput.focus();
+                },
+            })
+        }, this), 500));
+    });
+
+    const architectureBadge = $("#badge-architecture");
+    const repositoryBadge = $("#badge-repository");
+    const statusBadge = $("#badge-status");
+    const versionBadge = $("#badge-version");
+
+    function doPackageAction(uri, packages) {
+        if (packages.length === 0)
+            return;
+        $.ajax({
+            url: uri,
+            data: JSON.stringify({packages: packages}),
+            type: "POST",
+            contentType: "application/json",
+            success: _ => {
+                const details = packages.map(pkg => {
+                    const li = document.createElement("li");
+                    li.innerText = pkg;
+                    return li;
+                });
+                successDetails.empty().append(details);
+                successForm.modal("show");
+            },
+            error: (jqXHR, _, errorThrown) => {
+                errorDetails.text(errorThrown);
+                failedForm.modal("show");
+            },
+        })
+    }
+
+    function getSelection() {
+        return table.bootstrapTable("getSelections").map(row => { return row.id; });
+    }
+
+    function addPackages() {
+        const packages = [packageInput.val()]
+        doPackageAction("/service-api/v1/add", packages);
+    }
+
+    function requestPackages() {
+        const packages = [packageInput.val()]
+        doPackageAction("/service-api/v1/request", packages);
+    }
+
+    function removePackages() { doPackageAction("/service-api/v1/remove", getSelection()); }
+
+    function updatePackages() { doPackageAction("/service-api/v1/add", getSelection()); }
+
+    function hideControls(hidden) {
+        addButton.attr("hidden", hidden);
+        removeButton.attr("hidden", hidden);
+        updateButton.attr("hidden", hidden);
+    }
+
+    function reload() {
+        table.bootstrapTable("showLoading");
+
+        $.ajax({
+            url: "/status-api/v1/packages",
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                const extractListProperties = (description, property) => {
+                    return Object.values(description.packages).map(pkg => {
+                        return pkg[property];
+                    }).reduce((left, right) => { return left.concat(right); }, []);
+                };
+                const listToTable = data => { return Array.from(new Set(data)).sort().join("<br>"); };
+
+                const payload = response.map(description => {
+                    const package_base = description.package.base;
+                    const web_url = description.package.remote?.web_url;
+                    return {
+                        id: description.package.base,
+                        base: web_url ? `<a href="${web_url}" title="${package_base}">${package_base}</a>` : package_base,
+                        version: description.package.version,
+                        packages: listToTable(Object.keys(description.package.packages)),
+                        groups: listToTable(extractListProperties(description.package, "groups")),
+                        licenses: listToTable(extractListProperties(description.package, "licenses")),
+                        timestamp: new Date(1000 * description.status.timestamp).toISOString(),
+                        status: description.status.status
+                    }
+                });
+
+                table.bootstrapTable("load", payload);
+                table.bootstrapTable("uncheckAll");
+                table.bootstrapTable("hideLoading");
+                hideControls(false);
+            },
+            error: (jqXHR, _, errorThrown) => {
+                hideControls(true);
+                if ((jqXHR.status === 401) || (jqXHR.status === 403)) {
+                    // authorization error
+                    const text = "In order to see statuses you must login first.";
+                    table.find("tr.unauthorized").remove();
+                    table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${text}</td></tr>`);
+                    table.bootstrapTable("hideLoading");
+                } else {
+                    // other errors
+                    errorDetails.text(errorThrown);
+                    failedForm.modal("show");
+                }
+            },
+        });
+
+        $.ajax({
+            url: "/status-api/v1/status",
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                const badgeColor = status => {
+                    if (status === "pending") return "yellow";
+                    if (status === "building") return "yellow";
+                    if (status === "failed") return "critical";
+                    if (status === "success") return "success";
+                    return "inactive";
+                };
+
+                architectureBadge
+                    .attr("src", `https://img.shields.io/badge/architecture-${response.architecture}-informational`)
+                    .attr("alt", response.architecture);
+                repositoryBadge
+                    .attr("src", `https://img.shields.io/badge/repository-${response.repository.replace(/-/g, "--")}-informational`)
+                    .attr("alt", response.repository);
+                statusBadge
+                    .attr("src", `https://img.shields.io/badge/service%20status-${response.status.status}-${badgeColor(response.status.status)}`)
+                    .attr("alt", response.status.status)
+                    .attr("title", `at ${new Date(1000 * response.status.timestamp).toISOString()}`);
+                versionBadge
+                    .attr("src", `https://img.shields.io/badge/version-${response.version}-informational`)
+                    .attr("alt", response.version);
+            },
+        });
+    }
+
+    function statusFormat(value) {
+        const cellClass = status => {
+            if (status === "pending") return "table-warning";
+            if (status === "building") return "table-warning";
+            if (status === "failed") return "table-danger";
+            if (status === "success") return "table-success";
+            return "table-secondary";
+        };
+        return {classes: cellClass(value)};
+    }
+
+    $(() => {
+        table.bootstrapTable({});
+        reload();
+    })
+</script>

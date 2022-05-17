@@ -58,16 +58,6 @@ class WebClient(Client):
         self._login()
 
     @property
-    def _ahriman_url(self) -> str:
-        """
-        get url for the service status api
-
-        Returns:
-            str: full url for web service for ahriman service itself
-        """
-        return f"{self.address}/status-api/v1/ahriman"
-
-    @property
     def _login_url(self) -> str:
         """
         get url for the login api
@@ -201,26 +191,7 @@ class WebClient(Client):
             self.logger.exception("could not get web service status: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not get web service status")
-        return InternalStatus()
-
-    def get_self(self) -> BuildStatus:
-        """
-        get ahriman status itself
-
-        Returns:
-            BuildStatus: current ahriman status
-        """
-        try:
-            response = self.__session.get(self._ahriman_url)
-            response.raise_for_status()
-
-            status_json = response.json()
-            return BuildStatus.from_json(status_json)
-        except requests.HTTPError as e:
-            self.logger.exception("could not get service status: %s", exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not get service status")
-        return BuildStatus()
+        return InternalStatus(BuildStatus())
 
     def remove(self, base: str) -> None:
         """
@@ -265,7 +236,7 @@ class WebClient(Client):
         payload = {"status": status.value}
 
         try:
-            response = self.__session.post(self._ahriman_url, json=payload)
+            response = self.__session.post(self._status_url, json=payload)
             response.raise_for_status()
         except requests.HTTPError as e:
             self.logger.exception("could not update service status: %s", exception_response_text(e))

@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET", "HEAD"):
         request = pytest.helpers.request("", "", method)
-        assert await SearchView.get_permission(request) == UserAccess.Read
+        assert await SearchView.get_permission(request) == UserAccess.Reporter
 
 
 async def test_get(client: TestClient, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:

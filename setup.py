@@ -70,8 +70,8 @@ setup(
         ]),
         ("share/ahriman/templates/build-status", [
             "package/share/ahriman/templates/build-status/login-modal.jinja2",
-            "package/share/ahriman/templates/build-status/package-actions-modals.jinja2",
-            "package/share/ahriman/templates/build-status/package-actions-script.jinja2",
+            "package/share/ahriman/templates/build-status/package-modals.jinja2",
+            "package/share/ahriman/templates/build-status/scripts.jinja2",
         ]),
         ("share/ahriman/templates/static", [
             "package/share/ahriman/templates/static/favicon.ico",
