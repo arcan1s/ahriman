@@ -35,7 +35,7 @@ class SearchView(BaseView):
         HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Reporter
 
     async def get(self) -> Response:
         """

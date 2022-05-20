@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman import version
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
@@ -33,9 +34,11 @@ class StatusView(BaseView):
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
         HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
+        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    POST_PERMISSION = UserAccess.Full
 
     async def get(self) -> Response:
         """
@@ -46,9 +49,34 @@ class StatusView(BaseView):
         """
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(
+            status=self.service.status,
             architecture=self.service.architecture,
             packages=counters,
             repository=self.service.repository.name,
             version=version.__version__)
 
         return json_response(status.view())
+
+    async def post(self) -> None:
+        """
+        update service status
+
+        JSON body must be supplied, the following model is used::
+
+            {
+                "status": "unknown",   # service status string, must be valid ``BuildStatusEnum``
+            }
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
+        """
+        try:
+            data = await self.extract_data()
+            status = BuildStatusEnum(data["status"])
+        except Exception as e:
+            raise HTTPBadRequest(reason=str(e))
+
+        self.service.update_self(status)
+
+        raise HTTPNoContent()

@@ -80,16 +80,7 @@ class Client:
         Returns:
             InternalStatus: current internal (web) service status
         """
-        return InternalStatus()
-
-    def get_self(self) -> BuildStatus:  # pylint: disable=no-self-use
-        """
-        get ahriman status itself
-
-        Returns:
-            BuildStatus: current ahriman status
-        """
-        return BuildStatus()
+        return InternalStatus(BuildStatus())
 
     def remove(self, base: str) -> None:
         """

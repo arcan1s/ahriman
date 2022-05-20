@@ -31,7 +31,7 @@ class AddView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Write
+    POST_PERMISSION = UserAccess.Full
 
     async def post(self) -> None:
         """

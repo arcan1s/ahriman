@@ -22,6 +22,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Optional, Type
 
+from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
 
 
@@ -31,12 +32,14 @@ class InternalStatus:
     internal server status
 
     Attributes:
+        status(BuildStatus): service status
         architecture(Optional[str]): repository architecture
         packages(Counters): packages statuses counter object
         repository(Optional[str]): repository name
         version(Optional[str]): service version
     """
 
+    status: BuildStatus
     architecture: Optional[str] = None
     packages: Counters = field(default=Counters(total=0))
     repository: Optional[str] = None
@@ -54,7 +57,8 @@ class InternalStatus:
             InternalStatus: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
-        return cls(architecture=dump.get("architecture"),
+        return cls(status=BuildStatus.from_json(dump.get("status", {})),
+                   architecture=dump.get("architecture"),
                    packages=counters,
                    repository=dump.get("repository"),
                    version=dump.get("version"))

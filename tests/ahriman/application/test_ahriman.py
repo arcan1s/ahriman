@@ -519,7 +519,7 @@ def test_subparsers_user_add_option_role(parser: argparse.ArgumentParser) -> Non
     """
     args = parser.parse_args(["user-add", "username"])
     assert isinstance(args.role, UserAccess)
-    args = parser.parse_args(["user-add", "username", "--role", "write"])
+    args = parser.parse_args(["user-add", "username", "--role", "full"])
     assert isinstance(args.role, UserAccess)
 
 
@@ -549,7 +549,7 @@ def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> No
     """
     user-list command must convert role option to useraccess instance
     """
-    args = parser.parse_args(["user-list", "--role", "write"])
+    args = parser.parse_args(["user-list", "--role", "full"])
     assert isinstance(args.role, UserAccess)
 
 

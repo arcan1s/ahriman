@@ -6,9 +6,10 @@ def test_from_option(user: User) -> None:
     """
     must generate user from options
     """
+    user.access = UserAccess.Read
     assert User.from_option(user.username, user.password) == user
     # default is read access
-    user.access = UserAccess.Write
+    user.access = UserAccess.Full
     assert User.from_option(user.username, user.password) != user
     assert User.from_option(user.username, user.password, user.access) == user
 
@@ -72,16 +73,16 @@ def test_verify_access_read(user: User) -> None:
     """
     user.access = UserAccess.Read
     assert user.verify_access(UserAccess.Read)
-    assert not user.verify_access(UserAccess.Write)
+    assert not user.verify_access(UserAccess.Full)
 
 
 def test_verify_access_write(user: User) -> None:
     """
     user with write access must be able to do anything
     """
-    user.access = UserAccess.Write
+    user.access = UserAccess.Full
     assert user.verify_access(UserAccess.Read)
-    assert user.verify_access(UserAccess.Write)
+    assert user.verify_access(UserAccess.Full)
 
 
 def test_repr(user: User) -> None:

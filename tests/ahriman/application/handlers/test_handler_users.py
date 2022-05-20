@@ -28,7 +28,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.as_service = False
     args.exit_code = False
     args.password = "pa55w0rd"
-    args.role = UserAccess.Read
+    args.role = UserAccess.Reporter
     args.secure = False
     return args
 

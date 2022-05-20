@@ -13,7 +13,7 @@ async def test_get_permission() -> None:
     """
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await RemoveView.get_permission(request) == UserAccess.Write
+        assert await RemoveView.get_permission(request) == UserAccess.Full
 
 
 async def test_post(client: TestClient, mocker: MockerFixture) -> None:

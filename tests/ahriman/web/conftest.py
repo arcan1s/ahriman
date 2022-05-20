@@ -1,12 +1,16 @@
 import pytest
 
+from asyncio import BaseEventLoop
 from aiohttp import web
+from aiohttp.test_utils import TestClient
 from collections import namedtuple
 from pytest_mock import MockerFixture
 from typing import Any
+from unittest.mock import MagicMock
 
 import ahriman.core.auth.helpers
 
+from ahriman.core.auth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.spawn import Spawn
@@ -105,3 +109,61 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     return setup_service("x86_64", configuration, spawner)
+
+
+@pytest.fixture
+def client(application: web.Application, event_loop: BaseEventLoop,
+           aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+    """
+    web client fixture
+
+    Args:
+        application(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        TestClient: web client test instance
+    """
+    mocker.patch("pathlib.Path.iterdir", return_value=[])
+    return event_loop.run_until_complete(aiohttp_client(application))
+
+
+@pytest.fixture
+def client_with_auth(application_with_auth: web.Application, event_loop: BaseEventLoop,
+                     aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+    """
+    web client fixture with full authorization functions
+
+    Args:
+        application_with_auth(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        TestClient: web client test instance
+    """
+    mocker.patch("pathlib.Path.iterdir", return_value=[])
+    return event_loop.run_until_complete(aiohttp_client(application_with_auth))
+
+
+@pytest.fixture
+def client_with_oauth_auth(application_with_auth: web.Application, event_loop: BaseEventLoop,
+                           aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+    """
+    web client fixture with full authorization functions
+
+    Args:
+        application_with_auth(web.Application): application fixture
+        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        TestClient: web client test instance
+    """
+    mocker.patch("pathlib.Path.iterdir", return_value=[])
+    application_with_auth["validator"] = MagicMock(spec=OAuth)
+    return event_loop.run_until_complete(aiohttp_client(application_with_auth))
