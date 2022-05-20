@@ -25,7 +25,6 @@ from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
-from ahriman.web.views.status.ahriman import AhrimanView
 from ahriman.web.views.status.package import PackageView
 from ahriman.web.views.status.packages import PackagesView
 from ahriman.web.views.status.status import StatusView
@@ -55,9 +54,6 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
         * POST /service-api/v1/update            update packages in repository, actually it is just alias for add
 
-        * GET /status-api/v1/ahriman             get current service status
-        * POST /status-api/v1/ahriman            update service status
-
         * GET /status-api/v1/packages            get all known packages
         * POST /status-api/v1/packages           force update every package from repository
 
@@ -65,7 +61,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
         * GET /status-api/v1/package/:base       get package base status
         * POST /status-api/v1/package/:base      update package base status
 
-        * GET /status-api/v1/status              get web service status itself
+        * GET /status-api/v1/status              get service status itself
+        * POST /status-api/v1/status             update service status itself
 
         * GET /user-api/v1/login                 OAuth2 handler for login
         * POST /user-api/v1/login                login to service
@@ -90,9 +87,6 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     application.router.add_post("/service-api/v1/update", AddView)
 
-    application.router.add_get("/status-api/v1/ahriman", AhrimanView, allow_head=True)
-    application.router.add_post("/status-api/v1/ahriman", AhrimanView)
-
     application.router.add_get("/status-api/v1/packages", PackagesView, allow_head=True)
     application.router.add_post("/status-api/v1/packages", PackagesView)
 
@@ -101,6 +95,7 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_post("/status-api/v1/packages/{package}", PackageView)
 
     application.router.add_get("/status-api/v1/status", StatusView, allow_head=True)
+    application.router.add_post("/status-api/v1/status", StatusView)
 
     application.router.add_get("/user-api/v1/login", LoginView)
     application.router.add_post("/user-api/v1/login", LoginView)

@@ -79,4 +79,4 @@ async def test_verify_access(mapping: Mapping, user: User, mocker: MockerFixture
     """
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=user)
     assert await mapping.verify_access(user.username, user.access, None)
-    assert not await mapping.verify_access(user.username, UserAccess.Write, None)
+    assert not await mapping.verify_access(user.username, UserAccess.Full, None)

@@ -29,7 +29,7 @@ def test_user_list_filter_by_username(database: SQLite) -> None:
     must return users filtered by its id
     """
     first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Write)
+    second = User("2", "", UserAccess.Full)
     third = User("3", "", UserAccess.Read)
 
     database.user_update(first)
@@ -46,7 +46,7 @@ def test_user_list_filter_by_access(database: SQLite) -> None:
     must return users filtered by its access
     """
     first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Write)
+    second = User("2", "", UserAccess.Full)
     third = User("3", "", UserAccess.Read)
 
     database.user_update(first)
@@ -64,7 +64,7 @@ def test_user_list_filter_by_username_access(database: SQLite) -> None:
     must return users filtered by its access and username
     """
     first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Write)
+    second = User("2", "", UserAccess.Full)
     third = User("3", "", UserAccess.Read)
 
     database.user_update(first)
@@ -72,7 +72,7 @@ def test_user_list_filter_by_username_access(database: SQLite) -> None:
     database.user_update(third)
 
     assert database.user_list("1", UserAccess.Read) == [first]
-    assert not database.user_list("1", UserAccess.Write)
+    assert not database.user_list("1", UserAccess.Full)
 
 
 def test_user_remove_update(database: SQLite, user: User) -> None:
@@ -92,6 +92,6 @@ def test_user_update(database: SQLite, user: User) -> None:
     assert database.user_get(user.username) == user
 
     new_user = user.hash_password("salt")
-    new_user.access = UserAccess.Write
+    new_user.access = UserAccess.Full
     database.user_update(new_user)
     assert database.user_get(new_user.username) == new_user

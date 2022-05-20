@@ -14,28 +14,29 @@
 
         <div class="container">
             <h1>ahriman
-                {% if auth.authenticated %}
-                    <img src="https://img.shields.io/badge/version-{{ version }}-informational" alt="{{ version }}">
-                    <img src="https://img.shields.io/badge/repository-{{ repository | replace("-", "--") }}-informational" alt="{{ repository }}">
-                    <img src="https://img.shields.io/badge/architecture-{{ architecture }}-informational" alt="{{ architecture }}">
-                    <img src="https://img.shields.io/badge/service%20status-{{ service.status }}-{{ service.status_color }}" alt="{{ service.status }}" title="{{ service.timestamp }}">
-                {% endif %}
+                <img id="badge-version" src="https://img.shields.io/badge/version-unknown-informational" alt="unknown">
+                <img id="badge-repository" src="https://img.shields.io/badge/repository-unknown-informational" alt="unknown">
+                <img id="badge-architecture" src="https://img.shields.io/badge/architecture-unknown-informational" alt="unknown">
+                <img id="badge-status" src="https://img.shields.io/badge/service%20status-unknown-inactive" alt="unknown">
             </h1>
         </div>
 
         <div class="container">
             <div id="toolbar">
                 {% if not auth.enabled or auth.username is not none %}
-                    <button id="add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addForm">
-                        <i class="fa fa-plus"></i> add
+                    <button id="add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-form" hidden>
+                        <i class="bi bi-plus"></i> add
                     </button>
-                    <button id="update" class="btn btn-secondary" onclick="updatePackages()" disabled>
-                        <i class="fa fa-play"></i> update
+                    <button id="update-btn" class="btn btn-secondary" onclick="updatePackages()" disabled hidden>
+                        <i class="bi bi-play"></i> update
                     </button>
-                    <button id="remove" class="btn btn-danger" onclick="removePackages()" disabled>
-                        <i class="fa fa-trash"></i> remove
+                    <button id="remove-btn" class="btn btn-danger" onclick="removePackages()" disabled hidden>
+                        <i class="bi bi-trash"></i> remove
                     </button>
                 {% endif %}
+                <button class="btn btn-secondary" onclick="reload()">
+                    <i class="bi bi-arrow-clockwise"></i> reload
+                </button>
             </div>
 
             <table id="packages" class="table table-striped table-hover"
@@ -53,42 +54,22 @@
                    data-show-fullscreen="true"
                    data-show-search-clear-button="true"
                    data-sortable="true"
-                   data-sort-reset="true"
+                   data-sort-name="base"
+                   data-sort-order="asc"
                    data-toggle="table"
                    data-toolbar="#toolbar">
                 <thead class="table-primary">
                     <tr>
                         <th data-checkbox="true"></th>
-                        <th data-sortable="true" data-switchable="false">package base</th>
-                        <th data-sortable="true">version</th>
-                        <th data-sortable="true">packages</th>
-                        <th data-sortable="true" data-visible="false">groups</th>
-                        <th data-sortable="true" data-visible="false">licenses</th>
-                        <th data-sortable="true">last update</th>
-                        <th data-sortable="true">status</th>
+                        <th data-sortable="true" data-switchable="false" data-field="base">package base</th>
+                        <th data-sortable="true" data-field="version">version</th>
+                        <th data-sortable="true" data-field="packages">packages</th>
+                        <th data-sortable="true" data-visible="false" data-field="groups">groups</th>
+                        <th data-sortable="true" data-visible="false" data-field="licenses">licenses</th>
+                        <th data-sortable="true" data-field="timestamp">last update</th>
+                        <th data-sortable="true" data-cell-style="statusFormat" data-field="status">status</th>
                     </tr>
                 </thead>
-
-                <tbody>
-                {% if auth.authenticated %}
-                    {% for package in packages %}
-                        <tr data-package-base="{{ package.base }}">
-                            <td data-checkbox="true"></td>
-                            <td>{% if package.web_url is not none %}<a href="{{ package.web_url }}" title="{{ package.base }}">{{ package.base }}</a>{% else %}{{ package.base }}{% endif %}</td>
-                            <td>{{ package.version }}</td>
-                            <td>{{ package.packages|join("<br>"|safe) }}</td>
-                            <td>{{ package.groups|join("<br>"|safe) }}</td>
-                            <td>{{ package.licenses|join("<br>"|safe) }}</td>
-                            <td>{{ package.timestamp }}</td>
-                            <td class="table-{{ package.status_color }}">{{ package.status }}</td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="100%">In order to see statuses you must login first.</td>
-                    </tr>
-                {% endif %}
-                </tbody>
             </table>
         </div>
 
@@ -122,11 +103,14 @@
             {% include "build-status/login-modal.jinja2" %}
         {% endif %}
 
-        {% include "build-status/package-actions-modals.jinja2" %}
-
         {% include "utils/bootstrap-scripts.jinja2" %}
 
-        {% include "build-status/package-actions-script.jinja2" %}
+        {% include "build-status/failed-modal.jinja2" %}
+        {% include "build-status/success-modal.jinja2" %}
+
+        {% include "build-status/package-add-modal.jinja2" %}
+
+        {% include "build-status/table.jinja2" %}
 
     </body>
 

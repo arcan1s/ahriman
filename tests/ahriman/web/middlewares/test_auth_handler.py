@@ -1,6 +1,7 @@
 import pytest
 
 from aiohttp import web
+from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
@@ -63,9 +64,41 @@ async def test_auth_handler_api(mocker: MockerFixture) -> None:
     request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler()
+    handler = auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
+
+
+async def test_auth_handler_static(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+    """
+    must allow static calls
+    """
+    check_permission_mock = mocker.patch("aiohttp_security.check_permission")
+    await client_with_auth.get("/static/favicon.ico")
+    check_permission_mock.assert_not_called()
+
+
+async def test_auth_handler_unauthorized(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+    """
+    must allow pages with unauthorized access
+    """
+    check_permission_mock = mocker.patch("aiohttp_security.check_permission")
+    await client_with_auth.get("/")
+    check_permission_mock.assert_not_called()
+
+
+async def test_auth_handler_allow_read_only(mocker: MockerFixture) -> None:
+    """
+    must allow pages with allow read only flag
+    """
+    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
+    request_handler = AsyncMock()
+    request_handler.get_permission.return_value = UserAccess.Read
+    check_permission_mock = mocker.patch("aiohttp_security.check_permission")
+
+    handler = auth_handler(allow_read_only=True)
+    await handler(aiohttp_request, request_handler)
+    check_permission_mock.assert_not_called()
 
 
 async def test_auth_handler_api_no_method(mocker: MockerFixture) -> None:
@@ -77,9 +110,9 @@ async def test_auth_handler_api_no_method(mocker: MockerFixture) -> None:
     request_handler.get_permission = None
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler()
+    handler = auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
+    check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
 
 async def test_auth_handler_api_post(mocker: MockerFixture) -> None:
@@ -88,12 +121,12 @@ async def test_auth_handler_api_post(mocker: MockerFixture) -> None:
     """
     aiohttp_request = pytest.helpers.request("", "/status-api", "POST")
     request_handler = AsyncMock()
-    request_handler.get_permission.return_value = UserAccess.Write
+    request_handler.get_permission.return_value = UserAccess.Full
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler()
+    handler = auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
-    check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
+    check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
 
 async def test_auth_handler_read(mocker: MockerFixture) -> None:
@@ -106,7 +139,7 @@ async def test_auth_handler_read(mocker: MockerFixture) -> None:
         request_handler.get_permission.return_value = UserAccess.Read
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler()
+        handler = auth_handler(allow_read_only=False)
         await handler(aiohttp_request, request_handler)
         check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
@@ -118,12 +151,12 @@ async def test_auth_handler_write(mocker: MockerFixture) -> None:
     for method in ("CONNECT", "DELETE", "PATCH", "POST", "PUT", "TRACE"):
         aiohttp_request = pytest.helpers.request("", "", method)
         request_handler = AsyncMock()
-        request_handler.get_permission.return_value = UserAccess.Write
+        request_handler.get_permission.return_value = UserAccess.Full
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler()
+        handler = auth_handler(allow_read_only=False)
         await handler(aiohttp_request, request_handler)
-        check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Write, aiohttp_request.path)
+        check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
 
 def test_setup_auth(application_with_auth: web.Application, auth: Auth, mocker: MockerFixture) -> None:

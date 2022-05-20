@@ -37,7 +37,7 @@ class Auth:
         enabled(bool): indicates if authorization is enabled
         logger(logging.Logger): class logger
         max_age(int): session age in seconds. It will be used for both client side and server side checks
-        safe_build_status(bool): allow read only access to the index page
+        allow_read_only(bool): allow read only access to APIs
     """
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
@@ -50,7 +50,7 @@ class Auth:
         """
         self.logger = logging.getLogger("http")
 
-        self.safe_build_status = configuration.getboolean("auth", "safe_build_status")
+        self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
 
         self.enabled = provider.is_enabled
         self.max_age = configuration.getint("auth", "max_age", fallback=7 * 24 * 3600)

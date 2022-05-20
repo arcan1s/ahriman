@@ -34,7 +34,7 @@ class LoginView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.Safe
+    GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized
 
     async def get(self) -> None:
         """

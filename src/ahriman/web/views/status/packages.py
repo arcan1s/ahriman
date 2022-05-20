@@ -34,7 +34,7 @@ class PackagesView(BaseView):
     """
 
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
-    POST_PERMISSION = UserAccess.Write
+    POST_PERMISSION = UserAccess.Full
 
     async def get(self) -> Response:
         """

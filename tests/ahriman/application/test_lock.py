@@ -8,7 +8,7 @@ from unittest import mock
 from ahriman import version
 from ahriman.application.lock import Lock
 from ahriman.core.exceptions import DuplicateRun, UnsafeRun
-from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 
 
@@ -57,7 +57,7 @@ def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
     must check version correctly
     """
     mocker.patch("ahriman.core.status.client.Client.get_internal",
-                 return_value=InternalStatus(version=version.__version__))
+                 return_value=InternalStatus(status=BuildStatus(), version=version.__version__))
     logging_mock = mocker.patch("logging.Logger.warning")
 
     lock.check_version()
@@ -69,7 +69,7 @@ def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
     must check mismatched version correctly
     """
     mocker.patch("ahriman.core.status.client.Client.get_internal",
-                 return_value=InternalStatus(version="version"))
+                 return_value=InternalStatus(status=BuildStatus(), version="version"))
     logging_mock = mocker.patch("logging.Logger.warning")
 
     lock.check_version()

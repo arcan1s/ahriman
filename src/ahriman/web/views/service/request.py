@@ -31,7 +31,7 @@ class RequestView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Read
+    POST_PERMISSION = UserAccess.Reporter
 
     async def post(self) -> None:
         """

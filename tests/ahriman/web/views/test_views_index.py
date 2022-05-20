@@ -12,7 +12,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET", "HEAD"):
         request = pytest.helpers.request("", "", method)
-        assert await IndexView.get_permission(request) == UserAccess.Safe
+        assert await IndexView.get_permission(request) == UserAccess.Unauthorized
 
 
 async def test_get(client_with_auth: TestClient) -> None:

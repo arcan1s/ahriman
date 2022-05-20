@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET", "POST"):
         request = pytest.helpers.request("", "", method)
-        assert await LoginView.get_permission(request) == UserAccess.Safe
+        assert await LoginView.get_permission(request) == UserAccess.Unauthorized
 
 
 async def test_get_default_validator(client_with_auth: TestClient) -> None:

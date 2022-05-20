@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 from enum import Enum
 
 
@@ -25,12 +27,31 @@ class UserAccess(str, Enum):
     web user access enumeration
 
     Attributes:
-        Safe(UserAccess): (class attribute) user can access the page without authorization,
-            should not be used for user configuration
+        Unauthorized(UserAccess): (class attribute) user can access specific resources which are marked as available
+            without authorization (e.g. login, logout, static)
         Read(UserAccess): (class attribute) user can read the page
-        Write(UserAccess): (class attribute) user can modify task and package list
+        Reporter(UserAccess): (class attribute) user can read everything and is able to perform some modifications
+        Full(UserAccess): (class attribute) user has full access
     """
 
-    Safe = "safe"
+    Unauthorized = "unauthorized"
     Read = "read"
-    Write = "write"
+    Reporter = "reporter"
+    Full = "full"
+
+    def permits(self, other: UserAccess) -> bool:
+        """
+        compare enumeration between each other and check if current permission allows the ``other``
+
+        Args:
+            other(UserAccess): other permission to compare
+
+        Returns:
+            bool: True in case if current permission allows the operation and False otherwise
+        """
+        for member in UserAccess:
+            if member == other:
+                return True
+            if member == self:
+                return False
+        return False  # must never happen

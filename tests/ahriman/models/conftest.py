@@ -54,7 +54,8 @@ def internal_status(counters: Counters) -> InternalStatus:
     Returns:
         InternalStatus: internal status test instance
     """
-    return InternalStatus(architecture="x86_64",
+    return InternalStatus(status=BuildStatus(),
+                          architecture="x86_64",
                           packages=counters,
                           version=version.__version__,
                           repository="aur-clone")

@@ -46,40 +46,6 @@ class BuildStatusEnum(str, Enum):
     Failed = "failed"
     Success = "success"
 
-    def badges_color(self) -> str:
-        """
-        convert itself to shield.io badges color
-
-        Returns:
-            str: shields.io color
-        """
-        if self == BuildStatusEnum.Pending:
-            return "yellow"
-        if self == BuildStatusEnum.Building:
-            return "yellow"
-        if self == BuildStatusEnum.Failed:
-            return "critical"
-        if self == BuildStatusEnum.Success:
-            return "success"
-        return "inactive"
-
-    def bootstrap_color(self) -> str:
-        """
-        converts itself to bootstrap color
-
-        Returns:
-            str: bootstrap color
-        """
-        if self == BuildStatusEnum.Pending:
-            return "warning"
-        if self == BuildStatusEnum.Building:
-            return "warning"
-        if self == BuildStatusEnum.Failed:
-            return "danger"
-        if self == BuildStatusEnum.Success:
-            return "success"
-        return "secondary"
-
 
 @dataclass
 class BuildStatus:

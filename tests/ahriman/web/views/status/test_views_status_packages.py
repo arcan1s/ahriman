@@ -18,7 +18,7 @@ async def test_get_permission() -> None:
         assert await PackagesView.get_permission(request) == UserAccess.Read
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await PackagesView.get_permission(request) == UserAccess.Write
+        assert await PackagesView.get_permission(request) == UserAccess.Full
 
 
 async def test_get(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:

@@ -52,8 +52,8 @@ class Status(Handler):
         # we are using reporter here
         client = Application(architecture, configuration, no_report=False, unsafe=unsafe).repository.reporter
         if args.ahriman:
-            ahriman = client.get_self()
-            StatusPrinter(ahriman).print(args.info)
+            service_status = client.get_internal()
+            StatusPrinter(service_status.status).print(args.info)
         if args.package:
             packages: Iterable[Tuple[Package, BuildStatus]] = sum(
                 [client.get(base) for base in args.package],

@@ -20,6 +20,14 @@ ahriman.core.database.migrations.m001\_package\_source module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m002\_user\_access module
+----------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m002_user_access
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
