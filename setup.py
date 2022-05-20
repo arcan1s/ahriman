@@ -69,9 +69,11 @@ setup(
             "package/share/ahriman/templates/telegram-index.jinja2",
         ]),
         ("share/ahriman/templates/build-status", [
+            "package/share/ahriman/templates/build-status/failed-modal.jinja2",
             "package/share/ahriman/templates/build-status/login-modal.jinja2",
-            "package/share/ahriman/templates/build-status/package-modals.jinja2",
-            "package/share/ahriman/templates/build-status/scripts.jinja2",
+            "package/share/ahriman/templates/build-status/package-add-modal.jinja2",
+            "package/share/ahriman/templates/build-status/success-modal.jinja2",
+            "package/share/ahriman/templates/build-status/table.jinja2",
         ]),
         ("share/ahriman/templates/static", [
             "package/share/ahriman/templates/static/favicon.ico",

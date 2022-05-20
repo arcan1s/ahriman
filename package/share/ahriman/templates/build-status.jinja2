@@ -103,11 +103,14 @@
             {% include "build-status/login-modal.jinja2" %}
         {% endif %}
 
-        {% include "build-status/package-modals.jinja2" %}
-
         {% include "utils/bootstrap-scripts.jinja2" %}
 
-        {% include "build-status/scripts.jinja2" %}
+        {% include "build-status/failed-modal.jinja2" %}
+        {% include "build-status/success-modal.jinja2" %}
+
+        {% include "build-status/package-add-modal.jinja2" %}
+
+        {% include "build-status/table.jinja2" %}
 
     </body>
 

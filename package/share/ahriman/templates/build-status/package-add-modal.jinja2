@@ -1,0 +1,62 @@
+<div id="add-form" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">add new packages</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="package" class="col-sm-2 col-form-label">package</label>
+                    <div class="col-sm-10">
+                        <input id="package-form" type="text" list="known-packages-dlist" class="form-control" placeholder="AUR package" name="package" required>
+                        <datalist id="known-packages-dlist"></datalist>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="requestPackages()">request</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addPackages()">add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const packageInput = $("#package-form");
+    const knownPackages = $("#known-packages-dlist");
+    packageInput.keyup(() => {
+        clearTimeout(packageInput.data("timeout"));
+        packageInput.data("timeout", setTimeout($.proxy(() => {
+            const value = packageInput.val();
+
+            $.ajax({
+                url: "/service-api/v1/search",
+                data: {"for": value},
+                type: "GET",
+                dataType: "json",
+                success: response => {
+                    const options = response.map(pkg => {
+                        const option = document.createElement("option");
+                        option.value = pkg.package;
+                        option.innerText = `${pkg.package} (${pkg.description})`;
+                        return option;
+                    });
+                    knownPackages.empty().append(options);
+                    packageInput.focus();
+                },
+            })
+        }, this), 500));
+    });
+
+    function addPackages() {
+        const packages = [packageInput.val()]
+        doPackageAction("/service-api/v1/add", packages);
+    }
+
+    function requestPackages() {
+        const packages = [packageInput.val()]
+        doPackageAction("/service-api/v1/request", packages);
+    }
+</script>

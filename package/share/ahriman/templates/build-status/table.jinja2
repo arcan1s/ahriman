@@ -10,40 +10,6 @@
             updateButton.prop("disabled", !table.bootstrapTable("getSelections").length);
         });
 
-    const successForm = $("#success-form");
-    const successDetails = $("#success-details");
-    successForm.on("hidden.bs.modal", () => { reload(); });
-
-    const failedForm = $("#failed-form");
-    const errorDetails = $("#error-details");
-    failedForm.on("hidden.bs.modal", () => { reload(); });
-
-    const packageInput = $("#package-form");
-    const knownPackages = $("#known-packages-dlist");
-    packageInput.keyup(() => {
-        clearTimeout(packageInput.data("timeout"));
-        packageInput.data("timeout", setTimeout($.proxy(() => {
-            const value = packageInput.val();
-
-            $.ajax({
-                url: "/service-api/v1/search",
-                data: {"for": value},
-                type: "GET",
-                dataType: "json",
-                success: response => {
-                    const options = response.map(pkg => {
-                        const option = document.createElement("option");
-                        option.value = pkg.package;
-                        option.innerText = `${pkg.package} (${pkg.description})`;
-                        return option;
-                    });
-                    knownPackages.empty().append(options);
-                    packageInput.focus();
-                },
-            })
-        }, this), 500));
-    });
-
     const architectureBadge = $("#badge-architecture");
     const repositoryBadge = $("#badge-repository");
     const statusBadge = $("#badge-status");
@@ -63,28 +29,14 @@
                     li.innerText = pkg;
                     return li;
                 });
-                successDetails.empty().append(details);
-                successForm.modal("show");
+                showSuccess(details);
             },
-            error: (jqXHR, _, errorThrown) => {
-                errorDetails.text(errorThrown);
-                failedForm.modal("show");
-            },
+            error: (jqXHR, _, errorThrown) => { showFailure(errorThrown); },
         })
     }
 
     function getSelection() {
         return table.bootstrapTable("getSelections").map(row => { return row.id; });
-    }
-
-    function addPackages() {
-        const packages = [packageInput.val()]
-        doPackageAction("/service-api/v1/add", packages);
-    }
-
-    function requestPackages() {
-        const packages = [packageInput.val()]
-        doPackageAction("/service-api/v1/request", packages);
     }
 
     function removePackages() { doPackageAction("/service-api/v1/remove", getSelection()); }
@@ -142,8 +94,7 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    errorDetails.text(errorThrown);
-                    failedForm.modal("show");
+                    showFailure(errorThrown);
                 }
             },
         });

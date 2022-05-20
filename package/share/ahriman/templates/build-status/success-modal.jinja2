@@ -1,0 +1,28 @@
+<div id="success-form" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h4 class="modal-title">success</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Packages update has been run.</p>
+                <ul id="success-details"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const successForm = $("#success-form");
+    const successDetails = $("#success-details");
+    successForm.on("hidden.bs.modal", () => { reload(); });
+
+    function showSuccess(details) {
+        successDetails.empty().append(details);
+        successForm.modal("show");
+    }
+</script>
