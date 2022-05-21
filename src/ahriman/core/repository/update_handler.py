@@ -72,8 +72,6 @@ class UpdateHandler(Cleaner):
                 if local.is_outdated(remote, self.paths):
                     self.reporter.set_pending(local.base)
                     result.append(remote)
-                else:
-                    self.reporter.set_success(local)
             except Exception:
                 self.reporter.set_failed(local.base)
                 self.logger.exception("could not load remote package %s", local.base)
@@ -103,8 +101,6 @@ class UpdateHandler(Cleaner):
                 elif local.is_outdated(remote, self.paths):
                     self.reporter.set_pending(local.base)
                     result.append(remote)
-                else:
-                    self.reporter.set_success(local)
             except Exception:
                 self.logger.exception("could not process package at %s", dirname)
 
