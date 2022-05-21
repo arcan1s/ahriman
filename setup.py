@@ -1,5 +1,5 @@
 from pathlib import Path
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 from typing import Any, Dict
 
 
@@ -15,7 +15,7 @@ setup(
     version=metadata["__version__"],
     zip_safe=False,
 
-    description="ArcH Linux ReposItory MANager",
+    description="ArcH linux ReposItory MANager",
 
     author="ahriman team",
     author_email="",

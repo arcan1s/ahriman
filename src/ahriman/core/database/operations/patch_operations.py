@@ -20,7 +20,7 @@
 from sqlite3 import Connection
 from typing import Dict, Optional
 
-from ahriman.core.database.operations.operations import Operations
+from ahriman.core.database.operations import Operations
 
 
 class PatchOperations(Operations):

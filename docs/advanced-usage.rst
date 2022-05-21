@@ -37,7 +37,6 @@ And the ``repository`` instance can be used to perform repository maintenance
    built_packages = repository.packages_built()
    update_result = repository.process_update(built_packages)
 
-   repository.process_report(None, update_result)
-   repository.process_sync(None, update_result.success)
+   repository.process_triggers(update_result)
 
 For the more info please refer to the classes documentation.

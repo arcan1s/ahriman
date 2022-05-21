@@ -27,10 +27,7 @@ from typing import Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
+from ahriman.core.database.operations import AuthOperations, BuildOperations, PackageOperations, PatchOperations
 
 
 class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations):

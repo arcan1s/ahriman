@@ -1,5 +1,5 @@
 [Unit]
-Description=ArcH Linux ReposItory MANager (%I architecture)
+Description=ArcH linux ReposItory MANager (%I architecture)
 
 [Service]
 ExecStart=/usr/bin/ahriman --architecture %i update

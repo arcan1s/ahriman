@@ -19,9 +19,9 @@ Full dependency diagram:
 ``ahriman.application`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains application (aka executable) related classes and everything for that. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from base ``ahriman.application.handlers.handler.Handler`` class.
+This package contains application (aka executable) related classes and everything for that. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from base ``ahriman.application.handlers.Handler`` class.
 
-``ahriman.application.application.application.Application`` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
+``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
 ``ahriman.application.ahriman`` contains only command line parses and executes specified ``Handler`` on success, ``ahriman.application.lock.Lock`` is additional class which provides file-based lock and also performs some common checks.
 
@@ -31,15 +31,16 @@ This package contains application (aka executable) related classes and everythin
 This package contains everything which is required for any time of application run and separated to several packages:
 
 * ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
-* ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.auth.Auth`` which must be called by ``load`` method.
+* ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be called by ``load`` method.
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
-* ``ahriman.core.report`` is a package with reporting classes. Usually it must be called by ``ahriman.core.report.report.Report.load`` method.
-* ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.repository.Repository`` class) implementation.
+* ``ahriman.core.report`` is a package with reporting classes. Usually it must be called by ``ahriman.core.report.Report.load`` method.
+* ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
-* ``ahriman.core.upload`` package provides sync feature, must be called by ``ahriman.core.upload.upload.Upload.load`` method.
+* ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` uses this package.
+* ``ahriman.core.upload`` package provides sync feature, must be called by ``ahriman.core.upload.Upload.load`` method.
 
 This package also provides some generic functions and classes which may be used by other packages:
 
@@ -86,14 +87,14 @@ The service uses SQLite database in order to store some internal info.
 Database instance
 ^^^^^^^^^^^^^^^^^
 
-All methods related to specific part of database (basically operations per table) are split into different traits located inside ``ahriman.core.database.operations`` package. The base trait ``ahriman.core.database.operations.operations.Operations`` also provides generic methods for database access (e.g. row converters and transactional support).
+All methods related to specific part of database (basically operations per table) are split into different traits located inside ``ahriman.core.database.operations`` package. The base trait ``ahriman.core.database.operations.Operations`` also provides generic methods for database access (e.g. row converters and transactional support).
 
-The ``ahriman.core.database.sqlite.SQLite`` class itself derives from all of these traits and implements methods for initialization, including migrations.
+The ``ahriman.core.database.SQLite`` class itself derives from all of these traits and implements methods for initialization, including migrations.
 
 Schema and data migrations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The schema migration are applied according to current ``pragma user_info`` values, located at ``ahriman.core.database.migrations`` package and named as ``m000_migration_name.py`` (the preceding ``m`` is required in order to import migration content for tests). Additional class ``ahriman.core.database.migrations.Migrations`` reads all migrations autmatically and applies them in alphabetical order.
+The schema migration are applied according to current ``pragma user_info`` values, located at ``ahriman.core.database.migrations`` package and named as ``m000_migration_name.py`` (the preceding ``m`` is required in order to import migration content for tests). Additional class ``ahriman.core.database.migrations.Migrations`` reads all migrations automatically and applies them in alphabetical order.
 
 There are also data migrations which are located at ``ahriman.core.database.data`` package and move data from old-style (e.g. json files in filesystem, directory trees, etc) to the database. They are also part of migration and (unlike schema migrations) are applied only at specific version breakpoints (e.g. if ``user_version`` is more than 0 no initial migration will be applied).
 
@@ -153,6 +154,13 @@ Configuration
 ^^^^^^^^^^^^^
 
 ``ahriman.core.configuration.Configuration`` class provides some additional methods (e.g. ``getpath`` and ``getlist``) and also combines multiple files into single configuration dictionary using architecture overrides. It is the recommended way to deal with settings.
+
+Enumerations
+^^^^^^^^^^^^
+
+All enumerations are derived from ``str`` and ``enum.Enum``. Integer enumerations are not allowed, because most of operations require conversions from string variable. Derivation from string class is required to make json conversions implicitly (e.g. during calling ``json.dumps`` methods).
+
+In addition, some enumerations provide ``from_option`` class methods in order to allow some flexibility while reading configuration options.
 
 Utils
 ^^^^^
@@ -262,7 +270,7 @@ Requests and scopes
 
 Service provides optional authorization which can be turned on in settings. In order to control user access there are two levels of authorization - read-only (only GET-like requests) and write (anything) which are provided by each web view directly.
 
-If this feature is configured any request will be prohibited without authentication. In addition, configuration flag ``auth.safe_build_status`` can be used in order to allow seeing main page without authorization.
+If this feature is configured any request will be prohibited without authentication. In addition, configuration flag ``auth.allow_read_only`` can be used in order to allow read-only operations - reading index page and packages - without authorization.
 
 For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application. It also stores expiration time of the session inside.
 
