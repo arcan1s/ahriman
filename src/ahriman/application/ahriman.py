@@ -63,7 +63,7 @@ def _parser() -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: command line parser for the application
     """
-    parser = argparse.ArgumentParser(prog="ahriman", description="ArcH Linux ReposItory MANager",
+    parser = argparse.ArgumentParser(prog="ahriman", description="ArcH linux ReposItory MANager",
                                      epilog="Argument list can also be read from file by using @ prefix.",
                                      fromfile_prefix_chars="@", formatter_class=_formatter)
     parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",

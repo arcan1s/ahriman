@@ -21,7 +21,7 @@ def test_calculate_hash_small(resource_path_root: Path) -> None:
     must calculate checksum for path which is single chunk
     """
     path = resource_path_root / "models" / "package_ahriman_srcinfo"
-    assert HttpUpload.calculate_hash(path) == "c0aaf6ebf95ca9206dc8ba1d8ff10af3"
+    assert HttpUpload.calculate_hash(path) == "fcfc0f2522b0ee92de89fcedc7e56010"
 
 
 def test_get_body_get_hashes() -> None:

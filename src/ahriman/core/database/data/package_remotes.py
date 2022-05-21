@@ -36,7 +36,7 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
         connection(Connection): database connection
         paths(RepositoryPaths): repository paths instance
     """
-    from ahriman.core.database.operations.package_operations import PackageOperations
+    from ahriman.core.database.operations import PackageOperations
 
     def insert_remote(base: str, remote: RemoteSource) -> None:
         connection.execute(

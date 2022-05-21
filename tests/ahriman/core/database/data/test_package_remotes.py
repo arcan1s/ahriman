@@ -14,7 +14,7 @@ def test_migrate_package_remotes(package_ahriman: Package, connection: Connectio
     must put package remotes to database
     """
     mocker.patch(
-        "ahriman.core.database.operations.package_operations.PackageOperations._packages_get_select_package_bases",
+        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
         return_value={package_ahriman.base: package_ahriman})
     mocker.patch("pathlib.Path.exists", return_value=False)
 
@@ -28,7 +28,7 @@ def test_migrate_package_remotes_has_local(package_ahriman: Package, connection:
     must skip processing for packages which have local cache
     """
     mocker.patch(
-        "ahriman.core.database.operations.package_operations.PackageOperations._packages_get_select_package_bases",
+        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
         return_value={package_ahriman.base: package_ahriman})
     mocker.patch("pathlib.Path.exists", return_value=True)
 
@@ -42,7 +42,7 @@ def test_migrate_package_remotes_vcs(package_ahriman: Package, connection: Conne
     must process VCS packages with local cache
     """
     mocker.patch(
-        "ahriman.core.database.operations.package_operations.PackageOperations._packages_get_select_package_bases",
+        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
         return_value={package_ahriman.base: package_ahriman})
     mocker.patch("pathlib.Path.exists", return_value=True)
     mocker.patch.object(Package, "is_vcs", True)
@@ -57,7 +57,7 @@ def test_migrate_package_remotes_no_remotes(package_ahriman: Package, connection
     must skip processing in case if no remotes generated (should never happen)
     """
     mocker.patch(
-        "ahriman.core.database.operations.package_operations.PackageOperations._packages_get_select_package_bases",
+        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
         return_value={package_ahriman.base: package_ahriman})
     mocker.patch("pathlib.Path.exists", return_value=False)
     mocker.patch("ahriman.models.remote_source.RemoteSource.from_source", return_value=None)

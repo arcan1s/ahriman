@@ -1,5 +1,5 @@
 [Unit]
-Description=ArcH Linux ReposItory MANager timer (%I architecture)
+Description=ArcH linux ReposItory MANager timer (%I architecture)
 
 [Timer]
 OnCalendar=daily

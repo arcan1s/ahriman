@@ -1,5 +1,5 @@
 [Unit]
-Description=ArcH Linux ReposItory MANager web server (%I architecture)
+Description=ArcH linux ReposItory MANager web server (%I architecture)
 After=network.target
 
 [Service]
