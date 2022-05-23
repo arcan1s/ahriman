@@ -18,7 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import datetime
+import io
 import os
+from enum import Enum
+
 import requests
 import shutil
 import subprocess
@@ -27,14 +30,14 @@ import tempfile
 from contextlib import contextmanager
 from logging import Logger
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterable, List, Optional, Union
+from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union
 
 from ahriman.core.exceptions import InvalidOption, UnsafeRun
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-__all__ = ["check_output", "check_user", "exception_response_text", "filter_json", "full_version", "package_like",
-           "pretty_datetime", "pretty_size", "tmpdir", "walk"]
+__all__ = ["check_output", "check_user", "exception_response_text", "filter_json", "full_version", "enum_values",
+           "package_like", "pretty_datetime", "pretty_size", "tmpdir", "walk"]
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
@@ -73,6 +76,11 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
 
             >>> check_output("false", exception=RuntimeError("An exception occurred"))
     """
+    # hack for Optional[IO[str]] handle
+    def get_io(proc: subprocess.Popen[str], channel_name: str) -> IO[str]:
+        channel: Optional[IO[str]] = getattr(proc, channel_name, None)
+        return channel if channel is not None else io.StringIO()
+
     def log(single: str) -> None:
         if logger is not None:
             logger.debug(single)
@@ -80,14 +88,15 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     # FIXME additional workaround for linter and type check which do not know that user arg is supported
     # pylint: disable=unexpected-keyword-arg
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          user=user, text=True, encoding="utf8", bufsize=1) as process:  # type: ignore
+                          user=user, text=True, encoding="utf8", bufsize=1) as process:
         if input_data is not None:
-            process.stdin.write(input_data)
-            process.stdin.close()
+            input_channel = get_io(process, "stdin")
+            input_channel.write(input_data)
+            input_channel.close()
 
         # read stdout and append to output result
         result: List[str] = []
-        for line in iter(process.stdout.readline, ""):
+        for line in iter(get_io(process, "stdout").readline, ""):
             line = line.strip()
             if not line:  # skip empty lines
                 continue
@@ -95,7 +104,7 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
             log(line)
 
         # read stderr and write info to logs
-        for line in iter(process.stderr.readline, ""):
+        for line in iter(get_io(process, "stderr").readline, ""):
             log(line.strip())
 
         process.terminate()  # make sure that process is terminated
@@ -132,6 +141,19 @@ def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
     root_uid, _ = paths.root_owner
     if current_uid != root_uid:
         raise UnsafeRun(current_uid, root_uid)
+
+
+def enum_values(enum: Type[Enum]) -> List[str]:
+    """
+    generate list of enumeration values from the source
+
+    Args:
+        enum(Type[Enum]): source enumeration class
+
+    Returns:
+        List[str]: available enumeration values as string
+    """
+    return [key.value for key in enum]
 
 
 def exception_response_text(exception: requests.exceptions.HTTPError) -> str:

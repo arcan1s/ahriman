@@ -17,33 +17,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Optional
+from typing import Dict, List
 
-from ahriman.core.formatters import Printer
+from ahriman.core.formatters import StringPrinter
+from ahriman.models.property import Property
 
 
-class StringPrinter(Printer):
+class VersionPrinter(StringPrinter):
     """
-    print content of the random string
+    print content of the python package versions
 
     Attributes:
-        content(str): any content string
+        packages(Dict[str, str]): map of package name to its version
     """
 
-    def __init__(self, content: str) -> None:
+    def __init__(self, title: str, packages: Dict[str, str]) -> None:
         """
         default constructor
 
         Args:
-            content(str): any content string
+            title(str): title of the message
+            packages(Dict[str, str]): map of package name to its version
         """
-        self.content = content
+        StringPrinter.__init__(self, title)
+        self.packages = packages
 
-    def title(self) -> Optional[str]:
+    def properties(self) -> List[Property]:
         """
-        generate entry title from content
+        convert content into printable data
 
         Returns:
-            Optional[str]: content title if it can be generated and None otherwise
+            List[Property]: list of content properties
         """
-        return self.content
+        return [
+            Property(package, version, is_required=True)
+            for package, version in sorted(self.packages.items())
+        ]

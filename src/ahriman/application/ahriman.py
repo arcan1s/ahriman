@@ -26,6 +26,7 @@ from typing import List, TypeVar
 
 from ahriman import version
 from ahriman.application import handlers
+from ahriman.core.util import enum_values
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package_source import PackageSource
@@ -76,7 +77,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
-    parser.add_argument("-v", "--version", action="version", version=version.__version__)
+    parser.add_argument("-V", "--version", action="version", version=version.__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
@@ -106,9 +107,11 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_sync_parser(subparsers)
     _set_repo_triggers_parser(subparsers)
     _set_repo_update_parser(subparsers)
+    _set_shell_parser(subparsers)
     _set_user_add_parser(subparsers)
     _set_user_list_parser(subparsers)
     _set_user_remove_parser(subparsers)
+    _set_version_parser(subparsers)
     _set_web_parser(subparsers)
 
     return parser
@@ -225,7 +228,7 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
     parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
-                        type=PackageSource, choices=PackageSource, default=PackageSource.Auto)
+                        type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
     parser.set_defaults(handler=handlers.Add)
     return parser
@@ -267,7 +270,7 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
     parser.add_argument("-s", "--status", help="filter packages by status",
-                        type=BuildStatusEnum, choices=BuildStatusEnum)
+                        type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
     parser.set_defaults(handler=handlers.Status, lock=None, no_report=True, quiet=True, unsafe=True)
     return parser
 
@@ -309,7 +312,7 @@ def _set_package_status_update_parser(root: SubParserAction) -> argparse.Argumen
                                         "If no packages supplied, service status will be updated",
                         nargs="*")
     parser.add_argument("-s", "--status", help="new status",
-                        type=BuildStatusEnum, choices=BuildStatusEnum, default=BuildStatusEnum.Success)
+                        type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Update, lock=None, no_report=True, quiet=True,
                         unsafe=True)
     return parser
@@ -556,7 +559,7 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--repository", help="repository name", required=True)
     parser.add_argument("--sign-key", help="sign key id")
     parser.add_argument("--sign-target", help="sign options", action="append",
-                        type=SignSettings.from_option, choices=SignSettings)
+                        type=SignSettings.from_option, choices=enum_values(SignSettings))
     parser.add_argument("--web-port", help="port of the web service", type=int)
     parser.set_defaults(handler=handlers.Setup, lock=None, no_report=True, quiet=True, unsafe=True)
     return parser
@@ -594,7 +597,7 @@ def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentPa
     parser = root.add_parser("repo-status-update", help="update repository status",
                              description="update repository status on the status page", formatter_class=_formatter)
     parser.add_argument("-s", "--status", help="new status",
-                        type=BuildStatusEnum, choices=BuildStatusEnum, default=BuildStatusEnum.Success)
+                        type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Update, lock=None, no_report=True, package=[],
                         quiet=True, unsafe=True)
     return parser
@@ -661,6 +664,24 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
+def _set_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for shell subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("shell", help="envoke python shell",
+                             description="drop into python shell while having created application",
+                             formatter_class=_formatter)
+    parser.add_argument("-v", "--verbose", help=argparse.SUPPRESS, action="store_true")
+    parser.set_defaults(handler=handlers.Shell, lock=None, no_report=True)
+    return parser
+
+
 def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for create user subcommand
@@ -680,7 +701,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-p", "--password", help="user password. Blank password will be treated as empty password, "
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-r", "--role", help="user access level",
-                        type=UserAccess, choices=UserAccess, default=UserAccess.Read)
+                        type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, no_report=True,
                         quiet=True, unsafe=True)
@@ -702,7 +723,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
-    parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=UserAccess)
+    parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
     parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, unsafe=True)
     return parser
@@ -725,6 +746,23 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, no_report=True,  # nosec
                         password="", quiet=True, unsafe=True)
+    return parser
+
+
+def _set_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for version subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("version", help="application version",
+                             description="print application and its dependencies versions", formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, no_report=True, quiet=True,
+                        unsafe=True)
     return parser
 
 

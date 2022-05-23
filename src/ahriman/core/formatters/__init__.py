@@ -27,3 +27,4 @@ from ahriman.core.formatters.package_printer import PackagePrinter
 from ahriman.core.formatters.status_printer import StatusPrinter
 from ahriman.core.formatters.update_printer import UpdatePrinter
 from ahriman.core.formatters.user_printer import UserPrinter
+from ahriman.core.formatters.version_printer import VersionPrinter

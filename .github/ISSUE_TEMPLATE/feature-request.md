@@ -13,7 +13,7 @@ Brief description of the feature required
 
 ### Cause of the feature request
 
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+A clear and concise description of what the problem is. E.g. I'm always frustrated when [...]
 
 ### Proposed changes and/or features
 

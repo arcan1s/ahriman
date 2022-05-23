@@ -104,5 +104,4 @@ autodoc_member_order = "groupwise"
 
 autodoc_default_options = {
     "no-undoc-members": True,
-    "special-members": "__init__",
 }

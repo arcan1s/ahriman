@@ -492,6 +492,15 @@ def test_subparsers_repo_update_architecture(parser: argparse.ArgumentParser) ->
     assert args.architecture == ["x86_64"]
 
 
+def test_subparsers_shell(parser: argparse.ArgumentParser) -> None:
+    """
+    shell command must imply lock and no-report
+    """
+    args = parser.parse_args(["shell"])
+    assert args.lock is None
+    assert args.no_report
+
+
 def test_subparsers_user_add(parser: argparse.ArgumentParser) -> None:
     """
     user-add command must imply action, architecture, lock, no-report, quiet and unsafe
@@ -572,6 +581,26 @@ def test_subparsers_user_remove_architecture(parser: argparse.ArgumentParser) ->
     user-remove command must correctly parse architecture list
     """
     args = parser.parse_args(["-a", "x86_64", "user-remove", "username"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_version(parser: argparse.ArgumentParser) -> None:
+    """
+    version command must imply architecture, lock, no-report, quiet and unsafe
+    """
+    args = parser.parse_args(["version"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.quiet
+    assert args.unsafe
+
+
+def test_subparsers_version_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    version command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "version"])
     assert args.architecture == [""]
 
 
