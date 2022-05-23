@@ -66,6 +66,7 @@ setup(
             "package/share/ahriman/templates/build-status.jinja2",
             "package/share/ahriman/templates/email-index.jinja2",
             "package/share/ahriman/templates/repo-index.jinja2",
+            "package/share/ahriman/templates/shell",
             "package/share/ahriman/templates/telegram-index.jinja2",
         ]),
         ("share/ahriman/templates/build-status", [

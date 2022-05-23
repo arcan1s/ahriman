@@ -76,6 +76,14 @@ ahriman.core.formatters.user\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.version\_printer module
+-----------------------------------------------
+
+.. automodule:: ahriman.core.formatters.version_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

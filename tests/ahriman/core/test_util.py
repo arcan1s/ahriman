@@ -10,8 +10,9 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
 from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
-    package_like, pretty_datetime, pretty_size, tmpdir, walk
+    enum_values, package_like, pretty_datetime, pretty_size, tmpdir, walk
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -177,6 +178,15 @@ def test_filter_json_empty_value(package_ahriman: Package) -> None:
     assert "base" not in filter_json(probe, probe.keys())
 
 
+def test_enum_values() -> None:
+    """
+    must correctly generate choices from enumeration classes
+    """
+    values = enum_values(PackageSource)
+    for value in values:
+        assert PackageSource(value).value == value
+
+
 def test_full_version() -> None:
     """
     must construct full version
@@ -331,6 +341,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "build-status.jinja2",
         resource_path_root / "web" / "templates" / "email-index.jinja2",
         resource_path_root / "web" / "templates" / "repo-index.jinja2",
+        resource_path_root / "web" / "templates" / "shell",
         resource_path_root / "web" / "templates" / "telegram-index.jinja2",
     ])
     local_files = list(sorted(walk(resource_path_root)))

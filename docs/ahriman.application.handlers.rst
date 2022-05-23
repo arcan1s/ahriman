@@ -116,6 +116,14 @@ ahriman.application.handlers.setup module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.shell module
+-----------------------------------------
+
+.. automodule:: ahriman.application.handlers.shell
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.sign module
 ----------------------------------------
 
@@ -168,6 +176,14 @@ ahriman.application.handlers.users module
 -----------------------------------------
 
 .. automodule:: ahriman.application.handlers.users
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.application.handlers.versions module
+--------------------------------------------
+
+.. automodule:: ahriman.application.handlers.versions
    :members:
    :no-undoc-members:
    :show-inheritance:

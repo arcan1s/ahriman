@@ -32,6 +32,7 @@ from ahriman.application.handlers.remove_unknown import RemoveUnknown
 from ahriman.application.handlers.restore import Restore
 from ahriman.application.handlers.search import Search
 from ahriman.application.handlers.setup import Setup
+from ahriman.application.handlers.shell import Shell
 from ahriman.application.handlers.sign import Sign
 from ahriman.application.handlers.status import Status
 from ahriman.application.handlers.status_update import StatusUpdate
@@ -39,4 +40,5 @@ from ahriman.application.handlers.triggers import Triggers
 from ahriman.application.handlers.unsafe_commands import UnsafeCommands
 from ahriman.application.handlers.update import Update
 from ahriman.application.handlers.users import Users
+from ahriman.application.handlers.versions import Versions
 from ahriman.application.handlers.web import Web
