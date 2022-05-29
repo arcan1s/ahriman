@@ -9,7 +9,7 @@
                 <div class="form-group row">
                     <label for="package" class="col-sm-2 col-form-label">package</label>
                     <div class="col-sm-10">
-                        <input id="package-form" type="text" list="known-packages-dlist" class="form-control" placeholder="AUR package" name="package" required>
+                        <input id="package-form" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
                         <datalist id="known-packages-dlist"></datalist>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
             const value = packageInput.val();
 
             $.ajax({
-                url: "/service-api/v1/search",
+                url: "/api/v1/service/search",
                 data: {"for": value},
                 type: "GET",
                 dataType: "json",
@@ -44,7 +44,6 @@
                         return option;
                     });
                     knownPackages.empty().append(options);
-                    packageInput.focus();
                 },
             })
         }, this), 500));
@@ -52,11 +51,11 @@
 
     function addPackages() {
         const packages = [packageInput.val()]
-        doPackageAction("/service-api/v1/add", packages);
+        doPackageAction("/api/v1/service/add", packages);
     }
 
     function requestPackages() {
         const packages = [packageInput.val()]
-        doPackageAction("/service-api/v1/request", packages);
+        doPackageAction("/api/v1/service/request", packages);
     }
 </script>

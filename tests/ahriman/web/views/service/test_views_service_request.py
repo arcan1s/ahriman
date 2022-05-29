@@ -21,7 +21,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must call post request correctly
     """
     add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
-    response = await client.post("/service-api/v1/request", json={"packages": ["ahriman"]})
+    response = await client.post("/api/v1/service/request", json={"packages": ["ahriman"]})
 
     assert response.ok
     add_mock.assert_called_once_with(["ahriman"], now=False)
@@ -32,7 +32,7 @@ async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None
     must raise exception on missing packages payload
     """
     add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
-    response = await client.post("/service-api/v1/request")
+    response = await client.post("/api/v1/service/request")
 
     assert response.status == 400
     add_mock.assert_not_called()

@@ -198,8 +198,7 @@ PGP key to import from public server
 key server for key import
 
 .SH COMMAND \fI\,'ahriman package-add'\/\fR
-usage: ahriman package-add [-h] [-e] [-n]
-                           [-s {PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}]
+usage: ahriman package-add [-h] [-e] [-n] [-s {auto,archive,aur,directory,local,remote,repository}]
                            [--without-dependencies]
                            package [package ...]
 
@@ -219,7 +218,7 @@ return non\-zero exit status if result is empty
 run update function after
 
 .TP
-\fB\-s\fR \fI\,{PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}\/\fR, \fB\-\-source\fR \fI\,{PackageSource.Auto,PackageSource.Archive,PackageSource.AUR,PackageSource.Directory,PackageSource.Local,PackageSource.Remote,PackageSource.Repository}\/\fR
+\fB\-s\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR, \fB\-\-source\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR
 explicitly specify the package source for this command
 
 .TP
@@ -236,9 +235,7 @@ remove package from the repository
 package name or base
 
 .SH COMMAND \fI\,'ahriman package-status'\/\fR
-usage: ahriman package-status [-h] [--ahriman] [-e] [-i]
-                              [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
-                              [package ...]
+usage: ahriman package-status [-h] [--ahriman] [-e] [-i] [-s {unknown,pending,building,failed,success}] [package ...]
 
 request status of the package
 
@@ -260,7 +257,7 @@ return non\-zero exit status if result is empty
 show additional package information
 
 .TP
-\fB\-s\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR, \fB\-\-status\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR
+\fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
 filter packages by status
 
 .SH COMMAND \fI\,'ahriman package-status-remove'\/\fR
@@ -273,9 +270,7 @@ remove the package from the status page
 remove specified packages
 
 .SH COMMAND \fI\,'ahriman package-status-update'\/\fR
-usage: ahriman package-status-update [-h]
-                                     [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
-                                     [package ...]
+usage: ahriman package-status-update [-h] [-s {unknown,pending,building,failed,success}] [package ...]
 
 update package status on the status page
 
@@ -285,7 +280,7 @@ set status for specified packages. If no packages supplied, service status will 
 
 .SH OPTIONS \fI\,'ahriman package-status-update'\/\fR
 .TP
-\fB\-s\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR, \fB\-\-status\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR
+\fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
 new status
 
 .SH COMMAND \fI\,'ahriman patch-add'\/\fR
@@ -439,8 +434,7 @@ root path of the extracted files
 .SH COMMAND \fI\,'ahriman repo-setup'\/\fR
 usage: ahriman repo-setup [-h] [--build-as-user BUILD_AS_USER] [--build-command BUILD_COMMAND]
                           [--from-configuration FROM_CONFIGURATION] [--no-multilib] --packager PACKAGER --repository
-                          REPOSITORY [--sign-key SIGN_KEY]
-                          [--sign-target {SignSettings.Disabled,SignSettings.Packages,SignSettings.Repository}]
+                          REPOSITORY [--sign-key SIGN_KEY] [--sign-target {disabled,pacakges,repository}]
                           [--web-port WEB_PORT]
 
 create initial service configuration, requires root
@@ -475,7 +469,7 @@ repository name
 sign key id
 
 .TP
-\fB\-\-sign\-target\fR \fI\,{SignSettings.Disabled,SignSettings.Packages,SignSettings.Repository}\/\fR
+\fB\-\-sign\-target\fR \fI\,{disabled,pacakges,repository}\/\fR
 sign options
 
 .TP
@@ -492,14 +486,13 @@ usage: ahriman repo-sign [-h] [package ...]
 sign only specified packages
 
 .SH COMMAND \fI\,'ahriman repo-status-update'\/\fR
-usage: ahriman repo-status-update [-h]
-                                  [-s {BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}]
+usage: ahriman repo-status-update [-h] [-s {unknown,pending,building,failed,success}]
 
 update repository status on the status page
 
 .SH OPTIONS \fI\,'ahriman repo-status-update'\/\fR
 .TP
-\fB\-s\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR, \fB\-\-status\fR \fI\,{BuildStatusEnum.Unknown,BuildStatusEnum.Pending,BuildStatusEnum.Building,BuildStatusEnum.Failed,BuildStatusEnum.Success}\/\fR
+\fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
 new status
 
 .SH COMMAND \fI\,'ahriman repo-sync'\/\fR
@@ -556,9 +549,7 @@ usage: ahriman shell [-h]
 drop into python shell while having created application
 
 .SH COMMAND \fI\,'ahriman user-add'\/\fR
-usage: ahriman user-add [-h] [--as-service] [-p PASSWORD]
-                        [-r {UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}] [-s]
-                        username
+usage: ahriman user-add [-h] [--as-service] [-p PASSWORD] [-r {unauthorized,read,reporter,full}] [-s] username
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
 
@@ -577,7 +568,7 @@ user password. Blank password will be treated as empty password, which is in par
 authorization type.
 
 .TP
-\fB\-r\fR \fI\,{UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}\/\fR, \fB\-\-role\fR \fI\,{UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}\/\fR
+\fB\-r\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
 user access level
 
 .TP
@@ -585,8 +576,7 @@ user access level
 set file permissions to user\-only
 
 .SH COMMAND \fI\,'ahriman user-list'\/\fR
-usage: ahriman user-list [-h] [-e] [-r {UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}]
-                         [username]
+usage: ahriman user-list [-h] [-e] [-r {unauthorized,read,reporter,full}] [username]
 
 list users from the user mapping and their roles
 
@@ -600,7 +590,7 @@ filter users by username
 return non\-zero exit status if result is empty
 
 .TP
-\fB\-r\fR \fI\,{UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}\/\fR, \fB\-\-role\fR \fI\,{UserAccess.Unauthorized,UserAccess.Read,UserAccess.Reporter,UserAccess.Full}\/\fR
+\fB\-r\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
 filter users by role
 
 .SH COMMAND \fI\,'ahriman user-remove'\/\fR

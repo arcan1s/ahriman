@@ -18,7 +18,7 @@ def test_status_url(web_client: WebClient) -> None:
     must generate package status url correctly
     """
     assert web_client._status_url.startswith(web_client.address)
-    assert web_client._status_url.endswith("/status-api/v1/status")
+    assert web_client._status_url.endswith("/api/v1/status")
 
 
 def test_parse_address(configuration: Configuration) -> None:
@@ -80,7 +80,7 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     must generate package status correctly
     """
     assert web_client._package_url(package_ahriman.base).startswith(web_client.address)
-    assert web_client._package_url(package_ahriman.base).endswith(f"/status-api/v1/packages/{package_ahriman.base}")
+    assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
 
 
 def test_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

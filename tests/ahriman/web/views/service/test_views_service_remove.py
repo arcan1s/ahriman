@@ -21,7 +21,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must call post request correctly
     """
     remove_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_remove")
-    response = await client.post("/service-api/v1/remove", json={"packages": ["ahriman"]})
+    response = await client.post("/api/v1/service/remove", json={"packages": ["ahriman"]})
 
     assert response.ok
     remove_mock.assert_called_once_with(["ahriman"])
@@ -32,7 +32,7 @@ async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None
     must raise exception on missing packages payload
     """
     remove_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_remove")
-    response = await client.post("/service-api/v1/remove")
+    response = await client.post("/api/v1/service/remove")
 
     assert response.status == 400
     remove_mock.assert_not_called()
