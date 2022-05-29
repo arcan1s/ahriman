@@ -39,9 +39,9 @@
         return table.bootstrapTable("getSelections").map(row => { return row.id; });
     }
 
-    function removePackages() { doPackageAction("/service-api/v1/remove", getSelection()); }
+    function removePackages() { doPackageAction("/api/v1/service/remove", getSelection()); }
 
-    function updatePackages() { doPackageAction("/service-api/v1/add", getSelection()); }
+    function updatePackages() { doPackageAction("/api/v1/service/add", getSelection()); }
 
     function hideControls(hidden) {
         addButton.attr("hidden", hidden);
@@ -53,7 +53,7 @@
         table.bootstrapTable("showLoading");
 
         $.ajax({
-            url: "/status-api/v1/packages",
+            url: "/api/v1/packages",
             type: "GET",
             dataType: "json",
             success: response => {
@@ -100,7 +100,7 @@
         });
 
         $.ajax({
-            url: "/status-api/v1/status",
+            url: "/api/v1/status",
             type: "GET",
             dataType: "json",
             success: response => {

@@ -41,32 +41,32 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     Available routes are:
 
-        * GET /                                  get build status page
-        * GET /index.html                        same as above
+        * ``GET /`` get build status page
+        * ``GET /index.html`` same as above
 
-        * POST /service-api/v1/add               add new packages to repository
+        * ``POST /api/v1/service/add`` add new packages to repository
 
-        * POST /service-api/v1/remove            remove existing package from repository
+        * ``POST /api/v1/service/remove`` remove existing package from repository
 
-        * POST /service-api/v1/request           request to add new packages to repository
+        * ``POST /api/v1/service/request`` request to add new packages to repository
 
-        * GET /service-api/v1/search             search for substring in AUR
+        * ``GET /api/v1/service/search`` search for substring in AUR
 
-        * POST /service-api/v1/update            update packages in repository, actually it is just alias for add
+        * ``POST /api/v1/service/update`` update packages in repository, actually it is just alias for add
 
-        * GET /status-api/v1/packages            get all known packages
-        * POST /status-api/v1/packages           force update every package from repository
+        * ``GET /api/v1/packages`` get all known packages
+        * ``POST /api/v1/packages`` force update every package from repository
 
-        * DELETE /status-api/v1/package/:base    delete package base from status page
-        * GET /status-api/v1/package/:base       get package base status
-        * POST /status-api/v1/package/:base      update package base status
+        * ``DELETE /api/v1/package/:base`` delete package base from status page
+        * ``GET /api/v1/package/:base`` get package base status
+        * ``POST /api/v1/package/:base`` update package base status
 
-        * GET /status-api/v1/status              get service status itself
-        * POST /status-api/v1/status             update service status itself
+        * ``GET /api/v1/status`` get service status itself
+        * ``POST /api/v1/status`` update service status itself
 
-        * GET /user-api/v1/login                 OAuth2 handler for login
-        * POST /user-api/v1/login                login to service
-        * POST /user-api/v1/logout               logout from service
+        * ``GET /api/v1/login`` OAuth2 handler for login
+        * ``POST /api/v1/login`` login to service
+        * ``POST /api/v1/logout`` logout from service
 
     Args:
         application(Application): web application instance
@@ -77,26 +77,26 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     application.router.add_static("/static", static_path, follow_symlinks=True)
 
-    application.router.add_post("/service-api/v1/add", AddView)
+    application.router.add_post("/api/v1/service/add", AddView)
 
-    application.router.add_post("/service-api/v1/remove", RemoveView)
+    application.router.add_post("/api/v1/service/remove", RemoveView)
 
-    application.router.add_post("/service-api/v1/request", RequestView)
+    application.router.add_post("/api/v1/service/request", RequestView)
 
-    application.router.add_get("/service-api/v1/search", SearchView, allow_head=False)
+    application.router.add_get("/api/v1/service/search", SearchView, allow_head=False)
 
-    application.router.add_post("/service-api/v1/update", AddView)
+    application.router.add_post("/api/v1/service/update", AddView)
 
-    application.router.add_get("/status-api/v1/packages", PackagesView, allow_head=True)
-    application.router.add_post("/status-api/v1/packages", PackagesView)
+    application.router.add_get("/api/v1/packages", PackagesView, allow_head=True)
+    application.router.add_post("/api/v1/packages", PackagesView)
 
-    application.router.add_delete("/status-api/v1/packages/{package}", PackageView)
-    application.router.add_get("/status-api/v1/packages/{package}", PackageView, allow_head=True)
-    application.router.add_post("/status-api/v1/packages/{package}", PackageView)
+    application.router.add_delete("/api/v1/packages/{package}", PackageView)
+    application.router.add_get("/api/v1/packages/{package}", PackageView, allow_head=True)
+    application.router.add_post("/api/v1/packages/{package}", PackageView)
 
-    application.router.add_get("/status-api/v1/status", StatusView, allow_head=True)
-    application.router.add_post("/status-api/v1/status", StatusView)
+    application.router.add_get("/api/v1/status", StatusView, allow_head=True)
+    application.router.add_post("/api/v1/status", StatusView)
 
-    application.router.add_get("/user-api/v1/login", LoginView)
-    application.router.add_post("/user-api/v1/login", LoginView)
-    application.router.add_post("/user-api/v1/logout", LogoutView)
+    application.router.add_get("/api/v1/login", LoginView)
+    application.router.add_post("/api/v1/login", LoginView)
+    application.router.add_post("/api/v1/logout", LogoutView)

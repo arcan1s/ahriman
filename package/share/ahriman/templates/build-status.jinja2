@@ -91,7 +91,7 @@
                     {% if auth.username is none %}
                         {{ auth.control|safe }}
                     {% else %}
-                        <form action="/user-api/v1/logout" method="post">
+                        <form action="/api/v1/logout" method="post">
                             <button class="btn btn-link" style="text-decoration: none">logout ({{ auth.username }})</button>
                         </form>
                     {% endif %}

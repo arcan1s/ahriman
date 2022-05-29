@@ -56,7 +56,7 @@ class OAuth(Mapping):
         self.client_secret = configuration.get("auth", "client_secret")
         # in order to use OAuth feature the service must be publicity available
         # thus we expect that address is set
-        self.redirect_uri = f"""{configuration.get("web", "address")}/user-api/v1/login"""
+        self.redirect_uri = f"""{configuration.get("web", "address")}/api/v1/login"""
         self.provider = self.get_provider(configuration.get("auth", "oauth_provider"))
         # it is list but we will have to convert to string it anyway
         self.scopes = configuration.get("auth", "oauth_scopes")
@@ -69,7 +69,7 @@ class OAuth(Mapping):
         Returns:
             str: login control as html code to insert
         """
-        return """<a class="nav-link" href="/user-api/v1/login" title="login via OAuth2">login</a>"""
+        return """<a class="nav-link" href="/api/v1/login" title="login via OAuth2">login</a>"""
 
     @staticmethod
     def get_provider(name: str) -> Type[aioauth_client.OAuth2Client]:

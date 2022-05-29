@@ -65,7 +65,7 @@ class WebClient(Client):
         Returns:
             str: full url for web service to login
         """
-        return f"{self.address}/user-api/v1/login"
+        return f"{self.address}/api/v1/login"
 
     @property
     def _status_url(self) -> str:
@@ -75,7 +75,7 @@ class WebClient(Client):
         Returns:
             str: full url for web service for status
         """
-        return f"{self.address}/status-api/v1/status"
+        return f"{self.address}/api/v1/status"
 
     @staticmethod
     def parse_address(configuration: Configuration) -> str:
@@ -126,7 +126,7 @@ class WebClient(Client):
         Returns:
             str: full url of web service for specific package base
         """
-        return f"{self.address}/status-api/v1/packages/{base}"
+        return f"{self.address}/api/v1/packages/{base}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """

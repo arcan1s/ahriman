@@ -59,7 +59,7 @@ async def test_auth_handler_api(mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls
     """
-    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
+    aiohttp_request = pytest.helpers.request("", "/api/v1/status", "GET")
     request_handler = AsyncMock()
     request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
@@ -91,7 +91,7 @@ async def test_auth_handler_allow_read_only(mocker: MockerFixture) -> None:
     """
     must allow pages with allow read only flag
     """
-    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
+    aiohttp_request = pytest.helpers.request("", "/api/v1/status", "GET")
     request_handler = AsyncMock()
     request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
@@ -105,7 +105,7 @@ async def test_auth_handler_api_no_method(mocker: MockerFixture) -> None:
     """
     must ask for write permission if handler does not have get_permission method
     """
-    aiohttp_request = pytest.helpers.request("", "/status-api", "GET")
+    aiohttp_request = pytest.helpers.request("", "/api/v1/status", "GET")
     request_handler = AsyncMock()
     request_handler.get_permission = None
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
@@ -119,7 +119,7 @@ async def test_auth_handler_api_post(mocker: MockerFixture) -> None:
     """
     must ask for status permission for api calls with POST
     """
-    aiohttp_request = pytest.helpers.request("", "/status-api", "POST")
+    aiohttp_request = pytest.helpers.request("", "/api/v1/status", "POST")
     request_handler = AsyncMock()
     request_handler.get_permission.return_value = UserAccess.Full
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
