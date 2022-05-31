@@ -85,7 +85,7 @@ class Email(Report, JinjaTemplate):
         message = MIMEMultipart()
         message["From"] = self.sender
         message["To"] = ", ".join(self.receivers)
-        message["Subject"] = f"{self.name} build report at {pretty_datetime(datetime.datetime.utcnow().timestamp())}"
+        message["Subject"] = f"{self.name} build report at {pretty_datetime(datetime.datetime.utcnow())}"
 
         message.attach(MIMEText(text, "html"))
         for filename, content in attachment.items():
