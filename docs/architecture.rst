@@ -21,14 +21,14 @@ Full dependency diagram:
 
 This package contains application (aka executable) related classes and everything for that. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from base ``ahriman.application.handlers.Handler`` class.
 
-``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository, web etc. It is divided into multiple traits by functions (package related and repository related) in the same package.
+``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
 ``ahriman.application.ahriman`` contains only command line parses and executes specified ``Handler`` on success, ``ahriman.application.lock.Lock`` is additional class which provides file-based lock and also performs some common checks.
 
 ``ahriman.core`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains everything which is required for any time of application run and separated to several packages:
+This package contains everything which is required for any time of application run and separated into several packages:
 
 * ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
 * ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be called by ``load`` method.
@@ -39,7 +39,7 @@ This package contains everything which is required for any time of application r
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
-* ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` uses this package.
+* ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` use this package.
 * ``ahriman.core.upload`` package provides sync feature, must be called by ``ahriman.core.upload.Upload.load`` method.
 
 This package also provides some generic functions and classes which may be used by other packages:
@@ -69,7 +69,7 @@ Application run
 
 * Parse command line arguments, find command and related handler which is set by parser.
 * Call ``Handler.execute`` method.
-* Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do for daemonic processes).
+* Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do from daemonic processes).
 * In each child process call lock functions.
 * After success checks pass control to ``Handler.run`` method defined by specific handler class.
 * Return result (success or failure) of each subprocess and exit from application.
@@ -115,7 +115,7 @@ Idea is to copy package to the directory from which it will be handled at the ne
 
 * If supplied argument is file then application moves the file to the directory with built packages. Same rule applies for directory, but in this case it copies every package-like file from the specified directory.
 * If supplied argument is directory and there is ``PKGBUILD`` file there it will be treated as local package. In this case it will queue this package to build and copy source files (``PKGBUILD`` and ``.SRCINFO``) to caches.
-* If supplied argument iis not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
+* If supplied argument is not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
 
 This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR.
 

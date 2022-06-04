@@ -10,24 +10,26 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 
 ## Features
 
-* Install-configure-forget manager for own repository.
+* Install-configure-forget manager for the very own repository.
 * Multi-architecture support.
+* Dependency manager.
 * VCS packages support.
 * Official repository support.
+* Ability to patch AUR packages and even create package from local PKGBUILDs.
 * Sign support with gpg (repository, package, per package settings).
 * Triggers for repository updates, e.g. synchronization to remote services (rsync, s3 and github) and report generation (email, html, telegram).
-* Dependency manager.
-* Ability to patch AUR packages and even create package from local PKGBUILDs.
 * Repository status interface with optional authorization and control options:
 
     ![web interface](web.png)
 
 ## Installation and run
 
-For installation details please refer to the [documentation](docs/setup.rst). For command help, `--help` subcommand must be used. Subcommands have own help message as well. The package also provides a [man page](docs/ahriman.1).
+For installation details kindly refer to the [documentation](https://ahriman.readthedocs.io/en/latest/setup.html). For application commands it is possible to get information by using `--help`/`help` command or by using man page ([web version](https://ahriman.readthedocs.io/en/latest/command-line.html)).
 
 ## Configuration
 
-Every available option is described in the [documentation](docs/configuration.rst).
+Every available option is described in the [documentation](https://ahriman.readthedocs.io/en/latest/configuration.html).
 
-## [FAQ](docs/faq.rst)
+The application provides reasonable defaults which allow to use it out-of-box, though additional steps (like configuring build toolchain and sudoers) is recommended and can be easily achieved by following install instructions.
+
+## [FAQ](https://ahriman.readthedocs.io/en/latest/faq.html)

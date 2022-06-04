@@ -89,7 +89,7 @@ class Auth:
             return OAuth(configuration, database)
         return cls(configuration)
 
-    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:  # pylint: disable=no-self-use
+    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
         """
         validate user password
 
@@ -103,7 +103,7 @@ class Auth:
         del username, password
         return True
 
-    async def known_username(self, username: Optional[str]) -> bool:  # pylint: disable=no-self-use
+    async def known_username(self, username: Optional[str]) -> bool:
         """
         check if user is known
 
@@ -116,7 +116,7 @@ class Auth:
         del username
         return True
 
-    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:  # pylint: disable=no-self-use
+    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
         """
         validate if user has access to requested resource
 

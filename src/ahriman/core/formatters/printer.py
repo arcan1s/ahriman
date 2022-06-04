@@ -44,7 +44,7 @@ class Printer:
                 continue
             log_fn(f"\t{prop.name}{separator}{prop.value}")
 
-    def properties(self) -> List[Property]:  # pylint: disable=no-self-use
+    def properties(self) -> List[Property]:
         """
         convert content into printable data
 

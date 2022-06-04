@@ -85,7 +85,7 @@ class Package:
         Returns:
             List[str]: sum of dependencies per each package
         """
-        return sorted(set(sum([package.depends for package in self.packages.values()], start=[])))
+        return sorted(set(sum((package.depends for package in self.packages.values()), start=[])))
 
     @property
     def groups(self) -> List[str]:
@@ -95,7 +95,7 @@ class Package:
         Returns:
             List[str]: sum of groups per each package
         """
-        return sorted(set(sum([package.groups for package in self.packages.values()], start=[])))
+        return sorted(set(sum((package.groups for package in self.packages.values()), start=[])))
 
     @property
     def is_single_package(self) -> bool:
@@ -130,7 +130,7 @@ class Package:
         Returns:
             List[str]: sum of licenses per each package
         """
-        return sorted(set(sum([package.licenses for package in self.packages.values()], start=[])))
+        return sorted(set(sum((package.licenses for package in self.packages.values()), start=[])))
 
     @classmethod
     def from_archive(cls: Type[Package], path: Path, pacman: Pacman, remote: Optional[RemoteSource]) -> Package:

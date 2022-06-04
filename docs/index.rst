@@ -6,14 +6,14 @@ Wrapper for managing custom repository inspired by `repo-scripts <https://github
 Features
 --------
 
-* Install-configure-forget manager for own repository.
+* Install-configure-forget manager for the very own repository.
 * Multi-architecture support.
+* Dependency manager.
 * VCS packages support.
 * Official repository support.
+* Ability to patch AUR packages and even create package from local PKGBUILDs.
 * Sign support with gpg (repository, package, per package settings).
 * Triggers for repository updates, e.g. synchronization to remote services (rsync, s3 and github) and report generation (email, html, telegram).
-* Dependency manager.
-* Ability to patch AUR packages and even create package from local PKGBUILDs.
 * Repository status interface with optional authorization and control options.
 
 Contents
