@@ -60,7 +60,7 @@ class Client:
             status(BuildStatusEnum): current package build status
         """
 
-    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:  # pylint: disable=no-self-use
+    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
         get package status
 
@@ -73,7 +73,7 @@ class Client:
         del base
         return []
 
-    def get_internal(self) -> InternalStatus:  # pylint: disable=no-self-use
+    def get_internal(self) -> InternalStatus:
         """
         get internal service status
 

@@ -220,7 +220,7 @@ class Configuration(configparser.RawConfigParser):
         }
 
     # pylint and mypy are too stupid to find these methods
-    # pylint: disable=missing-function-docstring,multiple-statements,unused-argument,no-self-use
+    # pylint: disable=missing-function-docstring,multiple-statements,unused-argument
     def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...

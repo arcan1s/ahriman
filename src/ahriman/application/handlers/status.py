@@ -56,7 +56,7 @@ class Status(Handler):
             StatusPrinter(service_status.status).print(args.info)
         if args.package:
             packages: Iterable[Tuple[Package, BuildStatus]] = sum(
-                [client.get(base) for base in args.package],
+                (client.get(base) for base in args.package),
                 start=[])
         else:
             packages = client.get(None)

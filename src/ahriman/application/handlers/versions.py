@@ -77,7 +77,7 @@ class Versions(Handler):
             keys.extend(portion)
             portion = {
                 key
-                for key in sum([dependencies_by_key(key) for key in portion], start=[])
+                for key in sum((dependencies_by_key(key) for key in portion), start=[])
                 if key not in keys and key in resources
             }
 
