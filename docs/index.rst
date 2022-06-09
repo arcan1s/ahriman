@@ -30,10 +30,3 @@ Contents
    advanced-usage
    triggers
    modules
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
