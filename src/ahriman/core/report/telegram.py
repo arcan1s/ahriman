@@ -94,8 +94,11 @@ class Telegram(Report, JinjaTemplate):
         text = self.make_html(result, self.template_path)
         # telegram content is limited by 4096 symbols, so we are going to split the message by new lines
         # to fit into this restriction
-        if len(text) > self.TELEGRAM_MAX_CONTENT_LENGTH:
+        while len(text) > self.TELEGRAM_MAX_CONTENT_LENGTH:
             position = text.rfind("\n", 0, self.TELEGRAM_MAX_CONTENT_LENGTH)
+            if position == -1:
+                # normally should not happen, but we allow templates editing
+                raise ValueError("substring not found")
             portion, text = text[:position], text[position + 1:]  # +1 to exclude newline we split
             self._send(portion)
         # send remaining (or full in case if size is less than max length) text

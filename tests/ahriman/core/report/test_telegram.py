@@ -57,6 +57,18 @@ def test_generate(configuration: Configuration, package_ahriman: Package, result
     send_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
+def test_generate_big_text_without_spaces(configuration: Configuration, package_ahriman: Package, result: Result,
+                                          mocker: MockerFixture) -> None:
+    """
+    must raise ValueError in case if there are no new lines in text
+    """
+    mocker.patch("ahriman.core.report.JinjaTemplate.make_html", return_value="ab" * 4096)
+    report = Telegram("x86_64", configuration, "telegram")
+
+    with pytest.raises(ValueError):
+        report.generate([package_ahriman], result)
+
+
 def test_generate_big_text(configuration: Configuration, package_ahriman: Package, result: Result,
                            mocker: MockerFixture) -> None:
     """
@@ -69,6 +81,23 @@ def test_generate_big_text(configuration: Configuration, package_ahriman: Packag
     report.generate([package_ahriman], result)
     send_mock.assert_has_calls([
         mock.call(pytest.helpers.anyvar(str, strict=True)), mock.call(pytest.helpers.anyvar(str, strict=True))
+    ])
+
+
+def test_generate_very_big_text(configuration: Configuration, package_ahriman: Package, result: Result,
+                                mocker: MockerFixture) -> None:
+    """
+    must generate report with very big text
+    """
+    mocker.patch("ahriman.core.report.JinjaTemplate.make_html", return_value="ab\n" * 4096)
+    send_mock = mocker.patch("ahriman.core.report.Telegram._send")
+
+    report = Telegram("x86_64", configuration, "telegram")
+    report.generate([package_ahriman], result)
+    send_mock.assert_has_calls([
+        mock.call(pytest.helpers.anyvar(str, strict=True)),
+        mock.call(pytest.helpers.anyvar(str, strict=True)),
+        mock.call(pytest.helpers.anyvar(str, strict=True)),
     ])
 
 
