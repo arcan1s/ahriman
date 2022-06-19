@@ -51,7 +51,7 @@ class Remote:
         """
         default constructor
         """
-        self.logger = logging.getLogger("build_details")
+        self.logger = logging.getLogger("build")
 
     @classmethod
     def info(cls: Type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:

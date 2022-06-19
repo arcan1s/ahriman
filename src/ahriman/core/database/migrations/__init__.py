@@ -54,7 +54,7 @@ class Migrations:
         """
         self.connection = connection
         self.configuration = configuration
-        self.logger = logging.getLogger("database")
+        self.logger = logging.getLogger("root")
 
     @classmethod
     def migrate(cls: Type[Migrations], connection: Connection, configuration: Configuration) -> MigrationResult:

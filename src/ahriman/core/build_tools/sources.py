@@ -40,7 +40,7 @@ class Sources:
     """
 
     DEFAULT_BRANCH = "master"  # default fallback branch
-    logger = logging.getLogger("build_details")
+    logger = logging.getLogger("build")
 
     _check_output = check_output
 

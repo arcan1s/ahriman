@@ -45,7 +45,7 @@ class Operations:
             path(Path): path to the database file
         """
         self.path = path
-        self.logger = logging.getLogger("database")
+        self.logger = logging.getLogger("root")
 
     @staticmethod
     def factory(cursor: Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:
