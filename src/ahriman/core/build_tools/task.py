@@ -36,7 +36,6 @@ class Task:
     base package build task
 
     Attributes:
-        build_logger(logging.Logger): logger for build process
         logger(logging.Logger): class logger
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance
@@ -54,8 +53,7 @@ class Task:
             configuration(Configuration): configuration instance
             paths(RepositoryPaths): repository paths instance
         """
-        self.logger = logging.getLogger("root")
-        self.build_logger = logging.getLogger("build_details")
+        self.logger = logging.getLogger("build")
         self.package = package
         self.paths = paths
         self.uid, _ = paths.root_owner
@@ -85,14 +83,14 @@ class Task:
             *command,
             exception=BuildFailed(self.package.base),
             cwd=sources_dir,
-            logger=self.build_logger,
+            logger=self.logger,
             user=self.uid)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",
                                       exception=BuildFailed(self.package.base),
                                       cwd=sources_dir,
-                                      logger=self.build_logger).splitlines()
+                                      logger=self.logger).splitlines()
         return [Path(package) for package in packages]
 
     def init(self, sources_dir: Path, database: SQLite) -> None:

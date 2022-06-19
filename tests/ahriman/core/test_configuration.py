@@ -267,7 +267,7 @@ def test_load_logging_fallback(configuration: Configuration, mocker: MockerFixtu
     """
     must fallback to stderr without errors
     """
-    mocker.patch("logging.config.fileConfig", side_effect=PermissionError())
+    mocker.patch("ahriman.core.configuration.fileConfig", side_effect=PermissionError())
     configuration.load_logging(quiet=False)
 
 

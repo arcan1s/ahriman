@@ -50,7 +50,7 @@ class Repo:
             paths(RepositoryPaths): repository paths instance
             sign_args(List[str]): additional args which have to be used to sign repository archive
         """
-        self.logger = logging.getLogger("build_details")
+        self.logger = logging.getLogger("build")
         self.name = name
         self.paths = paths
         self.uid, _ = paths.root_owner

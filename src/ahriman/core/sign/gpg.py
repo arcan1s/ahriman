@@ -51,7 +51,7 @@ class GPG:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("build_details")
+        self.logger = logging.getLogger("build")
         self.architecture = architecture
         self.configuration = configuration
         self.targets, self.default_key = self.sign_options(configuration)
