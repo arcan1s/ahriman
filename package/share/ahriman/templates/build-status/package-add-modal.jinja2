@@ -50,12 +50,12 @@
     });
 
     function addPackages() {
-        const packages = [packageInput.val()]
+        const packages = [packageInput.val()];
         doPackageAction("/api/v1/service/add", packages);
     }
 
     function requestPackages() {
-        const packages = [packageInput.val()]
+        const packages = [packageInput.val()];
         doPackageAction("/api/v1/service/request", packages);
     }
 </script>

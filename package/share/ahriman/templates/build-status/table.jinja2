@@ -32,7 +32,7 @@
                 showSuccess(details);
             },
             error: (jqXHR, _, errorThrown) => { showFailure(errorThrown); },
-        })
+        });
     }
 
     function getSelection() {
@@ -58,25 +58,30 @@
             dataType: "json",
             success: response => {
                 const extractListProperties = (description, property) => {
-                    return Object.values(description.packages).map(pkg => {
-                        return pkg[property];
-                    }).reduce((left, right) => { return left.concat(right); }, []);
+                    return Object.values(description.packages)
+                        .map(pkg => { return pkg[property]; })
+                        .reduce((left, right) => { return left.concat(right); }, []);
                 };
-                const listToTable = data => { return Array.from(new Set(data)).sort().join("<br>"); };
+                const listToTable = data => {
+                    return Array.from(new Set(data))
+                        .sort()
+                        .map(entry => { return safe(entry); })
+                        .join("<br>");
+                };
 
                 const payload = response.map(description => {
                     const package_base = description.package.base;
                     const web_url = description.package.remote?.web_url;
                     return {
-                        id: description.package.base,
-                        base: web_url ? `<a href="${web_url}" title="${package_base}">${package_base}</a>` : package_base,
-                        version: description.package.version,
+                        id: package_base,
+                        base: web_url ? `<a href="${safe(web_url)}" title="${safe(package_base)}">${safe(package_base)}</a>` : safe(package_base),
+                        version: safe(description.package.version),
                         packages: listToTable(Object.keys(description.package.packages)),
                         groups: listToTable(extractListProperties(description.package, "groups")),
                         licenses: listToTable(extractListProperties(description.package, "licenses")),
                         timestamp: new Date(1000 * description.status.timestamp).toISOString(),
-                        status: description.status.status
-                    }
+                        status: description.status.status,
+                    };
                 });
 
                 table.bootstrapTable("load", payload);
@@ -85,17 +90,17 @@
                 hideControls(false);
             },
             error: (jqXHR, _, errorThrown) => {
-                hideControls(true);
                 if ((jqXHR.status === 401) || (jqXHR.status === 403)) {
                     // authorization error
                     const text = "In order to see statuses you must login first.";
                     table.find("tr.unauthorized").remove();
-                    table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${text}</td></tr>`);
+                    table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${safe(text)}</td></tr>`);
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
                     showFailure(errorThrown);
                 }
+                hideControls(true);
             },
         });
 
@@ -129,6 +134,14 @@
         });
     }
 
+    function safe(string) {
+        return String(string)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
     function statusFormat(value) {
         const cellClass = status => {
             if (status === "pending") return "table-warning";
@@ -143,5 +156,5 @@
     $(() => {
         table.bootstrapTable({});
         reload();
-    })
+    });
 </script>
