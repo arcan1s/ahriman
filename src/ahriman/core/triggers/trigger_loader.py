@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import importlib
-import logging
 import os
 
 from pathlib import Path
@@ -27,19 +26,19 @@ from typing import Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidExtension
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-class TriggerLoader:
+class TriggerLoader(LazyLogging):
     """
     trigger loader class
 
     Attributes:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        logger(logging.Logger): application logger
         triggers(List[Trigger]): list of loaded triggers according to the configuration
 
     Examples:
@@ -66,7 +65,6 @@ class TriggerLoader:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 

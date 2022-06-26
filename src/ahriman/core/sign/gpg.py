@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
 import requests
 
 from pathlib import Path
@@ -25,11 +24,12 @@ from typing import List, Optional, Set, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildFailed
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output, exception_response_text
 from ahriman.models.sign_settings import SignSettings
 
 
-class GPG:
+class GPG(LazyLogging):
     """
     gnupg wrapper
 
@@ -37,7 +37,6 @@ class GPG:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         default_key(Optional[str]): default PGP key ID to use
-        logger(logging.Logger): class logger
         targets(Set[SignSettings]): list of targets to sign (repository, package etc)
     """
 
@@ -51,7 +50,6 @@ class GPG:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("build")
         self.architecture = architecture
         self.configuration = configuration
         self.targets, self.default_key = self.sign_options(configuration)

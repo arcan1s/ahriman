@@ -17,23 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
-
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-class Trigger:
+class Trigger(LazyLogging):
     """
     trigger base class
 
     Attributes:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        logger(logging.Logger): application logger
 
     Examples:
         This class must be used in order to create own extension. Basically idea is the following::
@@ -61,7 +59,6 @@ class Trigger:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 

@@ -19,23 +19,21 @@
 #
 from __future__ import annotations
 
-import logging
-
 from typing import Optional, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user_access import UserAccess
 
 
-class Auth:
+class Auth(LazyLogging):
     """
     helper to deal with user authorization
 
     Attributes:
         enabled(bool): indicates if authorization is enabled
-        logger(logging.Logger): class logger
         max_age(int): session age in seconds. It will be used for both client side and server side checks
         allow_read_only(bool): allow read only access to APIs
     """
@@ -48,8 +46,6 @@ class Auth:
             configuration(Configuration): configuration instance
             provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
         """
-        self.logger = logging.getLogger("http")
-
         self.allow_read_only = configuration.getboolean("auth", "allow_read_only")
 
         self.enabled = provider.is_enabled

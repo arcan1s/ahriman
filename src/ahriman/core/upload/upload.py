@@ -19,25 +19,23 @@
 #
 from __future__ import annotations
 
-import logging
-
 from pathlib import Path
 from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.upload_settings import UploadSettings
 
 
-class Upload:
+class Upload(LazyLogging):
     """
     base remote sync class
 
     Attributes:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        logger(logging.Logger): application logger
 
     Examples:
         These classes provide the way to upload packages to remote sources as it is described in their implementations.
@@ -66,7 +64,6 @@ class Upload:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 

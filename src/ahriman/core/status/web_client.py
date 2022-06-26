@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
 import requests
 
 from typing import List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatusEnum, BuildStatus
@@ -31,13 +31,12 @@ from ahriman.models.package import Package
 from ahriman.models.user import User
 
 
-class WebClient(Client):
+class WebClient(Client, LazyLogging):
     """
     build status reporter web client
 
     Attributes:
         address(str): address of the web service
-        logger(logging.Logger): class logger
         user(Optional[User]): web service user descriptor
     """
 
@@ -48,7 +47,6 @@ class WebClient(Client):
         Args:
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("http")
         self.address = self.parse_address(configuration)
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),

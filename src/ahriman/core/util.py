@@ -20,14 +20,13 @@
 import datetime
 import io
 import os
-from enum import Enum
-
 import requests
 import shutil
 import subprocess
 import tempfile
 
 from contextlib import contextmanager
+from enum import Enum
 from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union

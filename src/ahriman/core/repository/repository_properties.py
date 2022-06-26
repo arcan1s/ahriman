@@ -17,20 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
-
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnsafeRun
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
 from ahriman.core.util import check_user
 
 
-class RepositoryProperties:
+class RepositoryProperties(LazyLogging):
     """
     repository internal objects holder
 
@@ -39,7 +38,6 @@ class RepositoryProperties:
         configuration(Configuration): configuration instance
         database(SQLite): database instance
         ignore_list(List[str]): package bases which will be ignored during auto updates
-        logger(logging.Logger): class logger
         name(str): repository name
         pacman(Pacman): alpm wrapper instance
         paths(RepositoryPaths): repository paths instance
@@ -61,7 +59,6 @@ class RepositoryProperties:
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
         self.database = database

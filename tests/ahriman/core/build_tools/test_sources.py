@@ -10,64 +10,6 @@ from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-def test_add(mocker: MockerFixture) -> None:
-    """
-    must add files to git
-    """
-    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-
-    local = Path("local")
-    Sources._add(local, "pattern1", "pattern2")
-    glob_mock.assert_has_calls([mock.call("pattern1"), mock.call("pattern2")])
-    check_output_mock.assert_called_once_with(
-        "git", "add", "--intent-to-add", "1", "2", "1", "2",
-        exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
-
-
-def test_add_skip(mocker: MockerFixture) -> None:
-    """
-    must skip addition of files to index if no fiels found
-    """
-    mocker.patch("pathlib.Path.glob", return_value=[])
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-
-    Sources._add(Path("local"), "pattern1")
-    check_output_mock.assert_not_called()
-
-
-def test_diff(mocker: MockerFixture) -> None:
-    """
-    must calculate diff
-    """
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-
-    local = Path("local")
-    assert Sources._diff(local)
-    check_output_mock.assert_called_once_with(
-        "git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
-
-
-def test_move(mocker: MockerFixture) -> None:
-    """
-    must move content between directories
-    """
-    mocker.patch("ahriman.core.build_tools.sources.walk", return_value=[Path("/source/path")])
-    move_mock = mocker.patch("shutil.move")
-
-    Sources._move(Path("/source"), Path("/destination"))
-    move_mock.assert_called_once_with(Path("/source/path"), Path("/destination/path"))
-
-
-def test_move_same(mocker: MockerFixture) -> None:
-    """
-    must not do anything in case if directories are the same
-    """
-    walk_mock = mocker.patch("ahriman.core.build_tools.sources.walk")
-    Sources._move(Path("/same"), Path("/same"))
-    walk_mock.assert_not_called()
-
-
 def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     """
     must do nothing in case if no branches available
@@ -87,7 +29,7 @@ def test_fetch_existing(remote_source: RemoteSource, mocker: MockerFixture) -> N
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=True)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._move")
+    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
     Sources.fetch(local, remote_source)
@@ -108,7 +50,7 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._move")
+    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
     Sources.fetch(local, remote_source)
@@ -129,7 +71,7 @@ def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._move")
+    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
     Sources.fetch(local, None)
@@ -147,7 +89,7 @@ def test_fetch_relative(remote_source: RemoteSource, mocker: MockerFixture) -> N
     must process move correctly on relative directory
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._move")
+    move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     Sources.fetch(Path("path"), remote_source)
     move_mock.assert_called_once_with(Path("path").resolve(), Path("path"))
@@ -222,26 +164,12 @@ def test_load_with_cache(package_ahriman: Package, repository_paths: RepositoryP
     copytree_mock.assert_called_once()  # we do not check full command here, sorry
 
 
-def test_patch_apply(mocker: MockerFixture) -> None:
-    """
-    must apply patches if any
-    """
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
-
-    local = Path("local")
-    Sources.patch_apply(local, "patches")
-    check_output_mock.assert_called_once_with(
-        "git", "apply", "--ignore-space-change", "--ignore-whitespace",
-        exception=None, cwd=local, input_data="patches", logger=pytest.helpers.anyvar(int)
-    )
-
-
 def test_patch_create(mocker: MockerFixture) -> None:
     """
     must create patch set for the package
     """
-    add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._add")
-    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._diff")
+    add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
+    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
 
     Sources.patch_create(Path("local"), "glob")
     add_mock.assert_called_once_with(Path("local"), "glob")
@@ -252,6 +180,78 @@ def test_patch_create_with_newline(mocker: MockerFixture) -> None:
     """
     created patch must have new line at the end
     """
-    mocker.patch("ahriman.core.build_tools.sources.Sources._add")
-    mocker.patch("ahriman.core.build_tools.sources.Sources._diff", return_value="diff")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.add")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.diff", return_value="diff")
     assert Sources.patch_create(Path("local"), "glob").endswith("\n")
+
+
+def test_add(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must add files to git
+    """
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    sources.add(local, "pattern1", "pattern2")
+    glob_mock.assert_has_calls([mock.call("pattern1"), mock.call("pattern2")])
+    check_output_mock.assert_called_once_with(
+        "git", "add", "--intent-to-add", "1", "2", "1", "2",
+        exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
+def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must skip addition of files to index if no fiels found
+    """
+    mocker.patch("pathlib.Path.glob", return_value=[])
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    sources.add(Path("local"), "pattern1")
+    check_output_mock.assert_not_called()
+
+
+def test_diff(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must calculate diff
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    assert sources.diff(local)
+    check_output_mock.assert_called_once_with(
+        "git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+
+
+def test_move(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must move content between directories
+    """
+    mocker.patch("ahriman.core.build_tools.sources.walk", return_value=[Path("/source/path")])
+    move_mock = mocker.patch("shutil.move")
+
+    sources.move(Path("/source"), Path("/destination"))
+    move_mock.assert_called_once_with(Path("/source/path"), Path("/destination/path"))
+
+
+def test_move_same(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must not do anything in case if directories are the same
+    """
+    walk_mock = mocker.patch("ahriman.core.build_tools.sources.walk")
+    sources.move(Path("/same"), Path("/same"))
+    walk_mock.assert_not_called()
+
+
+def test_patch_apply(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must apply patches if any
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+
+    local = Path("local")
+    sources.patch_apply(local, "patches")
+    check_output_mock.assert_called_once_with(
+        "git", "apply", "--ignore-space-change", "--ignore-whitespace",
+        exception=None, cwd=local, input_data="patches", logger=pytest.helpers.anyvar(int)
+    )

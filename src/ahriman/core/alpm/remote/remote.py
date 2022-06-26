@@ -19,20 +19,16 @@
 #
 from __future__ import annotations
 
-import logging
-
 from typing import Dict, List, Type
 
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.aur_package import AURPackage
 
 
-class Remote:
+class Remote(LazyLogging):
     """
     base class for remote package search
-
-    Attributes:
-        logger(logging.Logger): class logger
 
     Examples:
         These classes are designed to be used without instancing. In order to achieve it several class methods are
@@ -46,12 +42,6 @@ class Remote:
         Differnece between ``search`` and ``multisearch`` is that ``search`` passes all arguments to underlying wrapper
         directly, whereas ``multisearch`` splits search one by one and finds intersection between search results.
     """
-
-    def __init__(self) -> None:
-        """
-        default constructor
-        """
-        self.logger = logging.getLogger("build")
 
     @classmethod
     def info(cls: Type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:

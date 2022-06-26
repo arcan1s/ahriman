@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.repository import Repository
 
 
-class ApplicationProperties:
+class ApplicationProperties(LazyLogging):
     """
     application base properties class
 
@@ -32,7 +31,6 @@ class ApplicationProperties:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         database(SQLite): database instance
-        logger(logging.Logger): application logger
         repository(Repository): repository instance
     """
 
@@ -44,9 +42,8 @@ class ApplicationProperties:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             no_report(bool): force disable reporting
-             unsafe(bool): if set no user check will be performed before path creation
+            unsafe(bool): if set no user check will be performed before path creation
         """
-        self.logger = logging.getLogger("root")
         self.configuration = configuration
         self.architecture = architecture
         self.database = SQLite.load(configuration)
