@@ -108,7 +108,7 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to sources
         """
         instance = Sources()
-        Sources._check_output("git", "init", "--initial-branch", Sources.DEFAULT_BRANCH,
+        Sources._check_output("git", "init", "--initial-branch", instance.DEFAULT_BRANCH,
                               exception=None, cwd=sources_dir, logger=instance.logger)
 
     @staticmethod
@@ -126,7 +126,7 @@ class Sources(LazyLogging):
         if (cache_dir := paths.cache_for(package.base)).is_dir() and cache_dir != sources_dir:
             # no need to clone whole repository, just copy from cache first
             shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
-        Sources.fetch(sources_dir, package.remote)
+        instance.fetch(sources_dir, package.remote)
 
         if patch is None:
             instance.logger.info("no patches found")
