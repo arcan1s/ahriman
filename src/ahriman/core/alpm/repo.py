@@ -17,22 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
-
 from pathlib import Path
 from typing import List
 
 from ahriman.core.exceptions import BuildFailed
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-class Repo:
+class Repo(LazyLogging):
     """
     repo-add and repo-remove wrapper
 
     Attributes:
-        logger(logging.Logger): class logger
         name(str): repository name
         paths(RepositoryPaths): repository paths instance
         sign_args(List[str]): additional args which have to be used to sign repository archive
@@ -50,7 +48,6 @@ class Repo:
             paths(RepositoryPaths): repository paths instance
             sign_args(List[str]): additional args which have to be used to sign repository archive
         """
-        self.logger = logging.getLogger("build")
         self.name = name
         self.paths = paths
         self.uid, _ = paths.root_owner

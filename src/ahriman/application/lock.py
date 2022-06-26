@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 import argparse
-import logging
 
 from pathlib import Path
 from types import TracebackType
@@ -29,12 +28,13 @@ from typing import Literal, Optional, Type
 from ahriman import version
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRun
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
 
 
-class Lock:
+class Lock(LazyLogging):
     """
     wrapper for application lock file
 
@@ -115,10 +115,8 @@ class Lock:
         """
         status = self.reporter.get_internal()
         if status.version is not None and status.version != version.__version__:
-            logging.getLogger("root").warning(
-                "status watcher version mismatch, our %s, their %s",
-                version.__version__,
-                status.version)
+            self.logger.warning("status watcher version mismatch, our %s, their %s",
+                                version.__version__, status.version)
 
     def check_user(self) -> None:
         """

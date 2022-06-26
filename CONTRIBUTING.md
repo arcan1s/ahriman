@@ -60,6 +60,7 @@ Again, the most checks can be performed by `make check` command, though some add
 * The file size mentioned above must be applicable in general. In case of big classes consider splitting them into traits.
 * No global variable allowed outside of `ahriman.version` module.
 * Single quotes are not allowed. The reason behind this restriction is the fact that docstrings must be written by using double quotes only, and we would like to make style consistent.
+* If your class writes anything to log, the `ahriman.core.lazy_logging.LazyLogging` trait must be used.
 
 ### Other checks
 

@@ -19,25 +19,23 @@
 #
 from __future__ import annotations
 
-import logging
-
 from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportFailed
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
 from ahriman.models.result import Result
 
 
-class Report:
+class Report(LazyLogging):
     """
     base report generator
 
     Attributes:
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        logger(logging.Logger): class logger
 
     Examples:
         ``Report`` classes provide several method in order to operate with the report generation and additional class
@@ -67,7 +65,6 @@ class Report:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.logger = logging.getLogger("root")
         self.architecture = architecture
         self.configuration = configuration
 

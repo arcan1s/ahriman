@@ -19,8 +19,6 @@
 #
 from __future__ import annotations
 
-import logging
-
 from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
@@ -29,11 +27,12 @@ from typing import List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.data import migrate_data
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.migration import Migration
 from ahriman.models.migration_result import MigrationResult
 
 
-class Migrations:
+class Migrations(LazyLogging):
     """
     simple migration wrapper for the sqlite
     idea comes from https://www.ash.dev/blog/simple-migration-system-in-sqlite/
@@ -41,7 +40,6 @@ class Migrations:
     Attributes:
         configuration(Configuration): configuration instance
         connection(Connection): database connection
-        logger(logging.Logger): class logger
     """
 
     def __init__(self, connection: Connection, configuration: Configuration) -> None:
@@ -54,7 +52,6 @@ class Migrations:
         """
         self.connection = connection
         self.configuration = configuration
-        self.logger = logging.getLogger("root")
 
     @classmethod
     def migrate(cls: Type[Migrations], connection: Connection, configuration: Configuration) -> MigrationResult:

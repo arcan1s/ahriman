@@ -17,23 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
 import sqlite3
 
 from pathlib import Path
 from sqlite3 import Connection, Cursor
 from typing import Any, Dict, Tuple, TypeVar, Callable
 
+from ahriman.core.lazy_logging import LazyLogging
 
 T = TypeVar("T")
 
 
-class Operations:
+class Operations(LazyLogging):
     """
     base operation class
 
     Attributes:
-        logger(logging.Logger): class logger
         path(Path): path to the database file
     """
 
@@ -45,7 +44,6 @@ class Operations:
             path(Path): path to the database file
         """
         self.path = path
-        self.logger = logging.getLogger("root")
 
     @staticmethod
     def factory(cursor: Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:

@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 import argparse
-import logging
 import uuid
 
 from multiprocessing import Process, Queue
@@ -28,10 +27,11 @@ from threading import Lock, Thread
 from typing import Callable, Dict, Iterable, Tuple
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package_source import PackageSource
 
 
-class Spawn(Thread):
+class Spawn(Thread, LazyLogging):
     """
     helper to spawn external ahriman process
     MUST NOT be used directly, the only one usage allowed is to spawn process from web services
@@ -40,7 +40,6 @@ class Spawn(Thread):
         active(Dict[str, Process]): map of active child processes required to avoid zombies
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        logger(logging.Logger): spawner logger
         queue(Queue[Tuple[str, bool]]): multiprocessing queue to read updates from processes
     """
 
@@ -57,7 +56,6 @@ class Spawn(Thread):
         self.architecture = architecture
         self.args_parser = args_parser
         self.configuration = configuration
-        self.logger = logging.getLogger("http")
 
         self.lock = Lock()
         self.active: Dict[str, Process] = {}

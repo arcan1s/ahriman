@@ -94,7 +94,7 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     Returns:
         web.Application: web application instance
     """
-    application = web.Application(logger=logging.getLogger("http"))
+    application = web.Application(logger=logging.getLogger(__name__))
     application.on_shutdown.append(on_shutdown)
     application.on_startup.append(on_startup)
 

@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import logging
-
 from pathlib import Path
 from typing import List
 
@@ -26,17 +24,17 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import BuildFailed
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-class Task:
+class Task(LazyLogging):
     """
     base package build task
 
     Attributes:
-        logger(logging.Logger): class logger
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance
         uid(int): uid of the repository owner user
@@ -53,7 +51,6 @@ class Task:
             configuration(Configuration): configuration instance
             paths(RepositoryPaths): repository paths instance
         """
-        self.logger = logging.getLogger("build")
         self.package = package
         self.paths = paths
         self.uid, _ = paths.root_owner

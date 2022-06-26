@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 import copy
-import logging
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -31,6 +30,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
@@ -39,7 +39,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 @dataclass
-class Package:
+class Package(LazyLogging):
     """
     package properties representation
 
@@ -281,23 +281,22 @@ class Package:
 
         from ahriman.core.build_tools.sources import Sources
 
-        logger = logging.getLogger("build")
         Sources.load(paths.cache_for(self.base), self, None, paths)
 
         try:
             # update pkgver first
             Package._check_output("makepkg", "--nodeps", "--nobuild",
-                                  exception=None, cwd=paths.cache_for(self.base), logger=logger)
+                                  exception=None, cwd=paths.cache_for(self.base), logger=self.logger)
             # generate new .SRCINFO and put it to parser
             srcinfo_source = Package._check_output("makepkg", "--printsrcinfo",
-                                                   exception=None, cwd=paths.cache_for(self.base), logger=logger)
+                                                   exception=None, cwd=paths.cache_for(self.base), logger=self.logger)
             srcinfo, errors = parse_srcinfo(srcinfo_source)
             if errors:
                 raise InvalidPackageInfo(errors)
 
             return full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
         except Exception:
-            logger.exception("cannot determine version of VCS package, make sure that you have VCS tools installed")
+            self.logger.exception("cannot determine version of VCS package, make sure that VCS tools are installed")
 
         return self.version
 
