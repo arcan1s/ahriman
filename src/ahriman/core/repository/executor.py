@@ -24,8 +24,9 @@ from typing import Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
-from ahriman.core.util import tmpdir
+from ahriman.core.util import safe_filename, tmpdir
 from ahriman.models.package import Package
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.result import Result
 
 
@@ -122,16 +123,16 @@ class Executor(Cleaner):
         for local in self.packages():
             if local.base in packages or all(package in requested for package in local.packages):
                 to_remove = {
-                    package: Path(properties.filename)
+                    package: properties.filepath
                     for package, properties in local.packages.items()
-                    if properties.filename is not None
+                    if properties.filepath is not None
                 }
                 remove_base(local.base)
             elif requested.intersection(local.packages.keys()):
                 to_remove = {
-                    package: Path(properties.filename)
+                    package: properties.filepath
                     for package, properties in local.packages.items()
-                    if package in requested and properties.filename is not None
+                    if package in requested and properties.filepath is not None
                 }
             else:
                 to_remove = {}
@@ -160,17 +161,25 @@ class Executor(Cleaner):
         Returns:
             Result: path to repository database
         """
+        def rename(archive: PackageDescription, base: str) -> None:
+            if archive.filename is None:
+                self.logger.warning("received empty package name for base %s", base)
+                return  # suppress type checking, it never can be none actually
+            if (safe := safe_filename(archive.filename)) != archive.filename:
+                shutil.move(self.paths.packages / archive.filename, self.paths.packages / safe)
+                archive.filename = safe
+
         def update_single(name: Optional[str], base: str) -> None:
             if name is None:
                 self.logger.warning("received empty package name for base %s", base)
                 return  # suppress type checking, it never can be none actually
-            # in theory it might be NOT packages directory, but we suppose it is
+            # in theory, it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / name
             files = self.sign.process_sign_package(full_path, base)
             for src in files:
-                dst = self.paths.repository / src.name
+                dst = self.paths.repository / safe_filename(src.name)
                 shutil.move(src, dst)
-            package_path = self.paths.repository / name
+            package_path = self.paths.repository / safe_filename(name)
             self.repo.add(package_path)
 
         current_packages = self.packages()
@@ -181,6 +190,7 @@ class Executor(Cleaner):
         for local in updates:
             try:
                 for description in local.packages.values():
+                    rename(description, local.base)
                     update_single(description.filename, local.base)
                 self.reporter.set_success(local)
                 result.add_success(local)
