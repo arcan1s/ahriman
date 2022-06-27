@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
 from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
-    enum_values, package_like, pretty_datetime, pretty_size, tmpdir, walk
+    enum_values, package_like, pretty_datetime, pretty_size, safe_filename, tmpdir, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -292,6 +292,19 @@ def test_pretty_size_empty() -> None:
     must generate empty string for None value
     """
     assert pretty_size(None) == ""
+
+
+def test_safe_filename() -> None:
+    """
+    must replace unsafe characters by dashes
+    """
+    # so far I found only plus sign
+    assert safe_filename(
+        "gconf-3.2.6+11+g07808097-10-x86_64.pkg.tar.zst") == "gconf-3.2.6-11-g07808097-10-x86_64.pkg.tar.zst"
+    assert safe_filename(
+        "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
+    assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
+    assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
 
 
 def test_tmpdir() -> None:

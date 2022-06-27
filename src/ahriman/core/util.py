@@ -20,6 +20,7 @@
 import datetime
 import io
 import os
+import re
 import requests
 import shutil
 import subprocess
@@ -36,7 +37,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 __all__ = ["check_output", "check_user", "exception_response_text", "filter_json", "full_version", "enum_values",
-           "package_like", "pretty_datetime", "pretty_size", "tmpdir", "walk"]
+           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "tmpdir", "walk"]
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
@@ -270,6 +271,27 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
     if size < 1024 or level >= 3:
         return f"{size:.1f} {str_level()}"
     return pretty_size(size / 1024, level + 1)
+
+
+def safe_filename(source: str) -> str:
+    """
+    convert source string to its safe representation
+
+    Args:
+        source(str): string to convert
+
+    Returns:
+        str: result string in which all unsafe characters are replaced by dash
+    """
+    # RFC-3986 https://datatracker.ietf.org/doc/html/rfc3986 states that unreserved characters are
+    # https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
+    #     unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+    # however we would like to allow some gen-delims characters in filename, because those characters are used
+    # as delimiter in other URI parts. The ones we allow are
+    #     ":" - used as separator in schema and userinfo
+    #     "[" and "]" - used for host part
+    #     "@" - used as separator between host and userinfo
+    return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
 
 
 @contextmanager

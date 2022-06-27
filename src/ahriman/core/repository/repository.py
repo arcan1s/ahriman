@@ -99,7 +99,7 @@ class Repository(Executor, UpdateHandler):
         """
         return list(filter(package_like, self.paths.packages.iterdir()))
 
-    def packages_depends_on(self, depends_on: Optional[Iterable[str]]) -> List[Package]:
+    def packages_depend_on(self, depends_on: Optional[Iterable[str]]) -> List[Package]:
         """
         extract list of packages which depends on specified package
 

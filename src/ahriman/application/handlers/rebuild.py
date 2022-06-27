@@ -52,7 +52,7 @@ class Rebuild(Handler):
         if args.from_database:
             updates = Rebuild.extract_packages(application)
         else:
-            updates = application.repository.packages_depends_on(depends_on)
+            updates = application.repository.packages_depend_on(depends_on)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:

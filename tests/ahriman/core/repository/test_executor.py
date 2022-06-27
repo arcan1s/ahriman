@@ -206,6 +206,27 @@ def test_process_update_group(executor: Executor, package_python_schedule: Packa
     remove_mock.assert_called_once_with([])
 
 
+def test_process_update_unsafe(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must encode file name
+    """
+    path = "gconf-3.2.6+11+g07808097-10-x86_64.pkg.tar.zst"
+    safe_path = "gconf-3.2.6-11-g07808097-10-x86_64.pkg.tar.zst"
+    package_ahriman.packages[package_ahriman.base].filename = path
+
+    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
+    move_mock = mocker.patch("shutil.move")
+    repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
+
+    executor.process_update([Path(path)])
+    move_mock.assert_has_calls([
+        mock.call(executor.paths.packages / path, executor.paths.packages / safe_path),
+        mock.call(executor.paths.packages / safe_path, executor.paths.repository / safe_path)
+    ])
+    repo_add_mock.assert_called_once_with(executor.paths.repository / safe_path)
+
+
 def test_process_empty_filename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must skip update for package which does not have path
