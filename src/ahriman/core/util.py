@@ -22,11 +22,8 @@ import io
 import os
 import re
 import requests
-import shutil
 import subprocess
-import tempfile
 
-from contextlib import contextmanager
 from enum import Enum
 from logging import Logger
 from pathlib import Path
@@ -37,7 +34,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 __all__ = ["check_output", "check_user", "exception_response_text", "filter_json", "full_version", "enum_values",
-           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "tmpdir", "walk"]
+           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "walk"]
 
 
 def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
@@ -292,28 +289,6 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
-
-
-@contextmanager
-def tmpdir() -> Generator[Path, None, None]:
-    """
-    wrapper for tempfile to remove directory after all
-
-    Yields:
-        Path: path to the created directory
-
-    Examples:
-        This function must be used only inside context manager as decorator states::
-
-            >>> with tmpdir() as path:
-            >>>     do_something(path)
-            >>>     raise Exception("Clear me after exception please")
-    """
-    path = Path(tempfile.mkdtemp())
-    try:
-        yield path
-    finally:
-        shutil.rmtree(path, ignore_errors=True)
 
 
 def walk(directory_path: Path) -> Generator[Path, None, None]:

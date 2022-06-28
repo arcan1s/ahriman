@@ -21,11 +21,12 @@ import requests
 import shutil
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, Iterable, Set
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
-from ahriman.core.util import package_like, tmpdir
+from ahriman.core.util import package_like
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
@@ -85,7 +86,8 @@ class ApplicationPackages(ApplicationProperties):
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
-        with tmpdir() as local_dir:
+        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
+                (local_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
             Sources.load(local_dir, package, self.database.patches_get(package.base), self.repository.paths)
             self._process_dependencies(local_dir, known_packages, without_dependencies)
 
