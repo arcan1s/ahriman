@@ -20,11 +20,12 @@
 import shutil
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Iterable, List, Optional, Set
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
-from ahriman.core.util import safe_filename, tmpdir
+from ahriman.core.util import safe_filename
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.result import Result
@@ -83,7 +84,8 @@ class Executor(Cleaner):
 
         result = Result()
         for single in updates:
-            with tmpdir() as build_dir:
+            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
+                    (build_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
                 try:
                     build_single(single, build_dir)
                     result.add_success(single)

@@ -19,11 +19,12 @@
 #
 from __future__ import annotations
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Iterable, List, Set, Type
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.database import SQLite
-from ahriman.core.util import tmpdir
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -71,7 +72,8 @@ class Leaf:
         Returns:
             Leaf: loaded class
         """
-        with tmpdir() as clone_dir:
+        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
+                (clone_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
             Sources.load(clone_dir, package, database.patches_get(package.base), paths)
             dependencies = Package.dependencies(clone_dir)
         return cls(package, dependencies)

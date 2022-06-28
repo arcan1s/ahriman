@@ -43,19 +43,15 @@ def test_leaf_load(package_ahriman: Package, repository_paths: RepositoryPaths,
     """
     must load with dependencies
     """
-    tempdir_mock = mocker.patch("tempfile.mkdtemp")
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies", return_value={"ahriman-dependency"})
-    rmtree_mock = mocker.patch("shutil.rmtree")
 
     leaf = Leaf.load(package_ahriman, repository_paths, database)
     assert leaf.package == package_ahriman
     assert leaf.dependencies == {"ahriman-dependency"}
-    tempdir_mock.assert_called_once_with()
     load_mock.assert_called_once_with(
         pytest.helpers.anyvar(int), package_ahriman, None, repository_paths)
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-    rmtree_mock.assert_called_once_with(pytest.helpers.anyvar(int), ignore_errors=True)
 
 
 def test_tree_levels(leaf_ahriman: Leaf, leaf_python_schedule: Leaf) -> None:

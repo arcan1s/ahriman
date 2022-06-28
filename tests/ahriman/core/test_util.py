@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
 from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
-    enum_values, package_like, pretty_datetime, pretty_size, safe_filename, tmpdir, walk
+    enum_values, package_like, pretty_datetime, pretty_size, safe_filename, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -305,25 +305,6 @@ def test_safe_filename() -> None:
         "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
     assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
-
-
-def test_tmpdir() -> None:
-    """
-    must create temporary directory and remove it after
-    """
-    with tmpdir() as directory:
-        assert directory.is_dir()
-    assert not directory.exists()
-
-
-def test_tmpdir_failure() -> None:
-    """
-    must create temporary directory and remove it even after exception
-    """
-    with pytest.raises(Exception):
-        with tmpdir() as directory:
-            raise Exception()
-    assert not directory.exists()
 
 
 def test_walk(resource_path_root: Path) -> None:
