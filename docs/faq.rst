@@ -240,7 +240,7 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
    docker run -v /path/to/local/repo:/var/lib/ahriman -v /etc/ahriman.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
 
-By default, it runs ``repo-update``, but it can be overwritten to any other command you would like to, e.g.:
+The action can be specified during run, e.g.:
 
 .. code-block:: shell
 

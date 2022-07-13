@@ -33,7 +33,7 @@ fi
 ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" repo-setup "${AHRIMAN_SETUP_ARGS[@]}"
 
 # refresh database
-runuser -u build -- yay --noconfirm -Syy &> /dev/null
+pacman -Syy &> /dev/null
 # create machine-id which is required by build tools
 systemd-machine-id-setup &> /dev/null
 
