@@ -38,6 +38,14 @@ ahriman.core.exceptions module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.lazy\_logging module
+---------------------------------
+
+.. automodule:: ahriman.core.lazy_logging
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.spawn module
 -------------------------
 

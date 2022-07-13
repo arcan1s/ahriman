@@ -1,4 +1,4 @@
-FROM archlinux:base-devel
+FROM archlinux:base
 
 # image configuration
 ENV AHRIMAN_ARCHITECTURE="x86_64"
@@ -13,24 +13,22 @@ ENV AHRIMAN_REPOSITORY_ROOT="/var/lib/ahriman/ahriman"
 ENV AHRIMAN_USER="ahriman"
 
 # install environment
-## install git which is required for AUR interaction and go for yay
-RUN pacman --noconfirm -Syu git go
+## install minimal required packages
+RUN pacman --noconfirm -Syu binutils fakeroot git make sudo
 ## create build user
 RUN useradd -m -d /home/build -s /usr/bin/nologin build && \
     echo "build ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/build
-## install AUR helper
-RUN YAY_DIR="$(runuser -u build -- mktemp -d)" && \
-    git clone https://aur.archlinux.org/yay.git "$YAY_DIR" && \
-    cd "$YAY_DIR" && \
-    runuser -u build -- makepkg --noconfirm --install && \
-    cd - && rm -r "$YAY_DIR"
+COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
-RUN runuser -u build -- yay --noconfirm -Sy devtools git pyalpm python-inflection python-passlib python-requests python-srcinfo && \
-    runuser -u build -- yay --noconfirm -Sy python-build python-installer python-wheel && \
-    runuser -u build -- yay --noconfirm -Sy breezy darcs mercurial python-aioauth-client python-aiohttp \
-                                            python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security \
-                                            python-aiohttp-session python-boto3 python-cryptography python-jinja \
-                                            rsync subversion
+## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
+RUN pacman --noconfirm -Sy devtools git pyalpm python-inflection python-passlib python-requests python-srcinfo && \
+    pacman --noconfirm -Sy python-build python-installer python-wheel && \
+    pacman --noconfirm -Sy breezy mercurial python-aiohttp python-boto3 python-cryptography python-jinja rsync subversion && \
+    runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-jinja2 python-aiohttp-debugtoolbar \
+                                            python-aiohttp-session python-aiohttp-security
+
+# cleanup unused
+RUN find "/var/cache/pacman/pkg" -type f -delete
 
 # install ahriman
 ## copy tree
@@ -41,7 +39,7 @@ RUN cd "/home/build/ahriman" && \
     cp ./*-src.tar.xz "package/archlinux" && \
     cd "package/archlinux" && \
     runuser -u build -- makepkg --noconfirm --install --skipchecksums && \
-    cd - && rm -r "/home/build/ahriman"
+    cd / && rm -r "/home/build/ahriman"
 
 VOLUME ["/var/lib/ahriman"]
 
