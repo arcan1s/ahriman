@@ -27,7 +27,7 @@ from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class Counters:
     """
     package counters

@@ -44,7 +44,7 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
     cursor = MagicMock()
     mocker.patch("ahriman.core.database.migrations.Migrations.user_version", return_value=0)
     mocker.patch("ahriman.core.database.migrations.Migrations.migrations",
-                 return_value=[Migration(0, "test", ["select 1"])])
+                 return_value=[Migration(index=0, name="test", steps=["select 1"])])
     migrations.connection.cursor.return_value = cursor
     validate_mock = mocker.patch("ahriman.models.migration_result.MigrationResult.validate")
     migrate_data_mock = mocker.patch("ahriman.core.database.migrations.migrate_data")
@@ -58,7 +58,8 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
         mock.call("commit"),
     ])
     cursor.close.assert_called_once_with()
-    migrate_data_mock.assert_called_once_with(MigrationResult(0, 1), migrations.connection, migrations.configuration)
+    migrate_data_mock.assert_called_once_with(
+        MigrationResult(old_version=0, new_version=1), migrations.connection, migrations.configuration)
 
 
 def test_run_migration_exception(migrations: Migrations, mocker: MockerFixture) -> None:
@@ -69,7 +70,7 @@ def test_run_migration_exception(migrations: Migrations, mocker: MockerFixture) 
     mocker.patch("logging.Logger.info", side_effect=Exception())
     mocker.patch("ahriman.core.database.migrations.Migrations.user_version", return_value=0)
     mocker.patch("ahriman.core.database.migrations.Migrations.migrations",
-                 return_value=[Migration(0, "test", ["select 1"])])
+                 return_value=[Migration(index=0, name="test", steps=["select 1"])])
     mocker.patch("ahriman.models.migration_result.MigrationResult.validate")
     migrations.connection.cursor.return_value = cursor
 
@@ -90,7 +91,7 @@ def test_run_sql_exception(migrations: Migrations, mocker: MockerFixture) -> Non
     cursor.execute.side_effect = Exception()
     mocker.patch("ahriman.core.database.migrations.Migrations.user_version", return_value=0)
     mocker.patch("ahriman.core.database.migrations.Migrations.migrations",
-                 return_value=[Migration(0, "test", ["select 1"])])
+                 return_value=[Migration(index=0, name="test", steps=["select 1"])])
     mocker.patch("ahriman.models.migration_result.MigrationResult.validate")
     migrations.connection.cursor.return_value = cursor
 

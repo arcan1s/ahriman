@@ -13,7 +13,7 @@ def test_from_identity_expired(user_identity: UserIdentity) -> None:
     """
     must construct None from expired identity
     """
-    user_identity.expire_at -= 60
+    user_identity = UserIdentity(username=user_identity.username, expire_at=user_identity.expire_at - 60)
     assert UserIdentity.from_identity(f"{user_identity.username} {user_identity.expire_at}") is None
 
 
@@ -53,7 +53,7 @@ def test_is_expired(user_identity: UserIdentity) -> None:
     """
     assert not user_identity.is_expired()
 
-    user_identity.expire_at -= 60
+    user_identity = UserIdentity(username=user_identity.username, expire_at=user_identity.expire_at - 60)
     assert user_identity.is_expired()
 
 

@@ -426,7 +426,7 @@ def user() -> User:
     Returns:
         User: user descriptor instance
     """
-    return User("user", "pa55w0rd", UserAccess.Reporter)
+    return User(username="user", password="pa55w0rd", access=UserAccess.Reporter)
 
 
 @pytest.fixture

@@ -27,7 +27,7 @@ from ahriman.core.util import filter_json
 from ahriman.models.package_source import PackageSource
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class RemoteSource:
     """
     remote package source properties
@@ -50,7 +50,7 @@ class RemoteSource:
         """
         convert source to enum type
         """
-        self.source = PackageSource(self.source)
+        object.__setattr__(self, "source", PackageSource(self.source))
 
     @property
     def pkgbuild_dir(self) -> Path:

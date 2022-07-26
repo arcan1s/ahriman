@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from typing import List
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class Migration:
     """
     migration implementation

@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -6,10 +8,10 @@ def test_from_option(user: User) -> None:
     """
     must generate user from options
     """
-    user.access = UserAccess.Read
+    user = replace(user, access=UserAccess.Read)
     assert User.from_option(user.username, user.password) == user
     # default is read access
-    user.access = UserAccess.Full
+    user = replace(user, access=UserAccess.Full)
     assert User.from_option(user.username, user.password) != user
     assert User.from_option(user.username, user.password, user.access) == user
 
@@ -40,7 +42,7 @@ def test_check_credentials_empty_hash(user: User) -> None:
     """
     current_password = user.password
     assert not user.check_credentials(current_password, "salt")
-    user.password = ""
+    user = replace(user, password="")
     assert not user.check_credentials(current_password, "salt")
 
 
@@ -48,9 +50,9 @@ def test_hash_password_empty_hash(user: User) -> None:
     """
     must return empty string after hash in case if password not set
     """
-    user.password = ""
+    user = replace(user, password="")
     assert user.hash_password("salt") == user
-    user.password = None
+    user = replace(user, password=None)
     assert user.hash_password("salt") == user
 
 
@@ -71,7 +73,7 @@ def test_verify_access_read(user: User) -> None:
     """
     user with read access must be able to only request read
     """
-    user.access = UserAccess.Read
+    user = replace(user, access=UserAccess.Read)
     assert user.verify_access(UserAccess.Read)
     assert not user.verify_access(UserAccess.Full)
 
@@ -80,7 +82,7 @@ def test_verify_access_write(user: User) -> None:
     """
     user with write access must be able to do anything
     """
-    user.access = UserAccess.Full
+    user = replace(user, access=UserAccess.Full)
     assert user.verify_access(UserAccess.Read)
     assert user.verify_access(UserAccess.Full)
 

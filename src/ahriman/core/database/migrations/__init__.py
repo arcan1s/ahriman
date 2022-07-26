@@ -83,7 +83,7 @@ class Migrations(LazyLogging):
             module = import_module(f"{__name__}.{module_name}")
             steps: List[str] = getattr(module, "steps", [])
             self.logger.debug("found migration %s at index %s with steps count %s", module_name, index, len(steps))
-            migrations.append(Migration(index, module_name, steps))
+            migrations.append(Migration(index=index, name=module_name, steps=steps))
 
         return migrations
 
@@ -97,7 +97,7 @@ class Migrations(LazyLogging):
         migrations = self.migrations()
         current_version = self.user_version()
         expected_version = len(migrations)
-        result = MigrationResult(current_version, expected_version)
+        result = MigrationResult(old_version=current_version, new_version=expected_version)
 
         if not result.is_outdated:
             self.logger.info("no migrations required")

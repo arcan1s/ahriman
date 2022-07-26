@@ -26,7 +26,7 @@ from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class InternalStatus:
     """
     internal server status

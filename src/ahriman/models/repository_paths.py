@@ -29,7 +29,7 @@ from typing import Set, Tuple, Type
 from ahriman.core.exceptions import InvalidPath
 
 
-@dataclass
+@dataclass(frozen=True)
 class RepositoryPaths:
     """
     repository paths holder. For the most operations with paths you want to use this object

@@ -38,7 +38,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
     must run command
     """
     args = _default_args(args)
-    user = User(args.username, args.password, args.role)
+    user = User(username=args.username, password=args.password, access=args.role)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")

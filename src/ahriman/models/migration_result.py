@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from ahriman.core.exceptions import MigrationError
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class MigrationResult:
     """
     migration result implementation model
