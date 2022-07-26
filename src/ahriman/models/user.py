@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional, Type
 from passlib.pwd import genword as generate_password  # type: ignore
 from passlib.handlers.sha2_crypt import sha512_crypt  # type: ignore
@@ -27,7 +27,7 @@ from passlib.handlers.sha2_crypt import sha512_crypt  # type: ignore
 from ahriman.models.user_access import UserAccess
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class User:
     """
     authorized web user model
@@ -82,7 +82,7 @@ class User:
         """
         if username is None or password is None:
             return None
-        return cls(username, password, access)
+        return cls(username=username, password=password, access=access)
 
     @staticmethod
     def generate_password(length: int) -> str:
@@ -130,7 +130,7 @@ class User:
             # when we do not store any password here
             return self
         password_hash: str = self._HASHER.hash(self.password + salt)
-        return User(self.username, password_hash, self.access)
+        return replace(self, password=password_hash)
 
     def verify_access(self, required: UserAccess) -> bool:
         """

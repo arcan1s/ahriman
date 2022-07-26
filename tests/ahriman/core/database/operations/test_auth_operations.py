@@ -16,21 +16,21 @@ def test_user_list(database: SQLite, user: User) -> None:
     must return all users
     """
     database.user_update(user)
-    database.user_update(User(user.password, user.username, user.access))
+    database.user_update(User(username=user.password, password=user.username, access=user.access))
 
     users = database.user_list(None, None)
     assert len(users) == 2
     assert user in users
-    assert User(user.password, user.username, user.access) in users
+    assert User(username=user.password, password=user.username, access=user.access) in users
 
 
 def test_user_list_filter_by_username(database: SQLite) -> None:
     """
     must return users filtered by its id
     """
-    first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Full)
-    third = User("3", "", UserAccess.Read)
+    first = User(username="1", password="", access=UserAccess.Read)
+    second = User(username="2", password="", access=UserAccess.Full)
+    third = User(username="3", password="", access=UserAccess.Read)
 
     database.user_update(first)
     database.user_update(second)
@@ -45,9 +45,9 @@ def test_user_list_filter_by_access(database: SQLite) -> None:
     """
     must return users filtered by its access
     """
-    first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Full)
-    third = User("3", "", UserAccess.Read)
+    first = User(username="1", password="", access=UserAccess.Read)
+    second = User(username="2", password="", access=UserAccess.Full)
+    third = User(username="3", password="", access=UserAccess.Read)
 
     database.user_update(first)
     database.user_update(second)
@@ -63,9 +63,9 @@ def test_user_list_filter_by_username_access(database: SQLite) -> None:
     """
     must return users filtered by its access and username
     """
-    first = User("1", "", UserAccess.Read)
-    second = User("2", "", UserAccess.Full)
-    third = User("3", "", UserAccess.Read)
+    first = User(username="1", password="", access=UserAccess.Read)
+    second = User(username="2", password="", access=UserAccess.Full)
+    third = User(username="3", password="", access=UserAccess.Read)
 
     database.user_update(first)
     database.user_update(second)
@@ -91,7 +91,6 @@ def test_user_update(database: SQLite, user: User) -> None:
     database.user_update(user)
     assert database.user_get(user.username) == user
 
-    new_user = user.hash_password("salt")
-    new_user.access = UserAccess.Full
+    new_user = User(username=user.username, password=user.hash_password("salt").password, access=UserAccess.Full)
     database.user_update(new_user)
     assert database.user_get(new_user.username) == new_user

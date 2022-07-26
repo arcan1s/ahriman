@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
-@dataclass
+@dataclass(frozen=True)
 class Property:
     """
     holder of object properties descriptor
@@ -34,4 +34,4 @@ class Property:
 
     name: str
     value: Any
-    is_required: bool = False
+    is_required: bool = field(default=False, kw_only=True)

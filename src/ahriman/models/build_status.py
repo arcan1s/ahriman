@@ -47,7 +47,7 @@ class BuildStatusEnum(str, Enum):
     Success = "success"
 
 
-@dataclass
+@dataclass(frozen=True)
 class BuildStatus:
     """
     build status holder
@@ -64,7 +64,7 @@ class BuildStatus:
         """
         convert status to enum type
         """
-        self.status = BuildStatusEnum(self.status)
+        object.__setattr__(self, "status", BuildStatusEnum(self.status))
 
     @classmethod
     def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:

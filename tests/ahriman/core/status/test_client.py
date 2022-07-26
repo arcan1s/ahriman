@@ -51,9 +51,8 @@ def test_get_internal(client: Client) -> None:
     """
     must return dummy status for web service
     """
-    expected = InternalStatus(BuildStatus())
     actual = client.get_internal()
-    actual.status.timestamp = expected.status.timestamp
+    expected = InternalStatus(status=BuildStatus(timestamp=actual.status.timestamp))
 
     assert actual == expected
 

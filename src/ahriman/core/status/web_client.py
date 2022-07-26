@@ -189,7 +189,7 @@ class WebClient(Client, LazyLogging):
             self.logger.exception("could not get web service status: %s", exception_response_text(e))
         except Exception:
             self.logger.exception("could not get web service status")
-        return InternalStatus(BuildStatus())
+        return InternalStatus(status=BuildStatus())
 
     def remove(self, base: str) -> None:
         """

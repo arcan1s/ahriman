@@ -38,7 +38,7 @@ from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Package(LazyLogging):
     """
     package properties representation
@@ -147,7 +147,7 @@ class Package(LazyLogging):
         """
         package = pacman.handle.load_pkg(str(path))
         description = PackageDescription.from_package(package, path)
-        return cls(package.base, package.version, remote, {package.name: description})
+        return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description})
 
     @classmethod
     def from_aur(cls: Type[Package], name: str, pacman: Pacman) -> Package:
@@ -163,7 +163,11 @@ class Package(LazyLogging):
         """
         package = AUR.info(name, pacman=pacman)
         remote = RemoteSource.from_source(PackageSource.AUR, package.package_base, package.repository)
-        return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
+        return cls(
+            base=package.package_base,
+            version=package.version,
+            remote=remote,
+            packages={package.name: PackageDescription()})
 
     @classmethod
     def from_build(cls: Type[Package], path: Path) -> Package:
@@ -186,7 +190,7 @@ class Package(LazyLogging):
         packages = {key: PackageDescription() for key in srcinfo["packages"]}
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
-        return cls(srcinfo["pkgbase"], version, None, packages)
+        return cls(base=srcinfo["pkgbase"], version=version, remote=None, packages=packages)
 
     @classmethod
     def from_json(cls: Type[Package], dump: Dict[str, Any]) -> Package:
@@ -204,11 +208,7 @@ class Package(LazyLogging):
             for key, value in dump.get("packages", {}).items()
         }
         remote = dump.get("remote", {})
-        return cls(
-            base=dump["base"],
-            version=dump["version"],
-            remote=RemoteSource.from_json(remote),
-            packages=packages)
+        return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
 
     @classmethod
     def from_official(cls: Type[Package], name: str, pacman: Pacman, use_syncdb: bool = True) -> Package:
@@ -225,7 +225,11 @@ class Package(LazyLogging):
         """
         package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
         remote = RemoteSource.from_source(PackageSource.Repository, package.package_base, package.repository)
-        return cls(package.package_base, package.version, remote, {package.name: PackageDescription()})
+        return cls(
+            base=package.package_base,
+            version=package.version,
+            remote=remote,
+            packages={package.name: PackageDescription()})
 
     @staticmethod
     def dependencies(path: Path) -> Set[str]:

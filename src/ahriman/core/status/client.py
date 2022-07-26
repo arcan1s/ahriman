@@ -80,7 +80,7 @@ class Client:
         Returns:
             InternalStatus: current internal (web) service status
         """
-        return InternalStatus(BuildStatus())
+        return InternalStatus(status=BuildStatus())
 
     def remove(self, base: str) -> None:
         """

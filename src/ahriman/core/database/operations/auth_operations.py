@@ -58,7 +58,7 @@ class AuthOperations(Operations):
 
         def run(connection: Connection) -> List[User]:
             return [
-                User(cursor["username"], cursor["password"], UserAccess(cursor["access"]))
+                User(username=cursor["username"], password=cursor["password"], access=UserAccess(cursor["access"]))
                 for cursor in connection.execute(
                     """
                     select * from users

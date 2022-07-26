@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Optional, Type
 from ahriman.core.util import filter_json
 
 
-@dataclass
+@dataclass(kw_only=True)
 class PackageDescription:
     """
     package specific properties

@@ -164,8 +164,9 @@ def test_get_internal(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must return web service status
     """
+    status = InternalStatus(status=BuildStatus(), architecture="x86_64")
     response_obj = Response()
-    response_obj._content = json.dumps(InternalStatus(BuildStatus(), architecture="x86_64").view()).encode("utf8")
+    response_obj._content = json.dumps(status.view()).encode("utf8")
     response_obj.status_code = 200
 
     requests_mock = mocker.patch("requests.Session.get", return_value=response_obj)

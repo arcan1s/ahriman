@@ -149,7 +149,7 @@ class Users(Handler):
         Returns:
             User: built user descriptor
         """
-        user = User(args.username, args.password, args.role)
-        if user.password is None:
-            user.password = getpass.getpass()
-        return user
+        password = args.password
+        if password is None:
+            password = getpass.getpass()
+        return User(username=args.username, password=password, access=args.role)

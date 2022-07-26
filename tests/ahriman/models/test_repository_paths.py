@@ -69,7 +69,7 @@ def test_chown(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None
     """
     must correctly set owner for the directory
     """
-    repository_paths.owner = _get_owner(repository_paths.root, same=False)
+    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=False))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 
@@ -82,7 +82,7 @@ def test_chown_parent(repository_paths: RepositoryPaths, mocker: MockerFixture) 
     """
     must correctly set owner for the directory including parents
     """
-    repository_paths.owner = _get_owner(repository_paths.root, same=False)
+    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=False))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 
@@ -98,7 +98,7 @@ def test_chown_skip(repository_paths: RepositoryPaths, mocker: MockerFixture) ->
     """
     must skip ownership set in case if it is same as root
     """
-    repository_paths.owner = _get_owner(repository_paths.root, same=True)
+    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=True))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 

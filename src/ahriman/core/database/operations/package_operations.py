@@ -154,7 +154,11 @@ class PackageOperations(Operations):
             Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
         """
         return {
-            row["package_base"]: Package(row["package_base"], row["version"], RemoteSource.from_json(row), {})
+            row["package_base"]: Package(
+                base=row["package_base"],
+                version=row["version"],
+                remote=RemoteSource.from_json(row),
+                packages={})
             for row in connection.execute("""select * from package_bases""")
         }
 

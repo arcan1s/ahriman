@@ -29,7 +29,7 @@ from typing import Any, Callable, Dict, List, Optional, Type
 from ahriman.core.util import filter_json, full_version
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class AURPackage:
     """
     AUR package descriptor

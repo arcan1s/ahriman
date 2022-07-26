@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from typing import Optional, Type
 
 
-@dataclass
+@dataclass(frozen=True)
 class UserIdentity:
     """
     user identity used inside web service
