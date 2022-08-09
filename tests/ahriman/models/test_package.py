@@ -154,7 +154,7 @@ def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage
 
 def test_dependencies_failed(mocker: MockerFixture) -> None:
     """
-    must raise exception if there are errors during srcinfo load
+    must raise exception if there are errors during srcinfo load for dependencies
     """
     mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
@@ -181,6 +181,27 @@ def test_dependencies_with_version_and_overlap(mocker: MockerFixture, resource_p
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
     assert Package.dependencies(Path("path")) == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
+
+
+def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must generate list of available architectures
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    assert Package.supported_architectures(Path("path")) == \
+        {"i686", "pentium4", "x86_64", "arm", "armv7h", "armv6h", "aarch64"}
+
+
+def test_supported_architectures_failed(mocker: MockerFixture) -> None:
+    """
+    must raise exception if there are errors during srcinfo load for architectures
+    """
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
+
+    with pytest.raises(InvalidPackageInfo):
+        Package.supported_architectures(Path("path"))
 
 
 def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:

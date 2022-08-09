@@ -10,6 +10,30 @@ from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+def test_extend_architectures(mocker: MockerFixture) -> None:
+    """
+    must update available architecture list
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    archs_mock = mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"x86_64"})
+    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
+
+    Sources.extend_architectures(Path("local"), "i686")
+    archs_mock.assert_called_once_with(Path("local"))
+    write_mock.assert_called_once_with(Path("local") / "PKGBUILD")
+
+
+def test_extend_architectures_skip(mocker: MockerFixture) -> None:
+    """
+    must skip extending list of the architectures in case if no PKGBUILD file found
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
+
+    Sources.extend_architectures(Path("local"), "i686")
+    write_mock.assert_not_called()
+
+
 def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     """
     must do nothing in case if no branches available
@@ -134,10 +158,12 @@ def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocke
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
+    architectures_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures")
 
     Sources.load(Path("local"), package_ahriman, "patch", repository_paths)
     fetch_mock.assert_called_once_with(Path("local"), package_ahriman.remote)
     patch_mock.assert_called_once_with(Path("local"), "patch")
+    architectures_mock.assert_called_once_with(Path("local"), repository_paths.architecture)
 
 
 def test_load_no_patch(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
