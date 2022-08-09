@@ -25,6 +25,7 @@ from typing import List, Optional
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output, walk
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -41,6 +42,24 @@ class Sources(LazyLogging):
     DEFAULT_BRANCH = "master"  # default fallback branch
 
     _check_output = check_output
+
+    @staticmethod
+    def extend_architectures(sources_dir: Path, architecture: str) -> None:
+        """
+        extend existing PKGBUILD with repository architecture
+
+        Args:
+            sources_dir(Path): local path to directory with source files
+            architecture(str): repository architecture
+        """
+        pkgbuild_path = sources_dir / "PKGBUILD"
+        if not pkgbuild_path.is_file():
+            return
+
+        architectures = Package.supported_architectures(sources_dir)
+        architectures.add(architecture)
+        patch = PkgbuildPatch("arch", list(architectures))
+        patch.write(pkgbuild_path)
 
     @staticmethod
     def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
@@ -128,10 +147,9 @@ class Sources(LazyLogging):
             shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
         instance.fetch(sources_dir, package.remote)
 
-        if patch is None:
-            instance.logger.info("no patches found")
-            return
-        instance.patch_apply(sources_dir, patch)
+        if patch is not None:
+            instance.patch_apply(sources_dir, patch)
+        instance.extend_architectures(sources_dir, paths.architecture)
 
     @staticmethod
     def patch_create(sources_dir: Path, *pattern: str) -> str:

@@ -267,6 +267,26 @@ class Package(LazyLogging):
         packages = set(srcinfo["packages"].keys())
         return (depends | makedepends) - packages
 
+    @staticmethod
+    def supported_architectures(path: Path) -> Set[str]:
+        """
+        load supported architectures from package sources
+
+        Args:
+            path(Path): path to package sources directory
+
+        Returns:
+            Set[str]: list of package supported architectures
+
+        Raises:
+            InvalidPackageInfo: if there are parsing errors
+        """
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
+        if errors:
+            raise InvalidPackageInfo(errors)
+        return set(srcinfo.get("arch", []))
+
     def actual_version(self, paths: RepositoryPaths) -> str:
         """
         additional method to handle VCS package versions
