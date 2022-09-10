@@ -83,7 +83,9 @@ def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.get")
     gpg.key_download("pgp.mit.edu", "0xE989490C")
     requests_mock.assert_called_once_with(
-        "http://pgp.mit.edu/pks/lookup", params={"op": "get", "options": "mr", "search": "0xE989490C"})
+        "http://pgp.mit.edu/pks/lookup",
+        params={"op": "get", "options": "mr", "search": "0xE989490C"},
+        timeout=gpg.DEFAULT_TIMEOUT)
 
 
 def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:

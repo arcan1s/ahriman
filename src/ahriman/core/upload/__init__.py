@@ -18,10 +18,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.upload.upload import Upload
-from ahriman.core.upload.http_upload import HttpUpload
-
-from ahriman.core.upload.github import Github
-from ahriman.core.upload.rsync import Rsync
-from ahriman.core.upload.s3 import S3
-
 from ahriman.core.upload.upload_trigger import UploadTrigger

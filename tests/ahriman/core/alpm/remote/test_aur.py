@@ -78,7 +78,9 @@ def test_make_request(aur: AUR, aur_package_ahriman: AURPackage,
 
     assert aur.make_request("info", "ahriman") == [aur_package_ahriman]
     request_mock.assert_called_once_with(
-        "https://aur.archlinux.org/rpc", params={"v": "5", "type": "info", "arg": ["ahriman"]})
+        "https://aur.archlinux.org/rpc",
+        params={"v": "5", "type": "info", "arg": ["ahriman"]},
+        timeout=aur.DEFAULT_TIMEOUT)
 
 
 def test_make_request_multi_arg(aur: AUR, aur_package_ahriman: AURPackage,
@@ -92,7 +94,9 @@ def test_make_request_multi_arg(aur: AUR, aur_package_ahriman: AURPackage,
 
     assert aur.make_request("search", "ahriman", "is", "cool") == [aur_package_ahriman]
     request_mock.assert_called_once_with(
-        "https://aur.archlinux.org/rpc", params={"v": "5", "type": "search", "arg[]": ["ahriman", "is", "cool"]})
+        "https://aur.archlinux.org/rpc",
+        params={"v": "5", "type": "search", "arg[]": ["ahriman", "is", "cool"]},
+        timeout=aur.DEFAULT_TIMEOUT)
 
 
 def test_make_request_with_kwargs(aur: AUR, aur_package_ahriman: AURPackage,
@@ -106,7 +110,9 @@ def test_make_request_with_kwargs(aur: AUR, aur_package_ahriman: AURPackage,
 
     assert aur.make_request("search", "ahriman", by="name") == [aur_package_ahriman]
     request_mock.assert_called_once_with(
-        "https://aur.archlinux.org/rpc", params={"v": "5", "type": "search", "arg": ["ahriman"], "by": "name"})
+        "https://aur.archlinux.org/rpc",
+        params={"v": "5", "type": "search", "arg": ["ahriman"], "by": "name"},
+        timeout=aur.DEFAULT_TIMEOUT)
 
 
 def test_make_request_failed(aur: AUR, mocker: MockerFixture) -> None:

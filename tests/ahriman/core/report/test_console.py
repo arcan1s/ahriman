@@ -2,7 +2,7 @@ from pytest_mock import MockerFixture
 from unittest import mock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report import Console
+from ahriman.core.report.console import Console
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 

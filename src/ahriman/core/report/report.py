@@ -84,16 +84,16 @@ class Report(LazyLogging):
         section, provider_name = configuration.gettype(target, architecture)
         provider = ReportSettings.from_option(provider_name)
         if provider == ReportSettings.HTML:
-            from ahriman.core.report import HTML
+            from ahriman.core.report.html import HTML
             return HTML(architecture, configuration, section)
         if provider == ReportSettings.Email:
-            from ahriman.core.report import Email
+            from ahriman.core.report.email import Email
             return Email(architecture, configuration, section)
         if provider == ReportSettings.Console:
-            from ahriman.core.report import Console
+            from ahriman.core.report.console import Console
             return Console(architecture, configuration, section)
         if provider == ReportSettings.Telegram:
-            from ahriman.core.report import Telegram
+            from ahriman.core.report.telegram import Telegram
             return Telegram(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 

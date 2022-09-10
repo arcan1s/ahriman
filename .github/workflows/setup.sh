@@ -8,7 +8,7 @@ echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never'
 # refresh the image
 pacman --noconfirm -Syu
 # main dependencies
-pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib python-srcinfo sudo
+pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib python-setuptools python-srcinfo sudo
 # make dependencies
 pacman --noconfirm -Sy python-build python-installer python-wheel
 # optional dependencies

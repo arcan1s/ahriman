@@ -111,7 +111,7 @@ def test_add_remote(application_packages: ApplicationPackages, package_descripti
 
     application_packages._add_remote(url)
     open_mock.assert_called_once_with("wb")
-    request_mock.assert_called_once_with(url, stream=True)
+    request_mock.assert_called_once_with(url, stream=True, timeout=None)
     response_mock.raise_for_status.assert_called_once_with()
 
 

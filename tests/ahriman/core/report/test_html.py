@@ -3,7 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report import HTML
+from ahriman.core.report.html import HTML
 from ahriman.models.package import Package
 
 

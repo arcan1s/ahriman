@@ -23,7 +23,8 @@ import requests
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report import JinjaTemplate, Report
+from ahriman.core.report import Report
+from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.util import exception_response_text
 from ahriman.models.package import Package
 from ahriman.models.result import Result
@@ -40,6 +41,7 @@ class Telegram(Report, JinjaTemplate):
         chat_id(str): chat id to post message, either string with @ or integer
         template_path(Path): path to template for built packages
         template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
+        timeout(int): HTTP request timeout in seconds
     """
 
     TELEGRAM_API_URL = "https://api.telegram.org"
@@ -61,6 +63,7 @@ class Telegram(Report, JinjaTemplate):
         self.chat_id = configuration.get(section, "chat_id")
         self.template_path = configuration.getpath(section, "template_path")
         self.template_type = configuration.get(section, "template_type", fallback="HTML")
+        self.timeout = configuration.getint(section, "timeout", fallback=30)
 
     def _send(self, text: str) -> None:
         """
@@ -72,7 +75,8 @@ class Telegram(Report, JinjaTemplate):
         try:
             response = requests.post(
                 f"{self.TELEGRAM_API_URL}/bot{self.api_key}/sendMessage",
-                data={"chat_id": self.chat_id, "text": text, "parse_mode": self.template_type})
+                data={"chat_id": self.chat_id, "text": text, "parse_mode": self.template_type},
+                timeout=self.timeout)
             response.raise_for_status()
         except requests.HTTPError as e:
             self.logger.exception("could not perform request: %s", exception_response_text(e))

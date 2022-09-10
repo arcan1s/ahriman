@@ -84,8 +84,10 @@ def test_make_request(official: Official, aur_package_akonadi: AURPackage,
     request_mock = mocker.patch("requests.get", return_value=response_mock)
 
     assert official.make_request("akonadi", by="q") == [aur_package_akonadi]
-    request_mock.assert_called_once_with("https://archlinux.org/packages/search/json",
-                                         params={"q": ("akonadi",), "repo": Official.DEFAULT_SEARCH_REPOSITORIES})
+    request_mock.assert_called_once_with(
+        "https://archlinux.org/packages/search/json",
+        params={"q": ("akonadi",), "repo": Official.DEFAULT_SEARCH_REPOSITORIES},
+        timeout=official.DEFAULT_TIMEOUT)
 
 
 def test_make_request_failed(official: Official, mocker: MockerFixture) -> None:

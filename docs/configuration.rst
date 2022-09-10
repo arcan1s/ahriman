@@ -138,6 +138,7 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``link_path`` - prefix for HTML links, string, required.
 * ``template_path`` - path to Jinja2 template, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
+* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 
 ``upload`` group
 ----------------
@@ -167,6 +168,7 @@ This feature requires Github key creation (see below). Section name must be eith
   #. Generate new token. Required scope is ``public_repo`` (or ``repo`` for private repository support).
 
 * ``repository`` - Github repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
+* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 * ``username`` - Github authorization user, string, required. Basically the same as ``owner``.
 
 ``rsync`` type

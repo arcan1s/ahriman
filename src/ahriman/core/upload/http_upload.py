@@ -34,6 +34,7 @@ class HttpUpload(Upload):
 
     Attributes:
         auth(Tuple[str, str]): HTTP auth object
+        timeout(int): HTTP request timeout in seconds
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -49,6 +50,7 @@ class HttpUpload(Upload):
         password = configuration.get(section, "password")
         username = configuration.get(section, "username")
         self.auth = (password, username)
+        self.timeout = configuration.getint(section, "timeout", fallback=30)
 
     @staticmethod
     def calculate_hash(path: Path) -> str:
@@ -108,7 +110,7 @@ class HttpUpload(Upload):
             requests.Response: request response object
         """
         try:
-            response = requests.request(method, url, auth=self.auth, **kwargs)
+            response = requests.request(method, url, auth=self.auth, timeout=self.timeout, **kwargs)
             response.raise_for_status()
         except requests.HTTPError as e:
             self.logger.exception("could not perform %s request to %s: %s", method, url, exception_response_text(e))
