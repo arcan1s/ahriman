@@ -20,7 +20,8 @@
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report import JinjaTemplate, Report
+from ahriman.core.report import Report
+from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 

@@ -34,6 +34,7 @@ class GPG(LazyLogging):
     gnupg wrapper
 
     Attributes:
+        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         default_key(Optional[str]): default PGP key ID to use
@@ -41,6 +42,7 @@ class GPG(LazyLogging):
     """
 
     _check_output = check_output
+    DEFAULT_TIMEOUT = 30
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
@@ -120,7 +122,7 @@ class GPG(LazyLogging):
                 "op": "get",
                 "options": "mr",
                 "search": key
-            })
+            }, timeout=self.DEFAULT_TIMEOUT)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("could not download key %s from %s: %s", key, server, exception_response_text(e))

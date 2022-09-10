@@ -36,11 +36,13 @@ class AUR(Remote):
         DEFAULT_AUR_URL(str): (class attribute) default AUR url
         DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
         DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
+        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
 
     DEFAULT_AUR_URL = "https://aur.archlinux.org"
     DEFAULT_RPC_URL = f"{DEFAULT_AUR_URL}/rpc"
     DEFAULT_RPC_VERSION = "5"
+    DEFAULT_TIMEOUT = 30
 
     @staticmethod
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
@@ -113,7 +115,7 @@ class AUR(Remote):
             query[key] = value
 
         try:
-            response = requests.get(self.DEFAULT_RPC_URL, params=query)
+            response = requests.get(self.DEFAULT_RPC_URL, params=query, timeout=self.DEFAULT_TIMEOUT)
             response.raise_for_status()
             return self.parse_response(response.json())
         except requests.HTTPError as e:

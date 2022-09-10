@@ -4,7 +4,7 @@
 set -ex
 
 # install dependencies
-pacman --noconfirm -Syu base-devel python-pip python-tox
+pacman --noconfirm -Syu base-devel python-pip python-setuptools python-tox
 
 # run test and check targets
 make check tests

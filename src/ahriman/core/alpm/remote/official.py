@@ -36,11 +36,13 @@ class Official(Remote):
         DEFAULT_ARCHLINUX_URL(str): (class attribute) default archlinux url
         DEFAULT_SEARCH_REPOSITORIES(List[str]): (class attribute) default list of repositories to search
         DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
+        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
 
     DEFAULT_ARCHLINUX_URL = "https://archlinux.org"
     DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib", "Community"]
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
+    DEFAULT_TIMEOUT = 30
 
     @staticmethod
     def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
@@ -101,7 +103,10 @@ class Official(Remote):
             List[AURPackage]: response parsed to package list
         """
         try:
-            response = requests.get(self.DEFAULT_RPC_URL, params={by: args, "repo": self.DEFAULT_SEARCH_REPOSITORIES})
+            response = requests.get(
+                self.DEFAULT_RPC_URL,
+                params={by: args, "repo": self.DEFAULT_SEARCH_REPOSITORIES},
+                timeout=self.DEFAULT_TIMEOUT)
             response.raise_for_status()
             return self.parse_response(response.json())
         except requests.HTTPError as e:

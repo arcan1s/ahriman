@@ -3,7 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.report import Email
+from ahriman.core.report.email import Email
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -90,7 +90,7 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
     """
     must generate report
     """
-    send_mock = mocker.patch("ahriman.core.report.Email._send")
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], Result())
@@ -102,7 +102,7 @@ def test_generate_with_built(configuration: Configuration, package_ahriman: Pack
     """
     must generate report with built packages
     """
-    send_mock = mocker.patch("ahriman.core.report.Email._send")
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], result)
@@ -117,7 +117,7 @@ def test_generate_with_built_and_full_path(
     """
     must generate report with built packages and full packages lists
     """
-    send_mock = mocker.patch("ahriman.core.report.Email._send")
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration, "email")
     report.full_template_path = report.template_path
@@ -130,7 +130,7 @@ def test_generate_no_empty(configuration: Configuration, package_ahriman: Packag
     must not generate report with built packages if no_empty_report is set
     """
     configuration.set_option("email", "no_empty_report", "yes")
-    send_mock = mocker.patch("ahriman.core.report.Email._send")
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], Result())
@@ -143,7 +143,7 @@ def test_generate_no_empty_with_built(configuration: Configuration, package_ahri
     must generate report with built packages if no_empty_report is set
     """
     configuration.set_option("email", "no_empty_report", "yes")
-    send_mock = mocker.patch("ahriman.core.report.Email._send")
+    send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
     report = Email("x86_64", configuration, "email")
     report.generate([package_ahriman], result)

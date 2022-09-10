@@ -5,7 +5,8 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.upload import Github, HttpUpload
+from ahriman.core.upload.github import Github
+from ahriman.core.upload.http_upload import HttpUpload
 
 
 def test_calculate_hash_empty(resource_path_root: Path) -> None:
@@ -49,7 +50,7 @@ def test_request(github: Github, mocker: MockerFixture) -> None:
     request_mock = mocker.patch("requests.request", return_value=response_mock)
 
     github._request("GET", "url", arg="arg")
-    request_mock.assert_called_once_with("GET", "url", auth=github.auth, arg="arg")
+    request_mock.assert_called_once_with("GET", "url", auth=github.auth, timeout=github.timeout, arg="arg")
     response_mock.raise_for_status.assert_called_once_with()
 
 
