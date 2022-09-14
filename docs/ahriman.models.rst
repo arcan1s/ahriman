@@ -92,6 +92,14 @@ ahriman.models.package\_source module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.pkgbuild\_patch module
+-------------------------------------
+
+.. automodule:: ahriman.models.pkgbuild_patch
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.property module
 ------------------------------
 
