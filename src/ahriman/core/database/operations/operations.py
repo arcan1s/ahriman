@@ -20,7 +20,6 @@
 import sqlite3
 
 from pathlib import Path
-from sqlite3 import Connection, Cursor
 from typing import Any, Dict, Tuple, TypeVar, Callable
 
 from ahriman.core.lazy_logging import LazyLogging
@@ -46,7 +45,7 @@ class Operations(LazyLogging):
         self.path = path
 
     @staticmethod
-    def factory(cursor: Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:
+    def factory(cursor: sqlite3.Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:
         """
         dictionary factory based on official documentation
 
@@ -62,7 +61,7 @@ class Operations(LazyLogging):
             result[column[0]] = row[index]
         return result
 
-    def with_connection(self, query: Callable[[Connection], T], commit: bool = False) -> T:
+    def with_connection(self, query: Callable[[sqlite3.Connection], T], commit: bool = False) -> T:
         """
         perform operation in connection
 
