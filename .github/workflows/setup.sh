@@ -3,6 +3,8 @@
 
 set -ex
 
+[[ $1 = "minimal" ]] && MINIMAL_INSTALL=1
+
 # install dependencies
 echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never' | tee -a /etc/pacman.conf
 # refresh the image
@@ -12,12 +14,14 @@ pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib 
 # make dependencies
 pacman --noconfirm -Sy python-build python-installer python-wheel
 # optional dependencies
-# VCS support
-pacman --noconfirm -Sy breezy darcs mercurial subversion
-# web server
-pacman --noconfirm -Sy python-aioauth-client python-aiohttp python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
-# additional features
-pacman --noconfirm -Sy gnupg python-boto3 rsync
+if [[ -z $MINIMAL_INSTALL ]]; then
+    # VCS support
+    pacman --noconfirm -Sy breezy darcs mercurial subversion
+    # web server
+    pacman --noconfirm -Sy python-aioauth-client python-aiohttp python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
+    # additional features
+    pacman --noconfirm -Sy gnupg python-boto3 rsync
+fi
 
 # create fresh tarball
 make VERSION=1.0.0 archlinux  # well, it does not really matter which version we will put here
@@ -33,14 +37,17 @@ systemd-machine-id-setup
 # special thing for the container, because /dev/log interface is not available there
 sed -i "s/handlers = syslog_handler/handlers = console_handler/g" /etc/ahriman.ini.d/logging.ini
 # initial setup command as root
-ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" --web-port 8080
+[[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
+ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
 # enable services
 systemctl enable ahriman-web@x86_64
 systemctl enable ahriman@x86_64.timer
-# run web service (detached)
-sudo -u ahriman -- ahriman -a x86_64 web &
-WEBPID=$!
-sleep 15s  # wait for the web service activation
+if [[ -z $MINIMAL_INSTALL ]]; then
+    # run web service (detached)
+    sudo -u ahriman -- ahriman -a x86_64 web &
+    WEB_PID=$!
+    sleep 15s  # wait for the web service activation
+fi
 # add the first package
 # the build itself does not really work in the container
 sudo -u ahriman -- ahriman package-add --now yay
@@ -49,4 +56,4 @@ sudo -u ahriman -- ahriman package-add --now yay
 # run package check
 sudo -u ahriman -- ahriman repo-update
 # stop web service lol
-kill $WEBPID
+[[ -z $WEB_PID ]] || kill $WEB_PID

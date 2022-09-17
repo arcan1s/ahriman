@@ -7,6 +7,22 @@ on:
     branches: [ master ]
 
 jobs:
+  run-setup-minimal:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+      volumes:
+        - ${{ github.workspace }}:/build
+      options: --privileged -w /build
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup the minimal service in arch linux container
+        run: .github/workflows/setup.sh minimal
+
   run-setup:
 
     runs-on: ubuntu-latest
