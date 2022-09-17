@@ -57,6 +57,8 @@ class Sources(LazyLogging):
             return
 
         architectures = Package.supported_architectures(sources_dir)
+        if "any" in architectures:  # makepkg does not like when there is any other arch except for any
+            return
         architectures.add(architecture)
         patch = PkgbuildPatch("arch", list(architectures))
         patch.write(pkgbuild_path)

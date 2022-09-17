@@ -23,6 +23,18 @@ def test_extend_architectures(mocker: MockerFixture) -> None:
     write_mock.assert_called_once_with(Path("local") / "PKGBUILD")
 
 
+def test_extend_architectures_any(mocker: MockerFixture) -> None:
+    """
+    must skip architecture patching in case if there is any architecture
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"any"})
+    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
+
+    Sources.extend_architectures(Path("local"), "i686")
+    write_mock.assert_not_called()
+
+
 def test_extend_architectures_skip(mocker: MockerFixture) -> None:
     """
     must skip extending list of the architectures in case if no PKGBUILD file found
