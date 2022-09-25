@@ -45,7 +45,7 @@ class UploadTrigger(Trigger):
         Trigger.__init__(self, architecture, configuration)
         self.targets = configuration.getlist("upload", "target")
 
-    def run(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
         run trigger
 

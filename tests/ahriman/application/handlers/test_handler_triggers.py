@@ -43,8 +43,8 @@ def test_run_trigger(args: argparse.Namespace, configuration: Configuration, pac
     args.trigger = ["ahriman.core.report.ReportTrigger"]
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.run")
-    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.run")
+    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result")
 
     Triggers.run(args, "x86_64", configuration, True, False)
     report_mock.assert_called_once_with(Result(), [package_ahriman])

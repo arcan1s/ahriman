@@ -473,7 +473,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--from-database",
                         help="read packages from database instead of filesystem. This feature in particular is "
                              "required in case if you would like to restore repository from another repository "
-                             "instance. Note however that in order to restore packages you need to have original "
+                             "instance. Note, however, that in order to restore packages you need to have original "
                              "ahriman instance run with web service and have run repo-update at least once.",
                         action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")

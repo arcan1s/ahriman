@@ -149,7 +149,7 @@ def test_process_triggers(executor: Executor, package_ahriman: Package, result: 
     must process report
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    triggers_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.process")
+    triggers_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.on_result")
 
     executor.process_triggers(result)
     triggers_mock.assert_called_once_with(result, [package_ahriman])
