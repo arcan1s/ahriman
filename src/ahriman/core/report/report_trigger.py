@@ -45,7 +45,7 @@ class ReportTrigger(Trigger):
         Trigger.__init__(self, architecture, configuration)
         self.targets = configuration.getlist("report", "target")
 
-    def run(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
         run trigger
 

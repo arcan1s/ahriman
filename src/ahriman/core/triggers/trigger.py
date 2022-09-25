@@ -37,7 +37,7 @@ class Trigger(LazyLogging):
         This class must be used in order to create own extension. Basically idea is the following::
 
             >>> class CustomTrigger(Trigger):
-            >>>     def run(self, result: Result, packages: Iterable[Package]) -> None:
+            >>>     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
             >>>         perform_some_action()
 
         Having this class you can pass it to ``configuration`` and it will be run on action::
@@ -48,7 +48,7 @@ class Trigger(LazyLogging):
             >>> configuration.set_option("build", "triggers", "my.awesome.package.CustomTrigger")
             >>>
             >>> loader = TriggerLoader("x86_64", configuration)
-            >>> loader.process(Result(), [])
+            >>> loader.on_result(Result(), [])
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -62,15 +62,35 @@ class Trigger(LazyLogging):
         self.architecture = architecture
         self.configuration = configuration
 
-    def run(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
-        run trigger
+        trigger action which will be called after build process with process result
 
         Args:
             result(Result): build result
             packages(Iterable[Package]): list of all available packages
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.run(result, packages)  # compatibility with old triggers
+
+    def on_start(self) -> None:
+        """
+        trigger action which will be called at the start of the application
+        """
+
+    def on_stop(self) -> None:
+        """
+        trigger action which will be called before the stop of the application
+        """
+
+    def run(self, result: Result, packages: Iterable[Package]) -> None:
+        """
+        run trigger
+
+        Note:
+            This method is deprecated and will be removed in the future versions. In order to run old-style trigger
+            action the ``on_result`` method must be used.
+
+        Args:
+            result(Result): build result
+            packages(Iterable[Package]): list of all available packages
+        """

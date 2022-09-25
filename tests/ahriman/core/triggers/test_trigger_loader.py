@@ -3,10 +3,24 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidExtension
 from ahriman.core.triggers import TriggerLoader
 from ahriman.models.package import Package
 from ahriman.models.result import Result
+
+
+def test_init_at_exit(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must call on_start on init and on_stop on exit
+    """
+    on_start_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_start")
+    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
+
+    trigger_loader = TriggerLoader("x86_64", configuration)
+    on_start_mock.assert_called_once_with()
+    del trigger_loader
+    on_stop_mock.assert_called_once_with()
 
 
 def test_load_trigger_package(trigger_loader: TriggerLoader) -> None:
@@ -75,27 +89,51 @@ def test_load_trigger_path_not_found(trigger_loader: TriggerLoader) -> None:
         trigger_loader.load_trigger("/some/random/path.py.SomeRandomModule")
 
 
-def test_process(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_on_result(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run triggers
     """
-    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.run")
-    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.run")
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result")
+    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
 
-    trigger_loader.process(Result(), [package_ahriman])
+    trigger_loader.on_result(Result(), [package_ahriman])
     report_mock.assert_called_once_with(Result(), [package_ahriman])
     upload_mock.assert_called_once_with(Result(), [package_ahriman])
 
 
-def test_process_exception(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_on_result_exception(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must suppress exception during trigger run
     """
-    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.run", side_effect=Exception())
-    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.run")
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result", side_effect=Exception())
+    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
     log_mock = mocker.patch("logging.Logger.exception")
 
-    trigger_loader.process(Result(), [package_ahriman])
+    trigger_loader.on_result(Result(), [package_ahriman])
     report_mock.assert_called_once_with(Result(), [package_ahriman])
     upload_mock.assert_called_once_with(Result(), [package_ahriman])
     log_mock.assert_called_once()
+
+
+def test_on_start(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run triggers on start
+    """
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_start")
+    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_start")
+
+    trigger_loader.on_start()
+    report_mock.assert_called_once_with()
+    upload_mock.assert_called_once_with()
+
+
+def test_on_stop(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run triggers on stop
+    """
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_stop")
+    report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_stop")
+
+    trigger_loader.on_stop()
+    report_mock.assert_called_once_with()
+    upload_mock.assert_called_once_with()

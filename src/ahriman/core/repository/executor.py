@@ -151,7 +151,7 @@ class Executor(Cleaner):
         Args:
             result(Result): build result
         """
-        self.triggers.process(result, self.packages())
+        self.triggers.on_result(result, self.packages())
 
     def process_update(self, packages: Iterable[Path]) -> Result:
         """

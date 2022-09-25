@@ -17,12 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import contextlib
 import importlib
 import os
+import weakref
 
 from pathlib import Path
 from types import ModuleType
-from typing import Iterable
+from typing import Generator, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InvalidExtension
@@ -54,7 +56,7 @@ class TriggerLoader(LazyLogging):
 
         After that you are free to run triggers::
 
-            >>> loader.process(Result(), [])
+            >>> loader.on_result(Result(), [])
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -72,6 +74,25 @@ class TriggerLoader(LazyLogging):
             self.load_trigger(trigger)
             for trigger in configuration.getlist("build", "triggers")
         ]
+
+        self.on_start()
+        self._finalizer = weakref.finalize(self, self.on_stop)
+
+    @contextlib.contextmanager
+    def __execute_trigger(self, trigger: Trigger) -> Generator[None, None, None]:
+        """
+        decorator for calling triggers
+
+        Args:
+            trigger(Trigger): trigger instance to be called
+        """
+        trigger_name = type(trigger).__name__
+
+        try:
+            self.logger.info("executing extension %s", trigger_name)
+            yield
+        except Exception:
+            self.logger.exception("got exception while run trigger %s", trigger_name)
 
     def _load_module_from_file(self, module_path: str, implementation: str) -> ModuleType:
         """
@@ -149,18 +170,30 @@ class TriggerLoader(LazyLogging):
 
         return trigger
 
-    def process(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
-        run remote sync
+        run trigger with result of application run
 
         Args:
             result(Result): build result
             packages(Iterable[Package]): list of all available packages
         """
         for trigger in self.triggers:
-            trigger_name = type(trigger).__name__
-            try:
-                self.logger.info("executing extension %s", trigger_name)
-                trigger.run(result, packages)
-            except Exception:
-                self.logger.exception("got exception while run trigger %s", trigger_name)
+            with self.__execute_trigger(trigger):
+                trigger.on_result(result, packages)
+
+    def on_start(self) -> None:
+        """
+        run triggers on load
+        """
+        for trigger in self.triggers:
+            with self.__execute_trigger(trigger):
+                trigger.on_start()
+
+    def on_stop(self) -> None:
+        """
+        run triggers before the application exit
+        """
+        for trigger in self.triggers:
+            with self.__execute_trigger(trigger):
+                trigger.on_stop()

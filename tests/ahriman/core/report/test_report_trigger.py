@@ -5,7 +5,7 @@ from ahriman.core.report import ReportTrigger
 from ahriman.models.result import Result
 
 
-def test_run(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run report for specified targets
     """
@@ -13,5 +13,5 @@ def test_run(configuration: Configuration, mocker: MockerFixture) -> None:
     run_mock = mocker.patch("ahriman.core.report.Report.run")
 
     trigger = ReportTrigger("x86_64", configuration)
-    trigger.run(Result(), [])
+    trigger.on_result(Result(), [])
     run_mock.assert_called_once_with(Result(), [])
