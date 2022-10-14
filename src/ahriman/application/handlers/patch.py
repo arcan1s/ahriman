@@ -50,6 +50,7 @@ class Patch(Handler):
             unsafe(bool): if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
+        application.on_start()
 
         if args.action == Action.List:
             Patch.patch_set_list(application, args.package, args.exit_code)

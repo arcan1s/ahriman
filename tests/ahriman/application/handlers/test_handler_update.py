@@ -43,12 +43,14 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
+    on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Update.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with([package_ahriman])
     updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                          pytest.helpers.anyvar(int))
     check_mock.assert_has_calls([mock.call(False, False), mock.call(False, False)])
+    on_start_mock.assert_called_once_with()
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

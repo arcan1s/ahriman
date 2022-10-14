@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SyncFailed
-from ahriman.core.upload import Upload
+from ahriman.core.upload.upload import Upload
 from ahriman.models.upload_settings import UploadSettings
 
 
@@ -23,7 +23,7 @@ def test_report_dummy(configuration: Configuration, mocker: MockerFixture) -> No
     must construct dummy upload class
     """
     mocker.patch("ahriman.models.upload_settings.UploadSettings.from_option", return_value=UploadSettings.Disabled)
-    upload_mock = mocker.patch("ahriman.core.upload.Upload.sync")
+    upload_mock = mocker.patch("ahriman.core.upload.upload.Upload.sync")
     Upload.load("x86_64", configuration, "disabled").run(Path("path"), [])
     upload_mock.assert_called_once_with(Path("path"), [])
 

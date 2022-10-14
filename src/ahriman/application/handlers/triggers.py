@@ -49,4 +49,5 @@ class Triggers(Handler):
         if args.trigger:
             loader = application.repository.triggers
             loader.triggers = [loader.load_trigger(trigger) for trigger in args.trigger]
-        application.repository.process_triggers(Result())
+        application.on_start()
+        application.on_result(Result())

@@ -75,6 +75,14 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
 * ``key_*`` settings - PGP key which will be used for specific packages, string, optional. For example, if there is ``key_yay`` option the specified key will be used for yay package and default key for others.
 
+``gitremote`` group
+-------------------
+
+Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - e.g. fetch from remote repository PKGBUILDs before updating process or pulling updated PKGBUILDs to the remote repository.
+
+* ``pull_url`` - url of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
+* ``pull_branch`` - branch of the remote repository from which PKGBUILDs can be pulled before build process, string, optional, default is ``master``.
+
 ``report`` group
 ----------------
 

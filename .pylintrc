@@ -82,7 +82,8 @@ disable=raw-checker-failed,
         fixme,
         too-many-arguments,
         duplicate-code,
-        cyclic-import
+        cyclic-import,
+        confusing-with-statement,
 
 
 # Enable the message, report, category or checker with the given id(s). You can

@@ -112,6 +112,30 @@ TL;DR
 
 Before using this command you will need to create local directory, put ``PKGBUILD`` there and generate ``.SRCINFO`` by using ``makepkg --printsrcinfo > .SRCINFO`` command. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
 
+
+Err, I have remote repository with PKGBUILDs and would like to get versions from there automatically
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For that purpose you could use ``RemotePkgbuildTrigger`` trigger. To do so you will need:
+
+#.
+   Append ``triggers`` option in ``build`` section with the following line:
+
+   .. code-block:: ini
+
+      [build]
+      triggers = ahriman.core.gitremote.RemotePkgbuildTrigger
+
+#.
+   Configure trigger like following:
+
+   .. code-block:: ini
+
+      [gitremote]
+      pull_url = https://github.com/username/repository
+
+During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
+
 But I just wanted to change PKGBUILD from AUR a bit!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -49,6 +49,8 @@ class Rebuild(Handler):
         depends_on = set(args.depends_on) if args.depends_on else None
 
         application = Application(architecture, configuration, no_report, unsafe)
+        application.on_start()
+
         if args.from_database:
             updates = Rebuild.extract_packages(application)
         else:

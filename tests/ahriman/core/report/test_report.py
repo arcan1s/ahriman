@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportFailed
-from ahriman.core.report import Report
+from ahriman.core.report.report import Report
 from ahriman.models.report_settings import ReportSettings
 from ahriman.models.result import Result
 
@@ -23,7 +23,7 @@ def test_report_dummy(configuration: Configuration, result: Result, mocker: Mock
     must construct dummy report class
     """
     mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
-    report_mock = mocker.patch("ahriman.core.report.Report.generate")
+    report_mock = mocker.patch("ahriman.core.report.report.Report.generate")
     Report.load("x86_64", configuration, "disabled").run(result, [])
     report_mock.assert_called_once_with([], result)
 

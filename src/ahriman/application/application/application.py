@@ -49,15 +49,6 @@ class Application(ApplicationPackages, ApplicationRepository):
         be used instead.
     """
 
-    def _finalize(self, result: Result) -> None:
-        """
-        generate report and sync to remote server
-
-        Args:
-            result(Result): build result
-        """
-        self.repository.process_triggers(result)
-
     def _known_packages(self) -> Set[str]:
         """
         load packages from repository and pacman repositories
@@ -73,3 +64,26 @@ class Application(ApplicationPackages, ApplicationRepository):
                 known_packages.update(properties.provides)
         known_packages.update(self.repository.pacman.all_packages())
         return known_packages
+
+    def on_result(self, result: Result) -> None:
+        """
+        generate report and sync to remote server
+
+        Args:
+            result(Result): build result
+        """
+        packages = self.repository.packages()
+        self.repository.triggers.on_result(result, packages)
+
+    def on_start(self) -> None:
+        """
+        run triggers on start of the application
+        """
+        self.repository.triggers.on_start()
+
+    def on_stop(self) -> None:
+        """
+        run triggers on stop of the application. Note, however, that in most cases this method should not be called
+        directly as it will be called after on_start action
+        """
+        self.repository.triggers.on_stop()

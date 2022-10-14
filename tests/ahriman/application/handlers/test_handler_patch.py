@@ -36,9 +36,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args.action = Action.Update
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
+    on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Patch.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), Path(args.package), args.track)
+    on_start_mock.assert_called_once_with()
 
 
 def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
