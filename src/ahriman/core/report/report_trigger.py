@@ -43,7 +43,7 @@ class ReportTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("report", "target")
+        self.targets = configuration.getlist("report", "target", fallback=[])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """

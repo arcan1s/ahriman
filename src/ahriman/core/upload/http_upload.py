@@ -33,7 +33,7 @@ class HttpUpload(Upload):
     helper for the http based uploads
 
     Attributes:
-        auth(Tuple[str, str]): HTTP auth object
+        auth(Optional[Tuple[str, str]]): HTTP auth object if set
         timeout(int): HTTP request timeout in seconds
     """
 
@@ -47,9 +47,9 @@ class HttpUpload(Upload):
             section(str): configuration section name
         """
         Upload.__init__(self, architecture, configuration)
-        password = configuration.get(section, "password")
-        username = configuration.get(section, "username")
-        self.auth = (password, username)
+        password = configuration.get(section, "password", fallback=None)
+        username = configuration.get(section, "username", fallback=None)
+        self.auth = (password, username) if password and username else None
         self.timeout = configuration.getint(section, "timeout", fallback=30)
 
     @staticmethod
