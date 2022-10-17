@@ -70,11 +70,15 @@ class Configuration(configparser.RawConfigParser):
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
 
-    def __init__(self) -> None:
+    def __init__(self, allow_no_value: bool = False) -> None:
         """
         default constructor. In the most cases must not be called directly
+
+        Args:
+            allow_no_value(bool): copies ``configparser.RawConfigParser`` behaviour. In case if it is set to ``True``,
+                the keys without values will be allowed
         """
-        configparser.RawConfigParser.__init__(self, allow_no_value=True, converters={
+        configparser.RawConfigParser.__init__(self, allow_no_value=allow_no_value, converters={
             "list": self.__convert_list,
             "path": self.__convert_path,
         })

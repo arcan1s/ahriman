@@ -43,7 +43,7 @@ class UploadTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("upload", "target")
+        self.targets = configuration.getlist("upload", "target", fallback=[])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """

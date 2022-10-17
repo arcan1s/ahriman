@@ -133,7 +133,9 @@ class Setup(Handler):
             repository(str): repository name
             paths(RepositoryPaths): repository paths instance
         """
-        configuration = Configuration()
+        # allow_no_value=True is required because pacman uses boolean configuration in which just keys present
+        # (e.g. NoProgressBar) which will lead to exception
+        configuration = Configuration(allow_no_value=True)
         # preserve case
         # stupid mypy thinks that it is impossible
         configuration.optionxform = lambda key: key  # type: ignore

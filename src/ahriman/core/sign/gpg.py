@@ -97,7 +97,7 @@ class GPG(LazyLogging):
             Tuple[Set[SignSettings], Optional[str]]: tuple of sign targets and default PGP key
         """
         targets: Set[SignSettings] = set()
-        for option in configuration.getlist("sign", "target"):
+        for option in configuration.getlist("sign", "target", fallback=[]):
             target = SignSettings.from_option(option)
             if target == SignSettings.Disabled:
                 continue
