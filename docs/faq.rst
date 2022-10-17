@@ -157,7 +157,7 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
       [gitremote]
       push_url = https://github.com/username/repository
 
-Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ (with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
+Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
 
 But I just wanted to change PKGBUILD from AUR a bit!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
