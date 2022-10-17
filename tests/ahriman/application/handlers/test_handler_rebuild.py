@@ -41,11 +41,13 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Rebuild.run(args, "x86_64", configuration, True, False)
     application_packages_mock.assert_called_once_with(None)
     application_mock.assert_called_once_with([package_ahriman])
     check_mock.assert_has_calls([mock.call(False, False), mock.call(False, False)])
+    on_start_mock.assert_called_once_with()
 
 
 def test_run_extract_packages(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

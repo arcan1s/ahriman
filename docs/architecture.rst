@@ -35,12 +35,13 @@ This package contains everything which is required for any time of application r
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
-* ``ahriman.core.report`` is a package with reporting classes. Usually it must be called by ``ahriman.core.report.Report.load`` method.
+* ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
+* ``ahriman.core.report`` is a package with reporting triggers. Should not be called directly.
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
 * ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` use this package.
-* ``ahriman.core.upload`` package provides sync feature, must be called by ``ahriman.core.upload.Upload.load`` method.
+* ``ahriman.core.upload`` package provides sync feature, should not be called directly.
 
 This package also provides some generic functions and classes which may be used by other packages:
 
@@ -202,11 +203,13 @@ In order to configure users there are special commands.
 Triggers
 ^^^^^^^^
 
-Triggers are extensions which can be used in order to perform any actions after the update process. The package provides two default extensions - one is report generation and another one is remote upload feature.
+Triggers are extensions which can be used in order to perform any actions on application start, after the update process and, finally, before the application exit. The package provides two default extensions - one is report generation and another one is remote upload feature.
 
 The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join remain part by ``.`` and interpret as module path, import module and extract attribute from it.
 
 The loaded triggers will be called with ``ahriman.models.result.Result`` and ``List[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
+
+In addition triggers can implement ``on_start`` and ``on_stop`` actions which will be called on the application start and right before the application exit. The ``on_start`` action is usually being called from handlers directly in order to make sure that no trigger will be run when it is not required (e.g. on user management). As soon as ``on_start`` action is called, the additional flag will be set; ``ahriman.core.triggers.TriggerLoader`` class implements ``__del__`` method in which, if the flag is set, the ``on_stop`` actions will be called.
 
 For more details how to deal with the triggers, refer to :doc:`documentation <triggers>` and modules descriptions.
 

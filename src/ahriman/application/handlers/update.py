@@ -45,6 +45,7 @@ class Update(Handler):
             unsafe(bool): if set no user check will be performed before path creation
         """
         application = Application(architecture, configuration, no_report, unsafe)
+        application.on_start()
         packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                        Update.log_fn(application, args.dry_run))
         Update.check_if_empty(args.exit_code, not packages)

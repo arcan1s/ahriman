@@ -56,4 +56,4 @@ version:
 ifndef VERSION
 	$(error VERSION is required, but not set)
 endif
-	sed -i '/__version__ = .*/s/[^"][^)]*/__version__ = "$(VERSION)"/' src/ahriman/version.py
+	sed -i 's/^__version__ = .*/__version__ = "$(VERSION)"/' src/ahriman/version.py

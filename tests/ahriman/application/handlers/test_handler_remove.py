@@ -27,6 +27,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args = _default_args(args)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.remove")
+    on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Remove.run(args, "x86_64", configuration, True, False)
     application_mock.assert_called_once_with([])
+    on_start_mock.assert_called_once_with()

@@ -112,6 +112,53 @@ TL;DR
 
 Before using this command you will need to create local directory, put ``PKGBUILD`` there and generate ``.SRCINFO`` by using ``makepkg --printsrcinfo > .SRCINFO`` command. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
 
+
+Err, I have remote repository with PKGBUILDs and would like to get versions from there automatically
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will need:
+
+#.
+   Append ``triggers`` option in ``build`` section with the following line:
+
+   .. code-block:: ini
+
+      [build]
+      triggers = ahriman.core.gitremote.RemotePullTrigger
+
+#.
+   Configure trigger as following:
+
+   .. code-block:: ini
+
+      [gitremote]
+      pull_url = https://github.com/username/repository
+
+During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
+
+I would like to push PKGBUILDs to the remote repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For that purpose you'd need to use another trigger called ``RemotePushTrigger``. Configure it as following:
+
+#.
+   Append ``triggers`` option in ``build`` section with the trigger name:
+
+   .. code-block:: ini
+
+      [build]
+      triggers = ahriman.core.gitremote.RemotePushTrigger
+
+#.
+   Configure trigger as following:
+
+   .. code-block:: ini
+
+      [gitremote]
+      push_url = https://github.com/username/repository
+
+Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
+
 But I just wanted to change PKGBUILD from AUR a bit!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -21,7 +21,7 @@ from typing import Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.triggers import Trigger
-from ahriman.core.upload import Upload
+from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 

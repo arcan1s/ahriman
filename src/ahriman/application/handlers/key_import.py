@@ -46,5 +46,5 @@ class KeyImport(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).repository.sign.key_import(
-            args.key_server, args.key)
+        application = Application(architecture, configuration, no_report, unsafe)
+        application.repository.sign.key_import(args.key_server, args.key)

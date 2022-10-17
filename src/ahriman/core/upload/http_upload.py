@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload import Upload
+from ahriman.core.upload.upload import Upload
 from ahriman.core.util import exception_response_text
 
 

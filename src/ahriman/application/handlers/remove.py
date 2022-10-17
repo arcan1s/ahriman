@@ -44,4 +44,6 @@ class Remove(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).remove(args.package)
+        application = Application(architecture, configuration, no_report, unsafe)
+        application.on_start()
+        application.remove(args.package)
