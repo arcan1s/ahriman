@@ -1,7 +1,13 @@
 Triggers
 ========
 
-The package provides ability to write custom extensions which will be run on (the most) actions, e.g. after updates. By default ahriman provides two types of extensions - reporting and files uploading. Each extension must derive from the ``ahriman.core.triggers.Trigger`` class and implement ``run`` method
+The package provides ability to write custom extensions which will be run on (the most) actions, e.g. after updates. By default ahriman provides three types of extensions - reporting, files uploading and PKGBUILD syncronization. Each extension must derive from the ``ahriman.core.triggers.Trigger`` class and implement at least one of abstract methods:
+
+* ``on_result`` - trigger action which will be called after build process, the build result and the list of repository packages will be supplied as arguments.
+* ``on_start`` - trigger action which will be called right before the start of the application process.
+* ``on_stop`` - action which will be called right before the exit.
+
+Note, it isn't required to implement all those methods (or even one of them), however, it is highly recommended to avoid trigger actions in ``__init__`` method as it will be run on any application start (e.g. even if you are just searching in AUR). Trigger actions will be called on specific application commands (e.g. package addition or repository update).
 
 Trigger example
 ---------------

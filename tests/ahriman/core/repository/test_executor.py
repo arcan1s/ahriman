@@ -6,7 +6,6 @@ from unittest import mock
 
 from ahriman.core.repository.executor import Executor
 from ahriman.models.package import Package
-from ahriman.models.result import Result
 
 
 def test_load_archives(executor: Executor) -> None:

@@ -80,8 +80,12 @@ Settings for signing packages or repository. Group name can refer to architectur
 
 Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - e.g. fetch from remote repository PKGBUILDs before updating process or pulling updated PKGBUILDs to the remote repository.
 
+Both urls support authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+
 * ``pull_url`` - url of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
 * ``pull_branch`` - branch of the remote repository from which PKGBUILDs can be pulled before build process, string, optional, default is ``master``.
+* ``push_url`` - url of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
+* ``push_branch`` - branch of the remote repository to which PKGBUILDs should be pushed after build process, string, optional, default is ``master``.
 
 ``report`` group
 ----------------

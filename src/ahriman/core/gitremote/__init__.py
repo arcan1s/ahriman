@@ -18,3 +18,4 @@
 # along with this program. if not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.gitremote.remote_pull_trigger import RemotePullTrigger
+from ahriman.core.gitremote.remote_push_trigger import RemotePushTrigger

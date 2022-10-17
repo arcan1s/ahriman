@@ -4,10 +4,18 @@ ahriman.core.gitremote package
 Submodules
 ----------
 
-ahriman.core.gitremote.remote\_pkgbuild\_trigger module
--------------------------------------------------------
+ahriman.core.gitremote.remote\_pull\_trigger module
+---------------------------------------------------
 
-.. automodule:: ahriman.core.gitremote.remote_pkgbuild_trigger
+.. automodule:: ahriman.core.gitremote.remote_pull_trigger
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.core.gitremote.remote\_push\_trigger module
+---------------------------------------------------
+
+.. automodule:: ahriman.core.gitremote.remote_push_trigger
    :members:
    :no-undoc-members:
    :show-inheritance:
