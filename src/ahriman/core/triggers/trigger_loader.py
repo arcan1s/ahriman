@@ -20,7 +20,6 @@
 import contextlib
 import importlib
 import os
-import weakref
 
 from pathlib import Path
 from types import ModuleType
@@ -74,9 +73,15 @@ class TriggerLoader(LazyLogging):
             self.load_trigger(trigger)
             for trigger in configuration.getlist("build", "triggers")
         ]
+        self._on_stop_requested = False
 
-        self.on_start()
-        self._finalizer = weakref.finalize(self, self.on_stop)
+    def __del__(self) -> None:
+        """
+        custom destructor object which calls on_stop in case if it was requested
+        """
+        if not self._on_stop_requested:
+            return
+        self.on_stop()
 
     @contextlib.contextmanager
     def __execute_trigger(self, trigger: Trigger) -> Generator[None, None, None]:
@@ -178,6 +183,7 @@ class TriggerLoader(LazyLogging):
             result(Result): build result
             packages(Iterable[Package]): list of all available packages
         """
+        self.logger.debug("executing triggers on result")
         for trigger in self.triggers:
             with self.__execute_trigger(trigger):
                 trigger.on_result(result, packages)
@@ -186,6 +192,8 @@ class TriggerLoader(LazyLogging):
         """
         run triggers on load
         """
+        self.logger.debug("executing triggers on start")
+        self._on_stop_requested = True
         for trigger in self.triggers:
             with self.__execute_trigger(trigger):
                 trigger.on_start()
@@ -194,6 +202,7 @@ class TriggerLoader(LazyLogging):
         """
         run triggers before the application exit
         """
+        self.logger.debug("executing triggers on stop")
         for trigger in self.triggers:
             with self.__execute_trigger(trigger):
                 trigger.on_stop()

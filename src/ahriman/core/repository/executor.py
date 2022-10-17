@@ -84,8 +84,7 @@ class Executor(Cleaner):
 
         result = Result()
         for single in updates:
-            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
-                    (build_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
+            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (build_dir := Path(dir_name)):
                 try:
                     build_single(single, build_dir)
                     result.add_success(single)
@@ -143,15 +142,6 @@ class Executor(Cleaner):
                 remove_package(package, filename)
 
         return self.repo.repo_path
-
-    def process_triggers(self, result: Result) -> None:
-        """
-        process triggers setup by settings
-
-        Args:
-            result(Result): build result
-        """
-        self.triggers.on_result(result, self.packages())
 
     def process_update(self, packages: Iterable[Path]) -> Result:
         """

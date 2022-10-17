@@ -11,12 +11,12 @@ from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
 
 
-def test_finalize(application_packages: ApplicationPackages) -> None:
+def test_on_result(application_packages: ApplicationPackages) -> None:
     """
     must raise NotImplemented for missing finalize method
     """
     with pytest.raises(NotImplementedError):
-        application_packages._finalize([])
+        application_packages.on_result(Result())
 
 
 def test_known_packages(application_packages: ApplicationPackages) -> None:
@@ -242,8 +242,8 @@ def test_remove(application_packages: ApplicationPackages, mocker: MockerFixture
     must remove package
     """
     executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
-    finalize_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._finalize")
+    on_result_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages.on_result")
 
     application_packages.remove([])
     executor_mock.assert_called_once_with([])
-    finalize_mock.assert_called_once_with(Result())
+    on_result_mock.assert_called_once_with(Result())

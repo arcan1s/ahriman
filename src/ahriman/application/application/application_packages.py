@@ -37,24 +37,24 @@ class ApplicationPackages(ApplicationProperties):
     package control class
     """
 
-    def _finalize(self, result: Result) -> None:
-        """
-        generate report and sync to remote server
-
-        Args:
-            result(Result): build result
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
     def _known_packages(self) -> Set[str]:
         """
         load packages from repository and pacman repositories
 
         Returns:
             Set[str]: list of known packages
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
+    def on_result(self, result: Result) -> None:
+        """
+        generate report and sync to remote server
+
+        Args:
+            result(Result): build result
 
         Raises:
             NotImplementedError: not implemented method
@@ -86,8 +86,7 @@ class ApplicationPackages(ApplicationProperties):
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
-                (local_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
+        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (local_dir := Path(dir_name)):
             Sources.load(local_dir, package, self.database.patches_get(package.base), self.repository.paths)
             self._process_dependencies(local_dir, known_packages, without_dependencies)
 
@@ -187,4 +186,4 @@ class ApplicationPackages(ApplicationProperties):
             names(Iterable[str]): list of packages (either base or name) to remove
         """
         self.repository.process_remove(names)
-        self._finalize(Result())
+        self.on_result(Result())

@@ -9,12 +9,12 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-def test_finalize(application_repository: ApplicationRepository) -> None:
+def test_on_result(application_repository: ApplicationRepository) -> None:
     """
     must raise NotImplemented for missing finalize method
     """
     with pytest.raises(NotImplementedError):
-        application_repository._finalize(Result())
+        application_repository.on_result(Result())
 
 
 def test_clean_cache(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
@@ -63,8 +63,8 @@ def test_sign(application_repository: ApplicationRepository, package_ahriman: Pa
     copy_mock = mocker.patch("shutil.copy")
     update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
-    finalize_mock = mocker.patch(
-        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
+    on_result_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     application_repository.sign([])
     copy_mock.assert_has_calls([
@@ -73,7 +73,7 @@ def test_sign(application_repository: ApplicationRepository, package_ahriman: Pa
     ])
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
-    finalize_mock.assert_called_once_with(Result())
+    on_result_mock.assert_called_once_with(Result())
 
 
 def test_sign_skip(application_repository: ApplicationRepository, package_ahriman: Package,
@@ -84,7 +84,7 @@ def test_sign_skip(application_repository: ApplicationRepository, package_ahrima
     package_ahriman.packages[package_ahriman.base].filename = None
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
-    mocker.patch("ahriman.application.application.application_repository.ApplicationRepository._finalize")
+    mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     application_repository.sign([])
 
@@ -99,8 +99,8 @@ def test_sign_specific(application_repository: ApplicationRepository, package_ah
     copy_mock = mocker.patch("shutil.copy")
     update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
-    finalize_mock = mocker.patch(
-        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
+    on_result_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     filename = package_ahriman.packages[package_ahriman.base].filepath
     application_repository.sign([package_ahriman.base])
@@ -109,7 +109,7 @@ def test_sign_specific(application_repository: ApplicationRepository, package_ah
         application_repository.repository.paths.packages / filename.name)
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
-    finalize_mock.assert_called_once_with(Result())
+    on_result_mock.assert_called_once_with(Result())
 
 
 def test_unknown_no_aur(application_repository: ApplicationRepository, package_ahriman: Package,
@@ -163,13 +163,13 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
     build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
-    finalize_mock = mocker.patch(
-        "ahriman.application.application.application_repository.ApplicationRepository._finalize")
+    on_result_mock = mocker.patch(
+        "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     application_repository.update([package_ahriman])
     build_mock.assert_called_once_with([package_ahriman])
     update_mock.assert_has_calls([mock.call(paths), mock.call(paths)])
-    finalize_mock.assert_has_calls([mock.call(result), mock.call(result)])
+    on_result_mock.assert_has_calls([mock.call(result), mock.call(result)])
 
 
 def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package,

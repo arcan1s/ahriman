@@ -44,5 +44,6 @@ class Clean(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, no_report, unsafe).clean(
-            args.cache, args.chroot, args.manual, args.packages)
+        application = Application(architecture, configuration, no_report, unsafe)
+        application.on_start()
+        application.clean(args.cache, args.chroot, args.manual, args.packages)

@@ -72,8 +72,7 @@ class Leaf:
         Returns:
             Leaf: loaded class
         """
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, \
-                (clone_dir := Path(dir_name)):  # pylint: disable=confusing-with-statement
+        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
             Sources.load(clone_dir, package, database.patches_get(package.base), paths)
             dependencies = Package.dependencies(clone_dir)
         return cls(package, dependencies)

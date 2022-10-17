@@ -4,10 +4,8 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest import mock
 
-from ahriman.core.report import Report
 from ahriman.core.repository.executor import Executor
 from ahriman.models.package import Package
-from ahriman.models.result import Result
 
 
 def test_load_archives(executor: Executor) -> None:
@@ -142,17 +140,6 @@ def test_process_remove_nothing(executor: Executor, package_ahriman: Package, pa
 
     executor.process_remove([package_python_schedule.base])
     repo_remove_mock.assert_not_called()
-
-
-def test_process_triggers(executor: Executor, package_ahriman: Package, result: Result, mocker: MockerFixture) -> None:
-    """
-    must process report
-    """
-    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    triggers_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.on_result")
-
-    executor.process_triggers(result)
-    triggers_mock.assert_called_once_with(result, [package_ahriman])
 
 
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:

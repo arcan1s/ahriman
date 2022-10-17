@@ -10,7 +10,7 @@ def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     must run report for specified targets
     """
     configuration.set_option("upload", "target", "rsync")
-    run_mock = mocker.patch("ahriman.core.upload.Upload.run")
+    run_mock = mocker.patch("ahriman.core.upload.upload.Upload.run")
 
     trigger = UploadTrigger("x86_64", configuration)
     trigger.on_result(Result(), [])

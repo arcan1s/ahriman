@@ -10,7 +10,7 @@ def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     must run report for specified targets
     """
     configuration.set_option("report", "target", "email")
-    run_mock = mocker.patch("ahriman.core.report.Report.run")
+    run_mock = mocker.patch("ahriman.core.report.report.Report.run")
 
     trigger = ReportTrigger("x86_64", configuration)
     trigger.on_result(Result(), [])

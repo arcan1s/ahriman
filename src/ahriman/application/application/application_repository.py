@@ -35,7 +35,7 @@ class ApplicationRepository(ApplicationProperties):
     repository control class
     """
 
-    def _finalize(self, result: Result) -> None:
+    def on_result(self, result: Result) -> None:
         """
         generate report and sync to remote server
 
@@ -89,7 +89,7 @@ class ApplicationRepository(ApplicationProperties):
         self.update([])
         # sign repository database if set
         self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
-        self._finalize(Result())
+        self.on_result(Result())
 
     def unknown(self) -> List[str]:
         """
@@ -139,7 +139,7 @@ class ApplicationRepository(ApplicationProperties):
             if not paths:
                 return  # don't need to process if no update supplied
             update_result = self.repository.process_update(paths)
-            self._finalize(result.merge(update_result))
+            self.on_result(result.merge(update_result))
 
         # process built packages
         build_result = Result()

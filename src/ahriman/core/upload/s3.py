@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload import Upload
+from ahriman.core.upload.upload import Upload
 from ahriman.core.util import walk
 from ahriman.models.package import Package
 

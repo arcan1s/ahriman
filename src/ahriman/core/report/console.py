@@ -21,7 +21,7 @@ from typing import Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import BuildPrinter
-from ahriman.core.report import Report
+from ahriman.core.report.report import Report
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 

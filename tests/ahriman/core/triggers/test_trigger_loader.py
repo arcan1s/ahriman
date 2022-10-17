@@ -10,19 +10,6 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-def test_init_at_exit(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must call on_start on init and on_stop on exit
-    """
-    on_start_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_start")
-    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
-
-    trigger_loader = TriggerLoader("x86_64", configuration)
-    on_start_mock.assert_called_once_with()
-    del trigger_loader
-    on_stop_mock.assert_called_once_with()
-
-
 def test_load_trigger_package(trigger_loader: TriggerLoader) -> None:
     """
     must load trigger from package
@@ -123,8 +110,32 @@ def test_on_start(trigger_loader: TriggerLoader, package_ahriman: Package, mocke
     report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_start")
 
     trigger_loader.on_start()
+    assert trigger_loader._on_stop_requested
     report_mock.assert_called_once_with()
     upload_mock.assert_called_once_with()
+
+
+def test_on_stop_with_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must call on_stop on exit if on_start was called
+    """
+    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
+
+    trigger_loader = TriggerLoader("x86_64", configuration)
+    trigger_loader.on_start()
+    del trigger_loader
+    on_stop_mock.assert_called_once_with()
+
+
+def test_on_stop_without_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must call not on_stop on exit if on_start wasn't called
+    """
+    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
+
+    trigger_loader = TriggerLoader("x86_64", configuration)
+    del trigger_loader
+    on_stop_mock.assert_not_called()
 
 
 def test_on_stop(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
