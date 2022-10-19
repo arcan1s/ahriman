@@ -1,14 +1,23 @@
-from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
 
 from ahriman.core.triggers import Trigger
 from ahriman.models.result import Result
 
 
-def test_on_result(trigger: Trigger, mocker: MockerFixture) -> None:
+def test_on_result(trigger: Trigger) -> None:
     """
     must pass execution nto run method
     """
-    run_mock = mocker.patch("ahriman.core.triggers.Trigger.run")
+    trigger.on_result(Result(), [])
+
+
+def test_on_result_run(trigger: Trigger) -> None:
+    """
+    must fallback to run method if it exists
+    """
+    run_mock = MagicMock()
+    setattr(trigger, "run", run_mock)
+
     trigger.on_result(Result(), [])
     run_mock.assert_called_once_with(Result(), [])
 
@@ -25,10 +34,3 @@ def test_on_stop(trigger: Trigger) -> None:
     must do nothing for not implemented method on_stop
     """
     trigger.on_stop()
-
-
-def test_run(trigger: Trigger) -> None:
-    """
-    must do nothing for not implemented method run
-    """
-    trigger.run(Result(), [])

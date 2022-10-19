@@ -70,7 +70,8 @@ class Trigger(LazyLogging):
             result(Result): build result
             packages(Iterable[Package]): list of all available packages
         """
-        self.run(result, packages)  # compatibility with old triggers
+        if (run := getattr(self, "run", None)) is not None:
+            run(result, packages)  # compatibility with old triggers
 
     def on_start(self) -> None:
         """
@@ -80,17 +81,4 @@ class Trigger(LazyLogging):
     def on_stop(self) -> None:
         """
         trigger action which will be called before the stop of the application
-        """
-
-    def run(self, result: Result, packages: Iterable[Package]) -> None:
-        """
-        run trigger
-
-        Note:
-            This method is deprecated and will be removed in the future versions. In order to run old-style trigger
-            action the ``on_result`` method must be used.
-
-        Args:
-            result(Result): build result
-            packages(Iterable[Package]): list of all available packages
         """
