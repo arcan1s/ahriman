@@ -18,17 +18,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import sys
 
 from pathlib import Path
-from typing import List, Optional, Type
+from typing import List, Optional, Tuple, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import StringPrinter
+from ahriman.core.formatters import PatchPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
 class Patch(Handler):
@@ -52,51 +54,93 @@ class Patch(Handler):
         application = Application(architecture, configuration, no_report, unsafe)
         application.on_start()
 
-        if args.action == Action.List:
-            Patch.patch_set_list(application, args.package, args.exit_code)
+        if args.action == Action.Update and args.variable is not None:
+            patch = Patch.patch_create_from_function(args.variable, args.patch)
+            Patch.patch_set_create(application, args.package, patch)
+        elif args.action == Action.Update and args.variable is None:
+            package_base, patch = Patch.patch_create_from_diff(args.package, args.track)
+            Patch.patch_set_create(application, package_base, patch)
+        elif args.action == Action.List:
+            Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
         elif args.action == Action.Remove:
-            Patch.patch_set_remove(application, args.package)
-        elif args.action == Action.Update:
-            Patch.patch_set_create(application, Path(args.package), args.track)
+            Patch.patch_set_remove(application, args.package, args.variable)
 
     @staticmethod
-    def patch_set_create(application: Application, sources_dir: Path, track: List[str]) -> None:
+    def patch_create_from_diff(sources_dir: Path, track: List[str]) -> Tuple[str, PkgbuildPatch]:
+        """
+        create PKGBUILD plain diff patches from sources directory
+
+        Args:
+            sources_dir(Path): path to directory with the package sources
+            track(List[str]): track files which match the glob before creating the patch
+
+        Returns:
+            Tuple[str, PkgbuildPatch]: package base and created PKGBUILD patch based on the diff from master HEAD
+                to current files
+        """
+        package = Package.from_build(sources_dir)
+        patch = Sources.patch_create(sources_dir, *track)
+        return package.base, PkgbuildPatch(None, patch)
+
+    @staticmethod
+    def patch_create_from_function(variable: str, patch_path: Optional[Path]) -> PkgbuildPatch:
+        """
+        create single-function patch set for the package base
+
+        Args:
+            variable(str): function or variable name inside PKGBUILD
+            patch_path(Path): optional path to patch content. If not set, it will be read from stdin
+
+        Returns:
+            PkgbuildPatch: created patch for the PKGBUILD function
+        """
+        if patch_path is None:
+            print("Post new function or variable value below. Press Ctrl-D to finish:", file=sys.stderr)
+            patch = "".join(list(sys.stdin))
+        else:
+            patch = patch_path.read_text(encoding="utf8")
+        patch = patch.strip()  # remove spaces around the patch
+        return PkgbuildPatch(variable, patch)
+
+    @staticmethod
+    def patch_set_create(application: Application, package_base: str, patch: PkgbuildPatch) -> None:
         """
         create patch set for the package base
 
         Args:
             application(Application): application instance
-            sources_dir(Path): path to directory with the package sources
-            track(List[str]): track files which match the glob before creating the patch
+            package_base(str): package base
+            patch(PkgbuildPatch): patch descriptor
         """
-        package = Package.from_build(sources_dir)
-        patch = Sources.patch_create(sources_dir, *track)
-        application.database.patches_insert(package.base, patch)
+        application.database.patches_insert(package_base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: Optional[str], exit_code: bool) -> None:
+    def patch_set_list(application: Application, package_base: Optional[str], variables: List[str],
+                       exit_code: bool) -> None:
         """
         list patches available for the package base
 
         Args:
             application(Application): application instance
             package_base(Optional[str]): package base
+            variables(List[str]): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
+            :
         """
-        patches = application.database.patches_list(package_base)
+        patches = application.database.patches_list(package_base, variables)
         Patch.check_if_empty(exit_code, not patches)
 
         for base, patch in patches.items():
-            content = base if package_base is None else patch
-            StringPrinter(content).print(verbose=True)
+            PatchPrinter(base, patch).print(verbose=True, separator=" = ")
 
     @staticmethod
-    def patch_set_remove(application: Application, package_base: str) -> None:
+    def patch_set_remove(application: Application, package_base: str, variables: List[str]) -> None:
         """
         remove patch set for the package base
 
         Args:
             application(Application): application instance
             package_base(str): package base
+            variables(List[str]): remove patches only for specified PKGBUILD variables
         """
-        application.database.patches_remove(package_base)
+        application.database.patches_remove(package_base, variables)

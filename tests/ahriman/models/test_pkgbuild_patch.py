@@ -5,12 +5,29 @@ from unittest.mock import MagicMock, call
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
+def test_post_init() -> None:
+    """
+    must remove empty keys
+    """
+    assert PkgbuildPatch("", "value").key is None
+    assert PkgbuildPatch(None, "value").key is None
+    assert PkgbuildPatch("key", "value").key == "key"
+
+
 def test_is_function() -> None:
     """
     must correctly define key as function
     """
     assert not PkgbuildPatch("key", "value").is_function
     assert PkgbuildPatch("key()", "value").is_function
+
+
+def test_is_plain_diff() -> None:
+    """
+    must correctly define key as function
+    """
+    assert not PkgbuildPatch("key", "value").is_plain_diff
+    assert PkgbuildPatch(None, "value").is_plain_diff
 
 
 def test_quote() -> None:
@@ -30,6 +47,13 @@ def test_serialize() -> None:
     assert PkgbuildPatch("key", "42").serialize() == "key=42"
     assert PkgbuildPatch("key", "4'2").serialize() == """key='4'"'"'2'"""
     assert PkgbuildPatch("key", "4'2", unsafe=True).serialize() == "key=4'2"
+
+
+def test_serialize_plain_diff() -> None:
+    """
+    must correctly serialize function values
+    """
+    assert PkgbuildPatch(None, "{ value }").serialize() == "{ value }"
 
 
 def test_serialize_function() -> None:

@@ -305,7 +305,7 @@ class Package(LazyLogging):
 
         from ahriman.core.build_tools.sources import Sources
 
-        Sources.load(paths.cache_for(self.base), self, None, paths)
+        Sources.load(paths.cache_for(self.base), self, [], paths)
 
         try:
             # update pkgver first

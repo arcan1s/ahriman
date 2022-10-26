@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -71,13 +71,16 @@ remove package status
 update package status
 .TP
 \fBahriman\fR \fI\,patch-add\/\fR
-add patch set
+add patch for PKGBUILD function
 .TP
 \fBahriman\fR \fI\,patch-list\/\fR
 list patch sets
 .TP
 \fBahriman\fR \fI\,patch-remove\/\fR
 remove patch set
+.TP
+\fBahriman\fR \fI\,patch-set-add\/\fR
+add patch set
 .TP
 \fBahriman\fR \fI\,repo-backup\/\fR
 backup repository data
@@ -284,21 +287,25 @@ set status for specified packages. If no packages supplied, service status will 
 new status
 
 .SH COMMAND \fI\,'ahriman patch-add'\/\fR
-usage: ahriman patch-add [-h] [-t TRACK] package
+usage: ahriman patch-add [-h] [-p PATCH] package variable
 
-create or update source patches
+create or update patched PKGBUILD function or variable
 
 .TP
 \fBpackage\fR
-path to directory with changed files for patch addition/update
+package base
+
+.TP
+\fBvariable\fR
+PKGBUILD variable or function name. If variable is a function, it must end with ()
 
 .SH OPTIONS \fI\,'ahriman patch-add'\/\fR
 .TP
-\fB\-t\fR \fI\,TRACK\/\fR, \fB\-\-track\fR \fI\,TRACK\/\fR
-files which has to be tracked
+\fB\-p\fR \fI\,PATCH\/\fR, \fB\-\-patch\fR \fI\,PATCH\/\fR
+path to file which contains function or variable value. If not set, the value will be read from stdin
 
 .SH COMMAND \fI\,'ahriman patch-list'\/\fR
-usage: ahriman patch-list [-h] [-e] [package]
+usage: ahriman patch-list [-h] [-e] [-v VARIABLE] [package]
 
 list available patches for the package
 
@@ -311,14 +318,38 @@ package base
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
 
+.TP
+\fB\-v\fR \fI\,VARIABLE\/\fR, \fB\-\-variable\fR \fI\,VARIABLE\/\fR
+if set, show only patches for specified PKGBUILD variables
+
 .SH COMMAND \fI\,'ahriman patch-remove'\/\fR
-usage: ahriman patch-remove [-h] package
+usage: ahriman patch-remove [-h] [-v VARIABLE] package
 
 remove patches for the package
 
 .TP
 \fBpackage\fR
 package base
+
+.SH OPTIONS \fI\,'ahriman patch-remove'\/\fR
+.TP
+\fB\-v\fR \fI\,VARIABLE\/\fR, \fB\-\-variable\fR \fI\,VARIABLE\/\fR
+should be used for single\-function patches in case if you wold like to remove only specified PKGBUILD variables. In case
+if not set, it will remove all patches related to the package
+
+.SH COMMAND \fI\,'ahriman patch-set-add'\/\fR
+usage: ahriman patch-set-add [-h] [-t TRACK] package
+
+create or update source patches
+
+.TP
+\fBpackage\fR
+path to directory with changed files for patch addition/update
+
+.SH OPTIONS \fI\,'ahriman patch-set-add'\/\fR
+.TP
+\fB\-t\fR \fI\,TRACK\/\fR, \fB\-\-track\fR \fI\,TRACK\/\fR
+files which has to be tracked
 
 .SH COMMAND \fI\,'ahriman repo-backup'\/\fR
 usage: ahriman repo-backup [-h] path

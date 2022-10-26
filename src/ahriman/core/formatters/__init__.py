@@ -24,6 +24,7 @@ from ahriman.core.formatters.aur_printer import AurPrinter
 from ahriman.core.formatters.build_printer import BuildPrinter
 from ahriman.core.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.core.formatters.package_printer import PackagePrinter
+from ahriman.core.formatters.patch_printer import PatchPrinter
 from ahriman.core.formatters.status_printer import StatusPrinter
 from ahriman.core.formatters.update_printer import UpdatePrinter
 from ahriman.core.formatters.user_printer import UserPrinter
