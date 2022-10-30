@@ -82,6 +82,7 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     _set_aur_search_parser(subparsers)
+    _set_daemon_parser(subparsers)
     _set_help_parser(subparsers)
     _set_help_commands_unsafe_parser(subparsers)
     _set_key_import_parser(subparsers)
@@ -138,6 +139,28 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                           "the specified field, they will be always sorted by name",
                         default="name", choices=sorted(handlers.Search.SORT_FIELDS))
     parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, no_report=True, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for daemon subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("daemon", help="run application as daemon",
+                             description="start process which periodically will run update process",
+                             formatter_class=_formatter)
+    parser.add_argument("-i", "--interval", help="interval between runs in seconds", type=int, default=60 * 60 * 12)
+    parser.add_argument("--no-aur", help="do not check for AUR updates. Implies --no-vcs", action="store_true")
+    parser.add_argument("--no-local", help="do not check local packages for updates", action="store_true")
+    parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
+    parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
+    parser.set_defaults(handler=handlers.Daemon, dry_run=False, exit_code=False, package=[])
     return parser
 
 
