@@ -6,6 +6,7 @@ from unittest import mock
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -16,11 +17,9 @@ def test_extend_architectures(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
     archs_mock = mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"x86_64"})
-    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
 
-    Sources.extend_architectures(Path("local"), "i686")
+    assert Sources.extend_architectures(Path("local"), "i686") == [PkgbuildPatch("arch", list({"x86_64", "i686"}))]
     archs_mock.assert_called_once_with(Path("local"))
-    write_mock.assert_called_once_with(Path("local") / "PKGBUILD")
 
 
 def test_extend_architectures_any(mocker: MockerFixture) -> None:
@@ -29,21 +28,7 @@ def test_extend_architectures_any(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"any"})
-    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
-
-    Sources.extend_architectures(Path("local"), "i686")
-    write_mock.assert_not_called()
-
-
-def test_extend_architectures_skip(mocker: MockerFixture) -> None:
-    """
-    must skip extending list of the architectures in case if no PKGBUILD file found
-    """
-    mocker.patch("pathlib.Path.is_file", return_value=False)
-    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
-
-    Sources.extend_architectures(Path("local"), "i686")
-    write_mock.assert_not_called()
+    assert Sources.extend_architectures(Path("local"), "i686") == []
 
 
 def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None:
@@ -167,15 +152,16 @@ def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocke
     """
     must load packages sources correctly
     """
-    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    patch = PkgbuildPatch(None, "patch")
+    path = Path("local")
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
-    architectures_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures")
+    architectures_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
 
-    Sources.load(Path("local"), package_ahriman, "patch", repository_paths)
-    fetch_mock.assert_called_once_with(Path("local"), package_ahriman.remote)
-    patch_mock.assert_called_once_with(Path("local"), "patch")
-    architectures_mock.assert_called_once_with(Path("local"), repository_paths.architecture)
+    Sources.load(path, package_ahriman, [patch], repository_paths)
+    fetch_mock.assert_called_once_with(path, package_ahriman.remote)
+    patch_mock.assert_called_once_with(path, patch)
+    architectures_mock.assert_called_once_with(path, repository_paths.architecture)
 
 
 def test_load_no_patch(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -184,9 +170,10 @@ def test_load_no_patch(package_ahriman: Package, repository_paths: RepositoryPat
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
 
-    Sources.load(Path("local"), package_ahriman, None, repository_paths)
+    Sources.load(Path("local"), package_ahriman, [], repository_paths)
     patch_mock.assert_not_called()
 
 
@@ -197,8 +184,9 @@ def test_load_with_cache(package_ahriman: Package, repository_paths: RepositoryP
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     copytree_mock = mocker.patch("shutil.copytree")
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
 
-    Sources.load(Path("local"), package_ahriman, None, repository_paths)
+    Sources.load(Path("local"), package_ahriman, [], repository_paths)
     copytree_mock.assert_called_once()  # we do not check full command here, sorry
 
 
@@ -331,11 +319,24 @@ def test_patch_apply(sources: Sources, mocker: MockerFixture) -> None:
     """
     must apply patches if any
     """
+    patch = PkgbuildPatch(None, "patch")
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
 
     local = Path("local")
-    sources.patch_apply(local, "patches")
+    sources.patch_apply(local, patch)
     check_output_mock.assert_called_once_with(
         "git", "apply", "--ignore-space-change", "--ignore-whitespace",
-        exception=None, cwd=local, input_data="patches", logger=pytest.helpers.anyvar(int)
+        exception=None, cwd=local, input_data=patch.value, logger=pytest.helpers.anyvar(int)
     )
+
+
+def test_patch_apply_function(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must apply single-function patches
+    """
+    patch = PkgbuildPatch("version", "42")
+    local = Path("local")
+    write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
+
+    sources.patch_apply(local, patch)
+    write_mock.assert_called_once_with(local / "PKGBUILD")

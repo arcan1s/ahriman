@@ -20,4 +20,4 @@ def test_init(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> No
     """
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     task_ahriman.init(Path("ahriman"), database)
-    load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, None, task_ahriman.paths)
+    load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, [], task_ahriman.paths)

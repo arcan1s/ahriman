@@ -1,10 +1,11 @@
 import pytest
 
-from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, PackagePrinter, StatusPrinter, StringPrinter, \
-    UpdatePrinter, UserPrinter, VersionPrinter
+from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, PackagePrinter, PatchPrinter, StatusPrinter, \
+    StringPrinter, UpdatePrinter, UserPrinter, VersionPrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user import User
 
 
@@ -45,6 +46,20 @@ def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
         PackagePrinter: package printer test instance
     """
     return PackagePrinter(package_ahriman, BuildStatus())
+
+
+@pytest.fixture
+def patch_printer(package_ahriman: Package) -> PatchPrinter:
+    """
+    fixture for patch printer
+
+    Args:
+        package_ahriman(Package): package fixture
+
+    Returns:
+        PatchPrinter: patch printer test instance
+    """
+    return PatchPrinter(package_ahriman.base, [PkgbuildPatch("key", "value")])
 
 
 @pytest.fixture

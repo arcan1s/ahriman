@@ -197,7 +197,7 @@ def test_subparsers_patch_add(parser: argparse.ArgumentParser) -> None:
     """
     patch-add command must imply action, architecture list, lock and no-report
     """
-    args = parser.parse_args(["patch-add", "ahriman"])
+    args = parser.parse_args(["patch-add", "ahriman", "version"])
     assert args.action == Action.Update
     assert args.architecture == [""]
     assert args.lock is None
@@ -208,16 +208,8 @@ def test_subparsers_patch_add_architecture(parser: argparse.ArgumentParser) -> N
     """
     patch-add command must correctly parse architecture list
     """
-    args = parser.parse_args(["-a", "x86_64", "patch-add", "ahriman"])
+    args = parser.parse_args(["-a", "x86_64", "patch-add", "ahriman", "version"])
     assert args.architecture == [""]
-
-
-def test_subparsers_patch_add_track(parser: argparse.ArgumentParser) -> None:
-    """
-    patch-add command must correctly parse track files patterns
-    """
-    args = parser.parse_args(["patch-add", "-t", "*.py", "ahriman"])
-    assert args.track == ["*.diff", "*.patch", "*.py"]
 
 
 def test_subparsers_patch_list(parser: argparse.ArgumentParser) -> None:
@@ -256,6 +248,42 @@ def test_subparsers_patch_remove_architecture(parser: argparse.ArgumentParser) -
     """
     args = parser.parse_args(["-a", "x86_64", "patch-remove", "ahriman"])
     assert args.architecture == [""]
+
+
+def test_subparsers_patch_set_add(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-set-add command must imply action, architecture list, lock, no-report and variable
+    """
+    args = parser.parse_args(["patch-set-add", "ahriman"])
+    assert args.action == Action.Update
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert args.no_report
+    assert args.variable is None
+
+
+def test_subparsers_patch_set_add_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-set-add command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "patch-set-add", "ahriman"])
+    assert args.architecture == [""]
+
+
+def test_subparsers_patch_set_add_option_package(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-set-add command must convert package option to path instance
+    """
+    args = parser.parse_args(["patch-set-add", "ahriman"])
+    assert isinstance(args.package, Path)
+
+
+def test_subparsers_patch_set_add_option_track(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-set-add command must correctly parse track files patterns
+    """
+    args = parser.parse_args(["patch-set-add", "-t", "*.py", "ahriman"])
+    assert args.track == ["*.diff", "*.patch", "*.py"]
 
 
 def test_subparsers_repo_backup(parser: argparse.ArgumentParser) -> None:

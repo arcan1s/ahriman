@@ -109,7 +109,7 @@ class Executor(Cleaner):
             try:
                 self.paths.tree_clear(package_base)  # remove all internal files
                 self.database.build_queue_clear(package_base)
-                self.database.patches_remove(package_base)
+                self.database.patches_remove(package_base, [])
                 self.reporter.remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)

@@ -21,7 +21,7 @@ import shlex
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
@@ -30,15 +30,22 @@ class PkgbuildPatch:
     wrapper for patching PKBGUILDs
 
     Attributes:
-        key(str): name of the property in PKGBUILD, e.g. version, url etc
+        key(Optional[str]): name of the property in PKGBUILD, e.g. version, url etc. If not set, patch will be
+            considered as full PKGBUILD diffs
         value(Union[str, List[str]]): value of the stored PKGBUILD property. It must be either string or list of string
             values
         unsafe(bool): if set, value will be not quoted, might break PKGBUILD
     """
 
-    key: str
+    key: Optional[str]
     value: Union[str, List[str]]
     unsafe: bool = field(default=False, kw_only=True)
+
+    def __post_init__(self) -> None:
+        """
+        remove empty key
+        """
+        object.__setattr__(self, "key", self.key or None)
 
     @property
     def is_function(self) -> bool:
@@ -48,7 +55,17 @@ class PkgbuildPatch:
         Returns:
             bool: True in case if key ends with parentheses and False otherwise
         """
-        return self.key.endswith("()")
+        return self.key is not None and self.key.endswith("()")
+
+    @property
+    def is_plain_diff(self) -> bool:
+        """
+        check if patch is full diff one or just single-variable patch
+
+        Returns:
+            bool: True in case key set and False otherwise
+        """
+        return self.key is None
 
     def quote(self, value: str) -> str:
         """
@@ -74,6 +91,8 @@ class PkgbuildPatch:
         if isinstance(self.value, list):  # list like
             value = " ".join(map(self.quote, self.value))
             return f"""{self.key}=({value})"""
+        if self.is_plain_diff:  # no additional logic for plain diffs
+            return self.value
         # we suppose that function values are only supported in string-like values
         if self.is_function:
             return f"{self.key} {self.value}"  # no quoting enabled here
