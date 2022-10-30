@@ -65,6 +65,26 @@ def test_subparsers_aur_search_architecture(parser: argparse.ArgumentParser) -> 
     assert args.architecture == [""]
 
 
+def test_subparsers_daemon(parser: argparse.ArgumentParser) -> None:
+    """
+    daemon command must imply dry run, exit code and package
+    """
+    args = parser.parse_args(["daemon"])
+    assert not args.dry_run
+    assert not args.exit_code
+    assert args.package == []
+
+
+def test_subparsers_daemon_option_interval(parser: argparse.ArgumentParser) -> None:
+    """
+    daemon command must convert interval option to int instance
+    """
+    args = parser.parse_args(["daemon"])
+    assert isinstance(args.interval, int)
+    args = parser.parse_args(["daemon", "--interval", "10"])
+    assert isinstance(args.interval, int)
+
+
 def test_subparsers_help(parser: argparse.ArgumentParser) -> None:
     """
     help command must imply architecture list, lock, no-report, quiet, unsafe and parser
