@@ -49,8 +49,7 @@ def test_leaf_load(package_ahriman: Package, repository_paths: RepositoryPaths,
     leaf = Leaf.load(package_ahriman, repository_paths, database)
     assert leaf.package == package_ahriman
     assert leaf.dependencies == {"ahriman-dependency"}
-    load_mock.assert_called_once_with(
-        pytest.helpers.anyvar(int), package_ahriman, None, repository_paths)
+    load_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman, [], repository_paths)
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 

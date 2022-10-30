@@ -45,24 +45,22 @@ class Sources(LazyLogging):
     _check_output = check_output
 
     @staticmethod
-    def extend_architectures(sources_dir: Path, architecture: str) -> None:
+    def extend_architectures(sources_dir: Path, architecture: str) -> List[PkgbuildPatch]:
         """
         extend existing PKGBUILD with repository architecture
 
         Args:
             sources_dir(Path): local path to directory with source files
             architecture(str): repository architecture
-        """
-        pkgbuild_path = sources_dir / "PKGBUILD"
-        if not pkgbuild_path.is_file():
-            return
 
+        Returns:
+            List[PkgbuildPatch]: generated patch for PKGBUILD architectures if required
+        """
         architectures = Package.supported_architectures(sources_dir)
         if "any" in architectures:  # makepkg does not like when there is any other arch except for any
-            return
+            return []
         architectures.add(architecture)
-        patch = PkgbuildPatch("arch", list(architectures))
-        patch.write(pkgbuild_path)
+        return [PkgbuildPatch("arch", list(architectures))]
 
     @staticmethod
     def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
@@ -134,14 +132,14 @@ class Sources(LazyLogging):
                               exception=None, cwd=sources_dir, logger=instance.logger)
 
     @staticmethod
-    def load(sources_dir: Path, package: Package, patch: Optional[str], paths: RepositoryPaths) -> None:
+    def load(sources_dir: Path, package: Package, patches: List[PkgbuildPatch], paths: RepositoryPaths) -> None:
         """
         fetch sources from remote and apply patches
 
         Args:
             sources_dir(Path): local path to fetch
             package(Package): package definitions
-            patch(Optional[str]): optional patch to be applied
+            patches(List[PkgbuildPatch]): optional patch to be applied
             paths(RepositoryPaths): repository paths instance
         """
         instance = Sources()
@@ -150,9 +148,9 @@ class Sources(LazyLogging):
             shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
         instance.fetch(sources_dir, package.remote)
 
-        if patch is not None:
+        patches.extend(instance.extend_architectures(sources_dir, paths.architecture))
+        for patch in patches:
             instance.patch_apply(sources_dir, patch)
-        instance.extend_architectures(sources_dir, paths.architecture)
 
     @staticmethod
     def patch_create(sources_dir: Path, *pattern: str) -> str:
@@ -248,15 +246,18 @@ class Sources(LazyLogging):
             dst = sources_dir / src.relative_to(pkgbuild_dir)
             shutil.move(src, dst)
 
-    def patch_apply(self, sources_dir: Path, patch: str) -> None:
+    def patch_apply(self, sources_dir: Path, patch: PkgbuildPatch) -> None:
         """
         apply patches if any
 
         Args:
             sources_dir(Path): local path to directory with git sources
-            patch(str): patch to be applied
+            patch(PkgbuildPatch): patch to be applied
         """
         # create patch
-        self.logger.info("apply patch from database")
-        Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace",
-                              exception=None, cwd=sources_dir, input_data=patch, logger=self.logger)
+        self.logger.info("apply patch %s from database at %s", patch.key, sources_dir)
+        if patch.is_plain_diff:
+            Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace",
+                                  exception=None, cwd=sources_dir, input_data=patch.serialize(), logger=self.logger)
+        else:
+            patch.write(sources_dir / "PKGBUILD")

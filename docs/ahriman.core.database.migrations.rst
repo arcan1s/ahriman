@@ -28,6 +28,14 @@ ahriman.core.database.migrations.m002\_user\_access module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m003\_patch\_variables module
+--------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m003_patch_variables
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

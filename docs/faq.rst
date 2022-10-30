@@ -162,11 +162,13 @@ Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will
 But I just wanted to change PKGBUILD from AUR a bit!
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Well it is supported also.
+Well it is supported also. The recommended way is to patch specific function, e.g. by running ``sudo -u ahriman ahriman patch-add ahriman version``. This command will prompt for new value of the PKGBUILD variable ``version``. You can also write it to file and read from it ``sudo -u ahriman ahriman patch-add ahriman version version.patch``.
+
+Alternatively you can create full-diff patches, which are calculated by using ``git diff`` from current PKGBUILD master branch:
 
 #. Clone sources from AUR.
 #. Make changes you would like to (e.g. edit ``PKGBUILD``, add external patches).
-#. Run ``sudo -u ahriman ahriman patch-add /path/to/local/directory/with/PKGBUILD``.
+#. Run ``sudo -u ahriman ahriman patch-set-add /path/to/local/directory/with/PKGBUILD``.
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 

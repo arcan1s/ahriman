@@ -72,7 +72,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     # must update status and remove package files
     tree_clear_mock.assert_called_once_with(package_ahriman.base)
     build_queue_mock.assert_called_once_with(package_ahriman.base)
-    patches_mock.assert_called_once_with(package_ahriman.base)
+    patches_mock.assert_called_once_with(package_ahriman.base, [])
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
