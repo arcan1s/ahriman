@@ -7,7 +7,6 @@
     table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
         () => {
             removeButton.prop("disabled", !table.bootstrapTable("getSelections").length);
-            updateButton.prop("disabled", !table.bootstrapTable("getSelections").length);
         });
 
     const architectureBadge = $("#badge-architecture");
@@ -16,8 +15,6 @@
     const versionBadge = $("#badge-version");
 
     function doPackageAction(uri, packages) {
-        if (packages.length === 0)
-            return;
         $.ajax({
             url: uri,
             data: JSON.stringify({packages: packages}),

@@ -86,10 +86,12 @@ class Spawn(Thread, LazyLogging):
             packages(Iterable[str]): packages list to add
             now(bool): build packages now
         """
+        if not packages:
+            return self.spawn_process("repo-update")
         kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
         if now:
             kwargs["now"] = ""
-        self.spawn_process("add", *packages, **kwargs)
+        return self.spawn_process("package-add", *packages, **kwargs)
 
     def packages_remove(self, packages: Iterable[str]) -> None:
         """
@@ -98,7 +100,7 @@ class Spawn(Thread, LazyLogging):
         Args:
             packages(Iterable[str]): packages list to remove
         """
-        self.spawn_process("remove", *packages)
+        self.spawn_process("package-remove", *packages)
 
     def spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
         """
