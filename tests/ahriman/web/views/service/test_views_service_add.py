@@ -27,17 +27,6 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     add_mock.assert_called_once_with(["ahriman"], now=True)
 
 
-async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:
-    """
-    must raise exception on missing packages payload
-    """
-    add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
-    response = await client.post("/api/v1/service/add")
-
-    assert response.status == 400
-    add_mock.assert_not_called()
-
-
 async def test_post_update(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly for alias

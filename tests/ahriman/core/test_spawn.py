@@ -42,7 +42,7 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=False)
-    spawn_mock.assert_called_once_with("add", "ahriman", "linux", source="aur")
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur")
 
 
 def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -51,7 +51,16 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=True)
-    spawn_mock.assert_called_once_with("add", "ahriman", "linux", source="aur", now="")
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", now="")
+
+
+def test_packages_add_update(spawner: Spawn, mocker: MockerFixture) -> None:
+    """
+    must call repo update
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawner.packages_add([], now=False)
+    spawn_mock.assert_called_once_with("repo-update")
 
 
 def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -60,7 +69,7 @@ def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.packages_remove(["ahriman", "linux"])
-    spawn_mock.assert_called_once_with("remove", "ahriman", "linux")
+    spawn_mock.assert_called_once_with("package-remove", "ahriman", "linux")
 
 
 def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:

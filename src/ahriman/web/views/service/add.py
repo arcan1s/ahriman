@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPFound
+from aiohttp.web import HTTPFound
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -47,11 +47,8 @@ class AddView(BaseView):
             HTTPBadRequest: if bad data is supplied
             HTTPFound: in case of success response
         """
-        try:
-            data = await self.extract_data(["packages"])
-            packages = data["packages"]
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        data = await self.extract_data(["packages"])
+        packages = data.get("packages", [])
 
         self.spawner.packages_add(packages, now=True)
 
