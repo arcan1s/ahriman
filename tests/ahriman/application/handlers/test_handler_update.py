@@ -108,4 +108,4 @@ def test_log_fn(application: Application, mocker: MockerFixture) -> None:
     """
     logger_mock = mocker.patch("logging.Logger.info")
     Update.log_fn(application, False)("hello")
-    logger_mock.assert_called_once_with("hello")
+    logger_mock.assert_has_calls([mock.call("hello")])
