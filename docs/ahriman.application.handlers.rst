@@ -28,6 +28,14 @@ ahriman.application.handlers.clean module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.daemon module
+------------------------------------------
+
+.. automodule:: ahriman.application.handlers.daemon
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.dump module
 ----------------------------------------
 
