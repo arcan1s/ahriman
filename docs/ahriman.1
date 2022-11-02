@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -45,6 +45,9 @@ COMMAND
 .TP
 \fBahriman\fR \fI\,aur-search\/\fR
 search for package
+.TP
+\fBahriman\fR \fI\,daemon\/\fR
+run application as daemon
 .TP
 \fBahriman\fR \fI\,help\/\fR
 show help message
@@ -165,6 +168,32 @@ show additional package information
 \fB\-\-sort\-by\fR \fI\,{description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,url,url_path,version}\/\fR
 sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
 by name
+
+.SH COMMAND \fI\,'ahriman daemon'\/\fR
+usage: ahriman daemon [-h] [-i INTERVAL] [--no-aur] [--no-local] [--no-manual] [--no-vcs]
+
+start process which periodically will run update process
+
+.SH OPTIONS \fI\,'ahriman daemon'\/\fR
+.TP
+\fB\-i\fR \fI\,INTERVAL\/\fR, \fB\-\-interval\fR \fI\,INTERVAL\/\fR
+interval between runs in seconds
+
+.TP
+\fB\-\-no\-aur\fR
+do not check for AUR updates. Implies \-\-no\-vcs
+
+.TP
+\fB\-\-no\-local\fR
+do not check local packages for updates
+
+.TP
+\fB\-\-no\-manual\fR
+do not include manual updates
+
+.TP
+\fB\-\-no\-vcs\fR
+do not check VCS packages
 
 .SH COMMAND \fI\,'ahriman help'\/\fR
 usage: ahriman help [-h] [command]
@@ -287,7 +316,7 @@ set status for specified packages. If no packages supplied, service status will 
 new status
 
 .SH COMMAND \fI\,'ahriman patch-add'\/\fR
-usage: ahriman patch-add [-h] [-p PATCH] package variable
+usage: ahriman patch-add [-h] package variable [patch]
 
 create or update patched PKGBUILD function or variable
 
@@ -299,9 +328,8 @@ package base
 \fBvariable\fR
 PKGBUILD variable or function name. If variable is a function, it must end with ()
 
-.SH OPTIONS \fI\,'ahriman patch-add'\/\fR
 .TP
-\fB\-p\fR \fI\,PATCH\/\fR, \fB\-\-patch\fR \fI\,PATCH\/\fR
+\fBpatch\fR
 path to file which contains function or variable value. If not set, the value will be read from stdin
 
 .SH COMMAND \fI\,'ahriman patch-list'\/\fR
