@@ -51,5 +51,6 @@ class RemotePushTrigger(Trigger):
             packages(Iterable[Package]): list of all available packages
         """
         for target in self.targets:
-            runner = RemotePush(self.configuration, target)
+            section, _ = self.configuration.gettype(target, self.architecture)
+            runner = RemotePush(self.configuration, section)
             runner.run(result)

@@ -75,15 +75,33 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
 * ``key_*`` settings - PGP key which will be used for specific packages, string, optional. For example, if there is ``key_yay`` option the specified key will be used for yay package and default key for others.
 
-``gitremote`` group
--------------------
+``remote-pull`` group
+---------------------
 
-Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - e.g. fetch from remote repository PKGBUILDs before updating process or pulling updated PKGBUILDs to the remote repository.
+Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - fetch from remote repository PKGBUILDs before updating process.
 
-Both urls support authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+
+* ``target`` - list of remote pull triggers to be used, space separated list of strings, optional, defaults to ``gitremote``. It must point to valid section (or to section with architecture), e.g. ``gitremote`` must point to either ``gitremote`` or ``gitremote:x86_64`` (the one with architecture has higher priority).
+
+Remote pull trigger
+^^^^^^^^^^^^^^^^^^^
 
 * ``pull_url`` - url of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
 * ``pull_branch`` - branch of the remote repository from which PKGBUILDs can be pulled before build process, string, optional, default is ``master``.
+
+``remote-push`` group
+---------------------
+
+Remote git source synchronization settings. Same as remote pull triggers those triggers are used for PKGBUILD synchronization - push updated PKGBUILDs to the remote repository after build process.
+
+It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+
+* ``target`` - list of remote push triggers to be used, space separated list of strings, optional, defaults to ``gitremote``. It must point to valid section (or to section with architecture), e.g. ``gitremote`` must point to either ``gitremote`` or ``gitremote:x86_64`` (the one with architecture has higher priority).
+
+Remote push trigger
+^^^^^^^^^^^^^^^^^^^
+
 * ``push_url`` - url of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
 * ``push_branch`` - branch of the remote repository to which PKGBUILDs should be pushed after build process, string, optional, default is ``master``.
 

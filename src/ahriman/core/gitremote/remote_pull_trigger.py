@@ -43,5 +43,6 @@ class RemotePullTrigger(Trigger):
         trigger action which will be called at the start of the application
         """
         for target in self.targets:
-            runner = RemotePull(self.configuration, target)
+            section, _ = self.configuration.gettype(target, self.architecture)
+            runner = RemotePull(self.configuration, section)
             runner.run()

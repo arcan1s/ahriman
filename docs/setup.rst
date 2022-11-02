@@ -6,7 +6,7 @@ Initial setup
 #. 
    Change settings if required, see :doc:`configuration reference <configuration>` for more details.
 #.
-   TL;DR:
+   Perform initial setup:
 
    .. code-block:: shell
 
@@ -66,6 +66,8 @@ Initial setup
             echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/ahriman-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
             echo 'ahriman ALL=(ALL) NOPASSWD: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
             chmod 400 /etc/sudoers.d/ahriman
+
+      This command supports several arguments, kindly refer to its help message.
 
 #. 
    Start and enable ``ahriman@.timer`` via ``systemctl``:
