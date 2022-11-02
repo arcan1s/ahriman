@@ -5,13 +5,13 @@ FAQ
 General topics
 --------------
 
-What is the purpose of the project?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+What is the purpose of the project
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This project has been created in order to maintain self-hosted Arch Linux user repository without manual intervention - checking for updates and building packages.
 
-How do I install it?
-^^^^^^^^^^^^^^^^^^^^
+How to install ahriman
+^^^^^^^^^^^^^^^^^^^^^^
 
 TL;DR
 
@@ -26,8 +26,8 @@ Long answer
 
 The idea is to install the package as usual, create working directory tree, create configuration for ``sudo`` and ``devtools``. Detailed description of the setup instruction can be found :doc:`here <setup>`.
 
-What does "architecture specific" mean? / How to configure for different architectures?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+What does "architecture specific" mean / How to configure for different architectures
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some sections can be configured per architecture. The service will merge architecture specific values into common settings. In order to specify settings for specific architecture you must point it in section name.
 
@@ -47,8 +47,8 @@ states that default build command is ``extra-x86_64-build``. But if there is sec
 
 the ``extra-i686-build`` command will be used for ``i686`` architecture.
 
-How to use reporter/upload settings?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to generate build reports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Normally you probably like to generate only one report for the specific type, e.g. only one email report. In order to do it you will need to have the following configuration:
 
@@ -88,8 +88,8 @@ But for some cases you would like to have multiple different reports with the sa
    type = email
    ...
 
-Okay, I've installed ahriman, how do I add new package?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How do I add new package
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: shell
 
@@ -102,8 +102,8 @@ Okay, I've installed ahriman, how do I add new package?
    sudo -u ahriman ahriman package-add ahriman
    sudo -u ahriman ahriman repo-update
 
-AUR is fine, but I would like to create package from local PKGBUILD
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to build package from local PKGBUILD
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 TL;DR
 
@@ -114,8 +114,8 @@ TL;DR
 Before using this command you will need to create local directory, put ``PKGBUILD`` there and generate ``.SRCINFO`` by using ``makepkg --printsrcinfo > .SRCINFO`` command. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
 
 
-Err, I have remote repository with PKGBUILDs and would like to get versions from there automatically
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to fetch PKGBUILDs from remote repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will need:
 
@@ -140,8 +140,8 @@ For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will 
 
 During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
 
-I would like to push PKGBUILDs to the remote repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to push updated PKGBUILDs to remote repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For that purpose you'd need to use another trigger called ``RemotePushTrigger``. Configure it as following:
 
@@ -166,8 +166,8 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
 
 Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
 
-But I just wanted to change PKGBUILD from AUR a bit!
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to change PKGBUILDs before build
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Well it is supported also. The recommended way is to patch specific function, e.g. by running ``sudo -u ahriman ahriman patch-add ahriman version``. This command will prompt for new value of the PKGBUILD variable ``version``. You can also write it to file and read from it ``sudo -u ahriman ahriman patch-add ahriman version version.patch``.
 
@@ -179,8 +179,8 @@ Alternatively you can create full-diff patches, which are calculated by using ``
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 
-Hey, I would like to rebuild the official repository package
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to build package from official repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 So it is the same as adding any other package, but due to restrictions you must specify source explicitly, e.g.:
 
@@ -199,17 +199,17 @@ TL;DR
 
    sudo -u ahriman ahriman key-import ...
 
-How do I check if there are new commits for VCS packages?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to update VCS packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally the service handles VCS packages correctly, but it requires additional dependencies:
+Normally the service handles VCS packages correctly, however it requires additional dependencies:
 
 .. code-block:: shell
 
    pacman -S breezy darcs mercurial subversion
 
-I would like to remove package because it is no longer needed/moved to official repositories
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to remove package
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: shell
 
@@ -219,8 +219,8 @@ Also, there is command ``repo-remove-unknown`` which checks packages in AUR and 
 
 Remove commands also remove any package files (patches, caches etc).
 
-There is new major release of %library-name%, how do I rebuild packages?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to rebuild packages after library update
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 TL;DR
 
@@ -232,8 +232,8 @@ You can even rebuild the whole repository (which is particular useful in case if
 
 However, note that you do not need to rebuild repository in case if you just changed signing option, just use ``repo-sign`` command instead. 
 
-Hmm, I have packages built, but how can I use it?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to install built packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the following lines to your ``pacman.conf``:
 
@@ -244,8 +244,8 @@ Add the following lines to your ``pacman.conf``:
 
 (You might need to add ``SigLevel`` option according to the pacman documentation.)
 
-I would like to serve the repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to serve repository
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Easy. For example, nginx configuration (without SSL) will look like:
 
@@ -282,7 +282,7 @@ Example of the status page configuration is the following (status service is usi
 Docker image
 ------------
 
-We provide official images which can be found under ``arcan1s/ahriman`` repository. Docker image is being updated on each master commit as well as on each version. If you would like to use last (probably unstable) build you can use ``edge`` tag or ``latest`` for any tagged versions; otherwise you can use any version tag available. 
+We provide official images which can be found under ``arcan1s/ahriman`` repository. Docker image is being updated on each commit to master as well as on each version. If you would like to use last (probably unstable) build you can use ``edge`` tag or ``latest`` for any tagged versions; otherwise you can use any version tag available.
 
 The default action (in case if no arguments provided) is ``repo-update``. Basically the idea is to run container, e.g.:
 
@@ -343,11 +343,22 @@ For every next container run use arguments ``-e AHRIMAN_PORT=8080 --net=host``, 
 
    docker run --privileged -e AHRIMAN_PORT=8080 --net=host -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
+Daemon service
+^^^^^^^^^^^^^^
+
+There is special subcommand which emulates systemd timer and will perform repository update periodically:
+
+.. code-block:: shell
+
+   docker run arcan1s/ahriman:latest daemon
+
+This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
+
 Remote synchronization
 ----------------------
 
-Wait I would like to use the repository from another server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to sync repository to another server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are several choices:
 
@@ -376,8 +387,8 @@ There are several choices:
 
    After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``).
 
-How do I configure S3?
-^^^^^^^^^^^^^^^^^^^^^^
+How to sync to S3
+^^^^^^^^^^^^^^^^^
 
 #. 
    Install dependencies:
@@ -435,8 +446,8 @@ How do I configure S3?
        region = eu-central-1
        secret_key = ...
 
-How do I configure Github?
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to sync to Github releases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Create a repository.
@@ -459,8 +470,8 @@ How do I configure Github?
 Reporting
 ---------
 
-I would like to get report to email
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to report by email
+^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Install dependencies:
@@ -486,8 +497,8 @@ I would like to get report to email
       sender = me@example.com
       user = me@example.com
 
-I'm using synchronization to S3 and would like to generate index page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to generate index page for S3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Install dependencies:
@@ -510,8 +521,8 @@ I'm using synchronization to S3 and would like to generate index page
 
 After these steps ``index.html`` file will be automatically synced to S3
 
-I would like to get messages to my telegram account/channel
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to post build report to telegram
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    It still requires additional dependencies:
@@ -560,8 +571,8 @@ If you did everything fine you should receive the message with the next update. 
 Web service
 -----------
 
-Readme mentions web interface, how do I use it?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to setup web service
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Install dependencies:
@@ -581,8 +592,8 @@ Readme mentions web interface, how do I use it?
 #. 
    Start the web service ``systemctl enable --now ahriman-web@x86_64``.
 
-I would like to limit user access to the status page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to enable basic authorization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Install dependencies 😊:
@@ -613,8 +624,8 @@ I would like to limit user access to the status page
 
 #. Restart web service ``systemctl restart ahriman-web@x86_64``.
 
-I would like to use OAuth
-^^^^^^^^^^^^^^^^^^^^^^^^^
+How to enable OAuth authorization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Create OAuth web application, download its ``client_id`` and ``client_secret``.
@@ -737,8 +748,8 @@ Though originally I've created ahriman by trying to improve the project, it stil
 
 It is automation tools for ``repoctl`` mentioned above. Except for using shell it looks pretty cool and also offers some additional features like patches, remote synchronization (isn't it?) and reporting.
 
-I would like to check service logs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to check service logs
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By default, the service writes logs to ``/dev/log`` which can be accessed by using ``journalctl`` command (logs are written to the journal of the user under which command is run).
 

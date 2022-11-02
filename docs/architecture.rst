@@ -104,7 +104,7 @@ Type conversions
 
 By default, it parses rows into python dictionary. In addition, the following pseudo-types are supported:
 
-* ``Dict[str, Any]``, ``List[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` datatype and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
+* ``Dict[str, Any]``, ``List[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` data type and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
 
 Basic flows
 -----------
