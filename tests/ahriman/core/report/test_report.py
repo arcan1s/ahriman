@@ -15,7 +15,7 @@ def test_report_failure(configuration: Configuration, mocker: MockerFixture) -> 
     """
     mocker.patch("ahriman.core.report.html.HTML.generate", side_effect=Exception())
     with pytest.raises(ReportFailed):
-        Report.load("x86_64", configuration, "html").run([], Result())
+        Report.load("x86_64", configuration, "html").run(Result(), [])
 
 
 def test_report_dummy(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:

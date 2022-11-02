@@ -1,3 +1,4 @@
+
 FAQ
 ===
 
@@ -131,6 +132,9 @@ For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will 
 
    .. code-block:: ini
 
+      [remote-pull]
+      target = gitremote
+
       [gitremote]
       pull_url = https://github.com/username/repository
 
@@ -153,6 +157,9 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
    Configure trigger as following:
 
    .. code-block:: ini
+
+      [remote-push]
+      target = gitremote
 
       [gitremote]
       push_url = https://github.com/username/repository

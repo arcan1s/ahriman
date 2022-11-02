@@ -55,6 +55,18 @@ class ExitCode(RuntimeError):
     """
 
 
+class GitRemoteFailed(RuntimeError):
+    """
+    git remote exception
+    """
+
+    def __init__(self) -> None:
+        """
+        default constructor
+        """
+        RuntimeError.__init__(self, "Git remote failed")
+
+
 class InitializeException(RuntimeError):
     """
     base service initialization exception

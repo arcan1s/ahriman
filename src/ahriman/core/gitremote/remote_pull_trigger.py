@@ -17,26 +17,14 @@
 # you should have received a copy of the gnu general public license
 # along with this program. if not, see <http://www.gnu.org/licenses/>.
 #
-import shutil
-
-from pathlib import Path
-from tempfile import TemporaryDirectory
-
-from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
+from ahriman.core.gitremote.remote_pull import RemotePull
 from ahriman.core.triggers import Trigger
-from ahriman.core.util import walk
-from ahriman.models.package_source import PackageSource
-from ahriman.models.remote_source import RemoteSource
 
 
 class RemotePullTrigger(Trigger):
     """
-    trigger for fetching PKGBUILDs from remote repository
-
-    Attributes:
-        remote_source(RemoteSource): repository remote source (remote pull url and branch)
-        repository_paths(RepositoryPaths): repository paths instance
+    trigger based on pulling PKGBUILDs before the actions
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -48,39 +36,12 @@ class RemotePullTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.remote_source = RemoteSource(
-            git_url=configuration.get("gitremote", "pull_url"),
-            web_url="",
-            path=".",
-            branch=configuration.get("gitremote", "pull_branch", fallback="master"),
-            source=PackageSource.Local,
-        )
-        self.repository_paths = configuration.repository_paths
+        self.targets = configuration.getlist("remote-pull", "target", fallback=["gitremote"])
 
     def on_start(self) -> None:
         """
         trigger action which will be called at the start of the application
         """
-        self.repo_clone()
-
-    def repo_clone(self) -> None:
-        """
-        clone repository from remote source
-        """
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
-            Sources.fetch(clone_dir, self.remote_source)
-            self.repo_copy(clone_dir)
-
-    def repo_copy(self, clone_dir: Path) -> None:
-        """
-        copy directories from cloned remote source to local cache
-
-        Args:
-            clone_dir(Path): path to temporary cloned directory
-        """
-        for pkgbuild_path in filter(lambda path: path.name == "PKGBUILD", walk(clone_dir)):
-            cloned_pkgbuild_dir = pkgbuild_path.parent
-            package_base = cloned_pkgbuild_dir.name
-            local_pkgbuild_dir = self.repository_paths.cache_for(package_base)
-            shutil.copytree(cloned_pkgbuild_dir, local_pkgbuild_dir, dirs_exist_ok=True)
-            Sources.init(local_pkgbuild_dir)  # initialized git repository is required for local sources
+        for target in self.targets:
+            runner = RemotePull(self.configuration, target)
+            runner.run()
