@@ -705,43 +705,47 @@ Other topics
 How does it differ from %another-manager%?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Short answer - I do not know.
+Short answer - I do not know. Also for some references credits to `Alad <https://github.com/AladW>`_, he `did <https://wiki.archlinux.org/title/User:Alad/Local_repo_tools>`_ really good investigation of existing alternatives.
+
+`arch-repo-manager <https://github.com/Martchus/arch-repo-manager>`_
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Looks actually pretty good, in case if I would find it, I would probably didn't start this project, most of features (like web interface or additional helpers) are already implemented or planned to be. However, this project seems to be at early alpha stage (as for Nov 2022), written in C++ (not pro or con) and misses code documentation.
 
 `archrepo2 <https://github.com/lilydjwg/archrepo2>`_
 """"""""""""""""""""""""""""""""""""""""""""""""""""
 
 Don't know, haven't tried it. But it lacks of documentation at least.
 
-* Web interface.
-* No synchronization and reporting.
+* ``ahriman`` has web interface.
+* ``archrepo2`` doesn't have synchronization and reporting.
 * ``archrepo2`` actively uses direct shell calls and ``yaourt`` components.
-* It has constantly running process instead of timer process (it is not pro or con).
+* ``archrepo2`` has constantly running process instead of timer process (it is not pro or con).
 
 `repoctl <https://github.com/cassava/repoctl>`_
 """""""""""""""""""""""""""""""""""""""""""""""
 
-* Web interface.
-* No reporting.
-* Local packages and patches support.
-* Some actions are not fully automated (e.g. package update still requires manual intervention for the build itself). 
+* ``ahriman`` has web interface.
+* ``repoctl`` does not have reporting feature.
+* ``repoctl`` does not support local packages and patches.
+* Some actions are not fully automated in ``repoctl`` (e.g. package update still requires manual intervention for the build itself).
 * ``repoctl`` has better AUR interaction features. With colors!
 * ``repoctl`` has much easier configuration and even completion.
 * ``repoctl`` is able to store old packages.
-* Ability to host repository from same command vs external services (e.g. nginx) in ``ahriman``.
+* Ability to host repository from same command in ``repoctl`` vs external services (e.g. nginx) in ``ahriman``.
 
 `repo-scripts <https://github.com/arcan1s/repo-scripts>`_
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Though originally I've created ahriman by trying to improve the project, it still lacks a lot of features:
 
-* Web interface.
-* Better reporting with template support.
-* Synchronization features (there was only ``rsync`` based).
-* Local packages and patches support.
-* No dependency management.
-* And so on.
+* ``ahriman`` has web interface.
+* ``ahriman`` has better reporting with template support.
+* ``ahriman`` has more synchronization features (there was only ``rsync`` based).
+* ``ahriman`` supports local packages and patches.
+* ``repo-scripts`` doesn't have dependency management.
 
-``repo-scripts`` also have bad architecture and bad quality code and uses out-of-dated ``yaourt`` and ``package-query``.
+...and so on. ``repo-scripts`` also has bad architecture and bad quality code and uses out-of-dated ``yaourt`` and ``package-query``.
 
 `toolbox <https://github.com/chaotic-aur/toolbox>`_
 """""""""""""""""""""""""""""""""""""""""""""""""""
