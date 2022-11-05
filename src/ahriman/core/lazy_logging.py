@@ -61,4 +61,4 @@ class LazyLogging:
         """
         clazz = self.__class__
         prefix = "" if clazz.__module__ is None else f"{clazz.__module__}."
-        return f"{prefix}{self.__class__.__qualname__}"
+        return f"{prefix}{clazz.__qualname__}"
