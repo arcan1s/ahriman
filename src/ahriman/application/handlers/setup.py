@@ -34,17 +34,15 @@ class Setup(Handler):
 
     Attributes:
         ARCHBUILD_COMMAND_PATH(Path): (class attribute) default devtools command
-        BIN_DIR_PATH(Path): (class attribute) directory for custom binaries
         MIRRORLIST_PATH(Path): (class attribute) path to pacman default mirrorlist (used by multilib repository)
-        SUDOERS_PATH(Path): (class attribute) path to sudoers.d include configuration
+        SUDOERS_DIR_PATH(Path): (class attribute) path to sudoers.d includes directory
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
     ARCHBUILD_COMMAND_PATH = Path("/usr/bin/archbuild")
-    BIN_DIR_PATH = Path("/usr/local/bin")
     MIRRORLIST_PATH = Path("/etc/pacman.d/mirrorlist")
-    SUDOERS_PATH = Path("/etc/sudoers.d/ahriman")
+    SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
@@ -59,36 +57,38 @@ class Setup(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include)
+        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include,
+                                           configuration.repository_paths)
         configuration.reload()
 
         application = Application(architecture, configuration, no_report, unsafe)
 
         Setup.configuration_create_makepkg(args.packager, application.repository.paths)
-        Setup.executable_create(args.build_command, architecture)
+        Setup.executable_create(application.repository.paths, args.build_command, architecture)
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
                                             args.no_multilib, args.repository, application.repository.paths)
-        Setup.configuration_create_sudo(args.build_command, architecture)
+        Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
 
         application.repository.repo.init()
 
     @staticmethod
-    def build_command(prefix: str, architecture: str) -> Path:
+    def build_command(root: Path, prefix: str, architecture: str) -> Path:
         """
         generate build command name
 
         Args:
+            root(Path): root directory for the build command (must be root of the reporitory)
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
 
         Returns:
             Path: valid devtools command name
         """
-        return Setup.BIN_DIR_PATH / f"{prefix}-{architecture}-build"
+        return root / f"{prefix}-{architecture}-build"
 
     @staticmethod
     def configuration_create_ahriman(args: argparse.Namespace, architecture: str, repository: str,
-                                     include_path: Path) -> None:
+                                     include_path: Path, paths: RepositoryPaths) -> None:
         """
         create service specific configuration
 
@@ -97,11 +97,13 @@ class Setup(Handler):
             architecture(str): repository architecture
             repository(str): repository name
             include_path(Path): path to directory with configuration includes
+            paths(RepositoryPaths): repository paths instance
         """
         configuration = Configuration()
 
         section = Configuration.section_name("build", architecture)
-        configuration.set_option(section, "build_command", str(Setup.build_command(args.build_command, architecture)))
+        build_command = Setup.build_command(paths.root, args.build_command, architecture)
+        configuration.set_option(section, "build_command", str(build_command))
         configuration.set_option("repository", "name", repository)
         if args.build_as_user is not None:
             configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
@@ -124,6 +126,9 @@ class Setup(Handler):
                                       no_multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on ``source`` configuration
+
+        Note:
+            devtools does not allow to specify the pacman configuration, thus we still have to use configuration in /usr
 
         Args:
             prefix(str): command prefix in {prefix}-{architecture}-build
@@ -171,27 +176,31 @@ class Setup(Handler):
         (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
 
     @staticmethod
-    def configuration_create_sudo(prefix: str, architecture: str) -> None:
+    def configuration_create_sudo(paths: RepositoryPaths, prefix: str, architecture: str) -> None:
         """
         create configuration to run build command with sudo without password
 
         Args:
+            paths(RepositoryPaths): repository paths instance
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
         """
-        command = Setup.build_command(prefix, architecture)
-        Setup.SUDOERS_PATH.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
-        Setup.SUDOERS_PATH.chmod(0o400)  # security!
+        command = Setup.build_command(paths.root, prefix, architecture)
+        sudoers_file = Setup.build_command(Setup.SUDOERS_DIR_PATH, prefix, architecture)
+        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
+        sudoers_file.chmod(0o400)  # security!
 
     @staticmethod
-    def executable_create(prefix: str, architecture: str) -> None:
+    def executable_create(paths: RepositoryPaths, prefix: str, architecture: str) -> None:
         """
         create executable for the service
 
         Args:
+            paths(RepositoryPaths): repository paths instance
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
         """
-        command = Setup.build_command(prefix, architecture)
+        command = Setup.build_command(paths.root, prefix, architecture)
         command.unlink(missing_ok=True)
         command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)
+        paths.chown(command)  # we would like to keep owner inside ahriman's home
