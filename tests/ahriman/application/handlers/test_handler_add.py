@@ -23,6 +23,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.package = []
     args.exit_code = False
     args.now = False
+    args.refresh = 0
     args.source = PackageSource.Auto
     args.without_dependencies = False
     return args

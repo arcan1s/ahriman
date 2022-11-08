@@ -26,9 +26,11 @@ Base configuration settings.
 
 libalpm and AUR related configuration.
 
-* ``database`` - path to pacman local database cache, string, required.
+* ``database`` - path to pacman system database cache, string, required.
+* ``mirror`` - package database mirror used by pacman for syncronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
 * ``repositories`` - list of pacman repositories, space separated list of strings, required.
 * ``root`` - root for alpm library, string, required.
+* ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands).
 
 ``auth`` group
 --------------

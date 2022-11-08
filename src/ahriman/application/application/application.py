@@ -62,7 +62,7 @@ class Application(ApplicationPackages, ApplicationRepository):
             for package, properties in base.packages.items():
                 known_packages.add(package)
                 known_packages.update(properties.provides)
-        known_packages.update(self.repository.pacman.all_packages())
+        known_packages.update(self.repository.pacman.packages())
         return known_packages
 
     def on_result(self, result: Result) -> None:

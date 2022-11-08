@@ -44,7 +44,7 @@ class Add(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report, unsafe)
+        application = Application(architecture, configuration, no_report, unsafe, args.refresh)
         application.on_start()
         application.add(args.package, args.source, args.without_dependencies)
         if not args.now:

@@ -13,11 +13,14 @@ ENV AHRIMAN_REPOSITORY_ROOT="/var/lib/ahriman/ahriman"
 ENV AHRIMAN_USER="ahriman"
 
 # install environment
+## update pacman.conf with multilib
+RUN echo "[multilib]" >> "/etc/pacman.conf" && \
+    echo "Include = /etc/pacman.d/mirrorlist" >> "/etc/pacman.conf"
 ## install minimal required packages
 RUN pacman --noconfirm -Syu binutils fakeroot git make sudo
 ## create build user
-RUN useradd -m -d /home/build -s /usr/bin/nologin build && \
-    echo "build ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/build
+RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build && \
+    echo "build ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/build"
 COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
 ## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size

@@ -160,6 +160,9 @@ def _set_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-local", help="do not check local packages for updates", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
+    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                "-yy to force refresh even if up to date",
+                        action="count", default=0)
     parser.set_defaults(handler=handlers.Daemon, dry_run=False, exit_code=False, package=[])
     return parser
 
@@ -251,6 +254,9 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
+    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                "-yy to force refresh even if up to date",
+                        action="count", default=0)
     parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                         type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
@@ -467,6 +473,9 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
+    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                "-yy to force refresh even if up to date",
+                        action="count", default=0)
     parser.set_defaults(handler=handlers.Update, dry_run=True, no_aur=False, no_local=False, no_manual=True)
     return parser
 
@@ -717,6 +726,9 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--no-local", help="do not check local packages for updates", action="store_true")
     parser.add_argument("--no-manual", help="do not include manual updates", action="store_true")
     parser.add_argument("--no-vcs", help="do not check VCS packages", action="store_true")
+    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                "-yy to force refresh even if up to date",
+                        action="count", default=0)
     parser.set_defaults(handler=handlers.Update)
     return parser
 
