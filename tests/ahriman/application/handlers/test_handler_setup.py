@@ -3,6 +3,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from typing import Any
 from unittest import mock
 
 from ahriman.application.handlers import Setup
@@ -130,15 +131,17 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, rep
 
 
 def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths: RepositoryPaths,
-                                      mocker: MockerFixture) -> None:
+                                      passwd: Any, mocker: MockerFixture) -> None:
     """
     must create makepkg configuration
     """
     args = _default_args(args)
-    write_text_mock = mocker.patch("pathlib.Path.write_text")
+    mocker.patch("ahriman.application.handlers.setup.getpwuid", return_value=passwd)
+    write_text_mock = mocker.patch("pathlib.Path.write_text", autospec=True)
 
     Setup.configuration_create_makepkg(args.packager, repository_paths)
-    write_text_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), encoding="utf8")
+    write_text_mock.assert_called_once_with(
+        Path("home") / ".makepkg.conf", pytest.helpers.anyvar(str, True), encoding="utf8")
 
 
 def test_configuration_create_sudo(args: argparse.Namespace, repository_paths: RepositoryPaths,
