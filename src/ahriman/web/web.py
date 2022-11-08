@@ -26,7 +26,7 @@ from aiohttp import web
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import InitializeException
+from ahriman.core.exceptions import InitializeError
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.middlewares.exception_handler import exception_handler
@@ -62,7 +62,7 @@ async def on_startup(application: web.Application) -> None:
     except Exception:
         message = "could not load packages"
         application.logger.exception(message)
-        raise InitializeException(message)
+        raise InitializeError(message)
 
 
 def run_server(application: web.Application) -> None:

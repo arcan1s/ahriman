@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR
-from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
 from ahriman.models.aur_package import AURPackage
 
 
@@ -38,7 +38,7 @@ def test_parse_response_error(resource_path_root: Path) -> None:
     must raise exception on invalid response
     """
     response = (resource_path_root / "models" / "aur_error").read_text()
-    with pytest.raises(InvalidPackageInfo, match="Incorrect request type specified."):
+    with pytest.raises(PackageInfoError, match="Incorrect request type specified."):
         AUR.parse_response(json.loads(response))
 
 
@@ -46,7 +46,7 @@ def test_parse_response_unknown_error() -> None:
     """
     must raise exception on invalid response with empty error message
     """
-    with pytest.raises(InvalidPackageInfo, match="Unknown API error"):
+    with pytest.raises(PackageInfoError, match="Unknown API error"):
         AUR.parse_response({"type": "error"})
 
 
@@ -140,6 +140,16 @@ def test_package_info(aur: AUR, aur_package_ahriman: AURPackage, pacman: Pacman,
     request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.make_request", return_value=[aur_package_ahriman])
     assert aur.package_info(aur_package_ahriman.name, pacman=pacman) == aur_package_ahriman
     request_mock.assert_called_once_with("info", aur_package_ahriman.name)
+
+
+def test_package_info_not_found(aur: AUR, aur_package_ahriman: AURPackage, pacman: Pacman,
+                                mocker: MockerFixture) -> None:
+    """
+    must raise UnknownPackage exception in case if no package was found
+    """
+    mocker.patch("ahriman.core.alpm.remote.AUR.make_request", return_value=[])
+    with pytest.raises(UnknownPackageError, match=aur_package_ahriman.name):
+        assert aur.package_info(aur_package_ahriman.name, pacman=pacman)
 
 
 def test_package_search(aur: AUR, aur_package_ahriman: AURPackage, pacman: Pacman, mocker: MockerFixture) -> None:

@@ -25,7 +25,7 @@ def application(configuration: Configuration, database: SQLite, mocker: MockerFi
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    return Application("x86_64", configuration, no_report=True, unsafe=False)
+    return Application("x86_64", configuration, report=False, unsafe=False)
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: command line arguments test instance
     """
-    return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, no_report=True)
+    return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, report=False)
 
 
 @pytest.fixture

@@ -47,12 +47,12 @@ def test_multiple_architectures(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_aur_search(parser: argparse.ArgumentParser) -> None:
     """
-    aur-search command must imply architecture list, lock, no-report, quiet and unsafe
+    aur-search command must imply architecture list, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["aur-search", "ahriman"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -99,12 +99,12 @@ def test_subparsers_daemon_option_interval(parser: argparse.ArgumentParser) -> N
 
 def test_subparsers_help(parser: argparse.ArgumentParser) -> None:
     """
-    help command must imply architecture list, lock, no-report, quiet, unsafe and parser
+    help command must imply architecture list, lock, report, quiet, unsafe and parser
     """
     args = parser.parse_args(["help"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
     assert args.parser is not None and args.parser()
@@ -120,12 +120,12 @@ def test_subparsers_help_architecture(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_help_commands_unsafe(parser: argparse.ArgumentParser) -> None:
     """
-    help-commands-unsafe command must imply architecture list, lock, no-report, quiet, unsafe and parser
+    help-commands-unsafe command must imply architecture list, lock, report, quiet, unsafe and parser
     """
     args = parser.parse_args(["help-commands-unsafe"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
     assert args.parser is not None and args.parser()
@@ -141,12 +141,12 @@ def test_subparsers_help_commands_unsafe_architecture(parser: argparse.ArgumentP
 
 def test_subparsers_key_import(parser: argparse.ArgumentParser) -> None:
     """
-    key-import command must imply architecture list, lock and no-report
+    key-import command must imply architecture list, lock and report
     """
     args = parser.parse_args(["key-import", "key"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
 
 
 def test_subparsers_key_import_architecture(parser: argparse.ArgumentParser) -> None:
@@ -191,38 +191,38 @@ def test_subparsers_package_remove_architecture(parser: argparse.ArgumentParser)
 
 def test_subparsers_package_status(parser: argparse.ArgumentParser) -> None:
     """
-    package-status command must imply lock, no-report, quiet and unsafe
+    package-status command must imply lock, report, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "package-status"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
 
 def test_subparsers_package_status_remove(parser: argparse.ArgumentParser) -> None:
     """
-    package-status-remove command must imply action, lock, no-report, quiet and unsafe
+    package-status-remove command must imply action, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "package-status-remove", "ahriman"])
     assert args.architecture == ["x86_64"]
     assert args.action == Action.Remove
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
 
 def test_subparsers_package_status_update(parser: argparse.ArgumentParser) -> None:
     """
-    package-status-update command must imply action, lock, no-report, quiet and unsafe
+    package-status-update command must imply action, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "package-status-update"])
     assert args.architecture == ["x86_64"]
     assert args.action == Action.Update
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -239,13 +239,13 @@ def test_subparsers_package_status_update_option_status(parser: argparse.Argumen
 
 def test_subparsers_patch_add(parser: argparse.ArgumentParser) -> None:
     """
-    patch-add command must imply action, architecture list, lock and no-report
+    patch-add command must imply action, architecture list, lock and report
     """
     args = parser.parse_args(["patch-add", "ahriman", "version"])
     assert args.action == Action.Update
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
 
 
 def test_subparsers_patch_add_architecture(parser: argparse.ArgumentParser) -> None:
@@ -258,13 +258,13 @@ def test_subparsers_patch_add_architecture(parser: argparse.ArgumentParser) -> N
 
 def test_subparsers_patch_list(parser: argparse.ArgumentParser) -> None:
     """
-    patch-list command must imply action, architecture list, lock and no-report
+    patch-list command must imply action, architecture list, lock and report
     """
     args = parser.parse_args(["patch-list", "ahriman"])
     assert args.action == Action.List
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
 
 
 def test_subparsers_patch_list_architecture(parser: argparse.ArgumentParser) -> None:
@@ -277,13 +277,13 @@ def test_subparsers_patch_list_architecture(parser: argparse.ArgumentParser) -> 
 
 def test_subparsers_patch_remove(parser: argparse.ArgumentParser) -> None:
     """
-    patch-remove command must imply action, architecture list, lock and no-report
+    patch-remove command must imply action, architecture list, lock and report
     """
     args = parser.parse_args(["patch-remove", "ahriman"])
     assert args.action == Action.Remove
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
 
 
 def test_subparsers_patch_remove_architecture(parser: argparse.ArgumentParser) -> None:
@@ -296,13 +296,13 @@ def test_subparsers_patch_remove_architecture(parser: argparse.ArgumentParser) -
 
 def test_subparsers_patch_set_add(parser: argparse.ArgumentParser) -> None:
     """
-    patch-set-add command must imply action, architecture list, lock, no-report and variable
+    patch-set-add command must imply action, architecture list, lock, report and variable
     """
     args = parser.parse_args(["patch-set-add", "ahriman"])
     assert args.action == Action.Update
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.variable is None
 
 
@@ -332,12 +332,12 @@ def test_subparsers_patch_set_add_option_track(parser: argparse.ArgumentParser) 
 
 def test_subparsers_repo_backup(parser: argparse.ArgumentParser) -> None:
     """
-    repo-backup command must imply architecture list, lock, no-report and unsafe
+    repo-backup command must imply architecture list, lock, report and unsafe
     """
     args = parser.parse_args(["repo-backup", "output.zip"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.unsafe
 
 
@@ -351,12 +351,12 @@ def test_subparsers_repo_backup_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_repo_check(parser: argparse.ArgumentParser) -> None:
     """
-    repo-check command must imply dry-run, no-aur and no-manual
+    repo-check command must imply dry-run, aur and manual
     """
     args = parser.parse_args(["repo-check"])
     assert args.dry_run
-    assert not args.no_aur
-    assert args.no_manual
+    assert args.aur
+    assert not args.manual
 
 
 def test_subparsers_repo_check_architecture(parser: argparse.ArgumentParser) -> None:
@@ -402,12 +402,12 @@ def test_subparsers_repo_clean_architecture(parser: argparse.ArgumentParser) -> 
 
 def test_subparsers_repo_config(parser: argparse.ArgumentParser) -> None:
     """
-    repo-config command must imply lock, no-report, quiet and unsafe
+    repo-config command must imply lock, report, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "repo-config"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -452,12 +452,12 @@ def test_subparsers_repo_report_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_repo_restore(parser: argparse.ArgumentParser) -> None:
     """
-    repo-restore command must imply architecture list, lock, no-report and unsafe
+    repo-restore command must imply architecture list, lock, report and unsafe
     """
     args = parser.parse_args(["repo-restore", "output.zip"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.unsafe
 
 
@@ -471,13 +471,13 @@ def test_subparsers_repo_restore_architecture(parser: argparse.ArgumentParser) -
 
 def test_subparsers_repo_setup(parser: argparse.ArgumentParser) -> None:
     """
-    repo-setup command must imply lock, no-report, quiet and unsafe
+    repo-setup command must imply lock, report, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "repo-setup", "--packager", "John Doe <john@doe.com>",
                               "--repository", "aur-clone"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -516,13 +516,13 @@ def test_subparsers_repo_sign_architecture(parser: argparse.ArgumentParser) -> N
 
 def test_subparsers_repo_status_update(parser: argparse.ArgumentParser) -> None:
     """
-    re[p-status-update command must imply action, lock, no-report, package, quiet and unsafe
+    re[p-status-update command must imply action, lock, report, package, quiet and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "package-status-update"])
     assert args.architecture == ["x86_64"]
     assert args.action == Action.Update
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert not args.package
     assert args.quiet
     assert args.unsafe
@@ -590,22 +590,22 @@ def test_subparsers_repo_update_option_refresh(parser: argparse.ArgumentParser) 
 
 def test_subparsers_shell(parser: argparse.ArgumentParser) -> None:
     """
-    shell command must imply lock and no-report
+    shell command must imply lock and report
     """
     args = parser.parse_args(["shell"])
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
 
 
 def test_subparsers_user_add(parser: argparse.ArgumentParser) -> None:
     """
-    user-add command must imply action, architecture, lock, no-report, quiet and unsafe
+    user-add command must imply action, architecture, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["user-add", "username"])
     assert args.action == Action.Update
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -630,13 +630,13 @@ def test_subparsers_user_add_option_role(parser: argparse.ArgumentParser) -> Non
 
 def test_subparsers_user_list(parser: argparse.ArgumentParser) -> None:
     """
-    user-list command must imply action, architecture, lock, no-report, password, quiet and unsafe
+    user-list command must imply action, architecture, lock, report, password, quiet and unsafe
     """
     args = parser.parse_args(["user-list"])
     assert args.action == Action.List
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.password is not None
     assert args.quiet
     assert args.unsafe
@@ -660,13 +660,13 @@ def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> No
 
 def test_subparsers_user_remove(parser: argparse.ArgumentParser) -> None:
     """
-    user-remove command must imply action, architecture, lock, no-report, password, quiet, role and unsafe
+    user-remove command must imply action, architecture, lock, report, password, quiet, role and unsafe
     """
     args = parser.parse_args(["user-remove", "username"])
     assert args.action == Action.Remove
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.password is not None
     assert args.quiet
     assert args.unsafe
@@ -682,12 +682,12 @@ def test_subparsers_user_remove_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_version(parser: argparse.ArgumentParser) -> None:
     """
-    version command must imply architecture, lock, no-report, quiet and unsafe
+    version command must imply architecture, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["version"])
     assert args.architecture == [""]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.quiet
     assert args.unsafe
 
@@ -702,12 +702,12 @@ def test_subparsers_version_architecture(parser: argparse.ArgumentParser) -> Non
 
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     """
-    web command must imply lock, no_report and parser
+    web command must imply lock, report and parser
     """
     args = parser.parse_args(["-a", "x86_64", "web"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
-    assert args.no_report
+    assert not args.report
     assert args.parser is not None and args.parser()
 
 

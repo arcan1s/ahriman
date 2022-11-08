@@ -21,7 +21,7 @@ from typing import Dict, List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import UnknownPackage
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -52,7 +52,7 @@ class Watcher(LazyLogging):
         """
         self.architecture = architecture
         self.database = database
-        self.repository = Repository(architecture, configuration, database, no_report=True, unsafe=False)
+        self.repository = Repository(architecture, configuration, database, report=False, unsafe=False)
 
         self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
@@ -83,7 +83,7 @@ class Watcher(LazyLogging):
         try:
             return self.known[base]
         except KeyError:
-            raise UnknownPackage(base)
+            raise UnknownPackageError(base)
 
     def load(self) -> None:
         """
@@ -127,7 +127,7 @@ class Watcher(LazyLogging):
             try:
                 package, _ = self.known[package_base]
             except KeyError:
-                raise UnknownPackage(package_base)
+                raise UnknownPackageError(package_base)
         full_status = BuildStatus(status)
         self.known[package_base] = (package, full_status)
         self.database.package_update(package, full_status)

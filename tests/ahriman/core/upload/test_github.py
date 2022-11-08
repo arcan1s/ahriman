@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, Dict
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.upload.github import Github
 
@@ -52,8 +52,8 @@ def test_asset_upload_with_removal(github: Github, github_release: Dict[str, Any
     github.asset_upload(github_release, Path("asset_name"))
     github.asset_upload(github_release, Path("/root/asset_name"))
     remove_mock.assert_has_calls([
-        mock.call(github_release, "asset_name"),
-        mock.call(github_release, "asset_name"),
+        MockCall(github_release, "asset_name"),
+        MockCall(github_release, "asset_name"),
     ])
 
 
@@ -105,8 +105,8 @@ def test_files_upload(github: Github, github_release: Dict[str, Any], mocker: Mo
     upload_mock = mocker.patch("ahriman.core.upload.github.Github.asset_upload")
     github.files_upload(github_release, {Path("a"): "a", Path("b"): "c", Path("c"): "c"}, {"a": "a", "b": "b"})
     upload_mock.assert_has_calls([
-        mock.call(github_release, Path("b")),
-        mock.call(github_release, Path("c")),
+        MockCall(github_release, Path("b")),
+        MockCall(github_release, Path("c")),
     ])
 
 

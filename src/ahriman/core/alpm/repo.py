@@ -20,7 +20,7 @@
 from pathlib import Path
 from typing import List
 
-from ahriman.core.exceptions import BuildFailed
+from ahriman.core.exceptions import BuildError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.repository_paths import RepositoryPaths
@@ -72,7 +72,7 @@ class Repo(LazyLogging):
         """
         Repo._check_output(
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
-            exception=BuildFailed(path.name),
+            exception=BuildError(path.name),
             cwd=self.paths.repository,
             logger=self.logger,
             user=self.uid)
@@ -103,7 +103,7 @@ class Repo(LazyLogging):
         # remove package from registry
         Repo._check_output(
             "repo-remove", *self.sign_args, str(self.repo_path), package,
-            exception=BuildFailed(package),
+            exception=BuildError(package),
             cwd=self.paths.repository,
             logger=self.logger,
             user=self.uid)

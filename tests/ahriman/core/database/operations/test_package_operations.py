@@ -2,7 +2,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 from sqlite3 import Connection
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.database import SQLite
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -17,8 +17,8 @@ def test_package_remove_package_base(database: SQLite, connection: Connection) -
     """
     database._package_remove_package_base(connection, "package")
     connection.execute.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
-        mock.call(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
     ])
 
 

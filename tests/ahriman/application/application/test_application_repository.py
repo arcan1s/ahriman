@@ -1,7 +1,7 @@
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.tree import Leaf, Tree
@@ -22,7 +22,7 @@ def test_clean_cache(application_repository: ApplicationRepository, mocker: Mock
     must clean cache directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
-    application_repository.clean(True, False, False, False)
+    application_repository.clean(cache=True, chroot=False, manual=False, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
 
@@ -31,7 +31,7 @@ def test_clean_chroot(application_repository: ApplicationRepository, mocker: Moc
     must clean chroot directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
-    application_repository.clean(False, True, False, False)
+    application_repository.clean(cache=False, chroot=True, manual=False, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
 
@@ -40,7 +40,7 @@ def test_clean_manual(application_repository: ApplicationRepository, mocker: Moc
     must clean manual directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
-    application_repository.clean(False, False, True, False)
+    application_repository.clean(cache=False, chroot=False, manual=True, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
 
@@ -49,7 +49,16 @@ def test_clean_packages(application_repository: ApplicationRepository, mocker: M
     must clean packages directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
-    application_repository.clean(False, False, False, True)
+    application_repository.clean(cache=False, chroot=False, manual=False, packages=True, pacman=False)
+    clear_mock.assert_called_once_with()
+
+
+def test_clean_pacman(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
+    """
+    must clean packages directory
+    """
+    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_pacman")
+    application_repository.clean(cache=False, chroot=False, manual=False, packages=False, pacman=True)
     clear_mock.assert_called_once_with()
 
 
@@ -68,8 +77,8 @@ def test_sign(application_repository: ApplicationRepository, package_ahriman: Pa
 
     application_repository.sign([])
     copy_mock.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int)),
-        mock.call(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
+        MockCall(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int)),
+        MockCall(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
     ])
     update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
@@ -168,8 +177,8 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
 
     application_repository.update([package_ahriman])
     build_mock.assert_called_once_with([package_ahriman])
-    update_mock.assert_has_calls([mock.call(paths), mock.call(paths)])
-    on_result_mock.assert_has_calls([mock.call(result), mock.call(result)])
+    update_mock.assert_has_calls([MockCall(paths), MockCall(paths)])
+    on_result_mock.assert_has_calls([MockCall(result), MockCall(result)])
 
 
 def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package,
@@ -199,8 +208,8 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_once_with([], False)
+    application_repository.updates([], aur=True, local=True, manual=True, vcs=True, log_fn=print)
+    updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_called_once_with()
 
@@ -214,7 +223,7 @@ def test_updates_disabled(application_repository: ApplicationRepository, mocker:
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=True, no_local=True, no_manual=True, no_vcs=False, log_fn=print)
+    application_repository.updates([], aur=False, local=False, manual=False, vcs=True, log_fn=print)
     updates_aur_mock.assert_not_called()
     updates_local_mock.assert_not_called()
     updates_manual_mock.assert_not_called()
@@ -229,7 +238,7 @@ def test_updates_no_aur(application_repository: ApplicationRepository, mocker: M
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=True, no_local=False, no_manual=False, no_vcs=False, log_fn=print)
+    application_repository.updates([], aur=False, local=True, manual=True, vcs=True, log_fn=print)
     updates_aur_mock.assert_not_called()
     updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_called_once_with()
@@ -244,8 +253,8 @@ def test_updates_no_local(application_repository: ApplicationRepository, mocker:
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_local=True, no_manual=False, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_once_with([], False)
+    application_repository.updates([], aur=True, local=False, manual=True, vcs=True, log_fn=print)
+    updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_not_called()
     updates_manual_mock.assert_called_once_with()
 
@@ -259,8 +268,8 @@ def test_updates_no_manual(application_repository: ApplicationRepository, mocker
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_local=False, no_manual=True, no_vcs=False, log_fn=print)
-    updates_aur_mock.assert_called_once_with([], False)
+    application_repository.updates([], aur=True, local=True, manual=False, vcs=True, log_fn=print)
+    updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_not_called()
 
@@ -274,8 +283,8 @@ def test_updates_no_vcs(application_repository: ApplicationRepository, mocker: M
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates([], no_aur=False, no_local=False, no_manual=False, no_vcs=True, log_fn=print)
-    updates_aur_mock.assert_called_once_with([], True)
+    application_repository.updates([], aur=True, local=True, manual=True, vcs=False, log_fn=print)
+    updates_aur_mock.assert_called_once_with([], vcs=False)
     updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_called_once_with()
 
@@ -289,8 +298,7 @@ def test_updates_with_filter(application_repository: ApplicationRepository, mock
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
 
-    application_repository.updates(["filter"], no_aur=False, no_local=False, no_manual=False, no_vcs=False,
-                                   log_fn=print)
-    updates_aur_mock.assert_called_once_with(["filter"], False)
+    application_repository.updates(["filter"], aur=True, local=True, manual=True, vcs=True, log_fn=print)
+    updates_aur_mock.assert_called_once_with(["filter"], vcs=True)
     updates_local_mock.assert_called_once_with()
     updates_manual_mock.assert_called_once_with()

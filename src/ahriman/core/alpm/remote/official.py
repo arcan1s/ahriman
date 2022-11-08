@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
-from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
 from ahriman.core.util import exception_response_text
 from ahriman.models.aur_package import AURPackage
 
@@ -59,7 +59,7 @@ class Official(Remote):
             InvalidPackageInfo: for error API response
         """
         if not response["valid"]:
-            raise InvalidPackageInfo("API validation error")
+            raise PackageInfoError("API validation error")
         return [AURPackage.from_repo(package) for package in response["results"]]
 
     @classmethod
@@ -128,7 +128,10 @@ class Official(Remote):
             AURPackage: package which match the package name
         """
         packages = self.make_request(package_name, by="name")
-        return next(package for package in packages if package.name == package_name)
+        try:
+            return next(package for package in packages if package.name == package_name)
+        except StopIteration:
+            raise UnknownPackageError(package_name)
 
     def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
         """

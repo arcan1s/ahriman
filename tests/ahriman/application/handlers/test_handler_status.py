@@ -1,7 +1,7 @@
 import argparse
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Status
 from ahriman.core.configuration import Configuration
@@ -41,11 +41,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True, False)
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
     check_mock.assert_called_once_with(False, False)
-    print_mock.assert_has_calls([mock.call(False) for _ in range(3)])
+    print_mock.assert_has_calls([MockCall(False) for _ in range(3)])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -59,7 +59,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Status.run(args, "x86_64", configuration, True, False)
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -75,8 +75,8 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, pac
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True, False)
-    print_mock.assert_has_calls([mock.call(True) for _ in range(2)])
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
+    print_mock.assert_has_calls([MockCall(True) for _ in range(2)])
 
 
 def test_run_with_package_filter(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
@@ -90,7 +90,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
-    Status.run(args, "x86_64", configuration, True, False)
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
     packages_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -107,8 +107,8 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, True, False)
-    print_mock.assert_has_calls([mock.call(False) for _ in range(2)])
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
+    print_mock.assert_has_calls([MockCall(False) for _ in range(2)])
 
 
 def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -119,7 +119,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
-    Status.run(args, "x86_64", configuration, True, False)
+    Status.run(args, "x86_64", configuration, report=False, unsafe=False)
     load_mock.assert_called_once_with(configuration)
 
 

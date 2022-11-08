@@ -2,7 +2,7 @@ import argparse
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Rebuild
@@ -43,10 +43,10 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_packages_mock.assert_called_once_with(None)
     application_mock.assert_called_once_with([package_ahriman])
-    check_mock.assert_has_calls([mock.call(False, False), mock.call(False, False)])
+    check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
 
 
@@ -61,7 +61,7 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     mocker.patch("ahriman.application.application.Application.add")
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
@@ -77,7 +77,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, False)
 
@@ -92,7 +92,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, mock
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_packages_mock.assert_called_once_with({"python-aur"})
 
 
@@ -105,7 +105,7 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_packages_mock.assert_called_once_with(None)
 
 
@@ -121,7 +121,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -137,8 +137,8 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Rebuild.run(args, "x86_64", configuration, True, False)
-    check_mock.assert_has_calls([mock.call(True, False), mock.call(True, True)])
+    Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
+    check_mock.assert_has_calls([MockCall(True, False), MockCall(True, True)])
 
 
 def test_extract_packages(application: Application, mocker: MockerFixture) -> None:

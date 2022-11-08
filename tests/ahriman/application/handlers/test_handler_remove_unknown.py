@@ -18,7 +18,6 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.dry_run = False
-    args.info = False
     return args
 
 
@@ -34,7 +33,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    RemoveUnknown.run(args, "x86_64", configuration, True, False)
+    RemoveUnknown.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_called_once_with([package_ahriman])
     on_start_mock.assert_called_once_with()
@@ -53,27 +52,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, pac
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    RemoveUnknown.run(args, "x86_64", configuration, True, False)
+    RemoveUnknown.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
     print_mock.assert_called_once_with(False)
-
-
-def test_run_dry_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                             mocker: MockerFixture) -> None:
-    """
-    must run simplified command with increased verbosity
-    """
-    args = _default_args(args)
-    args.dry_run = True
-    args.info = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    application_mock = mocker.patch("ahriman.application.application.Application.unknown",
-                                    return_value=[package_ahriman])
-    remove_mock = mocker.patch("ahriman.application.application.Application.remove")
-    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-
-    RemoveUnknown.run(args, "x86_64", configuration, True, False)
-    application_mock.assert_called_once_with()
-    remove_mock.assert_not_called()
-    print_mock.assert_called_once_with(True)

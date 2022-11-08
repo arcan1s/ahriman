@@ -2,7 +2,7 @@ import argparse
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Update
@@ -24,10 +24,10 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.package = []
     args.dry_run = False
     args.exit_code = False
-    args.no_aur = False
-    args.no_local = False
-    args.no_manual = False
-    args.no_vcs = False
+    args.aur = True
+    args.local = True
+    args.manual = True
+    args.vcs = True
     args.refresh = 0
     return args
 
@@ -46,11 +46,11 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Update.run(args, "x86_64", configuration, True, False)
+    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with([package_ahriman])
-    updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
-                                         pytest.helpers.anyvar(int))
-    check_mock.assert_has_calls([mock.call(False, False), mock.call(False, False)])
+    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
+                                         log_fn=pytest.helpers.anyvar(int))
+    check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
 
 
@@ -65,7 +65,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.application.application.Application.updates", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Update.run(args, "x86_64", configuration, True, False)
+    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -81,8 +81,8 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Update.run(args, "x86_64", configuration, True, False)
-    check_mock.assert_has_calls([mock.call(True, False), mock.call(True, True)])
+    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    check_mock.assert_has_calls([MockCall(True, False), MockCall(True, True)])
 
 
 def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -96,9 +96,9 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, moc
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
-    Update.run(args, "x86_64", configuration, True, False)
-    updates_mock.assert_called_once_with(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
-                                         pytest.helpers.anyvar(int))
+    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
+                                         log_fn=pytest.helpers.anyvar(int))
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, pytest.helpers.anyvar(int))
 
@@ -109,4 +109,4 @@ def test_log_fn(application: Application, mocker: MockerFixture) -> None:
     """
     logger_mock = mocker.patch("logging.Logger.info")
     Update.log_fn(application, False)("hello")
-    logger_mock.assert_has_calls([mock.call("hello")])
+    logger_mock.assert_has_calls([MockCall("hello")])

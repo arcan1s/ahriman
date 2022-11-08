@@ -26,7 +26,7 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
-    assert update_handler.updates_aur([], False) == [package_ahriman]
+    assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -41,7 +41,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
-    assert update_handler.updates_aur([], False) == [package_ahriman]
+    assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -54,7 +54,7 @@ def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Pack
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_failed")
 
-    update_handler.updates_aur([], False)
+    update_handler.updates_aur([], vcs=True)
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -68,7 +68,7 @@ def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Pack
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
 
-    assert update_handler.updates_aur([package_ahriman.base], False) == [package_ahriman]
+    assert update_handler.updates_aur([package_ahriman.base], vcs=True) == [package_ahriman]
     package_load_mock.assert_called_once_with(package_ahriman.base, update_handler.pacman)
 
 
@@ -81,7 +81,7 @@ def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Pack
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
 
-    update_handler.updates_aur([], False)
+    update_handler.updates_aur([], vcs=True)
     package_load_mock.assert_not_called()
 
 
@@ -94,7 +94,7 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
     mocker.patch("ahriman.models.package.Package.is_vcs", return_value=True)
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated")
 
-    update_handler.updates_aur([], True)
+    update_handler.updates_aur([], vcs=False)
     package_is_outdated_mock.assert_not_called()
 
 

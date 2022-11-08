@@ -42,13 +42,13 @@ class UpdateHandler(Cleaner):
         """
         raise NotImplementedError
 
-    def updates_aur(self, filter_packages: Iterable[str], no_vcs: bool) -> List[Package]:
+    def updates_aur(self, filter_packages: Iterable[str], *, vcs: bool) -> List[Package]:
         """
         check AUR for updates
 
         Args:
             filter_packages(Iterable[str]): do not check every package just specified in the list
-            no_vcs(bool): do not check VCS packages
+            vcs(bool): enable or disable checking of VCS packages
 
         Returns:
             List[Package]: list of packages which are out-of-dated
@@ -58,7 +58,7 @@ class UpdateHandler(Cleaner):
         for local in self.packages():
             if local.base in self.ignore_list:
                 continue
-            if local.is_vcs and no_vcs:
+            if local.is_vcs and not vcs:
                 continue
             if filter_packages and local.base not in filter_packages:
                 continue

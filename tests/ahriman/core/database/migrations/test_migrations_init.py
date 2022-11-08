@@ -2,8 +2,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 from sqlite3 import Connection
-from unittest import mock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
@@ -52,10 +51,10 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
     migrations.run()
     validate_mock.assert_called_once_with()
     cursor.execute.assert_has_calls([
-        mock.call("begin exclusive"),
-        mock.call("select 1"),
-        mock.call("pragma user_version = 1"),
-        mock.call("commit"),
+        MockCall("begin exclusive"),
+        MockCall("select 1"),
+        MockCall("pragma user_version = 1"),
+        MockCall("commit"),
     ])
     cursor.close.assert_called_once_with()
     migrate_data_mock.assert_called_once_with(
@@ -77,8 +76,8 @@ def test_run_migration_exception(migrations: Migrations, mocker: MockerFixture) 
     with pytest.raises(Exception):
         migrations.run()
     cursor.execute.assert_has_calls([
-        mock.call("begin exclusive"),
-        mock.call("rollback"),
+        MockCall("begin exclusive"),
+        MockCall("rollback"),
     ])
     cursor.close.assert_called_once_with()
 

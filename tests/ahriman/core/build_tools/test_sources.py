@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.models.package import Package
@@ -55,12 +55,12 @@ def test_fetch_existing(remote_source: RemoteSource, mocker: MockerFixture) -> N
     local = Path("local")
     Sources.fetch(local, remote_source)
     check_output_mock.assert_has_calls([
-        mock.call("git", "fetch", "origin", remote_source.branch,
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", remote_source.branch,
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "reset", "--hard", f"origin/{remote_source.branch}",
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+        MockCall("git", "fetch", "origin", remote_source.branch,
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "checkout", "--force", remote_source.branch,
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "reset", "--hard", f"origin/{remote_source.branch}",
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -76,12 +76,12 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, remote_source)
     check_output_mock.assert_has_calls([
-        mock.call("git", "clone", "--branch", remote_source.branch, "--single-branch",
-                  remote_source.git_url, str(local), exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "checkout", "--force", remote_source.branch,
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "reset", "--hard", f"origin/{remote_source.branch}",
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+        MockCall("git", "clone", "--branch", remote_source.branch, "--single-branch",
+                 remote_source.git_url, str(local), exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "checkout", "--force", remote_source.branch,
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "reset", "--hard", f"origin/{remote_source.branch}",
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -97,10 +97,10 @@ def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, None)
     check_output_mock.assert_has_calls([
-        mock.call("git", "checkout", "--force", Sources.DEFAULT_BRANCH,
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        mock.call("git", "reset", "--hard", f"origin/{Sources.DEFAULT_BRANCH}",
-                  exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+        MockCall("git", "checkout", "--force", Sources.DEFAULT_BRANCH,
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "reset", "--hard", f"origin/{Sources.DEFAULT_BRANCH}",
+                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -237,7 +237,7 @@ def test_add(sources: Sources, mocker: MockerFixture) -> None:
 
     local = Path("local")
     sources.add(local, "pattern1", "pattern2")
-    glob_mock.assert_has_calls([mock.call("pattern1"), mock.call("pattern2")])
+    glob_mock.assert_has_calls([MockCall("pattern1"), MockCall("pattern2")])
     check_output_mock.assert_called_once_with(
         "git", "add", "--intent-to-add", "1", "2", "1", "2",
         exception=None, cwd=local, logger=pytest.helpers.anyvar(int))

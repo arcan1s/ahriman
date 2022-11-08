@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import SyncFailed
+from ahriman.core.exceptions import SynchronizationError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.upload_settings import UploadSettings
@@ -108,7 +108,7 @@ class Upload(LazyLogging):
             self.sync(path, built_packages)
         except Exception:
             self.logger.exception("remote sync failed")
-            raise SyncFailed()
+            raise SynchronizationError()
 
     def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
         """

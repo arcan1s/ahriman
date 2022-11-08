@@ -47,7 +47,7 @@ class ApplicationRepository(ApplicationProperties):
         """
         raise NotImplementedError
 
-    def clean(self, cache: bool, chroot: bool, manual: bool, packages: bool) -> None:
+    def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root
 
@@ -56,6 +56,7 @@ class ApplicationRepository(ApplicationProperties):
             chroot(bool): clear build chroot
             manual(bool): clear directory with manually added packages
             packages(bool): clear directory with built packages
+            pacman(bool): clear directory with pacman databases
         """
         if cache:
             self.repository.clear_cache()
@@ -65,6 +66,8 @@ class ApplicationRepository(ApplicationProperties):
             self.repository.clear_queue()
         if packages:
             self.repository.clear_packages()
+        if pacman:
+            self.repository.clear_pacman()
 
     def sign(self, packages: Iterable[str]) -> None:
         """
@@ -156,17 +159,17 @@ class ApplicationRepository(ApplicationProperties):
 
         return build_result
 
-    def updates(self, filter_packages: Iterable[str], no_aur: bool, no_local: bool, no_manual: bool, no_vcs: bool,
-                log_fn: Callable[[str], None]) -> List[Package]:
+    def updates(self, filter_packages: Iterable[str], *,
+                aur: bool, local: bool, manual: bool, vcs: bool, log_fn: Callable[[str], None]) -> List[Package]:
         """
         get list of packages to run update process
 
         Args:
             filter_packages(Iterable[str]): do not check every package just specified in the list
-            no_aur(bool): do not check for aur updates
-            no_local(bool): do not check local packages for updates
-            no_manual(bool): do not check for manual updates
-            no_vcs(bool): do not check VCS packages
+            aur(bool): enable or disable checking for AUR updates
+            local(bool): enable or disable checking of local packages for updates
+            manual(bool): include or exclude manual updates
+            vcs(bool): enable or disable checking of VCS packages
             log_fn(Callable[[str], None]): logger function to log updates
 
         Returns:
@@ -174,11 +177,11 @@ class ApplicationRepository(ApplicationProperties):
         """
         updates = {}
 
-        if not no_aur:
-            updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, no_vcs)})
-        if not no_local:
+        if aur:
+            updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, vcs=vcs)})
+        if local:
             updates.update({package.base: package for package in self.repository.updates_local()})
-        if not no_manual:
+        if manual:
             updates.update({package.base: package for package in self.repository.updates_manual()})
 
         local_versions = {package.base: package.version for package in self.repository.packages()}

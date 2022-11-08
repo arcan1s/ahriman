@@ -8,7 +8,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.exceptions import BuildFailed, InvalidOption, UnsafeRun
+from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
     enum_values, package_like, pretty_datetime, pretty_size, safe_filename, walk
 from ahriman.models.package import Package
@@ -93,12 +93,12 @@ def test_check_output_failure_exception(mocker: MockerFixture) -> None:
     must raise exception provided instead of default
     """
     mocker.patch("subprocess.Popen.wait", return_value=1)
-    exception = BuildFailed("")
+    exception = BuildError("")
 
-    with pytest.raises(BuildFailed):
+    with pytest.raises(BuildError):
         check_output("echo", "hello", exception=exception)
 
-    with pytest.raises(BuildFailed):
+    with pytest.raises(BuildError):
         check_output("echo", "hello", exception=exception, logger=logging.getLogger(""))
 
 
@@ -108,7 +108,7 @@ def test_check_user(mocker: MockerFixture) -> None:
     """
     paths = RepositoryPaths(Path.cwd(), "x86_64")
     mocker.patch("os.getuid", return_value=paths.root_owner[0])
-    check_user(paths, False)
+    check_user(paths, unsafe=False)
 
 
 def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -116,7 +116,7 @@ def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: Mock
     must not fail in case if no directory found
     """
     mocker.patch("pathlib.Path.exists", return_value=False)
-    check_user(repository_paths, False)
+    check_user(repository_paths, unsafe=False)
 
 
 def test_check_user_exception(mocker: MockerFixture) -> None:
@@ -126,8 +126,17 @@ def test_check_user_exception(mocker: MockerFixture) -> None:
     paths = RepositoryPaths(Path.cwd(), "x86_64")
     mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
 
-    with pytest.raises(UnsafeRun):
-        check_user(paths, False)
+    with pytest.raises(UnsafeRunError):
+        check_user(paths, unsafe=False)
+
+
+def test_check_user_unsafe(mocker: MockerFixture) -> None:
+    """
+    must skip check if unsafe flag is set
+    """
+    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
+    check_user(paths, unsafe=True)
 
 
 def test_exception_response_text() -> None:
@@ -147,15 +156,6 @@ def test_exception_response_text_empty() -> None:
     """
     exception = requests.exceptions.HTTPError(response=None)
     assert exception_response_text(exception) == ""
-
-
-def test_check_unsafe(mocker: MockerFixture) -> None:
-    """
-    must skip check if unsafe flag is set
-    """
-    paths = RepositoryPaths(Path.cwd(), "x86_64")
-    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
-    check_user(paths, True)
 
 
 def test_filter_json(package_ahriman: Package) -> None:
@@ -283,7 +283,7 @@ def test_pretty_size_pbytes_failure() -> None:
     """
     must raise exception if level >= 4 supplied
     """
-    with pytest.raises(InvalidOption):
+    with pytest.raises(OptionError):
         pretty_size(42 * 1024 * 1024 * 1024 * 1024, 4).split()
 
 

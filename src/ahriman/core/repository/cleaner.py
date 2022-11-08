@@ -66,6 +66,14 @@ class Cleaner(RepositoryProperties):
         for package in self.packages_built():
             package.unlink()
 
+    def clear_pacman(self) -> None:
+        """
+        clear directory with pacman databases
+        """
+        self.logger.info("clear pacman database directory")
+        for pacman in self.paths.pacman.iterdir():
+            shutil.rmtree(pacman)
+
     def clear_queue(self) -> None:
         """
         clear packages which were queued for the update

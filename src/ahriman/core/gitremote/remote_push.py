@@ -25,7 +25,7 @@ from typing import Generator
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import GitRemoteFailed
+from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -110,4 +110,4 @@ class RemotePush(LazyLogging):
                 Sources.push(clone_dir, self.remote_source, *RemotePush.packages_update(result, clone_dir))
         except Exception:
             self.logger.exception("git push failed")
-            raise GitRemoteFailed()
+            raise GitRemoteError()

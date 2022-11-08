@@ -2,7 +2,7 @@ import pytest
 import requests
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.telegram import Telegram
@@ -81,7 +81,7 @@ def test_generate_big_text(configuration: Configuration, package_ahriman: Packag
     report = Telegram("x86_64", configuration, "telegram")
     report.generate([package_ahriman], result)
     send_mock.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str, strict=True)), mock.call(pytest.helpers.anyvar(str, strict=True))
+        MockCall(pytest.helpers.anyvar(str, strict=True)), MockCall(pytest.helpers.anyvar(str, strict=True))
     ])
 
 
@@ -96,9 +96,9 @@ def test_generate_very_big_text(configuration: Configuration, package_ahriman: P
     report = Telegram("x86_64", configuration, "telegram")
     report.generate([package_ahriman], result)
     send_mock.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str, strict=True)),
-        mock.call(pytest.helpers.anyvar(str, strict=True)),
-        mock.call(pytest.helpers.anyvar(str, strict=True)),
+        MockCall(pytest.helpers.anyvar(str, strict=True)),
+        MockCall(pytest.helpers.anyvar(str, strict=True)),
+        MockCall(pytest.helpers.anyvar(str, strict=True)),
     ])
 
 

@@ -17,10 +17,10 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.interval = 60 * 60 * 12
-    args.no_aur = False
-    args.no_local = False
-    args.no_manual = False
-    args.no_vcs = False
+    args.aur = True
+    args.local = True
+    args.manual = True
+    args.vcs = True
     return args
 
 
@@ -33,8 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     start_mock = mocker.patch("threading.Timer.start")
     join_mock = mocker.patch("threading.Timer.join")
 
-    Daemon.run(args, "x86_64", configuration, True, False)
-    Daemon._SHOULD_RUN = False
-    run_mock.assert_called_once_with(args, "x86_64", configuration, True, False)
+    Daemon.run(args, "x86_64", configuration, report=True, unsafe=False)
+    run_mock.assert_called_once_with(args, "x86_64", configuration, report=True, unsafe=False)
     start_mock.assert_called_once_with()
     join_mock.assert_called_once_with()
