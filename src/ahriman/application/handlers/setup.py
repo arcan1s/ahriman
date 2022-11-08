@@ -20,6 +20,7 @@
 import argparse
 
 from pathlib import Path
+from pwd import getpwuid
 from typing import Type
 
 from ahriman.application.application import Application
@@ -173,7 +174,9 @@ class Setup(Handler):
             packager(str): packager identifier (e.g. name, email)
             paths(RepositoryPaths): repository paths instance
         """
-        (paths.root / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
+        uid, _ = paths.root_owner
+        home_dir = Path(getpwuid(uid).pw_dir)
+        (home_dir / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
 
     @staticmethod
     def configuration_create_sudo(paths: RepositoryPaths, prefix: str, architecture: str) -> None:
