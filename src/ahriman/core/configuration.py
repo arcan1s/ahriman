@@ -225,14 +225,14 @@ class Configuration(configparser.RawConfigParser):
 
     # pylint and mypy are too stupid to find these methods
     # pylint: disable=missing-function-docstring,multiple-statements,unused-argument
-    def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...
+    def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...  # type: ignore
 
-    def getpath(self, *args: Any, **kwargs: Any) -> Path: ...
+    def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore
 
     def gettype(self, section: str, architecture: str) -> Tuple[str, str]:
         """
-        get type variable with fallback to old logic
-        Despite the fact that it has same semantics as other get* methods, but it has different argument list
+        get type variable with fallback to old logic. Despite the fact that it has same semantics as other get* methods,
+        but it has different argument list
 
         Args:
             section(str): section name

@@ -48,7 +48,7 @@ class RepositoryProperties(LazyLogging):
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
-                 no_report: bool, unsafe: bool) -> None:
+                 no_report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> None:
         """
         default constructor
 
@@ -58,6 +58,7 @@ class RepositoryProperties(LazyLogging):
             database(SQLite): database instance
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
+            refresh_pacman_database(int): pacman database syncronization level, ``0`` is disabled
         """
         self.architecture = architecture
         self.configuration = configuration
@@ -73,7 +74,7 @@ class RepositoryProperties(LazyLogging):
             self.logger.warning("root owner differs from the current user, skipping tree creation")
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
-        self.pacman = Pacman(configuration)
+        self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client() if no_report else Client.load(configuration)

@@ -88,6 +88,16 @@ class RepositoryPaths:
         return self.root / "packages" / self.architecture
 
     @property
+    def pacman(self) -> Path:
+        """
+        get directory for pacman local package cache
+
+        Returns:
+            Path: full path to pacman local database cache
+        """
+        return self.root / "pacman" / self.architecture
+
+    @property
     def repository(self) -> Path:
         """
         get repository directory
@@ -194,6 +204,7 @@ class RepositoryPaths:
                 self.cache,
                 self.chroot,
                 self.packages,
+                self.pacman / "sync",  # we need sync directory in order to be able to copy databases
                 self.repository,
         ):
             directory.mkdir(mode=0o755, parents=True, exist_ok=True)

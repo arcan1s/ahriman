@@ -28,6 +28,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.no_local = False
     args.no_manual = False
     args.no_vcs = False
+    args.refresh = 0
     return args
 
 

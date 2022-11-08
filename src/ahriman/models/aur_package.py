@@ -67,8 +67,10 @@ class AURPackage:
             >>>
             >>>
             >>> from ahriman.core.alpm.pacman import Pacman
+            >>> from ahriman.core.configuration import Configuration
             >>>
-            >>> pacman = Pacman(configuration)
+            >>> configuration = Configuration()
+            >>> pacman = Pacman("x86_64", configuration)
             >>> metadata = pacman.get("pacman")
             >>> package = AURPackage.from_pacman(next(metadata))  # load package from pyalpm wrapper
     """

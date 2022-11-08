@@ -48,4 +48,4 @@ class OfficialSyncdb(Official):
         Returns:
             AURPackage: package which match the package name
         """
-        return next(AURPackage.from_pacman(package) for package in pacman.get(package_name))
+        return next(AURPackage.from_pacman(package) for package in pacman.package_get(package_name))

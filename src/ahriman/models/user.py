@@ -21,8 +21,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from typing import Optional, Type
-from passlib.pwd import genword as generate_password  # type: ignore
-from passlib.handlers.sha2_crypt import sha512_crypt  # type: ignore
+from passlib.pwd import genword as generate_password
+from passlib.handlers.sha2_crypt import sha512_crypt
 
 from ahriman.models.user_access import UserAccess
 
