@@ -154,9 +154,5 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
     repository_paths.tree_create()
-    mkdir_mock.assert_has_calls(
-        [
-            mock.call(mode=0o755, parents=True, exist_ok=True)
-            for _ in paths
-        ], any_order=True)
-    chown_mock.assert_has_calls([mock.call(getattr(repository_paths, path)) for path in paths], any_order=True)
+    mkdir_mock.assert_has_calls([mock.call(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)
+    chown_mock.assert_has_calls([mock.call(pytest.helpers.anyvar(int)) for _ in paths], any_order=True)

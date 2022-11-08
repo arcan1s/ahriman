@@ -44,7 +44,7 @@ class Update(Handler):
             no_report(bool): force disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report, unsafe)
+        application = Application(architecture, configuration, no_report, unsafe, args.refresh)
         application.on_start()
         packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
                                        Update.log_fn(application, args.dry_run))

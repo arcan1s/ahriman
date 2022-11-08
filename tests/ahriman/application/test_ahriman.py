@@ -75,6 +75,18 @@ def test_subparsers_daemon(parser: argparse.ArgumentParser) -> None:
     assert args.package == []
 
 
+def test_subparsers_daemon_option_refresh(parser: argparse.ArgumentParser) -> None:
+    """
+    daemon command must count refresh options
+    """
+    args = parser.parse_args(["daemon"])
+    assert args.refresh == 0
+    args = parser.parse_args(["daemon", "-y"])
+    assert args.refresh == 1
+    args = parser.parse_args(["daemon", "-yy"])
+    assert args.refresh == 2
+
+
 def test_subparsers_daemon_option_interval(parser: argparse.ArgumentParser) -> None:
     """
     daemon command must convert interval option to int instance
@@ -153,6 +165,18 @@ def test_subparsers_package_add_architecture(parser: argparse.ArgumentParser) ->
     assert args.architecture is None
     args = parser.parse_args(["-a", "x86_64", "package-add", "ahriman"])
     assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_package_add_option_refresh(parser: argparse.ArgumentParser) -> None:
+    """
+    package-add command must count refresh options
+    """
+    args = parser.parse_args(["package-add", "ahriman"])
+    assert args.refresh == 0
+    args = parser.parse_args(["package-add", "ahriman", "-y"])
+    assert args.refresh == 1
+    args = parser.parse_args(["package-add", "ahriman", "-yy"])
+    assert args.refresh == 2
 
 
 def test_subparsers_package_remove_architecture(parser: argparse.ArgumentParser) -> None:
@@ -343,6 +367,18 @@ def test_subparsers_repo_check_architecture(parser: argparse.ArgumentParser) -> 
     assert args.architecture is None
     args = parser.parse_args(["-a", "x86_64", "repo-check"])
     assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_repo_check_option_refresh(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-check command must count refresh options
+    """
+    args = parser.parse_args(["repo-check"])
+    assert args.refresh == 0
+    args = parser.parse_args(["repo-check", "-y"])
+    assert args.refresh == 1
+    args = parser.parse_args(["repo-check", "-yy"])
+    assert args.refresh == 2
 
 
 def test_subparsers_repo_clean(parser: argparse.ArgumentParser) -> None:
@@ -538,6 +574,18 @@ def test_subparsers_repo_update_architecture(parser: argparse.ArgumentParser) ->
     assert args.architecture is None
     args = parser.parse_args(["-a", "x86_64", "repo-update"])
     assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_repo_update_option_refresh(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-update command must count refresh options
+    """
+    args = parser.parse_args(["repo-update"])
+    assert args.refresh == 0
+    args = parser.parse_args(["repo-update", "-y"])
+    assert args.refresh == 1
+    args = parser.parse_args(["repo-update", "-yy"])
+    assert args.refresh == 2
 
 
 def test_subparsers_shell(parser: argparse.ArgumentParser) -> None:

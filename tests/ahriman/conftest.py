@@ -360,7 +360,7 @@ def pacman(configuration: Configuration) -> Pacman:
     Returns:
         Pacman: pacman wrapper test instance
     """
-    return Pacman(configuration)
+    return Pacman("x86_64", configuration, refresh_database=0)
 
 
 @pytest.fixture
