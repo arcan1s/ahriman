@@ -22,10 +22,10 @@ def test_check_output(mocker: MockerFixture) -> None:
     """
     logger_mock = mocker.patch("logging.Logger.debug")
 
-    assert check_output("echo", "hello", exception=None) == "hello"
+    assert check_output("echo", "hello") == "hello"
     logger_mock.assert_not_called()
 
-    assert check_output("echo", "hello", exception=None, logger=logging.getLogger("")) == "hello"
+    assert check_output("echo", "hello", logger=logging.getLogger("")) == "hello"
     logger_mock.assert_called_once_with("hello")
 
 
@@ -35,11 +35,11 @@ def test_check_output_stderr(mocker: MockerFixture) -> None:
     """
     logger_mock = mocker.patch("logging.Logger.debug")
 
-    assert check_output("python", "-c", """import sys; print("hello", file=sys.stderr)""", exception=None) == ""
+    assert check_output("python", "-c", """import sys; print("hello", file=sys.stderr)""") == ""
     logger_mock.assert_not_called()
 
     assert check_output("python", "-c", """import sys; print("hello", file=sys.stderr)""",
-                        exception=None, logger=logging.getLogger("")) == ""
+                        logger=logging.getLogger("")) == ""
     logger_mock.assert_called_once_with("hello")
 
 
@@ -48,7 +48,7 @@ def test_check_output_with_stdin() -> None:
     must run command and put string to stdin
     """
     assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
-                        exception=None, input_data="single line") == "single line"
+                        input_data="single line") == "single line"
 
 
 def test_check_output_with_stdin_newline() -> None:
@@ -56,7 +56,7 @@ def test_check_output_with_stdin_newline() -> None:
     must run command and put string to stdin ending with new line
     """
     assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
-                        exception=None, input_data="single line\n") == "single line"
+                        input_data="single line\n") == "single line"
 
 
 def test_check_output_multiple_with_stdin() -> None:
@@ -64,7 +64,7 @@ def test_check_output_multiple_with_stdin() -> None:
     must run command and put multiple lines to stdin
     """
     assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
-                        exception=None, input_data="multiple\nlines") == "multiple\nlines"
+                        input_data="multiple\nlines") == "multiple\nlines"
 
 
 def test_check_output_multiple_with_stdin_newline() -> None:
@@ -72,7 +72,7 @@ def test_check_output_multiple_with_stdin_newline() -> None:
     must run command and put multiple lines to stdin with new line at the end
     """
     assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
-                        exception=None, input_data="multiple\nlines\n") == "multiple\nlines"
+                        input_data="multiple\nlines\n") == "multiple\nlines"
 
 
 def test_check_output_failure(mocker: MockerFixture) -> None:
@@ -82,10 +82,10 @@ def test_check_output_failure(mocker: MockerFixture) -> None:
     mocker.patch("subprocess.Popen.wait", return_value=1)
 
     with pytest.raises(subprocess.CalledProcessError):
-        check_output("echo", "hello", exception=None)
+        check_output("echo", "hello")
 
     with pytest.raises(subprocess.CalledProcessError):
-        check_output("echo", "hello", exception=None, logger=logging.getLogger(""))
+        check_output("echo", "hello", logger=logging.getLogger(""))
 
 
 def test_check_output_failure_exception(mocker: MockerFixture) -> None:

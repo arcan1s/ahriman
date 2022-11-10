@@ -81,12 +81,8 @@ class Repo(LazyLogging):
         """
         create empty repository database
         """
-        Repo._check_output(
-            "repo-add", *self.sign_args, str(self.repo_path),
-            exception=None,
-            cwd=self.paths.repository,
-            logger=self.logger,
-            user=self.uid)
+        Repo._check_output("repo-add", *self.sign_args, str(self.repo_path),
+                           cwd=self.paths.repository, logger=self.logger, user=self.uid)
 
     def remove(self, package: str, filename: Path) -> None:
         """
