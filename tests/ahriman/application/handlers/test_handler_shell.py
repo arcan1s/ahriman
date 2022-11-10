@@ -17,6 +17,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
+    args.code = None
     args.verbose = False
     return args
 
@@ -31,6 +32,19 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
 
     Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
+
+
+def test_run_eval(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must run command
+    """
+    args = _default_args(args)
+    args.code = """print("hello world")"""
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    application_mock = mocker.patch("code.InteractiveConsole.runcode")
+
+    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
+    application_mock.assert_called_once_with(args.code)
 
 
 def test_run_verbose(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

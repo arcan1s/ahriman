@@ -56,4 +56,7 @@ class Shell(Handler):
             # licensed by https://creativecommons.org/licenses/by-sa/3.0
             path = Path(sys.prefix) / "share" / "ahriman" / "templates" / "shell"
             StringPrinter(path.read_text(encoding="utf8")).print(verbose=False)
-        code.interact(local=locals())
+        if args.code is None:
+            code.interact(local=locals())
+        else:
+            code.InteractiveConsole(locals=locals()).runcode(args.code)
