@@ -31,7 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.on_result")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Triggers.run(args, "x86_64", configuration, True, False)
+    Triggers.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with(Result())
     on_start_mock.assert_called_once_with()
 
@@ -48,6 +48,6 @@ def test_run_trigger(args: argparse.Namespace, configuration: Configuration, pac
     report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
     upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result")
 
-    Triggers.run(args, "x86_64", configuration, True, False)
+    Triggers.run(args, "x86_64", configuration, report=False, unsafe=False)
     report_mock.assert_called_once_with(Result(), [package_ahriman])
     upload_mock.assert_not_called()

@@ -24,7 +24,7 @@ from tempfile import TemporaryDirectory
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import GitRemoteFailed
+from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import walk
 from ahriman.models.package_source import PackageSource
@@ -87,4 +87,4 @@ class RemotePull(LazyLogging):
             self.repo_clone()
         except Exception:
             self.logger.exception("git pull failed")
-            raise GitRemoteFailed()
+            raise GitRemoteError()

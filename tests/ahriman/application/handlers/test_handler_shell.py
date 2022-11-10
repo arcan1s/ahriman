@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("code.interact")
 
-    Shell.run(args, "x86_64", configuration, True, False)
+    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
 
 
@@ -43,6 +43,6 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, moc
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("code.interact")
 
-    Shell.run(args, "x86_64", configuration, True, False)
+    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
     print_mock.assert_called_once_with(verbose=False)

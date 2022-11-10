@@ -34,8 +34,8 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+            report: bool, unsafe: bool) -> None:
         """
         callback for command line
 
@@ -43,12 +43,12 @@ class Rebuild(Handler):
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
         depends_on = set(args.depends_on) if args.depends_on else None
 
-        application = Application(architecture, configuration, no_report, unsafe)
+        application = Application(architecture, configuration, report=report, unsafe=unsafe)
         application.on_start()
 
         if args.from_database:

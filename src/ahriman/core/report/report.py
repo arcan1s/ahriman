@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import ReportFailed
+from ahriman.core.exceptions import ReportError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
@@ -121,4 +121,4 @@ class Report(LazyLogging):
             self.generate(packages, result)
         except Exception:
             self.logger.exception("report generation failed")
-            raise ReportFailed()
+            raise ReportError()

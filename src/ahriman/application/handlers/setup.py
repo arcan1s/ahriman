@@ -46,8 +46,8 @@ class Setup(Handler):
     SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+            report: bool, unsafe: bool) -> None:
         """
         callback for command line
 
@@ -55,19 +55,19 @@ class Setup(Handler):
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
         Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include,
                                            configuration.repository_paths)
         configuration.reload()
 
-        application = Application(architecture, configuration, no_report, unsafe)
+        application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
         Setup.configuration_create_makepkg(args.packager, application.repository.paths)
         Setup.executable_create(application.repository.paths, args.build_command, architecture)
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
-                                            args.no_multilib, args.repository, application.repository.paths)
+                                            args.multilib, args.repository, application.repository.paths)
         Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
 
         application.repository.repo.init()
@@ -124,7 +124,7 @@ class Setup(Handler):
 
     @staticmethod
     def configuration_create_devtools(prefix: str, architecture: str, source: Path,
-                                      no_multilib: bool, repository: str, paths: RepositoryPaths) -> None:
+                                      multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on ``source`` configuration
 
@@ -135,7 +135,7 @@ class Setup(Handler):
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
             source(Path): path to source configuration file
-            no_multilib(bool): do not add multilib repository
+            multilib(bool): add or do not multilib repository
             repository(str): repository name
             paths(RepositoryPaths): repository paths instance
         """
@@ -154,7 +154,7 @@ class Setup(Handler):
         configuration.set_option("options", "Architecture", architecture)
 
         # add multilib
-        if not no_multilib:
+        if multilib:
             configuration.set_option("multilib", "Include", str(Setup.MIRRORLIST_PATH))
 
         # add repository itself

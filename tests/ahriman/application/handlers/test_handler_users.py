@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.handlers import Users
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import InitializeException
+from ahriman.core.exceptions import InitializeError
 from ahriman.models.action import Action
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
@@ -47,7 +47,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
     get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value="salt")
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
-    Users.run(args, "x86_64", configuration, True, False)
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
     create_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int),
                                                       pytest.helpers.anyvar(int), args.as_service, args.secure)
@@ -67,7 +67,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     list_mock = mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[user])
 
-    Users.run(args, "x86_64", configuration, True, False)
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
     list_mock.assert_called_once_with("user", args.role)
     check_mock.assert_called_once_with(False, False)
 
@@ -84,7 +84,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Users.run(args, "x86_64", configuration, True, False)
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -98,7 +98,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, data
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     remove_mock = mocker.patch("ahriman.core.database.SQLite.user_remove")
 
-    Users.run(args, "x86_64", configuration, True, False)
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
     remove_mock.assert_called_once_with(args.username)
 
 
@@ -176,7 +176,7 @@ def test_configuration_write_not_loaded(configuration: Configuration, mocker: Mo
     configuration.path = None
     mocker.patch("pathlib.Path.open")
 
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         Users.configuration_write(configuration, secure=True)
 
 

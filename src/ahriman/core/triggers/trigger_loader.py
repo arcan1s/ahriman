@@ -26,7 +26,7 @@ from types import ModuleType
 from typing import Generator, Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import InvalidExtension
+from ahriman.core.exceptions import ExtensionError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
@@ -136,7 +136,7 @@ class TriggerLoader(LazyLogging):
         try:
             return importlib.import_module(package)
         except ModuleNotFoundError:
-            raise InvalidExtension(f"Module {package} not found")
+            raise ExtensionError(f"Module {package} not found")
 
     def load_trigger(self, module_path: str) -> Trigger:
         """
@@ -163,15 +163,15 @@ class TriggerLoader(LazyLogging):
 
         trigger_type = getattr(module, class_name, None)
         if not isinstance(trigger_type, type):
-            raise InvalidExtension(f"{class_name} of {package_or_path} is not a type")
+            raise ExtensionError(f"{class_name} of {package_or_path} is not a type")
         self.logger.info("loaded type %s of package %s", class_name, package_or_path)
 
         try:
             trigger = trigger_type(self.architecture, self.configuration)
         except Exception:
-            raise InvalidExtension(f"Could not load instance of trigger from {class_name} of {package_or_path}")
+            raise ExtensionError(f"Could not load instance of trigger from {class_name} of {package_or_path}")
         if not isinstance(trigger, Trigger):
-            raise InvalidExtension(f"Class {class_name} of {package_or_path} is not a Trigger")
+            raise ExtensionError(f"Class {class_name} of {package_or_path} is not a Trigger")
 
         return trigger
 

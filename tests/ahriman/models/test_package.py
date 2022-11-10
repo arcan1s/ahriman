@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.core.exceptions import PackageInfoError
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
@@ -114,7 +114,7 @@ def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> N
     mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
-    with pytest.raises(InvalidPackageInfo):
+    with pytest.raises(PackageInfoError):
         Package.from_build(Path("path"))
 
 
@@ -159,7 +159,7 @@ def test_dependencies_failed(mocker: MockerFixture) -> None:
     mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
-    with pytest.raises(InvalidPackageInfo):
+    with pytest.raises(PackageInfoError):
         Package.dependencies(Path("path"))
 
 
@@ -200,7 +200,7 @@ def test_supported_architectures_failed(mocker: MockerFixture) -> None:
     mocker.patch("ahriman.models.package.Package._check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
-    with pytest.raises(InvalidPackageInfo):
+    with pytest.raises(PackageInfoError):
         Package.supported_architectures(Path("path"))
 
 

@@ -32,7 +32,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
                                  return_value=["command"])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    UnsafeCommands.run(args, "x86_64", configuration, True, False)
+    UnsafeCommands.run(args, "x86_64", configuration, report=False, unsafe=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     print_mock.assert_called_once_with(verbose=True)
 
@@ -47,7 +47,7 @@ def test_run_check(args: argparse.Namespace, configuration: Configuration, mocke
                                  return_value=["command"])
     check_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.check_unsafe")
 
-    UnsafeCommands.run(args, "x86_64", configuration, True, False)
+    UnsafeCommands.run(args, "x86_64", configuration, report=False, unsafe=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with("clean", ["command"], pytest.helpers.anyvar(int))
 

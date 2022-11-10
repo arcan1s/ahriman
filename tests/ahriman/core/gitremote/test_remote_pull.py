@@ -2,10 +2,10 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import GitRemoteFailed
+from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.gitremote.remote_pull import RemotePull
 
 
@@ -39,12 +39,12 @@ def test_repo_copy(configuration: Configuration, mocker: MockerFixture) -> None:
 
     runner.repo_copy(Path("local"))
     copytree_mock.assert_has_calls([
-        mock.call(Path("local") / "package1", configuration.repository_paths.cache_for("package1"), dirs_exist_ok=True),
-        mock.call(Path("local") / "package3", configuration.repository_paths.cache_for("package3"), dirs_exist_ok=True),
+        MockCall(Path("local") / "package1", configuration.repository_paths.cache_for("package1"), dirs_exist_ok=True),
+        MockCall(Path("local") / "package3", configuration.repository_paths.cache_for("package3"), dirs_exist_ok=True),
     ])
     init_mock.assert_has_calls([
-        mock.call(configuration.repository_paths.cache_for("package1")),
-        mock.call(configuration.repository_paths.cache_for("package3")),
+        MockCall(configuration.repository_paths.cache_for("package1")),
+        MockCall(configuration.repository_paths.cache_for("package3")),
     ])
 
 
@@ -66,5 +66,5 @@ def test_run_failed(configuration: Configuration, mocker: MockerFixture) -> None
     mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_clone", side_effect=Exception())
     runner = RemotePull(configuration, "gitremote")
 
-    with pytest.raises(GitRemoteFailed):
+    with pytest.raises(GitRemoteError):
         runner.run()

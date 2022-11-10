@@ -2,10 +2,10 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import GitRemoteFailed
+from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.gitremote.remote_push import RemotePush
 from ahriman.models.package import Package
 from ahriman.models.result import Result
@@ -22,9 +22,9 @@ def test_package_update(package_ahriman: Package, mocker: MockerFixture) -> None
     local = Path("local")
     RemotePush.package_update(package_ahriman, local)
     rmtree_mock.assert_has_calls([
-        mock.call(local / package_ahriman.base, ignore_errors=True),
-        mock.call(pytest.helpers.anyvar(int), onerror=pytest.helpers.anyvar(int)),  # removal of the TemporaryDirectory
-        mock.call(local / package_ahriman.base / ".git", ignore_errors=True),
+        MockCall(local / package_ahriman.base, ignore_errors=True),
+        MockCall(pytest.helpers.anyvar(int), onerror=pytest.helpers.anyvar(int)),  # removal of the TemporaryDirectory
+        MockCall(local / package_ahriman.base / ".git", ignore_errors=True),
     ])
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.remote)
     copytree_mock.assert_called_once_with(pytest.helpers.anyvar(int), local / package_ahriman.base)
@@ -63,5 +63,5 @@ def test_run_failed(configuration: Configuration, result: Result, mocker: Mocker
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
     runner = RemotePush(configuration, "gitremote")
 
-    with pytest.raises(GitRemoteFailed):
+    with pytest.raises(GitRemoteError):
         runner.run(result)

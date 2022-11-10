@@ -3,7 +3,7 @@ import pytest
 from aiohttp import web
 from pytest_mock import MockerFixture
 
-from ahriman.core.exceptions import InitializeException
+from ahriman.core.exceptions import InitializeError
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.web import on_shutdown, on_startup, run_server
 
@@ -35,7 +35,7 @@ async def test_on_startup_exception(application: web.Application, watcher: Watch
     mocker.patch("aiohttp.web.Application.__getitem__", return_value=watcher)
     mocker.patch("ahriman.core.status.watcher.Watcher.load", side_effect=Exception())
 
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         await on_startup(application)
 
 

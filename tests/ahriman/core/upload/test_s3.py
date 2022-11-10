@@ -1,8 +1,7 @@
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, List, Optional, Tuple
-from unittest import mock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.upload.s3 import S3
 
@@ -67,11 +66,11 @@ def test_files_upload(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixtur
     s3.files_upload(root, local_files, remote_objects)
     upload_mock.upload_file.assert_has_calls(
         [
-            mock.call(
+            MockCall(
                 Filename=str(root / s3.architecture / "b"),
                 Key=f"{s3.architecture}/{s3.architecture}/b",
                 ExtraArgs={"ContentType": "text/html"}),
-            mock.call(
+            MockCall(
                 Filename=str(root / s3.architecture / "d"),
                 Key=f"{s3.architecture}/{s3.architecture}/d",
                 ExtraArgs=None),

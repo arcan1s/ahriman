@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.repository.executor import Executor
 from ahriman.models.package import Package
@@ -88,7 +88,7 @@ def test_process_remove_base_multiple(executor: Executor, package_python_schedul
     executor.process_remove([package_python_schedule.base])
     # must remove via alpm wrapper
     repo_remove_mock.assert_has_calls([
-        mock.call(package, props.filepath)
+        MockCall(package, props.filepath)
         for package, props in package_python_schedule.packages.items()
     ], any_order=True)
     # must update status
@@ -186,7 +186,7 @@ def test_process_update_group(executor: Executor, package_python_schedule: Packa
 
     executor.process_update([package.filepath for package in package_python_schedule.packages.values()])
     repo_add_mock.assert_has_calls([
-        mock.call(executor.paths.repository / package.filepath)
+        MockCall(executor.paths.repository / package.filepath)
         for package in package_python_schedule.packages.values()
     ], any_order=True)
     status_client_mock.assert_called_once_with(package_python_schedule)
@@ -208,8 +208,8 @@ def test_process_update_unsafe(executor: Executor, package_ahriman: Package, moc
 
     executor.process_update([Path(path)])
     move_mock.assert_has_calls([
-        mock.call(executor.paths.packages / path, executor.paths.packages / safe_path),
-        mock.call(executor.paths.packages / safe_path, executor.paths.repository / safe_path)
+        MockCall(executor.paths.packages / path, executor.paths.packages / safe_path),
+        MockCall(executor.paths.packages / safe_path, executor.paths.repository / safe_path)
     ])
     repo_add_mock.assert_called_once_with(executor.paths.repository / safe_path)
 

@@ -27,7 +27,7 @@ from logging.config import fileConfig
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
-from ahriman.core.exceptions import InitializeException
+from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -208,7 +208,7 @@ class Configuration(configparser.RawConfigParser):
             InitializeException: in case if architecture and/or path are not set
         """
         if self.path is None or self.architecture is None:
-            raise InitializeException("Configuration path and/or architecture are not set")
+            raise InitializeError("Configuration path and/or architecture are not set")
         return self.path, self.architecture
 
     def dump(self) -> Dict[str, Dict[str, str]]:

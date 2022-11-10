@@ -21,7 +21,7 @@ import shutil
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterable, List, Optional, Set
+from typing import Iterable, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
@@ -187,8 +187,12 @@ class Executor(Cleaner):
                 self.reporter.set_success(local)
                 result.add_success(local)
 
-                current_package_archives: Set[str] = next(
-                    (set(current.packages) for current in current_packages if current.base == local.base), set())
+                current_package_archives = {
+                    package
+                    for current in current_packages
+                    if current.base == local.base
+                    for package in current.packages
+                }
                 removed_packages.extend(current_package_archives.difference(local.packages))
             except Exception:
                 self.reporter.set_failed(local.base)

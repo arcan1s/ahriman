@@ -39,7 +39,7 @@ class Repository(Executor, UpdateHandler):
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository("x86_64", configuration, database, no_report=False, unsafe=False)
+            >>> repository = Repository("x86_64", configuration, database, report=True, unsafe=False)
             >>> known_packages = repository.packages()
             >>>
             >>> build_result = repository.process_build(known_packages)

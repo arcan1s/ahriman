@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Set, Tuple, Type
 
-from ahriman.core.exceptions import InvalidPath
+from ahriman.core.exceptions import PathError
 
 
 @dataclass(frozen=True)
@@ -178,7 +178,7 @@ class RepositoryPaths:
             os.chown(current, root_uid, root_gid, follow_symlinks=False)
 
         if self.root not in path.parents:
-            raise InvalidPath(path, self.root)
+            raise PathError(path, self.root)
         root_uid, root_gid = self.root_owner
         while path != self.root:
             set_owner(path)

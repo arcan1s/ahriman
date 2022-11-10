@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 
-class BuildFailed(RuntimeError):
+class BuildError(RuntimeError):
     """
     base exception for failed builds
     """
@@ -36,7 +36,7 @@ class BuildFailed(RuntimeError):
         RuntimeError.__init__(self, f"Package {package_base} build failed, check logs for details")
 
 
-class DuplicateRun(RuntimeError):
+class DuplicateRunError(RuntimeError):
     """
     exception which will be raised if there is another application instance
     """
@@ -55,7 +55,13 @@ class ExitCode(RuntimeError):
     """
 
 
-class GitRemoteFailed(RuntimeError):
+class ExtensionError(RuntimeError):
+    """
+    exception being raised by trigger load in case of errors
+    """
+
+
+class GitRemoteError(RuntimeError):
     """
     git remote exception
     """
@@ -67,7 +73,7 @@ class GitRemoteFailed(RuntimeError):
         RuntimeError.__init__(self, "Git remote failed")
 
 
-class InitializeException(RuntimeError):
+class InitializeError(RuntimeError):
     """
     base service initialization exception
     """
@@ -80,58 +86,6 @@ class InitializeException(RuntimeError):
             details(str): details of the exception
         """
         RuntimeError.__init__(self, f"Could not load service: {details}")
-
-
-class InvalidExtension(RuntimeError):
-    """
-    exception being raised by trigger load in case of errors
-    """
-
-
-class InvalidOption(ValueError):
-    """
-    exception which will be raised on configuration errors
-    """
-
-    def __init__(self, value: Any) -> None:
-        """
-        default constructor
-
-        Args:
-            value(Any): option value
-        """
-        ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
-
-
-class InvalidPath(ValueError):
-    """
-    exception which will be raised on path which is not belong to root directory
-    """
-
-    def __init__(self, path: Path, root: Path) -> None:
-        """
-        default constructor
-
-        Args:
-            path(Path): path which raised an exception
-            root(Path): repository root (i.e. ahriman home)
-        """
-        ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
-
-
-class InvalidPackageInfo(RuntimeError):
-    """
-    exception which will be raised on package load errors
-    """
-
-    def __init__(self, details: Any) -> None:
-        """
-        default constructor
-
-        Args:
-            details(Any): error details
-        """
-        RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
 
 
 class MigrationError(RuntimeError):
@@ -149,7 +103,7 @@ class MigrationError(RuntimeError):
         RuntimeError.__init__(self, details)
 
 
-class MissingArchitecture(ValueError):
+class MissingArchitectureError(ValueError):
     """
     exception which will be raised if architecture is required, but missing
     """
@@ -164,7 +118,7 @@ class MissingArchitecture(ValueError):
         ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
 
 
-class MultipleArchitectures(ValueError):
+class MultipleArchitecturesError(ValueError):
     """
     exception which will be raised if multiple architectures are not supported by the handler
     """
@@ -179,7 +133,53 @@ class MultipleArchitectures(ValueError):
         ValueError.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
 
 
-class ReportFailed(RuntimeError):
+class OptionError(ValueError):
+    """
+    exception which will be raised on configuration errors
+    """
+
+    def __init__(self, value: Any) -> None:
+        """
+        default constructor
+
+        Args:
+            value(Any): option value
+        """
+        ValueError.__init__(self, f"Invalid or unknown option value `{value}`")
+
+
+class PackageInfoError(RuntimeError):
+    """
+    exception which will be raised on package load errors
+    """
+
+    def __init__(self, details: Any) -> None:
+        """
+        default constructor
+
+        Args:
+            details(Any): error details
+        """
+        RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
+
+
+class PathError(ValueError):
+    """
+    exception which will be raised on path which is not belong to root directory
+    """
+
+    def __init__(self, path: Path, root: Path) -> None:
+        """
+        default constructor
+
+        Args:
+            path(Path): path which raised an exception
+            root(Path): repository root (i.e. ahriman home)
+        """
+        ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
+
+
+class ReportError(RuntimeError):
     """
     report generation exception
     """
@@ -191,22 +191,7 @@ class ReportFailed(RuntimeError):
         RuntimeError.__init__(self, "Report failed")
 
 
-class SuccessFailed(ValueError):
-    """
-    exception for merging invalid statues
-    """
-
-    def __init__(self, package_base: str) -> None:
-        """
-        default constructor
-
-        Args:
-            package_base(str): package base name
-        """
-        ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
-
-
-class SyncFailed(RuntimeError):
+class SynchronizationError(RuntimeError):
     """
     remote synchronization exception
     """
@@ -218,7 +203,7 @@ class SyncFailed(RuntimeError):
         RuntimeError.__init__(self, "Sync failed")
 
 
-class UnknownPackage(ValueError):
+class UnknownPackageError(ValueError):
     """
     exception for status watcher which will be thrown on unknown package
     """
@@ -233,7 +218,22 @@ class UnknownPackage(ValueError):
         ValueError.__init__(self, f"Package base {package_base} is unknown")
 
 
-class UnsafeRun(RuntimeError):
+class UnprocessedPackageStatusError(ValueError):
+    """
+    exception for merging invalid statues
+    """
+
+    def __init__(self, package_base: str) -> None:
+        """
+        default constructor
+
+        Args:
+            package_base(str): package base name
+        """
+        ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
+
+
+class UnsafeRunError(RuntimeError):
     """
     exception which will be raised in case if user is not owner of repository
     """

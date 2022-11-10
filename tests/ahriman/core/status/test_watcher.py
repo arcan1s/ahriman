@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import UnknownPackage
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -39,7 +39,7 @@ def test_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must fail on unknown package
     """
-    with pytest.raises(UnknownPackage):
+    with pytest.raises(UnknownPackageError):
         watcher.get(package_ahriman.base)
 
 
@@ -124,7 +124,7 @@ def test_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must fail on unknown package status update only
     """
-    with pytest.raises(UnknownPackage):
+    with pytest.raises(UnknownPackageError):
         watcher.update(package_ahriman.base, BuildStatusEnum.Unknown, None)
 
 

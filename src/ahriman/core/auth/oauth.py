@@ -24,7 +24,7 @@ from typing import Optional, Type
 from ahriman.core.auth import Mapping
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.exceptions import OptionError
 from ahriman.models.auth_settings import AuthSettings
 
 
@@ -91,7 +91,7 @@ class OAuth(Mapping):
         except TypeError:  # what if it is random string?
             is_oauth2_client = False
         if not is_oauth2_client:
-            raise InvalidOption(name)
+            raise OptionError(name)
         return provider
 
     def get_client(self) -> aioauth_client.OAuth2Client:

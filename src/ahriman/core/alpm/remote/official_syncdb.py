@@ -19,6 +19,7 @@
 #
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Official
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.aur_package import AURPackage
 
 
@@ -48,4 +49,7 @@ class OfficialSyncdb(Official):
         Returns:
             AURPackage: package which match the package name
         """
-        return next(AURPackage.from_pacman(package) for package in pacman.package_get(package_name))
+        try:
+            return next(AURPackage.from_pacman(package) for package in pacman.package_get(package_name))
+        except StopIteration:
+            raise UnknownPackageError(package_name)

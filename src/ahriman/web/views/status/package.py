@@ -19,7 +19,7 @@
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
-from ahriman.core.exceptions import UnknownPackage
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
@@ -54,7 +54,7 @@ class PackageView(BaseView):
 
         try:
             package, status = self.service.get(base)
-        except UnknownPackage:
+        except UnknownPackageError:
             raise HTTPNotFound()
 
         response = [
@@ -104,7 +104,7 @@ class PackageView(BaseView):
 
         try:
             self.service.update(base, status, package)
-        except UnknownPackage:
+        except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {base} is unknown, but no package body set")
 
         raise HTTPNoContent()

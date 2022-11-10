@@ -1,7 +1,7 @@
 import argparse
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Versions
 from ahriman.core.configuration import Configuration
@@ -14,9 +14,9 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.handlers.Versions.package_dependencies")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Versions.run(args, "x86_64", configuration, True, False)
+    Versions.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with("ahriman", ("pacman", "s3", "web"))
-    print_mock.assert_has_calls([mock.call(verbose=False, separator=" "), mock.call(verbose=False, separator=" ")])
+    print_mock.assert_has_calls([MockCall(verbose=False, separator=" "), MockCall(verbose=False, separator=" ")])
 
 
 def test_package_dependencies() -> None:

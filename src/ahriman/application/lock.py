@@ -27,7 +27,7 @@ from typing import Literal, Optional, Type
 
 from ahriman import version
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import DuplicateRun
+from ahriman.core.exceptions import DuplicateRunError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
@@ -73,7 +73,7 @@ class Lock(LazyLogging):
         self.unsafe = args.unsafe
 
         self.paths = configuration.repository_paths
-        self.reporter = Client() if args.no_report else Client.load(configuration)
+        self.reporter = Client.load(configuration) if args.report else Client()
 
     def __enter__(self) -> Lock:
         """
@@ -122,7 +122,7 @@ class Lock(LazyLogging):
         """
         check if current user is actually owner of ahriman root
         """
-        check_user(self.paths, self.unsafe)
+        check_user(self.paths, unsafe=self.unsafe)
 
     def clear(self) -> None:
         """
@@ -144,4 +144,4 @@ class Lock(LazyLogging):
         try:
             self.path.touch(exist_ok=self.force)
         except FileExistsError:
-            raise DuplicateRun()
+            raise DuplicateRunError()
