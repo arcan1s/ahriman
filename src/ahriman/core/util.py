@@ -37,7 +37,7 @@ __all__ = ["check_output", "check_user", "exception_response_text", "filter_json
            "package_like", "pretty_datetime", "pretty_size", "safe_filename", "walk"]
 
 
-def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path] = None,
+def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
                  input_data: Optional[str] = None, logger: Optional[Logger] = None, user: Optional[int] = None) -> str:
     """
     subprocess wrapper
@@ -59,7 +59,7 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
     Examples:
         Simply call the function::
 
-            >>> check_output("echo", "hello world", exception=None)
+            >>> check_output("echo", "hello world")
 
         The more complicated calls which include result logging and input data are also possible::
 
@@ -67,7 +67,7 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
             >>>
             >>> logger = logging.getLogger()
             >>> check_output("python", "-c", "greeting = input('say hello: '); print(); print(greeting)",
-            >>>              exception=None, input_data="hello world", logger=logger)
+            >>>              input_data="hello world", logger=logger)
 
         An additional argument ``exception`` can be supplied in order to override the default exception::
 

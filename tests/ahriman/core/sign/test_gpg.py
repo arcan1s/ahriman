@@ -105,8 +105,7 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
 
     gpg.key_import("pgp.mit.edu", "0xE989490C")
-    check_output_mock.assert_called_once_with(
-        "gpg", "--import", input_data="key", exception=None, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=pytest.helpers.anyvar(int))
 
 
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:

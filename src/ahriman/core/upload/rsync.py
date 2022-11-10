@@ -58,4 +58,4 @@ class Rsync(Upload):
             path(Path): local path to sync
             built_packages(Iterable[Package]): list of packages which has just been built
         """
-        Rsync._check_output(*self.command, str(path), self.remote, exception=None, logger=self.logger)
+        Rsync._check_output(*self.command, str(path), self.remote, logger=self.logger)

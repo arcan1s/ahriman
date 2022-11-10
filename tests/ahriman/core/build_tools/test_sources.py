@@ -55,12 +55,10 @@ def test_fetch_existing(remote_source: RemoteSource, mocker: MockerFixture) -> N
     local = Path("local")
     Sources.fetch(local, remote_source)
     check_output_mock.assert_has_calls([
-        MockCall("git", "fetch", "origin", remote_source.branch,
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        MockCall("git", "checkout", "--force", remote_source.branch,
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "fetch", "origin", remote_source.branch, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "checkout", "--force", remote_source.branch, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "reset", "--hard", f"origin/{remote_source.branch}",
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+                 cwd=local, logger=pytest.helpers.anyvar(int)),
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -77,11 +75,10 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     Sources.fetch(local, remote_source)
     check_output_mock.assert_has_calls([
         MockCall("git", "clone", "--branch", remote_source.branch, "--single-branch",
-                 remote_source.git_url, str(local), exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
-        MockCall("git", "checkout", "--force", remote_source.branch,
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+                 remote_source.git_url, str(local), cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "checkout", "--force", remote_source.branch, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "reset", "--hard", f"origin/{remote_source.branch}",
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+                 cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -97,10 +94,9 @@ def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.fetch(local, None)
     check_output_mock.assert_has_calls([
-        MockCall("git", "checkout", "--force", Sources.DEFAULT_BRANCH,
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int)),
+        MockCall("git", "checkout", "--force", Sources.DEFAULT_BRANCH, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "reset", "--hard", f"origin/{Sources.DEFAULT_BRANCH}",
-                 exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+                 cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
 
@@ -124,8 +120,7 @@ def test_has_remotes(mocker: MockerFixture) -> None:
 
     local = Path("local")
     assert Sources.has_remotes(local)
-    check_output_mock.assert_called_once_with(
-        "git", "remote", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "remote", cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_has_remotes_empty(mocker: MockerFixture) -> None:
@@ -145,7 +140,7 @@ def test_init(mocker: MockerFixture) -> None:
     local = Path("local")
     Sources.init(local)
     check_output_mock.assert_called_once_with("git", "init", "--initial-branch", Sources.DEFAULT_BRANCH,
-                                              exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+                                              cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -225,7 +220,7 @@ def test_push(package_ahriman: Package, mocker: MockerFixture) -> None:
     commit_mock.assert_called_once_with(local)
     check_output_mock.assert_called_once_with(
         "git", "push", package_ahriman.remote.git_url, package_ahriman.remote.branch,
-        exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+        cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_add(sources: Sources, mocker: MockerFixture) -> None:
@@ -239,8 +234,8 @@ def test_add(sources: Sources, mocker: MockerFixture) -> None:
     sources.add(local, "pattern1", "pattern2")
     glob_mock.assert_has_calls([MockCall("pattern1"), MockCall("pattern2")])
     check_output_mock.assert_called_once_with(
-        "git", "add", "--intent-to-add", "1", "2", "1", "2",
-        exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+        "git", "add", "--intent-to-add", "1", "2", "1", "2", cwd=local, logger=pytest.helpers.anyvar(int)
+    )
 
 
 def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
@@ -264,8 +259,7 @@ def test_commit(sources: Sources, mocker: MockerFixture) -> None:
     commit_message = "Commit message"
     sources.commit(local, commit_message=commit_message)
     check_output_mock.assert_called_once_with(
-        "git", "commit", "--allow-empty", "--message", commit_message,
-        exception=None, cwd=local, logger=pytest.helpers.anyvar(int)
+        "git", "commit", "--allow-empty", "--message", commit_message, cwd=local, logger=pytest.helpers.anyvar(int)
     )
 
 
@@ -279,7 +273,7 @@ def test_commit_autogenerated(sources: Sources, mocker: MockerFixture) -> None:
     sources.commit(Path("local"))
     check_output_mock.assert_called_once_with(
         "git", "commit", "--allow-empty", "--message", pytest.helpers.anyvar(str, strict=True),
-        exception=None, cwd=local, logger=pytest.helpers.anyvar(int)
+        cwd=local, logger=pytest.helpers.anyvar(int)
     )
 
 
@@ -291,8 +285,7 @@ def test_diff(sources: Sources, mocker: MockerFixture) -> None:
 
     local = Path("local")
     assert sources.diff(local)
-    check_output_mock.assert_called_once_with(
-        "git", "diff", exception=None, cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "diff", cwd=local, logger=pytest.helpers.anyvar(int))
 
 
 def test_move(sources: Sources, mocker: MockerFixture) -> None:
@@ -326,7 +319,7 @@ def test_patch_apply(sources: Sources, mocker: MockerFixture) -> None:
     sources.patch_apply(local, patch)
     check_output_mock.assert_called_once_with(
         "git", "apply", "--ignore-space-change", "--ignore-whitespace",
-        exception=None, cwd=local, input_data=patch.value, logger=pytest.helpers.anyvar(int)
+        cwd=local, input_data=patch.value, logger=pytest.helpers.anyvar(int)
     )
 
 

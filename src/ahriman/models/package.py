@@ -183,7 +183,7 @@ class Package(LazyLogging):
         Raises:
             InvalidPackageInfo: if there are parsing errors
         """
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -254,7 +254,7 @@ class Package(LazyLogging):
                 package_name = package_name.split(symbol)[0]
             return package_name
 
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -281,7 +281,7 @@ class Package(LazyLogging):
         Raises:
             InvalidPackageInfo: if there are parsing errors
         """
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -310,10 +310,10 @@ class Package(LazyLogging):
         try:
             # update pkgver first
             Package._check_output("makepkg", "--nodeps", "--nobuild",
-                                  exception=None, cwd=paths.cache_for(self.base), logger=self.logger)
+                                  cwd=paths.cache_for(self.base), logger=self.logger)
             # generate new .SRCINFO and put it to parser
             srcinfo_source = Package._check_output("makepkg", "--printsrcinfo",
-                                                   exception=None, cwd=paths.cache_for(self.base), logger=self.logger)
+                                                   cwd=paths.cache_for(self.base), logger=self.logger)
             srcinfo, errors = parse_srcinfo(srcinfo_source)
             if errors:
                 raise PackageInfoError(errors)
