@@ -27,7 +27,7 @@ from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import ExitCode, MissingArchitecture, MultipleArchitectures
+from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -67,7 +67,7 @@ class Handler:
         if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
             # for some parsers (e.g. config) we need to run with specific architecture
             # for those cases architecture must be set explicitly
-            raise MissingArchitecture(args.command)
+            raise MissingArchitectureError(args.command)
         if args.architecture:  # architecture is specified explicitly
             return sorted(set(args.architecture))
 
@@ -78,7 +78,7 @@ class Handler:
         architectures = RepositoryPaths.known_architectures(root)
 
         if not architectures:  # well we did not find anything
-            raise MissingArchitecture(args.command)
+            raise MissingArchitectureError(args.command)
         return sorted(architectures)
 
     @classmethod
@@ -96,7 +96,7 @@ class Handler:
         try:
             configuration = Configuration.from_path(args.configuration, architecture, args.quiet)
             with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration, args.no_report, args.unsafe)
+                cls.run(args, architecture, configuration, report=args.report, unsafe=args.unsafe)
             return True
         except ExitCode:
             return False
@@ -124,7 +124,7 @@ class Handler:
         # actually we do not have to spawn another process if it is single-process application, do we?
         if len(architectures) > 1:
             if not cls.ALLOW_MULTI_ARCHITECTURE_RUN:
-                raise MultipleArchitectures(args.command)
+                raise MultipleArchitecturesError(args.command)
 
             with Pool(len(architectures)) as pool:
                 result = pool.starmap(
@@ -135,8 +135,8 @@ class Handler:
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+            report: bool, unsafe: bool) -> None:
         """
         callback for command line
 
@@ -144,7 +144,7 @@ class Handler:
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
 
         Raises:

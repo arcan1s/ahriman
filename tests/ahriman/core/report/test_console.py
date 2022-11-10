@@ -1,5 +1,5 @@
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.console import Console
@@ -17,4 +17,4 @@ def test_generate(configuration: Configuration, result: Result, package_python_s
     report = Console("x86_64", configuration, "console")
 
     report.generate([], result)
-    print_mock.assert_has_calls([mock.call(verbose=True), mock.call(verbose=True)])
+    print_mock.assert_has_calls([MockCall(verbose=True), MockCall(verbose=True)])

@@ -3,7 +3,7 @@ import shutil
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.repository.cleaner import Cleaner
 
@@ -24,9 +24,9 @@ def _mock_clear_check() -> None:
     mocker helper for clear tests
     """
     shutil.rmtree.assert_has_calls([
-        mock.call(Path("a")),
-        mock.call(Path("b")),
-        mock.call(Path("c"))
+        MockCall(Path("a")),
+        MockCall(Path("b")),
+        MockCall(Path("c"))
     ])
 
 
@@ -65,7 +65,16 @@ def test_clear_packages(cleaner: Cleaner, mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.unlink")
 
     cleaner.clear_packages()
-    Path.unlink.assert_has_calls([mock.call(), mock.call(), mock.call()])
+    Path.unlink.assert_has_calls([MockCall(), MockCall(), MockCall()])
+
+
+def test_clear_pacman(cleaner: Cleaner, mocker: MockerFixture) -> None:
+    """
+    must delete built packages
+    """
+    _mock_clear(mocker)
+    cleaner.clear_pacman()
+    _mock_clear_check()
 
 
 def test_clear_queue(cleaner: Cleaner, mocker: MockerFixture) -> None:

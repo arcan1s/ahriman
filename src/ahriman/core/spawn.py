@@ -78,7 +78,7 @@ class Spawn(Thread, LazyLogging):
         result = callback(args, architecture)
         queue.put((process_id, result))
 
-    def packages_add(self, packages: Iterable[str], now: bool) -> None:
+    def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
         """
         add packages
 

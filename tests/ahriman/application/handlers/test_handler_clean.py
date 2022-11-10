@@ -20,6 +20,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.chroot = False
     args.manual = False
     args.packages = False
+    args.pacman = False
     return args
 
 
@@ -32,6 +33,6 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.application.application.Application.clean")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Clean.run(args, "x86_64", configuration, True, False)
-    application_mock.assert_called_once_with(False, False, False, False)
+    Clean.run(args, "x86_64", configuration, report=False, unsafe=False)
+    application_mock.assert_called_once_with(cache=False, chroot=False, manual=False, packages=False, pacman=False)
     on_start_mock.assert_called_once_with()

@@ -29,7 +29,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Type
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
-from ahriman.core.exceptions import InvalidPackageInfo
+from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
@@ -186,7 +186,7 @@ class Package(LazyLogging):
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
-            raise InvalidPackageInfo(errors)
+            raise PackageInfoError(errors)
         packages = {key: PackageDescription() for key in srcinfo["packages"]}
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
@@ -211,7 +211,7 @@ class Package(LazyLogging):
         return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
 
     @classmethod
-    def from_official(cls: Type[Package], name: str, pacman: Pacman, use_syncdb: bool = True) -> Package:
+    def from_official(cls: Type[Package], name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Package:
         """
         construct package properties from official repository page
 
@@ -257,7 +257,7 @@ class Package(LazyLogging):
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
-            raise InvalidPackageInfo(errors)
+            raise PackageInfoError(errors)
         makedepends = extract_packages(srcinfo.get("makedepends", []))
         # sum over each package
         depends = extract_packages(srcinfo.get("depends", []))
@@ -284,7 +284,7 @@ class Package(LazyLogging):
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", exception=None, cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
-            raise InvalidPackageInfo(errors)
+            raise PackageInfoError(errors)
         return set(srcinfo.get("arch", []))
 
     def actual_version(self, paths: RepositoryPaths) -> str:
@@ -316,7 +316,7 @@ class Package(LazyLogging):
                                                    exception=None, cwd=paths.cache_for(self.base), logger=self.logger)
             srcinfo, errors = parse_srcinfo(srcinfo_source)
             if errors:
-                raise InvalidPackageInfo(errors)
+                raise PackageInfoError(errors)
 
             return full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
         except Exception:
@@ -358,7 +358,7 @@ class Package(LazyLogging):
 
         return sorted(result)
 
-    def is_outdated(self, remote: Package, paths: RepositoryPaths, calculate_version: bool = True) -> bool:
+    def is_outdated(self, remote: Package, paths: RepositoryPaths, *, calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
 

@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.auth import OAuth
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.exceptions import OptionError
 
 
 def test_auth_control(oauth: OAuth) -> None:
@@ -28,7 +28,7 @@ def test_get_provider_not_a_type() -> None:
     """
     must raise an exception if attribute is not a type
     """
-    with pytest.raises(InvalidOption):
+    with pytest.raises(OptionError):
         OAuth.get_provider("__version__")
 
 
@@ -36,9 +36,9 @@ def test_get_provider_invalid_type() -> None:
     """
     must raise an exception if attribute is not an OAuth2 client
     """
-    with pytest.raises(InvalidOption):
+    with pytest.raises(OptionError):
         OAuth.get_provider("User")
-    with pytest.raises(InvalidOption):
+    with pytest.raises(OptionError):
         OAuth.get_provider("OAuth1Client")
 
 

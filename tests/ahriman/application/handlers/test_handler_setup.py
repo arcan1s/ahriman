@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Setup
 from ahriman.core.configuration import Configuration
@@ -25,7 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.build_as_user = "ahriman"
     args.build_command = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
-    args.no_multilib = False
+    args.multilib = True
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
     args.sign_key = "key"
@@ -48,11 +48,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository_
     executable_mock = mocker.patch("ahriman.application.handlers.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
-    Setup.run(args, "x86_64", configuration, True, False)
+    Setup.run(args, "x86_64", configuration, report=False, unsafe=False)
     ahriman_configuration_mock.assert_called_once_with(
         args, "x86_64", args.repository, configuration.include, repository_paths)
     devtools_configuration_mock.assert_called_once_with(
-        args.build_command, "x86_64", args.from_configuration, args.no_multilib, args.repository, repository_paths)
+        args.build_command, "x86_64", args.from_configuration, args.multilib, args.repository, repository_paths)
     makepkg_configuration_mock.assert_called_once_with(args.packager, repository_paths)
     sudo_configuration_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
     executable_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
@@ -84,13 +84,13 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
 
     Setup.configuration_create_ahriman(args, "x86_64", args.repository, configuration.include, repository_paths)
     set_option_mock.assert_has_calls([
-        mock.call(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
-        mock.call("repository", "name", args.repository),
-        mock.call(Configuration.section_name("build", "x86_64"), "makechrootpkg_flags", f"-U {args.build_as_user}"),
-        mock.call(Configuration.section_name("sign", "x86_64"), "target",
-                  " ".join([target.name.lower() for target in args.sign_target])),
-        mock.call(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
-        mock.call(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
+        MockCall(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
+        MockCall("repository", "name", args.repository),
+        MockCall(Configuration.section_name("build", "x86_64"), "makechrootpkg_flags", f"-U {args.build_as_user}"),
+        MockCall(Configuration.section_name("sign", "x86_64"), "target",
+                 " ".join([target.name.lower() for target in args.sign_target])),
+        MockCall(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
+        MockCall(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
@@ -107,11 +107,8 @@ def test_configuration_create_devtools(args: argparse.Namespace, repository_path
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        args.no_multilib, args.repository, repository_paths)
-    add_section_mock.assert_has_calls([
-        mock.call("multilib"),
-        mock.call(args.repository)
-    ])
+                                        args.multilib, args.repository, repository_paths)
+    add_section_mock.assert_has_calls([MockCall("multilib"), MockCall(args.repository)])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
@@ -126,7 +123,7 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, rep
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        True, args.repository, repository_paths)
+                                        False, args.repository, repository_paths)
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 

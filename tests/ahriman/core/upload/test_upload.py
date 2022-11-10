@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import SyncFailed
+from ahriman.core.exceptions import SynchronizationError
 from ahriman.core.upload.upload import Upload
 from ahriman.models.upload_settings import UploadSettings
 
@@ -14,7 +14,7 @@ def test_upload_failure(configuration: Configuration, mocker: MockerFixture) -> 
     must raise SyncFailed on errors
     """
     mocker.patch("ahriman.core.upload.rsync.Rsync.sync", side_effect=Exception())
-    with pytest.raises(SyncFailed):
+    with pytest.raises(SynchronizationError):
         Upload.load("x86_64", configuration, "rsync").run(Path("path"), [])
 
 

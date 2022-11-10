@@ -2,7 +2,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 from sqlite3 import Connection
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.database.data import migrate_package_statuses
 from ahriman.models.package import Package
@@ -22,11 +22,11 @@ def test_migrate_package_statuses(connection: Connection, package_ahriman: Packa
 
     migrate_package_statuses(connection, repository_paths)
     connection.execute.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
-        mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
+        MockCall(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
+        MockCall(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
     ])
     connection.executemany.assert_has_calls([
-        mock.call(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
+        MockCall(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
     ])
 
 

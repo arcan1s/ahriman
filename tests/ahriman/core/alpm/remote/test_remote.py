@@ -1,7 +1,7 @@
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
@@ -25,7 +25,7 @@ def test_multisearch(aur_package_ahriman: AURPackage, pacman: Pacman, mocker: Mo
     search_mock = mocker.patch("ahriman.core.alpm.remote.Remote.search", return_value=[aur_package_ahriman])
 
     assert Remote.multisearch(*terms, pacman=pacman) == [aur_package_ahriman]
-    search_mock.assert_has_calls([mock.call("ahriman", pacman=pacman), mock.call("cool", pacman=pacman)])
+    search_mock.assert_has_calls([MockCall("ahriman", pacman=pacman), MockCall("cool", pacman=pacman)])
 
 
 def test_multisearch_empty(pacman: Pacman, mocker: MockerFixture) -> None:

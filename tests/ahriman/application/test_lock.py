@@ -3,11 +3,11 @@ import tempfile
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman import version
 from ahriman.application.lock import Lock
-from ahriman.core.exceptions import DuplicateRun, UnsafeRun
+from ahriman.core.exceptions import DuplicateRunError, UnsafeRunError
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 
@@ -28,10 +28,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     clear_mock.assert_called_once_with()
     create_mock.assert_called_once_with()
     check_version_mock.assert_called_once_with()
-    update_status_mock.assert_has_calls([
-        mock.call(BuildStatusEnum.Building),
-        mock.call(BuildStatusEnum.Success)
-    ])
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
 
 
 def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
@@ -46,10 +43,7 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     with pytest.raises(Exception):
         with lock:
             raise Exception()
-    update_status_mock.assert_has_calls([
-        mock.call(BuildStatusEnum.Building),
-        mock.call(BuildStatusEnum.Failed)
-    ])
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Failed)])
 
 
 def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
@@ -82,15 +76,15 @@ def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     """
     check_user_patch = mocker.patch("ahriman.application.lock.check_user")
     lock.check_user()
-    check_user_patch.assert_called_once_with(lock.paths, False)
+    check_user_patch.assert_called_once_with(lock.paths, unsafe=False)
 
 
 def test_check_user_exception(lock: Lock, mocker: MockerFixture) -> None:
     """
     must raise exception if user differs
     """
-    mocker.patch("ahriman.application.lock.check_user", side_effect=UnsafeRun(0, 1))
-    with pytest.raises(UnsafeRun):
+    mocker.patch("ahriman.application.lock.check_user", side_effect=UnsafeRunError(0, 1))
+    with pytest.raises(UnsafeRunError):
         lock.check_user()
 
 
@@ -148,7 +142,7 @@ def test_create_exception(lock: Lock) -> None:
     lock.path = Path(tempfile.mktemp())  # nosec
     lock.path.touch()
 
-    with pytest.raises(DuplicateRun):
+    with pytest.raises(DuplicateRunError):
         lock.create()
     lock.path.unlink()
 

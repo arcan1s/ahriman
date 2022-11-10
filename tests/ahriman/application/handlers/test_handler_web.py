@@ -31,7 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     setup_mock = mocker.patch("ahriman.web.web.setup_service")
     run_mock = mocker.patch("ahriman.web.web.run_server")
 
-    Web.run(args, "x86_64", configuration, True, False)
+    Web.run(args, "x86_64", configuration, report=False, unsafe=False)
     setup_mock.assert_called_once_with("x86_64", configuration, pytest.helpers.anyvar(int))
     run_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 

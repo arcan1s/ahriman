@@ -32,8 +32,8 @@ class Update(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+            report: bool, unsafe: bool) -> None:
         """
         callback for command line
 
@@ -41,13 +41,14 @@ class Update(Handler):
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report, unsafe, args.refresh)
+        application = Application(architecture, configuration, report=report, unsafe=unsafe,
+                                  refresh_pacman_database=args.refresh)
         application.on_start()
-        packages = application.updates(args.package, args.no_aur, args.no_local, args.no_manual, args.no_vcs,
-                                       Update.log_fn(application, args.dry_run))
+        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
+                                       log_fn=Update.log_fn(application, args.dry_run))
         Update.check_if_empty(args.exit_code, not packages)
         if args.dry_run:
             return

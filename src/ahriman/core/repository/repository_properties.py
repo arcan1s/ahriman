@@ -21,7 +21,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import UnsafeRun
+from ahriman.core.exceptions import UnsafeRunError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
@@ -47,8 +47,8 @@ class RepositoryProperties(LazyLogging):
         triggers(TriggerLoader): triggers holder
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, database: SQLite,
-                 no_report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *,
+                 report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> None:
         """
         default constructor
 
@@ -56,7 +56,7 @@ class RepositoryProperties(LazyLogging):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             database(SQLite): database instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
             refresh_pacman_database(int): pacman database syncronization level, ``0`` is disabled
         """
@@ -68,14 +68,14 @@ class RepositoryProperties(LazyLogging):
 
         self.paths = configuration.repository_paths
         try:
-            check_user(self.paths, unsafe)
+            check_user(self.paths, unsafe=unsafe)
             self.paths.tree_create()
-        except UnsafeRun:
+        except UnsafeRunError:
             self.logger.warning("root owner differs from the current user, skipping tree creation")
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client() if no_report else Client.load(configuration)
+        self.reporter = Client.load(configuration) if report else Client()
         self.triggers = TriggerLoader(architecture, configuration)

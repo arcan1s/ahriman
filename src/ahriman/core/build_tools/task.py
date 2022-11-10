@@ -23,7 +23,7 @@ from typing import List
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import BuildFailed
+from ahriman.core.exceptions import BuildError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
@@ -78,14 +78,14 @@ class Task(LazyLogging):
 
         Task._check_output(
             *command,
-            exception=BuildFailed(self.package.base),
+            exception=BuildError(self.package.base),
             cwd=sources_dir,
             logger=self.logger,
             user=self.uid)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output("makepkg", "--packagelist",
-                                      exception=BuildFailed(self.package.base),
+                                      exception=BuildError(self.package.base),
                                       cwd=sources_dir,
                                       logger=self.logger).splitlines()
         return [Path(package) for package in packages]

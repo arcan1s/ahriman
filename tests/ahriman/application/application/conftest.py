@@ -24,7 +24,7 @@ def application_packages(configuration: Configuration, database: SQLite, mocker:
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    return ApplicationPackages("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationPackages("x86_64", configuration, report=False, unsafe=False)
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def application_properties(configuration: Configuration, database: SQLite,
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    return ApplicationProperties("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationProperties("x86_64", configuration, report=False, unsafe=False)
 
 
 @pytest.fixture
@@ -62,4 +62,4 @@ def application_repository(configuration: Configuration, database: SQLite,
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    return ApplicationRepository("x86_64", configuration, no_report=True, unsafe=False)
+    return ApplicationRepository("x86_64", configuration, report=False, unsafe=False)

@@ -1,6 +1,6 @@
 import pytest
 
-from ahriman.core.exceptions import SuccessFailed
+from ahriman.core.exceptions import UnprocessedPackageStatusError
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -99,7 +99,7 @@ def test_merge_exception(package_ahriman: Package) -> None:
     right = Result()
     right.add_success(package_ahriman)
 
-    with pytest.raises(SuccessFailed):
+    with pytest.raises(UnprocessedPackageStatusError):
         left.merge(right)
 
 

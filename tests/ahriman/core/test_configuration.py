@@ -4,10 +4,10 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import InitializeException
+from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -62,7 +62,7 @@ def test_check_loaded_path(configuration: Configuration) -> None:
     must raise exception if path is none
     """
     configuration.path = None
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         configuration.check_loaded()
 
 
@@ -71,7 +71,7 @@ def test_check_loaded_architecture(configuration: Configuration) -> None:
     must raise exception if architecture is none
     """
     configuration.architecture = None
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         configuration.check_loaded()
 
 
@@ -312,7 +312,7 @@ def test_reload_clear(configuration: Configuration, mocker: MockerFixture) -> No
     sections = configuration.sections()
 
     configuration.reload()
-    clear_mock.assert_has_calls([mock.call(section) for section in sections])
+    clear_mock.assert_has_calls([MockCall(section) for section in sections])
 
 
 def test_reload_no_architecture(configuration: Configuration) -> None:
@@ -320,7 +320,7 @@ def test_reload_no_architecture(configuration: Configuration) -> None:
     must raise exception on reload if no architecture set
     """
     configuration.architecture = None
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         configuration.reload()
 
 
@@ -329,7 +329,7 @@ def test_reload_no_path(configuration: Configuration) -> None:
     must raise exception on reload if no path set
     """
     configuration.path = None
-    with pytest.raises(InitializeException):
+    with pytest.raises(InitializeError):
         configuration.reload()
 
 

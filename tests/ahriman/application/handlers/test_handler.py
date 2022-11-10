@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import ExitCode, MissingArchitecture, MultipleArchitectures
+from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
 
 
 def test_architectures_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -29,7 +29,7 @@ def test_architectures_extract_empty(args: argparse.Namespace, configuration: Co
     args.configuration = configuration.path
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
 
-    with pytest.raises(MissingArchitecture):
+    with pytest.raises(MissingArchitectureError):
         Handler.architectures_extract(args)
 
 
@@ -39,7 +39,7 @@ def test_architectures_extract_exception(args: argparse.Namespace, mocker: Mocke
     """
     args.command = "config"
     mocker.patch.object(Handler, "ALLOW_AUTO_ARCHITECTURE_RUN", False)
-    with pytest.raises(MissingArchitecture):
+    with pytest.raises(MissingArchitectureError):
         Handler.architectures_extract(args)
 
 
@@ -112,7 +112,7 @@ def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: Mocker
     args.command = "web"
     mocker.patch.object(Handler, "ALLOW_MULTI_ARCHITECTURE_RUN", False)
 
-    with pytest.raises(MultipleArchitectures):
+    with pytest.raises(MultipleArchitecturesError):
         Handler.execute(args)
 
 
@@ -135,7 +135,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration) -> None:
     must raise NotImplemented for missing method
     """
     with pytest.raises(NotImplementedError):
-        Handler.run(args, "x86_64", configuration, True, True)
+        Handler.run(args, "x86_64", configuration, report=True, unsafe=True)
 
 
 def test_check_if_empty() -> None:

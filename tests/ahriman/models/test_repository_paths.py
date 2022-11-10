@@ -3,10 +3,9 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Callable, Tuple
-from unittest import mock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
-from ahriman.core.exceptions import InvalidPath
+from ahriman.core.exceptions import PathError
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -89,8 +88,8 @@ def test_chown_parent(repository_paths: RepositoryPaths, mocker: MockerFixture) 
     path = repository_paths.root / "parent" / "path"
     repository_paths.chown(path)
     chown_mock.assert_has_calls([
-        mock.call(path, 42, 42, follow_symlinks=False),
-        mock.call(path.parent, 42, 42, follow_symlinks=False)
+        MockCall(path, 42, 42, follow_symlinks=False),
+        MockCall(path.parent, 42, 42, follow_symlinks=False)
     ])
 
 
@@ -111,7 +110,7 @@ def test_chown_invalid_path(repository_paths: RepositoryPaths) -> None:
     """
     must raise invalid path exception in case if directory outside the root supplied
     """
-    with pytest.raises(InvalidPath):
+    with pytest.raises(PathError):
         repository_paths.chown(repository_paths.root.parent)
 
 
@@ -128,7 +127,7 @@ def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package,
     repository_paths.tree_clear(package_ahriman.base)
     rmtree_mock.assert_has_calls(
         [
-            mock.call(path, ignore_errors=True) for path in paths
+            MockCall(path, ignore_errors=True) for path in paths
         ], any_order=True)
 
 
@@ -154,5 +153,5 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
     repository_paths.tree_create()
-    mkdir_mock.assert_has_calls([mock.call(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)
-    chown_mock.assert_has_calls([mock.call(pytest.helpers.anyvar(int)) for _ in paths], any_order=True)
+    mkdir_mock.assert_has_calls([MockCall(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)
+    chown_mock.assert_has_calls([MockCall(pytest.helpers.anyvar(int)) for _ in paths], any_order=True)

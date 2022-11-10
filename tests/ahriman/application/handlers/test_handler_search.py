@@ -3,11 +3,11 @@ import dataclasses
 import pytest
 
 from pytest_mock import MockerFixture
-from unittest import mock
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Search
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.exceptions import OptionError
 from ahriman.models.aur_package import AURPackage
 
 
@@ -41,11 +41,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Search.run(args, "x86_64", configuration, True, False)
+    Search.run(args, "x86_64", configuration, report=False, unsafe=False)
     aur_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     official_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with(False, False)
-    print_mock.assert_has_calls([mock.call(False), mock.call(False)])
+    print_mock.assert_has_calls([MockCall(False), MockCall(False)])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -60,7 +60,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Search.run(args, "x86_64", configuration, True, False)
+    Search.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -75,10 +75,10 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
-    Search.run(args, "x86_64", configuration, True, False)
+    Search.run(args, "x86_64", configuration, report=False, unsafe=False)
     sort_mock.assert_has_calls([
-        mock.call([], "name"), mock.call().__iter__(),
-        mock.call([aur_package_ahriman], "name"), mock.call().__iter__()
+        MockCall([], "name"), MockCall().__iter__(),
+        MockCall([aur_package_ahriman], "name"), MockCall().__iter__()
     ])
 
 
@@ -94,10 +94,10 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
-    Search.run(args, "x86_64", configuration, True, False)
+    Search.run(args, "x86_64", configuration, report=False, unsafe=False)
     sort_mock.assert_has_calls([
-        mock.call([], "field"), mock.call().__iter__(),
-        mock.call([aur_package_ahriman], "field"), mock.call().__iter__()
+        MockCall([], "field"), MockCall().__iter__(),
+        MockCall([aur_package_ahriman], "field"), MockCall().__iter__()
     ])
 
 
@@ -118,7 +118,7 @@ def test_sort_exception(aur_package_ahriman: AURPackage) -> None:
     """
     must raise an exception on unknown sorting field
     """
-    with pytest.raises(InvalidOption):
+    with pytest.raises(OptionError):
         Search.sort([aur_package_ahriman], "random_field")
 
 

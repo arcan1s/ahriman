@@ -26,7 +26,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import InvalidOption
+from ahriman.core.exceptions import OptionError
 from ahriman.core.formatters import AurPrinter
 from ahriman.models.aur_package import AURPackage
 
@@ -43,8 +43,8 @@ class Search(Handler):
     SORT_FIELDS = {field.name for field in fields(AURPackage) if field.default_factory is not list}
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str,
-            configuration: Configuration, no_report: bool, unsafe: bool) -> None:
+    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+            report: bool, unsafe: bool) -> None:
         """
         callback for command line
 
@@ -52,10 +52,10 @@ class Search(Handler):
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            no_report(bool): force disable reporting
+            report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, no_report, unsafe)
+        application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
         official_packages_list = Official.multisearch(*args.search, pacman=application.repository.pacman)
         aur_packages_list = AUR.multisearch(*args.search, pacman=application.repository.pacman)
@@ -82,7 +82,7 @@ class Search(Handler):
             InvalidOption: if search fields is not in list of allowed ones
         """
         if sort_by not in Search.SORT_FIELDS:
-            raise InvalidOption(sort_by)
+            raise OptionError(sort_by)
         # always sort by package name at the last
         # well technically it is not a string, but we can deal with it
         comparator: Callable[[AURPackage], Tuple[str, str]] =\

@@ -28,5 +28,5 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     application_mock = mocker.patch("ahriman.application.application.Application.sign")
 
-    Sign.run(args, "x86_64", configuration, True, False)
+    Sign.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with([])

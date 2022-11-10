@@ -61,7 +61,7 @@ class Operations(LazyLogging):
             result[column[0]] = row[index]
         return result
 
-    def with_connection(self, query: Callable[[sqlite3.Connection], T], commit: bool = False) -> T:
+    def with_connection(self, query: Callable[[sqlite3.Connection], T], *, commit: bool = False) -> T:
         """
         perform operation in connection
 

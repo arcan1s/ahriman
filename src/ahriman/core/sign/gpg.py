@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import BuildFailed
+from ahriman.core.exceptions import BuildError
 from ahriman.core.lazy_logging import LazyLogging
 from ahriman.core.util import check_output, exception_response_text
 from ahriman.models.sign_settings import SignSettings
@@ -153,7 +153,7 @@ class GPG(LazyLogging):
         """
         GPG._check_output(
             *GPG.sign_command(path, key),
-            exception=BuildFailed(path.name),
+            exception=BuildError(path.name),
             logger=self.logger)
         return [path, path.parent / f"{path.name}.sig"]
 

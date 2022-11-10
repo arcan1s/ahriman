@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Iterable
 
-from ahriman.core.exceptions import SuccessFailed
+from ahriman.core.exceptions import UnprocessedPackageStatusError
 from ahriman.models.package import Package
 
 
@@ -111,7 +111,7 @@ class Result:
             self.add_failed(package)
         for base, package in other._success.items():
             if base in self._failed:
-                raise SuccessFailed(base)
+                raise UnprocessedPackageStatusError(base)
             self.add_success(package)
         return self
 

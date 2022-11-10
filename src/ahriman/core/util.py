@@ -29,7 +29,7 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union
 
-from ahriman.core.exceptions import InvalidOption, UnsafeRun
+from ahriman.core.exceptions import OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -114,7 +114,7 @@ def check_output(*args: str, exception: Optional[Exception], cwd: Optional[Path]
         return "\n".join(result)
 
 
-def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
+def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
     """
     check if current user is the owner of the root
 
@@ -137,7 +137,7 @@ def check_user(paths: RepositoryPaths, unsafe: bool) -> None:
     current_uid = os.getuid()
     root_uid, _ = paths.root_owner
     if current_uid != root_uid:
-        raise UnsafeRun(current_uid, root_uid)
+        raise UnsafeRunError(current_uid, root_uid)
 
 
 def enum_values(enum: Type[Enum]) -> List[str]:
@@ -261,7 +261,7 @@ def pretty_size(size: Optional[float], level: int = 0) -> str:
             return "MiB"
         if level == 3:
             return "GiB"
-        raise InvalidOption(level)  # must never happen actually
+        raise OptionError(level)  # must never happen actually
 
     if size is None:
         return ""
