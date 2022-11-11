@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2022\-11\-10" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2022\-11\-11" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -154,7 +154,7 @@ search for package in AUR using API
 
 .TP
 \fBsearch\fR
-search terms, can be specified multiple times, result will match all terms
+search terms, can be specified multiple times, the result will match all terms
 
 .SH OPTIONS \fI\,'ahriman aur\-search'\/\fR
 .TP
@@ -309,7 +309,7 @@ remove the package from the status page
 
 .TP
 \fBpackage\fR
-remove specified packages
+remove specified packages from status page
 
 .SH COMMAND \fI\,'ahriman package\-status\-update'\/\fR
 usage: ahriman package\-status\-update [\-h] [\-s {unknown,pending,building,failed,success}] [package ...]
@@ -323,7 +323,7 @@ set status for specified packages. If no packages supplied, service status will 
 .SH OPTIONS \fI\,'ahriman package\-status\-update'\/\fR
 .TP
 \fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
-new status
+new package build status
 
 .SH COMMAND \fI\,'ahriman patch\-add'\/\fR
 usage: ahriman patch\-add [\-h] package variable [patch]
@@ -392,7 +392,7 @@ files which has to be tracked
 .SH COMMAND \fI\,'ahriman repo\-backup'\/\fR
 usage: ahriman repo\-backup [\-h] path
 
-backup settings and database
+backup repository settings and database
 
 .TP
 \fBpath\fR
@@ -401,7 +401,7 @@ path of the output archive
 .SH COMMAND \fI\,'ahriman repo\-check'\/\fR
 usage: ahriman repo\-check [\-h] [\-e] [\-\-vcs | \-\-no\-vcs] [\-y] [package ...]
 
-check for packages updates. Same as update \-\-dry\-run \-\-no\-manual
+check for packages updates. Same as repo\-update \-\-dry\-run \-\-no\-manual
 
 .TP
 \fBpackage\fR
@@ -460,7 +460,7 @@ force rebuild whole repository
 .SH OPTIONS \fI\,'ahriman repo\-rebuild'\/\fR
 .TP
 \fB\-\-depends\-on\fR \fI\,DEPENDS_ON\/\fR
-only rebuild packages that depend on specified package
+only rebuild packages that depend on specified packages
 
 .TP
 \fB\-\-dry\-run\fR
