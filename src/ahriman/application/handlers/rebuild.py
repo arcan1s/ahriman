@@ -51,10 +51,8 @@ class Rebuild(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
         application.on_start()
 
-        if args.from_database:
-            updates = Rebuild.extract_packages(application)
-        else:
-            updates = application.repository.packages_depend_on(depends_on)
+        packages = Rebuild.extract_packages(application, from_database=args.from_database)
+        updates = application.repository.packages_depend_on(packages, depends_on)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:
@@ -66,14 +64,17 @@ class Rebuild(Handler):
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod
-    def extract_packages(application: Application) -> List[Package]:
+    def extract_packages(application: Application, *, from_database: bool) -> List[Package]:
         """
         extract packages from database file
 
         Args:
             application(Application): application instance
+            from_database(bool): extract packages from database instead of repository filesystem
 
         Returns:
             List[Package]: list of packages which were stored in database
         """
+        if from_database:
+            return application.repository.packages()
         return [package for (package, _) in application.database.packages_get()]
