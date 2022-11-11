@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# pylint: disable=too-many-lines
 import argparse
 import sys
 import tempfile
@@ -132,7 +133,7 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("aur-search", aliases=["search"], help="search for package",
                              description="search for package in AUR using API", formatter_class=_formatter)
-    parser.add_argument("search", help="search terms, can be specified multiple times, result will match all terms",
+    parser.add_argument("search", help="search terms, can be specified multiple times, the result will match all terms",
                         nargs="+")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("--info", help="show additional package information",
@@ -326,7 +327,7 @@ def _set_package_status_remove_parser(root: SubParserAction) -> argparse.Argumen
                              epilog="Please note that this subcommand does not remove the package itself, it just "
                                     "clears the status page.",
                              formatter_class=_formatter)
-    parser.add_argument("package", help="remove specified packages", nargs="+")
+    parser.add_argument("package", help="remove specified packages from status page", nargs="+")
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Remove, lock=None, report=False, quiet=True,
                         unsafe=True)
     return parser
@@ -347,7 +348,7 @@ def _set_package_status_update_parser(root: SubParserAction) -> argparse.Argumen
     parser.add_argument("package", help="set status for specified packages. "
                                         "If no packages supplied, service status will be updated",
                         nargs="*")
-    parser.add_argument("-s", "--status", help="new status",
+    parser.add_argument("-s", "--status", help="new package build status",
                         type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Update, lock=None, report=False, quiet=True,
                         unsafe=True)
@@ -366,9 +367,9 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("patch-add", help="add patch for PKGBUILD function",
                              description="create or update patched PKGBUILD function or variable",
-                             epilog="Unlike ``patch-set-add``, this function allows to patch only one PKGBUILD f"
-                                    "unction, e.g. typing ``ahriman patch-add ahriman version`` it will change the "
-                                    "``version`` inside PKGBUILD, typing ``ahriman patch-add ahriman build()`` "
+                             epilog="Unlike ``patch-set-add``, this function allows to patch only one PKGBUILD "
+                                    "function, e.g. typing ``ahriman patch-add ahriman pkgver`` it will change the "
+                                    "``pkgver`` inside PKGBUILD, typing ``ahriman patch-add ahriman build()`` "
                                     "it will change ``build()`` function inside PKGBUILD",
                              formatter_class=_formatter)
     parser.add_argument("package", help="package base")
@@ -457,7 +458,7 @@ def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-backup", help="backup repository data",
-                             description="backup settings and database", formatter_class=_formatter)
+                             description="backup repository settings and database", formatter_class=_formatter)
     parser.add_argument("path", help="path of the output archive", type=Path)
     parser.set_defaults(handler=handlers.Backup, architecture=[""], lock=None, report=False, unsafe=True)
     return parser
@@ -474,7 +475,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-check", aliases=["check"], help="check for updates",
-                             description="check for packages updates. Same as update --dry-run --no-manual",
+                             description="check for packages updates. Same as repo-update --dry-run --no-manual",
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
@@ -545,7 +546,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
                              description="force rebuild whole repository", formatter_class=_formatter)
-    parser.add_argument("--depends-on", help="only rebuild packages that depend on specified package", action="append")
+    parser.add_argument("--depends-on", help="only rebuild packages that depend on specified packages", action="append")
     parser.add_argument("--dry-run", help="just perform check for packages without rebuild process itself",
                         action="store_true")
     parser.add_argument("--from-database",
