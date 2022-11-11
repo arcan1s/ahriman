@@ -92,7 +92,7 @@ def test_packages_depend_on(repository: Repository, package_ahriman: Package, pa
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    assert repository.packages_depend_on(["python-aur"]) == [package_ahriman]
+    assert repository.packages_depend_on([package_ahriman], ["python-aur"]) == [package_ahriman]
 
 
 def test_packages_depend_on_empty(repository: Repository, package_ahriman: Package, package_python_schedule: Package,
@@ -102,4 +102,5 @@ def test_packages_depend_on_empty(repository: Repository, package_ahriman: Packa
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    assert repository.packages_depend_on(None) == [package_ahriman, package_python_schedule]
+    assert repository.packages_depend_on([package_ahriman, package_python_schedule], None) ==\
+        [package_ahriman, package_python_schedule]

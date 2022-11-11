@@ -37,6 +37,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     result = Result()
     result.add_success(package_ahriman)
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on",
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
@@ -44,7 +45,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_packages_mock.assert_called_once_with(None)
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), from_database=args.from_database)
+    application_packages_mock.assert_called_once_with([package_ahriman], None)
     application_mock.assert_called_once_with([package_ahriman])
     check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
@@ -62,7 +64,7 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
-    extract_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+    extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), from_database=args.from_database)
 
 
 def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,
@@ -93,7 +95,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, mock
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_packages_mock.assert_called_once_with({"python-aur"})
+    application_packages_mock.assert_called_once_with([], {"python-aur"})
 
 
 def test_run_without_filter(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -106,7 +108,7 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_packages_mock.assert_called_once_with(None)
+    application_packages_mock.assert_called_once_with([], None)
 
 
 def test_run_update_empty_exception(args: argparse.Namespace, configuration: Configuration,
@@ -146,5 +148,14 @@ def test_extract_packages(application: Application, mocker: MockerFixture) -> No
     must extract packages from database
     """
     packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
-    Rebuild.extract_packages(application)
+    Rebuild.extract_packages(application, from_database=False)
+    packages_mock.assert_called_once_with()
+
+
+def test_extract_packages_from_database(application: Application, mocker: MockerFixture) -> None:
+    """
+    must extract packages from database
+    """
+    packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages")
+    Rebuild.extract_packages(application, from_database=True)
     packages_mock.assert_called_once_with()
