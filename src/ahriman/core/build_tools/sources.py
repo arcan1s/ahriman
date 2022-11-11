@@ -86,7 +86,7 @@ class Sources(LazyLogging):
         elif remote is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
             Sources._check_output("git", "clone", "--branch", branch, "--single-branch",
-                                  remote.git_url, str(sources_dir), cwd=sources_dir, logger=instance.logger)
+                                  remote.git_url, str(sources_dir), logger=instance.logger)
         else:
             # it will cause an exception later
             instance.logger.error("%s is not initialized, but no remote provided", sources_dir)
