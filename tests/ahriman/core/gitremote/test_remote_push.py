@@ -17,17 +17,14 @@ def test_package_update(package_ahriman: Package, mocker: MockerFixture) -> None
     """
     rmtree_mock = mocker.patch("shutil.rmtree")
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
-    copytree_mock = mocker.patch("shutil.copytree")
 
     local = Path("local")
     RemotePush.package_update(package_ahriman, local)
     rmtree_mock.assert_has_calls([
         MockCall(local / package_ahriman.base, ignore_errors=True),
-        MockCall(pytest.helpers.anyvar(int), onerror=pytest.helpers.anyvar(int)),  # removal of the TemporaryDirectory
         MockCall(local / package_ahriman.base / ".git", ignore_errors=True),
     ])
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.remote)
-    copytree_mock.assert_called_once_with(pytest.helpers.anyvar(int), local / package_ahriman.base)
 
 
 def test_packages_update(result: Result, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -53,7 +50,9 @@ def test_run(configuration: Configuration, result: Result, package_ahriman: Pack
 
     runner.run(result)
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), runner.remote_source)
-    push_mock.assert_called_once_with(pytest.helpers.anyvar(int), runner.remote_source, package_ahriman.base)
+    push_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), runner.remote_source, package_ahriman.base, commit_author=runner.commit_author
+    )
 
 
 def test_run_failed(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:

@@ -38,6 +38,7 @@ class RemotePush(LazyLogging):
     sync PKGBUILDs to remote repository after actions
 
     Attributes:
+        commit_author(Optional[str]): optional commit author in form of git config (i.e. ``user <user@host>``)
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
     """
 
@@ -49,6 +50,7 @@ class RemotePush(LazyLogging):
             configuration(Configuration): configuration instance
             remote_push_trigger.py
         """
+        self.commit_author = configuration.get(section, "commit_author", fallback=None)
         self.remote_source = RemoteSource(
             git_url=configuration.get(section, "push_url"),
             web_url="",
@@ -73,10 +75,8 @@ class RemotePush(LazyLogging):
         # firstly, we need to remove old data to make sure that removed files are not tracked anymore...
         package_target_dir = target_dir / package.base
         shutil.rmtree(package_target_dir, ignore_errors=True)
-        # ...secondly, we copy whole tree...
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
-            Sources.fetch(clone_dir, package.remote)
-            shutil.copytree(clone_dir, package_target_dir)
+        # ...secondly, we clone whole tree...
+        Sources.fetch(package_target_dir, package.remote)
         # ...and last, but not least, we remove the dot-git directory...
         shutil.rmtree(package_target_dir / ".git", ignore_errors=True)
         # ...and finally return path to the copied directory
@@ -107,7 +107,8 @@ class RemotePush(LazyLogging):
         try:
             with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
                 Sources.fetch(clone_dir, self.remote_source)
-                Sources.push(clone_dir, self.remote_source, *RemotePush.packages_update(result, clone_dir))
+                Sources.push(clone_dir, self.remote_source, *RemotePush.packages_update(result, clone_dir),
+                             commit_author=self.commit_author)
         except Exception:
             self.logger.exception("git push failed")
             raise GitRemoteError()

@@ -104,6 +104,7 @@ It supports authorization; to do so you'd need to prefix the url with authorizat
 Remote push trigger
 ^^^^^^^^^^^^^^^^^^^
 
+* ``commit_author`` - git commit author, string, optional. In case if not set, the git will generate author for you. Note, however, that in this case it will disclosure your hostname.
 * ``push_url`` - url of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
 * ``push_branch`` - branch of the remote repository to which PKGBUILDs should be pushed after build process, string, optional, default is ``master``.
 
