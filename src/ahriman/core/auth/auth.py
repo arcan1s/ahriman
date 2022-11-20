@@ -62,7 +62,7 @@ class Auth(LazyLogging):
         Returns:
             str: login control as html code to insert
         """
-        return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none">login</button>"""
+        return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginForm" style="text-decoration: none"><i class="bi bi-box-arrow-in-right"></i> login</button>"""
 
     @classmethod
     def load(cls: Type[Auth], configuration: Configuration, database: SQLite) -> Auth:

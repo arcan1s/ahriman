@@ -18,7 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web_exceptions import HTTPNotFound
 
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -58,10 +60,16 @@ class LogsView(BaseView):
             Response: 200 with package logs on success
         """
         package_base = self.request.match_info["package"]
+
+        try:
+            _, status = self.service.get(package_base)
+        except UnknownPackageError:
+            raise HTTPNotFound()
         logs = self.service.get_logs(package_base)
 
         response = {
             "package_base": package_base,
+            "status": status.view(),
             "logs": logs
         }
         return json_response(response)

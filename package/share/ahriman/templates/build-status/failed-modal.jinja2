@@ -1,16 +1,16 @@
 <div id="failed-form" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h4 class="modal-title">failed</h4>
+            <div class="modal-header bg-danger text-white">
+                <h4 id="error-title" class="modal-title"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
             </div>
             <div class="modal-body">
-                <p>Packages update has failed.</p>
+                <p id="error-description"></p>
                 <p id="error-details"></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i> close</button>
             </div>
         </div>
     </div>
@@ -18,10 +18,14 @@
 
 <script>
     const failedForm = $("#failed-form");
+    const errorDescription = $("#error-description");
     const errorDetails = $("#error-details");
+    const errorTitle = $("#error-title");
     failedForm.on("hidden.bs.modal", () => { reload(); });
 
-    function showFailure(details) {
+    function showFailure(title, description, details) {
+        errorTitle.text(title);
+        errorDescription.text(description);
         errorDetails.text(details);
         failedForm.modal("show");
     }
