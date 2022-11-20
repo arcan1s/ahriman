@@ -63,6 +63,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
+    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
 
     executor.process_remove([package_ahriman.base])
@@ -73,6 +74,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     tree_clear_mock.assert_called_once_with(package_ahriman.base)
     build_queue_mock.assert_called_once_with(package_ahriman.base)
     patches_mock.assert_called_once_with(package_ahriman.base, [])
+    logs_mock.assert_called_once_with(package_ahriman.base, None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
