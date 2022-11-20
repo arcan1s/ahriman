@@ -24,11 +24,12 @@ steps = [
     """
     create table logs (
         package_base text not null,
+        process_id integer not null,
         created real not null,
         record text
     )
     """,
     """
-    create index logs_package_base on logs (package_base)
+    create index logs_package_base_process_id on logs (package_base, process_id)
     """,
 ]

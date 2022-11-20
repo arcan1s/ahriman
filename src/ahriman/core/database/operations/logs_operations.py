@@ -18,30 +18,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from sqlite3 import Connection
-from typing import List
+from typing import List, Optional
 
 from ahriman.core.database.operations import Operations
+from ahriman.models.log_record_id import LogRecordId
 
 
 class LogsOperations(Operations):
     """
     logs operations
     """
-
-    def logs_delete(self, package_base: str) -> None:
-        """
-        delete log records for the specified package
-
-        Args:
-            package_base(str): package base to remove logs
-        """
-        def run(connection: Connection) -> None:
-            connection.execute(
-                """delete from logs where package_base = :package_base""",
-                {"package_base": package_base}
-            )
-
-        return self.with_connection(run, commit=True)
 
     def logs_get(self, package_base: str) -> str:
         """
@@ -67,12 +53,12 @@ class LogsOperations(Operations):
         records = self.with_connection(run)
         return "\n".join(records)
 
-    def logs_insert(self, package_base: str, created: float, record: str) -> None:
+    def logs_insert(self, log_record_id: LogRecordId, created: float, record: str) -> None:
         """
         write new log record to database
 
         Args:
-            package_base(str): package base
+            log_record_id(LogRecordId): current log record id
             created(float): log created timestamp from log record attribute
             record(str): log record
         """
@@ -80,15 +66,36 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, created, record)
+                (package_base, process_id, created, record)
                 values
-                (:package_base, :created, :record)
+                (:package_base, :process_id, :created, :record)
                 """,
                 dict(
-                    package_base=package_base,
+                    package_base=log_record_id.package_base,
+                    process_id=log_record_id.process_id,
                     created=created,
                     record=record
                 )
+            )
+
+        return self.with_connection(run, commit=True)
+
+    def logs_remove(self, package_base: str, current_process_id: Optional[int]) -> None:
+        """
+        remove log records for the specified package
+
+        Args:
+            package_base(str): package base to remove logs
+            current_process_id(Optional[int]): current process id. If set it will remove only logs belonging to another
+                process
+        """
+        def run(connection: Connection) -> None:
+            connection.execute(
+                """
+                delete from logs
+                where package_base = :package_base and (:process_id is null or process_id <> :process_id)
+                """,
+                {"package_base": package_base, "process_id": current_process_id}
             )
 
         return self.with_connection(run, commit=True)

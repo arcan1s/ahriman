@@ -83,20 +83,22 @@ def test_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
     must remove package base
     """
     cache_mock = mocker.patch("ahriman.core.database.SQLite.package_remove")
+    logs_mock = mocker.patch("ahriman.core.status.watcher.Watcher.remove_logs")
     watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.remove(package_ahriman.base)
     assert not watcher.known
     cache_mock.assert_called_once_with(package_ahriman.base)
+    logs_mock.assert_called_once_with(package_ahriman.base, None)
 
 
 def test_remove_logs(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove package logs
     """
-    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
-    watcher.remove_logs(package_ahriman.base)
-    logs_mock.assert_called_once_with(package_ahriman.base)
+    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
+    watcher.remove_logs(package_ahriman.base, 42)
+    logs_mock.assert_called_once_with(package_ahriman.base, 42)
 
 
 def test_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -148,15 +150,15 @@ def test_update_logs_new(watcher: Watcher, package_ahriman: Package, mocker: Moc
     """
     must create package logs record for new package
     """
-    delete_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
+    delete_mock = mocker.patch("ahriman.core.status.watcher.Watcher.remove_logs")
     insert_mock = mocker.patch("ahriman.core.database.SQLite.logs_insert")
 
     log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.process_id)
     assert watcher._last_log_record_id != log_record_id
 
     watcher.update_logs(log_record_id, 42.01, "log record")
-    delete_mock.assert_called_once_with(package_ahriman.base)
-    insert_mock.assert_called_once_with(package_ahriman.base, 42.01, "log record")
+    delete_mock.assert_called_once_with(package_ahriman.base, log_record_id.process_id)
+    insert_mock.assert_called_once_with(log_record_id, 42.01, "log record")
 
     assert watcher._last_log_record_id == log_record_id
 
@@ -165,7 +167,7 @@ def test_update_logs_update(watcher: Watcher, package_ahriman: Package, mocker: 
     """
     must create package logs record for current package
     """
-    delete_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
+    delete_mock = mocker.patch("ahriman.core.status.watcher.Watcher.remove_logs")
     insert_mock = mocker.patch("ahriman.core.database.SQLite.logs_insert")
 
     log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.process_id)
@@ -173,7 +175,7 @@ def test_update_logs_update(watcher: Watcher, package_ahriman: Package, mocker: 
 
     watcher.update_logs(log_record_id, 42.01, "log record")
     delete_mock.assert_not_called()
-    insert_mock.assert_called_once_with(package_ahriman.base, 42.01, "log record")
+    insert_mock.assert_called_once_with(log_record_id, 42.01, "log record")
 
 
 def test_update_self(watcher: Watcher) -> None:

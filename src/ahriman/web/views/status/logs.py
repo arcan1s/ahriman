@@ -46,7 +46,7 @@ class LogsView(BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service.remove_logs(package_base)
+        self.service.remove_logs(package_base, None)
 
         raise HTTPNoContent()
 

@@ -128,15 +128,17 @@ class Watcher(LazyLogging):
         """
         self.known.pop(package_base, None)
         self.database.package_remove(package_base)
+        self.remove_logs(package_base, None)
 
-    def remove_logs(self, package_base: str) -> None:
+    def remove_logs(self, package_base: str, current_process_id: Optional[int]) -> None:
         """
         remove package related logs
 
         Args:
             package_base(str): package base
+            current_process_id(int): current process id
         """
-        self.database.logs_delete(package_base)
+        self.database.logs_remove(package_base, current_process_id)
 
     def update(self, package_base: str, status: BuildStatusEnum, package: Optional[Package]) -> None:
         """
@@ -170,9 +172,9 @@ class Watcher(LazyLogging):
         """
         if self._last_log_record_id != log_record_id:
             # there is new log record, so we remove old ones
-            self.database.logs_delete(log_record_id.package_base)
+            self.remove_logs(log_record_id.package_base, log_record_id.process_id)
         self._last_log_record_id = log_record_id
-        self.database.logs_insert(log_record_id.package_base, created, record)
+        self.database.logs_insert(log_record_id, created, record)
 
     def update_self(self, status: BuildStatusEnum) -> None:
         """
