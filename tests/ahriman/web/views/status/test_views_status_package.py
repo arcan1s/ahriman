@@ -20,31 +20,6 @@ async def test_get_permission() -> None:
         assert await PackageView.get_permission(request) == UserAccess.Full
 
 
-async def test_get(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:
-    """
-    must return status for specific package
-    """
-    await client.post(f"/api/v1/packages/{package_ahriman.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
-    await client.post(f"/api/v1/packages/{package_python_schedule.base}",
-                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
-
-    response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
-    assert response.ok
-
-    packages = [Package.from_json(item["package"]) for item in await response.json()]
-    assert packages
-    assert {package.base for package in packages} == {package_ahriman.base}
-
-
-async def test_get_not_found(client: TestClient, package_ahriman: Package) -> None:
-    """
-    must return Not Found for unknown package
-    """
-    response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
-    assert response.status == 404
-
-
 async def test_delete(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:
     """
     must delete single base
@@ -79,6 +54,31 @@ async def test_delete_unknown(client: TestClient, package_ahriman: Package, pack
 
     response = await client.get(f"/api/v1/packages/{package_python_schedule.base}")
     assert response.ok
+
+
+async def test_get(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:
+    """
+    must return status for specific package
+    """
+    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    await client.post(f"/api/v1/packages/{package_python_schedule.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
+
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
+    assert response.ok
+
+    packages = [Package.from_json(item["package"]) for item in await response.json()]
+    assert packages
+    assert {package.base for package in packages} == {package_ahriman.base}
+
+
+async def test_get_not_found(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must return Not Found for unknown package
+    """
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
+    assert response.status == 404
 
 
 async def test_post(client: TestClient, package_ahriman: Package) -> None:

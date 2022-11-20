@@ -17,10 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.database.operations.operations import Operations
+__all__ = ["steps"]
 
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.logs_operations import LogsOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
+
+steps = [
+    """
+    create table logs (
+        package_base text not null,
+        created real not null,
+        record text
+    )
+    """,
+    """
+    create index logs_package_base on logs (package_base)
+    """,
+]

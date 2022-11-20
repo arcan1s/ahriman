@@ -89,10 +89,10 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         packages = {local.base: local for local in self.packages()}
 
-        for dirname in self.paths.cache.iterdir():
+        for cache_dir in self.paths.cache.iterdir():
             try:
-                Sources.fetch(dirname, remote=None)
-                remote = Package.from_build(dirname)
+                Sources.fetch(cache_dir, remote=None)
+                remote = Package.from_build(cache_dir)
 
                 local = packages.get(remote.base)
                 if local is None:
@@ -102,7 +102,7 @@ class UpdateHandler(Cleaner):
                     self.reporter.set_pending(local.base)
                     result.append(remote)
             except Exception:
-                self.logger.exception("could not process package at %s", dirname)
+                self.logger.exception("could not process package at %s", cache_dir)
 
         return result
 

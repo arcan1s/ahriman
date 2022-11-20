@@ -17,10 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.database.operations.operations import Operations
+from dataclasses import dataclass
 
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.logs_operations import LogsOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
+
+@dataclass(frozen=True)
+class LogRecordId:
+    """
+    log record process identifier
+
+    Attributes:
+        package_base(str): package base for which log record belongs
+        process_id(int): process id from which log record was emitted
+    """
+
+    package_base: str
+    process_id: int

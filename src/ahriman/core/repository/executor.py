@@ -153,21 +153,21 @@ class Executor(Cleaner):
         Returns:
             Result: path to repository database
         """
-        def rename(archive: PackageDescription, base: str) -> None:
+        def rename(archive: PackageDescription, package_base: str) -> None:
             if archive.filename is None:
-                self.logger.warning("received empty package name for base %s", base)
+                self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
             if (safe := safe_filename(archive.filename)) != archive.filename:
                 shutil.move(self.paths.packages / archive.filename, self.paths.packages / safe)
                 archive.filename = safe
 
-        def update_single(name: Optional[str], base: str) -> None:
+        def update_single(name: Optional[str], package_base: str) -> None:
             if name is None:
-                self.logger.warning("received empty package name for base %s", base)
+                self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
             # in theory, it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / name
-            files = self.sign.process_sign_package(full_path, base)
+            files = self.sign.process_sign_package(full_path, package_base)
             for src in files:
                 dst = self.paths.repository / safe_filename(src.name)
                 shutil.move(src, dst)

@@ -13,6 +13,7 @@ Subpackages
    ahriman.core.database
    ahriman.core.formatters
    ahriman.core.gitremote
+   ahriman.core.log
    ahriman.core.report
    ahriman.core.repository
    ahriman.core.sign
@@ -35,14 +36,6 @@ ahriman.core.exceptions module
 ------------------------------
 
 .. automodule:: ahriman.core.exceptions
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
-ahriman.core.lazy\_logging module
----------------------------------
-
-.. automodule:: ahriman.core.lazy_logging
    :members:
    :no-undoc-members:
    :show-inheritance:

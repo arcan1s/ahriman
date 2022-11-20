@@ -24,7 +24,7 @@ from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # typ
 from typing import Generator, Set
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.repository_paths import RepositoryPaths
 
 

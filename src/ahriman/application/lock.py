@@ -28,7 +28,7 @@ from typing import Literal, Optional, Type
 from ahriman import version
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
@@ -73,7 +73,7 @@ class Lock(LazyLogging):
         self.unsafe = args.unsafe
 
         self.paths = configuration.repository_paths
-        self.reporter = Client.load(configuration) if args.report else Client()
+        self.reporter = Client.load(configuration, report=args.report)
 
     def __enter__(self) -> Lock:
         """

@@ -20,10 +20,8 @@
 from __future__ import annotations
 
 import configparser
-import logging
 import sys
 
-from logging.config import fileConfig
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
@@ -38,8 +36,6 @@ class Configuration(configparser.RawConfigParser):
     Attributes:
         ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific.
             Required by dump and merging functions
-        DEFAULT_LOG_FORMAT(str): (class attribute) default log format (in case of fallback)
-        DEFAULT_LOG_LEVEL(int): (class attribute) default log level (in case of fallback)
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
         architecture(Optional[str]): repository architecture
         path(Optional[Path]): path to root configuration file
@@ -64,9 +60,6 @@ class Configuration(configparser.RawConfigParser):
             >>> path, architecture = configuration.check_loaded()
     """
 
-    DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
-    DEFAULT_LOG_LEVEL = logging.DEBUG
-
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
 
@@ -75,8 +68,8 @@ class Configuration(configparser.RawConfigParser):
         default constructor. In the most cases must not be called directly
 
         Args:
-            allow_no_value(bool): copies ``configparser.RawConfigParser`` behaviour. In case if it is set to ``True``,
-                the keys without values will be allowed
+            allow_no_value(bool, optional): copies ``configparser.RawConfigParser`` behaviour. In case if it is set
+                to ``True``, the keys without values will be allowed (Default value = False)
         """
         configparser.RawConfigParser.__init__(self, allow_no_value=allow_no_value, converters={
             "list": self.__convert_list,
@@ -117,14 +110,13 @@ class Configuration(configparser.RawConfigParser):
         return RepositoryPaths(self.getpath("repository", "root"), architecture)
 
     @classmethod
-    def from_path(cls: Type[Configuration], path: Path, architecture: str, quiet: bool) -> Configuration:
+    def from_path(cls: Type[Configuration], path: Path, architecture: str) -> Configuration:
         """
         constructor with full object initialization
 
         Args:
             path(Path): path to root configuration file
             architecture(str): repository architecture
-            quiet(bool): force disable any log messages
 
         Returns:
             Configuration: configuration instance
@@ -132,7 +124,6 @@ class Configuration(configparser.RawConfigParser):
         configuration = cls()
         configuration.load(path)
         configuration.merge_sections(architecture)
-        configuration.load_logging(quiet)
         return configuration
 
     @staticmethod
@@ -280,23 +271,6 @@ class Configuration(configparser.RawConfigParser):
                 self.read(path)
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
-
-    def load_logging(self, quiet: bool) -> None:
-        """
-        setup logging settings from configuration
-
-        Args:
-            quiet(bool): force disable any log messages
-        """
-        try:
-            path = self.logging_path
-            fileConfig(path)
-        except Exception:
-            logging.basicConfig(filename=None, format=self.DEFAULT_LOG_FORMAT,
-                                level=self.DEFAULT_LOG_LEVEL)
-            logging.exception("could not load logging from configuration, fallback to stderr")
-        if quiet:
-            logging.disable(logging.WARNING)  # only print errors here
 
     def merge_sections(self, architecture: str) -> None:
         """

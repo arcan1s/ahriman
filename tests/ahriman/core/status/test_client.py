@@ -1,3 +1,5 @@
+import logging
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -12,7 +14,16 @@ def test_load_dummy_client(configuration: Configuration) -> None:
     """
     must load dummy client if no settings set
     """
-    assert isinstance(Client.load(configuration), Client)
+    assert not isinstance(Client.load(configuration, report=True), WebClient)
+
+
+def test_load_dummy_client_disabled(configuration: Configuration) -> None:
+    """
+    must load dummy client if report is set to False
+    """
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
+    assert not isinstance(Client.load(configuration, report=False), WebClient)
 
 
 def test_load_full_client(configuration: Configuration) -> None:
@@ -21,7 +32,7 @@ def test_load_full_client(configuration: Configuration) -> None:
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    assert isinstance(Client.load(configuration), WebClient)
+    assert isinstance(Client.load(configuration, report=True), WebClient)
 
 
 def test_load_full_client_from_address(configuration: Configuration) -> None:
@@ -29,7 +40,7 @@ def test_load_full_client_from_address(configuration: Configuration) -> None:
     must load full client by using address
     """
     configuration.set_option("web", "address", "http://localhost:8080")
-    assert isinstance(Client.load(configuration), WebClient)
+    assert isinstance(Client.load(configuration, report=True), WebClient)
 
 
 def test_add(client: Client, package_ahriman: Package) -> None:
@@ -55,6 +66,13 @@ def test_get_internal(client: Client) -> None:
     expected = InternalStatus(status=BuildStatus(timestamp=actual.status.timestamp))
 
     assert actual == expected
+
+
+def test_log(client: Client, log_record: logging.LogRecord) -> None:
+    """
+    must process log record without errors
+    """
+    client.logs(log_record)
 
 
 def test_remove(client: Client, package_ahriman: Package) -> None:

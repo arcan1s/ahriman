@@ -24,7 +24,7 @@ from typing import List, Optional, Set, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output, exception_response_text
 from ahriman.models.sign_settings import SignSettings
 
@@ -157,20 +157,20 @@ class GPG(LazyLogging):
             logger=self.logger)
         return [path, path.parent / f"{path.name}.sig"]
 
-    def process_sign_package(self, path: Path, base: str) -> List[Path]:
+    def process_sign_package(self, path: Path, package_base: str) -> List[Path]:
         """
         sign package if required by configuration
 
         Args:
             path(Path): path to file to sign
-            base(str): package base required to check for key overrides
+            package_base(str): package base required to check for key overrides
 
         Returns:
             List[Path]: list of generated files including original file
         """
         if SignSettings.Packages not in self.targets:
             return [path]
-        key = self.configuration.get("sign", f"key_{base}", fallback=self.default_key)
+        key = self.configuration.get("sign", f"key_{package_base}", fallback=self.default_key)
         if key is None:
             self.logger.error("no default key set, skip package %s sign", path)
             return [path]

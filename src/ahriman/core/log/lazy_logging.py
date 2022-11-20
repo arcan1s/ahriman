@@ -62,3 +62,27 @@ class LazyLogging:
         clazz = self.__class__
         prefix = "" if clazz.__module__ is None else f"{clazz.__module__}."
         return f"{prefix}{clazz.__qualname__}"
+
+    def package_logger_reset(self) -> None:
+        """
+        reset package logger to empty one
+        """
+        self.logger.debug("reset package logging")
+        logging.setLogRecordFactory(logging.LogRecord)
+
+    def package_logger_set(self, package_base: str) -> None:
+        """
+        set package base as extra info to the logger
+
+        Args:
+            package_base(str): package base
+        """
+        current_factory = logging.getLogRecordFactory()
+
+        def package_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
+            record = current_factory(*args, **kwargs)
+            record.package_base = package_base
+            return record
+
+        logging.setLogRecordFactory(package_record_factory)
+        self.logger.debug("start package %s logging", package_base)

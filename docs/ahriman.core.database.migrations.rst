@@ -36,6 +36,14 @@ ahriman.core.database.migrations.m003\_patch\_variables module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m004\_logs module
+--------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m004_logs
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

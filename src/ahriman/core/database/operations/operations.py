@@ -22,7 +22,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, Tuple, TypeVar, Callable
 
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
+
 
 T = TypeVar("T")
 

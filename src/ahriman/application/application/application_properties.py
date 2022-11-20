@@ -19,7 +19,7 @@
 #
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.repository import Repository
 
 
@@ -44,7 +44,8 @@ class ApplicationProperties(LazyLogging):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
-            refresh_pacman_database(int): pacman database syncronization level, ``0`` is disabled
+            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
+                (Default value = 0)
         """
         self.configuration = configuration
         self.architecture = architecture

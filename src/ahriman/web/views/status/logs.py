@@ -17,18 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
-from ahriman.models.build_status import BuildStatusEnum
-from ahriman.models.package import Package
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
-class PackageView(BaseView):
+class LogsView(BaseView):
     """
-    package base specific web view
+    package logs web view
 
     Attributes:
         DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
@@ -42,51 +40,42 @@ class PackageView(BaseView):
 
     async def delete(self) -> None:
         """
-        delete package base from status page
+        delete package logs
 
         Raises:
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service.remove(package_base)
+        self.service.remove_logs(package_base)
 
         raise HTTPNoContent()
 
     async def get(self) -> Response:
         """
-        get current package base status
+        get last package logs
 
         Returns:
-            Response: 200 with package description on success
-
-        Raises:
-            HTTPNotFound: if no package was found
+            Response: 200 with package logs on success
         """
         package_base = self.request.match_info["package"]
+        logs = self.service.get_logs(package_base)
 
-        try:
-            package, status = self.service.get(package_base)
-        except UnknownPackageError:
-            raise HTTPNotFound()
-
-        response = [
-            {
-                "package": package.view(),
-                "status": status.view()
-            }
-        ]
+        response = {
+            "package_base": package_base,
+            "logs": logs
+        }
         return json_response(response)
 
     async def post(self) -> None:
         """
-        update package build status
+        create new package log record
 
         JSON body must be supplied, the following model is used::
 
             {
-                "status": "unknown",   # package build status string, must be valid ``BuildStatusEnum``
-                "package": {}  # package body (use ``dataclasses.asdict`` to generate one), optional.
-                               # Must be supplied in case if package base is unknown
+                "created": 42.001,           # log record created timestamp
+                "message": "log message",    # log record
+                "process_id": 42             # process id from which log record was emitted
             }
 
         Raises:
@@ -97,14 +86,12 @@ class PackageView(BaseView):
         data = await self.extract_data()
 
         try:
-            package = Package.from_json(data["package"]) if "package" in data else None
-            status = BuildStatusEnum(data["status"])
+            created = data["created"]
+            record = data["message"]
+            process_id = data["process_id"]
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        try:
-            self.service.update(package_base, status, package)
-        except UnknownPackageError:
-            raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
+        self.service.update_logs(LogRecordId(package_base, process_id), created, record)
 
         raise HTTPNoContent()

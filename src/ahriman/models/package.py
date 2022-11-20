@@ -30,7 +30,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Type
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import PackageInfoError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output, full_version
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
@@ -218,7 +218,7 @@ class Package(LazyLogging):
         Args:
             name(str): package name (either base or normal name)
             pacman(Pacman): alpm wrapper instance
-            use_syncdb(bool): use pacman databases instead of official repositories RPC (Default value = True)
+            use_syncdb(bool, optional): use pacman databases instead of official repositories RPC (Default value = True)
 
         Returns:
             Package: package properties
@@ -365,7 +365,8 @@ class Package(LazyLogging):
         Args:
             remote(Package): package properties from remote source
             paths(RepositoryPaths): repository paths instance. Required for VCS packages cache
-            calculate_version(bool, optional): expand version to actual value (by calculating git versions) (Default value = True)
+            calculate_version(bool, optional): expand version to actual value (by calculating git versions)
+                (Default value = True)
 
         Returns:
             bool: True if the package is out-of-dated and False otherwise

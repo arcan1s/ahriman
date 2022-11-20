@@ -1,3 +1,4 @@
+import logging
 import pytest
 
 from ahriman.core.alpm.repo import Repo
@@ -26,3 +27,19 @@ def test_logger_name(database: SQLite, repo: Repo) -> None:
     """
     assert database.logger_name == "ahriman.core.database.sqlite.SQLite"
     assert repo.logger_name == "ahriman.core.alpm.repo.Repo"
+
+
+def test_package_logger_set_reset(database: SQLite) -> None:
+    """
+    must set and reset package base attribute
+    """
+    package_base = "package base"
+
+    database.package_logger_set(package_base)
+    record = logging.makeLogRecord({})
+    assert record.package_base == package_base
+
+    database.package_logger_reset()
+    record = logging.makeLogRecord({})
+    with pytest.raises(AttributeError):
+        record.package_base

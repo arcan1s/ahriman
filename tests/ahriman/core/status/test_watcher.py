@@ -8,6 +8,7 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -18,10 +19,7 @@ def test_force_no_report(configuration: Configuration, database: SQLite, mocker:
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
 
-    load_mock = mocker.patch("ahriman.core.status.client.Client.load")
     watcher = Watcher("x86_64", configuration, database)
-
-    load_mock.assert_not_called()
     assert not isinstance(watcher.repository.reporter, WebClient)
 
 
@@ -41,6 +39,15 @@ def test_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
     """
     with pytest.raises(UnknownPackageError):
         watcher.get(package_ahriman.base)
+
+
+def test_get_logs(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return package logs
+    """
+    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_get")
+    watcher.get_logs(package_ahriman.base)
+    logs_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -81,6 +88,15 @@ def test_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixtur
     watcher.remove(package_ahriman.base)
     assert not watcher.known
     cache_mock.assert_called_once_with(package_ahriman.base)
+
+
+def test_remove_logs(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove package logs
+    """
+    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
+    watcher.remove_logs(package_ahriman.base)
+    logs_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -126,6 +142,38 @@ def test_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
     """
     with pytest.raises(UnknownPackageError):
         watcher.update(package_ahriman.base, BuildStatusEnum.Unknown, None)
+
+
+def test_update_logs_new(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must create package logs record for new package
+    """
+    delete_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
+    insert_mock = mocker.patch("ahriman.core.database.SQLite.logs_insert")
+
+    log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.process_id)
+    assert watcher._last_log_record_id != log_record_id
+
+    watcher.update_logs(log_record_id, 42.01, "log record")
+    delete_mock.assert_called_once_with(package_ahriman.base)
+    insert_mock.assert_called_once_with(package_ahriman.base, 42.01, "log record")
+
+    assert watcher._last_log_record_id == log_record_id
+
+
+def test_update_logs_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must create package logs record for current package
+    """
+    delete_mock = mocker.patch("ahriman.core.database.SQLite.logs_delete")
+    insert_mock = mocker.patch("ahriman.core.database.SQLite.logs_insert")
+
+    log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.process_id)
+    watcher._last_log_record_id = log_record_id
+
+    watcher.update_logs(log_record_id, 42.01, "log record")
+    delete_mock.assert_not_called()
+    insert_mock.assert_called_once_with(package_ahriman.base, 42.01, "log record")
 
 
 def test_update_self(watcher: Watcher) -> None:

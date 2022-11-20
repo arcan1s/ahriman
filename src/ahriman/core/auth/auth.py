@@ -23,7 +23,7 @@ from typing import Optional, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.auth_settings import AuthSettings
 from ahriman.models.user_access import UserAccess
 
