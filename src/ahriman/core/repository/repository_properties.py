@@ -22,7 +22,7 @@ from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnsafeRunError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
@@ -58,7 +58,8 @@ class RepositoryProperties(LazyLogging):
             database(SQLite): database instance
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
-            refresh_pacman_database(int): pacman database syncronization level, ``0`` is disabled
+            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
+                (Default value = 0)
         """
         self.architecture = architecture
         self.configuration = configuration
@@ -77,5 +78,5 @@ class RepositoryProperties(LazyLogging):
         self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(configuration) if report else Client()
+        self.reporter = Client.load(configuration, report=report)
         self.triggers = TriggerLoader(architecture, configuration)

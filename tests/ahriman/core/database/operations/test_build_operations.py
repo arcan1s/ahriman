@@ -35,7 +35,7 @@ def test_build_queue_insert_get(database: SQLite, package_ahriman: Package) -> N
 
 def test_build_queue_insert(database: SQLite, package_ahriman: Package) -> None:
     """
-    must update user in the database
+    must update build queue in the database
     """
     database.build_queue_insert(package_ahriman)
     assert database.build_queue_get() == [package_ahriman]

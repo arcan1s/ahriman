@@ -40,7 +40,6 @@
             </div>
 
             <table id="packages" class="table table-striped table-hover"
-                   data-click-to-select="true"
                    data-export-options='{"fileName": "packages"}'
                    data-page-list="[10, 25, 50, 100, all]"
                    data-page-size="10"
@@ -76,14 +75,14 @@
         <div class="container">
             <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
                 <ul class="nav">
-                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources">ahriman</a></li>
+                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources"><i class="bi bi-github"></i> ahriman</a></li>
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
                 </ul>
 
                 {% if index_url is not none %}
                     <ul class="nav">
-                        <li><a class="nav-link" href="{{ index_url }}" title="repo index">repo index</a></li>
+                        <li><a class="nav-link" href="{{ index_url }}" title="repo index"><i class="bi bi-house"></i> repo index</a></li>
                     </ul>
                 {% endif %}
 
@@ -92,7 +91,7 @@
                         {{ auth.control|safe }}
                     {% else %}
                         <form action="/api/v1/logout" method="post">
-                            <button class="btn btn-link" style="text-decoration: none">logout ({{ auth.username }})</button>
+                            <button class="btn btn-link" style="text-decoration: none"><i class="bi bi-box-arrow-right"></i> logout ({{ auth.username }})</button>
                         </form>
                     {% endif %}
                 {% endif %}
@@ -109,6 +108,8 @@
         {% include "build-status/success-modal.jinja2" %}
 
         {% include "build-status/package-add-modal.jinja2" %}
+
+        {% include "build-status/package-info-modal.jinja2" %}
 
         {% include "build-status/table.jinja2" %}
 

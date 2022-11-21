@@ -23,7 +23,7 @@ from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
 from ahriman.models.result import Result

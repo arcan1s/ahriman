@@ -1,3 +1,4 @@
+import logging
 import pytest
 
 from ahriman.core.alpm.repo import Repo
@@ -34,6 +35,17 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
         Leaf: tree leaf test instance
     """
     return Leaf(package_python_schedule, set())
+
+
+@pytest.fixture
+def log_record() -> logging.LogRecord:
+    """
+    fixture for log record object
+
+    Returns:
+        logging.LogRecord: log record test instance
+    """
+    return logging.LogRecord("record", logging.INFO, "path", 42, "log message", args=(), exc_info=None)
 
 
 @pytest.fixture

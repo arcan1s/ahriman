@@ -44,7 +44,8 @@ def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optiona
 
     Args:
         *args(str): command line arguments
-        exception(Optional[Exception]): exception which has to be reraised instead of default subprocess exception
+        exception(Optional[Exception], optional): exception which has to be reraised instead of default subprocess
+            exception (Default value = None)
         cwd(Optional[Path], optional): current working directory (Default value = None)
         input_data(Optional[str], optional): data which will be written to command stdin (Default value = None)
         logger(Optional[Logger], optional): logger to log command result if required (Default value = None)

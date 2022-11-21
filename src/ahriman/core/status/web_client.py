@@ -17,12 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import logging
 import requests
 
 from typing import List, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatusEnum, BuildStatus
@@ -114,17 +115,29 @@ class WebClient(Client, LazyLogging):
         except Exception:
             self.logger.exception("could not login as %s", self.user)
 
-    def _package_url(self, base: str = "") -> str:
+    def _logs_url(self, package_base: str) -> str:
+        """
+        get url for the logs api
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            str: full url for web service for logs
+        """
+        return f"{self.address}/api/v1/packages/{package_base}/logs"
+
+    def _package_url(self, package_base: str = "") -> str:
         """
         url generator
 
         Args:
-            base(str, optional): package base to generate url (Default value = "")
+            package_base(str, optional): package base to generate url (Default value = "")
 
         Returns:
             str: full url of web service for specific package base
         """
-        return f"{self.address}/api/v1/packages/{base}"
+        return f"{self.address}/api/v1/packages/{package_base}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -147,18 +160,18 @@ class WebClient(Client, LazyLogging):
         except Exception:
             self.logger.exception("could not add %s", package.base)
 
-    def get(self, base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+    def get(self, package_base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
         get package status
 
         Args:
-            base(Optional[str]): package base to get
+            package_base(Optional[str]): package base to get
 
         Returns:
             List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         try:
-            response = self.__session.get(self._package_url(base or ""))
+            response = self.__session.get(self._package_url(package_base or ""))
             response.raise_for_status()
 
             status_json = response.json()
@@ -167,9 +180,9 @@ class WebClient(Client, LazyLogging):
                 for package in status_json
             ]
         except requests.HTTPError as e:
-            self.logger.exception("could not get %s: %s", base, exception_response_text(e))
+            self.logger.exception("could not get %s: %s", package_base, exception_response_text(e))
         except Exception:
-            self.logger.exception("could not get %s", base)
+            self.logger.exception("could not get %s", package_base)
         return []
 
     def get_internal(self) -> InternalStatus:
@@ -191,38 +204,59 @@ class WebClient(Client, LazyLogging):
             self.logger.exception("could not get web service status")
         return InternalStatus(status=BuildStatus())
 
-    def remove(self, base: str) -> None:
+    def logs(self, record: logging.LogRecord) -> None:
+        """
+        post log record
+
+        Args:
+            record(logging.LogRecord): log record to post to api
+        """
+        package_base = getattr(record, "package_base", None)
+        if package_base is None:
+            return  # in case if no package base supplised we need just skip log message
+
+        payload = {
+            "created": record.created,
+            "message": record.getMessage(),
+            "process_id": record.process,
+        }
+
+        # in this method exception has to be handled outside in logger handler
+        response = self.__session.post(self._logs_url(package_base), json=payload)
+        response.raise_for_status()
+
+    def remove(self, package_base: str) -> None:
         """
         remove packages from watcher
 
         Args:
-            base(str): basename to remove
+            package_base(str): basename to remove
         """
         try:
-            response = self.__session.delete(self._package_url(base))
+            response = self.__session.delete(self._package_url(package_base))
             response.raise_for_status()
         except requests.HTTPError as e:
-            self.logger.exception("could not delete %s: %s", base, exception_response_text(e))
+            self.logger.exception("could not delete %s: %s", package_base, exception_response_text(e))
         except Exception:
-            self.logger.exception("could not delete %s", base)
+            self.logger.exception("could not delete %s", package_base)
 
-    def update(self, base: str, status: BuildStatusEnum) -> None:
+    def update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike ``add`` it does not update package properties
 
         Args:
-            base(str): package base to update
+            package_base(str): package base to update
             status(BuildStatusEnum): current package build status
         """
         payload = {"status": status.value}
 
         try:
-            response = self.__session.post(self._package_url(base), json=payload)
+            response = self.__session.post(self._package_url(package_base), json=payload)
             response.raise_for_status()
         except requests.HTTPError as e:
-            self.logger.exception("could not update %s: %s", base, exception_response_text(e))
+            self.logger.exception("could not update %s: %s", package_base, exception_response_text(e))
         except Exception:
-            self.logger.exception("could not update %s", base)
+            self.logger.exception("could not update %s", package_base)
 
     def update_self(self, status: BuildStatusEnum) -> None:
         """

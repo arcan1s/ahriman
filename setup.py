@@ -74,6 +74,7 @@ setup(
             "package/share/ahriman/templates/build-status/failed-modal.jinja2",
             "package/share/ahriman/templates/build-status/login-modal.jinja2",
             "package/share/ahriman/templates/build-status/package-add-modal.jinja2",
+            "package/share/ahriman/templates/build-status/package-info-modal.jinja2",
             "package/share/ahriman/templates/build-status/success-modal.jinja2",
             "package/share/ahriman/templates/build-status/table.jinja2",
         ]),

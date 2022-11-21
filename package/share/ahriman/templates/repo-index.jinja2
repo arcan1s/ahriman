@@ -19,10 +19,11 @@
                 <p>This repository is signed with <a href="https://pgp.mit.edu/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
             {% endif %}
 
-<pre>$ cat /etc/pacman.conf
-[{{ repository }}]
+            <p>In order to use this repository edit your <code>/etc/pacman.conf</code> as following:</p>
+
+            <pre class="language-ini"><code id="pacman-conf" class="language-ini">[{{ repository }}]
 Server = {{ link_path }}
-SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly</pre>
+SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Package{% if has_package_signed %}Required{% else %}Never{% endif %} TrustedOnly</code><button id="copy-btn" type="button" class="btn language-ini" onclick="copyPacmanConf()"><i class="bi bi-clipboard"></i> copy</button></pre>
         </div>
 
         <div class="container">
@@ -83,16 +84,31 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
             <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
                 <ul class="nav">
                     {% if homepage is not none %}
-                        <li><a class="nav-link" href="{{ homepage }}" title="homepage">homepage</a></li>
+                        <li><a class="nav-link" href="{{ homepage }}" title="homepage"><i class="bi bi-house"></i> homepage</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav">
-                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources">ahriman</a></li>
+                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources"><i class="bi bi-github"></i> ahriman</a></li>
                 </ul>
             </footer>
         </div>
 
         {% include "utils/bootstrap-scripts.jinja2" %}
+
+        <script>
+            const pacmanConf = $("#pacman-conf");
+            const pacmanConfCopyButton = $("#copy-btn");
+
+            async function copyPacmanConf() {
+                const conf = pacmanConf.text();
+                await navigator.clipboard.writeText(conf);
+
+                pacmanConfCopyButton.html("<i class=\"bi bi-clipboard-check\"></i> copied");
+                setTimeout(() => {
+                    pacmanConfCopyButton.html("<i class=\"bi bi-clipboard\"></i> copy");
+                }, 2000);
+            }
+        </script>
 
     </body>
 

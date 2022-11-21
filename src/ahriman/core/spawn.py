@@ -27,7 +27,7 @@ from threading import Lock, Thread
 from typing import Callable, Dict, Iterable, Tuple
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.package_source import PackageSource
 
 

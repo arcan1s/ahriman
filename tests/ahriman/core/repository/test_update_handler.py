@@ -1,5 +1,6 @@
 import pytest
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.repository.update_handler import UpdateHandler
@@ -103,15 +104,15 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     must check for updates for locally stored packages
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
 
     assert update_handler.updates_local() == [package_ahriman]
-    fetch_mock.assert_called_once_with(package_ahriman.base, remote=None)
-    package_load_mock.assert_called_once_with(package_ahriman.base)
+    fetch_mock.assert_called_once_with(Path(package_ahriman.base), remote=None)
+    package_load_mock.assert_called_once_with(Path(package_ahriman.base))
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -120,7 +121,7 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     must return unknown package as out-dated
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
@@ -136,7 +137,7 @@ def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahri
     must process local through the packages with failure
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages")
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman.base])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
 
     assert not update_handler.updates_local()

@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Dict, List, Type
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.aur_package import AURPackage
 
 

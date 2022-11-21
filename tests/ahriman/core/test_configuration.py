@@ -1,5 +1,4 @@
 import configparser
-import logging
 import pytest
 
 from pathlib import Path
@@ -25,14 +24,12 @@ def test_from_path(mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.is_file", return_value=True)
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
     load_includes_mock = mocker.patch("ahriman.core.configuration.Configuration.load_includes")
-    load_logging_mock = mocker.patch("ahriman.core.configuration.Configuration.load_logging")
     path = Path("path")
 
-    configuration = Configuration.from_path(path, "x86_64", True)
+    configuration = Configuration.from_path(path, "x86_64")
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
     load_includes_mock.assert_called_once_with()
-    load_logging_mock.assert_called_once_with(True)
 
 
 def test_from_path_file_missing(mocker: MockerFixture) -> None:
@@ -41,10 +38,9 @@ def test_from_path_file_missing(mocker: MockerFixture) -> None:
     """
     mocker.patch("pathlib.Path.is_file", return_value=False)
     mocker.patch("ahriman.core.configuration.Configuration.load_includes")
-    mocker.patch("ahriman.core.configuration.Configuration.load_logging")
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
-    configuration = Configuration.from_path(Path("path"), "x86_64", True)
+    configuration = Configuration.from_path(Path("path"), "x86_64")
     read_mock.assert_called_once_with(configuration.SYSTEM_CONFIGURATION_PATH)
 
 
@@ -261,23 +257,6 @@ def test_load_includes_no_section(configuration: Configuration) -> None:
     """
     configuration.remove_section("settings")
     configuration.load_includes()
-
-
-def test_load_logging_fallback(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must fallback to stderr without errors
-    """
-    mocker.patch("ahriman.core.configuration.fileConfig", side_effect=PermissionError())
-    configuration.load_logging(quiet=False)
-
-
-def test_load_logging_quiet(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must disable logging in case if quiet flag set
-    """
-    disable_mock = mocker.patch("logging.disable")
-    configuration.load_logging(quiet=True)
-    disable_mock.assert_called_once_with(logging.WARNING)
 
 
 def test_merge_sections_missing(configuration: Configuration) -> None:

@@ -4,6 +4,14 @@ ahriman.web.views.status package
 Submodules
 ----------
 
+ahriman.web.views.status.logs module
+------------------------------------
+
+.. automodule:: ahriman.web.views.status.logs
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.status.package module
 ---------------------------------------
 

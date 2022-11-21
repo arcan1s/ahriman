@@ -25,6 +25,7 @@ from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
+from ahriman.web.views.status.logs import LogsView
 from ahriman.web.views.status.package import PackageView
 from ahriman.web.views.status.packages import PackagesView
 from ahriman.web.views.status.status import StatusView
@@ -61,6 +62,10 @@ def setup_routes(application: Application, static_path: Path) -> None:
         * ``GET /api/v1/package/:base`` get package base status
         * ``POST /api/v1/package/:base`` update package base status
 
+        * ``DELETE /api/v1/packages/{package}/logs`` delete package related logs
+        * ``GET /api/v1/packages/{package}/logs`` create log record for the package
+        * ``POST /api/v1/packages/{package}/logs`` get last package logs
+
         * ``GET /api/v1/status`` get service status itself
         * ``POST /api/v1/status`` update service status itself
 
@@ -93,6 +98,10 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_delete("/api/v1/packages/{package}", PackageView)
     application.router.add_get("/api/v1/packages/{package}", PackageView, allow_head=True)
     application.router.add_post("/api/v1/packages/{package}", PackageView)
+
+    application.router.add_delete("/api/v1/packages/{package}/logs", LogsView)
+    application.router.add_get("/api/v1/packages/{package}/logs", LogsView, allow_head=True)
+    application.router.add_post("/api/v1/packages/{package}/logs", LogsView)
 
     application.router.add_get("/api/v1/status", StatusView, allow_head=True)
     application.router.add_post("/api/v1/status", StatusView)

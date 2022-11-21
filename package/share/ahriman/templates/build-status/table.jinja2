@@ -8,6 +8,7 @@
         () => {
             removeButton.prop("disabled", !table.bootstrapTable("getSelections").length);
         });
+    table.on("click-row.bs.table", (_, row) => { showLogs(row.id); });
 
     const architectureBadge = $("#badge-architecture");
     const repositoryBadge = $("#badge-repository");
@@ -26,9 +27,11 @@
                     li.innerText = pkg;
                     return li;
                 });
-                showSuccess(details);
+                showSuccess("Success", `Package action at ${uri} has been run on:`, details);
             },
-            error: (jqXHR, _, errorThrown) => { showFailure(errorThrown); },
+            error: (jqXHR, _, errorThrown) => {
+                showFailure("Action failed", `Package action request at ${uri} on ${packages} has failed:`, errorThrown);
+            },
         });
     }
 
@@ -38,7 +41,11 @@
 
     function removePackages() { doPackageAction("/api/v1/service/remove", getSelection()); }
 
-    function updatePackages() { doPackageAction("/api/v1/service/add", getSelection()); }
+    function updatePackages() {
+        const currentSelection = getSelection();
+        const url = currentSelection.length === 0 ? "/api/v1/service/update" : "/api/v1/service/add";
+        doPackageAction(url, getSelection());
+    }
 
     function hideControls(hidden) {
         addButton.attr("hidden", hidden);
@@ -95,7 +102,7 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    showFailure(errorThrown);
+                    showFailure("Load failure", "Could not load list of packages:", errorThrown);
                 }
                 hideControls(true);
             },

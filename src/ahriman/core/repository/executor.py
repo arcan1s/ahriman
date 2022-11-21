@@ -84,7 +84,8 @@ class Executor(Cleaner):
 
         result = Result()
         for single in updates:
-            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (build_dir := Path(dir_name)):
+            with self.in_package_context(single.base), \
+                    TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (build_dir := Path(dir_name)):
                 try:
                     build_single(single, build_dir)
                     result.add_success(single)
@@ -110,6 +111,7 @@ class Executor(Cleaner):
                 self.paths.tree_clear(package_base)  # remove all internal files
                 self.database.build_queue_clear(package_base)
                 self.database.patches_remove(package_base, [])
+                self.database.logs_remove(package_base, None)
                 self.reporter.remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)
@@ -153,21 +155,21 @@ class Executor(Cleaner):
         Returns:
             Result: path to repository database
         """
-        def rename(archive: PackageDescription, base: str) -> None:
+        def rename(archive: PackageDescription, package_base: str) -> None:
             if archive.filename is None:
-                self.logger.warning("received empty package name for base %s", base)
+                self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
             if (safe := safe_filename(archive.filename)) != archive.filename:
                 shutil.move(self.paths.packages / archive.filename, self.paths.packages / safe)
                 archive.filename = safe
 
-        def update_single(name: Optional[str], base: str) -> None:
+        def update_single(name: Optional[str], package_base: str) -> None:
             if name is None:
-                self.logger.warning("received empty package name for base %s", base)
+                self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
             # in theory, it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / name
-            files = self.sign.process_sign_package(full_path, base)
+            files = self.sign.process_sign_package(full_path, package_base)
             for src in files:
                 dst = self.paths.repository / safe_filename(src.name)
                 shutil.move(src, dst)
@@ -180,24 +182,25 @@ class Executor(Cleaner):
 
         result = Result()
         for local in updates:
-            try:
-                for description in local.packages.values():
-                    rename(description, local.base)
-                    update_single(description.filename, local.base)
-                self.reporter.set_success(local)
-                result.add_success(local)
+            with self.in_package_context(local.base):
+                try:
+                    for description in local.packages.values():
+                        rename(description, local.base)
+                        update_single(description.filename, local.base)
+                    self.reporter.set_success(local)
+                    result.add_success(local)
 
-                current_package_archives = {
-                    package
-                    for current in current_packages
-                    if current.base == local.base
-                    for package in current.packages
-                }
-                removed_packages.extend(current_package_archives.difference(local.packages))
-            except Exception:
-                self.reporter.set_failed(local.base)
-                result.add_failed(local)
-                self.logger.exception("could not process %s", local.base)
+                    current_package_archives = {
+                        package
+                        for current in current_packages
+                        if current.base == local.base
+                        for package in current.packages
+                    }
+                    removed_packages.extend(current_package_archives.difference(local.packages))
+                except Exception:
+                    self.reporter.set_failed(local.base)
+                    result.add_failed(local)
+                    self.logger.exception("could not process %s", local.base)
         self.clear_packages()
 
         self.process_remove(removed_packages)

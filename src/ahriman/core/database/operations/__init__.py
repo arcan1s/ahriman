@@ -21,5 +21,6 @@ from ahriman.core.database.operations.operations import Operations
 
 from ahriman.core.database.operations.auth_operations import AuthOperations
 from ahriman.core.database.operations.build_operations import BuildOperations
+from ahriman.core.database.operations.logs_operations import LogsOperations
 from ahriman.core.database.operations.package_operations import PackageOperations
 from ahriman.core.database.operations.patch_operations import PatchOperations
