@@ -27,6 +27,7 @@ from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import InitializeError
+from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.middlewares.exception_handler import exception_handler
@@ -79,7 +80,7 @@ def run_server(application: web.Application) -> None:
     port = configuration.getint("web", "port")
 
     web.run_app(application, host=host, port=port, handle_signals=False,
-                access_log=logging.getLogger("http"))
+                access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 
 def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> web.Application:
