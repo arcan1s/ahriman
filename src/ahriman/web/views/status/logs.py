@@ -38,7 +38,7 @@ class LogsView(BaseView):
     """
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Reporter
 
     async def delete(self) -> None:
         """

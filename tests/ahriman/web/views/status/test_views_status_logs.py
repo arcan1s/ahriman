@@ -14,7 +14,7 @@ async def test_get_permission() -> None:
     """
     for method in ("GET", "HEAD"):
         request = pytest.helpers.request("", "", method)
-        assert await LogsView.get_permission(request) == UserAccess.Read
+        assert await LogsView.get_permission(request) == UserAccess.Reporter
     for method in ("DELETE", "POST"):
         request = pytest.helpers.request("", "", method)
         assert await LogsView.get_permission(request) == UserAccess.Full
