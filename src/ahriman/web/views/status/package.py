@@ -40,6 +40,18 @@ class PackageView(BaseView):
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
 
+    async def delete(self) -> None:
+        """
+        delete package base from status page
+
+        Raises:
+            HTTPNoContent: on success response
+        """
+        package_base = self.request.match_info["package"]
+        self.service.remove(package_base)
+
+        raise HTTPNoContent()
+
     async def get(self) -> Response:
         """
         get current package base status
@@ -50,10 +62,10 @@ class PackageView(BaseView):
         Raises:
             HTTPNotFound: if no package was found
         """
-        base = self.request.match_info["package"]
+        package_base = self.request.match_info["package"]
 
         try:
-            package, status = self.service.get(base)
+            package, status = self.service.get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound()
 
@@ -64,18 +76,6 @@ class PackageView(BaseView):
             }
         ]
         return json_response(response)
-
-    async def delete(self) -> None:
-        """
-        delete package base from status page
-
-        Raises:
-            HTTPNoContent: on success response
-        """
-        base = self.request.match_info["package"]
-        self.service.remove(base)
-
-        raise HTTPNoContent()
 
     async def post(self) -> None:
         """
@@ -93,7 +93,7 @@ class PackageView(BaseView):
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
         """
-        base = self.request.match_info["package"]
+        package_base = self.request.match_info["package"]
         data = await self.extract_data()
 
         try:
@@ -103,8 +103,8 @@ class PackageView(BaseView):
             raise HTTPBadRequest(reason=str(e))
 
         try:
-            self.service.update(base, status, package)
+            self.service.update(package_base, status, package)
         except UnknownPackageError:
-            raise HTTPBadRequest(reason=f"Package {base} is unknown, but no package body set")
+            raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 
         raise HTTPNoContent()

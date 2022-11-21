@@ -1,4 +1,5 @@
 import json
+import logging
 import pytest
 import requests
 
@@ -11,6 +12,14 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.user import User
+
+
+def test_status_url(web_client: WebClient) -> None:
+    """
+    must generate login url correctly
+    """
+    assert web_client._login_url.startswith(web_client.address)
+    assert web_client._login_url.endswith("/api/v1/login")
 
 
 def test_status_url(web_client: WebClient) -> None:
@@ -75,9 +84,17 @@ def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock.assert_not_called()
 
 
+def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
+    """
+    must generate logs url correctly
+    """
+    assert web_client._logs_url(package_ahriman.base).startswith(web_client.address)
+    assert web_client._logs_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/logs")
+
+
 def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
-    must generate package status correctly
+    must generate package status url correctly
     """
     assert web_client._package_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
@@ -190,6 +207,43 @@ def test_get_internal_failed_http_error(web_client: WebClient, mocker: MockerFix
     """
     mocker.patch("requests.Session.get", side_effect=requests.exceptions.HTTPError())
     assert web_client.get_internal().architecture is None
+
+
+def test_logs(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
+              mocker: MockerFixture) -> None:
+    """
+    must process log record
+    """
+    requests_mock = mocker.patch("requests.Session.post")
+    log_record.package_base = package_ahriman.base
+    payload = {
+        "created": log_record.created,
+        "message": log_record.getMessage(),
+        "process_id": log_record.process,
+    }
+
+    web_client.logs(log_record)
+    requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json=payload)
+
+
+def test_log_failed(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
+                    mocker: MockerFixture) -> None:
+    """
+    must pass exception during log post
+    """
+    mocker.patch("requests.Session.post", side_effect=Exception())
+    log_record.package_base = package_ahriman.base
+    with pytest.raises(Exception):
+        web_client.logs(log_record)
+
+
+def test_log_skip(web_client: WebClient, log_record: logging.LogRecord, mocker: MockerFixture) -> None:
+    """
+    must skip log record posting if no package base set
+    """
+    requests_mock = mocker.patch("requests.Session.post")
+    web_client.logs(log_record)
+    requests_mock.assert_not_called()
 
 
 def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

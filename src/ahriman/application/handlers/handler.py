@@ -28,6 +28,7 @@ from typing import List, Type
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
+from ahriman.core.log import Log
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -94,7 +95,8 @@ class Handler:
             bool: True on success, False otherwise
         """
         try:
-            configuration = Configuration.from_path(args.configuration, architecture, args.quiet)
+            configuration = Configuration.from_path(args.configuration, architecture)
+            Log.load(configuration, quiet=args.quiet, report=args.report)
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration, report=args.report, unsafe=args.unsafe)
             return True

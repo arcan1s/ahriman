@@ -20,7 +20,7 @@
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 

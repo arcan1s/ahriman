@@ -24,7 +24,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import BuildError
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
@@ -84,10 +84,12 @@ class Task(LazyLogging):
             user=self.uid)
 
         # well it is not actually correct, but we can deal with it
-        packages = Task._check_output("makepkg", "--packagelist",
-                                      exception=BuildError(self.package.base),
-                                      cwd=sources_dir,
-                                      logger=self.logger).splitlines()
+        packages = Task._check_output(
+            "makepkg", "--packagelist",
+            exception=BuildError(self.package.base),
+            cwd=sources_dir,
+            logger=self.logger
+        ).splitlines()
         return [Path(package) for package in packages]
 
     def init(self, sources_dir: Path, database: SQLite) -> None:

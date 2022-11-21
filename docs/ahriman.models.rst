@@ -52,6 +52,14 @@ ahriman.models.internal\_status module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.log\_record\_id module
+-------------------------------------
+
+.. automodule:: ahriman.models.log_record_id
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.migration module
 -------------------------------
 

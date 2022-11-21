@@ -51,18 +51,22 @@ def test_architectures_extract_specified(args: argparse.Namespace) -> None:
     assert Handler.architectures_extract(args) == sorted(set(architectures))
 
 
-def test_call(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_call(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must call inside lock
     """
     args.configuration = Path("")
     args.quiet = False
+    args.report = False
     mocker.patch("ahriman.application.handlers.Handler.run")
-    mocker.patch("ahriman.core.configuration.Configuration.from_path")
+    configuration_mock = mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
+    log_load_mock = mocker.patch("ahriman.core.log.Log.load")
     enter_mock = mocker.patch("ahriman.application.lock.Lock.__enter__")
     exit_mock = mocker.patch("ahriman.application.lock.Lock.__exit__")
 
     assert Handler.call(args, "x86_64")
+    configuration_mock.assert_called_once_with(args.configuration, "x86_64")
+    log_load_mock.assert_called_once_with(configuration, quiet=args.quiet, report=args.report)
     enter_mock.assert_called_once_with()
     exit_mock.assert_called_once_with(None, None, None)
 

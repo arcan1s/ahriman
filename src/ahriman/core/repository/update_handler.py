@@ -56,26 +56,26 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
 
         for local in self.packages():
-            if local.base in self.ignore_list:
-                continue
-            if local.is_vcs and not vcs:
-                continue
-            if filter_packages and local.base not in filter_packages:
-                continue
-            source = local.remote.source if local.remote is not None else None
+            with self.in_package_context(local.base):
+                if local.base in self.ignore_list:
+                    continue
+                if local.is_vcs and not vcs:
+                    continue
+                if filter_packages and local.base not in filter_packages:
+                    continue
+                source = local.remote.source if local.remote is not None else None
 
-            try:
-                if source == PackageSource.Repository:
-                    remote = Package.from_official(local.base, self.pacman)
-                else:
-                    remote = Package.from_aur(local.base, self.pacman)
-                if local.is_outdated(remote, self.paths):
-                    self.reporter.set_pending(local.base)
-                    result.append(remote)
-            except Exception:
-                self.reporter.set_failed(local.base)
-                self.logger.exception("could not load remote package %s", local.base)
-                continue
+                try:
+                    if source == PackageSource.Repository:
+                        remote = Package.from_official(local.base, self.pacman)
+                    else:
+                        remote = Package.from_aur(local.base, self.pacman)
+                    if local.is_outdated(remote, self.paths):
+                        self.reporter.set_pending(local.base)
+                        result.append(remote)
+                except Exception:
+                    self.reporter.set_failed(local.base)
+                    self.logger.exception("could not load remote package %s", local.base)
 
         return result
 
@@ -89,20 +89,21 @@ class UpdateHandler(Cleaner):
         result: List[Package] = []
         packages = {local.base: local for local in self.packages()}
 
-        for dirname in self.paths.cache.iterdir():
-            try:
-                Sources.fetch(dirname, remote=None)
-                remote = Package.from_build(dirname)
+        for cache_dir in self.paths.cache.iterdir():
+            with self.in_package_context(cache_dir.name):
+                try:
+                    Sources.fetch(cache_dir, remote=None)
+                    remote = Package.from_build(cache_dir)
 
-                local = packages.get(remote.base)
-                if local is None:
-                    self.reporter.set_unknown(remote)
-                    result.append(remote)
-                elif local.is_outdated(remote, self.paths):
-                    self.reporter.set_pending(local.base)
-                    result.append(remote)
-            except Exception:
-                self.logger.exception("could not process package at %s", dirname)
+                    local = packages.get(remote.base)
+                    if local is None:
+                        self.reporter.set_unknown(remote)
+                        result.append(remote)
+                    elif local.is_outdated(remote, self.paths):
+                        self.reporter.set_pending(local.base)
+                        result.append(remote)
+                except Exception:
+                    self.logger.exception("could not process package at %s", cache_dir)
 
         return result
 

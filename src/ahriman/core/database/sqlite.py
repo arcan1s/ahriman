@@ -27,10 +27,11 @@ from typing import Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
-from ahriman.core.database.operations import AuthOperations, BuildOperations, PackageOperations, PatchOperations
+from ahriman.core.database.operations import AuthOperations, BuildOperations, LogsOperations, PackageOperations, \
+    PatchOperations
 
 
-class SQLite(AuthOperations, BuildOperations, PackageOperations, PatchOperations):
+class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations, PatchOperations):
     """
     wrapper for sqlite3 database
 

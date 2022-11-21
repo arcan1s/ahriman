@@ -27,7 +27,7 @@ from typing import List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.data import migrate_data
-from ahriman.core.lazy_logging import LazyLogging
+from ahriman.core.log import LazyLogging
 from ahriman.models.migration import Migration
 from ahriman.models.migration_result import MigrationResult
 

@@ -75,7 +75,7 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
     StatusUpdate.run(args, "x86_64", configuration, report=False, unsafe=False)
-    load_mock.assert_called_once_with(configuration)
+    load_mock.assert_called_once_with(configuration, report=True)
 
 
 def test_disallow_auto_architecture_run() -> None:

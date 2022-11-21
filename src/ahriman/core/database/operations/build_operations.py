@@ -26,7 +26,7 @@ from ahriman.models.package import Package
 
 class BuildOperations(Operations):
     """
-    operations for main functions
+    operations for build queue functions
     """
 
     def build_queue_clear(self, package_base: Optional[str]) -> None:
