@@ -30,9 +30,9 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
 
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                      json={"created": 0.001, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "process_id": 42})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}/logs",
-                      json={"created": 0.001, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "process_id": 42})
 
     response = await client.delete(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 204
@@ -53,13 +53,13 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                      json={"created": 0.001, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "process_id": 42})
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 200
 
     logs = await response.json()
-    assert logs["logs"] == "message"
+    assert logs["logs"] == "[1970-01-01 00:00:42] message"
 
 
 async def test_get_not_foud(client: TestClient, package_ahriman: Package) -> None:
@@ -78,12 +78,12 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
 
     post_response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                                      json={"created": 0.001, "message": "message", "process_id": 42})
+                                      json={"created": 42.0, "message": "message", "process_id": 42})
     assert post_response.status == 204
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     logs = await response.json()
-    assert logs["logs"] == "message"
+    assert logs["logs"] == "[1970-01-01 00:00:42] message"
 
 
 async def test_post_exception(client: TestClient, package_ahriman: Package) -> None:

@@ -21,6 +21,7 @@ from sqlite3 import Connection
 from typing import List, Optional
 
 from ahriman.core.database.operations import Operations
+from ahriman.core.util import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 
 
@@ -41,10 +42,10 @@ class LogsOperations(Operations):
         """
         def run(connection: Connection) -> List[str]:
             return [
-                row["record"]
+                f"""[{pretty_datetime(row["created"])}] {row["record"]}"""
                 for row in connection.execute(
                     """
-                    select record from logs where package_base = :package_base
+                    select created, record from logs where package_base = :package_base
                     order by created asc
                     """,
                     {"package_base": package_base})
