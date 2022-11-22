@@ -89,11 +89,12 @@ class Client:
         """
         return InternalStatus(status=BuildStatus())
 
-    def logs(self, record: logging.LogRecord) -> None:
+    def logs(self, package_base: str, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
+            package_base(str) package base
             record(logging.LogRecord): log record to post to api
         """
 

@@ -204,17 +204,14 @@ class WebClient(Client, LazyLogging):
             self.logger.exception("could not get web service status")
         return InternalStatus(status=BuildStatus())
 
-    def logs(self, record: logging.LogRecord) -> None:
+    def logs(self, package_base: str, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
+            package_base(str) package base
             record(logging.LogRecord): log record to post to api
         """
-        package_base = getattr(record, "package_base", None)
-        if package_base is None:
-            return  # in case if no package base supplised we need just skip log message
-
         payload = {
             "created": record.created,
             "message": record.getMessage(),

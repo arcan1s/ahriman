@@ -74,7 +74,11 @@ class HttpLogHandler(logging.Handler):
         Args:
             record(logging.LogRecord): log record to log
         """
+        package_base = getattr(record, "package_base", None)
+        if package_base is None:
+            return  # in case if no package base supplied we need just skip log message
+
         try:
-            self.reporter.logs(record)
+            self.reporter.logs(package_base, record)
         except Exception:
             self.handleError(record)

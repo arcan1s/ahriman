@@ -68,11 +68,11 @@ def test_get_internal(client: Client) -> None:
     assert actual == expected
 
 
-def test_log(client: Client, log_record: logging.LogRecord) -> None:
+def test_log(client: Client, package_ahriman: Package, log_record: logging.LogRecord) -> None:
     """
     must process log record without errors
     """
-    client.logs(log_record)
+    client.logs(package_ahriman.base, log_record)
 
 
 def test_remove(client: Client, package_ahriman: Package) -> None:
