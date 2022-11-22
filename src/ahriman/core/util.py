@@ -19,13 +19,13 @@
 #
 import datetime
 import io
+import logging
 import os
 import re
 import requests
 import subprocess
 
 from enum import Enum
-from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union
 
@@ -38,7 +38,8 @@ __all__ = ["check_output", "check_user", "exception_response_text", "filter_json
 
 
 def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
-                 input_data: Optional[str] = None, logger: Optional[Logger] = None, user: Optional[int] = None) -> str:
+                 input_data: Optional[str] = None, logger: Optional[logging.Logger] = None,
+                 user: Optional[int] = None) -> str:
     """
     subprocess wrapper
 
@@ -48,7 +49,7 @@ def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optiona
             exception (Default value = None)
         cwd(Optional[Path], optional): current working directory (Default value = None)
         input_data(Optional[str], optional): data which will be written to command stdin (Default value = None)
-        logger(Optional[Logger], optional): logger to log command result if required (Default value = None)
+        logger(Optional[logging.Logger], optional): logger to log command result if required (Default value = None)
         user(Optional[int], optional): run process as specified user (Default value = None)
 
     Returns:
