@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPFound
+from aiohttp.web_exceptions import HTTPUnauthorized
 
 from ahriman.core.auth.helpers import check_authorized, forget
 from ahriman.models.user_access import UserAccess
@@ -41,7 +42,10 @@ class LogoutView(BaseView):
         Raises:
             HTTPFound: on success response
         """
-        await check_authorized(self.request)
+        try:
+            await check_authorized(self.request)
+        except HTTPUnauthorized:
+            raise HTTPUnauthorized(reason="I'm a teapot")
         await forget(self.request, HTTPFound("/"))
 
         raise HTTPFound("/")

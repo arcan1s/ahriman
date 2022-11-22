@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import logging
+
 from aiohttp.web import middleware, Request
 from aiohttp.web_exceptions import HTTPClientError, HTTPException, HTTPServerError
 from aiohttp.web_response import json_response, StreamResponse
-from logging import Logger
 
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
@@ -28,12 +29,12 @@ from ahriman.web.middlewares import HandlerType, MiddlewareType
 __all__ = ["exception_handler"]
 
 
-def exception_handler(logger: Logger) -> MiddlewareType:
+def exception_handler(logger: logging.Logger) -> MiddlewareType:
     """
     exception handler middleware. Just log any exception (except for client ones)
 
     Args:
-        logger(Logger): class logger
+        logger(logging.Logger): class logger
 
     Returns:
         MiddlewareType: built middleware
