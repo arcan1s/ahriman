@@ -15,7 +15,7 @@
     const statusBadge = $("#badge-status");
     const versionBadge = $("#badge-version");
 
-    function doPackageAction(uri, packages) {
+    function doPackageAction(uri, packages, successText, failureText) {
         $.ajax({
             url: uri,
             data: JSON.stringify({packages: packages}),
@@ -27,10 +27,10 @@
                     li.innerText = pkg;
                     return li;
                 });
-                showSuccess("Success", `Package action at ${uri} has been run on:`, details);
+                showSuccess("Success", successText, details);
             },
             error: (jqXHR, _, errorThrown) => {
-                showFailure("Action failed", `Package action request at ${uri} on ${packages} has failed:`, errorThrown);
+                showFailure("Action failed", failureText, errorThrown);
             },
         });
     }
@@ -39,12 +39,14 @@
         return table.bootstrapTable("getSelections").map(row => { return row.id; });
     }
 
-    function removePackages() { doPackageAction("/api/v1/service/remove", getSelection()); }
+    function removePackages() {
+        doPackageAction("/api/v1/service/remove", getSelection(), "The following packages have been removed:", "Packages removal failed:");
+    }
 
     function updatePackages() {
         const currentSelection = getSelection();
         const url = currentSelection.length === 0 ? "/api/v1/service/update" : "/api/v1/service/add";
-        doPackageAction(url, getSelection());
+        doPackageAction(url, getSelection(), "Packages update has been run", "Packages update failed:");
     }
 
     function hideControls(hidden) {
