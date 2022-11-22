@@ -26,6 +26,7 @@ from typing import Type
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.exceptions import PasswordError
 from ahriman.core.formatters import UserPrinter
 from ahriman.models.action import Action
 from ahriman.models.user import User
@@ -149,7 +150,15 @@ class Users(Handler):
         Returns:
             User: built user descriptor
         """
+        def read_password() -> str:
+            first_password = getpass.getpass()
+            second_password = getpass.getpass("Repeat password: ")
+            if first_password != second_password:
+                raise PasswordError("passwords don't match")
+            return first_password
+
         password = args.password
         if password is None:
-            password = getpass.getpass()
+            password = read_password()
+
         return User(username=args.username, password=password, access=args.role)

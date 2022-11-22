@@ -3,11 +3,12 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Users
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import InitializeError
+from ahriman.core.exceptions import InitializeError, PasswordError
 from ahriman.models.action import Action
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
@@ -214,12 +215,23 @@ def test_user_create_getpass(args: argparse.Namespace, mocker: MockerFixture) ->
     """
     args = _default_args(args)
     args.password = None
-
     getpass_mock = mocker.patch("getpass.getpass", return_value="password")
-    generated = Users.user_create(args)
 
-    getpass_mock.assert_called_once_with()
+    generated = Users.user_create(args)
+    getpass_mock.assert_has_calls([MockCall(), MockCall("Repeat password: ")])
     assert generated.password == "password"
+
+
+def test_user_create_getpass_exception(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must raise password error in case if password doesn't match
+    """
+    args = _default_args(args)
+    args.password = None
+    mocker.patch("getpass.getpass", side_effect=lambda *_: User.generate_password(10))
+
+    with pytest.raises(PasswordError):
+        Users.user_create(args)
 
 
 def test_disallow_auto_architecture_run() -> None:
