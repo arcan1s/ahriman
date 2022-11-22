@@ -118,7 +118,7 @@ class Setup(Handler):
             section = Configuration.section_name("web", architecture)
             configuration.set_option(section, "port", str(args.web_port))
 
-        target = include_path / "setup-overrides.ini"
+        target = include_path / "00-setup-overrides.ini"
         with target.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
