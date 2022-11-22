@@ -14,7 +14,7 @@ from ahriman.models.package import Package
 from ahriman.models.user import User
 
 
-def test_status_url(web_client: WebClient) -> None:
+def test_login_url(web_client: WebClient) -> None:
     """
     must generate login url correctly
     """
@@ -215,14 +215,13 @@ def test_logs(web_client: WebClient, log_record: logging.LogRecord, package_ahri
     must process log record
     """
     requests_mock = mocker.patch("requests.Session.post")
-    log_record.package_base = package_ahriman.base
     payload = {
         "created": log_record.created,
         "message": log_record.getMessage(),
         "process_id": log_record.process,
     }
 
-    web_client.logs(log_record)
+    web_client.logs(package_ahriman.base, log_record)
     requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json=payload)
 
 
@@ -234,16 +233,7 @@ def test_log_failed(web_client: WebClient, log_record: logging.LogRecord, packag
     mocker.patch("requests.Session.post", side_effect=Exception())
     log_record.package_base = package_ahriman.base
     with pytest.raises(Exception):
-        web_client.logs(log_record)
-
-
-def test_log_skip(web_client: WebClient, log_record: logging.LogRecord, mocker: MockerFixture) -> None:
-    """
-    must skip log record posting if no package base set
-    """
-    requests_mock = mocker.patch("requests.Session.post")
-    web_client.logs(log_record)
-    requests_mock.assert_not_called()
+        web_client.logs(package_ahriman.base, log_record)
 
 
 def test_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
