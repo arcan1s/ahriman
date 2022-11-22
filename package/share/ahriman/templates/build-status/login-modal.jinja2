@@ -16,7 +16,12 @@
                     <div class="form-group row">
                         <label for="password" class="col-sm-2 col-form-label">password</label>
                         <div class="col-sm-10">
-                            <input id="password" type="password" class="form-control" placeholder="enter password" name="password" required>
+                            <div class="input-group">
+                                <input id="password" type="password" class="form-control" placeholder="enter password" name="password" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="showPassword()"><i id="show-hide-password" class="bi bi-eye"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -27,3 +32,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    const passwordInput = $("#password");
+    const showHidePasswordButton = $("#show-hide-password");
+
+    function showPassword() {
+        if (passwordInput.attr("type") === "password") {
+            passwordInput.attr("type", "text");
+            showHidePasswordButton.removeClass("bi-eye");
+            showHidePasswordButton.addClass("bi-eye-slash");
+        } else {
+            passwordInput.attr("type", "password");
+            showHidePasswordButton.removeClass("bi-eye-slash");
+            showHidePasswordButton.addClass("bi-eye");
+        }
+    }
+</script>

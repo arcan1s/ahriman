@@ -10,6 +10,8 @@
 
     <body>
 
+        {% include "utils/bootstrap-scripts.jinja2" %}
+
         <div class="container">
             <h1>Arch linux user repository</h1>
         </div>
@@ -92,8 +94,6 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
                 </ul>
             </footer>
         </div>
-
-        {% include "utils/bootstrap-scripts.jinja2" %}
 
         <script>
             const pacmanConf = $("#pacman-conf");
