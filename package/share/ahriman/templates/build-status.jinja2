@@ -12,6 +12,8 @@
 
     <body>
 
+        {% include "utils/bootstrap-scripts.jinja2" %}
+
         <div class="container">
             <h1>ahriman
                 <img id="badge-version" src="https://img.shields.io/badge/version-unknown-informational" alt="unknown">
@@ -105,8 +107,6 @@
         {% if auth.enabled %}
             {% include "build-status/login-modal.jinja2" %}
         {% endif %}
-
-        {% include "utils/bootstrap-scripts.jinja2" %}
 
         {% include "build-status/failed-modal.jinja2" %}
         {% include "build-status/success-modal.jinja2" %}
