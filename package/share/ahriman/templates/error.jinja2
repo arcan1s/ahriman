@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Error</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="shortcut icon" href="/static/favicon.ico">
+
+        {% include "utils/style.jinja2" %}
+    </head>
+
+    <body>
+
+        <div class="d-flex flex-row align-items-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-12 text-center">
+                        <span class="display-1 d-block">{{ code }}</span>
+                        <div class="mb-4 lead">{{ reason }}</div>
+                        <a class="btn btn-link" style="text-decoration: none" href="/" title="home"><i class="bi bi-house"></i> home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include "utils/bootstrap-scripts.jinja2" %}
+
+    </body>
+
+</html>

@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_jinja2
 import logging
 
 from aiohttp.web import middleware, Request
-from aiohttp.web_exceptions import HTTPClientError, HTTPException, HTTPServerError
+from aiohttp.web_exceptions import HTTPClientError, HTTPException, HTTPServerError, HTTPUnauthorized
 from aiohttp.web_response import json_response, StreamResponse
 
 from ahriman.web.middlewares import HandlerType, MiddlewareType
@@ -43,6 +44,11 @@ def exception_handler(logger: logging.Logger) -> MiddlewareType:
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
         try:
             return await handler(request)
+        except HTTPUnauthorized as e:
+            if is_templated_unauthorized(request):
+                context = {"code": e.status_code, "reason": e.reason}
+                return aiohttp_jinja2.render_template("error.jinja2", request, context, status=e.status_code)
+            return json_response(data={"error": e.reason}, status=e.status_code)
         except HTTPClientError as e:
             return json_response(data={"error": e.reason}, status=e.status_code)
         except HTTPServerError as e:
@@ -55,3 +61,17 @@ def exception_handler(logger: logging.Logger) -> MiddlewareType:
             return json_response(data={"error": str(e)}, status=500)
 
     return handle
+
+
+def is_templated_unauthorized(request: Request) -> bool:
+    """
+    check if the request is eligible for rendering html template
+
+    Args:
+        request(Request): source request to check
+
+    Returns:
+        bool: True in case if response should be rendered as html and False otherwise
+    """
+    return request.path in ("/api/v1/login", "/api/v1/logout") \
+        and "application/json" not in request.headers.getall("accept", [])
