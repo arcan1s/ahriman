@@ -179,6 +179,21 @@ class PathError(ValueError):
         ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
 
 
+class PasswordError(ValueError):
+    """
+    exception which will be raised in case of password related errors
+    """
+
+    def __init__(self, details: Any) -> None:
+        """
+        default constructor
+
+        Args:
+            details(Any); error details
+        """
+        ValueError.__init__(self, f"Password error: {details}")
+
+
 class ReportError(RuntimeError):
     """
     report generation exception
