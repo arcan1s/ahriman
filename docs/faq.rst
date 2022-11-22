@@ -290,11 +290,11 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
-``--privileged`` flag is required to make mount possible inside container. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
+``--privileged`` flag is required to make mount possible inside container. In order to make data available outside of container, you would need to mount local (parent) direcotry inside container by using ``-v /path/to/local/repo:/var/lib/ahriman`` argument, where ``/path/to/local/repo`` is a path to repository on local machine. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
 
 .. code-block:: shell
 
-   docker run -v /path/to/local/repo:/var/lib/ahriman -v /etc/ahriman.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
+   docker run -v /path/to/local/repo:/var/lib/ahriman -v /path/to/overrides/overrides.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
 
 The action can be specified during run, e.g.:
 
@@ -324,7 +324,7 @@ You can pass any of these variables by using ``-e`` argument, e.g.:
 
 .. code-block:: shell
 
-   docker run -e AHRIMAN_PORT=8080 arcan1s/ahriman:latest
+   docker run -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 Web service setup
 ^^^^^^^^^^^^^^^^^
@@ -350,7 +350,7 @@ There is special subcommand which emulates systemd timer and will perform reposi
 
 .. code-block:: shell
 
-   docker run arcan1s/ahriman:latest daemon
+   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest daemon
 
 This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
 
