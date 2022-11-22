@@ -87,13 +87,17 @@
                 {% endif %}
 
                 {% if auth.enabled %}
-                    {% if auth.username is none %}
-                        {{ auth.control|safe }}
-                    {% else %}
-                        <form action="/api/v1/logout" method="post">
-                            <button class="btn btn-link" style="text-decoration: none"><i class="bi bi-box-arrow-right"></i> logout ({{ auth.username }})</button>
-                        </form>
-                    {% endif %}
+                    <ul class="nav">
+                        {% if auth.username is none %}
+                            <li>{{ auth.control|safe }}</li>
+                        {% else %}
+                            <li>
+                                <form action="/api/v1/logout" method="post">
+                                    <button class="btn btn-link" style="text-decoration: none"><i class="bi bi-box-arrow-right"></i> logout ({{ auth.username }})</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    </ul>
                 {% endif %}
             </footer>
         </div>
