@@ -335,6 +335,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "utils" / "style.jinja2",
         resource_path_root / "web" / "templates" / "build-status.jinja2",
         resource_path_root / "web" / "templates" / "email-index.jinja2",
+        resource_path_root / "web" / "templates" / "error.jinja2",
         resource_path_root / "web" / "templates" / "repo-index.jinja2",
         resource_path_root / "web" / "templates" / "shell",
         resource_path_root / "web" / "templates" / "telegram-index.jinja2",

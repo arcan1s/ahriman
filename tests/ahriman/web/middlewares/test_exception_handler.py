@@ -2,12 +2,12 @@ import json
 import logging
 import pytest
 
-from aiohttp.web_exceptions import HTTPBadRequest, HTTPInternalServerError, HTTPNoContent
+from aiohttp.web_exceptions import HTTPBadRequest, HTTPInternalServerError, HTTPNoContent, HTTPUnauthorized
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
-from ahriman.web.middlewares.exception_handler import exception_handler
+from ahriman.web.middlewares.exception_handler import exception_handler, is_templated_unauthorized
 
 
 def _extract_body(response: Any) -> Any:
@@ -21,6 +21,37 @@ def _extract_body(response: Any) -> Any:
         Any: body key from the object converted to json
     """
     return json.loads(getattr(response, "body"))
+
+
+def test_is_templated_unauthorized() -> None:
+    """
+    must correct check if response should be rendered as template
+    """
+    response_mock = MagicMock()
+
+    response_mock.path = "/api/v1/login"
+    response_mock.headers.getall.return_value = ["*/*"]
+    assert is_templated_unauthorized(response_mock)
+
+    response_mock.path = "/api/v1/login"
+    response_mock.headers.getall.return_value = ["application/json"]
+    assert not is_templated_unauthorized(response_mock)
+
+    response_mock.path = "/api/v1/logout"
+    response_mock.headers.getall.return_value = ["*/*"]
+    assert is_templated_unauthorized(response_mock)
+
+    response_mock.path = "/api/v1/logout"
+    response_mock.headers.getall.return_value = ["application/json"]
+    assert not is_templated_unauthorized(response_mock)
+
+    response_mock.path = "/api/v1/status"
+    response_mock.headers.getall.return_value = ["*/*"]
+    assert not is_templated_unauthorized(response_mock)
+
+    response_mock.path = "/api/v1/status"
+    response_mock.headers.getall.return_value = ["application/json"]
+    assert not is_templated_unauthorized(response_mock)
 
 
 async def test_exception_handler(mocker: MockerFixture) -> None:
@@ -48,6 +79,36 @@ async def test_exception_handler_success(mocker: MockerFixture) -> None:
     with pytest.raises(HTTPNoContent):
         await handler(request, request_handler)
     logging_mock.assert_not_called()
+
+
+async def test_exception_handler_unauthorized(mocker: MockerFixture) -> None:
+    """
+    must handle unauthorized exception as json response
+    """
+    request = pytest.helpers.request("", "", "")
+    request_handler = AsyncMock(side_effect=HTTPUnauthorized())
+    mocker.patch("ahriman.web.middlewares.exception_handler.is_templated_unauthorized", return_value=False)
+    render_mock = mocker.patch("aiohttp_jinja2.render_template")
+
+    handler = exception_handler(logging.getLogger())
+    response = await handler(request, request_handler)
+    assert _extract_body(response) == {"error": HTTPUnauthorized().reason}
+    render_mock.assert_not_called()
+
+
+async def test_exception_handler_unauthorized_templated(mocker: MockerFixture) -> None:
+    """
+    must handle unauthorized exception as json response
+    """
+    request = pytest.helpers.request("", "", "")
+    request_handler = AsyncMock(side_effect=HTTPUnauthorized())
+    mocker.patch("ahriman.web.middlewares.exception_handler.is_templated_unauthorized", return_value=True)
+    render_mock = mocker.patch("aiohttp_jinja2.render_template")
+
+    handler = exception_handler(logging.getLogger())
+    await handler(request, request_handler)
+    context = {"code": 401, "reason": "Unauthorized"}
+    render_mock.assert_called_once_with("error.jinja2", request, context, status=HTTPUnauthorized.status_code)
 
 
 async def test_exception_handler_client_error(mocker: MockerFixture) -> None:
