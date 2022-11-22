@@ -51,11 +51,11 @@
 
     function addPackages() {
         const packages = [packageInput.val()];
-        doPackageAction("/api/v1/service/add", packages);
+        doPackageAction("/api/v1/service/add", packages, "The following package has been added:", "Package addition failed:");
     }
 
     function requestPackages() {
         const packages = [packageInput.val()];
-        doPackageAction("/api/v1/service/request", packages);
+        doPackageAction("/api/v1/service/request", packages, "The following package has been requested:", "Package request failed:");
     }
 </script>
