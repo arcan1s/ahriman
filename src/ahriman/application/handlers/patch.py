@@ -125,7 +125,6 @@ class Patch(Handler):
             package_base(Optional[str]): package base
             variables(List[str]): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
-            :
         """
         patches = application.database.patches_list(package_base, variables)
         Patch.check_if_empty(exit_code, not patches)
