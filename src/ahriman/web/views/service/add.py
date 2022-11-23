@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound
+from aiohttp.web import HTTPAccepted
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -44,12 +44,12 @@ class AddView(BaseView):
             }
 
         Raises:
+            HTTPAccepted: in case of success response
             HTTPBadRequest: if bad data is supplied
-            HTTPFound: in case of success response
         """
         data = await self.extract_data(["packages"])
         packages = data.get("packages", [])
 
         self.spawner.packages_add(packages, now=True)
 
-        raise HTTPFound("/")
+        raise HTTPAccepted()

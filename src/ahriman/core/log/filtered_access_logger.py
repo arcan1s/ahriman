@@ -19,8 +19,7 @@
 #
 import re
 
-from aiohttp.abc import BaseRequest, StreamResponse
-from aiohttp.web_log import AccessLogger
+from aiohttp.web import AccessLogger, BaseRequest, StreamResponse
 
 
 class FilteredAccessLogger(AccessLogger):
