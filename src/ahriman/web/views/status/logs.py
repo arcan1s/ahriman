@@ -46,6 +46,20 @@ class LogsView(BaseView):
 
         Raises:
             HTTPNoContent: on success response
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -XDELETE 'http://example.com/api/v1/packages/ahriman/logs'
+                > DELETE /api/v1/packages/ahriman/logs HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                >
+                < HTTP/1.1 204 No Content
+                < Date: Wed, 23 Nov 2022 19:26:40 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
         """
         package_base = self.request.match_info["package"]
         self.service.remove_logs(package_base, None)
@@ -58,6 +72,23 @@ class LogsView(BaseView):
 
         Returns:
             Response: 200 with package logs on success
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/packages/ahriman/logs'
+                > GET /api/v1/packages/ahriman/logs HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: application/json
+                >
+                < HTTP/1.1 200 OK
+                < Content-Type: application/json; charset=utf-8
+                < Content-Length: 100112
+                < Date: Wed, 23 Nov 2022 19:24:14 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
+                {"package_base": "ahriman", "status": {"status": "success", "timestamp": 1669231136}, "logs": "[2022-11-23 19:17:32] clone remote https://aur.archlinux.org/ahriman.git to /tmp/tmpy9j6fq9p using branch master"}
         """
         package_base = self.request.match_info["package"]
 
@@ -89,6 +120,22 @@ class LogsView(BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/packages/ahriman/logs' -d '{"created": 1669231764.042444, "message": "my log message", "process_id": 1}'
+                > POST /api/v1/packages/ahriman/logs HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                > Content-Type: application/json
+                > Content-Length: 76
+                >
+                < HTTP/1.1 204 No Content
+                < Date: Wed, 23 Nov 2022 19:30:45 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
         """
         package_base = self.request.match_info["package"]
         data = await self.extract_data()
