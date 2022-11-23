@@ -42,6 +42,23 @@ class PackagesView(BaseView):
 
         Returns:
             Response: 200 with package description on success
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/packages'
+                > GET /api/v1/packages HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: application/json
+                >
+                < HTTP/1.1 200 OK
+                < Content-Type: application/json; charset=utf-8
+                < Content-Length: 2687
+                < Date: Wed, 23 Nov 2022 19:35:24 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
+                [{"package": {"base": "ahriman", "version": "2.3.0-1", "remote": {"git_url": "https://aur.archlinux.org/ahriman.git", "web_url": "https://aur.archlinux.org/packages/ahriman", "path": ".", "branch": "master", "source": "aur"}, "packages": {"ahriman": {"architecture": "any", "archive_size": 247573, "build_date": 1669231069, "depends": ["devtools", "git", "pyalpm", "python-inflection", "python-passlib", "python-requests", "python-setuptools", "python-srcinfo"], "description": "ArcH linux ReposItory MANager", "filename": "ahriman-2.3.0-1-any.pkg.tar.zst", "groups": [], "installed_size": 1676153, "licenses": ["GPL3"], "provides": [], "url": "https://github.com/arcan1s/ahriman"}}}, "status": {"status": "success", "timestamp": 1669231136}}]
         """
         response = [
             {
@@ -57,6 +74,20 @@ class PackagesView(BaseView):
 
         Raises:
             HTTPNoContent: on success response
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -XPOST 'http://example.com/api/v1/packages'
+                > POST /api/v1/packages HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                >
+                < HTTP/1.1 204 No Content
+                < Date: Wed, 23 Nov 2022 19:38:06 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
         """
         self.service.load()
 

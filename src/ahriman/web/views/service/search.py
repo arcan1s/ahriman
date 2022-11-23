@@ -39,15 +39,30 @@ class SearchView(BaseView):
 
     async def get(self) -> Response:
         """
-        search packages in AUR
-
-        search string (non empty) must be supplied as ``for`` parameter
+        search packages in AUR. Search string (non-empty) must be supplied as ``for`` parameter
 
         Returns:
             Response: 200 with found package bases and descriptions sorted by base
 
         Raises:
             HTTPNotFound: if no packages found
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/service/search?for=ahriman'
+                > GET /api/v1/service/search?for=ahriman HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: application/json
+                >
+                < HTTP/1.1 200 OK
+                < Content-Type: application/json; charset=utf-8
+                < Content-Length: 148
+                < Date: Wed, 23 Nov 2022 19:07:13 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
+                [{"package": "ahriman", "description": "ArcH linux ReposItory MANager"}, {"package": "ahriman-git", "description": "ArcH Linux ReposItory MANager"}]
         """
         search: List[str] = self.request.query.getall("for", default=[])
         packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)

@@ -1,6 +1,7 @@
 version: 2
 
-formats: all
+formats:
+  - pdf
 
 build:
   os: ubuntu-20.04
@@ -10,6 +11,7 @@ build:
 sphinx:
   builder: html
   configuration: docs/conf.py
+  fail_on_warning: true
 
 python:
   install:

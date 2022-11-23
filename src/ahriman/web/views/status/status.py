@@ -46,6 +46,23 @@ class StatusView(BaseView):
 
         Returns:
             Response: 200 with service status object
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/status'
+                > GET /api/v1/status HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: application/json
+                >
+                < HTTP/1.1 200 OK
+                < Content-Type: application/json; charset=utf-8
+                < Content-Length: 222
+                < Date: Wed, 23 Nov 2022 19:32:31 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
+                {"status": {"status": "success", "timestamp": 1669231237}, "architecture": "x86_64", "packages": {"total": 4, "unknown": 0, "pending": 0, "building": 0, "failed": 0, "success": 4}, "repository": "repo", "version": "2.3.0"}
         """
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(
@@ -70,6 +87,22 @@ class StatusView(BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/status' -d '{"status": "success"}'
+                > POST /api/v1/status HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                > Content-Type: application/json
+                > Content-Length: 21
+                >
+                < HTTP/1.1 204 No Content
+                < Date: Wed, 23 Nov 2022 19:33:57 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
         """
         try:
             data = await self.extract_data()

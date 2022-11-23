@@ -41,12 +41,17 @@ class LoginView(BaseView):
         OAuth2 response handler
 
         In case if code provided it will do a request to get user email. In case if no code provided it will redirect
-        to authorization url provided by OAuth client
+        to authorization url provided by OAuth client.
+
+        The authentication session will be passed in ``Set-Cookie`` header.
 
         Raises:
             HTTPFound: on success response
             HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
             HTTPUnauthorized: if case of authorization error
+
+        Examples:
+            This request must not be used directly.
         """
         from ahriman.core.auth import OAuth
 
@@ -78,9 +83,32 @@ class LoginView(BaseView):
                 "password": "pa55w0rd"   # password to use for login
             }
 
+        The authentication session will be passed in ``Set-Cookie`` header.
+
         Raises:
             HTTPFound: on success response
             HTTPUnauthorized: if case of authorization error
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/login' -d '{"username": "test", "password": "test"}'
+                > POST /api/v1/login HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                > Content-Type: application/json
+                > Content-Length: 40
+                >
+                < HTTP/1.1 302 Found
+                < Content-Type: text/plain; charset=utf-8
+                < Location: /
+                < Content-Length: 10
+                < Set-Cookie: ...
+                < Date: Wed, 23 Nov 2022 17:51:27 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
+                302: Found
         """
         data = await self.extract_data()
         username = data.get("username")

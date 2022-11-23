@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPAccepted
+from aiohttp.web import HTTPNoContent
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -40,16 +40,31 @@ class AddView(BaseView):
         JSON body must be supplied, the following model is used::
 
             {
-                "packages": "ahriman"   # either list of packages or package name as in AUR
+                "packages": ["ahriman"]  # either list of packages or package name as in AUR
             }
 
         Raises:
-            HTTPAccepted: in case of success response
-            HTTPBadRequest: if bad data is supplied
+            HTTPNoContent: in case of success response
+
+        Examples:
+            Example of command by using curl::
+
+                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/service/add' -d '{"packages": ["ahriman"]}'
+                > POST /api/v1/service/add HTTP/1.1
+                > Host: example.com
+                > User-Agent: curl/7.86.0
+                > Accept: */*
+                > Content-Type: application/json
+                > Content-Length: 25
+                >
+                < HTTP/1.1 204 No Content
+                < Date: Wed, 23 Nov 2022 18:44:21 GMT
+                < Server: Python/3.10 aiohttp/3.8.3
+                <
         """
         data = await self.extract_data(["packages"])
         packages = data.get("packages", [])
 
         self.spawner.packages_add(packages, now=True)
 
-        raise HTTPAccepted()
+        raise HTTPNoContent()
