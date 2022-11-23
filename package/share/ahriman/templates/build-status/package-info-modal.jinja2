@@ -25,7 +25,7 @@
 
     async function copyLogs() {
         const logs = packageInfoLogs.text();
-        await navigator.clipboard.writeText(logs);
+        await copyToClipboard(logs);
 
         packageInfoLogsCopyButton.html("<i class=\"bi bi-clipboard-check\"></i> copied");
         setTimeout(()=> {

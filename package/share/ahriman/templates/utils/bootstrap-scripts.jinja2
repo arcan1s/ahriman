@@ -11,3 +11,18 @@
 <script src="https://unpkg.com/bootstrap-table@1.21.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
 <script src="https://unpkg.com/bootstrap-table@1.21.1/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+
+<script>
+    async function copyToClipboard(text) {
+        if (navigator.clipboard === undefined) {
+            const input = document.createElement("textarea");
+            input.innerHTML = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+        } else {
+            await navigator.clipboard.writeText(text);
+        }
+    }
+</script>
