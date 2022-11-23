@@ -25,18 +25,6 @@ sys.path.insert(0, str(basedir))
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 for module in (
-        "aioauth_client",
-        "aiohttp",
-        "aiohttp.web",
-        "aiohttp.web_exceptions",
-        "aiohttp.web_response",
-        "aiohttp.web_urldispatcher",
-        "aiohttp_jinja2",
-        "aiohttp_security",
-        "aiohttp_session",
-        "aiohttp_session.cookie_storage",
-        "boto3",
-        "cryptography",
         "pyalpm",
 ):
     sys.modules[module] = mock.Mock()
