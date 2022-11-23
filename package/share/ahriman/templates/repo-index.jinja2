@@ -101,7 +101,7 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
 
             async function copyPacmanConf() {
                 const conf = pacmanConf.text();
-                await navigator.clipboard.writeText(conf);
+                await copyToClipboard(conf);
 
                 pacmanConfCopyButton.html("<i class=\"bi bi-clipboard-check\"></i> copied");
                 setTimeout(() => {
