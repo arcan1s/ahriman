@@ -17,4 +17,6 @@ python:
       path: .
       extra_requirements:
         - docs
+        - s3
+        - web
   system_packages: true
