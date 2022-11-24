@@ -33,3 +33,9 @@ Every available option is described in the [documentation](https://ahriman.readt
 The application provides reasonable defaults which allow to use it out-of-box; however additional steps (like configuring build toolchain and sudoers) are recommended and can be easily achieved by following install instructions.
 
 ## [FAQ](https://ahriman.readthedocs.io/en/latest/faq.html)
+
+## Live demos
+
+* [Build status page](https://ahriman-demo.arcanis.me). You can login as `demo` user by using `demo` password. However, you will not be able to run tasks.
+* [Repository index](http://repo.arcanis.me/x86_64/index.html).
+* [Telegram feed](https://t.me/arcanisrepo).
