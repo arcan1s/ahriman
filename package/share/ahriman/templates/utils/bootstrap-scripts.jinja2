@@ -13,16 +13,21 @@
 <script src="https://unpkg.com/bootstrap-table@1.21.1/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
 
 <script>
-    async function copyToClipboard(text) {
+    async function copyToClipboard(text, button) {
         if (navigator.clipboard === undefined) {
             const input = document.createElement("textarea");
             input.innerHTML = text;
             document.body.appendChild(input);
             input.select();
-            document.execCommand('copy');
+            document.execCommand("copy");
             document.body.removeChild(input);
         } else {
             await navigator.clipboard.writeText(text);
         }
+
+        button.html("<i class=\"bi bi-clipboard-check\"></i> copied");
+        setTimeout(()=> {
+            button.html("<i class=\"bi bi-clipboard\"></i> copy");
+        }, 2000);
     }
 </script>

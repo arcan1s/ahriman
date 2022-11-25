@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
 from typing import Callable, List
 
 from ahriman.core.alpm.remote import AUR
@@ -45,6 +45,7 @@ class SearchView(BaseView):
             Response: 200 with found package bases and descriptions sorted by base
 
         Raises:
+            HTTPBadRequest: in case if bad data is supplied
             HTTPNotFound: if no packages found
 
         Examples:
@@ -64,8 +65,12 @@ class SearchView(BaseView):
                 <
                 [{"package": "ahriman", "description": "ArcH linux ReposItory MANager"}, {"package": "ahriman-git", "description": "ArcH Linux ReposItory MANager"}]
         """
-        search: List[str] = self.request.query.getall("for", default=[])
-        packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)
+        try:
+            search: List[str] = self.get_non_empty(lambda key: self.request.query.getall(key, default=[]), "for")
+            packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)
+        except Exception as e:
+            raise HTTPBadRequest(reason=str(e))
+
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 

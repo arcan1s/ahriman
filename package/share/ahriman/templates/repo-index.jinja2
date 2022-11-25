@@ -18,7 +18,7 @@
 
         <div class="container">
             {% if pgp_key is not none %}
-                <p>This repository is signed with <a href="https://pgp.mit.edu/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
+                <p>This repository is signed with <a href="https://keyserver.ubuntu.com/pks/lookup?search=0x{{ pgp_key }}&fingerprint=on&op=index" title="key search">{{ pgp_key }}</a> by default.</p>
             {% endif %}
 
             <p>In order to use this repository edit your <code>/etc/pacman.conf</code> as following:</p>
@@ -101,12 +101,7 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
 
             async function copyPacmanConf() {
                 const conf = pacmanConf.text();
-                await copyToClipboard(conf);
-
-                pacmanConfCopyButton.html("<i class=\"bi bi-clipboard-check\"></i> copied");
-                setTimeout(() => {
-                    pacmanConfCopyButton.html("<i class=\"bi bi-clipboard\"></i> copy");
-                }, 2000);
+                await copyToClipboard(conf, pacmanConfCopyButton);
             }
         </script>
 

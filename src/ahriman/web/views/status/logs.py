@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
-from aiohttp.web_exceptions import HTTPNotFound
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.log_record_id import LogRecordId

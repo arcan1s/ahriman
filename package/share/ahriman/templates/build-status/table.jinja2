@@ -1,14 +1,19 @@
 <script>
-    const addButton = $("#add-btn");
-    const removeButton = $("#remove-btn");
-    const updateButton = $("#update-btn");
+    const keyImportButton = $("#key-import-btn");
+    const packageAddButton = $("#package-add-btn");
+    const packageRemoveButton = $("#package-remove-btn");
+    const packageUpdateButton = $("#package-update-btn");
 
     const table = $("#packages");
-    table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
-        () => {
-            removeButton.prop("disabled", !table.bootstrapTable("getSelections").length);
-        });
-    table.on("click-row.bs.table", (_, row) => { showLogs(row.id); });
+    table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", () => {
+        packageRemoveButton.prop("disabled", !table.bootstrapTable("getSelections").length);
+    });
+    table.on("click-row.bs.table", (self, data, row, cell) => {
+        if (0 === cell || "base" === cell) {
+            const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
+            table.bootstrapTable(method, {field: "id", values: [data.id]});
+        } else showLogs(data.id);
+    });
 
     const architectureBadge = $("#badge-architecture");
     const repositoryBadge = $("#badge-repository");
@@ -50,9 +55,10 @@
     }
 
     function hideControls(hidden) {
-        addButton.attr("hidden", hidden);
-        removeButton.attr("hidden", hidden);
-        updateButton.attr("hidden", hidden);
+        keyImportButton.attr("hidden", hidden);
+        packageAddButton.attr("hidden", hidden);
+        packageRemoveButton.attr("hidden", hidden);
+        packageUpdateButton.attr("hidden", hidden);
     }
 
     function reload() {

@@ -1,13 +1,13 @@
-<div id="failed-form" tabindex="-1" role="dialog" class="modal fade">
+<div id="failed-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h4 id="error-title" class="modal-title"></h4>
+                <h4 id="failed-title" class="modal-title"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
             </div>
             <div class="modal-body">
-                <p id="error-description"></p>
-                <p id="error-details"></p>
+                <p id="failed-description"></p>
+                <p id="failed-details"></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i> close</button>
@@ -17,16 +17,18 @@
 </div>
 
 <script>
-    const failedForm = $("#failed-form");
-    const errorDescription = $("#error-description");
-    const errorDetails = $("#error-details");
-    const errorTitle = $("#error-title");
-    failedForm.on("hidden.bs.modal", () => { reload(); });
+    const failedModal = $("#failed-modal");
+    failedModal.on("hidden.bs.modal", () => { reload(); });
+
+    const failedDescription = $("#failed-description");
+    const failedDetails = $("#failed-details");
+    const failedTitle = $("#failed-title");
 
     function showFailure(title, description, details) {
-        errorTitle.text(title);
-        errorDescription.text(description);
-        errorDetails.text(details);
-        failedForm.modal("show");
+        failedTitle.text(title);
+        failedDescription.text(description);
+        failedDetails.text(details);
+
+        failedModal.modal("show");
     }
 </script>

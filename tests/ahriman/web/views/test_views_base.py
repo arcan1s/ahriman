@@ -12,13 +12,6 @@ def test_configuration(base: BaseView) -> None:
     assert base.configuration
 
 
-def test_database(base: BaseView) -> None:
-    """
-    must return database
-    """
-    assert base.database
-
-
 def test_service(base: BaseView) -> None:
     """
     must return service
@@ -48,6 +41,24 @@ async def test_get_permission(base: BaseView) -> None:
         request = pytest.helpers.request(base.request.app, "", method)
         setattr(BaseView, f"{method.upper()}_PERMISSION", "permission")
         assert await base.get_permission(request) == "permission"
+
+
+def test_get_non_empty() -> None:
+    """
+    must correctly extract non-empty values
+    """
+    assert BaseView.get_non_empty(lambda k: k, "key")
+
+    with pytest.raises(KeyError):
+        BaseView.get_non_empty(lambda k: None, "key")
+
+    with pytest.raises(KeyError):
+        BaseView.get_non_empty(lambda k: "", "key")
+
+    assert BaseView.get_non_empty(lambda k: [k], "key")
+
+    with pytest.raises(KeyError):
+        BaseView.get_non_empty(lambda k: [], "key")
 
 
 async def test_extract_data_json(base: BaseView) -> None:

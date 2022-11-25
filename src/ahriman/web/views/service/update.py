@@ -17,55 +17,43 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound, HTTPUnauthorized
+from aiohttp.web import HTTPNoContent
 
-from ahriman.core.auth.helpers import check_authorized, forget
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
-class LogoutView(BaseView):
+class UpdateView(BaseView):
     """
-    logout endpoint view
+    update repository web view
 
     Attributes:
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Unauthorized
+    POST_PERMISSION = UserAccess.Full
 
     async def post(self) -> None:
         """
-        logout user from the service. No parameters supported here.
-
-        The server will respond with ``Set-Cookie`` header, in which API session cookie will be nullified.
+        run repository update. No parameters supported here
 
         Raises:
-            HTTPFound: on success response
+            HTTPNoContent: in case of success response
 
         Examples:
             Example of command by using curl::
 
-                $ curl -v -XPOST 'http://example.com/api/v1/logout'
-                > POST /api/v1/logout HTTP/1.1
+                $ curl -v -XPOST 'http://example.com/api/v1/service/update'
+                > POST /api/v1/service/update HTTP/1.1
                 > Host: example.com
                 > User-Agent: curl/7.86.0
                 > Accept: */*
                 >
-                < HTTP/1.1 302 Found
-                < Content-Type: text/plain; charset=utf-8
-                < Location: /
-                < Content-Length: 10
-                < Set-Cookie: ...
-                < Date: Wed, 23 Nov 2022 19:10:51 GMT
+                < HTTP/1.1 204 No Content
+                < Date: Fri, 25 Nov 2022 22:57:56 GMT
                 < Server: Python/3.10 aiohttp/3.8.3
                 <
-                302: Found
         """
-        try:
-            await check_authorized(self.request)
-        except HTTPUnauthorized:
-            raise HTTPUnauthorized(reason="I'm a teapot")
-        await forget(self.request, HTTPFound("/"))
+        self.spawner.packages_update()
 
-        raise HTTPFound("/")
+        raise HTTPNoContent()

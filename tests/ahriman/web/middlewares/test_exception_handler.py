@@ -2,7 +2,7 @@ import json
 import logging
 import pytest
 
-from aiohttp.web_exceptions import HTTPBadRequest, HTTPInternalServerError, HTTPNoContent, HTTPUnauthorized
+from aiohttp.web import HTTPBadRequest, HTTPInternalServerError, HTTPNoContent, HTTPUnauthorized
 from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock

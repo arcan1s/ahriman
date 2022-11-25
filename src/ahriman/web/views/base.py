@@ -20,14 +20,16 @@
 from __future__ import annotations
 
 from aiohttp.web import Request, View
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.user_access import UserAccess
+
+
+T = TypeVar("T", str, List[str])
 
 
 class BaseView(View):
@@ -45,17 +47,6 @@ class BaseView(View):
         """
         configuration: Configuration = self.request.app["configuration"]
         return configuration
-
-    @property
-    def database(self) -> SQLite:
-        """
-        get database instance
-
-        Returns:
-            SQLite: database instance
-        """
-        database: SQLite = self.request.app["database"]
-        return database
 
     @property
     def service(self) -> Watcher:
@@ -103,6 +94,29 @@ class BaseView(View):
         """
         permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Full)
         return permission
+
+    @staticmethod
+    def get_non_empty(extractor: Callable[[str], Optional[T]], key: str) -> T:
+        """
+        get non-empty value from request parameters
+
+        Args:
+            extractor(Callable[[str], T]): function to get value by key
+            key(str): key to extract value
+
+        Returns:
+            T: extracted values if it is presented and not empty
+
+        Raises:
+            KeyError: in case if key was not found or value is empty
+        """
+        try:
+            value = extractor(key)
+            if not value:
+                raise KeyError(key)
+        except Exception:
+            raise KeyError(f"Key {key} is missing or empty")
+        return value
 
     async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:
         """

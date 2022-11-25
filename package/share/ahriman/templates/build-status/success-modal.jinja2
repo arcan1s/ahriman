@@ -1,4 +1,4 @@
-<div id="success-form" tabindex="-1" role="dialog" class="modal fade">
+<div id="success-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
@@ -17,16 +17,18 @@
 </div>
 
 <script>
-    const successForm = $("#success-form");
+    const successModal = $("#success-modal");
+    successModal.on("hidden.bs.modal", () => { reload(); });
+
     const successDescription = $("#success-description");
     const successDetails = $("#success-details");
     const successTitle = $("#success-title");
-    successForm.on("hidden.bs.modal", () => { reload(); });
 
     function showSuccess(title, description, details) {
         successTitle.text(title);
         successDescription.text(description);
         successDetails.empty().append(details);
-        successForm.modal("show");
+
+        successModal.modal("show");
     }
 </script>

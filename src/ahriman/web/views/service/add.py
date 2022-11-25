@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPNoContent
+from aiohttp.web import HTTPBadRequest, HTTPNoContent
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -62,8 +62,11 @@ class AddView(BaseView):
                 < Server: Python/3.10 aiohttp/3.8.3
                 <
         """
-        data = await self.extract_data(["packages"])
-        packages = data.get("packages", [])
+        try:
+            data = await self.extract_data(["packages"])
+            packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
+        except Exception as e:
+            raise HTTPBadRequest(reason=str(e))
 
         self.spawner.packages_add(packages, now=True)
 

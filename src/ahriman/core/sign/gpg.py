@@ -118,7 +118,7 @@ class GPG(LazyLogging):
         """
         key = key if key.startswith("0x") else f"0x{key}"
         try:
-            response = requests.get(f"http://{server}/pks/lookup", params={
+            response = requests.get(f"https://{server}/pks/lookup", params={
                 "op": "get",
                 "options": "mr",
                 "search": key

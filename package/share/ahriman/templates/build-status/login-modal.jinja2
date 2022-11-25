@@ -1,4 +1,4 @@
-<div id="loginForm" tabindex="-1" role="dialog" class="modal fade">
+<div id="login-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="/api/v1/login" method="post">
@@ -19,7 +19,7 @@
                             <div class="input-group">
                                 <input id="password" type="password" class="form-control" placeholder="enter password" name="password" required>
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="showPassword()"><i id="show-hide-password" class="bi bi-eye"></i></button>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="showPassword()"><i id="show-hide-password-btn" class="bi bi-eye"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
 
 <script>
     const passwordInput = $("#password");
-    const showHidePasswordButton = $("#show-hide-password");
+    const showHidePasswordButton = $("#show-hide-password-btn");
 
     function showPassword() {
         if (passwordInput.attr("type") === "password") {

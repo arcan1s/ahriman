@@ -1,61 +1,74 @@
-<div id="add-form" tabindex="-1" role="dialog" class="modal fade">
+<div id="package-add-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Add new packages</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group row">
-                    <label for="package" class="col-sm-2 col-form-label">package</label>
-                    <div class="col-sm-10">
-                        <input id="package-form" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
-                        <datalist id="known-packages-dlist"></datalist>
+            <form id="package-add-form" onsubmit="return false">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add new packages</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="package-input" class="col-sm-2 col-form-label">package</label>
+                        <div class="col-sm-10">
+                            <input id="package-input" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
+                            <datalist id="known-packages-dlist"></datalist>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addPackages()"><i class="bi bi-play"></i> add</button>
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="requestPackages()"><i class="bi bi-plus"></i> request</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x"></i> close</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="packagesAdd()"><i class="bi bi-play"></i> add</button>
+                    <button type="submit" class="btn btn-success" onclick="packagesRequest()"><i class="bi bi-plus"></i> request</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    const packageInput = $("#package-form");
-    const knownPackages = $("#known-packages-dlist");
+    const packageAddModal = $("#package-add-modal");
+    const packageAddForm = $("#package-add-form");
+    packageAddModal.on("hidden.bs.modal", () => { packageAddForm.trigger("reset"); });
+
+    const packageInput = $("#package-input");
+    const knownPackagesList = $("#known-packages-dlist");
     packageInput.keyup(() => {
         clearTimeout(packageInput.data("timeout"));
         packageInput.data("timeout", setTimeout($.proxy(() => {
             const value = packageInput.val();
 
-            $.ajax({
-                url: "/api/v1/service/search",
-                data: {"for": value},
-                type: "GET",
-                dataType: "json",
-                success: response => {
-                    const options = response.map(pkg => {
-                        const option = document.createElement("option");
-                        option.value = pkg.package;
-                        option.innerText = `${pkg.package} (${pkg.description})`;
-                        return option;
-                    });
-                    knownPackages.empty().append(options);
-                },
-            })
+            if (value.length >= 3) {
+                $.ajax({
+                    url: "/api/v1/service/search",
+                    data: {"for": value},
+                    type: "GET",
+                    dataType: "json",
+                    success: response => {
+                        const options = response.map(pkg => {
+                            const option = document.createElement("option");
+                            option.value = pkg.package;
+                            option.innerText = `${pkg.package} (${pkg.description})`;
+                            return option;
+                        });
+                        knownPackagesList.empty().append(options);
+                    },
+                });
+            }
         }, this), 500));
     });
 
-    function addPackages() {
-        const packages = [packageInput.val()];
-        doPackageAction("/api/v1/service/add", packages, "The following package has been added:", "Package addition failed:");
+    function packagesAdd() {
+        const packages = packageInput.val();
+        if (packages) {
+            packageAddModal.modal("hide");
+            doPackageAction("/api/v1/service/add", [packages], "The following package has been added:", "Package addition failed:");
+        }
     }
 
-    function requestPackages() {
-        const packages = [packageInput.val()];
-        doPackageAction("/api/v1/service/request", packages, "The following package has been requested:", "Package request failed:");
+    function packagesRequest() {
+        const packages = packageInput.val();
+        if (packages) {
+            packageAddModal.modal("hide");
+            doPackageAction("/api/v1/service/request", [packages], "The following package has been requested:", "Package request failed:");
+        }
     }
 </script>
