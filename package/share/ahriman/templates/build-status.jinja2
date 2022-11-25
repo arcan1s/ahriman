@@ -26,14 +26,17 @@
         <div class="container">
             <div id="toolbar">
                 {% if not auth.enabled or auth.username is not none %}
-                    <button id="add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-form" hidden>
+                    <button id="package-add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
                         <i class="bi bi-plus"></i> add
                     </button>
-                    <button id="update-btn" class="btn btn-secondary" onclick="updatePackages()" hidden>
+                    <button id="package-update-btn" class="btn btn-secondary" onclick="updatePackages()" hidden>
                         <i class="bi bi-play"></i> update
                     </button>
-                    <button id="remove-btn" class="btn btn-danger" onclick="removePackages()" disabled hidden>
+                    <button id="package-remove-btn" class="btn btn-danger" onclick="removePackages()" disabled hidden>
                         <i class="bi bi-trash"></i> remove
+                    </button>
+                    <button id="key-import-btn" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
+                        <i class="bi bi-key"></i> import key
                     </button>
                 {% endif %}
                 <button class="btn btn-secondary" onclick="reload()">
@@ -112,6 +115,7 @@
         {% include "build-status/success-modal.jinja2" %}
 
         {% include "build-status/package-add-modal.jinja2" %}
+        {% include "build-status/key-import-modal.jinja2" %}
 
         {% include "build-status/package-info-modal.jinja2" %}
 

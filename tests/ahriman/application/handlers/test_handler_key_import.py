@@ -17,7 +17,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.key = "0xE989490C"
-    args.key_server = "pgp.mit.edu"
+    args.key_server = "keyserver.ubuntu.com"
     return args
 
 

@@ -22,6 +22,11 @@ fi
 [ -d "$AHRIMAN_REPOSITORY_ROOT" ] || mkdir "$AHRIMAN_REPOSITORY_ROOT"
 chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_REPOSITORY_ROOT"
 
+# create .gnupg directory which is required for keys
+AHRIMAN_GNUPG_HOME="$(getent passwd "$AHRIMAN_USER" | cut -d : -f 6)/.gnupg"
+[ -d "$AHRIMAN_GNUPG_HOME" ] || mkdir -m700 "$AHRIMAN_GNUPG_HOME"
+chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_GNUPG_HOME"
+
 # run built-in setup command
 AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
 AHRIMAN_SETUP_ARGS+=("--packager" "$AHRIMAN_PACKAGER")

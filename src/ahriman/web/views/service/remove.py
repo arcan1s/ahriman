@@ -65,7 +65,7 @@ class RemoveView(BaseView):
         """
         try:
             data = await self.extract_data(["packages"])
-            packages = data["packages"]
+            packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 

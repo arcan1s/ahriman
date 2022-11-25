@@ -21,18 +21,26 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must call post request correctly
     """
     add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
-    response = await client.post("/api/v1/service/add", json={"packages": ["ahriman"]})
 
+    response = await client.post("/api/v1/service/add", json={"packages": ["ahriman"]})
     assert response.ok
     add_mock.assert_called_once_with(["ahriman"], now=True)
 
 
-async def test_post_update(client: TestClient, mocker: MockerFixture) -> None:
+async def test_post_empty(client: TestClient, mocker: MockerFixture) -> None:
     """
-    must call post request correctly for alias
+    must call raise 400 on empty request
     """
     add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
-    response = await client.post("/api/v1/service/update", json={"packages": ["ahriman"]})
 
-    assert response.ok
-    add_mock.assert_called_once_with(["ahriman"], now=True)
+    response = await client.post("/api/v1/service/add", json={"packages": [""]})
+    assert response.status == 400
+    add_mock.assert_not_called()
+
+    response = await client.post("/api/v1/service/add", json={"packages": []})
+    assert response.status == 400
+    add_mock.assert_not_called()
+
+    response = await client.post("/api/v1/service/add", json={})
+    assert response.status == 400
+    add_mock.assert_not_called()

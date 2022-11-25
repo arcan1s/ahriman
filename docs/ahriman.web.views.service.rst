@@ -12,6 +12,14 @@ ahriman.web.views.service.add module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.service.pgp module
+------------------------------------
+
+.. automodule:: ahriman.web.views.service.pgp
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.service.remove module
 ---------------------------------------
 
@@ -32,6 +40,14 @@ ahriman.web.views.service.search module
 ---------------------------------------
 
 .. automodule:: ahriman.web.views.service.search
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.views.service.update module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.service.update
    :members:
    :no-undoc-members:
    :show-inheritance:

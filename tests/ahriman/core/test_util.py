@@ -325,6 +325,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo",
         resource_path_root / "models" / "package_yay_srcinfo",
         resource_path_root / "web" / "templates" / "build-status" / "failed-modal.jinja2",
+        resource_path_root / "web" / "templates" / "build-status" / "key-import-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "login-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "package-add-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "package-info-modal.jinja2",

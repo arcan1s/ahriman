@@ -229,7 +229,7 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "fail in case if key is not known for build user. This subcommand can be used "
                                     "in order to import the PGP key to user keychain.",
                              formatter_class=_formatter)
-    parser.add_argument("--key-server", help="key server for key import", default="pgp.mit.edu")
+    parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
     parser.add_argument("key", help="PGP key to import from public server")
     parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, report=False)
     return parser

@@ -1,4 +1,4 @@
-<div id="package-info-form" tabindex="-1" role="dialog" class="modal fade">
+<div id="package-info-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div id="package-info-modal-header" class="modal-header">
@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
             </div>
             <div class="modal-body">
-                <pre class="language-logs"><code id="package-info-logs" class="pre-scrollable language-logs"></code><button id="copy-btn" type="button" class="btn language-logs" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                <pre class="language-logs"><code id="package-info-logs-input" class="pre-scrollable language-logs"></code><button id="logs-copy-btn" type="button" class="btn language-logs" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="showLogs()"><i class="bi bi-arrow-clockwise"></i> reload</button>
@@ -17,28 +17,24 @@
 </div>
 
 <script>
+    const packageInfoModal = $("#package-info-modal");
+    const packageInfoModalHeader = $("#package-info-modal-header");
     const packageInfo = $("#package-info");
-    const packageInfoForm = $("#package-info-form");
-    const packageInfoHeader = $("#package-info-modal-header");
-    const packageInfoLogs = $("#package-info-logs");
-    const packageInfoLogsCopyButton = $("#copy-btn");
+
+    const packageInfoLogsInput = $("#package-info-logs-input");
+    const packageInfoLogsCopyButton = $("#logs-copy-btn");
 
     async function copyLogs() {
-        const logs = packageInfoLogs.text();
-        await copyToClipboard(logs);
-
-        packageInfoLogsCopyButton.html("<i class=\"bi bi-clipboard-check\"></i> copied");
-        setTimeout(()=> {
-            packageInfoLogsCopyButton.html("<i class=\"bi bi-clipboard\"></i> copy");
-        }, 2000);
+        const logs = packageInfoLogsInput.text();
+        await copyToClipboard(logs, packageInfoLogsCopyButton);
     }
 
     function showLogs(package) {
         const isPackageBaseSet = package !== undefined;
         if (isPackageBaseSet)
-            packageInfoForm.data("package", package); // set package base as currently used
+            packageInfoModal.data("package", package); // set package base as currently used
         else
-            package = packageInfoForm.data("package"); // read package base from the current window attribute
+            package = packageInfoModal.data("package"); // read package base from the current window attribute
 
         const headerClass = status => {
             if (status === "pending") return ["bg-warning"];
@@ -54,13 +50,13 @@
             dataType: "json",
             success: response => {
                 packageInfo.text(`${response.package_base} ${response.status.status} at ${new Date(1000 * response.status.timestamp).toISOString()}`);
-                packageInfoLogs.text(response.logs);
+                packageInfoLogsInput.text(response.logs);
 
-                packageInfoHeader.removeClass();
-                packageInfoHeader.addClass("modal-header");
-                headerClass(response.status.status).forEach((clz) => packageInfoHeader.addClass(clz));
+                packageInfoModalHeader.removeClass();
+                packageInfoModalHeader.addClass("modal-header");
+                headerClass(response.status.status).forEach((clz) => packageInfoModalHeader.addClass(clz));
 
-                if (isPackageBaseSet) packageInfoForm.modal("show"); // we don't need to show window again
+                if (isPackageBaseSet) packageInfoModal.modal("show"); // we don't need to show window again
             },
             error: (jqXHR, _, errorThrown) => {
                 // show failed modal in case if first time loading

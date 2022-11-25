@@ -81,9 +81,9 @@ def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:
     must download the key from public server
     """
     requests_mock = mocker.patch("requests.get")
-    gpg.key_download("pgp.mit.edu", "0xE989490C")
+    gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
     requests_mock.assert_called_once_with(
-        "http://pgp.mit.edu/pks/lookup",
+        "https://keyserver.ubuntu.com/pks/lookup",
         params={"op": "get", "options": "mr", "search": "0xE989490C"},
         timeout=gpg.DEFAULT_TIMEOUT)
 
@@ -94,7 +94,7 @@ def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:
     """
     mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
     with pytest.raises(requests.exceptions.HTTPError):
-        gpg.key_download("pgp.mit.edu", "0xE989490C")
+        gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
 
 
 def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
@@ -104,7 +104,7 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.core.sign.gpg.GPG.key_download", return_value="key")
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output")
 
-    gpg.key_import("pgp.mit.edu", "0xE989490C")
+    gpg.key_import("keyserver.ubuntu.com", "0xE989490C")
     check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=pytest.helpers.anyvar(int))
 
 

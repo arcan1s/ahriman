@@ -219,6 +219,62 @@ Also, there is command ``repo-remove-unknown`` which checks packages in AUR and 
 
 Remove commands also remove any package files (patches, caches etc).
 
+How to sign repository
+^^^^^^^^^^^^^^^^^^^^^^
+
+Repository sign feature is available in several configurations. The recommended way is just to sign repository database file by single key instead of trying to sign each package. However, the steps are pretty same, just configuration is a bit differ. For more details about options kindly refer to :doc:`configuration reference <configuration>`.
+
+#.
+   First you would need to create the key on your local machine:
+
+   .. code-block:: shell
+
+      gpg --full-generate-key
+
+   This command will prompt you for several questions. Most of them may be left default, but you will need to fill real name and email address with some data. Because at the moment the service doesn't support passphrases, it must be left blank.
+
+#.
+   The command above will generate key and print its hash, something like ``8BE91E5A773FB48AC05CC1EDBED105AED6246B39``. Copy it.
+
+#.
+   Export your private key by using the hash above:
+
+   .. code-block:: shell
+
+      gpg --export-secret-keys -a 8BE91E5A773FB48AC05CC1EDBED105AED6246B39 > repository-key.gpg
+
+#.
+
+   Copy the specified key to the build machine (i.e. where the service is running).
+
+#.
+   Import the specified key to the service user:
+
+   .. code-block:: shell
+
+      sudo -u ahriman gpg --import repository-key.gpg
+
+   Don't forget to remove the key from filesystem after import.
+
+#.
+   Change trust level to ``ultimate``:
+
+   .. code-block:: shell
+
+      sudo -u ahriman gpg --edit-key 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
+   The command above will drop you into gpg shell, in which you will need to type ``trust``, choose ``5 = I trust ultimately``, confirm and exit ``quit``.
+
+#.
+   Proceed with service configuration according to the :doc:`configuration <configuration>`:
+
+   .. code-block:: ini
+
+      [sign]
+      target = repository
+      key = 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
+
 How to rebuild packages after library update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

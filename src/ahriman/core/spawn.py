@@ -24,7 +24,7 @@ import uuid
 
 from multiprocessing import Process, Queue
 from threading import Lock, Thread
-from typing import Callable, Dict, Iterable, Tuple
+from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -78,6 +78,17 @@ class Spawn(Thread, LazyLogging):
         result = callback(args, architecture)
         queue.put((process_id, result))
 
+    def key_import(self, key: str, server: Optional[str]) -> None:
+        """
+        import key to service cache
+
+        Args:
+            key(str): key to import
+            server(str): PGP key server
+        """
+        kwargs = {} if server is None else {"key-server": server}
+        self.spawn_process("key-import", key, **kwargs)
+
     def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
         """
         add packages
@@ -86,12 +97,10 @@ class Spawn(Thread, LazyLogging):
             packages(Iterable[str]): packages list to add
             now(bool): build packages now
         """
-        if not packages:
-            return self.spawn_process("repo-update")
         kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
         if now:
             kwargs["now"] = ""
-        return self.spawn_process("package-add", *packages, **kwargs)
+        self.spawn_process("package-add", *packages, **kwargs)
 
     def packages_remove(self, packages: Iterable[str]) -> None:
         """
@@ -101,6 +110,12 @@ class Spawn(Thread, LazyLogging):
             packages(Iterable[str]): packages list to remove
         """
         self.spawn_process("package-remove", *packages)
+
+    def packages_update(self, ) -> None:
+        """
+        run full repository update
+        """
+        self.spawn_process("repo-update")
 
     def spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
         """

@@ -22,9 +22,11 @@ from pathlib import Path
 
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
+from ahriman.web.views.service.pgp import PGPView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
+from ahriman.web.views.service.update import UpdateView
 from ahriman.web.views.status.logs import LogsView
 from ahriman.web.views.status.package import PackageView
 from ahriman.web.views.status.packages import PackagesView
@@ -47,13 +49,16 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
         * ``POST /api/v1/service/add`` add new packages to repository
 
+        * ``GET /api/v1/service/pgp`` fetch PGP key from the keyserver
+        * ``POST /api/v1/service/pgp`` import PGP key from the keyserver
+
         * ``POST /api/v1/service/remove`` remove existing package from repository
 
         * ``POST /api/v1/service/request`` request to add new packages to repository
 
         * ``GET /api/v1/service/search`` search for substring in AUR
 
-        * ``POST /api/v1/service/update`` update packages in repository, actually it is just alias for add
+        * ``POST /api/v1/service/update`` update all packages in repository
 
         * ``GET /api/v1/packages`` get all known packages
         * ``POST /api/v1/packages`` force update every package from repository
@@ -84,13 +89,16 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     application.router.add_post("/api/v1/service/add", AddView)
 
+    application.router.add_get("/api/v1/service/pgp", PGPView, allow_head=True)
+    application.router.add_post("/api/v1/service/pgp", PGPView)
+
     application.router.add_post("/api/v1/service/remove", RemoveView)
 
     application.router.add_post("/api/v1/service/request", RequestView)
 
     application.router.add_get("/api/v1/service/search", SearchView, allow_head=False)
 
-    application.router.add_post("/api/v1/service/update", AddView)
+    application.router.add_post("/api/v1/service/update", UpdateView)
 
     application.router.add_get("/api/v1/packages", PackagesView, allow_head=True)
     application.router.add_post("/api/v1/packages", PackagesView)

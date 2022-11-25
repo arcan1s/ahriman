@@ -20,9 +20,8 @@
 import aiohttp_jinja2
 import logging
 
-from aiohttp.web import middleware, Request
-from aiohttp.web_exceptions import HTTPClientError, HTTPException, HTTPServerError, HTTPUnauthorized
-from aiohttp.web_response import json_response, StreamResponse
+from aiohttp.web import HTTPClientError, HTTPException, HTTPServerError, HTTPUnauthorized, Request, StreamResponse, \
+    json_response, middleware
 
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
