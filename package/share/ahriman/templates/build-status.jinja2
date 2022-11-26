@@ -24,17 +24,28 @@
         </div>
 
         <div class="container">
-            <div id="toolbar">
+            <div id="toolbar" class="dropdown">
                 {% if not auth.enabled or auth.username is not none %}
-                    <button id="package-add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
-                        <i class="bi bi-plus"></i> add
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box"></i> packages
                     </button>
-                    <button id="package-update-btn" class="btn btn-secondary" onclick="updatePackages()" hidden>
-                        <i class="bi bi-play"></i> update
-                    </button>
-                    <button id="package-remove-btn" class="btn btn-danger" onclick="removePackages()" disabled hidden>
-                        <i class="bi bi-trash"></i> remove
-                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <button id="package-add-btn" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
+                                <i class="bi bi-plus"></i> add
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-update-btn" class="btn dropdown-item" onclick="updatePackages()" hidden>
+                                <i class="bi bi-play"></i> update
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-remove-btn" class="btn dropdown-item" onclick="removePackages()" disabled hidden>
+                                <i class="bi bi-trash"></i> remove
+                            </button>
+                        </li>
+                    </ul>
                     <button id="key-import-btn" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
                         <i class="bi bi-key"></i> import key
                     </button>
