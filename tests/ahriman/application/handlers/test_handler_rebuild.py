@@ -75,7 +75,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration,
     args = _default_args(args)
     args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[package_ahriman])
+    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
@@ -92,6 +92,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, mock
     args.depends_on = ["python-aur"]
     mocker.patch("ahriman.application.application.Application.update")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -105,6 +106,7 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     args = _default_args(args)
     mocker.patch("ahriman.application.application.Application.update")
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -120,6 +122,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     args.exit_code = True
     args.dry_run = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
@@ -135,6 +138,7 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
@@ -147,7 +151,7 @@ def test_extract_packages(application: Application, mocker: MockerFixture) -> No
     """
     must extract packages from database
     """
-    packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
+    packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages")
     Rebuild.extract_packages(application, from_database=False)
     packages_mock.assert_called_once_with()
 
@@ -156,6 +160,6 @@ def test_extract_packages_from_database(application: Application, mocker: Mocker
     """
     must extract packages from database
     """
-    packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages")
+    packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
     Rebuild.extract_packages(application, from_database=True)
     packages_mock.assert_called_once_with()

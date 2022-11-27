@@ -102,6 +102,15 @@ class Spawn(Thread, LazyLogging):
             kwargs["now"] = ""
         self.spawn_process("package-add", *packages, **kwargs)
 
+    def packages_rebuild(self, depends_on: str) -> None:
+        """
+        rebuild packages which depend on the specified package
+
+        Args:
+            depends_on(str): packages dependency
+        """
+        self.spawn_process("repo-rebuild", **{"depends-on": depends_on})
+
     def packages_remove(self, packages: Iterable[str]) -> None:
         """
         remove packages

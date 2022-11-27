@@ -23,6 +23,7 @@ from pathlib import Path
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.pgp import PGPView
+from ahriman.web.views.service.rebuild import RebuildView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
@@ -51,6 +52,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
         * ``GET /api/v1/service/pgp`` fetch PGP key from the keyserver
         * ``POST /api/v1/service/pgp`` import PGP key from the keyserver
+
+        * ``POST /api/v1/service/rebuild`` rebuild packages based on their dependency list
 
         * ``POST /api/v1/service/remove`` remove existing package from repository
 
@@ -91,6 +94,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
 
     application.router.add_get("/api/v1/service/pgp", PGPView, allow_head=True)
     application.router.add_post("/api/v1/service/pgp", PGPView)
+
+    application.router.add_post("/api/v1/service/rebuild", RebuildView)
 
     application.router.add_post("/api/v1/service/remove", RemoveView)
 

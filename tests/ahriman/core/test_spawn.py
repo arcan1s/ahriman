@@ -72,6 +72,15 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", now="")
 
 
+def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:
+    """
+    must call package rebuild
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawner.packages_rebuild("python")
+    spawn_mock.assert_called_once_with("repo-rebuild", **{"depends-on": "python"})
+
+
 def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call package removal

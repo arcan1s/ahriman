@@ -1,6 +1,7 @@
 <script>
     const keyImportButton = $("#key-import-btn");
     const packageAddButton = $("#package-add-btn");
+    const packageRebuildButton = $("#package-rebuild-btn");
     const packageRemoveButton = $("#package-remove-btn");
     const packageUpdateButton = $("#package-update-btn");
 
@@ -57,6 +58,7 @@
     function hideControls(hidden) {
         keyImportButton.attr("hidden", hidden);
         packageAddButton.attr("hidden", hidden);
+        packageRebuildButton.attr("hidden", hidden);
         packageRemoveButton.attr("hidden", hidden);
         packageUpdateButton.attr("hidden", hidden);
     }

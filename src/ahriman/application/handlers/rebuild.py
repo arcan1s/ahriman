@@ -76,5 +76,5 @@ class Rebuild(Handler):
             List[Package]: list of packages which were stored in database
         """
         if from_database:
-            return application.repository.packages()
-        return [package for (package, _) in application.database.packages_get()]
+            return [package for (package, _) in application.database.packages_get()]
+        return application.repository.packages()

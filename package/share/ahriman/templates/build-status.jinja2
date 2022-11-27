@@ -41,6 +41,11 @@
                             </button>
                         </li>
                         <li>
+                            <button id="package-rebuild-btn" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal" hidden>
+                                <i class="bi bi-arrow-clockwise"></i> rebuild
+                            </button>
+                        </li>
+                        <li>
                             <button id="package-remove-btn" class="btn dropdown-item" onclick="removePackages()" disabled hidden>
                                 <i class="bi bi-trash"></i> remove
                             </button>
@@ -126,6 +131,7 @@
         {% include "build-status/success-modal.jinja2" %}
 
         {% include "build-status/package-add-modal.jinja2" %}
+        {% include "build-status/package-rebuild-modal.jinja2" %}
         {% include "build-status/key-import-modal.jinja2" %}
 
         {% include "build-status/package-info-modal.jinja2" %}

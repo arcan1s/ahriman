@@ -329,6 +329,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "build-status" / "login-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "package-add-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "package-info-modal.jinja2",
+        resource_path_root / "web" / "templates" / "build-status" / "package-rebuild-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "success-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "table.jinja2",
         resource_path_root / "web" / "templates" / "static" / "favicon.ico",
