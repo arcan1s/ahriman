@@ -1,0 +1,39 @@
+<div id="package-rebuild-modal" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="package-rebuild-form" onsubmit="return false">
+                <div class="modal-header">
+                    <h4 class="modal-title">Rebuild depending packages</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="dependency-input" class="col-sm-4 col-form-label">dependency</label>
+                        <div class="col-sm-8">
+                            <input id="dependency-input" type="text" class="form-control" placeholder="packages dependency" name="package" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="packagesRebuild()"><i class="bi bi-play"></i> rebuild</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const packageRebuildModal = $("#package-rebuild-modal");
+    const packageRebuildForm = $("#package-rebuild-form");
+    packageRebuildModal.on("hidden.bs.modal", () => { packageRebuildForm.trigger("reset"); });
+
+    const dependencyInput = $("#dependency-input");
+
+    function packagesRebuild() {
+        const packages = dependencyInput.val();
+        if (packages) {
+            packageRebuildModal.modal("hide");
+            doPackageAction("/api/v1/service/rebuild", [packages], "Repository rebuild ran for the following dependencies:", "Repository rebuild failed:");
+        }
+    }
+</script>

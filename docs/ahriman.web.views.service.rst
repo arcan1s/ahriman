@@ -20,6 +20,14 @@ ahriman.web.views.service.pgp module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.service.rebuild module
+----------------------------------------
+
+.. automodule:: ahriman.web.views.service.rebuild
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.service.remove module
 ---------------------------------------
 
