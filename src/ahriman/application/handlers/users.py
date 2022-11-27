@@ -21,7 +21,7 @@ import argparse
 import getpass
 
 from pathlib import Path
-from typing import Type
+from typing import Optional, Tuple, Type
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -55,12 +55,13 @@ class Users(Handler):
         database = SQLite.load(configuration)
 
         if args.action == Action.Update:
-            salt = Users.get_salt(configuration)
+            old_salt, salt = Users.get_salt(configuration)
             user = Users.user_create(args)
 
-            auth_configuration = Users.configuration_get(configuration.include)
+            if old_salt is None or args.as_service:
+                auth_configuration = Users.configuration_get(configuration.include)
+                Users.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
 
-            Users.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
             users = database.user_list(args.username, args.role)
@@ -100,7 +101,7 @@ class Users(Handler):
         Returns:
             Configuration: configuration instance. In case if there are local settings they will be loaded
         """
-        target = include_path / "auth.ini"
+        target = include_path / "00-auth.ini"
         configuration = Configuration()
         configuration.load(target)
 
@@ -124,7 +125,7 @@ class Users(Handler):
             path.chmod(0o600)
 
     @staticmethod
-    def get_salt(configuration: Configuration, salt_length: int = 20) -> str:
+    def get_salt(configuration: Configuration, salt_length: int = 20) -> Tuple[Optional[str], str]:
         """
         get salt from configuration or create new string
 
@@ -133,11 +134,12 @@ class Users(Handler):
             salt_length(int, optional): salt length (Default value = 20)
 
         Returns:
-            str: current salt
+            Tuple[Optional[str], str]: tuple containing salt from configuration if any and actual salt which must be
+                used for password hash
         """
         if salt := configuration.get("auth", "salt", fallback=None):
-            return salt
-        return User.generate_password(salt_length)
+            return salt, salt
+        return None, User.generate_password(salt_length)
 
     @staticmethod
     def user_create(args: argparse.Namespace) -> User:
