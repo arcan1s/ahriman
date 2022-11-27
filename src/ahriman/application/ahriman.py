@@ -760,7 +760,7 @@ def _set_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("shell", help="envoke python shell",
+    parser = root.add_parser("shell", help="invoke python shell",
                              description="drop into python shell while having created application",
                              formatter_class=_formatter)
     parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
@@ -782,6 +782,9 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
                                          "In case if password was not entered it will be asked interactively",
+                             epilog="In case of first run (i.e. if password salt is not set yet) or if ``as-service`` "
+                                    "flag is supplied, this action requires root privileges because it performs write "
+                                    "to filesystem configuration.",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("--as-service", help="add user as service user", action="store_true")
@@ -830,7 +833,6 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, report=False,  # nosec
                         password="", quiet=True, unsafe=True)
     return parser

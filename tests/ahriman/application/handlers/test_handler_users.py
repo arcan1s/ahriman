@@ -45,7 +45,55 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
     get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")
     create_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_create")
     create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
-    get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value="salt")
+    get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value=("salt", "salt"))
+    update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
+
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
+    get_auth_configuration_mock.assert_not_called()
+    create_configuration_mock.assert_not_called()
+    create_user_mock.assert_called_once_with(args)
+    get_salt_mock.assert_called_once_with(configuration)
+    update_mock.assert_called_once_with(user)
+
+
+def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                        mocker: MockerFixture) -> None:
+    """
+    must create configuration if salt was not set
+    """
+    args = _default_args(args)
+    user = User(username=args.username, password=args.password, access=args.role)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")
+    create_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_create")
+    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value=(None, "salt"))
+    update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
+
+    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
+    get_auth_configuration_mock.assert_called_once_with(configuration.include)
+    create_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int),
+                                                      pytest.helpers.anyvar(int), args.as_service, args.secure)
+    create_user_mock.assert_called_once_with(args)
+    get_salt_mock.assert_called_once_with(configuration)
+    update_mock.assert_called_once_with(user)
+
+
+def test_run_service_user(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                          mocker: MockerFixture) -> None:
+    """
+    must create configuration if as service argument is provided
+    """
+    args = _default_args(args)
+    args.as_service = True
+    user = User(username=args.username, password=args.password, access=args.role)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
+    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")
+    create_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_create")
+    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value=("salt", "salt"))
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
     Users.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -116,10 +164,8 @@ def test_configuration_create(configuration: Configuration, user: User, mocker: 
     write_mock.assert_called_once_with(configuration, False)
 
 
-def test_configuration_create_with_plain_password(
-        configuration: Configuration,
-        user: User,
-        mocker: MockerFixture) -> None:
+def test_configuration_create_with_plain_password(configuration: Configuration, user: User,
+                                                  mocker: MockerFixture) -> None:
     """
     must set plain text password and user for the service
     """
@@ -142,7 +188,7 @@ def test_configuration_get(mocker: MockerFixture) -> None:
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
     assert Users.configuration_get(Path("path"))
-    read_mock.assert_called_once_with(Path("path") / "auth.ini")
+    read_mock.assert_called_once_with(Path("path") / "00-auth.ini")
 
 
 def test_configuration_write(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -185,7 +231,7 @@ def test_get_salt_read(configuration: Configuration) -> None:
     """
     must read salt from configuration
     """
-    assert Users.get_salt(configuration) == "salt"
+    assert Users.get_salt(configuration) == ("salt", "salt")
 
 
 def test_get_salt_generate(configuration: Configuration) -> None:
@@ -194,8 +240,9 @@ def test_get_salt_generate(configuration: Configuration) -> None:
     """
     configuration.remove_option("auth", "salt")
 
-    salt = Users.get_salt(configuration, 16)
+    old_salt, salt = Users.get_salt(configuration, 16)
     assert salt
+    assert old_salt is None
     assert len(salt) == 16
 
 
