@@ -19,6 +19,7 @@
 #
 import aiohttp_security  # type: ignore
 import base64
+import socket
 import types
 
 from aiohttp import web
@@ -101,7 +102,11 @@ def auth_handler(allow_read_only: bool) -> MiddlewareType:
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
-        if (permission_method := getattr(handler, "get_permission", None)) is not None:
+        if (unix_socket := request.get_extra_info("socket")) is not None and unix_socket.family == socket.AF_UNIX:
+            # special case for unix sockets. We need to extract socket which is used for the request
+            # and check its address family
+            permission = UserAccess.Unauthorized
+        elif (permission_method := getattr(handler, "get_permission", None)) is not None:
             permission = await permission_method(request)
         elif isinstance(handler, types.MethodType):  # additional wrapper for static resources
             handler_instance = getattr(handler, "__self__", None)

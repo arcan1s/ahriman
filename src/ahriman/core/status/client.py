@@ -52,8 +52,12 @@ class Client:
         address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
         port = configuration.getint("web", "port", fallback=None)
+        socket = configuration.get("web", "unix_socket", fallback=None)
 
-        if address or (host and port):
+        # basically we just check if there is something we can use for interaction with remote server
+        # at the moment (end of 2022) I think it would be much better idea to introduce flag like `enabled`,
+        # but it will totally break used experience
+        if address or (host and port) or socket:
             from ahriman.core.status.web_client import WebClient
             return WebClient(configuration)
         return cls()

@@ -240,4 +240,5 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``port`` - port to bind, int, optional.
 * ``static_path`` - path to directory with static files, string, required.
 * ``templates`` - path to templates directory, string, required.
+* ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.  

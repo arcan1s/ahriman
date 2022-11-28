@@ -640,6 +640,7 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--sign-target", help="sign options", action="append",
                         type=SignSettings.from_option, choices=enum_values(SignSettings))
     parser.add_argument("--web-port", help="port of the web service", type=int)
+    parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications", type=Path)
     parser.set_defaults(handler=handlers.Setup, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 
@@ -782,12 +783,10 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
                                          "In case if password was not entered it will be asked interactively",
-                             epilog="In case of first run (i.e. if password salt is not set yet) or if ``as-service`` "
-                                    "flag is supplied, this action requires root privileges because it performs write "
-                                    "to filesystem configuration.",
+                             epilog="In case of first run (i.e. if password salt is not set yet) this action requires "
+                                    "root privileges because it performs write to filesystem configuration.",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.add_argument("--as-service", help="add user as service user", action="store_true")
     parser.add_argument("-p", "--password", help="user password. Blank password will be treated as empty password, "
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-r", "--role", help="user access level",

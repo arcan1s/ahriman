@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2022\-11\-16" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2022\-11\-29" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -128,7 +128,7 @@ run triggers
 update packages
 .TP
 \fBahriman\fR \fI\,shell\/\fR
-envoke python shell
+invoke python shell
 .TP
 \fBahriman\fR \fI\,user\-add\/\fR
 create or update user
@@ -509,7 +509,7 @@ root path of the extracted files
 usage: ahriman repo\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
                           [\-\-from\-configuration FROM_CONFIGURATION] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER
                           \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,pacakges,repository}]
-                          [\-\-web\-port WEB_PORT]
+                          [\-\-web\-port WEB_PORT] [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
 create initial service configuration, requires root
 
@@ -549,6 +549,10 @@ sign options
 .TP
 \fB\-\-web\-port\fR \fI\,WEB_PORT\/\fR
 port of the web service
+
+.TP
+\fB\-\-web\-unix\-socket\fR \fI\,WEB_UNIX_SOCKET\/\fR
+path to unix socket used for interprocess communications
 
 .SH COMMAND \fI\,'ahriman repo\-sign'\/\fR
 usage: ahriman repo\-sign [\-h] [package ...]
@@ -633,7 +637,7 @@ drop into python shell while having created application
 instead of dropping into shell, just execute the specified code
 
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
-usage: ahriman user\-add [\-h] [\-\-as\-service] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}] [\-s] username
+usage: ahriman user\-add [\-h] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}] [\-s] username
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
 
@@ -642,10 +646,6 @@ update user for web services with the given password and role. In case if passwo
 username for web service
 
 .SH OPTIONS \fI\,'ahriman user\-add'\/\fR
-.TP
-\fB\-\-as\-service\fR
-add user as service user
-
 .TP
 \fB\-p\fR \fI\,PASSWORD\/\fR, \fB\-\-password\fR \fI\,PASSWORD\/\fR
 user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2
@@ -678,18 +678,13 @@ return non\-zero exit status if result is empty
 filter users by role
 
 .SH COMMAND \fI\,'ahriman user\-remove'\/\fR
-usage: ahriman user\-remove [\-h] [\-s] username
+usage: ahriman user\-remove [\-h] username
 
 remove user from the user mapping and update the configuration
 
 .TP
 \fBusername\fR
 username for web service
-
-.SH OPTIONS \fI\,'ahriman user\-remove'\/\fR
-.TP
-\fB\-s\fR, \fB\-\-secure\fR
-set file permissions to user\-only
 
 .SH COMMAND \fI\,'ahriman version'\/\fR
 usage: ahriman version [\-h]

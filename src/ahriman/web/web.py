@@ -78,8 +78,9 @@ def run_server(application: web.Application) -> None:
     configuration: Configuration = application["configuration"]
     host = configuration.get("web", "host")
     port = configuration.getint("web", "port")
+    unix_socket = configuration.get("web", "unix_socket", fallback=None)
 
-    web.run_app(application, host=host, port=port, handle_signals=False,
+    web.run_app(application, host=host, port=port, path=unix_socket, handle_signals=False,
                 access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 

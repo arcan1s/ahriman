@@ -10,6 +10,7 @@ ENV AHRIMAN_PACKAGER="ahriman bot <ahriman@example.com>"
 ENV AHRIMAN_PORT=""
 ENV AHRIMAN_REPOSITORY="aur-clone"
 ENV AHRIMAN_REPOSITORY_ROOT="/var/lib/ahriman/ahriman"
+ENV AHRIMAN_UNIX_SOCKET=""
 ENV AHRIMAN_USER="ahriman"
 
 # install environment
@@ -26,7 +27,7 @@ COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
 RUN pacman --noconfirm -Sy devtools git pyalpm python-inflection python-passlib python-requests python-setuptools python-srcinfo && \
     pacman --noconfirm -Sy python-build python-installer python-wheel && \
-    pacman --noconfirm -Sy breezy mercurial python-aiohttp python-boto3 python-cryptography python-jinja rsync subversion && \
+    pacman --noconfirm -Sy breezy mercurial python-aiohttp python-boto3 python-cryptography python-jinja python-requests-unixsocket rsync subversion && \
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-jinja2 python-aiohttp-debugtoolbar \
                                             python-aiohttp-session python-aiohttp-security
 

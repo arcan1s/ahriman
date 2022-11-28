@@ -1,17 +1,16 @@
 import pytest
 
-from collections import namedtuple
-
-
-_passwd = namedtuple("passwd", ["pw_dir"])
+from unittest.mock import MagicMock
 
 
 @pytest.fixture
-def passwd() -> _passwd:
+def passwd() -> MagicMock:
     """
     get passwd structure for the user
 
     Returns:
-        _passwd: passwd structure test instance
+        MagicMock: passwd structure test instance
     """
-    return _passwd("home")
+    passwd = MagicMock()
+    passwd.pw_dir = "home"
+    return passwd

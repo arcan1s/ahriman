@@ -350,13 +350,13 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
 .. code-block:: shell
 
-   docker run -v /path/to/local/repo:/var/lib/ahriman -v /path/to/overrides/overrides.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
+   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman -v /path/to/overrides/overrides.ini:/etc/ahriman.ini.d/10-overrides.ini arcan1s/ahriman:latest
 
 The action can be specified during run, e.g.:
 
 .. code-block:: shell
 
-   docker run arcan1s/ahriman:latest package-add ahriman --now
+   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest package-add ahriman --now
 
 For more details please refer to docker FAQ.
 
@@ -374,13 +374,25 @@ The following environment variables are supported:
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
+* ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``. 
 
 You can pass any of these variables by using ``-e`` argument, e.g.:
 
 .. code-block:: shell
 
-   docker run -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+
+Daemon service
+^^^^^^^^^^^^^^
+
+There is special ``daemon`` subcommand which emulates systemd timer and will perform repository update periodically:
+
+.. code-block:: shell
+
+   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest daemon
+
+This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
 
 Web service setup
 ^^^^^^^^^^^^^^^^^
@@ -389,26 +401,23 @@ Well for that you would need to have web container instance running forever; it 
 
 .. code-block:: shell
 
-   docker run -p 8080:8080 -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 Note about ``AHRIMAN_PORT`` environment variable which is required in order to enable web service. An additional port bind by ``-p 8080:8080`` is required to pass docker port outside of container.
 
-For every next container run use arguments ``-e AHRIMAN_PORT=8080 --net=host``, e.g.:
+The ``AHRIMAN_UNIX_SOCKET`` variable is not required, however, highly recommended as it can be used for interprocess communications. If you set this variable you would like to be sure that this path is available outside of container if you are going to use multiple docker instances.
+
+If you are using ``AHRIMAN_UNIX_SOCKET`` variable, for every next container run it has to be passed also, e.g.:
 
 .. code-block:: shell
 
-   docker run --privileged -e AHRIMAN_PORT=8080 --net=host -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
-Daemon service
-^^^^^^^^^^^^^^
-
-There is special subcommand which emulates systemd timer and will perform repository update periodically:
+Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network to the host system (``--net=host``), e.g.:
 
 .. code-block:: shell
 
-   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest daemon
-
-This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
+   docker run --privileged --net=host -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
 Remote synchronization
 ----------------------
@@ -666,19 +675,37 @@ How to enable basic authorization
       [auth]
       target = configuration
 
-#. 
-   Create user for the service:
+#.
+   In order to provide access for reporting from application instances you can (recommended way) use unix sockets by configuring the following (note, that it requires ``python-requests-unixsocket`` package to be installed):
+
+   .. code-block:: ini
+
+      [web]
+      unix_socket = /var/lib/ahriman/ahriman-web.sock
+
+   This socket path must be available for web service instance and must be available for application instances (e.g. in case if you are using docker container, see above, you need to be sure that the socket is passed to the root filesystem).
+
+   By the way, unix socket variable will be automatically set in case if ``--web-unix-socket`` argument is supplied to the ``setup`` subcommand.
+
+   Alternatively, you need to create user for the service:
 
    .. code-block:: shell
 
-      sudo -u ahriman ahriman user-add --as-service -r write api
+      sudo -u ahriman ahriman user-add -r write api
 
-   This command will ask for the password, just type it in stdin; *do not* leave the field blank, user will not be able to authorize.
+   This command will ask for the password, just type it in stdin; *do not* leave the field blank, user will not be able to authorize, and finally configure the application:
 
-#. 
+   .. code-block:: ini
+
+      [web]
+      username = api
+      password = pa55w0rd
+
+#.
    Create end-user ``sudo -u ahriman ahriman user-add -r write my-first-user`` with password.
 
-#. Restart web service ``systemctl restart ahriman-web@x86_64``.
+#.
+   Restart web service ``systemctl restart ahriman-web@x86_64``.
 
 How to enable OAuth authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -717,7 +744,8 @@ How to enable OAuth authorization
 #. 
    Create end-user ``sudo -u ahriman ahriman user-add -r write my-first-user``. When it will ask for the password leave it blank.
 
-#. Restart web service ``systemctl restart ahriman-web@x86_64``.
+#.
+   Restart web service ``systemctl restart ahriman-web@x86_64``.
 
 Backup and restore
 ------------------

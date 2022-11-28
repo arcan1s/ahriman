@@ -31,6 +31,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.sign_key = "key"
     args.sign_target = [SignSettings.Packages]
     args.web_port = 8080
+    args.web_unix_socket = Path("/var/lib/ahriman/ahriman-web.sock")
     return args
 
 
@@ -91,6 +92,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
                  " ".join([target.name.lower() for target in args.sign_target])),
         MockCall(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
         MockCall(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
+        MockCall(Configuration.section_name("web", "x86_64"), "unix_socket", str(args.web_unix_socket)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 

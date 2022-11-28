@@ -21,6 +21,7 @@ import logging
 import requests
 
 from typing import List, Optional, Tuple
+from urllib.parse import quote_plus as urlencode
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -48,13 +49,12 @@ class WebClient(Client, LazyLogging):
         Args:
             configuration(Configuration): configuration instance
         """
-        self.address = self.parse_address(configuration)
+        self.address, use_unix_socket = self.parse_address(configuration)
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),
             configuration.get("web", "password", fallback=None))
 
-        self.__session = requests.session()
-        self._login()
+        self.__session = self._create_session(use_unix_socket=use_unix_socket)
 
     @property
     def _login_url(self) -> str:
@@ -77,7 +77,7 @@ class WebClient(Client, LazyLogging):
         return f"{self.address}/api/v1/status"
 
     @staticmethod
-    def parse_address(configuration: Configuration) -> str:
+    def parse_address(configuration: Configuration) -> Tuple[str, bool]:
         """
         parse address from configuration
 
@@ -85,15 +85,38 @@ class WebClient(Client, LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            str: valid http address
+            Tuple[str, bool]: tuple of server address and socket flag (True in case if unix socket must be used)
         """
+        if (unix_socket := configuration.get("web", "unix_socket", fallback=None)) is not None:
+            # special pseudo-protocol which is used for unix sockets
+            return f"http+unix://{urlencode(unix_socket)}", True
         address = configuration.get("web", "address", fallback=None)
         if not address:
             # build address from host and port directly
             host = configuration.get("web", "host")
             port = configuration.getint("web", "port")
             address = f"http://{host}:{port}"
-        return address
+        return address, False
+
+    def _create_session(self, *, use_unix_socket: bool) -> requests.Session:
+        """
+        generate new request session
+
+        Args:
+            use_unix_socket(bool): if set to True then unix socket session will be generated instead of native requests
+
+        Returns:
+            requests.Session: generated session object
+        """
+        if use_unix_socket:
+            import requests_unixsocket  # type: ignore
+            session: requests.Session = requests_unixsocket.Session()
+            return session
+
+        session = requests.Session()
+        self._login()
+
+        return session
 
     def _login(self) -> None:
         """

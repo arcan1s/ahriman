@@ -1,6 +1,5 @@
 import pytest
 
-from collections import namedtuple
 from typing import Any, Dict, List
 from unittest.mock import MagicMock
 
@@ -8,9 +7,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.upload.github import Github
 from ahriman.core.upload.rsync import Rsync
 from ahriman.core.upload.s3 import S3
-
-
-_s3_object = namedtuple("s3_object", ["key", "e_tag", "delete"])
 
 
 @pytest.fixture
@@ -78,12 +74,22 @@ def s3(configuration: Configuration) -> S3:
 
 
 @pytest.fixture
-def s3_remote_objects() -> List[_s3_object]:
+def s3_remote_objects() -> List[MagicMock]:
     """
     fixture for boto3 like S3 objects
 
     Returns:
-        List[_s3_object]: boto3 like S3 objects test instance
+        List[MagicMock]: boto3 like S3 objects test instance
     """
     delete_mock = MagicMock()
-    return list(map(lambda item: _s3_object(f"x86_64/{item}", f"\"{item}\"", delete_mock), ["a", "b", "c"]))
+
+    result = []
+    for item in ["a", "b", "c"]:
+        s3_object = MagicMock()
+        s3_object.key = f"x86_64/{item}"
+        s3_object.e_tag = f"\"{item}\""
+        s3_object.delete = delete_mock
+
+        result.append(s3_object)
+
+    return result
