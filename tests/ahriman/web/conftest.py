@@ -3,9 +3,8 @@ import pytest
 from asyncio import BaseEventLoop
 from aiohttp import web
 from aiohttp.test_utils import TestClient
-from collections import namedtuple
 from pytest_mock import MockerFixture
-from typing import Any
+from typing import Any, Dict, Optional
 from unittest.mock import MagicMock
 
 import ahriman.core.auth.helpers
@@ -18,11 +17,9 @@ from ahriman.models.user import User
 from ahriman.web.web import setup_service
 
 
-_request = namedtuple("_request", ["app", "path", "method", "json", "post"])
-
-
 @pytest.helpers.register
-def request(app: web.Application, path: str, method: str, json: Any = None, data: Any = None) -> _request:
+def request(app: web.Application, path: str, method: str, json: Any = None, data: Any = None,
+            extra: Optional[Dict[str, Any]] = None) -> MagicMock:
     """
     request generator helper
 
@@ -32,11 +29,22 @@ def request(app: web.Application, path: str, method: str, json: Any = None, data
         method(str): method for the request
         json(Any, optional): json payload of the request (Default value = None)
         data(Any, optional): form data payload of the request (Default value = None)
+        extra(Optional[Dict[str, Any]], optional): extra info which will be injected for ``get_extra_info`` command
 
     Returns:
-        _request: dummy request object
+        MagicMock: dummy request mock
     """
-    return _request(app, path, method, json, data)
+    request_mock = MagicMock()
+    request_mock.app = app
+    request_mock.path = path
+    request_mock.method = method
+    request_mock.json = json
+    request_mock.post = data
+
+    extra = extra or {}
+    request_mock.get_extra_info.side_effect = lambda key: extra.get(key)
+
+    return request_mock
 
 
 @pytest.fixture

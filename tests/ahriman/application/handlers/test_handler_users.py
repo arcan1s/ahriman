@@ -26,7 +26,6 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.username = "user"
     args.action = Action.Update
-    args.as_service = False
     args.exit_code = False
     args.password = "pa55w0rd"
     args.role = UserAccess.Reporter
@@ -73,33 +72,8 @@ def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, 
 
     Users.run(args, "x86_64", configuration, report=False, unsafe=False)
     get_auth_configuration_mock.assert_called_once_with(configuration.include)
-    create_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int),
-                                                      pytest.helpers.anyvar(int), args.as_service, args.secure)
-    create_user_mock.assert_called_once_with(args)
-    get_salt_mock.assert_called_once_with(configuration)
-    update_mock.assert_called_once_with(user)
-
-
-def test_run_service_user(args: argparse.Namespace, configuration: Configuration, database: SQLite,
-                          mocker: MockerFixture) -> None:
-    """
-    must create configuration if as service argument is provided
-    """
-    args = _default_args(args)
-    args.as_service = True
-    user = User(username=args.username, password=args.password, access=args.role)
-    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
-    get_auth_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_get")
-    create_configuration_mock = mocker.patch("ahriman.application.handlers.Users.configuration_create")
-    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
-    get_salt_mock = mocker.patch("ahriman.application.handlers.Users.get_salt", return_value=("salt", "salt"))
-    update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
-
-    Users.run(args, "x86_64", configuration, report=False, unsafe=False)
-    get_auth_configuration_mock.assert_called_once_with(configuration.include)
-    create_configuration_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int),
-                                                      pytest.helpers.anyvar(int), args.as_service, args.secure)
+    create_configuration_mock.assert_called_once_with(
+        pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), args.secure)
     create_user_mock.assert_called_once_with(args)
     get_salt_mock.assert_called_once_with(configuration)
     update_mock.assert_called_once_with(user)
@@ -151,7 +125,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, data
     remove_mock.assert_called_once_with(args.username)
 
 
-def test_configuration_create(configuration: Configuration, user: User, mocker: MockerFixture) -> None:
+def test_configuration_create(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must correctly create configuration file
     """
@@ -159,24 +133,9 @@ def test_configuration_create(configuration: Configuration, user: User, mocker: 
     set_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
     write_mock = mocker.patch("ahriman.application.handlers.Users.configuration_write")
 
-    Users.configuration_create(configuration, user, "salt", False, False)
+    Users.configuration_create(configuration, "salt", False)
     set_mock.assert_called_once_with("auth", "salt", pytest.helpers.anyvar(int))
     write_mock.assert_called_once_with(configuration, False)
-
-
-def test_configuration_create_with_plain_password(configuration: Configuration, user: User,
-                                                  mocker: MockerFixture) -> None:
-    """
-    must set plain text password and user for the service
-    """
-    mocker.patch("pathlib.Path.open")
-
-    Users.configuration_create(configuration, user, "salt", True, False)
-
-    generated = User.from_option(user.username, user.password).hash_password("salt")
-    service = User.from_option(configuration.get("web", "username"), configuration.get("web", "password"))
-    assert generated.username == service.username
-    assert generated.check_credentials(service.password, configuration.get("auth", "salt"))
 
 
 def test_configuration_get(mocker: MockerFixture) -> None:

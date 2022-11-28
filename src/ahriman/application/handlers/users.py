@@ -58,9 +58,9 @@ class Users(Handler):
             old_salt, salt = Users.get_salt(configuration)
             user = Users.user_create(args)
 
-            if old_salt is None or args.as_service:
+            if old_salt is None:
                 auth_configuration = Users.configuration_get(configuration.include)
-                Users.configuration_create(auth_configuration, user, salt, args.as_service, args.secure)
+                Users.configuration_create(auth_configuration, salt, args.secure)
 
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
@@ -72,22 +72,16 @@ class Users(Handler):
             database.user_remove(args.username)
 
     @staticmethod
-    def configuration_create(configuration: Configuration, user: User, salt: str,
-                             as_service_user: bool, secure: bool) -> None:
+    def configuration_create(configuration: Configuration, salt: str, secure: bool) -> None:
         """
         enable configuration if it has been disabled
 
         Args:
             configuration(Configuration): configuration instance
-            user(User): user descriptor
             salt(str): password hash salt
-            as_service_user(bool): add user as service user, also set password and user to configuration
             secure(bool): if true then set file permissions to 0o600
         """
         configuration.set_option("auth", "salt", salt)
-        if as_service_user:
-            configuration.set_option("web", "username", user.username)
-            configuration.set_option("web", "password", user.password)
         Users.configuration_write(configuration, secure)
 
     @staticmethod

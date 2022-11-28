@@ -1,4 +1,5 @@
 import pytest
+import socket
 
 from aiohttp import web
 from aiohttp.test_utils import TestClient
@@ -53,6 +54,21 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
 
     assert not await authorization_policy.permits(_identity("somerandomname"), user.access, "/endpoint")
     assert not await authorization_policy.permits(user.username, user.access, "/endpoint")
+
+
+async def test_auth_handler_unix_socket(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+    """
+    must allow calls via unix sockets
+    """
+    aiohttp_request = pytest.helpers.request(
+        "", "/api/v1/status", "GET", extra={"socket": socket.socket(socket.AF_UNIX)})
+    request_handler = AsyncMock()
+    request_handler.get_permission.return_value = UserAccess.Full
+    check_permission_mock = mocker.patch("aiohttp_security.check_permission")
+
+    handler = auth_handler(allow_read_only=False)
+    await handler(aiohttp_request, request_handler)
+    check_permission_mock.assert_not_called()
 
 
 async def test_auth_handler_api(mocker: MockerFixture) -> None:

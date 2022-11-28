@@ -20,6 +20,7 @@ optdepends=('breezy: -bzr packages support'
             'python-aiohttp-session: web server with authorization'
             'python-boto3: sync to s3'
             'python-cryptography: web server with authorization'
+            'python-requests-unixsocket: client report to web server by unix socket'
             'python-jinja: html report generation'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')

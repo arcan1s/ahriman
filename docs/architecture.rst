@@ -36,6 +36,7 @@ This package contains everything which is required for any time of application r
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
+* ``ahriman.core.log`` is a log utils package. It includes logger loader class, custom HTTP based logger and access logger for HTTP services with additional filters.
 * ``ahriman.core.report`` is a package with reporting triggers. Should not be called directly.
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
@@ -196,7 +197,9 @@ means that there is user ``username`` with ``read`` access and password ``passwo
 
 OAuth provider uses library definitions (``aioauth-client``) in order *authenticate* users. It still requires user permission to be set in database, thus it inherits mapping provider without any changes. Whereas we could override ``check_credentials`` (authentication method) by something custom, OAuth flow is a bit more complex than just forward request, thus we have to implement the flow in login form.
 
-OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature is used by service reporting (aka robots).
+OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature can be used by service reporting (aka robots).
+
+In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any furher checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration.
 
 In order to configure users there are special commands.
 
@@ -244,6 +247,7 @@ Web application requires the following python packages to be installed:
 * In addition, ``aiohttp_debugtoolbar`` is required for debug panel. Please note that this option does not work together with authorization and basically must not be used in production.
 * In addition, authorization feature requires ``aiohttp_security``, ``aiohttp_session`` and ``cryptography``.
 * In addition to base authorization dependencies, OAuth2 also requires ``aioauth-client`` library.
+* In addition if you would like to disable authorization for local access (recommended way in order to run the application itself with reporting support), the ``requests-unixsocket`` library is required.
 
 Middlewares
 ^^^^^^^^^^^

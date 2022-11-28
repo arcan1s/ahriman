@@ -134,6 +134,7 @@ setup(
             "aiohttp_session",
             "aiohttp_security",
             "cryptography",
+            "requests-unixsocket",  # required by unix socket support
         ],
     },
 )

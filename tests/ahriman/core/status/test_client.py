@@ -43,6 +43,14 @@ def test_load_full_client_from_address(configuration: Configuration) -> None:
     assert isinstance(Client.load(configuration, report=True), WebClient)
 
 
+def test_load_full_client_from_unix_socket(configuration: Configuration) -> None:
+    """
+    must load full client by using unix socket
+    """
+    configuration.set_option("web", "unix_socket", "/var/lib/ahriman/ahriman-web.sock")
+    assert isinstance(Client.load(configuration, report=True), WebClient)
+
+
 def test_add(client: Client, package_ahriman: Package) -> None:
     """
     must process package addition without errors

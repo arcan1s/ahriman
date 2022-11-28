@@ -4,9 +4,17 @@ set -e
 [ -n "$AHRIMAN_DEBUG" ] && set -x
 
 # configuration tune
-sed -i "s|root = /var/lib/ahriman|root = $AHRIMAN_REPOSITORY_ROOT|g" "/etc/ahriman.ini"
-sed -i "s|database = /var/lib/ahriman/ahriman.db|database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db|g" "/etc/ahriman.ini"
-sed -i "s|host = 127.0.0.1|host = $AHRIMAN_HOST|g" "/etc/ahriman.ini"
+cat <<EOF > "/etc/ahriman.ini.d/00-docker.ini"
+[repository]
+root = $AHRIMAN_REPOSITORY_ROOT
+
+[settings]
+database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db
+
+[web]
+host = $AHRIMAN_HOST
+
+EOF
 sed -i "s|handlers = syslog_handler|handlers = ${AHRIMAN_OUTPUT}_handler|g" "/etc/ahriman.ini.d/logging.ini"
 
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
@@ -32,8 +40,10 @@ AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
 AHRIMAN_SETUP_ARGS+=("--packager" "$AHRIMAN_PACKAGER")
 AHRIMAN_SETUP_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
 if [ -n "$AHRIMAN_PORT" ]; then
-    # in addition it must be handled in docker run command
     AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
+fi
+if [ -n "$AHRIMAN_UNIX_SOCKET" ]; then
+    AHRIMAN_SETUP_ARGS+=("--web-unix-socket" "$AHRIMAN_UNIX_SOCKET")
 fi
 ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" repo-setup "${AHRIMAN_SETUP_ARGS[@]}"
 
