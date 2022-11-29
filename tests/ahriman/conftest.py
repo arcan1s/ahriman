@@ -364,6 +364,19 @@ def pacman(configuration: Configuration) -> Pacman:
 
 
 @pytest.fixture
+def passwd() -> MagicMock:
+    """
+    get passwd structure for the user
+
+    Returns:
+        MagicMock: passwd structure test instance
+    """
+    passwd = MagicMock()
+    passwd.pw_dir = "home"
+    return passwd
+
+
+@pytest.fixture
 def remote_source() -> RemoteSource:
     """
     remote source fixture

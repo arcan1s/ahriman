@@ -25,6 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.build_as_user = "ahriman"
     args.build_command = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
+    args.makeflags_jobs = True
     args.multilib = True
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
@@ -54,10 +55,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository_
         args, "x86_64", args.repository, configuration.include, repository_paths)
     devtools_configuration_mock.assert_called_once_with(
         args.build_command, "x86_64", args.from_configuration, args.multilib, args.repository, repository_paths)
-    makepkg_configuration_mock.assert_called_once_with(args.packager, repository_paths)
+    makepkg_configuration_mock.assert_called_once_with(args.packager, args.makeflags_jobs, repository_paths)
     sudo_configuration_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
     executable_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
-    init_mock.assert_called_once()
+    init_mock.assert_called_once_with()
 
 
 def test_build_command(args: argparse.Namespace) -> None:
@@ -138,7 +139,7 @@ def test_configuration_create_makepkg(args: argparse.Namespace, repository_paths
     mocker.patch("ahriman.application.handlers.setup.getpwuid", return_value=passwd)
     write_text_mock = mocker.patch("pathlib.Path.write_text", autospec=True)
 
-    Setup.configuration_create_makepkg(args.packager, repository_paths)
+    Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, repository_paths)
     write_text_mock.assert_called_once_with(
         Path("home") / ".makepkg.conf", pytest.helpers.anyvar(str, True), encoding="utf8")
 

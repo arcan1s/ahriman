@@ -507,9 +507,10 @@ root path of the extracted files
 
 .SH COMMAND \fI\,'ahriman repo\-setup'\/\fR
 usage: ahriman repo\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
-                          [\-\-from\-configuration FROM_CONFIGURATION] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER
-                          \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,pacakges,repository}]
-                          [\-\-web\-port WEB_PORT] [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
+                          [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
+                          [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY]
+                          [\-\-sign\-target {disabled,pacakges,repository}] [\-\-web\-port WEB_PORT]
+                          [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
 create initial service configuration, requires root
 
@@ -525,6 +526,10 @@ build command prefix
 .TP
 \fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
 path to default devtools pacman configuration
+
+.TP
+\fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
+append MAKEFLAGS variable with parallelism set to number of cores (default: True)
 
 .TP
 \fB\-\-multilib\fR, \fB\-\-no\-multilib\fR

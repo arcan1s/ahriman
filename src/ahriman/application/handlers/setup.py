@@ -64,7 +64,7 @@ class Setup(Handler):
 
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
-        Setup.configuration_create_makepkg(args.packager, application.repository.paths)
+        Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         Setup.executable_create(application.repository.paths, args.build_command, architecture)
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
                                             args.multilib, args.repository, application.repository.paths)
@@ -170,17 +170,23 @@ class Setup(Handler):
             configuration.write(devtools_configuration)
 
     @staticmethod
-    def configuration_create_makepkg(packager: str, paths: RepositoryPaths) -> None:
+    def configuration_create_makepkg(packager: str, makeflags_jobs: bool, paths: RepositoryPaths) -> None:
         """
         create configuration for makepkg
 
         Args:
             packager(str): packager identifier (e.g. name, email)
+            makeflags_jobs(bool): set MAKEFLAGS variable to number of cores
             paths(RepositoryPaths): repository paths instance
         """
+
+        content = f"PACKAGER='{packager}'\n"
+        if makeflags_jobs:
+            content += """MAKEFLAGS="-j$(nproc)"\n"""
+
         uid, _ = paths.root_owner
         home_dir = Path(getpwuid(uid).pw_dir)
-        (home_dir / ".makepkg.conf").write_text(f"PACKAGER='{packager}'\n", encoding="utf8")
+        (home_dir / ".makepkg.conf").write_text(content, encoding="utf8")
 
     @staticmethod
     def configuration_create_sudo(paths: RepositoryPaths, prefix: str, architecture: str) -> None:

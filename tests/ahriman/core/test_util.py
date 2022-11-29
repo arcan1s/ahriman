@@ -1,11 +1,13 @@
 import datetime
 import logging
+import os
 import pytest
 import requests
 import subprocess
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
@@ -73,6 +75,19 @@ def test_check_output_multiple_with_stdin_newline() -> None:
     """
     assert check_output("python", "-c", "import sys; value = sys.stdin.read(); print(value)",
                         input_data="multiple\nlines\n") == "multiple\nlines"
+
+
+def test_check_output_with_user(passwd: Any, mocker: MockerFixture) -> None:
+    """
+    must run command as specified user and set its homedir
+    """
+    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))") != passwd.pw_dir
+
+    getpwuid_mock = mocker.patch("ahriman.core.util.getpwuid", return_value=passwd)
+    user = os.getuid()
+
+    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))", user=user) == passwd.pw_dir
+    getpwuid_mock.assert_called_once_with(user)
 
 
 def test_check_output_failure(mocker: MockerFixture) -> None:

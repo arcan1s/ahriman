@@ -632,6 +632,8 @@ def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
+    parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--multilib", help="add or do not multilib repository",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--packager", help="packager name and email", required=True)
