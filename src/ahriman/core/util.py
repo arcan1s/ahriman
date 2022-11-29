@@ -27,6 +27,7 @@ import subprocess
 
 from enum import Enum
 from pathlib import Path
+from pwd import getpwuid
 from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union
 
 from ahriman.core.exceptions import OptionError, UnsafeRunError
@@ -84,10 +85,11 @@ def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optiona
         if logger is not None:
             logger.debug(single)
 
+    environment = {"HOME": getpwuid(user).pw_dir} if user is not None else {}
     # FIXME additional workaround for linter and type check which do not know that user arg is supported
     # pylint: disable=unexpected-keyword-arg
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          user=user, text=True, encoding="utf8", bufsize=1) as process:
+                          user=user, env=environment, text=True, encoding="utf8", bufsize=1) as process:
         if input_data is not None:
             input_channel = get_io(process, "stdin")
             input_channel.write(input_data)
