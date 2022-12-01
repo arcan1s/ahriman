@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import shutil
-
 from pathlib import Path
 from typing import Callable, Iterable, List
 
@@ -85,13 +83,10 @@ class ApplicationRepository(ApplicationProperties):
                 if archive.filepath is None:
                     self.logger.warning("filepath is empty for %s", package.base)
                     continue  # avoid mypy warning
-                src = self.repository.paths.repository / archive.filepath
-                dst = self.repository.paths.packages / archive.filepath
-                shutil.copy(src, dst)
-        # run generic update function
-        self.update([])
+                self.repository.sign.process_sign_package(archive.filepath, package.base)
         # sign repository database if set
         self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
+        # process triggers
         self.on_result(Result())
 
     def unknown(self) -> List[str]:
