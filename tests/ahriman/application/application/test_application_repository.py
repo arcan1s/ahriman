@@ -69,18 +69,17 @@ def test_sign(application_repository: ApplicationRepository, package_ahriman: Pa
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    copy_mock = mocker.patch("shutil.copy")
-    update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
+    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
     on_result_mock = mocker.patch(
         "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     application_repository.sign([])
-    copy_mock.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int)),
-        MockCall(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
+    sign_package_mock.assert_has_calls([
+        MockCall(pytest.helpers.anyvar(int), package_ahriman.base),
+        MockCall(pytest.helpers.anyvar(int), package_python_schedule.base),
+        MockCall(pytest.helpers.anyvar(int), package_python_schedule.base),
     ])
-    update_mock.assert_called_once_with([])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
     on_result_mock.assert_called_once_with(Result())
 
@@ -105,18 +104,14 @@ def test_sign_specific(application_repository: ApplicationRepository, package_ah
     """
     mocker.patch("ahriman.core.repository.repository.Repository.packages",
                  return_value=[package_ahriman, package_python_schedule])
-    copy_mock = mocker.patch("shutil.copy")
-    update_mock = mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.update")
+    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package")
     sign_repository_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_repository")
     on_result_mock = mocker.patch(
         "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     filename = package_ahriman.packages[package_ahriman.base].filepath
     application_repository.sign([package_ahriman.base])
-    copy_mock.assert_called_once_with(
-        application_repository.repository.paths.repository / filename.name,
-        application_repository.repository.paths.packages / filename.name)
-    update_mock.assert_called_once_with([])
+    sign_package_mock.assert_called_once_with(filename, package_ahriman.base)
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
     on_result_mock.assert_called_once_with(Result())
 
