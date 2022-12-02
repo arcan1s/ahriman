@@ -52,7 +52,7 @@ class ApplicationRepository(ApplicationProperties):
         Args:
             cache(bool): clear directory with package caches
             chroot(bool): clear build chroot
-            manual(bool): clear directory with manually added packages
+            manual(bool): clear directory with manually added packages' bases
             packages(bool): clear directory with built packages
             pacman(bool): clear directory with pacman databases
         """

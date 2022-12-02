@@ -101,7 +101,7 @@ class BaseView(View):
         get non-empty value from request parameters
 
         Args:
-            extractor(Callable[[str], T]): function to get value by key
+            extractor(Callable[[str], T]): function to get value by the specified key
             key(str): key to extract value
 
         Returns:

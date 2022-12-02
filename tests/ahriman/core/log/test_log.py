@@ -20,7 +20,7 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
 
 def test_load_fallback(configuration: Configuration, mocker: MockerFixture) -> None:
     """
-    must fallback to stderr without errors
+    must fall back to stderr without errors
     """
     mocker.patch("ahriman.core.log.log.fileConfig", side_effect=PermissionError())
     Log.load(configuration, quiet=False, report=False)

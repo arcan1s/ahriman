@@ -51,7 +51,7 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
 
 async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) -> None:
     """
-    must login user correctly from OAuth
+    must log in user correctly from OAuth
     """
     oauth = client_with_oauth_auth.app["validator"]
     oauth.get_oauth_username.return_value = "user"
@@ -86,7 +86,7 @@ async def test_get_unauthorized(client_with_oauth_auth: TestClient, mocker: Mock
 
 async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixture) -> None:
     """
-    must login user correctly
+    must log in user correctly
     """
     payload = {"username": user.username, "password": user.password}
     remember_mock = mocker.patch("aiohttp_security.remember")

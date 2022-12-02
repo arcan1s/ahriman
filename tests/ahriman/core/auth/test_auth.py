@@ -10,7 +10,7 @@ def test_auth_control(auth: Auth) -> None:
     must return a control for authorization
     """
     assert auth.auth_control
-    assert "button" in auth.auth_control  # I think it should be button
+    assert "button" in auth.auth_control  # I think it should be a button
 
 
 def test_load_dummy(configuration: Configuration, database: SQLite) -> None:

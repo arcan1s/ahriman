@@ -68,7 +68,7 @@ class Pacman(LazyLogging):
 
         Args:
             database(DB): pacman database instance to be copied
-            pacman_root(Path): operating system pacman's root
+            pacman_root(Path): operating system pacman root
             paths(RepositoryPaths): repository paths instance
             use_ahriman_cache(bool): use local ahriman cache instead of system one
         """

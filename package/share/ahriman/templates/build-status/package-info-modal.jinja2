@@ -29,12 +29,12 @@
         await copyToClipboard(logs, packageInfoLogsCopyButton);
     }
 
-    function showLogs(package) {
-        const isPackageBaseSet = package !== undefined;
+    function showLogs(packageBase) {
+        const isPackageBaseSet = packageBase !== undefined;
         if (isPackageBaseSet)
-            packageInfoModal.data("package", package); // set package base as currently used
+            packageInfoModal.data("package", packageBase); // set package base as currently used
         else
-            package = packageInfoModal.data("package"); // read package base from the current window attribute
+            packageBase = packageInfoModal.data("package"); // read package base from the current window attribute
 
         const headerClass = status => {
             if (status === "pending") return ["bg-warning"];
@@ -45,7 +45,7 @@
         };
 
         $.ajax({
-            url: `/api/v1/packages/${package}/logs`,
+            url: `/api/v1/packages/${packageBase}/logs`,
             type: "GET",
             dataType: "json",
             success: response => {
@@ -60,7 +60,7 @@
             },
             error: (jqXHR, _, errorThrown) => {
                 // show failed modal in case if first time loading
-                if (isPackageBaseSet) showFailure("Load failure", `Could not load package ${package} logs:`, errorThrown);
+                if (isPackageBaseSet) showFailure("Load failure", `Could not load package ${packageBase} logs:`, errorThrown);
             },
         });
     }

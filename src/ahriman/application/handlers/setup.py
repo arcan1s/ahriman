@@ -139,7 +139,7 @@ class Setup(Handler):
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
             source(Path): path to source configuration file
-            multilib(bool): add or do not multilib repository
+            multilib(bool): add or do not multilib repository to the configuration
             repository(str): repository name
             paths(RepositoryPaths): repository paths instance
         """

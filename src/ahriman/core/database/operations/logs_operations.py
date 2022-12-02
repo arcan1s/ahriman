@@ -46,7 +46,7 @@ class LogsOperations(Operations):
                 for row in connection.execute(
                     """
                     select created, record from logs where package_base = :package_base
-                    order by created asc
+                    order by created
                     """,
                     {"package_base": package_base})
             ]

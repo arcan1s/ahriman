@@ -22,8 +22,8 @@ def _get_owner(root: Path, same: bool) -> Callable[[Path], Tuple[int, int]]:
         Callable[[Path], Tuple[int, int]]: function which can define ownership
     """
     root_owner = (42, 42)
-    nonroot_owner = (42, 42) if same else (1, 1)
-    return lambda path: root_owner if path == root else nonroot_owner
+    non_root_owner = (42, 42) if same else (1, 1)
+    return lambda path: root_owner if path == root else non_root_owner
 
 
 def test_root_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:

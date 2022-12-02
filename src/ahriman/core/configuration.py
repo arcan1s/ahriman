@@ -284,8 +284,8 @@ class Configuration(configparser.RawConfigParser):
             # get overrides
             specific = self.section_name(section, architecture)
             if self.has_section(specific):
-                # if there is no such section it means that there is no overrides for this arch
-                # but we anyway will have to delete sections for others archs
+                # if there is no such section it means that there is no overrides for this arch,
+                # but we anyway will have to delete sections for others architectures
                 for key, value in self[specific].items():
                     self.set_option(section, key, value)
             # remove any arch specific section

@@ -62,7 +62,7 @@ class WebClient(Client, LazyLogging):
         get url for the login api
 
         Returns:
-            str: full url for web service to login
+            str: full url for web service to log in
         """
         return f"{self.address}/api/v1/login"
 

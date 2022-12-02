@@ -33,7 +33,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 class Sources(LazyLogging):
     """
-    helper to download package sources (PKGBUILD etc)
+    helper to download package sources (PKGBUILD etc...)
 
     Attributes:
         DEFAULT_BRANCH(str): (class attribute) default branch to process git repositories.

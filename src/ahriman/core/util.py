@@ -154,7 +154,7 @@ def enum_values(enum: Type[Enum]) -> List[str]:
     Returns:
         List[str]: available enumeration values as string
     """
-    return [key.value for key in enum]
+    return [str(key.value) for key in enum]  # explicit str conversion for typing
 
 
 def exception_response_text(exception: requests.exceptions.HTTPError) -> str:
@@ -288,7 +288,7 @@ def safe_filename(source: str) -> str:
     # https://datatracker.ietf.org/doc/html/rfc3986#section-2.3
     #     unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
     # however we would like to allow some gen-delims characters in filename, because those characters are used
-    # as delimiter in other URI parts. The ones we allow are
+    # as delimiter in other URI parts. The ones we allow to are:
     #     ":" - used as separator in schema and userinfo
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo

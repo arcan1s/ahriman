@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2022\-11\-29" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2022\-12\-02" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -509,7 +509,7 @@ root path of the extracted files
 usage: ahriman repo\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
                           [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
                           [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY]
-                          [\-\-sign\-target {disabled,pacakges,repository}] [\-\-web\-port WEB_PORT]
+                          [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
                           [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
 create initial service configuration, requires root
@@ -548,7 +548,7 @@ repository name
 sign key id
 
 .TP
-\fB\-\-sign\-target\fR \fI\,{disabled,pacakges,repository}\/\fR
+\fB\-\-sign\-target\fR \fI\,{disabled,packages,repository}\/\fR
 sign options
 
 .TP
@@ -590,7 +590,7 @@ run triggers on empty build result as configured by settings
 
 .TP
 \fBtrigger\fR
-instead of running all triggers as set by configuration, just process specified ones oin order of metion
+instead of running all triggers as set by configuration, just process specified ones in order of mention
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
 usage: ahriman repo\-update [\-h] [\-\-dry\-run] [\-e] [\-\-aur | \-\-no\-aur] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]

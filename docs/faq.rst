@@ -346,7 +346,7 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
-``--privileged`` flag is required to make mount possible inside container. In order to make data available outside of container, you would need to mount local (parent) direcotry inside container by using ``-v /path/to/local/repo:/var/lib/ahriman`` argument, where ``/path/to/local/repo`` is a path to repository on local machine. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
+``--privileged`` flag is required to make mount possible inside container. In order to make data available outside of container, you would need to mount local (parent) directory inside container by using ``-v /path/to/local/repo:/var/lib/ahriman`` argument, where ``/path/to/local/repo`` is a path to repository on local machine. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
 
 .. code-block:: shell
 

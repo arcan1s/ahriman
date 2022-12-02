@@ -16,10 +16,10 @@ def test_extend_architectures(mocker: MockerFixture) -> None:
     must update available architecture list
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
-    archs_mock = mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"x86_64"})
+    architectures_mock = mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"x86_64"})
 
     assert Sources.extend_architectures(Path("local"), "i686") == [PkgbuildPatch("arch", list({"x86_64", "i686"}))]
-    archs_mock.assert_called_once_with(Path("local"))
+    architectures_mock.assert_called_once_with(Path("local"))
 
 
 def test_extend_architectures_any(mocker: MockerFixture) -> None:
@@ -256,7 +256,7 @@ def test_add_intent_to_add(sources: Sources, mocker: MockerFixture) -> None:
 
 def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
     """
-    must skip addition of files to index if no fiels found
+    must skip addition of files to index if no fields found
     """
     mocker.patch("pathlib.Path.glob", return_value=[])
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")

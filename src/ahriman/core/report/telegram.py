@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import requests  # technically we could use python-telegram-bot, but it is just a single request, cmon
+import requests  # technically we could use python-telegram-bot, but it is just a single request, c'mon
 
 from typing import Iterable
 
