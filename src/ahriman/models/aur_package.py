@@ -42,7 +42,7 @@ class AURPackage:
         description(str): package base description
         url(Optional[str]): package upstream URL
         num_votes(int): number of votes for the package
-        polularity(float): package popularity
+        popularity(float): package popularity
         out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
         maintainer(Optional[str]): package maintainer
         first_submitted(datetime.datetime): timestamp of the first package submission

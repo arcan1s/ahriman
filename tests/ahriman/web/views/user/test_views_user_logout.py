@@ -19,7 +19,7 @@ async def test_get_permission() -> None:
 
 async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None:
     """
-    must logout user correctly
+    must log out user correctly
     """
     mocker.patch("aiohttp_security.check_authorized")
     forget_mock = mocker.patch("aiohttp_security.forget")

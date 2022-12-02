@@ -34,7 +34,7 @@ class SignSettings(str, Enum):
     """
 
     Disabled = "disabled"
-    Packages = "pacakges"
+    Packages = "packages"
     Repository = "repository"
 
     @classmethod

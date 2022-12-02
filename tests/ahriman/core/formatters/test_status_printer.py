@@ -10,6 +10,6 @@ def test_properties(status_printer: StatusPrinter) -> None:
 
 def test_title(status_printer: StatusPrinter) -> None:
     """
-    must return non empty title
+    must return non-empty title
     """
     assert status_printer.title() is not None

@@ -62,7 +62,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     assert logs["logs"] == "[1970-01-01 00:00:42] message"
 
 
-async def test_get_not_foud(client: TestClient, package_ahriman: Package) -> None:
+async def test_get_not_found(client: TestClient, package_ahriman: Package) -> None:
     """
     must return not found for missing package
     """

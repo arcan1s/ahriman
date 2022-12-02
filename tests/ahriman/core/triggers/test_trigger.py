@@ -13,7 +13,7 @@ def test_on_result(trigger: Trigger) -> None:
 
 def test_on_result_run(trigger: Trigger) -> None:
     """
-    must fallback to run method if it exists
+    must fall back to run method if it exists
     """
     run_mock = MagicMock()
     setattr(trigger, "run", run_mock)

@@ -177,7 +177,7 @@ async def test_auth_handler_write(mocker: MockerFixture) -> None:
 
 def test_setup_auth(application_with_auth: web.Application, auth: Auth, mocker: MockerFixture) -> None:
     """
-    must setup authorization
+    must set up authorization
     """
     setup_mock = mocker.patch("aiohttp_security.setup")
     application = setup_auth(application_with_auth, auth)

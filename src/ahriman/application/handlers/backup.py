@@ -57,7 +57,7 @@ class Backup(Handler):
     @staticmethod
     def get_paths(configuration: Configuration) -> Set[Path]:
         """
-        extract paths to backup
+        extract paths to back up
 
         Args:
             configuration(Configuration): configuration instance

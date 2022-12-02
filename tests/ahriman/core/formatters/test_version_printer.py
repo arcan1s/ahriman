@@ -10,6 +10,6 @@ def test_properties(version_printer: VersionPrinter) -> None:
 
 def test_title(version_printer: VersionPrinter) -> None:
     """
-    must return non empty title
+    must return non-empty title
     """
     assert version_printer.title() is not None

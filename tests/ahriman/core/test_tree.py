@@ -17,7 +17,7 @@ def test_leaf_is_root_empty(leaf_ahriman: Leaf) -> None:
 
 def test_leaf_is_root_false(leaf_ahriman: Leaf, leaf_python_schedule: Leaf) -> None:
     """
-    must be root for empty dependencies list or if does not depend on packages
+    must be root for empty dependencies list or if it does not depend on packages
     """
     assert leaf_ahriman.is_root([leaf_python_schedule])
     leaf_ahriman.dependencies = {"ahriman-dependency"}

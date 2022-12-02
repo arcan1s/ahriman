@@ -41,11 +41,11 @@ class User:
         Simply create user from database data and perform required validation::
 
             >>> password = User.generate_password(24)
-            >>> user = User("ahriman", password, UserAccess.Write)
+            >>> user = User("ahriman", password, UserAccess.Full)
 
         Since the password supplied may be plain text, the ``hash_password`` method can be used to hash the password::
 
-            >>> user.password = user.hash_password("salt")
+            >>> user = user.hash_password("salt")
 
         Having the user instance and password, it can be validated::
 

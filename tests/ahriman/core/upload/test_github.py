@@ -59,7 +59,7 @@ def test_asset_upload_with_removal(github: Github, github_release: Dict[str, Any
 
 def test_asset_upload_empty_mimetype(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
     """
-    must upload asset to the repository with empty mime type if cannot guess it
+    must upload asset to the repository with empty mime type if the library cannot guess it
     """
     mocker.patch("pathlib.Path.open", return_value=b"")
     mocker.patch("ahriman.core.upload.github.Github.asset_remove")

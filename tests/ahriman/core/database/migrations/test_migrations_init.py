@@ -63,7 +63,7 @@ def test_run(migrations: Migrations, mocker: MockerFixture) -> None:
 
 def test_run_migration_exception(migrations: Migrations, mocker: MockerFixture) -> None:
     """
-    must rollback and close cursor on exception during migration
+    must roll back and close cursor on exception during migration
     """
     cursor = MagicMock()
     mocker.patch("logging.Logger.info", side_effect=Exception())

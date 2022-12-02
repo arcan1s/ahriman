@@ -36,7 +36,7 @@ class PackageSource(str, Enum):
         AUR(PackageSource): (class attribute) source is an AUR package for which it should search
         Directory(PackageSource): (class attribute) source is a directory which contains packages
         Local(PackageSource): (class attribute) source is locally stored PKGBUILD
-        Remote(PackageSource): (class attribute) source is remote (http, ftp etc) link
+        Remote(PackageSource): (class attribute) source is remote (http, ftp etc...) link
         Repository(PackageSource): (class attribute) source is official repository
 
     Examples:

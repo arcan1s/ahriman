@@ -717,7 +717,7 @@ def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="run triggers on empty build result as configured by settings",
                              formatter_class=_formatter)
     parser.add_argument("trigger", help="instead of running all triggers as set by configuration, just process "
-                                        "specified ones oin order of metion", nargs="*")
+                                        "specified ones in order of mention", nargs="*")
     parser.set_defaults(handler=handlers.Triggers)
     return parser
 

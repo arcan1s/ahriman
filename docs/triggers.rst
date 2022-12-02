@@ -19,7 +19,7 @@ For the configuration details and settings explanation kindly refer to the :doc:
 
 This trigger will be called before any action (``on_start``) and pulls remote PKGBUILD repository locally; after that it copies found PKGBUILDs from the cloned repository to the local cache. It is useful in case if you have patched PGKBUILDs (or even missing in AUR) which you would like to use for package building and, technically, just simplifies the local package building.
 
-In order to update those packages you would need to clone your repository separately, make changes in PKGBUILD (e.g. bump version and update checksums), commit them and push back. On the next ahriman's repository update, it will pull changes you commited and will perform package update.
+In order to update those packages you would need to clone your repository separately, make changes in PKGBUILD (e.g. bump version and update checksums), commit them and push back. On the next ahriman's repository update, it will pull changes you committed and will perform package update.
 
 ``ahriman.core.gitremote.RemotePushTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

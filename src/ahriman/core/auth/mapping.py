@@ -32,7 +32,7 @@ class Mapping(Auth):
     user authorization based on mapping from configuration file
 
     Attributes:
-        salt(str): random generated string to salt passwords
+        salt(str): random generated string to salted password
         database(SQLite): database instance
     """
 

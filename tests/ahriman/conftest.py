@@ -35,6 +35,7 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
     any value helper for mocker calls check
 
     Args:
+        cls(Type[T]): type of the variable to check
         strict(bool, optional): if True then check type of supplied argument (Default value = False)
 
     Returns:

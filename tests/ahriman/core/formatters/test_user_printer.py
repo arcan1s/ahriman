@@ -3,13 +3,13 @@ from ahriman.core.formatters import UserPrinter
 
 def test_properties(user_printer: UserPrinter) -> None:
     """
-    must return non empty properties list
+    must return non-empty properties list
     """
     assert user_printer.properties()
 
 
 def test_title(user_printer: UserPrinter) -> None:
     """
-    must return non empty title
+    must return non-empty title
     """
     assert user_printer.title() is not None

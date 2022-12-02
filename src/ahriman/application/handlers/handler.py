@@ -45,6 +45,7 @@ class Handler:
         be called directly. The recommended way is to call ``execute`` class method, e.g.::
 
             >>> from ahriman.application.handlers import Add
+            >>>
             >>> Add.execute(args)
     """
 

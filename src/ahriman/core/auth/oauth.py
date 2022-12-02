@@ -30,7 +30,7 @@ from ahriman.models.auth_settings import AuthSettings
 
 class OAuth(Mapping):
     """
-    OAuth user authorization.
+    OAuth's user authorization.
     It is required to create application first and put application credentials.
 
     Attributes:
@@ -58,7 +58,7 @@ class OAuth(Mapping):
         # thus we expect that address is set
         self.redirect_uri = f"""{configuration.get("web", "address")}/api/v1/login"""
         self.provider = self.get_provider(configuration.get("auth", "oauth_provider"))
-        # it is list but we will have to convert to string it anyway
+        # it is list, but we will have to convert to string it anyway
         self.scopes = configuration.get("auth", "oauth_scopes")
 
     @property

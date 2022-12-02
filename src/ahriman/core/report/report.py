@@ -54,7 +54,7 @@ class Report(LazyLogging):
             >>> except Exception as exception:
             >>>     handle_exceptions(exception)
             >>>
-            >>> report.run([], Result())
+            >>> report.run(Result(), [])
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

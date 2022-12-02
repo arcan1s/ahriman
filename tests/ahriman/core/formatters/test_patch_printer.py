@@ -3,7 +3,7 @@ from ahriman.core.formatters import PatchPrinter
 
 def test_properties(patch_printer: PatchPrinter) -> None:
     """
-    must return non empty properties list
+    must return non-empty properties list
     """
     assert patch_printer.properties()
 
@@ -17,6 +17,6 @@ def test_properties_required(patch_printer: PatchPrinter) -> None:
 
 def test_title(patch_printer: PatchPrinter) -> None:
     """
-    must return non empty title
+    must return non-empty title
     """
     assert patch_printer.title() == "ahriman"
