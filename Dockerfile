@@ -51,4 +51,4 @@ VOLUME ["/var/lib/ahriman"]
 COPY "docker/entrypoint.sh" "/usr/local/bin/entrypoint"
 ENTRYPOINT ["entrypoint"]
 # default command
-CMD ["repo-update"]
+CMD ["repo-update", "--refresh"]
