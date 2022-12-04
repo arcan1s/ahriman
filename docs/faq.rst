@@ -169,13 +169,30 @@ Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will
 How to change PKGBUILDs before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Well it is supported also. The recommended way is to patch specific function, e.g. by running ``sudo -u ahriman ahriman patch-add ahriman version``. This command will prompt for new value of the PKGBUILD variable ``version``. You can also write it to file and read from it ``sudo -u ahriman ahriman patch-add ahriman version version.patch``.
+Well it is supported also. The recommended way is to patch specific function, e.g. by running
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman patch-add ahriman version
+
+This command will prompt for new value of the PKGBUILD variable ``version``. You can also write it to file and read from it:
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman patch-add ahriman version version.patch
 
 Alternatively you can create full-diff patches, which are calculated by using ``git diff`` from current PKGBUILD master branch:
 
-#. Clone sources from AUR.
-#. Make changes you would like to (e.g. edit ``PKGBUILD``, add external patches).
-#. Run ``sudo -u ahriman ahriman patch-set-add /path/to/local/directory/with/PKGBUILD``.
+#.
+   Clone sources from AUR.
+#.
+   Make changes you would like to (e.g. edit ``PKGBUILD``, add external patches).
+#.
+   Run command
+
+   .. code-block:: shell
+
+   sudo -u ahriman ahriman patch-set-add /path/to/local/directory/with/PKGBUILD
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 
@@ -691,7 +708,7 @@ How to enable basic authorization
 
    .. code-block:: shell
 
-      sudo -u ahriman ahriman user-add -r write api
+      sudo -u ahriman ahriman user-add -r full api
 
    This command will ask for the password, just type it in stdin; *do not* leave the field blank, user will not be able to authorize, and finally configure the application:
 
@@ -702,7 +719,11 @@ How to enable basic authorization
       password = pa55w0rd
 
 #.
-   Create end-user ``sudo -u ahriman ahriman user-add -r write my-first-user`` with password.
+   Create end-user with password:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ahriman user-add -r full my-first-user
 
 #.
    Restart web service ``systemctl restart ahriman-web@x86_64``.
@@ -739,10 +760,16 @@ How to enable OAuth authorization
 
    .. code-block:: shell
 
-      sudo -u ahriman ahriman user-add --as-service -r write api
+      sudo -u ahriman ahriman user-add --as-service -r full api
 
 #. 
-   Create end-user ``sudo -u ahriman ahriman user-add -r write my-first-user``. When it will ask for the password leave it blank.
+   Create end-user:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ahriman user-add -r full my-first-user
+
+   When it will ask for the password leave it blank.
 
 #.
    Restart web service ``systemctl restart ahriman-web@x86_64``.
@@ -765,7 +792,7 @@ The service provides several commands aim to do easy repository backup and resto
    Copy created archive from source server ``server1.example.com`` to target ``server2.example.com``.
 
 #. 
-   Install ahriman as usual on the target server ``server2.example.com`` if you didn't yet.
+   Install package as usual on the target server ``server2.example.com`` if you didn't yet.
 
 #. 
    Extract archive e.g. by using subcommand:
