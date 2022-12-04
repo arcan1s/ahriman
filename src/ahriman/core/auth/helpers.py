@@ -29,61 +29,65 @@ except ImportError:
 __all__ = ["authorized_userid", "check_authorized", "forget", "remember"]
 
 
-async def authorized_userid(*args: Any) -> Any:
+async def authorized_userid(*args: Any, **kwargs: Any) -> Any:
     """
     handle aiohttp security methods
 
     Args:
         *args(Any): argument list as provided by authorized_userid function
+        **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
         Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
-        return await aiohttp_security.authorized_userid(*args)  # pylint: disable=no-value-for-parameter
+        return await aiohttp_security.authorized_userid(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
 
-async def check_authorized(*args: Any) -> Any:
+async def check_authorized(*args: Any, **kwargs: Any) -> Any:
     """
     handle aiohttp security methods
 
     Args:
         *args(Any): argument list as provided by check_authorized function
+        **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
         Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
-        return await aiohttp_security.check_authorized(*args)  # pylint: disable=no-value-for-parameter
+        return await aiohttp_security.check_authorized(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
 
-async def forget(*args: Any) -> Any:
+async def forget(*args: Any, **kwargs: Any) -> Any:
     """
     handle aiohttp security methods
 
     Args:
         *args(Any): argument list as provided by forget function
+        **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
         Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
-        return await aiohttp_security.forget(*args)  # pylint: disable=no-value-for-parameter
+        return await aiohttp_security.forget(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
 
-async def remember(*args: Any) -> Any:
+async def remember(*args: Any, **kwargs: Any) -> Any:
     """
     handle disabled auth
 
     Args:
         *args(Any): argument list as provided by remember function
+        **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
         Any: None in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
-        return await aiohttp_security.remember(*args)  # pylint: disable=no-value-for-parameter
+        return await aiohttp_security.remember(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None

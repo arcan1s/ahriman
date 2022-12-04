@@ -68,8 +68,8 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcH linux ReposItory MANager",
                                      epilog="Argument list can also be read from file by using @ prefix.",
                                      fromfile_prefix_chars="@", formatter_class=_formatter)
-    parser.add_argument("-a", "--architecture", help="target architectures (can be used multiple times)",
-                        action="append")
+    parser.add_argument("-a", "--architecture", help="target architectures. For several subcommands it can be used "
+                                                     "multiple times", action="append")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
@@ -169,7 +169,7 @@ def _set_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
-                        action="count", default=0)
+                        action="count", default=False)
     parser.set_defaults(handler=handlers.Daemon, dry_run=False, exit_code=False, package=[])
     return parser
 
@@ -263,7 +263,7 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
-                        action="count", default=0)
+                        action="count", default=False)
     parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                         type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
     parser.add_argument("--without-dependencies", help="do not add dependencies", action="store_true")
@@ -483,7 +483,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
-                        action="count", default=0)
+                        action="count", default=False)
     parser.set_defaults(handler=handlers.Update, dry_run=True, aur=True, local=True, manual=False)
     return parser
 
@@ -748,7 +748,7 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
-                        action="count", default=0)
+                        action="count", default=False)
     parser.set_defaults(handler=handlers.Update)
     return parser
 

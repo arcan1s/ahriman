@@ -46,8 +46,7 @@ class Repository(Executor, UpdateHandler):
             >>> built_packages = repository.packages_built()
             >>> update_result = repository.process_update(built_packages)
             >>>
-            >>> repository.process_report(["email"], update_result)
-            >>> repository.process_sync(["s3"], update_result.success)
+            >>> repository.triggers.on_result(update_result, repository.packages())
     """
 
     def load_archives(self, packages: Iterable[Path]) -> List[Package]:

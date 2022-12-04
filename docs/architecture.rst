@@ -28,7 +28,7 @@ This package contains application (aka executable) related classes and everythin
 ``ahriman.core`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains everything which is required for any time of application run and separated into several packages:
+This package contains everything required for the most of application actions and it is separated into several packages:
 
 * ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
 * ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be called by ``load`` method.
@@ -54,7 +54,7 @@ This package also provides some generic functions and classes which may be used 
 ``ahriman.models`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It provides models for any other part of application. Unlike ``ahriman.core`` package classes from here provides only conversion methods (e.g. create class from another or convert to). Mostly case classes and enumerations.
+It provides models for any other part of application. Unlike ``ahriman.core`` package classes from here provide only conversion methods (e.g. create class from another or convert to). Mostly case classes and enumerations.
 
 ``ahriman.web`` package
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ Application run
 * Return result (success or failure) of each subprocess and exit from application.
 * Some handlers may override their status and throw ``ExitCode`` exception. This exception is just silently suppressed and changes application exit code to ``1``.
 
-In most cases handlers spawn god class ``ahriman.application.application.Application`` class and call required methods.
+In the most cases handlers spawn god class ``ahriman.application.application.Application`` class and call required methods.
 
 Application is designed to run from ``systemd`` services and provides parametrized by architecture timer and service file for that.
 
@@ -206,7 +206,7 @@ In order to configure users there are special commands.
 Triggers
 ^^^^^^^^
 
-Triggers are extensions which can be used in order to perform any actions on application start, after the update process and, finally, before the application exit. The package provides two default extensions - one is report generation and another one is remote upload feature.
+Triggers are extensions which can be used in order to perform any actions on application start, after the update process and, finally, before the application exit.
 
 The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join remain part by ``.`` and interpret as module path, import module and extract attribute from it.
 

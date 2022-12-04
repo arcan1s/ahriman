@@ -20,10 +20,11 @@
 from __future__ import annotations
 
 import configparser
+import shlex
 import sys
 
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
@@ -72,7 +73,7 @@ class Configuration(configparser.RawConfigParser):
                 to ``True``, the keys without values will be allowed (Default value = False)
         """
         configparser.RawConfigParser.__init__(self, allow_no_value=allow_no_value, converters={
-            "list": self.__convert_list,
+            "list": shlex.split,
             "path": self.__convert_path,
         })
         self.architecture: Optional[str] = None
@@ -125,39 +126,6 @@ class Configuration(configparser.RawConfigParser):
         configuration.load(path)
         configuration.merge_sections(architecture)
         return configuration
-
-    @staticmethod
-    def __convert_list(value: str) -> List[str]:
-        """
-        convert string value to list of strings
-
-        Args:
-            value(str): string configuration value
-
-        Returns:
-            List[str]: list of string from the parsed string
-
-        Raises:
-            ValueError: in case if option value contains unclosed quotes
-        """
-        def generator() -> Generator[str, None, None]:
-            quote_mark = None
-            word = ""
-            for char in value:
-                if char in ("'", "\"") and quote_mark is None:  # quoted part started, store quote and do nothing
-                    quote_mark = char
-                elif char == quote_mark:  # quoted part ended, reset quotation
-                    quote_mark = None
-                elif char == " " and quote_mark is None:  # found space outside the quotation, yield the word
-                    yield word
-                    word = ""
-                else:  # append character to the buffer
-                    word += char
-            if quote_mark:  # there is unmatched quote
-                raise ValueError(f"unmatched quote in {value}")
-            yield word  # sequence done, return whatever we found
-
-        return [word for word in generator() if word]
 
     @staticmethod
     def section_name(section: str, suffix: str) -> str:

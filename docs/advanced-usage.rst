@@ -11,8 +11,8 @@ Depending on the goal the package can be used in different ways. Nevertheless, i
    from ahriman.core.database import SQLite
 
    architecture = "x86_64"
-   configuration = Configuration.from_path(Path("/etc/ahriman.ini"), architecture, quiet=False)
-   sqlite = SQLite.load(configuration)
+   configuration = Configuration.from_path(Path("/etc/ahriman.ini"), architecture)
+   database = SQLite.load(configuration)
 
 At this point there are ``configuration`` and ``database`` instances which can be used later at any time anywhere, e.g.
 
@@ -27,7 +27,7 @@ Almost all actions are wrapped by ``ahriman.core.repository.Repository`` class
 
    from ahriman.core.repository import Repository
 
-   repository = Repository(architecture, configuration, database, no_report=False, unsafe=False)
+   repository = Repository(architecture, configuration, database, report=True, unsafe=False)
 
 And the ``repository`` instance can be used to perform repository maintenance
 
@@ -37,6 +37,6 @@ And the ``repository`` instance can be used to perform repository maintenance
    built_packages = repository.packages_built()
    update_result = repository.process_update(built_packages)
 
-   repository.process_triggers(update_result)
+   repository.triggers.on_result(update_result, repository.packages())
 
 For the more info please refer to the classes documentation.
