@@ -52,7 +52,7 @@ fi
 # the build itself does not really work in the container
 sudo -u ahriman -- ahriman package-add --now yay
 # check if package was actually installed
-#test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
+test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
 # run package check
 sudo -u ahriman -- ahriman repo-update
 # stop web service lol
