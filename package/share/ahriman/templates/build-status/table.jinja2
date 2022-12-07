@@ -16,7 +16,6 @@
         } else showLogs(data.id);
     });
 
-    const architectureBadge = $("#badge-architecture");
     const repositoryBadge = $("#badge-repository");
     const statusBadge = $("#badge-status");
     const versionBadge = $("#badge-version");
@@ -65,6 +64,14 @@
 
     function reload() {
         table.bootstrapTable("showLoading");
+
+        const badgeClass = status => {
+            if (status === "pending") return "btn-outline-warning";
+            if (status === "building") return "btn-outline-warning";
+            if (status === "failed") return "btn-outline-danger";
+            if (status === "success") return "btn-outline-success";
+            return "btn-outline-secondary";
+        };
 
         $.ajax({
             url: "/api/v1/packages",
@@ -123,27 +130,16 @@
             type: "GET",
             dataType: "json",
             success: response => {
-                const badgeColor = status => {
-                    if (status === "pending") return "yellow";
-                    if (status === "building") return "yellow";
-                    if (status === "failed") return "critical";
-                    if (status === "success") return "success";
-                    return "inactive";
-                };
+                repositoryBadge.text(`${response.repository} ${response.architecture}`);
+                versionBadge.html(`<i class="bi bi-github"></i> ahriman ${safe(response.version)}`);
 
-                architectureBadge
-                    .attr("src", `https://img.shields.io/badge/architecture-${response.architecture}-informational`)
-                    .attr("alt", response.architecture);
-                repositoryBadge
-                    .attr("src", `https://img.shields.io/badge/repository-${response.repository.replace(/-/g, "--")}-informational`)
-                    .attr("alt", response.repository);
                 statusBadge
-                    .attr("src", `https://img.shields.io/badge/service%20status-${response.status.status}-${badgeColor(response.status.status)}`)
-                    .attr("alt", response.status.status)
-                    .attr("title", `at ${new Date(1000 * response.status.timestamp).toISOString()}`);
-                versionBadge
-                    .attr("src", `https://img.shields.io/badge/version-${response.version}-informational`)
-                    .attr("alt", response.version);
+                    .popover("dispose")
+                    .attr("data-bs-content", `${response.status.status} at ${new Date(1000 * response.status.timestamp).toISOString()}`)
+                    .popover();
+                statusBadge.removeClass();
+                statusBadge.addClass("btn");
+                statusBadge.addClass(badgeClass(response.status.status));
             },
         });
     }
@@ -169,6 +165,7 @@
 
     $(() => {
         table.bootstrapTable({});
+        $("#status-popover").popover();
         reload();
     });
 </script>
