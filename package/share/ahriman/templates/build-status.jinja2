@@ -15,16 +15,13 @@
         {% include "utils/bootstrap-scripts.jinja2" %}
 
         <div class="container">
-            <h1>ahriman
-                <img id="badge-version" src="https://img.shields.io/badge/version-unknown-informational" alt="unknown">
-                <img id="badge-repository" src="https://img.shields.io/badge/repository-unknown-informational" alt="unknown">
-                <img id="badge-architecture" src="https://img.shields.io/badge/architecture-unknown-informational" alt="unknown">
-                <img id="badge-status" src="https://img.shields.io/badge/service%20status-unknown-inactive" alt="unknown">
-            </h1>
+            <h1 id="badge-repository">ahriman</h1>
         </div>
 
         <div class="container">
             <div id="toolbar" class="dropdown">
+                <a id="badge-status" tabindex="0" role="button" class="btn btn-outline-secondary" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-content="no run data"><i class="bi bi-info-circle"></i></a>
+
                 {% if not auth.enabled or auth.username is not none %}
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-box"></i> packages
@@ -51,11 +48,13 @@
                             </button>
                         </li>
                     </ul>
-                    <button id="key-import-btn" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
+
+                    <button id="key-import-btn" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
                         <i class="bi bi-key"></i> import key
                     </button>
                 {% endif %}
-                <button class="btn btn-secondary" onclick="reload()">
+
+                <button type="button" class="btn btn-secondary" onclick="reload()">
                     <i class="bi bi-arrow-clockwise"></i> reload
                 </button>
             </div>
@@ -96,7 +95,7 @@
         <div class="container">
             <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
                 <ul class="nav">
-                    <li><a class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources"><i class="bi bi-github"></i> ahriman</a></li>
+                    <li><a id="badge-version" class="nav-link" href="https://github.com/arcan1s/ahriman" title="sources"><i class="bi bi-github"></i> ahriman</a></li>
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/releases" title="releases list">releases</a></li>
                     <li><a class="nav-link" href="https://github.com/arcan1s/ahriman/issues" title="issues tracker">report a bug</a></li>
                 </ul>
