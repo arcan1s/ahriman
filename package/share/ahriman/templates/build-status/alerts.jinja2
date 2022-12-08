@@ -1,0 +1,45 @@
+<script>
+    const alertPlaceholder = $("#alert-placeholder");
+
+    function createAlert(title, message, clz) {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("toast", clz);
+        wrapper.role = "alert";
+        wrapper.ariaLive = "assertive";
+        wrapper.ariaAtomic = "true";
+        wrapper.style.width = "500px"; // 500px is default modal size
+
+        const header = document.createElement("div");
+        header.classList.add("toast-header");
+        header.innerHTML = `<strong class="me-auto">${safe(title)}</strong> <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="close"></button>`;
+        wrapper.appendChild(header);
+
+        const body = document.createElement("div");
+        body.classList.add("toast-body", "text-bg-light");
+        body.innerText = message;
+        wrapper.appendChild(body);
+
+        alertPlaceholder.append(wrapper);
+        const toast = new bootstrap.Toast(wrapper);
+        wrapper.addEventListener("hidden.bs.toast", () => {
+            wrapper.remove();  // bootstrap doesn't remove elements
+            reload();
+        });
+        toast.show();
+    }
+
+    function showFailure(title, description, jqXHR, errorThrown) {
+        let details;
+        try {
+            details = $.parseJSON(jqXHR.responseText).error; // execution handler json error response
+        } catch (_) {
+            details = errorThrown;
+        }
+        createAlert(title, description(details), "text-bg-danger");
+    }
+
+    function showSuccess(title, description) {
+        createAlert(title, description, "text-bg-success");
+    }
+
+</script>

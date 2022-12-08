@@ -81,10 +81,11 @@
                 contentType: "application/json",
                 success: _ => {
                     keyImportModal.modal("hide");
-                    showSuccess("Success", `Key ${key} has been imported`, "");
+                    showSuccess("Success", `Key ${key} has been imported`);
                 },
                 error: (jqXHR, _, errorThrown) => {
-                    showFailure("Action failed", `Could not import key ${key} from ${server}`, errorThrown);
+                    const message = _ => { return `Could not import key ${key} from ${server}`; };
+                    showFailure("Action failed", message, jqXHR, errorThrown);
                 },
             });
         }

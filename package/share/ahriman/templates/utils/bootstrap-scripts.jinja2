@@ -30,4 +30,12 @@
             button.html("<i class=\"bi bi-clipboard\"></i> copy");
         }, 2000);
     }
+
+    function safe(string) {
+        return String(string)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
 </script>
