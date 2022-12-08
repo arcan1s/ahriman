@@ -60,7 +60,10 @@
             },
             error: (jqXHR, _, errorThrown) => {
                 // show failed modal in case if first time loading
-                if (isPackageBaseSet) showFailure("Load failure", `Could not load package ${packageBase} logs:`, errorThrown);
+                if (isPackageBaseSet) {
+                    const message = error => { return `Could not load package ${packageBase} logs: ${error}`; };
+                    showFailure("Load failure", message, jqXHR, errorThrown);
+                }
             },
         });
     }

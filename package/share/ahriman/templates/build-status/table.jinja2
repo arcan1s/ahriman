@@ -27,15 +27,11 @@
             type: "POST",
             contentType: "application/json",
             success: _ => {
-                const details = packages.map(pkg => {
-                    const li = document.createElement("li");
-                    li.innerText = pkg;
-                    return li;
-                });
-                showSuccess("Success", successText, details);
+                const message = successText(packages.join(", "));
+                showSuccess("Success", message);
             },
             error: (jqXHR, _, errorThrown) => {
-                showFailure("Action failed", failureText, errorThrown);
+                showFailure("Action failed", failureText, jqXHR, errorThrown);
             },
         });
     }
@@ -45,13 +41,18 @@
     }
 
     function removePackages() {
-        doPackageAction("/api/v1/service/remove", getSelection(), "The following packages have been removed:", "Packages removal failed:");
+        const onSuccess = update => { return `Packages ${update} have been removed`; };
+        const onFailure = error => { return `Could not remove packages: ${error}`; };
+        doPackageAction("/api/v1/service/remove", getSelection(), onSuccess, onFailure);
     }
 
     function updatePackages() {
         const currentSelection = getSelection();
-        const url = currentSelection.length === 0 ? "/api/v1/service/update" : "/api/v1/service/add";
-        doPackageAction(url, getSelection(), "Packages update has been run", "Packages update failed:");
+        const [url, onSuccess] = currentSelection.length === 0
+            ? ["/api/v1/service/update", _ => { return "Repository update has been run"; }]
+            : ["/api/v1/service/add", update => { return `Run update for packages ${update}`; }];
+        const onFailure = error => { return `Packages update failed: ${error}`; };
+        doPackageAction(url, currentSelection, onSuccess, onFailure);
     }
 
     function hideControls(hidden) {
@@ -119,7 +120,8 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    showFailure("Load failure", "Could not load list of packages:", errorThrown);
+                    const messaga = error => { return `Could not load list of packages: ${error}`; };
+                    showFailure("Load failure", messaga, jqXHR, errorThrown);
                 }
                 hideControls(true);
             },
@@ -144,14 +146,6 @@
         });
     }
 
-    function safe(string) {
-        return String(string)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
     function statusFormat(value) {
         const cellClass = status => {
             if (status === "pending") return "table-warning";
@@ -165,7 +159,7 @@
 
     $(() => {
         table.bootstrapTable({});
-        $("#status-popover").popover();
+        statusBadge.popover();
         reload();
     });
 </script>

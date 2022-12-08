@@ -60,7 +60,9 @@
         const packages = packageInput.val();
         if (packages) {
             packageAddModal.modal("hide");
-            doPackageAction("/api/v1/service/add", [packages], "The following package has been added:", "Package addition failed:");
+            const onSuccess = update => { return `Packages ${update} have been added`; };
+            const onFailure = error => { return `Package addition failed: ${error}`; };
+            doPackageAction("/api/v1/service/add", [packages], onSuccess, onFailure);
         }
     }
 
@@ -68,7 +70,9 @@
         const packages = packageInput.val();
         if (packages) {
             packageAddModal.modal("hide");
-            doPackageAction("/api/v1/service/request", [packages], "The following package has been requested:", "Package request failed:");
+            const onSuccess = update => { return `Packages ${update} have been requested`; };
+            const onFailure = error => { return `Package request failed: ${error}`; };
+            doPackageAction("/api/v1/service/request", [packages], onSuccess, onFailure);
         }
     }
 </script>

@@ -18,6 +18,8 @@
             <h1 id="badge-repository">ahriman</h1>
         </div>
 
+        <div id="alert-placeholder" class="toast-container p3 top-0 start-50 translate-middle-x"></div>
+
         <div class="container">
             <div id="toolbar" class="dropdown">
                 <a id="badge-status" tabindex="0" role="button" class="btn btn-outline-secondary" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-content="no run data"><i class="bi bi-info-circle"></i></a>
@@ -126,8 +128,7 @@
             {% include "build-status/login-modal.jinja2" %}
         {% endif %}
 
-        {% include "build-status/failed-modal.jinja2" %}
-        {% include "build-status/success-modal.jinja2" %}
+        {% include "build-status/alerts.jinja2" %}
 
         {% include "build-status/package-add-modal.jinja2" %}
         {% include "build-status/package-rebuild-modal.jinja2" %}
