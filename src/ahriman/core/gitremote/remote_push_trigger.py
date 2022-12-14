@@ -20,6 +20,7 @@
 from typing import Iterable
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.gitremote.remote_push import RemotePush
 from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
@@ -29,6 +30,10 @@ from ahriman.models.result import Result
 class RemotePushTrigger(Trigger):
     """
     trigger for syncing PKGBUILDs to remote repository
+
+    Attributes:
+        database(SQLite): database instance
+        targets(List[str]): git remote target list
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
@@ -40,6 +45,7 @@ class RemotePushTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
+        self.database = SQLite.load(configuration)
         self.targets = configuration.getlist("remote-push", "target", fallback=["gitremote"])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
@@ -52,5 +58,5 @@ class RemotePushTrigger(Trigger):
         """
         for target in self.targets:
             section, _ = self.configuration.gettype(target, self.architecture)
-            runner = RemotePush(self.configuration, section)
+            runner = RemotePush(self.configuration, self.database, section)
             runner.run(result)
