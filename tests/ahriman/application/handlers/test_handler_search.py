@@ -8,6 +8,7 @@ from unittest.mock import call as MockCall
 from ahriman.application.handlers import Search
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError
+from ahriman.core.repository import Repository
 from ahriman.models.aur_package import AURPackage
 
 
@@ -28,13 +29,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
-             mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     aur_search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     official_search_mock = mocker.patch("ahriman.core.alpm.remote.Official.multisearch",
                                         return_value=[aur_package_ahriman])
@@ -48,7 +49,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, aur_package
     print_mock.assert_has_calls([MockCall(False), MockCall(False)])
 
 
-def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                             mocker: MockerFixture) -> None:
     """
     must raise ExitCode exception on empty result list
     """
@@ -57,22 +59,22 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[])
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.formatters.Printer.print")
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Search.run(args, "x86_64", configuration, report=False, unsafe=False)
     check_mock.assert_called_once_with(True, True)
 
 
-def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
-                  mocker: MockerFixture) -> None:
+def test_run_sort(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                  aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must run command with sorting
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
     Search.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -82,8 +84,8 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, aur_pa
     ])
 
 
-def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur_package_ahriman: AURPackage,
-                     mocker: MockerFixture) -> None:
+def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                     aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must run command with sorting by specified field
     """
@@ -91,7 +93,7 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, aur
     args.sort_by = "field"
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
     Search.run(args, "x86_64", configuration, report=False, unsafe=False)

@@ -17,12 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from __future__ import annotations
 
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Type
+
+from ahriman.core import context
+from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
+from ahriman.core.sign.gpg import GPG
 from ahriman.core.util import package_like
+from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 
 
@@ -39,7 +47,7 @@ class Repository(Executor, UpdateHandler):
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository("x86_64", configuration, database, report=True, unsafe=False)
+            >>> repository = Repository.load("x86_64", configuration, database, report=True, unsafe=False)
             >>> known_packages = repository.packages()
             >>>
             >>> build_result = repository.process_build(known_packages)
@@ -48,6 +56,41 @@ class Repository(Executor, UpdateHandler):
             >>>
             >>> repository.triggers.on_result(update_result, repository.packages())
     """
+
+    @classmethod
+    def load(cls: Type[Repository], architecture: str, configuration: Configuration, database: SQLite, *,
+             report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> Repository:
+        """
+        load instance from argument list
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            database(SQLite): database instance
+            report(bool): force enable or disable reporting
+            unsafe(bool): if set no user check will be performed before path creation
+            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
+                (Default value = 0)
+        """
+        instance = cls(architecture, configuration, database,
+                       report=report, unsafe=unsafe, refresh_pacman_database=refresh_pacman_database)
+        instance._set_context()
+        return instance
+
+    def _set_context(self) -> None:
+        """
+        set context variables
+        """
+        ctx = context.get()
+
+        ctx.set(ContextKey("database", SQLite), self.database)
+        ctx.set(ContextKey("configuration", Configuration), self.configuration)
+        ctx.set(ContextKey("pacman", Pacman), self.pacman)
+        ctx.set(ContextKey("sign", GPG), self.sign)
+
+        ctx.set(ContextKey("repository", type(self)), self)
+
+        context.set(ctx)
 
     def load_archives(self, packages: Iterable[Path]) -> List[Package]:
         """

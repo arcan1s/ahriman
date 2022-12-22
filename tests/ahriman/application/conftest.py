@@ -8,16 +8,19 @@ from ahriman.application.application import Application
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.repository import Repository
 
 
 @pytest.fixture
-def application(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Application:
+def application(configuration: Configuration, repository: Repository, database: SQLite,
+                mocker: MockerFixture) -> Application:
     """
     fixture for application
 
     Args:
         configuration(Configuration): configuration fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -25,6 +28,7 @@ def application(configuration: Configuration, database: SQLite, mocker: MockerFi
     """
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     return Application("x86_64", configuration, report=False, unsafe=False)
 
 

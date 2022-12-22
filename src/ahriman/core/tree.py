@@ -110,7 +110,7 @@ class Tree:
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository("x86_64", configuration, database, report=True, unsafe=False)
+            >>> repository = Repository.load("x86_64", configuration, database, report=True, unsafe=False)
             >>> packages = repository.packages()
             >>>
             >>> tree = Tree.load(packages, configuration.repository_paths, database)

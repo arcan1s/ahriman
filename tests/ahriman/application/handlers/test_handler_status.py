@@ -5,6 +5,8 @@ from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Status
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
+from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 
@@ -27,13 +29,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-             package_python_schedule: Package, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             package_ahriman: Package, package_python_schedule: Package, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.core.status.client.Client.get_internal")
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
@@ -48,13 +50,14 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     print_mock.assert_has_calls([MockCall(False) for _ in range(3)])
 
 
-def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                             mocker: MockerFixture) -> None:
     """
     must raise ExitCode exception on empty status result
     """
     args = _default_args(args)
     args.exit_code = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.status.client.Client.get_internal")
     mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
@@ -63,14 +66,14 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     check_mock.assert_called_once_with(True, True)
 
 
-def test_run_verbose(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                     mocker: MockerFixture) -> None:
+def test_run_verbose(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                     package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run command with detailed info
     """
     args = _default_args(args)
     args.info = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.status.client.Client.get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
@@ -79,14 +82,14 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, pac
     print_mock.assert_has_calls([MockCall(True) for _ in range(2)])
 
 
-def test_run_with_package_filter(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                                 mocker: MockerFixture) -> None:
+def test_run_with_package_filter(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                                 package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run command with package filter
     """
     args = _default_args(args)
     args.package = [package_ahriman.base]
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
@@ -94,8 +97,8 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     packages_mock.assert_called_once_with(package_ahriman.base)
 
 
-def test_run_by_status(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                       package_python_schedule: Package, mocker: MockerFixture) -> None:
+def test_run_by_status(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                       package_ahriman: Package, package_python_schedule: Package, mocker: MockerFixture) -> None:
     """
     must filter packages by status
     """
@@ -104,23 +107,25 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, p
     mocker.patch("ahriman.core.status.client.Client.get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Status.run(args, "x86_64", configuration, report=False, unsafe=False)
     print_mock.assert_has_calls([MockCall(False) for _ in range(2)])
 
 
-def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                           mocker: MockerFixture) -> None:
     """
     must create application object with native reporting
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    load_mock = mocker.patch("ahriman.core.status.client.Client.load")
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    load_mock = mocker.patch("ahriman.core.repository.Repository.load")
 
     Status.run(args, "x86_64", configuration, report=False, unsafe=False)
-    load_mock.assert_called_once_with(configuration, report=True)
+    load_mock.assert_called_once_with("x86_64", configuration, database,
+                                      report=True, unsafe=False, refresh_pacman_database=0)
 
 
 def test_disallow_auto_architecture_run() -> None:

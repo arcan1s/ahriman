@@ -19,10 +19,12 @@
 #
 from typing import Iterable
 
+from ahriman.core import context
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.gitremote.remote_push import RemotePush
 from ahriman.core.triggers import Trigger
+from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -32,7 +34,6 @@ class RemotePushTrigger(Trigger):
     trigger for syncing PKGBUILDs to remote repository
 
     Attributes:
-        database(SQLite): database instance
         targets(List[str]): git remote target list
     """
 
@@ -45,7 +46,6 @@ class RemotePushTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.database = SQLite.load(configuration)
         self.targets = configuration.getlist("remote-push", "target", fallback=["gitremote"])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
@@ -55,8 +55,14 @@ class RemotePushTrigger(Trigger):
         Args:
             result(Result): build result
             packages(Iterable[Package]): list of all available packages
+
+        Raises:
+            GitRemoteError: if database is not set in context
         """
+        ctx = context.get()
+        database = ctx.get(ContextKey("database", SQLite))
+
         for target in self.targets:
             section, _ = self.configuration.gettype(target, self.architecture)
-            runner = RemotePush(self.configuration, self.database, section)
+            runner = RemotePush(self.configuration, database, section)
             runner.run(result)

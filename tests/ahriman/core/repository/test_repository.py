@@ -2,9 +2,40 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
+from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
+from ahriman.core.sign.gpg import GPG
+from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
+
+
+def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
+    """
+    must correctly load instance
+    """
+    context_mock = mocker.patch("ahriman.core.repository.Repository._set_context")
+    Repository.load("x86_64", configuration, database, report=False, unsafe=False)
+    context_mock.assert_called_once_with()
+
+
+def test_set_context(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
+    """
+    must set context variables
+    """
+    set_mock = mocker.patch("ahriman.core._Context.set")
+
+    instance = Repository.load("x86_64", configuration, database, report=False, unsafe=False)
+    set_mock.assert_has_calls([
+        MockCall(ContextKey("database", SQLite), instance.database),
+        MockCall(ContextKey("configuration", Configuration), instance.configuration),
+        MockCall(ContextKey("pacman", Pacman), instance.pacman),
+        MockCall(ContextKey("sign", GPG), instance.sign),
+        MockCall(ContextKey("repository", Repository), instance),
+    ])
 
 
 def test_load_archives(package_ahriman: Package, package_python_schedule: Package,

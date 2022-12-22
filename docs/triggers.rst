@@ -36,6 +36,40 @@ Trigger which can be used for reporting. It implements ``on_result`` method and 
 
 This trigger takes build result (``on_result``) and performs syncing of the local packages to the remote mirror (e.g. S3 or just by rsync).
 
+Context variables
+-----------------
+
+By default, only configuration and architecture are passed to triggers. However, some triggers might want to have access to other high-level wrappers. In order to provide such ability and avoid (double) initialization, the service provides a global context variables, which can be accessed from ``ahriman.core`` package:
+
+.. code-block:: python
+
+   from ahriman.core import context
+
+   ctx = context.get()
+
+Just because context is wrapped inside ``contexvars.ContextVar``, you need to explicitly extract variable by ``get()`` method. Later you can extract any variable if it is set, e.g.:
+
+.. code-block:: python
+
+   from ahriman.core.database import SQLite
+   from ahriman.models.context_key import ContextKey
+
+   database = ctx.get(ContextKey("database", SQLite))
+
+In order to provide typed API, all variables are stored together with their type. The ``get(ContextKey)`` method will throw ``KeyError`` in case if key is missing. Alternatively you can set your own variable inside context:
+
+.. code-block:: python
+
+   ctx.set(ContextKey("answer", int), 42)
+   context.set(ctx)
+
+Note, however, that there are several limitations:
+
+* Context variables are immutable, thus you cannot override value if the key already presented.
+* The ``return_type`` of ``ContextKey`` should match the value type, otherwise exception will be thrown.
+
+The ``context`` also implements collection methods such as ``__iter__`` and ``__len__``.
+
 Trigger example
 ---------------
 
