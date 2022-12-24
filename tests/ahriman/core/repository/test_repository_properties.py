@@ -12,7 +12,7 @@ def test_create_tree_on_load(configuration: Configuration, database: SQLite, moc
     """
     mocker.patch("ahriman.core.repository.repository_properties.check_user")
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    RepositoryProperties("x86_64", configuration, database, report=False, unsafe=False)
+    RepositoryProperties("x86_64", configuration, database, report=False, unsafe=False, refresh_pacman_database=0)
 
     tree_create_mock.assert_called_once_with()
 
@@ -23,6 +23,6 @@ def test_create_tree_on_load_unsafe(configuration: Configuration, database: SQLi
     """
     mocker.patch("ahriman.core.repository.repository_properties.check_user", side_effect=UnsafeRunError(0, 1))
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    RepositoryProperties("x86_64", configuration, database, report=False, unsafe=False)
+    RepositoryProperties("x86_64", configuration, database, report=False, unsafe=False, refresh_pacman_database=0)
 
     tree_create_mock.assert_not_called()

@@ -48,7 +48,7 @@ class RepositoryProperties(LazyLogging):
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *,
-                 report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> None:
+                 report: bool, unsafe: bool, refresh_pacman_database: int) -> None:
         """
         default constructor
 
@@ -59,7 +59,6 @@ class RepositoryProperties(LazyLogging):
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
             refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
-                (Default value = 0)
         """
         self.architecture = architecture
         self.configuration = configuration

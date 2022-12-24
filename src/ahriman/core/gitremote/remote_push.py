@@ -25,6 +25,7 @@ from typing import Generator
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
@@ -39,17 +40,20 @@ class RemotePush(LazyLogging):
 
     Attributes:
         commit_author(Optional[str]): optional commit author in form of git config (i.e. ``user <user@host>``)
+        database(SQLite): database instance
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
     """
 
-    def __init__(self, configuration: Configuration, section: str) -> None:
+    def __init__(self, configuration: Configuration, database: SQLite, section: str) -> None:
         """
         default constructor
 
         Args:
             configuration(Configuration): configuration instance
-            remote_push_trigger.py
+            database(SQLite): database instance
+            section(str): settings section name
         """
+        self.database = database
         self.commit_author = configuration.get(section, "commit_author", fallback=None)
         self.remote_source = RemoteSource(
             git_url=configuration.get(section, "push_url"),
@@ -59,8 +63,7 @@ class RemotePush(LazyLogging):
             source=PackageSource.Local,
         )
 
-    @staticmethod
-    def package_update(package: Package, target_dir: Path) -> str:
+    def package_update(self, package: Package, target_dir: Path) -> str:
         """
         clone specified package and update its content in cloned PKGBUILD repository
 
@@ -79,11 +82,14 @@ class RemotePush(LazyLogging):
         Sources.fetch(package_target_dir, package.remote)
         # ...and last, but not least, we remove the dot-git directory...
         shutil.rmtree(package_target_dir / ".git", ignore_errors=True)
+        # ...copy all patches...
+        for patch in self.database.patches_get(package.base):
+            filename = f"ahriman-{package.base}.patch" if patch.key is None else f"ahriman-{patch.key}.patch"
+            patch.write(package_target_dir / filename)
         # ...and finally return path to the copied directory
         return package.base
 
-    @staticmethod
-    def packages_update(result: Result, target_dir: Path) -> Generator[str, None, None]:
+    def packages_update(self, result: Result, target_dir: Path) -> Generator[str, None, None]:
         """
         update all packages from the build result
 
@@ -95,7 +101,7 @@ class RemotePush(LazyLogging):
             str: path to updated files
         """
         for package in result.success:
-            yield RemotePush.package_update(package, target_dir)
+            yield self.package_update(package, target_dir)
 
     def run(self, result: Result) -> None:
         """
@@ -107,7 +113,7 @@ class RemotePush(LazyLogging):
         try:
             with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
                 Sources.fetch(clone_dir, self.remote_source)
-                Sources.push(clone_dir, self.remote_source, *RemotePush.packages_update(result, clone_dir),
+                Sources.push(clone_dir, self.remote_source, *self.packages_update(result, clone_dir),
                              commit_author=self.commit_author)
         except Exception:
             self.logger.exception("git push failed")

@@ -7,6 +7,7 @@ from unittest.mock import call as MockCall
 from ahriman.application.application import Application
 from ahriman.application.handlers import Update
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -32,15 +33,15 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, package_ahriman: Package,
-             configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: Configuration, repository: Repository,
+             mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
     result = Result()
     result.add_success(package_ahriman)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
@@ -54,14 +55,15 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     on_start_mock.assert_called_once_with()
 
 
-def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                             mocker: MockerFixture) -> None:
     """
     must raise ExitCode exception on empty update list
     """
     args = _default_args(args)
     args.exit_code = True
     args.dry_run = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.updates", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
@@ -69,14 +71,14 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     check_mock.assert_called_once_with(True, True)
 
 
-def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: Package,
-                                    configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: Package, configuration: Configuration,
+                                    repository: Repository, mocker: MockerFixture) -> None:
     """
     must raise ExitCode exception on empty build result
     """
     args = _default_args(args)
     args.exit_code = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
@@ -85,13 +87,14 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     check_mock.assert_has_calls([MockCall(True, False), MockCall(True, True)])
 
 
-def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                     mocker: MockerFixture) -> None:
     """
     must run simplified command
     """
     args = _default_args(args)
     args.dry_run = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")

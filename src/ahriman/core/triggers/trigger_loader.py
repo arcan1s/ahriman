@@ -69,11 +69,11 @@ class TriggerLoader(LazyLogging):
         self.architecture = architecture
         self.configuration = configuration
 
+        self._on_stop_requested = False
         self.triggers = [
             self.load_trigger(trigger)
             for trigger in configuration.getlist("build", "triggers")
         ]
-        self._on_stop_requested = False
 
     def __del__(self) -> None:
         """

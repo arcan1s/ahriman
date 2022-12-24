@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.application import Application
 from ahriman.application.handlers import Patch
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.models.action import Action
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -31,13 +32,14 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
     args.action = Action.Update
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_diff",
                               return_value=(args.package, PkgbuildPatch(None, "patch")))
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
@@ -47,7 +49,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, PkgbuildPatch(None, "patch"))
 
 
-def test_run_function(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_function(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                      mocker: MockerFixture) -> None:
     """
     must run command with patch function flag
     """
@@ -56,7 +59,7 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, mo
     args.patch = "patch"
     args.variable = "version"
     patch = PkgbuildPatch(args.variable, args.patch)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_function", return_value=patch)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
@@ -65,28 +68,30 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, mo
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, patch)
 
 
-def test_run_list(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_list(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                  mocker: MockerFixture) -> None:
     """
     must run command with list flag
     """
     args = _default_args(args)
     args.action = Action.List
     args.variable = ["version"]
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_list")
 
     Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, ["version"], False)
 
 
-def test_run_remove(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_remove(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                    mocker: MockerFixture) -> None:
     """
     must run command with remove flag
     """
     args = _default_args(args)
     args.action = Action.Remove
     args.variable = ["version"]
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_remove")
 
     Patch.run(args, "x86_64", configuration, report=False, unsafe=False)

@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Sign
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -20,12 +21,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.sign")
 
     Sign.run(args, "x86_64", configuration, report=False, unsafe=False)

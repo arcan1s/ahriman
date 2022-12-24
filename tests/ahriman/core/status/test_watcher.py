@@ -6,7 +6,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
-from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -17,10 +16,10 @@ def test_force_no_report(configuration: Configuration, database: SQLite, mocker:
     must force dummy report client
     """
     configuration.set_option("web", "port", "8080")
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    load_mock = mocker.patch("ahriman.core.repository.Repository.load")
 
     watcher = Watcher("x86_64", configuration, database)
-    assert not isinstance(watcher.repository.reporter, WebClient)
+    load_mock.assert_called_once_with("x86_64", configuration, database, report=False, unsafe=False)
 
 
 def test_get(watcher: Watcher, package_ahriman: Package) -> None:
