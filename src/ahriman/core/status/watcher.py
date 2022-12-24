@@ -55,7 +55,7 @@ class Watcher(LazyLogging):
         """
         self.architecture = architecture
         self.database = database
-        self.repository = Repository(architecture, configuration, database, report=False, unsafe=False)
+        self.repository = Repository.load(architecture, configuration, database, report=False, unsafe=False)
 
         self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()

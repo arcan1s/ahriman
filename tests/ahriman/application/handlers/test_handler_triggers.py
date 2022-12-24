@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Triggers
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -22,12 +23,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.on_result")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
@@ -36,15 +38,15 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     on_start_mock.assert_called_once_with()
 
 
-def test_run_trigger(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                     mocker: MockerFixture) -> None:
+def test_run_trigger(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                     package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run triggers specified by command line
     """
     args = _default_args(args)
     args.trigger = ["ahriman.core.report.ReportTrigger"]
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
     upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result")
 

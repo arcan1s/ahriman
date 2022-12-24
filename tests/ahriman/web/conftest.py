@@ -12,6 +12,7 @@ import ahriman.core.auth.helpers
 from ahriman.core.auth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.models.user import User
 from ahriman.web.web import setup_service
@@ -48,7 +49,7 @@ def request(app: web.Application, path: str, method: str, json: Any = None, data
 
 
 @pytest.fixture
-def application(configuration: Configuration, spawner: Spawn, database: SQLite,
+def application(configuration: Configuration, spawner: Spawn, database: SQLite, repository: Repository,
                 mocker: MockerFixture) -> web.Application:
     """
     application fixture
@@ -57,20 +58,21 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite,
         configuration(Configuration): configuration fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
         web.Application: application test instance
     """
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     return setup_service("x86_64", configuration, spawner)
 
 
 @pytest.fixture
 def application_with_auth(configuration: Configuration, user: User, spawner: Spawn, database: SQLite,
-                          mocker: MockerFixture) -> web.Application:
+                          repository: Repository, mocker: MockerFixture) -> web.Application:
     """
     application fixture with auth enabled
 
@@ -79,6 +81,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
         user(User): user descriptor fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -86,7 +89,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     """
     configuration.set_option("auth", "target", "configuration")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
     application = setup_service("x86_64", configuration, spawner)
 
@@ -98,7 +101,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
 
 @pytest.fixture
 def application_with_debug(configuration: Configuration, user: User, spawner: Spawn, database: SQLite,
-                           mocker: MockerFixture) -> web.Application:
+                           repository: Repository, mocker: MockerFixture) -> web.Application:
     """
     application fixture with debug enabled
 
@@ -107,6 +110,7 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
         user(User): user descriptor fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -114,7 +118,7 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     """
     configuration.set_option("web", "debug", "yes")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     return setup_service("x86_64", configuration, spawner)
 

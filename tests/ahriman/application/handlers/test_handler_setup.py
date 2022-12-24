@@ -8,6 +8,7 @@ from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Setup
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.sign_settings import SignSettings
 
@@ -36,13 +37,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, repository_paths: RepositoryPaths,
-             mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+             repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_ahriman")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
     makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")

@@ -25,6 +25,9 @@ from ahriman.core.triggers import Trigger
 class RemotePullTrigger(Trigger):
     """
     trigger based on pulling PKGBUILDs before the actions
+
+    Attributes:
+        targets(List[str]): git remote target list
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

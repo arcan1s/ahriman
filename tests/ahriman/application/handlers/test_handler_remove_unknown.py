@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import RemoveUnknown
 from ahriman.core.configuration import Configuration
+from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 
 
@@ -21,13 +22,13 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def test_run(args: argparse.Namespace, package_ahriman: Package,
-             configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: Configuration,
+             repository: Repository, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.unknown",
                                     return_value=[package_ahriman])
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
@@ -39,14 +40,14 @@ def test_run(args: argparse.Namespace, package_ahriman: Package,
     on_start_mock.assert_called_once_with()
 
 
-def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, package_ahriman: Package,
-                     mocker: MockerFixture) -> None:
+def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                     package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run simplified command
     """
     args = _default_args(args)
     args.dry_run = True
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.unknown",
                                     return_value=[package_ahriman])
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")

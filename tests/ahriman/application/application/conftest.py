@@ -7,28 +7,31 @@ from ahriman.application.application.application_properties import ApplicationPr
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.repository import Repository
 
 
 @pytest.fixture
-def application_packages(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> ApplicationPackages:
+def application_packages(configuration: Configuration, database: SQLite, repository: Repository,
+                         mocker: MockerFixture) -> ApplicationPackages:
     """
     fixture for application with package functions
 
     Args:
         configuration(Configuration): configuration fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
         ApplicationPackages: application test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationPackages("x86_64", configuration, report=False, unsafe=False)
 
 
 @pytest.fixture
-def application_properties(configuration: Configuration, database: SQLite,
+def application_properties(configuration: Configuration, database: SQLite, repository: Repository,
                            mocker: MockerFixture) -> ApplicationProperties:
     """
     fixture for application with properties only
@@ -36,18 +39,19 @@ def application_properties(configuration: Configuration, database: SQLite,
     Args:
         configuration(Configuration): configuration fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
         ApplicationProperties: application test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationProperties("x86_64", configuration, report=False, unsafe=False)
 
 
 @pytest.fixture
-def application_repository(configuration: Configuration, database: SQLite,
+def application_repository(configuration: Configuration, database: SQLite, repository: Repository,
                            mocker: MockerFixture) -> ApplicationRepository:
     """
     fixture for application with repository functions
@@ -55,11 +59,12 @@ def application_repository(configuration: Configuration, database: SQLite,
     Args:
         configuration(Configuration): configuration fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
         ApplicationRepository: application test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     return ApplicationRepository("x86_64", configuration, report=False, unsafe=False)

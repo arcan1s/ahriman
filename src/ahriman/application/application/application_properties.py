@@ -50,5 +50,5 @@ class ApplicationProperties(LazyLogging):
         self.configuration = configuration
         self.architecture = architecture
         self.database = SQLite.load(configuration)
-        self.repository = Repository(architecture, configuration, self.database,
-                                     report=report, unsafe=unsafe, refresh_pacman_database=refresh_pacman_database)
+        self.repository = Repository.load(architecture, configuration, self.database, report=report, unsafe=unsafe,
+                                          refresh_pacman_database=refresh_pacman_database)

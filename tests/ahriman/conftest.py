@@ -10,6 +10,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.aur_package import AURPackage
@@ -389,6 +390,24 @@ def remote_source() -> RemoteSource:
 
 
 @pytest.fixture
+def repository(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Repository:
+    """
+    fixture for repository
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        Repository: repository test instance
+    """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository._set_context")
+    return Repository.load("x86_64", configuration, database, report=False, unsafe=False)
+
+
+@pytest.fixture
 def repository_paths(configuration: Configuration) -> RepositoryPaths:
     """
     repository paths fixture
@@ -444,17 +463,18 @@ def user() -> User:
 
 
 @pytest.fixture
-def watcher(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> Watcher:
+def watcher(configuration: Configuration, database: SQLite, repository: Repository, mocker: MockerFixture) -> Watcher:
     """
     package status watcher fixture
 
     Args:
         configuration(Configuration): configuration fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
         Watcher: package status watcher test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     return Watcher("x86_64", configuration, database)

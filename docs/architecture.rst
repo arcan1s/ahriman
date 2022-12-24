@@ -169,6 +169,15 @@ Utils
 
 For every external command run (which is actually not recommended if possible) custom wrapper for ``subprocess`` is used. Additional functions ``ahriman.core.auth.helpers`` provide safe calls for ``aiohttp_security`` methods and are required to make this dependency optional.
 
+Context variables
+^^^^^^^^^^^^^^^^^
+
+Package provides implicit global variables which can be accessed from ``ahriman.core`` package as ``context`` variable, wrapped by ``contextvars.ContextVar`` class. The value of the variable is defaulting to private ``_Context`` class which is defined in the same module. The default values - such as ``database`` and ``sign`` - are being set on the service initialization.
+
+The ``_Context`` class itself mimics default collection interface (as is Mapping) and can be modified by ``_Context.set`` method. The stored variables can be achieved by ``_Context.get`` method, which is unlike default ``Mapping`` interface also performs type and presence checks.
+
+In order to provide statically typed interface, the ``ahriman.models.context_key.ContextKey`` class is used for both ``_Content.get`` and ``_Content.set`` methods; the context instance itself, however, does not store information about types.
+
 Submodules
 ^^^^^^^^^^
 
