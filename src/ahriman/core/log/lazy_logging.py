@@ -38,7 +38,7 @@ class LazyLogging:
         logger extractor
 
         Args:
-            item(str) property name:
+            item(str): property name
 
         Returns:
             Any: attribute by its name
