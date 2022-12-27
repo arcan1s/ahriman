@@ -1,7 +1,7 @@
 import pytest
 
 from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, PackagePrinter, PatchPrinter, StatusPrinter, \
-    StringPrinter, UpdatePrinter, UserPrinter, VersionPrinter
+    StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, VersionPrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
@@ -85,15 +85,29 @@ def string_printer() -> StringPrinter:
 
 
 @pytest.fixture
-def update_printer(package_ahriman: Package) -> UpdatePrinter:
+def tree_printer(package_ahriman: Package) -> TreePrinter:
     """
-    fixture for build status printer
+    fixture for tree printer
 
     Args:
         package_ahriman(Package): package fixture
 
     Returns:
-        UpdatePrinter: build status printer test instance
+        TreePrinter: tree printer test instance
+    """
+    return TreePrinter(0, [package_ahriman])
+
+
+@pytest.fixture
+def update_printer(package_ahriman: Package) -> UpdatePrinter:
+    """
+    fixture for update printer
+
+    Args:
+        package_ahriman(Package): package fixture
+
+    Returns:
+        UpdatePrinter: udpate printer test instance
     """
     return UpdatePrinter(package_ahriman, None)
 

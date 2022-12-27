@@ -68,6 +68,14 @@ ahriman.core.formatters.string\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.tree\_printer module
+--------------------------------------------
+
+.. automodule:: ahriman.core.formatters.tree_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.update\_printer module
 ----------------------------------------------
 

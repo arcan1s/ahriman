@@ -19,9 +19,11 @@
 #
 from __future__ import annotations
 
+import itertools
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterable, List, Set, Type
+from typing import Callable, Iterable, List, Set, Tuple, Type
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.database import SQLite
@@ -77,6 +79,21 @@ class Leaf:
             dependencies = Package.dependencies(clone_dir)
         return cls(package, dependencies)
 
+    def is_dependency(self, packages: Iterable[Leaf]) -> bool:
+        """
+        check if the package is dependency of any other package from list or not
+
+        Args:
+            packages(Iterable[Leaf]): list of known leaves
+
+        Returns:
+            bool: True in case if package is dependency of others and False otherwise
+        """
+        for leaf in packages:
+            if leaf.dependencies.intersection(self.items):
+                return True
+        return False
+
     def is_root(self, packages: Iterable[Leaf]) -> bool:
         """
         check if package depends on any other package from list of not
@@ -113,8 +130,8 @@ class Tree:
             >>> repository = Repository.load("x86_64", configuration, database, report=True, unsafe=False)
             >>> packages = repository.packages()
             >>>
-            >>> tree = Tree.load(packages, configuration.repository_paths, database)
-            >>> for tree_level in tree.levels():
+            >>> tree = Tree.resolve(packages, configuration.repository_paths, database)
+            >>> for tree_level in tree:
             >>>     for package in tree_level:
             >>>         print(package.base)
             >>>     print()
@@ -141,9 +158,10 @@ class Tree:
         self.leaves = leaves
 
     @classmethod
-    def load(cls: Type[Tree], packages: Iterable[Package], paths: RepositoryPaths, database: SQLite) -> Tree:
+    def resolve(cls: Type[Tree], packages: Iterable[Package], paths: RepositoryPaths,
+                database: SQLite) -> List[List[Package]]:
         """
-        load tree from packages
+        resolve dependency tree
 
         Args:
             packages(Iterable[Package]): packages list
@@ -151,22 +169,45 @@ class Tree:
             database(SQLite): database instance
 
         Returns:
-            Tree: loaded class
+            List[List[Package]]: list of packages lists based on their dependencies
         """
-        return cls([Leaf.load(package, paths, database) for package in packages])
+        leaves = [Leaf.load(package, paths, database) for package in packages]
+        tree = cls(leaves)
+        return tree.levels()
 
     def levels(self) -> List[List[Package]]:
         """
         get build levels starting from the packages which do not require any other package to build
 
         Returns:
-            List[List[Package]]: list of packages lists
+            List[List[Package]]: sorted list of packages lists based on their dependencies
         """
-        result: List[List[Package]] = []
+        # https://docs.python.org/dev/library/itertools.html#itertools-recipes
+        def partition(source: List[Leaf]) -> Tuple[List[Leaf], Iterable[Leaf]]:
+            first_iter, second_iter = itertools.tee(source)
+            filter_fn: Callable[[Leaf], bool] = lambda leaf: leaf.is_dependency(next_level)
+            # materialize first list and leave second as iterator
+            return list(filter(filter_fn, first_iter)), itertools.filterfalse(filter_fn, second_iter)
 
+        unsorted: List[List[Leaf]] = []
+
+        # build initial tree
         unprocessed = self.leaves[:]
         while unprocessed:
-            result.append([leaf.package for leaf in unprocessed if leaf.is_root(unprocessed)])
+            unsorted.append([leaf for leaf in unprocessed if leaf.is_root(unprocessed)])
             unprocessed = [leaf for leaf in unprocessed if not leaf.is_root(unprocessed)]
 
-        return result
+        # move leaves to the end if they are not required at the next level
+        for current_num, current_level in enumerate(unsorted[:-1]):
+            next_num = current_num + 1
+            next_level = unsorted[next_num]
+
+            # change lists inside the collection
+            unsorted[current_num], to_be_moved = partition(current_level)
+            unsorted[next_num].extend(to_be_moved)
+
+        comparator: Callable[[Package], str] = lambda package: package.base
+        return [
+            sorted([leaf.package for leaf in level], key=comparator)
+            for level in unsorted if level
+        ]
