@@ -163,7 +163,7 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     paths = [package.filepath for package in package_ahriman.packages.values()]
     tree = Tree([Leaf(package_ahriman, set())])
 
-    mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
+    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
     build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
@@ -183,7 +183,7 @@ def test_update_empty(application_repository: ApplicationRepository, package_ahr
     """
     tree = Tree([Leaf(package_ahriman, set())])
 
-    mocker.patch("ahriman.core.tree.Tree.load", return_value=tree)
+    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
     mocker.patch("ahriman.core.repository.executor.Executor.process_build")
     update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
@@ -197,6 +197,9 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
     """
     must get updates for all
     """
+    tree = Tree([Leaf(package_ahriman, set())])
+
+    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur",
                                     return_value=[package_ahriman])

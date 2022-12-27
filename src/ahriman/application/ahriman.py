@@ -109,6 +109,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_sign_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
     _set_repo_sync_parser(subparsers)
+    _set_repo_tree_parser(subparsers)
     _set_repo_triggers_parser(subparsers)
     _set_repo_update_parser(subparsers)
     _set_shell_parser(subparsers)
@@ -700,6 +701,23 @@ def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              epilog="Synchronize the repository to remote services as configured.",
                              formatter_class=_formatter)
     parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.upload.UploadTrigger"])
+    return parser
+
+
+def _set_repo_tree_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository tree subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-tree", help="dump repository tree",
+                             description="dump repository tree based on packages dependencies",
+                             formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Structure, lock=None, report=False, quiet=True)
     return parser
 
 

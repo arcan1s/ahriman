@@ -550,9 +550,29 @@ def test_subparsers_repo_sync_architecture(parser: argparse.ArgumentParser) -> N
     """
     repo-sync command must correctly parse architecture list
     """
-    args = parser.parse_args(["repo-report"])
+    args = parser.parse_args(["repo-sync"])
     assert args.architecture is None
-    args = parser.parse_args(["-a", "x86_64", "repo-report"])
+    args = parser.parse_args(["-a", "x86_64", "repo-sync"])
+    assert args.architecture == ["x86_64"]
+
+
+def test_subparsers_repo_tree(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-tree command must imply lock, report and quiet
+    """
+    args = parser.parse_args(["repo-tree"])
+    assert args.lock is None
+    assert not args.report
+    assert args.quiet
+
+
+def test_subparsers_repo_tree_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-tree command must correctly parse architecture list
+    """
+    args = parser.parse_args(["repo-tree"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "repo-tree"])
     assert args.architecture == ["x86_64"]
 
 

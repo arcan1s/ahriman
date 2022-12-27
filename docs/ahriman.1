@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2022\-12\-11" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2022\-12\-27" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -120,6 +120,9 @@ update repository status
 .TP
 \fBahriman\fR \fI\,repo\-sync\/\fR
 sync repository
+.TP
+\fBahriman\fR \fI\,repo\-tree\/\fR
+dump repository tree
 .TP
 \fBahriman\fR \fI\,repo\-triggers\/\fR
 run triggers
@@ -582,6 +585,11 @@ new status
 usage: ahriman repo\-sync [\-h]
 
 sync repository files to remote server according to current settings
+
+.SH COMMAND \fI\,'ahriman repo\-tree'\/\fR
+usage: ahriman repo\-tree [\-h]
+
+dump repository tree based on packages dependencies
 
 .SH COMMAND \fI\,'ahriman repo\-triggers'\/\fR
 usage: ahriman repo\-triggers [\-h] [trigger ...]

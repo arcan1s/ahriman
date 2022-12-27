@@ -156,6 +156,14 @@ ahriman.application.handlers.status\_update module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.structure module
+---------------------------------------------
+
+.. automodule:: ahriman.application.handlers.structure
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.triggers module
 --------------------------------------------
 

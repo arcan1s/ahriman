@@ -145,8 +145,8 @@ class ApplicationRepository(ApplicationProperties):
         process_update(packages, build_result)
 
         # process manual packages
-        tree = Tree.load(updates, self.repository.paths, self.database)
-        for num, level in enumerate(tree.levels()):
+        tree = Tree.resolve(updates, self.repository.paths, self.database)
+        for num, level in enumerate(tree):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
             build_result = self.repository.process_build(level)
             packages = self.repository.packages_built()
@@ -181,8 +181,12 @@ class ApplicationRepository(ApplicationProperties):
 
         local_versions = {package.base: package.version for package in self.repository.packages()}
         updated_packages = [package for _, package in sorted(updates.items())]
-        for package in updated_packages:
-            UpdatePrinter(package, local_versions.get(package.base)).print(
-                verbose=True, log_fn=log_fn, separator=" -> ")
+
+        # reorder updates according to the dependency tree
+        tree = Tree.resolve(updated_packages, self.repository.paths, self.database)
+        for level in tree:
+            for package in level:
+                UpdatePrinter(package, local_versions.get(package.base)).print(
+                    verbose=True, log_fn=log_fn, separator=" -> ")
 
         return updated_packages

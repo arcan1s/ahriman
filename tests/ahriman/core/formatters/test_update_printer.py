@@ -3,7 +3,7 @@ from ahriman.core.formatters import UpdatePrinter
 
 def test_properties(update_printer: UpdatePrinter) -> None:
     """
-    must return empty properties list
+    must return non-empty properties list
     """
     assert update_printer.properties()
 
