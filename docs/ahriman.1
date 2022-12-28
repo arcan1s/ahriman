@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2022\-12\-27" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2022\-12\-29" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -280,7 +280,8 @@ remove package from the repository
 package name or base
 
 .SH COMMAND \fI\,'ahriman package\-status'\/\fR
-usage: ahriman package\-status [\-h] [\-\-ahriman] [\-e] [\-i] [\-s {unknown,pending,building,failed,success}] [package ...]
+usage: ahriman package\-status [\-h] [\-\-ahriman] [\-e] [\-\-info | \-\-no\-info] [\-s {unknown,pending,building,failed,success}]
+                              [package ...]
 
 request status of the package
 
@@ -298,8 +299,8 @@ get service status itself
 return non\-zero exit status if result is empty
 
 .TP
-\fB\-i\fR, \fB\-\-info\fR
-show additional package information
+\fB\-\-info\fR, \fB\-\-no\-info\fR
+show additional package information (default: False)
 
 .TP
 \fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
