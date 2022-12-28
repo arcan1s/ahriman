@@ -306,7 +306,8 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
-    parser.add_argument("-i", "--info", help="show additional package information", action="store_true")
+    parser.add_argument("--info", help="show additional package information",
+                        action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("-s", "--status", help="filter packages by status",
                         type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
     parser.set_defaults(handler=handlers.Status, lock=None, report=False, quiet=True, unsafe=True)
