@@ -52,17 +52,20 @@ setup(
         "package/bin/ahriman",
     ],
     data_files=[
+        # configuration
         ("share/ahriman/settings", [
             "package/share/ahriman/settings/ahriman.ini",
         ]),
         ("share/ahriman/settings/ahriman.ini.d", [
             "package/share/ahriman/settings/ahriman.ini.d/logging.ini",
         ]),
+        # systemd files
         ("lib/systemd/system", [
             "package/lib/systemd/system/ahriman@.service",
             "package/lib/systemd/system/ahriman@.timer",
             "package/lib/systemd/system/ahriman-web@.service",
         ]),
+        # templates
         ("share/ahriman/templates", [
             "package/share/ahriman/templates/build-status.jinja2",
             "package/share/ahriman/templates/email-index.jinja2",
@@ -87,9 +90,17 @@ setup(
             "package/share/ahriman/templates/utils/bootstrap-scripts.jinja2",
             "package/share/ahriman/templates/utils/style.jinja2",
         ]),
+        # man pages
         ("share/man/man1", [
             "docs/ahriman.1",
-        ])
+        ]),
+        # shell completions
+        ("share/bash-completion/completions", [
+            "docs/completions/bash/_ahriman",
+        ]),
+        ("share/zsh/site-functions", [
+            "docs/completions/zsh/_ahriman",
+        ]),
     ],
 
     extras_require={
@@ -103,6 +114,7 @@ setup(
             "Sphinx",
             "argparse-manpage",
             "pydeps",
+            "shtab",
             "sphinx-argparse",
             "sphinxcontrib-napoleon",
         ],
