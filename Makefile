@@ -38,7 +38,7 @@ html: specification
 	tox -e docs-html
 
 push: specification archlinux
-	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1
+	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1 docs/completions/
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
 	git push
