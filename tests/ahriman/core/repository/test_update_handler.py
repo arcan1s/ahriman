@@ -4,6 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.repository.update_handler import UpdateHandler
+from ahriman.core.util import utcnow
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -82,7 +83,7 @@ def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Pack
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
 
-    update_handler.updates_aur([], vcs=True)
+    assert not update_handler.updates_aur([], vcs=True)
     package_load_mock.assert_not_called()
 
 
@@ -92,11 +93,16 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
     must skip VCS packages check if requested
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     mocker.patch("ahriman.models.package.Package.is_vcs", return_value=True)
-    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated")
+    package_is_newer_than_mock = mocker.patch("ahriman.models.package.Package.is_newer_than", return_value=True)
+    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    ts1 = utcnow().timestamp()
 
-    update_handler.updates_aur([], vcs=False)
-    package_is_outdated_mock.assert_not_called()
+    assert not update_handler.updates_aur([], vcs=False)
+    package_is_newer_than_mock.assert_called_once_with(pytest.helpers.anyvar(float, strict=True))
+    assert ts1 < package_is_newer_than_mock.call_args[0][0] < utcnow().timestamp()
+    package_is_outdated_mock.assert_called_once_with(package_ahriman, update_handler.paths, calculate_version=False)
 
 
 def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:

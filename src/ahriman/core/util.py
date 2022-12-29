@@ -34,8 +34,8 @@ from ahriman.core.exceptions import OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-__all__ = ["check_output", "check_user", "exception_response_text", "filter_json", "full_version", "enum_values",
-           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "walk"]
+__all__ = ["check_output", "check_user", "enum_values", "exception_response_text", "filter_json", "full_version",
+           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "utcnow", "walk"]
 
 
 def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
@@ -293,6 +293,16 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
+
+
+def utcnow() -> datetime.datetime:
+    """
+    get current time
+
+    Returns:
+        datetime.datetime: current time in UTC
+    """
+    return datetime.datetime.utcnow()
 
 
 def walk(directory_path: Path) -> Generator[Path, None, None]:

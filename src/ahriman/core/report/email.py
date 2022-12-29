@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import datetime
 import smtplib
 
 from email.mime.multipart import MIMEMultipart
@@ -27,7 +26,7 @@ from typing import Dict, Iterable
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
-from ahriman.core.util import pretty_datetime
+from ahriman.core.util import pretty_datetime, utcnow
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
@@ -86,7 +85,7 @@ class Email(Report, JinjaTemplate):
         message = MIMEMultipart()
         message["From"] = self.sender
         message["To"] = ", ".join(self.receivers)
-        message["Subject"] = f"{self.name} build report at {pretty_datetime(datetime.datetime.utcnow())}"
+        message["Subject"] = f"{self.name} build report at {pretty_datetime(utcnow())}"
 
         message.attach(MIMEText(text, "html"))
         for filename, content in attachment.items():

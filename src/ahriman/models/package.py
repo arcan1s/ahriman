@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# pylint: disable=too-many-lines
 from __future__ import annotations
 
 import copy
@@ -25,7 +26,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Any, Dict, Iterable, List, Optional, Set, Type, Union
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
@@ -358,7 +359,24 @@ class Package(LazyLogging):
 
         return sorted(result)
 
-    def is_outdated(self, remote: Package, paths: RepositoryPaths, *, calculate_version: bool = True) -> bool:
+    def is_newer_than(self, timestamp: Union[float, int]) -> bool:
+        """
+        check if package was built after the specified timestamp
+
+        Args:
+            timestamp(int): timestamp to check build date against
+
+        Returns:
+            bool: True in case if package was built after the specified date and False otherwise. In case if build date
+                is not set by any of packages, it returns False
+        """
+        return any(
+            package.build_date > timestamp
+            for package in self.packages.values()
+            if package.build_date is not None
+        )
+
+    def is_outdated(self, remote: Package, paths: RepositoryPaths, *, calculate_version: bool) -> bool:
         """
         check if package is out-of-dated
 

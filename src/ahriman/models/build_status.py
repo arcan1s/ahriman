@@ -19,13 +19,11 @@
 #
 from __future__ import annotations
 
-import datetime
-
 from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any, Dict, Type
 
-from ahriman.core.util import filter_json, pretty_datetime
+from ahriman.core.util import filter_json, pretty_datetime, utcnow
 
 
 class BuildStatusEnum(str, Enum):
@@ -58,7 +56,7 @@ class BuildStatus:
     """
 
     status: BuildStatusEnum = BuildStatusEnum.Unknown
-    timestamp: int = field(default_factory=lambda: int(datetime.datetime.utcnow().timestamp()))
+    timestamp: int = field(default_factory=lambda: int(utcnow().timestamp()))
 
     def __post_init__(self) -> None:
         """

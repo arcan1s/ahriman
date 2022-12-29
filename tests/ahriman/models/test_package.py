@@ -265,11 +265,31 @@ def test_full_depends(package_ahriman: Package, package_python_schedule: Package
     assert package_python_schedule.full_depends(pyalpm_handle, [package_python_schedule]) == expected
 
 
+def test_is_newer_than(package_ahriman: Package, package_python_schedule: Package) -> None:
+    """
+    must correctly check if package is newer than specified timestamp
+    """
+    # base checks, true/false
+    assert package_ahriman.is_newer_than(package_ahriman.packages[package_ahriman.base].build_date - 1)
+    assert not package_ahriman.is_newer_than(package_ahriman.packages[package_ahriman.base].build_date + 1)
+
+    # list check
+    min_date = min(package.build_date for package in package_python_schedule.packages.values())
+    assert package_python_schedule.is_newer_than(min_date)
+
+    # null list check
+    package_python_schedule.packages["python-schedule"].build_date = None
+    assert package_python_schedule.is_newer_than(min_date)
+
+    package_python_schedule.packages["python2-schedule"].build_date = None
+    assert not package_python_schedule.is_newer_than(min_date)
+
+
 def test_is_outdated_false(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
     """
     must be not outdated for the same package
     """
-    assert not package_ahriman.is_outdated(package_ahriman, repository_paths)
+    assert not package_ahriman.is_outdated(package_ahriman, repository_paths, calculate_version=True)
 
 
 def test_is_outdated_true(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
@@ -279,7 +299,7 @@ def test_is_outdated_true(package_ahriman: Package, repository_paths: Repository
     other = Package.from_json(package_ahriman.view())
     other.version = other.version.replace("-1", "-2")
 
-    assert package_ahriman.is_outdated(other, repository_paths)
+    assert package_ahriman.is_outdated(other, repository_paths, calculate_version=True)
 
 
 def test_build_status_pretty_print(package_ahriman: Package) -> None:

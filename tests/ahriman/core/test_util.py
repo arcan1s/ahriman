@@ -11,8 +11,8 @@ from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
-from ahriman.core.util import check_output, check_user, exception_response_text, filter_json, full_version, \
-    enum_values, package_like, pretty_datetime, pretty_size, safe_filename, walk
+from ahriman.core.util import check_output, check_user, enum_values, exception_response_text, filter_json, \
+    full_version, package_like, pretty_datetime, pretty_size, safe_filename, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -320,6 +320,15 @@ def test_safe_filename() -> None:
         "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
     assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
+
+
+def test_utcnow() -> None:
+    """
+    must generate correct timestamp
+    """
+    ts1 = utcnow()
+    ts2 = utcnow()
+    assert 1 > (ts2 - ts1).total_seconds() > 0
 
 
 def test_walk(resource_path_root: Path) -> None:
