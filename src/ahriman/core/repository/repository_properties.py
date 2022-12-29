@@ -45,6 +45,7 @@ class RepositoryProperties(LazyLogging):
         reporter(Client): build status reporter instance
         sign(GPG): GPG wrapper instance
         triggers(TriggerLoader): triggers holder
+        vcs_allowed_age(int): maximal age of the VCS packages before they will be checked
     """
 
     def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *,
@@ -65,6 +66,7 @@ class RepositoryProperties(LazyLogging):
         self.database = database
 
         self.name = configuration.get("repository", "name")
+        self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
         self.paths = configuration.repository_paths
         try:

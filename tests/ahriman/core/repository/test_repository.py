@@ -17,6 +17,7 @@ def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixt
     """
     must correctly load instance
     """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     context_mock = mocker.patch("ahriman.core.repository.Repository._set_context")
     Repository.load("x86_64", configuration, database, report=False, unsafe=False)
     context_mock.assert_called_once_with()
@@ -26,6 +27,7 @@ def test_set_context(configuration: Configuration, database: SQLite, mocker: Moc
     """
     must set context variables
     """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     set_mock = mocker.patch("ahriman.core._Context.set")
 
     instance = Repository.load("x86_64", configuration, database, report=False, unsafe=False)

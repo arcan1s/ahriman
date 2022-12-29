@@ -21,6 +21,7 @@ from typing import Iterable, List
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.repository.cleaner import Cleaner
+from ahriman.core.util import utcnow
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 
@@ -53,13 +54,15 @@ class UpdateHandler(Cleaner):
         Returns:
             List[Package]: list of packages which are out-of-dated
         """
+        # don't think there are packages older then 1970
+        now = utcnow()
+        min_vcs_build_date = (now.timestamp() - self.vcs_allowed_age) if vcs else now.timestamp()
+
         result: List[Package] = []
 
         for local in self.packages():
             with self.in_package_context(local.base):
                 if local.base in self.ignore_list:
-                    continue
-                if local.is_vcs and not vcs:
                     continue
                 if filter_packages and local.base not in filter_packages:
                     continue
@@ -70,7 +73,12 @@ class UpdateHandler(Cleaner):
                         remote = Package.from_official(local.base, self.pacman)
                     else:
                         remote = Package.from_aur(local.base, self.pacman)
-                    if local.is_outdated(remote, self.paths):
+
+                    calculate_version = not local.is_newer_than(min_vcs_build_date)
+                    self.logger.debug("set VCS version calculation for %s to %s having minimal build date %s",
+                                      local.base, calculate_version, min_vcs_build_date)
+
+                    if local.is_outdated(remote, self.paths, calculate_version=calculate_version):
                         self.reporter.set_pending(local.base)
                         result.append(remote)
                 except Exception:
@@ -99,7 +107,7 @@ class UpdateHandler(Cleaner):
                     if local is None:
                         self.reporter.set_unknown(remote)
                         result.append(remote)
-                    elif local.is_outdated(remote, self.paths):
+                    elif local.is_outdated(remote, self.paths, calculate_version=True):
                         self.reporter.set_pending(local.base)
                         result.append(remote)
                 except Exception:
