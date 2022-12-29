@@ -72,7 +72,7 @@ class Remote(LazyLogging):
         """
         instance = cls()
         packages: Dict[str, AURPackage] = {}
-        for term in filter(lambda word: len(word) > 3, keywords):
+        for term in filter(lambda word: len(word) >= 3, keywords):
             portion = instance.search(term, pacman=pacman)
             packages = {
                 package.name: package  # not mistake to group them by name
