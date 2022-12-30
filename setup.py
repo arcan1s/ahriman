@@ -116,6 +116,7 @@ setup(
             "pydeps",
             "shtab",
             "sphinx-argparse",
+            "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
             "sphinxcontrib-napoleon",
         ],
         # FIXME technically this dependency is required, but in some cases we do not have access to
