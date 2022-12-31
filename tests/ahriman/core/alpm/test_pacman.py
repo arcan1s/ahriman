@@ -1,3 +1,5 @@
+import pytest
+
 from pathlib import Path
 from pyalpm import error as PyalpmError
 from pytest_mock import MockerFixture
@@ -21,8 +23,9 @@ def test_init_with_local_cache(configuration: Configuration, mocker: MockerFixtu
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        Pacman("x86_64", configuration, refresh_database=1)
-        sync_mock.assert_called_once_with(False)
+        pacman = Pacman("x86_64", configuration, refresh_database=1)
+        assert pacman.handle
+        sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=False)
 
 
 def test_init_with_local_cache_forced(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -37,8 +40,9 @@ def test_init_with_local_cache_forced(configuration: Configuration, mocker: Mock
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        Pacman("x86_64", configuration, refresh_database=2)
-        sync_mock.assert_called_once_with(True)
+        pacman = Pacman("x86_64", configuration, refresh_database=2)
+        assert pacman.handle
+        sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=True)
 
 
 def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -54,7 +58,7 @@ def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker
     copy_mock = mocker.patch("shutil.copy")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
-    pacman.database_copy(database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
     copy_mock.assert_called_once_with(path / "sync" / "core.db", dst_path)
     chown_mock.assert_called_once_with(dst_path)
 
@@ -70,7 +74,7 @@ def test_database_copy_skip(pacman: Pacman, repository_paths: RepositoryPaths, m
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: True if p.is_relative_to(path) else False)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(database, path, repository_paths, use_ahriman_cache=False)
+    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=False)
     copy_mock.assert_not_called()
 
 
@@ -85,7 +89,7 @@ def test_database_copy_no_directory(pacman: Pacman, repository_paths: Repository
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: True if p.is_relative_to(path) else False)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
@@ -100,7 +104,7 @@ def test_database_copy_no_root_file(pacman: Pacman, repository_paths: Repository
     mocker.patch("pathlib.Path.is_file", return_value=False)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
@@ -114,7 +118,7 @@ def test_database_copy_database_exist(pacman: Pacman, repository_paths: Reposito
     mocker.patch("pathlib.Path.is_file", return_value=True)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(database, Path("root"), repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, Path("root"), repository_paths, use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
@@ -123,7 +127,7 @@ def test_database_init(pacman: Pacman, configuration: Configuration) -> None:
     must init database with settings
     """
     mirror = configuration.get("alpm", "mirror")
-    database = pacman.database_init("test", mirror, "x86_64")
+    database = pacman.database_init(pacman.handle, "test", mirror, "x86_64")
     assert len(database.servers) == 1
 
 
@@ -139,7 +143,7 @@ def test_database_sync(pacman: Pacman) -> None:
     handle_mock.init_transaction.return_value = transaction_mock
     pacman.handle = handle_mock
 
-    pacman.database_sync(False)
+    pacman.database_sync(pacman.handle, force=False)
     handle_mock.init_transaction.assert_called_once_with()
     core_mock.update.assert_called_once_with(False)
     extra_mock.update.assert_called_once_with(False)
@@ -157,7 +161,7 @@ def test_database_sync_failed(pacman: Pacman) -> None:
     handle_mock.get_syncdbs.return_value = [core_mock, extra_mock]
     pacman.handle = handle_mock
 
-    pacman.database_sync(False)
+    pacman.database_sync(pacman.handle, force=False)
     extra_mock.update.assert_called_once_with(False)
 
 
@@ -170,7 +174,7 @@ def test_database_sync_forced(pacman: Pacman) -> None:
     handle_mock.get_syncdbs.return_value = [core_mock]
     pacman.handle = handle_mock
 
-    pacman.database_sync(True)
+    pacman.database_sync(pacman.handle, force=True)
     handle_mock.init_transaction.assert_called_once_with()
     core_mock.update.assert_called_once_with(True)
 

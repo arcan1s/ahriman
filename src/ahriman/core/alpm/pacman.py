@@ -21,7 +21,7 @@ import shutil
 
 from pathlib import Path
 from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore
-from typing import Generator, Set
+from typing import Any, Callable, Generator, Set
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -36,6 +36,8 @@ class Pacman(LazyLogging):
         handle(Handle): pyalpm root ``Handle``
     """
 
+    handle: Handle
+
     def __init__(self, architecture: str, configuration: Configuration, *, refresh_database: int) -> None:
         """
         default constructor
@@ -46,6 +48,22 @@ class Pacman(LazyLogging):
             refresh_database(int): synchronize local cache to remote. If set to ``0``, no syncronization will be
                 enabled, if set to ``1`` - normal syncronization, if set to ``2`` - force syncronization
         """
+        self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
+            architecture, configuration, refresh_database=refresh_database)
+
+    def __create_handle(self, architecture: str, configuration: Configuration, *, refresh_database: int) -> Handle:
+        """
+        create lazy handle function
+
+        Args:
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+            refresh_database(int): synchronize local cache to remote. If set to ``0``, no syncronization will be
+                enabled, if set to ``1`` - normal syncronization, if set to ``2`` - force syncronization
+
+        Returns:
+            Handle: fully initialized pacman handle
+        """
         root = configuration.getpath("alpm", "root")
         pacman_root = configuration.getpath("alpm", "database")
         use_ahriman_cache = configuration.getboolean("alpm", "use_ahriman_cache")
@@ -53,20 +71,42 @@ class Pacman(LazyLogging):
         paths = configuration.repository_paths
         database_path = paths.pacman if use_ahriman_cache else pacman_root
 
-        self.handle = Handle(str(root), str(database_path))
+        handle = Handle(str(root), str(database_path))
         for repository in configuration.getlist("alpm", "repositories"):
-            database = self.database_init(repository, mirror, architecture)
-            self.database_copy(database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
+            database = self.database_init(handle, repository, mirror, architecture)
+            self.database_copy(handle, database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
 
         if use_ahriman_cache and refresh_database:
-            self.database_sync(refresh_database > 1)
+            self.database_sync(handle, force=refresh_database > 1)
 
-    def database_copy(self, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
+        return handle
+
+    def __getattr__(self, item: str) -> Any:
+        """
+        pacman handle extractor
+
+        Args:
+            item(str): property name
+
+        Returns:
+            Any: attribute by its name
+
+        Raises:
+            AttributeError: in case if no such attribute found
+        """
+        if item == "handle":
+            handle = self.__create_handle_fn()
+            setattr(self, item, handle)
+            return handle
+        return super().__getattr__(item)  # required for logging attribute
+
+    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
                       use_ahriman_cache: bool) -> None:
         """
         copy database from the operating system root to the ahriman local home
 
         Args:
+            handle(Handle): pacman handle which will be used for database copying
             database(DB): pacman database instance to be copied
             pacman_root(Path): operating system pacman root
             paths(RepositoryPaths): repository paths instance
@@ -78,7 +118,7 @@ class Pacman(LazyLogging):
         if not use_ahriman_cache:
             return
         # copy root database if no local copy found
-        pacman_db_path = Path(self.handle.dbpath)
+        pacman_db_path = Path(handle.dbpath)
         if not pacman_db_path.is_dir():
             return  # root directory does not exist yet
         dst = repository_database(pacman_db_path)
@@ -92,11 +132,12 @@ class Pacman(LazyLogging):
         shutil.copy(src, dst)
         paths.chown(dst)
 
-    def database_init(self, repository: str, mirror: str, architecture: str) -> DB:
+    def database_init(self, handle: Handle, repository: str, mirror: str, architecture: str) -> DB:
         """
         create database instance from pacman handler and set its properties
 
         Args:
+            handle(Handle): pacman handle which will be used for database initializing
             repository(str): pacman repository name (e.g. core)
             mirror(str): arch linux mirror url
             architecture(str): repository architecture
@@ -104,21 +145,23 @@ class Pacman(LazyLogging):
         Returns:
             DB: loaded pacman database instance
         """
-        database: DB = self.handle.register_syncdb(repository, SIG_PACKAGE)
+        self.logger.info("loading pacman databases")
+        database: DB = handle.register_syncdb(repository, SIG_PACKAGE)
         # replace variables in mirror address
         database.servers = [mirror.replace("$repo", repository).replace("$arch", architecture)]
         return database
 
-    def database_sync(self, force: bool) -> None:
+    def database_sync(self, handle: Handle, *, force: bool) -> None:
         """
         sync local database
 
         Args:
+            handle(Handle): pacman handle which will be used for database sync
             force(bool): force database syncronization (same as ``pacman -Syy``)
         """
         self.logger.info("refresh ahriman's home pacman database (force refresh %s)", force)
-        transaction = self.handle.init_transaction()
-        for database in self.handle.get_syncdbs():
+        transaction = handle.init_transaction()
+        for database in handle.get_syncdbs():
             try:
                 database.update(force)
             except PyalpmError:

@@ -71,6 +71,8 @@ class Setup(Handler):
         Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
 
         application.repository.repo.init()
+        # lazy database sync
+        application.repository.pacman.handle  # pylint: disable=pointless-statement
 
     @staticmethod
     def build_command(root: Path, prefix: str, architecture: str) -> Path:
@@ -78,7 +80,7 @@ class Setup(Handler):
         generate build command name
 
         Args:
-            root(Path): root directory for the build command (must be root of the reporitory)
+            root(Path): root directory for the build command (must be root of the repository)
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
 
