@@ -75,9 +75,6 @@ class UpdateHandler(Cleaner):
                         remote = Package.from_aur(local.base, self.pacman)
 
                     calculate_version = not local.is_newer_than(min_vcs_build_date)
-                    self.logger.debug("set VCS version calculation for %s to %s having minimal build date %s",
-                                      local.base, calculate_version, min_vcs_build_date)
-
                     if local.is_outdated(remote, self.paths, calculate_version=calculate_version):
                         self.reporter.set_pending(local.base)
                         result.append(remote)
