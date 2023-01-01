@@ -81,7 +81,8 @@ class RemotePush(LazyLogging):
         # ...secondly, we clone whole tree...
         Sources.fetch(package_target_dir, package.remote)
         # ...and last, but not least, we remove the dot-git directory...
-        shutil.rmtree(package_target_dir / ".git", ignore_errors=True)
+        for git_file in package_target_dir.glob(".git*"):
+            shutil.rmtree(package_target_dir / git_file)
         # ...copy all patches...
         for patch in self.database.patches_get(package.base):
             filename = f"ahriman-{package.base}.patch" if patch.key is None else f"ahriman-{patch.key}.patch"
