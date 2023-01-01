@@ -20,18 +20,21 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     """
     patch1 = PkgbuildPatch(None, "patch")
     patch2 = PkgbuildPatch("key", "value")
+    local = Path("local")
 
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[".git", ".gitignore"])
     rmtree_mock = mocker.patch("shutil.rmtree")
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_get", return_value=[patch1, patch2])
     patches_write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
     runner = RemotePush(configuration, database, "gitremote")
 
-    local = Path("local")
     assert runner.package_update(package_ahriman, local) == package_ahriman.base
+    glob_mock.assert_called_once_with(".git*")
     rmtree_mock.assert_has_calls([
         MockCall(local / package_ahriman.base, ignore_errors=True),
-        MockCall(local / package_ahriman.base / ".git", ignore_errors=True),
+        MockCall(local / package_ahriman.base / ".git"),
+        MockCall(local / package_ahriman.base / ".gitignore"),
     ])
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.remote)
     patches_mock.assert_called_once_with(package_ahriman.base)
