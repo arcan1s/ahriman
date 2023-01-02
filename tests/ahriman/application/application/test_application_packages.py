@@ -11,22 +11,6 @@ from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
 
 
-def test_on_result(application_packages: ApplicationPackages) -> None:
-    """
-    must raise NotImplemented for missing finalize method
-    """
-    with pytest.raises(NotImplementedError):
-        application_packages.on_result(Result())
-
-
-def test_known_packages(application_packages: ApplicationPackages) -> None:
-    """
-    must raise NotImplemented for missing known_packages method
-    """
-    with pytest.raises(NotImplementedError):
-        application_packages._known_packages()
-
-
 def test_add_archive(
         application_packages: ApplicationPackages,
         package_ahriman: Package,
@@ -127,6 +111,14 @@ def test_add_repository(application_packages: ApplicationPackages, package_ahrim
     application_packages._add_repository(package_ahriman.base)
     build_queue_mock.assert_called_once_with(package_ahriman)
     update_remote_mock.assert_called_once_with(package_ahriman)
+
+
+def test_known_packages(application_packages: ApplicationPackages) -> None:
+    """
+    must raise NotImplemented for missing known_packages method
+    """
+    with pytest.raises(NotImplementedError):
+        application_packages._known_packages()
 
 
 def test_process_dependencies(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
@@ -235,6 +227,14 @@ def test_add_add_remote(application_packages: ApplicationPackages, package_descr
 
     application_packages.add([url], PackageSource.Remote, False)
     add_mock.assert_called_once_with(url, set(), False)
+
+
+def test_on_result(application_packages: ApplicationPackages) -> None:
+    """
+    must raise NotImplemented for missing finalize method
+    """
+    with pytest.raises(NotImplementedError):
+        application_packages.on_result(Result())
 
 
 def test_remove(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:

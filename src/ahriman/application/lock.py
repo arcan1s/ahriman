@@ -75,40 +75,6 @@ class Lock(LazyLogging):
         self.paths = configuration.repository_paths
         self.reporter = Client.load(configuration, report=args.report)
 
-    def __enter__(self) -> Lock:
-        """
-        default workflow is the following:
-
-            1. Check user UID
-            2. Check if there is lock file
-            3. Check web status watcher status
-            4. Create lock file
-            5. Report to status page if enabled
-        """
-        self.check_user()
-        self.check_version()
-        self.create()
-        self.reporter.update_self(BuildStatusEnum.Building)
-        return self
-
-    def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
-                 exc_tb: TracebackType) -> Literal[False]:
-        """
-        remove lock file when done
-
-        Args:
-            exc_type(Optional[Type[Exception]]): exception type name if any
-            exc_val(Optional[Exception]): exception raised if any
-            exc_tb(TracebackType): exception traceback if any
-
-        Returns:
-            Literal[False]: always False (do not suppress any exception)
-        """
-        self.clear()
-        status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
-        self.reporter.update_self(status)
-        return False
-
     def check_version(self) -> None:
         """
         check web server version
@@ -145,3 +111,37 @@ class Lock(LazyLogging):
             self.path.touch(exist_ok=self.force)
         except FileExistsError:
             raise DuplicateRunError()
+
+    def __enter__(self) -> Lock:
+        """
+        default workflow is the following:
+
+            1. Check user UID
+            2. Check if there is lock file
+            3. Check web status watcher status
+            4. Create lock file
+            5. Report to status page if enabled
+        """
+        self.check_user()
+        self.check_version()
+        self.create()
+        self.reporter.update_self(BuildStatusEnum.Building)
+        return self
+
+    def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
+                 exc_tb: TracebackType) -> Literal[False]:
+        """
+        remove lock file when done
+
+        Args:
+            exc_type(Optional[Type[Exception]]): exception type name if any
+            exc_val(Optional[Exception]): exception raised if any
+            exc_tb(TracebackType): exception traceback if any
+
+        Returns:
+            Literal[False]: always False (do not suppress any exception)
+        """
+        self.clear()
+        status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
+        self.reporter.update_self(status)
+        return False

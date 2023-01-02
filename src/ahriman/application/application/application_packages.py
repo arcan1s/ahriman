@@ -37,30 +37,6 @@ class ApplicationPackages(ApplicationProperties):
     package control class
     """
 
-    def _known_packages(self) -> Set[str]:
-        """
-        load packages from repository and pacman repositories
-
-        Returns:
-            Set[str]: list of known packages
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
-    def on_result(self, result: Result) -> None:
-        """
-        generate report and sync to remote server
-
-        Args:
-            result(Result): build result
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
     def _add_archive(self, source: str, *_: Any) -> None:
         """
         add package from archive
@@ -147,6 +123,18 @@ class ApplicationPackages(ApplicationProperties):
         self.database.remote_update(package)
         # repository packages must not depend on unknown packages, thus we are not going to process dependencies
 
+    def _known_packages(self) -> Set[str]:
+        """
+        load packages from repository and pacman repositories
+
+        Returns:
+            Set[str]: list of known packages
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
     def _process_dependencies(self, local_dir: Path, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         process package dependencies
@@ -177,6 +165,18 @@ class ApplicationPackages(ApplicationProperties):
             resolved_source = source.resolve(name)
             fn = getattr(self, f"_add_{resolved_source.value}")
             fn(name, known_packages, without_dependencies)
+
+    def on_result(self, result: Result) -> None:
+        """
+        generate report and sync to remote server
+
+        Args:
+            result(Result): build result
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
 
     def remove(self, names: Iterable[str]) -> None:
         """

@@ -33,8 +33,7 @@ class Printer:
 
         Args:
             verbose(bool): print all fields
-            log_fn(Callable[[str]): logger function to log data
-            None]:  (Default value = print)
+            log_fn(Callable[[str], None]): logger function to log data (Default value = print)
             separator(str, optional): separator for property name and property value (Default value = ": ")
         """
         if (title := self.title()) is not None:

@@ -81,25 +81,6 @@ class Pacman(LazyLogging):
 
         return handle
 
-    def __getattr__(self, item: str) -> Any:
-        """
-        pacman handle extractor
-
-        Args:
-            item(str): property name
-
-        Returns:
-            Any: attribute by its name
-
-        Raises:
-            AttributeError: in case if no such attribute found
-        """
-        if item == "handle":
-            handle = self.__create_handle_fn()
-            setattr(self, item, handle)
-            return handle
-        return super().__getattr__(item)  # required for logging attribute
-
     def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
                       use_ahriman_cache: bool) -> None:
         """
@@ -198,3 +179,22 @@ class Pacman(LazyLogging):
                 result.update(package.provides)  # provides list for meta-packages
 
         return result
+
+    def __getattr__(self, item: str) -> Any:
+        """
+        pacman handle extractor
+
+        Args:
+            item(str): property name
+
+        Returns:
+            Any: attribute by its name
+
+        Raises:
+            AttributeError: in case if no such attribute found
+        """
+        if item == "handle":
+            handle = self.__create_handle_fn()
+            setattr(self, item, handle)
+            return handle
+        return super().__getattr__(item)  # required for logging attribute

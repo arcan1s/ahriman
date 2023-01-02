@@ -30,18 +30,6 @@ class Cleaner(RepositoryProperties):
     trait to clean common repository objects
     """
 
-    def packages_built(self) -> List[Path]:
-        """
-        get list of files in built packages directory
-
-        Returns:
-            List[Path]: list of filenames from the directory
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
     def clear_cache(self) -> None:
         """
         clear cache directory
@@ -80,3 +68,15 @@ class Cleaner(RepositoryProperties):
         """
         self.logger.info("clear build queue")
         self.database.build_queue_clear(None)
+
+    def packages_built(self) -> List[Path]:
+        """
+        get list of files in built packages directory
+
+        Returns:
+            List[Path]: list of filenames from the directory
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
