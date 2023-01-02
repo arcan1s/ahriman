@@ -83,12 +83,12 @@ class Repository(Executor, UpdateHandler):
         """
         ctx = context.get()
 
-        ctx.set(ContextKey("database", SQLite), self.database)
-        ctx.set(ContextKey("configuration", Configuration), self.configuration)
-        ctx.set(ContextKey("pacman", Pacman), self.pacman)
-        ctx.set(ContextKey("sign", GPG), self.sign)
+        ctx.set(ContextKey("database", SQLite), self.database, strict=False)
+        ctx.set(ContextKey("configuration", Configuration), self.configuration, strict=False)
+        ctx.set(ContextKey("pacman", Pacman), self.pacman, strict=False)
+        ctx.set(ContextKey("sign", GPG), self.sign, strict=False)
 
-        ctx.set(ContextKey("repository", type(self)), self)
+        ctx.set(ContextKey("repository", type(self)), self, strict=False)
 
         context.set(ctx)
 
