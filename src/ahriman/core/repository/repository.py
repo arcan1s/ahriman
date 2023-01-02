@@ -22,7 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Type
 
-from ahriman.core import context
+from ahriman.core import _Context, context
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -79,16 +79,23 @@ class Repository(Executor, UpdateHandler):
 
     def _set_context(self) -> None:
         """
-        set context variables
+        create context variables and set their values
         """
-        ctx = context.get()
+        # there is a reason why do we always create fresh context here.
+        # Issue is that if we are going to spawn child process (e.g. from web service), we will use context variables
+        # from parent process which we would like to avoid (at least they can have different flags).
+        # In the another hand, this class is the entry point of the application, so we will always create context
+        # exactly on the start of the application.
+        # And, finally, context still provides default not-initialized value, in case if someone would like to use it
+        # directly without loader
+        ctx = _Context()
 
-        ctx.set(ContextKey("database", SQLite), self.database, strict=False)
-        ctx.set(ContextKey("configuration", Configuration), self.configuration, strict=False)
-        ctx.set(ContextKey("pacman", Pacman), self.pacman, strict=False)
-        ctx.set(ContextKey("sign", GPG), self.sign, strict=False)
+        ctx.set(ContextKey("database", SQLite), self.database)
+        ctx.set(ContextKey("configuration", Configuration), self.configuration)
+        ctx.set(ContextKey("pacman", Pacman), self.pacman)
+        ctx.set(ContextKey("sign", GPG), self.sign)
 
-        ctx.set(ContextKey("repository", type(self)), self, strict=False)
+        ctx.set(ContextKey("repository", type(self)), self)
 
         context.set(ctx)
 
