@@ -57,6 +57,17 @@ def test_set_value_exception() -> None:
         ctx.set(ContextKey("key", str), 42)
 
 
+def test_set_value_exists() -> None:
+    """
+    must skip key set in case if key already exists and strict check is disabled
+    """
+    key, value = ContextKey("key", int), 42
+    ctx = _Context()
+    ctx.set(key, value)
+
+    ctx.set(key, value, strict=False)
+
+
 def test_contains() -> None:
     """
     must correctly check if element is in list

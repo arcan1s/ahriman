@@ -58,23 +58,26 @@ class _Context:
             raise ValueError(f"Value {value} is not an instance of {key.return_type}")
         return value
 
-    def set(self, key: ContextKey[T], value: T) -> None:
+    def set(self, key: ContextKey[T], value: T, strict: bool = True) -> None:
         """
         set value for the specified key
 
         Args:
             key(ContextKey[T]): context key name
             value(T): context value associated with the specified key
+            strict(bool, optional): check if key already exists (Default value = True)
 
         Raises:
             KeyError: in case if the specified context variable already exists
             ValueError: in case if type of value is not an instance of specified return type
         """
-        if key.key in self._content:
+        has_key = key.key in self._content
+        if strict and has_key:
             raise KeyError(key.key)
         if not isinstance(value, key.return_type):
             raise ValueError(f"Value {value} is not an instance of {key.return_type}")
-        self._content[key.key] = value
+        if not has_key:
+            self._content[key.key] = value
 
     def __iter__(self) -> Iterator[str]:
         """

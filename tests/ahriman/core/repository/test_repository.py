@@ -32,11 +32,11 @@ def test_set_context(configuration: Configuration, database: SQLite, mocker: Moc
 
     instance = Repository.load("x86_64", configuration, database, report=False, unsafe=False)
     set_mock.assert_has_calls([
-        MockCall(ContextKey("database", SQLite), instance.database),
-        MockCall(ContextKey("configuration", Configuration), instance.configuration),
-        MockCall(ContextKey("pacman", Pacman), instance.pacman),
-        MockCall(ContextKey("sign", GPG), instance.sign),
-        MockCall(ContextKey("repository", Repository), instance),
+        MockCall(ContextKey("database", SQLite), instance.database, strict=False),
+        MockCall(ContextKey("configuration", Configuration), instance.configuration, strict=False),
+        MockCall(ContextKey("pacman", Pacman), instance.pacman, strict=False),
+        MockCall(ContextKey("sign", GPG), instance.sign, strict=False),
+        MockCall(ContextKey("repository", Repository), instance, strict=False),
     ])
 
 
