@@ -30,14 +30,6 @@ def _mock_clear_check() -> None:
     ])
 
 
-def test_packages_built(cleaner: Cleaner) -> None:
-    """
-    must raise NotImplemented for missing method
-    """
-    with pytest.raises(NotImplementedError):
-        cleaner.packages_built()
-
-
 def test_clear_cache(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
     must remove every cached sources
@@ -84,3 +76,11 @@ def test_clear_queue(cleaner: Cleaner, mocker: MockerFixture) -> None:
     clear_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
     cleaner.clear_queue()
     clear_mock.assert_called_once_with(None)
+
+
+def test_packages_built(cleaner: Cleaner) -> None:
+    """
+    must raise NotImplemented for missing method
+    """
+    with pytest.raises(NotImplementedError):
+        cleaner.packages_built()

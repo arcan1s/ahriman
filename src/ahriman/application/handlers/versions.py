@@ -61,7 +61,7 @@ class Versions(Handler):
 
         Args:
             root(str): root package name
-            root_extras(Tuple[str, ...]): extras for the root package (Default value = ())
+            root_extras(Tuple[str, ...], optional): extras for the root package (Default value = ())
 
         Returns:
             Dict[str, str]: map of installed dependency to its version

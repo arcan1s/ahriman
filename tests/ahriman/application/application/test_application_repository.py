@@ -9,14 +9,6 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
-def test_on_result(application_repository: ApplicationRepository) -> None:
-    """
-    must raise NotImplemented for missing finalize method
-    """
-    with pytest.raises(NotImplementedError):
-        application_repository.on_result(Result())
-
-
 def test_clean_cache(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean cache directory
@@ -60,6 +52,14 @@ def test_clean_pacman(application_repository: ApplicationRepository, mocker: Moc
     clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_pacman")
     application_repository.clean(cache=False, chroot=False, manual=False, packages=False, pacman=True)
     clear_mock.assert_called_once_with()
+
+
+def test_on_result(application_repository: ApplicationRepository) -> None:
+    """
+    must raise NotImplemented for missing finalize method
+    """
+    with pytest.raises(NotImplementedError):
+        application_repository.on_result(Result())
 
 
 def test_sign(application_repository: ApplicationRepository, package_ahriman: Package, package_python_schedule: Package,

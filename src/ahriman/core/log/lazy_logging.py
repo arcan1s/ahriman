@@ -33,25 +33,6 @@ class LazyLogging:
 
     logger: logging.Logger
 
-    def __getattr__(self, item: str) -> Any:
-        """
-        logger extractor
-
-        Args:
-            item(str): property name
-
-        Returns:
-            Any: attribute by its name
-
-        Raises:
-            AttributeError: in case if no such attribute found
-        """
-        if item == "logger":
-            logger = logging.getLogger(self.logger_name)
-            setattr(self, item, logger)
-            return logger
-        raise AttributeError(f"'{self.__class__.__qualname__}' object has no attribute '{item}'")
-
     @property
     def logger_name(self) -> str:
         """
@@ -107,3 +88,22 @@ class LazyLogging:
             yield
         finally:
             self._package_logger_reset()
+
+    def __getattr__(self, item: str) -> Any:
+        """
+        logger extractor
+
+        Args:
+            item(str): property name
+
+        Returns:
+            Any: attribute by its name
+
+        Raises:
+            AttributeError: in case if no such attribute found
+        """
+        if item == "logger":
+            logger = logging.getLogger(self.logger_name)
+            setattr(self, item, logger)
+            return logger
+        raise AttributeError(f"'{self.__class__.__qualname__}' object has no attribute '{item}'")

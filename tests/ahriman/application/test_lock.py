@@ -12,40 +12,6 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 
 
-def test_enter(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must process with context manager
-    """
-    check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
-    check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
-    clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
-    create_mock = mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
-
-    with lock:
-        pass
-    check_user_mock.assert_called_once_with()
-    clear_mock.assert_called_once_with()
-    create_mock.assert_called_once_with()
-    check_version_mock.assert_called_once_with()
-    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
-
-
-def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must process with context manager in case if exception raised
-    """
-    mocker.patch("ahriman.application.lock.Lock.check_user")
-    mocker.patch("ahriman.application.lock.Lock.clear")
-    mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
-
-    with pytest.raises(Exception):
-        with lock:
-            raise Exception()
-    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Failed)])
-
-
 def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check version correctly
@@ -166,3 +132,37 @@ def test_create_unsafe(lock: Lock) -> None:
 
     lock.create()
     lock.path.unlink()
+
+
+def test_enter(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must process with context manager
+    """
+    check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
+    check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
+    clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
+    create_mock = mocker.patch("ahriman.application.lock.Lock.create")
+    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
+
+    with lock:
+        pass
+    check_user_mock.assert_called_once_with()
+    clear_mock.assert_called_once_with()
+    create_mock.assert_called_once_with()
+    check_version_mock.assert_called_once_with()
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
+
+
+def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must process with context manager in case if exception raised
+    """
+    mocker.patch("ahriman.application.lock.Lock.check_user")
+    mocker.patch("ahriman.application.lock.Lock.clear")
+    mocker.patch("ahriman.application.lock.Lock.create")
+    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
+
+    with pytest.raises(Exception):
+        with lock:
+            raise Exception()
+    update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Failed)])

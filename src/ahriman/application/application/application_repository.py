@@ -33,18 +33,6 @@ class ApplicationRepository(ApplicationProperties):
     repository control class
     """
 
-    def on_result(self, result: Result) -> None:
-        """
-        generate report and sync to remote server
-
-        Args:
-            result(Result): build result
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
     def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root
@@ -66,6 +54,18 @@ class ApplicationRepository(ApplicationProperties):
             self.repository.clear_packages()
         if pacman:
             self.repository.clear_pacman()
+
+    def on_result(self, result: Result) -> None:
+        """
+        generate report and sync to remote server
+
+        Args:
+            result(Result): build result
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
 
     def sign(self, packages: Iterable[str]) -> None:
         """
