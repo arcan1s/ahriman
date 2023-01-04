@@ -35,7 +35,7 @@ for module in (
 # -- Project information -----------------------------------------------------
 
 project = "ahriman"
-copyright = "2021-2022, ahriman team"
+copyright = "2021-2023, ahriman team"
 author = "ahriman team"
 
 # The full version, including alpha/beta/rc tags
