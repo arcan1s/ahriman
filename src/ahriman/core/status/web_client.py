@@ -160,7 +160,9 @@ class WebClient(Client, LazyLogging):
         Returns:
             str: full url of web service for specific package base
         """
-        return f"{self.address}/api/v1/packages/{package_base}"
+        # in case if unix socket is used we need to normalize url
+        suffix = f"/{package_base}" if package_base else ""
+        return f"{self.address}/api/v1/packages{suffix}"
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """

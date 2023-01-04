@@ -20,8 +20,10 @@
 import aiohttp_jinja2
 import jinja2
 import logging
+import socket
 
 from aiohttp import web
+from typing import Optional
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -34,7 +36,40 @@ from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
-__all__ = ["on_shutdown", "on_startup", "run_server", "setup_service"]
+__all__ = ["create_socket", "on_shutdown", "on_startup", "run_server", "setup_service"]
+
+
+def create_socket(configuration: Configuration, application: web.Application) -> Optional[socket.socket]:
+    """
+    create unix socket based on configuration option
+
+    Args:
+        configuration(Configuration): configuration instance
+        application(web.Application): web application instance
+
+    Returns:
+        Optional[socket.socket]: unix socket object if set by option
+    """
+    unix_socket = configuration.getpath("web", "unix_socket", fallback=None)
+    if unix_socket is None:
+        return None  # no option set
+    # create unix socket and bind it
+    unix_socket.unlink(missing_ok=True)  # remove socket file if it wasn't removed somehow before
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.bind(str(unix_socket))
+    # allow everyone to write to the socket, otherwise API methods are not allowed by non-ahriman user
+    # by default sockets are created with same rights as directory is, but it seems that x bit is not really required
+    # see also https://github.com/aio-libs/aiohttp/issues/4155
+    if configuration.getboolean("web", "unix_socket_unsafe", fallback=True):
+        unix_socket.chmod(0o666)  # for the glory of satan of course
+
+    # register socket removal
+    async def remove_socket(_: web.Application) -> None:
+        unix_socket.unlink(missing_ok=True)
+
+    application.on_shutdown.append(remove_socket)
+
+    return sock
 
 
 async def on_shutdown(application: web.Application) -> None:
@@ -78,9 +113,9 @@ def run_server(application: web.Application) -> None:
     configuration: Configuration = application["configuration"]
     host = configuration.get("web", "host")
     port = configuration.getint("web", "port")
-    unix_socket = configuration.get("web", "unix_socket", fallback=None)
+    unix_socket = create_socket(configuration, application)
 
-    web.run_app(application, host=host, port=port, path=unix_socket, handle_signals=False,
+    web.run_app(application, host=host, port=port, sock=unix_socket, handle_signals=False,
                 access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 
