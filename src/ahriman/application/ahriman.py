@@ -399,7 +399,8 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
                         action="append")
-    parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, report=False)
+    parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, report=False,
+                        unsafe=True)
     return parser
 
 
@@ -718,7 +719,7 @@ def _set_repo_tree_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-tree", help="dump repository tree",
                              description="dump repository tree based on packages dependencies",
                              formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Structure, lock=None, report=False, quiet=True)
+    parser.set_defaults(handler=handlers.Structure, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 
 
@@ -814,7 +815,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
     parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, report=False,
-                        quiet=True, unsafe=True)
+                        quiet=True)
     return parser
 
 
@@ -854,7 +855,7 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, report=False,  # nosec
-                        password="", quiet=True, unsafe=True)
+                        password="", quiet=True)
     return parser
 
 

@@ -123,6 +123,9 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
     must generate package status url correctly
     """
+    assert web_client._package_url("").startswith(web_client.address)
+    assert web_client._package_url("").endswith(f"/api/v1/packages")
+
     assert web_client._package_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
 
