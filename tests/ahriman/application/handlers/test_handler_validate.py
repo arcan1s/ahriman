@@ -9,10 +9,25 @@ from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA, GITREMOTE_RE
 from ahriman.core.configuration.validator import Validator
 
 
+def _default_args(args: argparse.Namespace) -> argparse.Namespace:
+    """
+    default arguments for these test cases
+
+    Args:
+        args(argparse.Namespace): command line arguments fixture
+
+    Returns:
+        argparse.Namespace: generated arguments for these test cases
+    """
+    args.exit_code = False
+    return args
+
+
 def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
+    args = _default_args(args)
     mocker.patch.object(Validator, "errors", {"node": ["error"]})
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=False)
@@ -27,6 +42,7 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, mocker
     """
     must skip print if no errors found
     """
+    args = _default_args(args)
     mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=True)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 

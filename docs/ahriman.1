@@ -460,9 +460,14 @@ usage: ahriman repo\-config [\-h]
 dump configuration for the specified architecture
 
 .SH COMMAND \fI\,'ahriman repo\-config\-validate'\/\fR
-usage: ahriman repo\-config\-validate [\-h]
+usage: ahriman repo\-config\-validate [\-h] [\-e]
 
 validate configuration and print found errors
+
+.SH OPTIONS \fI\,'ahriman repo\-config\-validate'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if configuration is invalid
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
 usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]

@@ -10,7 +10,7 @@ echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never'
 # refresh the image
 pacman --noconfirm -Syu
 # main dependencies
-pacman --noconfirm -Sy base-devel devtools git pyalpm python-aur python-passlib python-setuptools python-srcinfo sudo
+pacman --noconfirm -Sy base-devel devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-setuptools python-srcinfo sudo
 # make dependencies
 pacman --noconfirm -Sy python-build python-installer python-wheel
 # optional dependencies
@@ -39,6 +39,8 @@ sed -i "s/handlers = syslog_handler/handlers = console_handler/g" /etc/ahriman.i
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
+# validate configuration
+ahriman -a x86_64 repo-config-validate --exit-code
 # enable services
 systemctl enable ahriman-web@x86_64
 systemctl enable ahriman@x86_64.timer

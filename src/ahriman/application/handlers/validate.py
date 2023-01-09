@@ -54,10 +54,14 @@ class Validate(Handler):
         """
         schema = Validate.schema(architecture, configuration)
         validator = Validator(instance=configuration, schema=schema)
+
         if validator.validate(configuration.dump()):
             return  # no errors found
         for node, errors in validator.errors.items():
             ValidationPrinter(node, errors).print(verbose=True)
+
+        # as we reach this part it means that we always have errors
+        Validate.check_if_empty(args.exit_code, True)
 
     @staticmethod
     def schema(architecture: str, configuration: Configuration) -> Dict[str, Any]:

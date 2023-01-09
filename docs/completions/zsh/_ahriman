@@ -117,6 +117,7 @@ _shtab_ahriman_config_options=(
 
 _shtab_ahriman_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
 )
 
 _shtab_ahriman_daemon_options=(
@@ -277,6 +278,7 @@ _shtab_ahriman_repo_config_options=(
 
 _shtab_ahriman_repo_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
 )
 
 _shtab_ahriman_repo_init_options=(
