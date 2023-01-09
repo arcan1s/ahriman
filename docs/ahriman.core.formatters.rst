@@ -92,6 +92,14 @@ ahriman.core.formatters.user\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.validation\_printer module
+--------------------------------------------------
+
+.. automodule:: ahriman.core.formatters.validation_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.version\_printer module
 -----------------------------------------------
 

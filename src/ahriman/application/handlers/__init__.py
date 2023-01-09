@@ -42,5 +42,6 @@ from ahriman.application.handlers.triggers import Triggers
 from ahriman.application.handlers.unsafe_commands import UnsafeCommands
 from ahriman.application.handlers.update import Update
 from ahriman.application.handlers.users import Users
+from ahriman.application.handlers.validate import Validate
 from ahriman.application.handlers.versions import Versions
 from ahriman.application.handlers.web import Web

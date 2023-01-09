@@ -26,6 +26,33 @@ Long answer
 
 The idea is to install the package as usual, create working directory tree, create configuration for ``sudo`` and ``devtools``. Detailed description of the setup instruction can be found :doc:`here <setup>`.
 
+How to validate settings
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+There is special command which can be used in order to validate current configuration:
+
+.. code-block:: shell
+
+   ahriman -a x86_64 repo-config-validate --exit-code
+
+This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`_, e.g.:
+
+.. code-block:: shell
+
+   auth
+                   ssalt: unknown field
+                   target: none or more than one rule validate
+                           oneof definition 0: unallowed value mapping
+                           oneof definition 1: field 'salt' is required
+                           oneof definition 2: unallowed value mapping
+                           oneof definition 2: field 'salt' is required
+                           oneof definition 2: field 'client_id' is required
+                           oneof definition 2: field 'client_secret' is required
+   gitremote
+                   pull_url: unknown field
+
+If an additional flag ``--exit-code`` is supplied, the application will return non-zero exit code, which can be used partially in scripts.
+
 What does "architecture specific" mean / How to configure for different architectures
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -392,7 +419,8 @@ The following environment variables are supported:
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
-* ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``. 
+* ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
+* ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set validate service configuration
 
 You can pass any of these variables by using ``-e`` argument, e.g.:
 

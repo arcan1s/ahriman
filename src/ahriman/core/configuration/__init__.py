@@ -17,23 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass, field
-from typing import Any
-
-
-@dataclass(frozen=True)
-class Property:
-    """
-    holder of object properties descriptor
-
-    Attributes:
-        name(str): name of the property
-        value(Any): property value
-        is_required(bool): if set to True then this property is required
-        indent(int): property indentation level
-    """
-
-    name: str
-    value: Any
-    is_required: bool = field(default=False, kw_only=True)
-    indent: int = 1
+from ahriman.core.configuration.configuration import Configuration

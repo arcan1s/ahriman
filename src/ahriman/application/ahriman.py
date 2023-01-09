@@ -101,6 +101,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_check_parser(subparsers)
     _set_repo_clean_parser(subparsers)
     _set_repo_config_parser(subparsers)
+    _set_repo_config_validate_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
     _set_repo_report_parser(subparsers)
@@ -534,6 +535,25 @@ def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="dump configuration for the specified architecture",
                              formatter_class=_formatter)
     parser.set_defaults(handler=handlers.Dump, lock=None, report=False, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_repo_config_validate_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for config validation subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-config-validate", aliases=["config-validate"], help="validate system configuration",
+                             description="validate configuration and print found errors",
+                             formatter_class=_formatter)
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if configuration is invalid",
+                        action="store_true")
+    parser.set_defaults(handler=handlers.Validate, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 
 

@@ -29,6 +29,7 @@ setup(
     dependency_links=[
     ],
     install_requires=[
+        "cerberus",
         "inflection",
         "passlib",
         "requests",

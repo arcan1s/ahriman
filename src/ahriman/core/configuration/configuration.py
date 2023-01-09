@@ -24,7 +24,7 @@ import shlex
 import sys
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
@@ -63,6 +63,7 @@ class Configuration(configparser.RawConfigParser):
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
+    converters: Dict[str, Callable[[str], Any]]  # typing guard
 
     def __init__(self, allow_no_value: bool = False) -> None:
         """
@@ -74,7 +75,7 @@ class Configuration(configparser.RawConfigParser):
         """
         configparser.RawConfigParser.__init__(self, allow_no_value=allow_no_value, converters={
             "list": shlex.split,
-            "path": self.__convert_path,
+            "path": self._convert_path,
         })
         self.architecture: Optional[str] = None
         self.path: Optional[Path] = None
@@ -141,7 +142,7 @@ class Configuration(configparser.RawConfigParser):
         """
         return f"{section}:{suffix}"
 
-    def __convert_path(self, value: str) -> Path:
+    def _convert_path(self, value: str) -> Path:
         """
         convert string value to path object
 

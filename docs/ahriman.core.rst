@@ -10,6 +10,7 @@ Subpackages
    ahriman.core.alpm
    ahriman.core.auth
    ahriman.core.build_tools
+   ahriman.core.configuration
    ahriman.core.database
    ahriman.core.formatters
    ahriman.core.gitremote
@@ -23,14 +24,6 @@ Subpackages
 
 Submodules
 ----------
-
-ahriman.core.configuration module
----------------------------------
-
-.. automodule:: ahriman.core.configuration
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
 
 ahriman.core.exceptions module
 ------------------------------
