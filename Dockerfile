@@ -12,6 +12,7 @@ ENV AHRIMAN_REPOSITORY="aur-clone"
 ENV AHRIMAN_REPOSITORY_ROOT="/var/lib/ahriman/ahriman"
 ENV AHRIMAN_UNIX_SOCKET=""
 ENV AHRIMAN_USER="ahriman"
+ENV AHRIMAN_VALIDATE_CONFIGURATION=""
 
 # install environment
 ## update pacman.conf with multilib
