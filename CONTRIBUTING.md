@@ -77,9 +77,13 @@ Again, the most checks can be performed by `make check` command, though some add
   
         CLAZZ_ATTRIBUTE = 42
   
-        def __init__(self) -> None:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             """
             default constructor
+  
+            Args:
+                *args(Any): positional arguments
+                **kwargs(Any): keyword arguments 
             """
             self.instance_attribute = ""
     ```
