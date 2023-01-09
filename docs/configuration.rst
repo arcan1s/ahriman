@@ -12,6 +12,14 @@ There are two variable types which have been added to default ones, they are pat
 
 Path values, except for casting to ``pathlib.Path`` type, will be also expanded to absolute paths relative to the configuration path. E.g. if path is set to ``ahriman.ini.d/logging.ini`` and root configuration path is ``/etc/ahriman.ini``, the value will be expanded to ``/etc/ahriman.ini.d/logging.ini``. In order to disable path expand, use the full path, e.g. ``/etc/ahriman.ini.d/logging.ini``.
 
+There is also additional subcommand which will allow to validate configuration and print found errors. In order to do so, run ``repo-config-validate`` subcommand, e.g.:
+
+.. code-block:: shell
+
+   ahriman -a x86_64 repo-config-validate
+
+It will check current settings on common errors and compare configuration with known schema.
+
 ``settings`` group
 ------------------
 
@@ -77,6 +85,25 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``target`` - configuration flag to enable signing, space separated list of strings, required. Allowed values are ``package`` (sign each package separately), ``repository`` (sign repository database file).
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
 * ``key_*`` settings - PGP key which will be used for specific packages, string, optional. For example, if there is ``key_yay`` option the specified key will be used for yay package and default key for others.
+
+``web:*`` groups
+----------------
+
+Web server settings. If any of ``host``/``port`` is not set, web integration will be disabled. Group name can refer to architecture, e.g. ``web:x86_64`` can be used for x86_64 architecture specific settings. This feature requires ``aiohttp`` libraries to be installed.
+
+* ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
+* ``debug`` - enable debug toolbar, boolean, optional, default ``no``.
+* ``debug_check_host`` - check hosts to access debug toolbar, boolean, optional, default ``no``.
+* ``debug_allowed_hosts`` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
+* ``host`` - host to bind, string, optional.
+* ``index_url`` - full url of the repository index page, string, optional.
+* ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
+* ``port`` - port to bind, int, optional.
+* ``static_path`` - path to directory with static files, string, required.
+* ``templates`` - path to templates directory, string, required.
+* ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
+* ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
+* ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
 
 ``remote-pull`` group
 ---------------------
@@ -225,22 +252,3 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 * ``chunk_size`` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
 * ``region`` - bucket region (e.g. ``eu-central-1``), string, required.
 * ``secret_key`` - AWS secret access key, string, required.
-
-``web:*`` groups
-----------------
-
-Web server settings. If any of ``host``/``port`` is not set, web integration will be disabled. Group name can refer to architecture, e.g. ``web:x86_64`` can be used for x86_64 architecture specific settings. This feature requires ``aiohttp`` libraries to be installed.
-
-* ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
-* ``debug`` - enable debug toolbar, boolean, optional, default ``no``.
-* ``debug_check_host`` - check hosts to access debug toolbar, boolean, optional, default ``no``.
-* ``debug_allowed_hosts`` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
-* ``host`` - host to bind, string, optional.
-* ``index_url`` - full url of the repository index page, string, optional.
-* ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.  
-* ``port`` - port to bind, int, optional.
-* ``static_path`` - path to directory with static files, string, required.
-* ``templates`` - path to templates directory, string, required.
-* ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
-* ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
-* ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.  

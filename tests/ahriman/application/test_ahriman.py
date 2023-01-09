@@ -413,6 +413,18 @@ def test_subparsers_repo_config(parser: argparse.ArgumentParser) -> None:
     assert args.unsafe
 
 
+def test_subparsers_repo_config_validate(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-config-validate command must imply lock, report, quiet and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "repo-config-validate"])
+    assert args.architecture == ["x86_64"]
+    assert args.lock is None
+    assert not args.report
+    assert args.quiet
+    assert args.unsafe
+
+
 def test_subparsers_repo_rebuild_architecture(parser: argparse.ArgumentParser) -> None:
     """
     repo-rebuild command must correctly parse architecture list

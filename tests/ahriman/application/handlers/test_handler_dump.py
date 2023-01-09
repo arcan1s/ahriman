@@ -4,15 +4,12 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Dump
 from ahriman.core.configuration import Configuration
-from ahriman.core.repository import Repository
 
 
-def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-             mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run command
     """
-    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
                                     return_value=configuration.dump())

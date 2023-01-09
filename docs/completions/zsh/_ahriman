@@ -10,6 +10,7 @@ _shtab_ahriman_commands() {
     "check:check for packages updates. Same as repo-update --dry-run --no-manual"
     "clean:remove local caches"
     "config:dump configuration for the specified architecture"
+    "config-validate:validate configuration and print found errors"
     "daemon:start process which periodically will run update process"
     "help:show help message for application or command and exit"
     "help-commands-unsafe:list unsafe commands as defined in default args"
@@ -32,6 +33,7 @@ _shtab_ahriman_commands() {
     "repo-check:check for packages updates. Same as repo-update --dry-run --no-manual"
     "repo-clean:remove local caches"
     "repo-config:dump configuration for the specified architecture"
+    "repo-config-validate:validate configuration and print found errors"
     "repo-init:create initial service configuration, requires root"
     "repo-rebuild:force rebuild whole repository"
     "repo-remove-unknown:remove packages which are missing in AUR and do not have local PKGBUILDs"
@@ -111,6 +113,11 @@ _shtab_ahriman_clean_options=(
 
 _shtab_ahriman_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
+_shtab_ahriman_config_validate_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
 )
 
 _shtab_ahriman_daemon_options=(
@@ -267,6 +274,11 @@ _shtab_ahriman_repo_clean_options=(
 
 _shtab_ahriman_repo_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
+_shtab_ahriman_repo_config_validate_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
 )
 
 _shtab_ahriman_repo_init_options=(
@@ -473,6 +485,7 @@ _shtab_ahriman() {
         check) _arguments -C $_shtab_ahriman_check_options ;;
         clean) _arguments -C $_shtab_ahriman_clean_options ;;
         config) _arguments -C $_shtab_ahriman_config_options ;;
+        config-validate) _arguments -C $_shtab_ahriman_config_validate_options ;;
         daemon) _arguments -C $_shtab_ahriman_daemon_options ;;
         help) _arguments -C $_shtab_ahriman_help_options ;;
         help-commands-unsafe) _arguments -C $_shtab_ahriman_help_commands_unsafe_options ;;
@@ -495,6 +508,7 @@ _shtab_ahriman() {
         repo-check) _arguments -C $_shtab_ahriman_repo_check_options ;;
         repo-clean) _arguments -C $_shtab_ahriman_repo_clean_options ;;
         repo-config) _arguments -C $_shtab_ahriman_repo_config_options ;;
+        repo-config-validate) _arguments -C $_shtab_ahriman_repo_config_validate_options ;;
         repo-init) _arguments -C $_shtab_ahriman_repo_init_options ;;
         repo-rebuild) _arguments -C $_shtab_ahriman_repo_rebuild_options ;;
         repo-remove-unknown) _arguments -C $_shtab_ahriman_repo_remove_unknown_options ;;

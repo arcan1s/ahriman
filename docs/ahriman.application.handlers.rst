@@ -196,6 +196,14 @@ ahriman.application.handlers.users module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.validate module
+--------------------------------------------
+
+.. automodule:: ahriman.application.handlers.validate
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.versions module
 --------------------------------------------
 

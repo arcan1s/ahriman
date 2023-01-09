@@ -1,7 +1,7 @@
 import pytest
 
 from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, PackagePrinter, PatchPrinter, StatusPrinter, \
-    StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, VersionPrinter
+    StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, ValidationPrinter, VersionPrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
@@ -124,6 +124,29 @@ def user_printer(user: User) -> UserPrinter:
         UserPrinter: user printer test instance
     """
     return UserPrinter(user)
+
+
+@pytest.fixture
+def validation_printer() -> ValidationPrinter:
+    """
+    fixture for validation printer
+
+    Returns:
+        ValidationPrinter: validation printer test instance
+    """
+    return ValidationPrinter("root", [
+        "root error",
+        {
+            "child": [
+                "child error",
+                {
+                    "grandchild": [
+                        "grandchild error",
+                    ],
+                },
+            ],
+        },
+    ])
 
 
 @pytest.fixture

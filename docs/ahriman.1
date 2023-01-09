@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-01\-03" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-01\-09" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-config-validate,config-validate,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -96,6 +96,9 @@ clean local caches
 .TP
 \fBahriman\fR \fI\,repo\-config\/\fR
 dump configuration
+.TP
+\fBahriman\fR \fI\,repo\-config\-validate\/\fR
+validate system configuration
 .TP
 \fBahriman\fR \fI\,repo\-rebuild\/\fR
 rebuild repository
@@ -455,6 +458,16 @@ clear directory with pacman local database cache (default: False)
 usage: ahriman repo\-config [\-h]
 
 dump configuration for the specified architecture
+
+.SH COMMAND \fI\,'ahriman repo\-config\-validate'\/\fR
+usage: ahriman repo\-config\-validate [\-h] [\-e]
+
+validate configuration and print found errors
+
+.SH OPTIONS \fI\,'ahriman repo\-config\-validate'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if configuration is invalid
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
 usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]
