@@ -38,9 +38,9 @@ systemd-machine-id-setup
 sed -i "s/handlers = syslog_handler/handlers = console_handler/g" /etc/ahriman.ini.d/logging.ini
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
-ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
+ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
 # validate configuration
-ahriman -a x86_64 repo-config-validate --exit-code
+ahriman -a x86_64 service-config-validate --exit-code
 # enable services
 systemctl enable ahriman-web@x86_64
 systemctl enable ahriman@x86_64.timer

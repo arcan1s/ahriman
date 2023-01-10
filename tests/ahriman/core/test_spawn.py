@@ -42,7 +42,7 @@ def test_key_import(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.key_import("0xdeadbeaf", None)
-    spawn_mock.assert_called_once_with("key-import", "0xdeadbeaf")
+    spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf")
 
 
 def test_key_import_with_server(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -51,7 +51,7 @@ def test_key_import_with_server(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
     spawner.key_import("0xdeadbeaf", "keyserver.ubuntu.com")
-    spawn_mock.assert_called_once_with("key-import", "0xdeadbeaf", **{"key-server": "keyserver.ubuntu.com"})
+    spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf", **{"key-server": "keyserver.ubuntu.com"})
 
 
 def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:

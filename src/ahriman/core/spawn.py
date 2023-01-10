@@ -87,7 +87,7 @@ class Spawn(Thread, LazyLogging):
             server(str): PGP key server
         """
         kwargs = {} if server is None else {"key-server": server}
-        self.spawn_process("key-import", key, **kwargs)
+        self.spawn_process("service-key-import", key, **kwargs)
 
     def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
         """

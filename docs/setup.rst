@@ -10,9 +10,9 @@ Initial setup
 
    .. code-block:: shell
 
-      sudo ahriman -a x86_64 repo-setup ...
+      sudo ahriman -a x86_64 service-setup ...
 
-   ``repo-setup`` literally does the following steps:
+   ``service-setup`` literally does the following steps:
 
    #.
       Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``):
