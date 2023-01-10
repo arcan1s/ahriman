@@ -17,13 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from __future__ import annotations
+
 import contextlib
 import importlib
 import os
 
 from pathlib import Path
 from types import ModuleType
-from typing import Generator, Iterable
+from typing import Generator, Iterable, List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExtensionError
@@ -38,8 +40,6 @@ class TriggerLoader(LazyLogging):
     trigger loader class
 
     Attributes:
-        architecture(str): repository architecture
-        configuration(Configuration): configuration instance
         triggers(List[Trigger]): list of loaded triggers according to the configuration
 
     Examples:
@@ -50,7 +50,7 @@ class TriggerLoader(LazyLogging):
 
         Having such configuration you can create instance of the loader::
 
-            >>> loader = TriggerLoader("x86_64", configuration)
+            >>> loader = TriggerLoader.load("x86_64", configuration)
             >>> print(loader.triggers)
 
         After that you are free to run triggers::
@@ -58,22 +58,45 @@ class TriggerLoader(LazyLogging):
             >>> loader.on_result(Result(), [])
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self) -> None:
         """
         default constructor
+        """
+        self._on_stop_requested = False
+        self.triggers: List[Trigger] = []
+
+    @classmethod
+    def load(cls: Type[TriggerLoader], architecture: str, configuration: Configuration) -> TriggerLoader:
+        """
+        create instance from configuration
 
         Args:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-        """
-        self.architecture = architecture
-        self.configuration = configuration
 
-        self._on_stop_requested = False
-        self.triggers = [
-            self.load_trigger(trigger)
-            for trigger in configuration.getlist("build", "triggers")
+        Returns:
+            TriggerLoader: fully loaded trigger instance
+        """
+        instance = cls()
+        instance.triggers = [
+            instance.load_trigger(trigger, architecture, configuration)
+            for trigger in instance.selected_triggers(configuration)
         ]
+
+        return instance
+
+    @staticmethod
+    def selected_triggers(configuration: Configuration) -> List[str]:
+        """
+        read configuration and return triggers which are set by settings
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            List[str]: list of triggers according to configuration
+        """
+        return configuration.getlist("build", "triggers", fallback=[])
 
     @contextlib.contextmanager
     def __execute_trigger(self, trigger: Trigger) -> Generator[None, None, None]:
@@ -130,15 +153,38 @@ class TriggerLoader(LazyLogging):
         except ModuleNotFoundError:
             raise ExtensionError(f"Module {package} not found")
 
-    def load_trigger(self, module_path: str) -> Trigger:
+    def load_trigger(self, module_path: str, architecture: str, configuration: Configuration) -> Trigger:
         """
         load trigger by module path
 
         Args:
             module_path(str): module import path to load
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
 
         Returns:
             Trigger: loaded trigger based on settings
+
+        Raises:
+            InvalidExtension: in case if trigger could not be instantiated
+        """
+        trigger_type = self.load_trigger_class(module_path)
+        try:
+            trigger = trigger_type(architecture, configuration)
+        except Exception:
+            raise ExtensionError(f"Could not load instance of trigger from {trigger_type} loaded from {module_path}")
+
+        return trigger
+
+    def load_trigger_class(self, module_path: str) -> Type[Trigger]:
+        """
+        load trigger class by module path
+
+        Args:
+            module_path(str): module import path to load
+
+        Returns:
+            Type[Trigger]: loaded trigger type by module path
 
         Raises:
             InvalidExtension: in case if module cannot be loaded from the specified module path or is not a trigger
@@ -156,16 +202,11 @@ class TriggerLoader(LazyLogging):
         trigger_type = getattr(module, class_name, None)
         if not isinstance(trigger_type, type):
             raise ExtensionError(f"{class_name} of {package_or_path} is not a type")
+        if not issubclass(trigger_type, Trigger):
+            raise ExtensionError(f"Class {class_name} of {package_or_path} is not a Trigger subclass")
+
         self.logger.info("loaded type %s of package %s", class_name, package_or_path)
-
-        try:
-            trigger = trigger_type(self.architecture, self.configuration)
-        except Exception:
-            raise ExtensionError(f"Could not load instance of trigger from {class_name} of {package_or_path}")
-        if not isinstance(trigger, Trigger):
-            raise ExtensionError(f"Class {class_name} of {package_or_path} is not a Trigger")
-
-        return trigger
+        return trigger_type
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """

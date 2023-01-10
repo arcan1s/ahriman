@@ -144,52 +144,30 @@ Before using this command you will need to create local directory, put ``PKGBUIL
 How to fetch PKGBUILDs from remote repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will need:
+For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will need to configure trigger as following:
 
-#.
-   Append ``triggers`` option in ``build`` section with the following line:
+.. code-block:: ini
 
-   .. code-block:: ini
+   [remote-pull]
+   target = gitremote
 
-      [build]
-      triggers = ahriman.core.gitremote.RemotePullTrigger
-
-#.
-   Configure trigger as following:
-
-   .. code-block:: ini
-
-      [remote-pull]
-      target = gitremote
-
-      [gitremote]
-      pull_url = https://github.com/username/repository
+   [gitremote]
+   pull_url = https://github.com/username/repository
 
 During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
 
 How to push updated PKGBUILDs to remote repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For that purpose you'd need to use another trigger called ``RemotePushTrigger``. Configure it as following:
+For that purpose you'd need to use another trigger called ``RemotePushTrigger``. Configure trigger as following:
 
-#.
-   Append ``triggers`` option in ``build`` section with the trigger name:
+.. code-block:: ini
 
-   .. code-block:: ini
+   [remote-push]
+   target = gitremote
 
-      [build]
-      triggers = ahriman.core.gitremote.RemotePushTrigger
-
-#.
-   Configure trigger as following:
-
-   .. code-block:: ini
-
-      [remote-push]
-      target = gitremote
-
-      [gitremote]
-      push_url = https://github.com/username/repository
+   [gitremote]
+   push_url = https://github.com/username/repository
 
 Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
 

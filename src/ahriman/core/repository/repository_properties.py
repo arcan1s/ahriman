@@ -80,4 +80,4 @@ class RepositoryProperties(LazyLogging):
         self.sign = GPG(architecture, configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(configuration, report=report)
-        self.triggers = TriggerLoader(architecture, configuration)
+        self.triggers = TriggerLoader.load(architecture, configuration)

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from typing import List, Type
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.gitremote.remote_pull import RemotePull
 from ahriman.core.triggers import Trigger
@@ -30,6 +32,22 @@ class RemotePullTrigger(Trigger):
         targets(List[str]): git remote target list
     """
 
+    CONFIGURATION_SCHEMA = {
+        "gitremote": {
+            "type": "dict",
+            "schema": {
+                "pull_url": {
+                    "type": "string",
+                    "required": True,
+                },
+                "pull_branch": {
+                    "type": "string",
+                },
+            },
+        },
+    }
+    CONFIGURATION_SCHEMA_FALLBACK = "gitremote"
+
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
@@ -39,13 +57,27 @@ class RemotePullTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("remote-pull", "target", fallback=["gitremote"])
+        self.targets = self.configuration_sections(configuration)
+
+    @classmethod
+    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+        """
+        extract configuration sections from configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            List[str]: read configuration sections belong to this trigger
+        """
+        return configuration.getlist("remote-pull", "target", fallback=[])
 
     def on_start(self) -> None:
         """
         trigger action which will be called at the start of the application
         """
         for target in self.targets:
-            section, _ = self.configuration.gettype(target, self.architecture)
+            section, _ = self.configuration.gettype(
+                target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
             runner = RemotePull(self.configuration, section)
             runner.run()

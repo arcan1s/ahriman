@@ -5,8 +5,9 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.handlers import Validate
 from ahriman.core.configuration import Configuration
-from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA, GITREMOTE_REMOTE_PULL_SCHEMA
+from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA
 from ahriman.core.configuration.validator import Validator
+from ahriman.core.gitremote import RemotePullTrigger, RemotePushTrigger
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -60,13 +61,20 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("console")
     assert schema.pop("email")
     assert schema.pop("github")
-    assert schema.pop("gitremote")
     assert schema.pop("html")
     assert schema.pop("rsync")
     assert schema.pop("s3")
     assert schema.pop("telegram")
 
     assert schema == CONFIGURATION_SCHEMA
+
+
+def test_schema_invalid_trigger(configuration: Configuration) -> None:
+    """
+    must skip trigger if it caused exception on load
+    """
+    configuration.set_option("build", "triggers", "some.invalid.trigger.path.Trigger")
+    assert Validate.schema("x86_64", configuration) == CONFIGURATION_SCHEMA
 
 
 def test_schema_erase_required() -> None:
@@ -77,24 +85,18 @@ def test_schema_erase_required() -> None:
     assert "required" not in json.dumps(Validate.schema_erase_required(CONFIGURATION_SCHEMA))
 
 
-def test_schema_insert(configuration: Configuration) -> None:
+def test_schema_merge() -> None:
     """
-    must insert child schema to root
+    must merge schemas correctly
     """
-    result = Validate.schema_insert("x86_64", configuration, CONFIGURATION_SCHEMA, "remote-pull",
-                                    lambda _: GITREMOTE_REMOTE_PULL_SCHEMA)
-    assert result["gitremote"] == GITREMOTE_REMOTE_PULL_SCHEMA
+    erased = Validate.schema_erase_required(CONFIGURATION_SCHEMA)
+    assert Validate.schema_merge(erased, CONFIGURATION_SCHEMA) == CONFIGURATION_SCHEMA
 
-
-def test_schema_insert_skip(configuration: Configuration) -> None:
-    """
-    must do nothing in case if there is no such section or option
-    """
-    configuration.remove_section("remote-pull")
-
-    result = Validate.schema_insert("x86_64", configuration, CONFIGURATION_SCHEMA, "remote-pull",
-                                    lambda _: GITREMOTE_REMOTE_PULL_SCHEMA)
-    assert result == CONFIGURATION_SCHEMA
+    merged = Validate.schema_merge(RemotePullTrigger.CONFIGURATION_SCHEMA, RemotePushTrigger.CONFIGURATION_SCHEMA)
+    for key in RemotePullTrigger.CONFIGURATION_SCHEMA["gitremote"]["schema"]:
+        assert key in merged["gitremote"]["schema"]
+    for key in RemotePushTrigger.CONFIGURATION_SCHEMA["gitremote"]["schema"]:
+        assert key in merged["gitremote"]["schema"]
 
 
 def test_disallow_auto_architecture_run() -> None:

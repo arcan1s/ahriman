@@ -31,13 +31,15 @@ Again, the most checks can be performed by `make check` command, though some add
     ```python
     def foo(argument: str, *, flag: bool = False) -> int:
         """
-        do foo
+        do foo. With very very very long
+        docstring
   
         Note:
             Very important note about this function
   
         Args:
-            argument(str): an argument
+            argument(str): an argument. This argument has
+                long description also
             flag(bool, optional): a flag (Default value = False)
   
         Returns:

@@ -28,4 +28,4 @@ def trigger_loader(configuration: Configuration) -> TriggerLoader:
     Returns:
         TriggerLoader: trigger loader test instance
     """
-    return TriggerLoader("x86_64", configuration)
+    return TriggerLoader.load("x86_64", configuration)

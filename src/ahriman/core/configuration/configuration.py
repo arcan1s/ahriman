@@ -189,7 +189,7 @@ class Configuration(configparser.RawConfigParser):
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore
 
-    def gettype(self, section: str, architecture: str) -> Tuple[str, str]:
+    def gettype(self, section: str, architecture: str, *, fallback: Optional[str] = None) -> Tuple[str, str]:
         """
         get type variable with fallback to old logic. Despite the fact that it has same semantics as other get* methods,
         but it has different argument list
@@ -197,6 +197,8 @@ class Configuration(configparser.RawConfigParser):
         Args:
             section(str): section name
             architecture(str): repository architecture
+            fallback(Optional[str], optional): optional fallback type if any. If set, second element of the tuple will
+                be always set to this value (Default value = None)
 
         Returns:
             Tuple[str, str]: section name and found type name
@@ -204,9 +206,8 @@ class Configuration(configparser.RawConfigParser):
         Raises:
             configparser.NoSectionError: in case if no section found
         """
-        group_type = self.get(section, "type", fallback=None)  # new-style logic
-        if group_type is not None:
-            return section, group_type
+        if (group_type := self.get(section, "type", fallback=fallback)) is not None:
+            return section, group_type  # new-style logic
         # okay lets check for the section with architecture name
         full_section = self.section_name(section, architecture)
         if self.has_section(full_section):
@@ -274,14 +275,14 @@ class Configuration(configparser.RawConfigParser):
         self.load(path)
         self.merge_sections(architecture)
 
-    def set_option(self, section: str, option: str, value: Optional[str]) -> None:
+    def set_option(self, section: str, option: str, value: str) -> None:
         """
         set option. Unlike default ``configparser.RawConfigParser.set`` it also creates section if it does not exist
 
         Args:
             section(str): section name
             option(str): option name
-            value(Optional[str]): option value as string in parsable format
+            value(str): option value as string in parsable format
         """
         if not self.has_section(section):
             self.add_section(section)
