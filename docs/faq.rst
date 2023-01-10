@@ -18,7 +18,7 @@ TL;DR
 .. code-block:: shell
 
    yay -S ahriman
-   sudo ahriman -a x86_64 repo-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
+   sudo ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
    systemctl enable --now ahriman@x86_64.timer
 
 Long answer
@@ -33,7 +33,7 @@ There is special command which can be used in order to validate current configur
 
 .. code-block:: shell
 
-   ahriman -a x86_64 repo-config-validate --exit-code
+   ahriman -a x86_64 service-config-validate --exit-code
 
 This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`_, e.g.:
 
@@ -219,7 +219,7 @@ TL;DR
 
 .. code-block:: shell
 
-   sudo -u ahriman ahriman key-import ...
+   sudo -u ahriman ahriman service-key-import ...
 
 How to update VCS packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -409,11 +409,11 @@ You can pass any of these variables by using ``-e`` argument, e.g.:
 Daemon service
 ^^^^^^^^^^^^^^
 
-There is special ``daemon`` subcommand which emulates systemd timer and will perform repository update periodically:
+There is special ``repo-daemon`` subcommand which emulates systemd timer and will perform repository update periodically:
 
 .. code-block:: shell
 
-   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest daemon
+   docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest repo-daemon
 
 This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
 

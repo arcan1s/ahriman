@@ -14,6 +14,7 @@ _shtab_ahriman_commands() {
     "daemon:start process which periodically will run update process"
     "help:show help message for application or command and exit"
     "help-commands-unsafe:list unsafe commands as defined in default args"
+    "help-version:print application and its dependencies versions"
     "init:create initial service configuration, requires root"
     "key-import:import PGP key from public sources to the repository user"
     "package-add:add existing or new package to the build queue"
@@ -34,6 +35,7 @@ _shtab_ahriman_commands() {
     "repo-clean:remove local caches"
     "repo-config:dump configuration for the specified architecture"
     "repo-config-validate:validate configuration and print found errors"
+    "repo-daemon:start process which periodically will run update process"
     "repo-init:create initial service configuration, requires root"
     "repo-rebuild:force rebuild whole repository"
     "repo-remove-unknown:remove packages which are missing in AUR and do not have local PKGBUILDs"
@@ -48,6 +50,12 @@ _shtab_ahriman_commands() {
     "repo-update:check for packages updates and run build process if requested"
     "report:generate repository report according to current settings"
     "search:search for package in AUR using API"
+    "service-clean:remove local caches"
+    "service-config:dump configuration for the specified architecture"
+    "service-config-validate:validate configuration and print found errors"
+    "service-key-import:import PGP key from public sources to the repository user"
+    "service-setup:create initial service configuration, requires root"
+    "service-shell:drop into python shell while having created application"
     "setup:create initial service configuration, requires root"
     "shell:drop into python shell while having created application"
     "sign:(re-)sign packages and repository database according to current settings"
@@ -138,6 +146,10 @@ _shtab_ahriman_help_options=(
 _shtab_ahriman_help_commands_unsafe_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--command[instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise]:command:"
+)
+
+_shtab_ahriman_help_version_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
 )
 
 _shtab_ahriman_init_options=(
@@ -281,6 +293,16 @@ _shtab_ahriman_repo_config_validate_options=(
   {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
 )
 
+_shtab_ahriman_repo_daemon_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-i,--interval}"[interval between runs in seconds]:interval:"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates. Implies --no-vcs (default\: \%(default)s)]:aur:"
+  {--local,--no-local}"[enable or disable checking of local packages for updates (default\: \%(default)s)]:local:"
+  {--manual,--no-manual}"[include or exclude manual updates (default\: \%(default)s)]:manual:"
+  {--vcs,--no-vcs}"[enable or disable checking of VCS packages (default\: \%(default)s)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
+)
+
 _shtab_ahriman_repo_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one]:build_as_user:"
@@ -379,6 +401,50 @@ _shtab_ahriman_search_options=(
   {--info,--no-info}"[show additional package information (default\: \%(default)s)]:info:"
   "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
+)
+
+_shtab_ahriman_service_clean_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--cache,--no-cache}"[clear directory with package caches (default\: \%(default)s)]:cache:"
+  {--chroot,--no-chroot}"[clear build chroot (default\: \%(default)s)]:chroot:"
+  {--manual,--no-manual}"[clear manually added packages queue (default\: \%(default)s)]:manual:"
+  {--packages,--no-packages}"[clear directory with built packages (default\: \%(default)s)]:packages:"
+  {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: \%(default)s)]:pacman:"
+)
+
+_shtab_ahriman_service_config_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
+_shtab_ahriman_service_config_validate_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
+)
+
+_shtab_ahriman_service_key_import_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "--key-server[key server for key import]:key_server:"
+  ":PGP key to import from public server:"
+)
+
+_shtab_ahriman_service_setup_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
+  "--build-command[build command prefix]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: \%(default)s)]:makeflags_jobs:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: \%(default)s)]:multilib:"
+  "--packager[packager name and email]:packager:"
+  "--repository[repository name]:repository:"
+  "--sign-key[sign key id]:sign_key:"
+  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+)
+
+_shtab_ahriman_service_shell_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  ":instead of dropping into shell, just execute the specified code:"
 )
 
 _shtab_ahriman_setup_options=(
@@ -489,6 +555,7 @@ _shtab_ahriman() {
         daemon) _arguments -C $_shtab_ahriman_daemon_options ;;
         help) _arguments -C $_shtab_ahriman_help_options ;;
         help-commands-unsafe) _arguments -C $_shtab_ahriman_help_commands_unsafe_options ;;
+        help-version) _arguments -C $_shtab_ahriman_help_version_options ;;
         init) _arguments -C $_shtab_ahriman_init_options ;;
         key-import) _arguments -C $_shtab_ahriman_key_import_options ;;
         package-add) _arguments -C $_shtab_ahriman_package_add_options ;;
@@ -509,6 +576,7 @@ _shtab_ahriman() {
         repo-clean) _arguments -C $_shtab_ahriman_repo_clean_options ;;
         repo-config) _arguments -C $_shtab_ahriman_repo_config_options ;;
         repo-config-validate) _arguments -C $_shtab_ahriman_repo_config_validate_options ;;
+        repo-daemon) _arguments -C $_shtab_ahriman_repo_daemon_options ;;
         repo-init) _arguments -C $_shtab_ahriman_repo_init_options ;;
         repo-rebuild) _arguments -C $_shtab_ahriman_repo_rebuild_options ;;
         repo-remove-unknown) _arguments -C $_shtab_ahriman_repo_remove_unknown_options ;;
@@ -523,6 +591,12 @@ _shtab_ahriman() {
         repo-update) _arguments -C $_shtab_ahriman_repo_update_options ;;
         report) _arguments -C $_shtab_ahriman_report_options ;;
         search) _arguments -C $_shtab_ahriman_search_options ;;
+        service-clean) _arguments -C $_shtab_ahriman_service_clean_options ;;
+        service-config) _arguments -C $_shtab_ahriman_service_config_options ;;
+        service-config-validate) _arguments -C $_shtab_ahriman_service_config_validate_options ;;
+        service-key-import) _arguments -C $_shtab_ahriman_service_key_import_options ;;
+        service-setup) _arguments -C $_shtab_ahriman_service_setup_options ;;
+        service-shell) _arguments -C $_shtab_ahriman_service_shell_options ;;
         setup) _arguments -C $_shtab_ahriman_setup_options ;;
         shell) _arguments -C $_shtab_ahriman_shell_options ;;
         sign) _arguments -C $_shtab_ahriman_sign_options ;;

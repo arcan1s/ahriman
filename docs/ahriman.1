@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-01\-09" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-01\-11" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,daemon,help,help-commands-unsafe,key-import,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-clean,clean,repo-config,config,repo-config-validate,config-validate,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-setup,init,repo-init,setup,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,shell,user-add,user-list,user-remove,version,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -46,17 +46,14 @@ COMMAND
 \fBahriman\fR \fI\,aur\-search\/\fR
 search for package
 .TP
-\fBahriman\fR \fI\,daemon\/\fR
-run application as daemon
-.TP
 \fBahriman\fR \fI\,help\/\fR
 show help message
 .TP
 \fBahriman\fR \fI\,help\-commands\-unsafe\/\fR
 list unsafe commands
 .TP
-\fBahriman\fR \fI\,key\-import\/\fR
-import PGP key
+\fBahriman\fR \fI\,help\-version\/\fR
+application version
 .TP
 \fBahriman\fR \fI\,package\-add\/\fR
 add package
@@ -91,14 +88,8 @@ backup repository data
 \fBahriman\fR \fI\,repo\-check\/\fR
 check for updates
 .TP
-\fBahriman\fR \fI\,repo\-clean\/\fR
-clean local caches
-.TP
-\fBahriman\fR \fI\,repo\-config\/\fR
-dump configuration
-.TP
-\fBahriman\fR \fI\,repo\-config\-validate\/\fR
-validate system configuration
+\fBahriman\fR \fI\,repo\-daemon\/\fR
+run application as daemon
 .TP
 \fBahriman\fR \fI\,repo\-rebuild\/\fR
 rebuild repository
@@ -111,9 +102,6 @@ generate report
 .TP
 \fBahriman\fR \fI\,repo\-restore\/\fR
 restore repository data
-.TP
-\fBahriman\fR \fI\,repo\-setup\/\fR
-initial service configuration
 .TP
 \fBahriman\fR \fI\,repo\-sign\/\fR
 sign packages
@@ -133,7 +121,22 @@ run triggers
 \fBahriman\fR \fI\,repo\-update\/\fR
 update packages
 .TP
-\fBahriman\fR \fI\,shell\/\fR
+\fBahriman\fR \fI\,service\-clean\/\fR
+clean local caches
+.TP
+\fBahriman\fR \fI\,service\-config\/\fR
+dump configuration
+.TP
+\fBahriman\fR \fI\,service\-config\-validate\/\fR
+validate system configuration
+.TP
+\fBahriman\fR \fI\,service\-key\-import\/\fR
+import PGP key
+.TP
+\fBahriman\fR \fI\,service\-setup\/\fR
+initial service configuration
+.TP
+\fBahriman\fR \fI\,service\-shell\/\fR
 invoke python shell
 .TP
 \fBahriman\fR \fI\,user\-add\/\fR
@@ -144,9 +147,6 @@ user known users and their access
 .TP
 \fBahriman\fR \fI\,user\-remove\/\fR
 remove user
-.TP
-\fBahriman\fR \fI\,version\/\fR
-application version
 .TP
 \fBahriman\fR \fI\,web\/\fR
 web server
@@ -176,37 +176,6 @@ show additional package information (default: False)
 sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
 by name
 
-.SH COMMAND \fI\,'ahriman daemon'\/\fR
-usage: ahriman daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
-                      [\-\-vcs | \-\-no\-vcs] [\-y]
-
-start process which periodically will run update process
-
-.SH OPTIONS \fI\,'ahriman daemon'\/\fR
-.TP
-\fB\-i\fR \fI\,INTERVAL\/\fR, \fB\-\-interval\fR \fI\,INTERVAL\/\fR
-interval between runs in seconds
-
-.TP
-\fB\-\-aur\fR, \fB\-\-no\-aur\fR
-enable or disable checking for AUR updates. Implies \-\-no\-vcs (default: True)
-
-.TP
-\fB\-\-local\fR, \fB\-\-no\-local\fR
-enable or disable checking of local packages for updates (default: True)
-
-.TP
-\fB\-\-manual\fR, \fB\-\-no\-manual\fR
-include or exclude manual updates (default: True)
-
-.TP
-\fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
-enable or disable checking of VCS packages (default: True)
-
-.TP
-\fB\-y\fR, \fB\-\-refresh\fR
-download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
-
 .SH COMMAND \fI\,'ahriman help'\/\fR
 usage: ahriman help [\-h] [command]
 
@@ -227,19 +196,10 @@ list unsafe commands as defined in default args
 instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1
 otherwise
 
-.SH COMMAND \fI\,'ahriman key\-import'\/\fR
-usage: ahriman key\-import [\-h] [\-\-key\-server KEY_SERVER] key
+.SH COMMAND \fI\,'ahriman help\-version'\/\fR
+usage: ahriman help\-version [\-h]
 
-import PGP key from public sources to the repository user
-
-.TP
-\fBkey\fR
-PGP key to import from public server
-
-.SH OPTIONS \fI\,'ahriman key\-import'\/\fR
-.TP
-\fB\-\-key\-server\fR \fI\,KEY_SERVER\/\fR
-key server for key import
+print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
 usage: ahriman package\-add [\-h] [\-e] [\-n] [\-y] [\-s {auto,archive,aur,directory,local,remote,repository}]
@@ -427,47 +387,36 @@ enable or disable checking of VCS packages (default: True)
 \fB\-y\fR, \fB\-\-refresh\fR
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
-.SH COMMAND \fI\,'ahriman repo\-clean'\/\fR
-usage: ahriman repo\-clean [\-h] [\-\-cache | \-\-no\-cache] [\-\-chroot | \-\-no\-chroot] [\-\-manual | \-\-no\-manual]
-                          [\-\-packages | \-\-no\-packages] [\-\-pacman | \-\-no\-pacman]
+.SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
+usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
+                           [\-\-vcs | \-\-no\-vcs] [\-y]
 
-remove local caches
+start process which periodically will run update process
 
-.SH OPTIONS \fI\,'ahriman repo\-clean'\/\fR
+.SH OPTIONS \fI\,'ahriman repo\-daemon'\/\fR
 .TP
-\fB\-\-cache\fR, \fB\-\-no\-cache\fR
-clear directory with package caches (default: False)
+\fB\-i\fR \fI\,INTERVAL\/\fR, \fB\-\-interval\fR \fI\,INTERVAL\/\fR
+interval between runs in seconds
 
 .TP
-\fB\-\-chroot\fR, \fB\-\-no\-chroot\fR
-clear build chroot (default: False)
+\fB\-\-aur\fR, \fB\-\-no\-aur\fR
+enable or disable checking for AUR updates. Implies \-\-no\-vcs (default: True)
+
+.TP
+\fB\-\-local\fR, \fB\-\-no\-local\fR
+enable or disable checking of local packages for updates (default: True)
 
 .TP
 \fB\-\-manual\fR, \fB\-\-no\-manual\fR
-clear manually added packages queue (default: False)
+include or exclude manual updates (default: True)
 
 .TP
-\fB\-\-packages\fR, \fB\-\-no\-packages\fR
-clear directory with built packages (default: False)
+\fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
+enable or disable checking of VCS packages (default: True)
 
 .TP
-\fB\-\-pacman\fR, \fB\-\-no\-pacman\fR
-clear directory with pacman local database cache (default: False)
-
-.SH COMMAND \fI\,'ahriman repo\-config'\/\fR
-usage: ahriman repo\-config [\-h]
-
-dump configuration for the specified architecture
-
-.SH COMMAND \fI\,'ahriman repo\-config\-validate'\/\fR
-usage: ahriman repo\-config\-validate [\-h] [\-e]
-
-validate configuration and print found errors
-
-.SH OPTIONS \fI\,'ahriman repo\-config\-validate'\/\fR
-.TP
-\fB\-e\fR, \fB\-\-exit\-code\fR
-return non\-zero exit status if configuration is invalid
+\fB\-y\fR, \fB\-\-refresh\fR
+download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
 usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]
@@ -521,60 +470,6 @@ path of the input archive
 .TP
 \fB\-o\fR \fI\,OUTPUT\/\fR, \fB\-\-output\fR \fI\,OUTPUT\/\fR
 root path of the extracted files
-
-.SH COMMAND \fI\,'ahriman repo\-setup'\/\fR
-usage: ahriman repo\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
-                          [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
-                          [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY]
-                          [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
-                          [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
-
-create initial service configuration, requires root
-
-.SH OPTIONS \fI\,'ahriman repo\-setup'\/\fR
-.TP
-\fB\-\-build\-as\-user\fR \fI\,BUILD_AS_USER\/\fR
-force makepkg user to the specific one
-
-.TP
-\fB\-\-build\-command\fR \fI\,BUILD_COMMAND\/\fR
-build command prefix
-
-.TP
-\fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
-path to default devtools pacman configuration
-
-.TP
-\fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
-append MAKEFLAGS variable with parallelism set to number of cores (default: True)
-
-.TP
-\fB\-\-multilib\fR, \fB\-\-no\-multilib\fR
-add or do not multilib repository (default: True)
-
-.TP
-\fB\-\-packager\fR \fI\,PACKAGER\/\fR
-packager name and email
-
-.TP
-\fB\-\-repository\fR \fI\,REPOSITORY\/\fR
-repository name
-
-.TP
-\fB\-\-sign\-key\fR \fI\,SIGN_KEY\/\fR
-sign key id
-
-.TP
-\fB\-\-sign\-target\fR \fI\,{disabled,packages,repository}\/\fR
-sign options
-
-.TP
-\fB\-\-web\-port\fR \fI\,WEB_PORT\/\fR
-port of the web service
-
-.TP
-\fB\-\-web\-unix\-socket\fR \fI\,WEB_UNIX_SOCKET\/\fR
-path to unix socket used for interprocess communications
 
 .SH COMMAND \fI\,'ahriman repo\-sign'\/\fR
 usage: ahriman repo\-sign [\-h] [package ...]
@@ -654,8 +549,118 @@ enable or disable checking of VCS packages (default: True)
 \fB\-y\fR, \fB\-\-refresh\fR
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
-.SH COMMAND \fI\,'ahriman shell'\/\fR
-usage: ahriman shell [\-h] [code]
+.SH COMMAND \fI\,'ahriman service\-clean'\/\fR
+usage: ahriman service\-clean [\-h] [\-\-cache | \-\-no\-cache] [\-\-chroot | \-\-no\-chroot] [\-\-manual | \-\-no\-manual]
+                             [\-\-packages | \-\-no\-packages] [\-\-pacman | \-\-no\-pacman]
+
+remove local caches
+
+.SH OPTIONS \fI\,'ahriman service\-clean'\/\fR
+.TP
+\fB\-\-cache\fR, \fB\-\-no\-cache\fR
+clear directory with package caches (default: False)
+
+.TP
+\fB\-\-chroot\fR, \fB\-\-no\-chroot\fR
+clear build chroot (default: False)
+
+.TP
+\fB\-\-manual\fR, \fB\-\-no\-manual\fR
+clear manually added packages queue (default: False)
+
+.TP
+\fB\-\-packages\fR, \fB\-\-no\-packages\fR
+clear directory with built packages (default: False)
+
+.TP
+\fB\-\-pacman\fR, \fB\-\-no\-pacman\fR
+clear directory with pacman local database cache (default: False)
+
+.SH COMMAND \fI\,'ahriman service\-config'\/\fR
+usage: ahriman service\-config [\-h]
+
+dump configuration for the specified architecture
+
+.SH COMMAND \fI\,'ahriman service\-config\-validate'\/\fR
+usage: ahriman service\-config\-validate [\-h] [\-e]
+
+validate configuration and print found errors
+
+.SH OPTIONS \fI\,'ahriman service\-config\-validate'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if configuration is invalid
+
+.SH COMMAND \fI\,'ahriman service\-key\-import'\/\fR
+usage: ahriman service\-key\-import [\-h] [\-\-key\-server KEY_SERVER] key
+
+import PGP key from public sources to the repository user
+
+.TP
+\fBkey\fR
+PGP key to import from public server
+
+.SH OPTIONS \fI\,'ahriman service\-key\-import'\/\fR
+.TP
+\fB\-\-key\-server\fR \fI\,KEY_SERVER\/\fR
+key server for key import
+
+.SH COMMAND \fI\,'ahriman service\-setup'\/\fR
+usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
+                             [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
+                             [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY
+                             [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
+                             [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
+
+create initial service configuration, requires root
+
+.SH OPTIONS \fI\,'ahriman service\-setup'\/\fR
+.TP
+\fB\-\-build\-as\-user\fR \fI\,BUILD_AS_USER\/\fR
+force makepkg user to the specific one
+
+.TP
+\fB\-\-build\-command\fR \fI\,BUILD_COMMAND\/\fR
+build command prefix
+
+.TP
+\fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
+path to default devtools pacman configuration
+
+.TP
+\fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
+append MAKEFLAGS variable with parallelism set to number of cores (default: True)
+
+.TP
+\fB\-\-multilib\fR, \fB\-\-no\-multilib\fR
+add or do not multilib repository (default: True)
+
+.TP
+\fB\-\-packager\fR \fI\,PACKAGER\/\fR
+packager name and email
+
+.TP
+\fB\-\-repository\fR \fI\,REPOSITORY\/\fR
+repository name
+
+.TP
+\fB\-\-sign\-key\fR \fI\,SIGN_KEY\/\fR
+sign key id
+
+.TP
+\fB\-\-sign\-target\fR \fI\,{disabled,packages,repository}\/\fR
+sign options
+
+.TP
+\fB\-\-web\-port\fR \fI\,WEB_PORT\/\fR
+port of the web service
+
+.TP
+\fB\-\-web\-unix\-socket\fR \fI\,WEB_UNIX_SOCKET\/\fR
+path to unix socket used for interprocess communications
+
+.SH COMMAND \fI\,'ahriman service\-shell'\/\fR
+usage: ahriman service\-shell [\-h] [code]
 
 drop into python shell while having created application
 
@@ -712,11 +717,6 @@ remove user from the user mapping and update the configuration
 .TP
 \fBusername\fR
 username for web service
-
-.SH COMMAND \fI\,'ahriman version'\/\fR
-usage: ahriman version [\-h]
-
-print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman web'\/\fR
 usage: ahriman web [\-h]

@@ -81,6 +81,22 @@ In the most cases handlers spawn god class ``ahriman.application.application.App
 
 Application is designed to run from ``systemd`` services and provides parametrized by architecture timer and service file for that.
 
+Subcommand design
+^^^^^^^^^^^^^^^^^
+
+All subcommands are divided into several groups depending on the role they are doing:
+
+* ``aur`` (``aur-search``) group is for AUR operations.
+* ``help`` (e.g. ``help``) are system commands.
+* ``package`` subcommands (e.g. ``package-add``) allow to perform single package actions.
+* ``patch`` subcommands (e.g. ``pacth-list``) are the special case of ``package`` subcommands introduced in order to control patches for packages.
+* ``repo`` subcommands (e.g. ``repo-check``) usually perform actions on whole repository.
+* ``service`` subcommands (e.g. ``service-setup``) perform actions which are related to whole service managing: create repository, show configuration.
+* ``user`` subcommands (``user-add``) are intended for user management.
+* ``web`` subcommands are related to web service management.
+
+For historical reasons and in order to keep backward compatibility some subcommands have aliases to their shorter forms or even other groups, but the service doesn't guarantee that they will remain unchanged.
+
 Database
 --------
 

@@ -84,10 +84,9 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
     _set_aur_search_parser(subparsers)
-    _set_daemon_parser(subparsers)
     _set_help_parser(subparsers)
     _set_help_commands_unsafe_parser(subparsers)
-    _set_key_import_parser(subparsers)
+    _set_help_version_parser(subparsers)
     _set_package_add_parser(subparsers)
     _set_package_remove_parser(subparsers)
     _set_package_status_parser(subparsers)
@@ -99,25 +98,26 @@ def _parser() -> argparse.ArgumentParser:
     _set_patch_set_add_parser(subparsers)
     _set_repo_backup_parser(subparsers)
     _set_repo_check_parser(subparsers)
-    _set_repo_clean_parser(subparsers)
-    _set_repo_config_parser(subparsers)
-    _set_repo_config_validate_parser(subparsers)
+    _set_repo_daemon_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
     _set_repo_report_parser(subparsers)
     _set_repo_restore_parser(subparsers)
-    _set_repo_setup_parser(subparsers)
     _set_repo_sign_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
     _set_repo_sync_parser(subparsers)
     _set_repo_tree_parser(subparsers)
     _set_repo_triggers_parser(subparsers)
     _set_repo_update_parser(subparsers)
-    _set_shell_parser(subparsers)
+    _set_service_clean_parser(subparsers)
+    _set_service_config_parser(subparsers)
+    _set_service_config_validate_parser(subparsers)
+    _set_service_key_import_parser(subparsers)
+    _set_service_setup_parser(subparsers)
+    _set_service_shell_parser(subparsers)
     _set_user_add_parser(subparsers)
     _set_user_list_parser(subparsers)
     _set_user_remove_parser(subparsers)
-    _set_version_parser(subparsers)
     _set_web_parser(subparsers)
 
     return parser
@@ -144,35 +144,6 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                           "the specified field, they will be always sorted by name",
                         default="name", choices=sorted(handlers.Search.SORT_FIELDS))
     parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, report=False, quiet=True, unsafe=True)
-    return parser
-
-
-def _set_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for daemon subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("daemon", help="run application as daemon",
-                             description="start process which periodically will run update process",
-                             formatter_class=_formatter)
-    parser.add_argument("-i", "--interval", help="interval between runs in seconds", type=int, default=60 * 60 * 12)
-    parser.add_argument("--aur", help="enable or disable checking for AUR updates. Implies --no-vcs",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--local", help="enable or disable checking of local packages for updates",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--manual", help="include or exclude manual updates",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--vcs", help="enable or disable checking of VCS packages",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
-                                                "-yy to force refresh even if up to date",
-                        action="count", default=False)
-    parser.set_defaults(handler=handlers.Daemon, dry_run=False, exit_code=False, package=[])
     return parser
 
 
@@ -214,9 +185,9 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
     return parser
 
 
-def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
+def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
-    add parser for key import subcommand
+    add parser for version subcommand
 
     Args:
         root(SubParserAction): subparsers for the commands
@@ -224,16 +195,10 @@ def _set_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("key-import", help="import PGP key",
-                             description="import PGP key from public sources to the repository user",
-                             epilog="By default ahriman runs build process with package sources validation "
-                                    "(in case if signature and keys are available in PKGBUILD). This process will "
-                                    "fail in case if key is not known for build user. This subcommand can be used "
-                                    "in order to import the PGP key to user keychain.",
-                             formatter_class=_formatter)
-    parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
-    parser.add_argument("key", help="PGP key to import from public server")
-    parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, report=False)
+    parser = root.add_parser("help-version", aliases=["version"], help="application version",
+                             description="print application and its dependencies versions", formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, report=False, quiet=True,
+                        unsafe=True)
     return parser
 
 
@@ -492,9 +457,9 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
+def _set_repo_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
-    add parser for repository clean subcommand
+    add parser for daemon subcommand
 
     Args:
         root(SubParserAction): subparsers for the commands
@@ -502,58 +467,22 @@ def _set_repo_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("repo-clean", aliases=["clean"], help="clean local caches",
-                             description="remove local caches",
-                             epilog="The subcommand clears every temporary directories (builds, caches etc). Normally "
-                                    "you should not run this command manually. Also in case if you are going to clear "
-                                    "the chroot directories you will need root privileges.",
+    parser = root.add_parser("repo-daemon", aliases=["daemon"], help="run application as daemon",
+                             description="start process which periodically will run update process",
                              formatter_class=_formatter)
-    parser.add_argument("--cache", help="clear directory with package caches",
-                        action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--chroot", help="clear build chroot", action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--manual", help="clear manually added packages queue",
-                        action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--packages", help="clear directory with built packages",
-                        action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--pacman", help="clear directory with pacman local database cache",
-                        action=argparse.BooleanOptionalAction, default=False)
-    parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
-    return parser
-
-
-def _set_repo_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for config subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("repo-config", aliases=["config"], help="dump configuration",
-                             description="dump configuration for the specified architecture",
-                             formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Dump, lock=None, report=False, quiet=True, unsafe=True)
-    return parser
-
-
-def _set_repo_config_validate_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for config validation subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("repo-config-validate", aliases=["config-validate"], help="validate system configuration",
-                             description="validate configuration and print found errors",
-                             formatter_class=_formatter)
-    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if configuration is invalid",
-                        action="store_true")
-    parser.set_defaults(handler=handlers.Validate, lock=None, report=False, quiet=True, unsafe=True)
+    parser.add_argument("-i", "--interval", help="interval between runs in seconds", type=int, default=60 * 60 * 12)
+    parser.add_argument("--aur", help="enable or disable checking for AUR updates. Implies --no-vcs",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--local", help="enable or disable checking of local packages for updates",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--manual", help="include or exclude manual updates",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--vcs", help="enable or disable checking of VCS packages",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                "-yy to force refresh even if up to date",
+                        action="count", default=False)
+    parser.set_defaults(handler=handlers.Daemon, dry_run=False, exit_code=False, package=[])
     return parser
 
 
@@ -634,39 +563,6 @@ def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("path", help="path of the input archive", type=Path)
     parser.add_argument("-o", "--output", help="root path of the extracted files", type=Path, default=Path("/"))
     parser.set_defaults(handler=handlers.Restore, architecture=[""], lock=None, report=False, unsafe=True)
-    return parser
-
-
-def _set_repo_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for setup subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("repo-setup", aliases=["init", "repo-init", "setup"], help="initial service configuration",
-                             description="create initial service configuration, requires root",
-                             epilog="Create _minimal_ configuration for the service according to provided options.",
-                             formatter_class=_formatter)
-    parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
-    parser.add_argument("--build-command", help="build command prefix", default="ahriman")
-    parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
-                        type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
-    parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--multilib", help="add or do not multilib repository",
-                        action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--packager", help="packager name and email", required=True)
-    parser.add_argument("--repository", help="repository name", required=True)
-    parser.add_argument("--sign-key", help="sign key id")
-    parser.add_argument("--sign-target", help="sign options", action="append",
-                        type=SignSettings.from_option, choices=enum_values(SignSettings))
-    parser.add_argument("--web-port", help="port of the web service", type=int)
-    parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications", type=Path)
-    parser.set_defaults(handler=handlers.Setup, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 
 
@@ -793,7 +689,130 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
+def _set_service_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository clean subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-clean", aliases=["clean", "repo-clean"], help="clean local caches",
+                             description="remove local caches",
+                             epilog="The subcommand clears every temporary directories (builds, caches etc). Normally "
+                                    "you should not run this command manually. Also in case if you are going to clear "
+                                    "the chroot directories you will need root privileges.",
+                             formatter_class=_formatter)
+    parser.add_argument("--cache", help="clear directory with package caches",
+                        action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--chroot", help="clear build chroot", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--manual", help="clear manually added packages queue",
+                        action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--packages", help="clear directory with built packages",
+                        action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--pacman", help="clear directory with pacman local database cache",
+                        action=argparse.BooleanOptionalAction, default=False)
+    parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_service_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for config subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-config", aliases=["config", "repo-config"], help="dump configuration",
+                             description="dump configuration for the specified architecture",
+                             formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Dump, lock=None, report=False, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_service_config_validate_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for config validation subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-config-validate", aliases=["config-validate", "repo-config-validate"],
+                             help="validate system configuration",
+                             description="validate configuration and print found errors",
+                             formatter_class=_formatter)
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if configuration is invalid",
+                        action="store_true")
+    parser.set_defaults(handler=handlers.Validate, lock=None, report=False, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_service_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for key import subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-key-import", aliases=["key-import"], help="import PGP key",
+                             description="import PGP key from public sources to the repository user",
+                             epilog="By default ahriman runs build process with package sources validation "
+                                    "(in case if signature and keys are available in PKGBUILD). This process will "
+                                    "fail in case if key is not known for build user. This subcommand can be used "
+                                    "in order to import the PGP key to user keychain.",
+                             formatter_class=_formatter)
+    parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
+    parser.add_argument("key", help="PGP key to import from public server")
+    parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, report=False)
+    return parser
+
+
+def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for setup subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-setup", aliases=["init", "repo-init", "repo-setup", "setup"],
+                             help="initial service configuration",
+                             description="create initial service configuration, requires root",
+                             epilog="Create _minimal_ configuration for the service according to provided options.",
+                             formatter_class=_formatter)
+    parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
+    parser.add_argument("--build-command", help="build command prefix", default="ahriman")
+    parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
+                        type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
+    parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--multilib", help="add or do not multilib repository",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--packager", help="packager name and email", required=True)
+    parser.add_argument("--repository", help="repository name", required=True)
+    parser.add_argument("--sign-key", help="sign key id")
+    parser.add_argument("--sign-target", help="sign options", action="append",
+                        type=SignSettings.from_option, choices=enum_values(SignSettings))
+    parser.add_argument("--web-port", help="port of the web service", type=int)
+    parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications", type=Path)
+    parser.set_defaults(handler=handlers.Setup, lock=None, report=False, quiet=True, unsafe=True)
+    return parser
+
+
+def _set_service_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for shell subcommand
 
@@ -803,7 +822,7 @@ def _set_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("shell", help="invoke python shell",
+    parser = root.add_parser("service-shell", aliases=["shell"], help="invoke python shell",
                              description="drop into python shell while having created application",
                              formatter_class=_formatter)
     parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
@@ -876,23 +895,6 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="username for web service")
     parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, report=False,  # nosec
                         password="", quiet=True)
-    return parser
-
-
-def _set_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for version subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("version", help="application version",
-                             description="print application and its dependencies versions", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, report=False, quiet=True,
-                        unsafe=True)
     return parser
 
 
