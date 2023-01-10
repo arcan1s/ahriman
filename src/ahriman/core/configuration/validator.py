@@ -84,6 +84,7 @@ class Validator(RootValidator):  # type: ignore
         Returns:
             int: value converted to int according to configuration rules
         """
+        del self
         return int(value)
 
     def _normalize_coerce_list(self, value: str) -> List[str]:

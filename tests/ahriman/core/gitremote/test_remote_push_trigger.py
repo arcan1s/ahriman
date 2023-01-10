@@ -8,6 +8,17 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_configuration_sections(configuration: Configuration) -> None:
+    """
+    must correctly parse target list
+    """
+    configuration.set_option("remote-push", "target", "a b c")
+    assert RemotePushTrigger.configuration_sections(configuration) == ["a", "b", "c"]
+
+    configuration.remove_option("remote-push", "target")
+    assert RemotePushTrigger.configuration_sections(configuration) == []
+
+
 def test_on_result(configuration: Configuration, result: Result, package_ahriman: Package,
                    database: SQLite, mocker: MockerFixture) -> None:
     """

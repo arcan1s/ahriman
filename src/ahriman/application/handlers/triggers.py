@@ -48,6 +48,6 @@ class Triggers(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
         if args.trigger:
             loader = application.repository.triggers
-            loader.triggers = [loader.load_trigger(trigger) for trigger in args.trigger]
+            loader.triggers = [loader.load_trigger(trigger, architecture, configuration) for trigger in args.trigger]
         application.on_start()
         application.on_result(Result())

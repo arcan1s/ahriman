@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable
+from typing import Iterable, List, Type
 
 from ahriman.core import context
 from ahriman.core.configuration import Configuration
@@ -37,6 +37,25 @@ class RemotePushTrigger(Trigger):
         targets(List[str]): git remote target list
     """
 
+    CONFIGURATION_SCHEMA = {
+        "gitremote": {
+            "type": "dict",
+            "schema": {
+                "commit_author": {
+                    "type": "string",
+                },
+                "push_url": {
+                    "type": "string",
+                    "required": True,
+                },
+                "push_branch": {
+                    "type": "string",
+                },
+            },
+        },
+    }
+    CONFIGURATION_SCHEMA_FALLBACK = "gitremote"
+
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
@@ -46,7 +65,20 @@ class RemotePushTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("remote-push", "target", fallback=["gitremote"])
+        self.targets = self.configuration_sections(configuration)
+
+    @classmethod
+    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+        """
+        extract configuration sections from configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            List[str]: read configuration sections belong to this trigger
+        """
+        return configuration.getlist("remote-push", "target", fallback=[])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
@@ -63,6 +95,7 @@ class RemotePushTrigger(Trigger):
         database = ctx.get(ContextKey("database", SQLite))
 
         for target in self.targets:
-            section, _ = self.configuration.gettype(target, self.architecture)
+            section, _ = self.configuration.gettype(
+                target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
             runner = RemotePush(self.configuration, database, section)
             runner.run(result)

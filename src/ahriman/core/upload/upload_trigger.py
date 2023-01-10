@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable
+from typing import Iterable, List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.triggers import Trigger
@@ -34,6 +34,86 @@ class UploadTrigger(Trigger):
         targets(List[str]): upload target list
     """
 
+    CONFIGURATION_SCHEMA = {
+        "github": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["github"],
+                },
+                "owner": {
+                    "type": "string",
+                    "required": True,
+                },
+                "password": {
+                    "type": "string",
+                    "required": True,
+                },
+                "repository": {
+                    "type": "string",
+                    "required": True,
+                },
+                "timeout": {
+                    "type": "integer",
+                    "coerce": "integer",
+                },
+                "username": {
+                    "type": "string",
+                },
+            },
+        },
+        "rsync": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["rsync"],
+                },
+                "command": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                    "required": True,
+                    "empty": False,
+                },
+                "remote": {
+                    "type": "string",
+                    "required": True,
+                },
+            },
+        },
+        "s3": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["s3"],
+                },
+                "access_key": {
+                    "type": "string",
+                    "required": True,
+                },
+                "bucket": {
+                    "type": "string",
+                    "required": True,
+                },
+                "chunk_size": {
+                    "type": "integer",
+                    "coerce": "integer",
+                },
+                "region": {
+                    "type": "string",
+                    "required": True,
+                },
+                "secret_key": {
+                    "type": "string",
+                    "required": True,
+                },
+            },
+        },
+    }
+
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
@@ -43,7 +123,20 @@ class UploadTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("upload", "target", fallback=[])
+        self.targets = self.configuration_sections(configuration)
+
+    @classmethod
+    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+        """
+        extract configuration sections from configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            List[str]: read configuration sections belong to this trigger
+        """
+        return configuration.getlist("upload", "target", fallback=[])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """

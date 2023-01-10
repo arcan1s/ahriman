@@ -125,3 +125,8 @@ Setup the trigger
 First, put the trigger in any path it can be exported, e.g. by packing the resource into python package (which will lead to import path as ``package.slack_reporter.SlackReporter``) or just put file somewhere it can be accessed by application (e.g. ``/usr/local/lib/slack_reporter.py.SlackReporter``).
 
 After that run application as usual and receive notification in your slack channel.
+
+Trigger configuration schema
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Triggers can expose their configuration schema. It can be achieved by implementing ``CONFIGURATION_SCHEMA`` class variable according to `cerberus <https://docs.python-cerberus.org/>`_ documentation. For more details and examples, please refer to built-in triggers implementations.

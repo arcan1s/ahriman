@@ -207,6 +207,15 @@ def test_gettype(configuration: Configuration) -> None:
     assert provider == "s3"
 
 
+def test_gettype_with_fallback(configuration: Configuration) -> None:
+    """
+    must return same provider name as in fallback
+    """
+    section, provider = configuration.gettype("rsync", "x86_64", fallback="abracadabra")
+    assert section == "rsync"
+    assert provider == "abracadabra"
+
+
 def test_gettype_from_section(configuration: Configuration) -> None:
     """
     must extract type from section name

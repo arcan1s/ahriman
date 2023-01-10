@@ -5,6 +5,17 @@ from ahriman.core.report import ReportTrigger
 from ahriman.models.result import Result
 
 
+def test_configuration_sections(configuration: Configuration) -> None:
+    """
+    must correctly parse target list
+    """
+    configuration.set_option("report", "target", "a b c")
+    assert ReportTrigger.configuration_sections(configuration) == ["a", "b", "c"]
+
+    configuration.remove_option("report", "target")
+    assert ReportTrigger.configuration_sections(configuration) == []
+
+
 def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must run report for specified targets

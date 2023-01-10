@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable
+from typing import Iterable, List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.triggers import Trigger
@@ -34,6 +34,148 @@ class ReportTrigger(Trigger):
         targets(List[str]): report target list
     """
 
+    CONFIGURATION_SCHEMA = {
+        "console": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["console"],
+                },
+                "use_utf": {
+                    "type": "boolean",
+                    "coerce": "boolean",
+                },
+            },
+        },
+        "email": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["email"],
+                },
+                "full_template_path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "path_exists": True,
+                },
+                "homepage": {
+                    "type": "string",
+                },
+                "host": {
+                    "type": "string",
+                    "required": True,
+                },
+                "link_path": {
+                    "type": "string",
+                    "required": True,
+                },
+                "no_empty_report": {
+                    "type": "boolean",
+                    "coerce": "boolean",
+                },
+                "password": {
+                    "type": "string",
+                },
+                "port": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "required": True,
+                },
+                "receivers": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                    "required": True,
+                    "empty": False,
+                },
+                "sender": {
+                    "type": "string",
+                    "required": True,
+                },
+                "ssl": {
+                    "type": "string",
+                    "allowed": ["ssl", "starttls", "disabled"],
+                },
+                "template_path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "required": True,
+                    "path_exists": True,
+                },
+                "user": {
+                    "type": "string",
+                },
+            },
+        },
+        "html": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["html"],
+                },
+                "homepage": {
+                    "type": "string",
+                },
+                "link_path": {
+                    "type": "string",
+                    "required": True,
+                },
+                "path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "required": True,
+                },
+                "template_path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "required": True,
+                    "path_exists": True,
+                },
+            },
+        },
+        "telegram": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["telegram"],
+                },
+                "api_key": {
+                    "type": "string",
+                    "required": True,
+                },
+                "chat_id": {
+                    "type": "string",
+                    "required": True,
+                },
+                "homepage": {
+                    "type": "string",
+                },
+                "link_path": {
+                    "type": "string",
+                    "required": True,
+                },
+                "template_path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "required": True,
+                    "path_exists": True,
+                },
+                "template_type": {
+                    "type": "string",
+                    "allowed": ["MarkdownV2", "HTML", "Markdown"],
+                },
+                "timeout": {
+                    "type": "integer",
+                    "coerce": "integer",
+                },
+            },
+        },
+    }
+
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
         default constructor
@@ -43,7 +185,20 @@ class ReportTrigger(Trigger):
             configuration(Configuration): configuration instance
         """
         Trigger.__init__(self, architecture, configuration)
-        self.targets = configuration.getlist("report", "target", fallback=[])
+        self.targets = self.configuration_sections(configuration)
+
+    @classmethod
+    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+        """
+        extract configuration sections from configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            List[str]: read configuration sections belong to this trigger
+        """
+        return configuration.getlist("report", "target", fallback=[])
 
     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
         """
