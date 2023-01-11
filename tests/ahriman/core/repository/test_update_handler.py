@@ -4,7 +4,6 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.repository.update_handler import UpdateHandler
-from ahriman.core.util import utcnow
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -24,12 +23,16 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     must provide updates with status updates
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
+    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    package_is_outdated_mock.assert_called_once_with(
+        package_ahriman, update_handler.paths,
+        vcs_allowed_age=update_handler.vcs_allowed_age,
+        calculate_version=True)
 
 
 def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Package,
@@ -95,14 +98,13 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     mocker.patch("ahriman.models.package.Package.is_vcs", return_value=True)
-    package_is_newer_than_mock = mocker.patch("ahriman.models.package.Package.is_newer_than", return_value=True)
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
-    ts1 = utcnow().timestamp()
 
     assert not update_handler.updates_aur([], vcs=False)
-    package_is_newer_than_mock.assert_called_once_with(pytest.helpers.anyvar(float, strict=True))
-    assert ts1 < package_is_newer_than_mock.call_args[0][0] < utcnow().timestamp()
-    package_is_outdated_mock.assert_called_once_with(package_ahriman, update_handler.paths, calculate_version=False)
+    package_is_outdated_mock.assert_called_once_with(
+        package_ahriman, update_handler.paths,
+        vcs_allowed_age=update_handler.vcs_allowed_age,
+        calculate_version=False)
 
 
 def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -111,15 +113,37 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
+    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
-    assert update_handler.updates_local() == [package_ahriman]
+    assert update_handler.updates_local(vcs=True) == [package_ahriman]
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), remote=None)
     package_load_mock.assert_called_once_with(Path(package_ahriman.base))
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    package_is_outdated_mock.assert_called_once_with(
+        package_ahriman, update_handler.paths,
+        vcs_allowed_age=update_handler.vcs_allowed_age,
+        calculate_version=True)
+
+
+def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman: Package,
+                                  mocker: MockerFixture) -> None:
+    """
+    must skip VCS packages check if requested for locally stored packages
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+
+    assert not update_handler.updates_local(vcs=False)
+    package_is_outdated_mock.assert_called_once_with(
+        package_ahriman, update_handler.paths,
+        vcs_allowed_age=update_handler.vcs_allowed_age,
+        calculate_version=False)
 
 
 def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -133,7 +157,7 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
-    assert update_handler.updates_local() == [package_ahriman]
+    assert update_handler.updates_local(vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman)
 
 
@@ -146,7 +170,7 @@ def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahri
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
 
-    assert not update_handler.updates_local()
+    assert not update_handler.updates_local(vcs=True)
 
 
 def test_updates_manual_clear(update_handler: UpdateHandler, mocker: MockerFixture) -> None:

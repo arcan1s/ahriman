@@ -208,7 +208,7 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
 
     application_repository.updates([], aur=True, local=True, manual=True, vcs=True, log_fn=print)
     updates_aur_mock.assert_called_once_with([], vcs=True)
-    updates_local_mock.assert_called_once_with()
+    updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
 
 
@@ -238,7 +238,7 @@ def test_updates_no_aur(application_repository: ApplicationRepository, mocker: M
 
     application_repository.updates([], aur=False, local=True, manual=True, vcs=True, log_fn=print)
     updates_aur_mock.assert_not_called()
-    updates_local_mock.assert_called_once_with()
+    updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
 
 
@@ -268,7 +268,7 @@ def test_updates_no_manual(application_repository: ApplicationRepository, mocker
 
     application_repository.updates([], aur=True, local=True, manual=False, vcs=True, log_fn=print)
     updates_aur_mock.assert_called_once_with([], vcs=True)
-    updates_local_mock.assert_called_once_with()
+    updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_not_called()
 
 
@@ -283,7 +283,7 @@ def test_updates_no_vcs(application_repository: ApplicationRepository, mocker: M
 
     application_repository.updates([], aur=True, local=True, manual=True, vcs=False, log_fn=print)
     updates_aur_mock.assert_called_once_with([], vcs=False)
-    updates_local_mock.assert_called_once_with()
+    updates_local_mock.assert_called_once_with(vcs=False)
     updates_manual_mock.assert_called_once_with()
 
 
@@ -298,5 +298,5 @@ def test_updates_with_filter(application_repository: ApplicationRepository, mock
 
     application_repository.updates(["filter"], aur=True, local=True, manual=True, vcs=True, log_fn=print)
     updates_aur_mock.assert_called_once_with(["filter"], vcs=True)
-    updates_local_mock.assert_called_once_with()
+    updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()

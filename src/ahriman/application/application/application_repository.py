@@ -175,7 +175,7 @@ class ApplicationRepository(ApplicationProperties):
         if aur:
             updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, vcs=vcs)})
         if local:
-            updates.update({package.base: package for package in self.repository.updates_local()})
+            updates.update({package.base: package for package in self.repository.updates_local(vcs=vcs)})
         if manual:
             updates.update({package.base: package for package in self.repository.updates_manual()})
 

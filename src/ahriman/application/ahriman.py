@@ -467,7 +467,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
-    parser.add_argument("--vcs", help="enable or disable checking of VCS packages",
+    parser.add_argument("--vcs", help="fetch actual version of VCS packages",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
@@ -490,13 +490,13 @@ def _set_repo_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="start process which periodically will run update process",
                              formatter_class=_formatter)
     parser.add_argument("-i", "--interval", help="interval between runs in seconds", type=int, default=60 * 60 * 12)
-    parser.add_argument("--aur", help="enable or disable checking for AUR updates. Implies --no-vcs",
+    parser.add_argument("--aur", help="enable or disable checking for AUR updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--local", help="enable or disable checking of local packages for updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--manual", help="include or exclude manual updates",
                         action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--vcs", help="enable or disable checking of VCS packages",
+    parser.add_argument("--vcs", help="fetch actual version of VCS packages",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
@@ -693,13 +693,13 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
-    parser.add_argument("--aur", help="enable or disable checking for AUR updates. Implies --no-vcs",
+    parser.add_argument("--aur", help="enable or disable checking for AUR updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--local", help="enable or disable checking of local packages for updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--manual", help="include or exclude manual updates",
                         action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--vcs", help="enable or disable checking of VCS packages",
+    parser.add_argument("--vcs", help="fetch actual version of VCS packages",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
