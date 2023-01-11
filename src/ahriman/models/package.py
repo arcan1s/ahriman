@@ -32,7 +32,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, full_version
+from ahriman.core.util import check_output, full_version, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -376,20 +376,29 @@ class Package(LazyLogging):
             if package.build_date is not None
         )
 
-    def is_outdated(self, remote: Package, paths: RepositoryPaths, *, calculate_version: bool) -> bool:
+    def is_outdated(self, remote: Package, paths: RepositoryPaths, *,
+                    vcs_allowed_age: Union[float, int] = 0,
+                    calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
 
         Args:
             remote(Package): package properties from remote source
             paths(RepositoryPaths): repository paths instance. Required for VCS packages cache
+            vcs_allowed_age(Union[float, int], optional): max age of the built packages before they will be
+                forced to calculate actual version (Default value = 0)
             calculate_version(bool, optional): expand version to actual value (by calculating git versions)
                 (Default value = True)
 
         Returns:
             bool: True if the package is out-of-dated and False otherwise
         """
-        remote_version = remote.actual_version(paths) if calculate_version else remote.version
+        min_vcs_build_date = utcnow().timestamp() - vcs_allowed_age
+        if calculate_version and not self.is_newer_than(min_vcs_build_date):
+            remote_version = remote.actual_version(paths)
+        else:
+            remote_version = remote.version
+
         result: int = vercmp(self.version, remote_version)
         return result < 0
 
