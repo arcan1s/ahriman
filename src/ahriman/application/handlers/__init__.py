@@ -32,6 +32,7 @@ from ahriman.application.handlers.remove import Remove
 from ahriman.application.handlers.remove_unknown import RemoveUnknown
 from ahriman.application.handlers.restore import Restore
 from ahriman.application.handlers.search import Search
+from ahriman.application.handlers.service_updates import ServiceUpdates
 from ahriman.application.handlers.setup import Setup
 from ahriman.application.handlers.shell import Shell
 from ahriman.application.handlers.sign import Sign

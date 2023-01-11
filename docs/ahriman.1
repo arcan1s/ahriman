@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -51,6 +51,9 @@ show help message
 .TP
 \fBahriman\fR \fI\,help\-commands\-unsafe\/\fR
 list unsafe commands
+.TP
+\fBahriman\fR \fI\,help\-updates\/\fR
+check for service updates
 .TP
 \fBahriman\fR \fI\,help\-version\/\fR
 application version
@@ -195,6 +198,16 @@ list unsafe commands as defined in default args
 \fB\-\-command\fR \fI\,COMMAND\/\fR
 instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1
 otherwise
+
+.SH COMMAND \fI\,'ahriman help\-updates'\/\fR
+usage: ahriman help\-updates [\-h] [\-e]
+
+request AUR for current version and compare with current service version
+
+.SH OPTIONS \fI\,'ahriman help\-updates'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit code if updates available
 
 .SH COMMAND \fI\,'ahriman help\-version'\/\fR
 usage: ahriman help\-version [\-h]

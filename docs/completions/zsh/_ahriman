@@ -14,6 +14,7 @@ _shtab_ahriman_commands() {
     "daemon:start process which periodically will run update process"
     "help:show help message for application or command and exit"
     "help-commands-unsafe:list unsafe commands as defined in default args"
+    "help-updates:request AUR for current version and compare with current service version"
     "help-version:print application and its dependencies versions"
     "init:create initial service configuration, requires root"
     "key-import:import PGP key from public sources to the repository user"
@@ -146,6 +147,11 @@ _shtab_ahriman_help_options=(
 _shtab_ahriman_help_commands_unsafe_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--command[instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise]:command:"
+)
+
+_shtab_ahriman_help_updates_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit code if updates available]"
 )
 
 _shtab_ahriman_help_version_options=(
@@ -555,6 +561,7 @@ _shtab_ahriman() {
         daemon) _arguments -C $_shtab_ahriman_daemon_options ;;
         help) _arguments -C $_shtab_ahriman_help_options ;;
         help-commands-unsafe) _arguments -C $_shtab_ahriman_help_commands_unsafe_options ;;
+        help-updates) _arguments -C $_shtab_ahriman_help_updates_options ;;
         help-version) _arguments -C $_shtab_ahriman_help_version_options ;;
         init) _arguments -C $_shtab_ahriman_init_options ;;
         key-import) _arguments -C $_shtab_ahriman_key_import_options ;;
