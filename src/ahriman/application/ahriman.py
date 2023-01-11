@@ -86,6 +86,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_aur_search_parser(subparsers)
     _set_help_parser(subparsers)
     _set_help_commands_unsafe_parser(subparsers)
+    _set_help_updates_parser(subparsers)
     _set_help_version_parser(subparsers)
     _set_package_add_parser(subparsers)
     _set_package_remove_parser(subparsers)
@@ -161,8 +162,8 @@ def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="show help message for application or command and exit",
                              formatter_class=_formatter)
     parser.add_argument("command", help="show help message for specific command", nargs="?")
-    parser.set_defaults(handler=handlers.Help, architecture=[""], lock=None, report=False, quiet=True,
-                        unsafe=True, parser=_parser)
+    parser.set_defaults(handler=handlers.Help, architecture=[""], lock=None, report=False, quiet=True, unsafe=True,
+                        parser=_parser)
     return parser
 
 
@@ -185,6 +186,25 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
     return parser
 
 
+def _set_help_updates_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for service update check subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("help-updates", help="check for service updates",
+                             description="request AUR for current version and compare with current service version",
+                             formatter_class=_formatter)
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit code if updates available", action="store_true")
+    parser.set_defaults(handler=handlers.ServiceUpdates, architecture=[""], lock=None, report=False, quiet=True,
+                        unsafe=True)
+    return parser
+
+
 def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for version subcommand
@@ -197,8 +217,7 @@ def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("help-version", aliases=["version"], help="application version",
                              description="print application and its dependencies versions", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, report=False, quiet=True,
-                        unsafe=True)
+    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, report=False, quiet=True, unsafe=True)
     return parser
 
 

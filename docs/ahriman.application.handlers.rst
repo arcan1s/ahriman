@@ -116,6 +116,14 @@ ahriman.application.handlers.search module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.service\_updates module
+----------------------------------------------------
+
+.. automodule:: ahriman.application.handlers.service_updates
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.setup module
 -----------------------------------------
 

@@ -107,6 +107,26 @@ def test_subparsers_help_commands_unsafe_architecture(parser: argparse.ArgumentP
     assert args.architecture == [""]
 
 
+def test_subparsers_help_updates(parser: argparse.ArgumentParser) -> None:
+    """
+    help-updates command must imply architecture list, lock, report, quiet and unsafe
+    """
+    args = parser.parse_args(["help-updates"])
+    assert args.architecture == [""]
+    assert args.lock is None
+    assert not args.report
+    assert args.quiet
+    assert args.unsafe
+
+
+def test_subparsers_help_updates_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    help-updates command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "help-updates"])
+    assert args.architecture == [""]
+
+
 def test_subparsers_help_version(parser: argparse.ArgumentParser) -> None:
     """
     help-version command must imply architecture, lock, report, quiet and unsafe
