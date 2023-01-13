@@ -39,6 +39,12 @@ chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_GNUPG_HOME"
 AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
 AHRIMAN_SETUP_ARGS+=("--packager" "$AHRIMAN_PACKAGER")
 AHRIMAN_SETUP_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
+if [ -z "$AHRIMAN_MULTILIB" ]; then
+    AHRIMAN_SETUP_ARGS+=("--no-multilib")
+fi
+if [ -n "$AHRIMAN_PACMAN_MIRROR" ]; then
+    AHRIMAN_SETUP_ARGS+=("--mirror" "$AHRIMAN_PACMAN_MIRROR")
+fi
 if [ -n "$AHRIMAN_PORT" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
 fi

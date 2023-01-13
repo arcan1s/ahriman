@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-01\-11" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-01\-13" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -621,7 +621,7 @@ key server for key import
 .SH COMMAND \fI\,'ahriman service\-setup'\/\fR
 usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
                              [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
-                             [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY
+                             [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY
                              [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
                              [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
@@ -643,6 +643,10 @@ path to default devtools pacman configuration
 .TP
 \fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
 append MAKEFLAGS variable with parallelism set to number of cores (default: True)
+
+.TP
+\fB\-\-mirror\fR \fI\,MIRROR\/\fR
+use the specified explicitly mirror instead of including mirrorlist
 
 .TP
 \fB\-\-multilib\fR, \fB\-\-no\-multilib\fR

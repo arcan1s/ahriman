@@ -818,6 +818,7 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
     parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
                         action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--mirror", help="use the specified explicitly mirror instead of including mirrorlist")
     parser.add_argument("--multilib", help="add or do not multilib repository",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--packager", help="packager name and email", required=True)
