@@ -45,8 +45,8 @@ class Pacman(LazyLogging):
         Args:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            refresh_database(int): synchronize local cache to remote. If set to ``0``, no syncronization will be
-                enabled, if set to ``1`` - normal syncronization, if set to ``2`` - force syncronization
+            refresh_database(int): synchronize local cache to remote. If set to ``0``, no synchronization will be
+                enabled, if set to ``1`` - normal synchronization, if set to ``2`` - force synchronization
         """
         self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
             architecture, configuration, refresh_database=refresh_database)
@@ -58,8 +58,8 @@ class Pacman(LazyLogging):
         Args:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            refresh_database(int): synchronize local cache to remote. If set to ``0``, no syncronization will be
-                enabled, if set to ``1`` - normal syncronization, if set to ``2`` - force syncronization
+            refresh_database(int): synchronize local cache to remote. If set to ``0``, no synchronization will be
+                enabled, if set to ``1`` - normal synchronization, if set to ``2`` - force synchronization
 
         Returns:
             Handle: fully initialized pacman handle
@@ -126,7 +126,7 @@ class Pacman(LazyLogging):
         Returns:
             DB: loaded pacman database instance
         """
-        self.logger.info("loading pacman databases")
+        self.logger.info("loading pacman database %s", repository)
         database: DB = handle.register_syncdb(repository, SIG_PACKAGE)
         # replace variables in mirror address
         database.servers = [mirror.replace("$repo", repository).replace("$arch", architecture)]
@@ -138,7 +138,7 @@ class Pacman(LazyLogging):
 
         Args:
             handle(Handle): pacman handle which will be used for database sync
-            force(bool): force database syncronization (same as ``pacman -Syy``)
+            force(bool): force database synchronization (same as ``pacman -Syy``)
         """
         self.logger.info("refresh ahriman's home pacman database (force refresh %s)", force)
         transaction = handle.init_transaction()

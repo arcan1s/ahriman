@@ -393,6 +393,7 @@ The following environment variables are supported:
 * ``AHRIMAN_HOST`` - host for the web interface, default is ``0.0.0.0``.
 * ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``, ``console``. The name must be found in logging configuration. Note that if ``syslog`` (the default) handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
+* ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.

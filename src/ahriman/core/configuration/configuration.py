@@ -61,7 +61,7 @@ class Configuration(configparser.RawConfigParser):
             >>> path, architecture = configuration.check_loaded()
     """
 
-    ARCHITECTURE_SPECIFIC_SECTIONS = ["build", "sign", "web"]
+    ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign", "web"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
     converters: Dict[str, Callable[[str], Any]]  # typing guard
 

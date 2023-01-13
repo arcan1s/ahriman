@@ -21,7 +21,7 @@ import argparse
 
 from pathlib import Path
 from pwd import getpwuid
-from typing import Type
+from typing import Optional, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -58,15 +58,14 @@ class Setup(Handler):
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration.include,
-                                           configuration.repository_paths)
+        Setup.configuration_create_ahriman(args, architecture, args.repository, configuration)
         configuration.reload()
 
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         Setup.executable_create(application.repository.paths, args.build_command, architecture)
-        Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration,
+        Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration, args.mirror,
                                             args.multilib, args.repository, application.repository.paths)
         Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
 
@@ -91,7 +90,7 @@ class Setup(Handler):
 
     @staticmethod
     def configuration_create_ahriman(args: argparse.Namespace, architecture: str, repository: str,
-                                     include_path: Path, paths: RepositoryPaths) -> None:
+                                     root: Configuration) -> None:
         """
         create service specific configuration
 
@@ -99,37 +98,41 @@ class Setup(Handler):
             args(argparse.Namespace): command line args
             architecture(str): repository architecture
             repository(str): repository name
-            include_path(Path): path to directory with configuration includes
-            paths(RepositoryPaths): repository paths instance
+            root(Configuration): root configuration instance
         """
         configuration = Configuration()
 
         section = Configuration.section_name("build", architecture)
-        build_command = Setup.build_command(paths.root, args.build_command, architecture)
+        build_command = Setup.build_command(root.repository_paths.root, args.build_command, architecture)
         configuration.set_option(section, "build_command", str(build_command))
         configuration.set_option("repository", "name", repository)
         if args.build_as_user is not None:
             configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
 
+        section = Configuration.section_name("alpm", architecture)
+        if args.mirror is not None:
+            configuration.set_option(section, "mirror", args.mirror)
+        if not args.multilib:
+            repositories = filter(lambda r: r != "multilib", root.getlist("alpm", "repositories"))
+            configuration.set_option(section, "repositories", " ".join(repositories))
+
+        section = Configuration.section_name("sign", architecture)
         if args.sign_key is not None:
-            section = Configuration.section_name("sign", architecture)
             configuration.set_option(section, "target", " ".join([target.name.lower() for target in args.sign_target]))
             configuration.set_option(section, "key", args.sign_key)
 
+        section = Configuration.section_name("web", architecture)
         if args.web_port is not None:
-            section = Configuration.section_name("web", architecture)
             configuration.set_option(section, "port", str(args.web_port))
-
         if args.web_unix_socket is not None:
-            section = Configuration.section_name("web", architecture)
             configuration.set_option(section, "unix_socket", str(args.web_unix_socket))
 
-        target = include_path / "00-setup-overrides.ini"
+        target = root.include / "00-setup-overrides.ini"
         with target.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def configuration_create_devtools(prefix: str, architecture: str, source: Path,
+    def configuration_create_devtools(prefix: str, architecture: str, source: Path, mirror: Optional[str],
                                       multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on ``source`` configuration
@@ -141,6 +144,7 @@ class Setup(Handler):
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
             source(Path): path to source configuration file
+            mirror(Optional[str]): link to package server mirror
             multilib(bool): add or do not multilib repository to the configuration
             repository(str): repository name
             paths(RepositoryPaths): repository paths instance
@@ -162,6 +166,14 @@ class Setup(Handler):
         # add multilib
         if multilib:
             configuration.set_option("multilib", "Include", str(Setup.MIRRORLIST_PATH))
+
+        # override Include option to Server in case if mirror option set
+        if mirror is not None:
+            for section in filter(lambda s: s != "options", configuration.sections()):
+                if configuration.get(section, "Include", fallback=None) != str(Setup.MIRRORLIST_PATH):
+                    continue
+                configuration.remove_option(section, "Include")
+                configuration.set_option(section, "Server", mirror)
 
         # add repository itself
         configuration.set_option(repository, "SigLevel", "Optional TrustAll")  # we don't care

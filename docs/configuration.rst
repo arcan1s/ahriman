@@ -32,7 +32,7 @@ Base configuration settings.
 ``alpm`` group
 --------------
 
-libalpm and AUR related configuration.
+libalpm and AUR related configuration. Group name can refer to architecture, e.g. ``alpm:x86_64`` can be used for x86_64 architecture specific settings.
 
 * ``database`` - path to pacman system database cache, string, required.
 * ``mirror`` - package database mirror used by pacman for syncronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
