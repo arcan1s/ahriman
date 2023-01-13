@@ -110,7 +110,12 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 
 Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - fetch from remote repository PKGBUILDs before updating process.
 
-It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
+
+* by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
+* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`_.
+
+Available options are:
 
 * ``target`` - list of remote pull triggers to be used, space separated list of strings, optional, defaults to ``gitremote``. It must point to valid section (or to section with architecture), e.g. ``gitremote`` must point to either ``gitremote`` or ``gitremote:x86_64`` (the one with architecture has higher priority).
 
@@ -125,7 +130,12 @@ Remote pull trigger
 
 Remote git source synchronization settings. Same as remote pull triggers those triggers are used for PKGBUILD synchronization - push updated PKGBUILDs to the remote repository after build process.
 
-It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details.
+It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
+
+* by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
+* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`_.
+
+Available options are:
 
 * ``target`` - list of remote push triggers to be used, space separated list of strings, optional, defaults to ``gitremote``. It must point to valid section (or to section with architecture), e.g. ``gitremote`` must point to either ``gitremote`` or ``gitremote:x86_64`` (the one with architecture has higher priority).
 
