@@ -18,7 +18,7 @@ TL;DR
 .. code-block:: shell
 
    yay -S ahriman
-   sudo ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
+   ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
    systemctl enable --now ahriman@x86_64.timer
 
 Long answer
@@ -391,6 +391,7 @@ The following environment variables are supported:
 * ``AHRIMAN_DEBUG`` - if set all commands will be logged to console.
 * ``AHRIMAN_FORCE_ROOT`` - force run ahriman as root instead of guessing by subcommand.
 * ``AHRIMAN_HOST`` - host for the web interface, default is ``0.0.0.0``.
+* ``AHRIMAN_MULTILIB`` - if set (default) multilib repository will be used, disabled otherwise.
 * ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``, ``console``. The name must be found in logging configuration. Note that if ``syslog`` (the default) handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
@@ -442,6 +443,102 @@ Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network t
 .. code-block:: shell
 
    docker run --privileged --net=host -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+
+
+Non-x86_64 architecture setup
+-----------------------------
+
+The following section describes how to setup ahriman with architecture different from x86_64, as example i686. For most cases you have base repository available, e.g. archlinux32 repositories for i686 architecture; in case if base repository is not available, steps are a bit different, however, idea remains the same.
+
+Physical server setup
+^^^^^^^^^^^^^^^^^^^^^
+
+In this example we are going to use files and packages which are provided by official repositories of the used architecture. Note, that versions might be different, thus you need to find correct versions on the distribution web site, e.g. `archlinux32 packages <https://www.archlinux32.org/packages/>`_.
+
+#.
+   First, considering having base Arch Linux system, we need to install keyring for the specified repositories:
+
+   .. code-block:: shell
+
+      wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+      pacman -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+
+#.
+   In order to run ``devtools`` scripts for custom architecture they also need specific ``makepkg`` configuration, it can be retrieved by installing the ``devtools`` package of the distribution:
+
+   .. code-block:: shell
+
+      wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst
+      pacman -U devtools-20221208-1.0-any.pkg.tar.zst
+
+   Alternatively, you can create your own ``makepkg`` configuration and save it as ``/usr/share/devtools/makepkg-i686.conf``.
+
+#.
+   Setup repository as usual:
+
+   .. code-block:: shell
+
+      ahriman -a i686 service-setup --mirror 'http://de.mirror.archlinux32.org/$arch/$repo'--no-multilib ...
+
+   In addition to usual options, you need to specify the following options:
+
+   * ``--mirror`` - link to the mirrors which will be used instead of official repositories.
+   * ``--no-multilib`` - in the example we are using i686 architecture for which multilib repository doesn't exist.
+
+Docker container setup
+^^^^^^^^^^^^^^^^^^^^^^
+
+There are two possible ways to achieve same setup, by using docker container. The first one is just mount required files inside container and run it as usual (with specific environment variables). Another one is to create own container based on official one:
+
+#.
+   Clone official container as base:
+
+   .. code-block:: dockerfile
+
+      FROM arcan1s/ahriman:latest
+
+#.
+   Init pacman keys. This command is required in order to populate distribution keys:
+
+   .. code-block:: dockerfile
+
+      RUN pacman-key --init
+
+#.
+   Install packages as it was described above:
+
+   .. code-block:: dockerfile
+
+      RUN pacman --noconfirm -Sy wget
+      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.0-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+
+#.
+   At that point you should have full ``Dockerfile`` like:
+
+   .. code-block:: dockerfile
+
+      FROM arcan1s/ahriman:latest
+
+      RUN pacman-key --init
+
+      RUN pacman --noconfirm -Sy wget
+      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.0-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+
+#.
+   After that you can build you own container, e.g.:
+
+   .. code-block:: shell
+
+      docker build --tag ahriman-i686:latest
+
+#.
+   Now you can run locally built container as usual with passing environment variables for setup command:
+
+   .. code-block:: shell
+
+      docker run --privileged -p 8080:8080 -e AHRIMAN_ARCHITECTURE=i686 -e AHRIMAN_PACMAN_MIRROR='http://de.mirror.archlinux32.org/$arch/$repo' -e AHRIMAN_MULTILIB= ahriman-i686:latest
 
 Remote synchronization
 ----------------------
@@ -791,7 +888,7 @@ The service provides several commands aim to do easy repository backup and resto
 
    .. code-block:: shell
 
-      sudo ahriman repo-backup /tmp/repo.tar.gz
+      ahriman repo-backup /tmp/repo.tar.gz
 
    This command will pack all configuration files together with database file into the archive specified as command line argument (i.e. ``/tmp/repo.tar.gz``). In addition it will also archive ``cache`` directory (the one which contains local clones used by e.g. local packages) and ``.gnupg`` of the ``ahriman`` user.
 
@@ -806,7 +903,7 @@ The service provides several commands aim to do easy repository backup and resto
 
    .. code-block:: shell
 
-      sudo ahriman repo-restore /tmp/repo.tar.gz
+      ahriman repo-restore /tmp/repo.tar.gz
 
    An additional argument ``-o``/``--output`` can be used to specify extraction root (``/`` by default).
 
