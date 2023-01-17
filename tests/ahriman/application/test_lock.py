@@ -1,3 +1,4 @@
+import argparse
 import pytest
 import tempfile
 
@@ -7,9 +8,24 @@ from unittest.mock import call as MockCall
 
 from ahriman import version
 from ahriman.application.lock import Lock
+from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError, UnsafeRunError
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+
+
+def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
+    """
+    must create path variable correctly
+    """
+    assert Lock(args, "x86_64", configuration).path is None
+
+    args.lock = Path("/run/ahriman.lock")
+    assert Lock(args, "x86_64", configuration).path == Path("/run/ahriman_x86_64.lock")
+
+    with pytest.raises(ValueError):
+        args.lock = Path("/")
+        Lock(args, "x86_64", configuration).path  # special case
 
 
 def test_check_version(lock: Lock, mocker: MockerFixture) -> None:

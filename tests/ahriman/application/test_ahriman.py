@@ -754,11 +754,10 @@ def test_subparsers_user_remove_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     """
-    web command must imply lock, report and parser
+    web command must imply report and parser
     """
     args = parser.parse_args(["-a", "x86_64", "web"])
     assert args.architecture == ["x86_64"]
-    assert args.lock is None
     assert not args.report
     assert args.parser is not None and args.parser()
 
