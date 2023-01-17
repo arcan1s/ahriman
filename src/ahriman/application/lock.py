@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 
-from pathlib import Path
 from types import TracebackType
 from typing import Literal, Optional, Type
 
@@ -68,7 +67,8 @@ class Lock(LazyLogging):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.path = Path(f"{args.lock}_{architecture}") if args.lock is not None else None
+        self.path = args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
+        print(self.path)
         self.force = args.force
         self.unsafe = args.unsafe
 

@@ -929,7 +929,8 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("web", help="web server", description="start web server", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Web, lock=None, report=False, parser=_parser)
+    parser.set_defaults(handler=handlers.Web, lock=Path(tempfile.gettempdir()) / "ahriman-web.lock", report=False,
+                        parser=_parser)
     return parser
 
 
