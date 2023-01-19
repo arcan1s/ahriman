@@ -57,7 +57,8 @@ class InternalStatus:
             InternalStatus: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
-        return cls(status=BuildStatus.from_json(dump.get("status", {})),
+        build_status = dump.get("status") or {}
+        return cls(status=BuildStatus.from_json(build_status),
                    architecture=dump.get("architecture"),
                    packages=counters,
                    repository=dump.get("repository"),

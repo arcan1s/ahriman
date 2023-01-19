@@ -9,6 +9,7 @@ from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.util import utcnow
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -19,6 +20,58 @@ def test_depends(package_python_schedule: Package) -> None:
     assert all(
         set(package_python_schedule.depends).intersection(package.depends)
         for package in package_python_schedule.packages.values()
+    )
+
+
+def test_depends_build(package_ahriman: Package, package_python_schedule: Package) -> None:
+    """
+    must return full list of packages required for build
+    """
+    assert all(
+        set(package_ahriman.depends_build).intersection(package.depends)
+        for package in package_ahriman.packages.values()
+    )
+    assert all(
+        set(package_ahriman.depends_build).intersection(package.make_depends)
+        for package in package_ahriman.packages.values()
+    )
+
+    assert all(
+        set(package_python_schedule.depends_build).intersection(package.depends)
+        for package in package_python_schedule.packages.values()
+    )
+    # there is no make dependencies for python-schedule
+
+
+def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must load correct list of dependencies with version
+    """
+
+    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+
+    package_gcc10 = Package.from_build(Path("local"))
+    assert package_gcc10.depends_build == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
+
+
+def test_depends_make(package_ahriman: Package) -> None:
+    """
+    must return list of make dependencies
+    """
+    assert all(
+        set(package_ahriman.depends_make).intersection(package.make_depends)
+        for package in package_ahriman.packages.values()
+    )
+
+
+def test_depends_opt(package_ahriman: Package) -> None:
+    """
+    must return list of optional dependencies
+    """
+    assert all(
+        set(package_ahriman.depends_opt).intersection(package.opt_depends)
+        for package in package_ahriman.packages.values()
     )
 
 
@@ -108,6 +161,33 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     assert package_ahriman == package
 
 
+def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must construct package from srcinfo with dependencies per-package overrides
+    """
+    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+
+    package = Package.from_build(Path("path"))
+    assert package.packages == {
+        "gcc10": PackageDescription(
+            depends=["gcc10-libs=10.3.0-2", "binutils>=2.28", "libmpc", "zstd"],
+            make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
+            opt_depends=[],
+        ),
+        "gcc10-libs": PackageDescription(
+            depends=["glibc>=2.27"],
+            make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
+            opt_depends=[],
+        ),
+        "gcc10-fortran": PackageDescription(
+            depends=["gcc10=10.3.0-2"],
+            make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
+            opt_depends=[],
+        ),
+    }
+
+
 def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must raise exception if there are errors during srcinfo load
@@ -151,37 +231,6 @@ def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
-
-
-def test_dependencies_failed(mocker: MockerFixture) -> None:
-    """
-    must raise exception if there are errors during srcinfo load for dependencies
-    """
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-
-    with pytest.raises(PackageInfoError):
-        Package.dependencies(Path("path"))
-
-
-def test_dependencies_with_version(mocker: MockerFixture, resource_path_root: Path) -> None:
-    """
-    must load correct list of dependencies with version
-    """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
-
-    assert Package.dependencies(Path("path")) == {"git", "go", "pacman"}
-
-
-def test_dependencies_with_version_and_overlap(mocker: MockerFixture, resource_path_root: Path) -> None:
-    """
-    must load correct list of dependencies with version
-    """
-    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
-
-    assert Package.dependencies(Path("path")) == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
 
 
 def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path) -> None:

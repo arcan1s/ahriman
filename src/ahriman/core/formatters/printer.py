@@ -27,7 +27,7 @@ class Printer:
     base class for formatters
     """
 
-    def print(self, verbose: bool, log_fn: Callable[[str], None] = print, separator: str = ": ") -> None:
+    def print(self, *, verbose: bool, log_fn: Callable[[str], None] = print, separator: str = ": ") -> None:
         """
         print content
 

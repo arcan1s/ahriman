@@ -21,7 +21,6 @@ import requests
 import shutil
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Iterable, Set
 
 from ahriman.application.application.application_properties import ApplicationProperties
@@ -62,9 +61,7 @@ class ApplicationPackages(ApplicationProperties):
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (local_dir := Path(dir_name)):
-            Sources.load(local_dir, package, self.database.patches_get(package.base), self.repository.paths)
-            self._process_dependencies(local_dir, known_packages, without_dependencies)
+        self._process_dependencies(package, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
         """
@@ -94,7 +91,7 @@ class ApplicationPackages(ApplicationProperties):
 
         self.database.build_queue_insert(package)
 
-        self._process_dependencies(cache_dir, known_packages, without_dependencies)
+        self._process_dependencies(package, known_packages, without_dependencies)
 
     def _add_remote(self, source: str, *_: Any) -> None:
         """
@@ -135,19 +132,19 @@ class ApplicationPackages(ApplicationProperties):
         """
         raise NotImplementedError
 
-    def _process_dependencies(self, local_dir: Path, known_packages: Set[str], without_dependencies: bool) -> None:
+    def _process_dependencies(self, package: Package, known_packages: Set[str], without_dependencies: bool) -> None:
         """
         process package dependencies
 
         Args:
-            local_dir(Path): path to local package sources (i.e. cloned AUR repository)
+            package(Package): source package of which dependencies have to be processed
             known_packages(Set[str]): list of packages which are known by the service
             without_dependencies(bool): if set, dependency check will be disabled
         """
         if without_dependencies:
             return
 
-        dependencies = Package.dependencies(local_dir)
+        dependencies = package.depends_build
         self.add(dependencies.difference(known_packages), PackageSource.AUR, without_dependencies)
 
     def add(self, names: Iterable[str], source: PackageSource, without_dependencies: bool) -> None:

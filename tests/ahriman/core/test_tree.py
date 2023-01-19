@@ -1,12 +1,6 @@
-import pytest
-
-from pytest_mock import MockerFixture
-
-from ahriman.core.database import SQLite
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 def test_leaf_is_root_empty(leaf_ahriman: Leaf) -> None:
@@ -39,29 +33,11 @@ def test_leaf_is_root_true(leaf_ahriman: Leaf, leaf_python_schedule: Leaf) -> No
     assert not leaf_ahriman.is_root([leaf_python_schedule])
 
 
-def test_leaf_load(package_ahriman: Package, repository_paths: RepositoryPaths,
-                   database: SQLite, mocker: MockerFixture) -> None:
-    """
-    must load with dependencies
-    """
-    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
-    dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies", return_value={"ahriman-dependency"})
-
-    leaf = Leaf.load(package_ahriman, repository_paths, database)
-    assert leaf.package == package_ahriman
-    assert leaf.dependencies == {"ahriman-dependency"}
-    load_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman, [], repository_paths)
-    dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-
-
-def test_tree_resolve(package_ahriman: Package, package_python_schedule: Package, repository_paths: RepositoryPaths,
-                      database: SQLite, mocker: MockerFixture) -> None:
+def test_tree_resolve(package_ahriman: Package, package_python_schedule: Package) -> None:
     """
     must resolve denendecnies tree
     """
-    mocker.patch("ahriman.core.tree.Leaf.load", side_effect=lambda package, p, d: Leaf(package, set(package.depends)))
-
-    tree = Tree.resolve([package_ahriman, package_python_schedule], repository_paths, database)
+    tree = Tree.resolve([package_ahriman, package_python_schedule])
     assert len(tree) == 1
     assert len(tree[0]) == 2
 
@@ -87,36 +63,32 @@ def test_tree_levels_sorted() -> None:
             base="package1",
             version="1.0.0",
             remote=None,
-            packages={"package1": PackageDescription()}
-        ),
-        dependencies=set()
+            packages={"package1": PackageDescription(depends=[])}
+        )
     )
     leaf2 = Leaf(
         Package(
             base="package2",
             version="1.0.0",
             remote=None,
-            packages={"package2": PackageDescription()}
-        ),
-        dependencies={"package1"}
+            packages={"package2": PackageDescription(depends=["package1"])}
+        )
     )
     leaf3 = Leaf(
         Package(
             base="package3",
             version="1.0.0",
             remote=None,
-            packages={"package3": PackageDescription()}
-        ),
-        dependencies={"package1"}
+            packages={"package3": PackageDescription(depends=["package1"])}
+        )
     )
     leaf4 = Leaf(
         Package(
             base="package4",
             version="1.0.0",
             remote=None,
-            packages={"package4": PackageDescription()}
-        ),
-        dependencies={"package3"}
+            packages={"package4": PackageDescription(depends=["package3"])}
+        )
     )
 
     tree = Tree([leaf1, leaf2, leaf3, leaf4])

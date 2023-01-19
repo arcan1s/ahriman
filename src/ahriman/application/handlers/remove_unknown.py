@@ -51,7 +51,7 @@ class RemoveUnknown(Handler):
 
         if args.dry_run:
             for package in sorted(unknown_packages):
-                StringPrinter(package).print(False)
+                StringPrinter(package).print(verbose=False)
             return
 
         application.remove(unknown_packages)

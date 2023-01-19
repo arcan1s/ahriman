@@ -46,7 +46,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     aur_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     official_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with(False, False)
-    print_mock.assert_has_calls([MockCall(False), MockCall(False)])
+    print_mock.assert_has_calls([MockCall(verbose=False), MockCall(verbose=False)])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
