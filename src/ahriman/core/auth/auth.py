@@ -78,10 +78,10 @@ class Auth(LazyLogging):
         """
         provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
         if provider == AuthSettings.Configuration:
-            from ahriman.core.auth import Mapping
+            from ahriman.core.auth.mapping import Mapping
             return Mapping(configuration, database)
         if provider == AuthSettings.OAuth:
-            from ahriman.core.auth import OAuth
+            from ahriman.core.auth.oauth import OAuth
             return OAuth(configuration, database)
         return cls(configuration)
 

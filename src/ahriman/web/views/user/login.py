@@ -53,7 +53,7 @@ class LoginView(BaseView):
         Examples:
             This request must not be used directly.
         """
-        from ahriman.core.auth import OAuth
+        from ahriman.core.auth.oauth import OAuth
 
         oauth_provider = self.validator
         if not isinstance(oauth_provider, OAuth):  # there is actually property, but mypy does not like it anyway

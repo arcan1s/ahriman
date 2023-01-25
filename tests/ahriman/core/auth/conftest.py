@@ -1,6 +1,7 @@
 import pytest
 
-from ahriman.core.auth import Mapping, OAuth
+from ahriman.core.auth.mapping import Mapping
+from ahriman.core.auth.oauth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 

@@ -1,6 +1,6 @@
 from pytest_mock import MockerFixture
 
-from ahriman.core.auth import Mapping
+from ahriman.core.auth.mapping import Mapping
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
