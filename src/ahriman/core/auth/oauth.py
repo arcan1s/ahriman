@@ -21,7 +21,7 @@ import aioauth_client
 
 from typing import Optional, Type
 
-from ahriman.core.auth import Mapping
+from ahriman.core.auth.mapping import Mapping
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import OptionError

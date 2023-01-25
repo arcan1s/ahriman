@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.core.auth import OAuth
+from ahriman.core.auth.oauth import OAuth
 from ahriman.core.exceptions import OptionError
 
 

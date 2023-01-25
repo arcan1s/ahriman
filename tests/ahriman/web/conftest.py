@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import ahriman.core.auth.helpers
 
-from ahriman.core.auth import OAuth
+from ahriman.core.auth.oauth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
