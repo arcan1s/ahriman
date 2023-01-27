@@ -68,7 +68,6 @@ class Lock(LazyLogging):
             configuration(Configuration): configuration instance
         """
         self.path = args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
-        print(self.path)
         self.force = args.force
         self.unsafe = args.unsafe
 
