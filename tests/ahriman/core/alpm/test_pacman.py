@@ -207,3 +207,4 @@ def test_packages_with_provides(pacman: Pacman) -> None:
     package list must contain provides packages
     """
     assert "sh" in pacman.packages()
+    assert "mysql" in pacman.packages()  # mariadb

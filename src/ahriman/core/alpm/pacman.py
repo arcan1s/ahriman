@@ -25,6 +25,7 @@ from typing import Any, Callable, Generator, Set
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
+from ahriman.core.util import trim_package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -175,8 +176,10 @@ class Pacman(LazyLogging):
         result: Set[str] = set()
         for database in self.handle.get_syncdbs():
             for package in database.pkgcache:
-                result.add(package.name)  # package itself
-                result.update(package.provides)  # provides list for meta-packages
+                # package itself
+                result.add(package.name)
+                # provides list for meta-packages
+                result.update(trim_package(provides) for provides in package.provides)
 
         return result
 
