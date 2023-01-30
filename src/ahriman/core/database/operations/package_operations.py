@@ -104,6 +104,8 @@ class PackageOperations(Operations):
         """
         package_list = []
         for name, description in package.packages.items():
+            if description.architecture is None:
+                continue  # architecture is required
             package_list.append(dict(package=name, package_base=package.base, **description.view()))
         connection.executemany(
             """

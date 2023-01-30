@@ -48,6 +48,16 @@ def test_package_update_insert_packages(database: SQLite, connection: Connection
     connection.executemany(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
 
 
+def test_package_update_insert_packages_no_arch(database: SQLite, connection: Connection,
+                                                package_ahriman: Package) -> None:
+    """
+    must skip package insertion if no package architecture set
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = None
+    database._package_update_insert_packages(connection, package_ahriman)
+    connection.executemany(pytest.helpers.anyvar(str, strict=True), [])
+
+
 def test_package_update_insert_status(database: SQLite, connection: Connection, package_ahriman: Package) -> None:
     """
     must insert single package status
