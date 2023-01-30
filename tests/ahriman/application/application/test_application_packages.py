@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.models.package import Package
@@ -29,18 +29,12 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     must add package from AUR
     """
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
-    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load")
     dependencies_mock = mocker.patch(
         "ahriman.application.application.application_packages.ApplicationPackages._process_dependencies")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
     update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
 
     application_packages._add_aur(package_ahriman.base, set(), False)
-    load_mock.assert_called_once_with(
-        pytest.helpers.anyvar(int),
-        package_ahriman,
-        pytest.helpers.anyvar(int),
-        application_packages.repository.paths)
     dependencies_mock.assert_called_once_with(pytest.helpers.anyvar(int), set(), False)
     build_queue_mock.assert_called_once_with(package_ahriman)
     update_remote_mock.assert_called_once_with(package_ahriman)
@@ -121,43 +115,37 @@ def test_known_packages(application_packages: ApplicationPackages) -> None:
         application_packages._known_packages()
 
 
-def test_process_dependencies(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+def test_process_dependencies(application_packages: ApplicationPackages, package_ahriman: Package,
+                              mocker: MockerFixture) -> None:
     """
     must process dependencies addition
     """
-    missing = {"python"}
-    path = Path("local")
-    dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies", return_value=missing)
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages.add")
 
-    application_packages._process_dependencies(path, set(), False)
-    dependencies_mock.assert_called_once_with(path)
-    add_mock.assert_called_once_with(missing, PackageSource.AUR, False)
+    application_packages._process_dependencies(package_ahriman, set(), False)
+    add_mock.assert_called_once_with(package_ahriman.depends_build, PackageSource.AUR, False)
 
 
-def test_process_dependencies_missing(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+def test_process_dependencies_missing(application_packages: ApplicationPackages, package_ahriman: Package,
+                                      mocker: MockerFixture) -> None:
     """
     must process dependencies addition only for missing packages
     """
-    path = Path("local")
-    dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies",
-                                     return_value={"python", "python-aiohttp"})
+    missing = {"devtools"}
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages.add")
 
-    application_packages._process_dependencies(path, {"python"}, False)
-    dependencies_mock.assert_called_once_with(path)
-    add_mock.assert_called_once_with({"python-aiohttp"}, PackageSource.AUR, False)
+    application_packages._process_dependencies(
+        package_ahriman, package_ahriman.depends_build.difference(missing), False)
+    add_mock.assert_called_once_with(missing, PackageSource.AUR, False)
 
 
-def test_process_dependencies_skip(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+def test_process_dependencies_skip(application_packages: ApplicationPackages, package_ahriman: Package,
+                                   mocker: MockerFixture) -> None:
     """
     must skip dependencies processing
     """
-    dependencies_mock = mocker.patch("ahriman.models.package.Package.dependencies")
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages.add")
-
-    application_packages._process_dependencies(Path("local"), set(), True)
-    dependencies_mock.assert_not_called()
+    application_packages._process_dependencies(package_ahriman, set(), True)
     add_mock.assert_not_called()
 
 

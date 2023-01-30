@@ -45,6 +45,7 @@ class AURPackage:
         popularity(float): package popularity
         out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
         maintainer(Optional[str]): package maintainer
+        submitter(Optional[str]): package first submitter
         first_submitted(datetime.datetime): timestamp of the first package submission
         last_modified(datetime.datetime): timestamp of the last package submission
         url_path(str): AUR package path
@@ -89,6 +90,7 @@ class AURPackage:
     url: Optional[str] = None
     out_of_date: Optional[datetime.datetime] = None
     maintainer: Optional[str] = None
+    submitter: Optional[str] = None
     repository: str = "aur"
     depends: List[str] = field(default_factory=list)
     make_depends: List[str] = field(default_factory=list)
@@ -140,6 +142,7 @@ class AURPackage:
             url=package.url,
             out_of_date=None,
             maintainer=None,
+            submitter=None,
             repository=package.db.name,
             depends=package.depends,
             make_depends=package.makedepends,
@@ -178,6 +181,7 @@ class AURPackage:
                 dump["flag_date"],
                 "%Y-%m-%dT%H:%M:%S.%fZ") if dump["flag_date"] is not None else None,
             maintainer=next(iter(dump["maintainers"]), None),
+            submitter=None,
             repository=dump["repo"],
             depends=dump["depends"],
             make_depends=dump["makedepends"],

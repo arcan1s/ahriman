@@ -12,7 +12,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, enum_values, exception_response_text, filter_json, \
-    full_version, package_like, pretty_datetime, pretty_size, safe_filename, utcnow, walk
+    full_version, package_like, pretty_datetime, pretty_size, safe_filename, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -320,6 +320,18 @@ def test_safe_filename() -> None:
         "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
     assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
+
+
+def test_trim_package() -> None:
+    """
+    must trim package version
+    """
+    assert trim_package("package=1") == "package"
+    assert trim_package("package>=1") == "package"
+    assert trim_package("package>1") == "package"
+    assert trim_package("package<1") == "package"
+    assert trim_package("package<=1") == "package"
+    assert trim_package("package: a description") == "package"
 
 
 def test_utcnow() -> None:

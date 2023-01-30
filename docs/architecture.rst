@@ -114,7 +114,7 @@ Schema and data migrations
 
 The schema migration are applied according to current ``pragma user_info`` values, located at ``ahriman.core.database.migrations`` package and named as ``m000_migration_name.py`` (the preceding ``m`` is required in order to import migration content for tests). Additional class ``ahriman.core.database.migrations.Migrations`` reads all migrations automatically and applies them in alphabetical order.
 
-There are also data migrations which are located at ``ahriman.core.database.data`` package and move data from old-style (e.g. json files in filesystem, directory trees, etc) to the database. They are also part of migration and (unlike schema migrations) are applied only at specific version breakpoints (e.g. if ``user_version`` is more than 0 no initial migration will be applied).
+These migrations also contain data migrations. Though the recommended way is to migrate data directly from SQL requests, sometimes it is required to have external data (like packages list) in order to set correct data. To do so, special method `migrate_data` is used.
 
 Type conversions
 ^^^^^^^^^^^^^^^^

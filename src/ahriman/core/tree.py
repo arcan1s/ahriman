@@ -21,14 +21,9 @@ from __future__ import annotations
 
 import itertools
 
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Callable, Iterable, List, Set, Tuple, Type
+from typing import Callable, Iterable, List, Tuple
 
-from ahriman.core.build_tools.sources import Sources
-from ahriman.core.database import SQLite
 from ahriman.models.package import Package
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Leaf:
@@ -40,16 +35,15 @@ class Leaf:
         package(Package): leaf package properties
     """
 
-    def __init__(self, package: Package, dependencies: Set[str]) -> None:
+    def __init__(self, package: Package) -> None:
         """
         default constructor
 
         Args:
             package(Package): package properties
-            dependencies(Set[str]): package dependencies
         """
         self.package = package
-        self.dependencies = dependencies
+        self.dependencies = package.depends_build
 
     @property
     def items(self) -> Iterable[str]:
@@ -60,24 +54,6 @@ class Leaf:
             Iterable[str]: packages containing in this leaf
         """
         return self.package.packages.keys()
-
-    @classmethod
-    def load(cls: Type[Leaf], package: Package, paths: RepositoryPaths, database: SQLite) -> Leaf:
-        """
-        load leaf from package with dependencies
-
-        Args:
-            package(Package): package properties
-            paths(RepositoryPaths): repository paths instance
-            database(SQLite): database instance
-
-        Returns:
-            Leaf: loaded class
-        """
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
-            Sources.load(clone_dir, package, database.patches_get(package.base), paths)
-            dependencies = Package.dependencies(clone_dir)
-        return cls(package, dependencies)
 
     def is_dependency(self, packages: Iterable[Leaf]) -> bool:
         """
@@ -130,7 +106,7 @@ class Tree:
             >>> repository = Repository.load("x86_64", configuration, database, report=True, unsafe=False)
             >>> packages = repository.packages()
             >>>
-            >>> tree = Tree.resolve(packages, configuration.repository_paths, database)
+            >>> tree = Tree.resolve(packages)
             >>> for tree_level in tree:
             >>>     for package in tree_level:
             >>>         print(package.base)
@@ -138,14 +114,8 @@ class Tree:
 
         The direct constructor call is also possible but requires tree leaves to be instantioned in advance, e.g.::
 
-            >>> leaves = [Leaf.load(package, database) for package in packages]
+            >>> leaves = [Leaf(package) for package in packages]
             >>> tree = Tree(leaves)
-
-        Using the default ``Leaf()`` method is possible, but not really recommended because it requires from the user to
-        build the dependency list by himself::
-
-            >>> leaf = Leaf(package, dependecies)
-            >>> tree = Tree([leaf])
     """
 
     def __init__(self, leaves: List[Leaf]) -> None:
@@ -157,23 +127,20 @@ class Tree:
         """
         self.leaves = leaves
 
-    @classmethod
-    def resolve(cls: Type[Tree], packages: Iterable[Package], paths: RepositoryPaths,
-                database: SQLite) -> List[List[Package]]:
+    @staticmethod
+    def resolve(packages: Iterable[Package]) -> List[List[Package]]:
         """
         resolve dependency tree
 
         Args:
             packages(Iterable[Package]): packages list
-            paths(RepositoryPaths): repository paths instance
-            database(SQLite): database instance
 
         Returns:
             List[List[Package]]: list of packages lists based on their dependencies
         """
-        leaves = [Leaf.load(package, paths, database) for package in packages]
-        tree = cls(leaves)
-        return tree.levels()
+        leaves = [Leaf(package) for package in packages]
+        instance = Tree(leaves)
+        return instance.levels()
 
     def levels(self) -> List[List[Package]]:
         """

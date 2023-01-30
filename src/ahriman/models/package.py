@@ -89,6 +89,36 @@ class Package(LazyLogging):
         return sorted(set(sum((package.depends for package in self.packages.values()), start=[])))
 
     @property
+    def depends_build(self) -> Set[str]:
+        """
+        get full list of external dependencies which has to be installed for build process
+
+        Returns:
+            Set[str]: full dependencies list used by devtools
+        """
+        return (set(self.depends) | set(self.depends_make)) - self.packages.keys()
+
+    @property
+    def depends_make(self) -> List[str]:
+        """
+        get package make dependencies
+
+        Returns:
+            List[str]: sum of make dependencies per each package
+        """
+        return sorted(set(sum((package.make_depends for package in self.packages.values()), start=[])))
+
+    @property
+    def depends_opt(self) -> List[str]:
+        """
+        get package optional dependencies
+
+        Returns:
+            List[str]: sum of optional dependencies per each package
+        """
+        return sorted(set(sum((package.opt_depends for package in self.packages.values()), start=[])))
+
+    @property
     def groups(self) -> List[str]:
         """
         get package base groups
@@ -168,7 +198,7 @@ class Package(LazyLogging):
             base=package.package_base,
             version=package.version,
             remote=remote,
-            packages={package.name: PackageDescription()})
+            packages={package.name: PackageDescription.from_aur(package)})
 
     @classmethod
     def from_build(cls: Type[Package], path: Path) -> Package:
@@ -188,7 +218,18 @@ class Package(LazyLogging):
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
-        packages = {key: PackageDescription() for key in srcinfo["packages"]}
+
+        def get_property(key: str, properties: Dict[str, Any], default: Any) -> Any:
+            return properties.get(key, srcinfo.get(key, default))
+
+        packages = {
+            package: PackageDescription(
+                depends=get_property("depends", properties, []),
+                make_depends=get_property("makedepends", properties, []),
+                opt_depends=get_property("optdepends", properties, []),
+            )
+            for package, properties in srcinfo["packages"].items()
+        }
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
         return cls(base=srcinfo["pkgbase"], version=version, remote=None, packages=packages)
@@ -204,11 +245,12 @@ class Package(LazyLogging):
         Returns:
             Package: package properties
         """
+        packages_json = dump.get("packages") or {}
         packages = {
             key: PackageDescription.from_json(value)
-            for key, value in dump.get("packages", {}).items()
+            for key, value in packages_json.items()
         }
-        remote = dump.get("remote", {})
+        remote = dump.get("remote") or {}
         return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
 
     @classmethod
@@ -230,43 +272,7 @@ class Package(LazyLogging):
             base=package.package_base,
             version=package.version,
             remote=remote,
-            packages={package.name: PackageDescription()})
-
-    @staticmethod
-    def dependencies(path: Path) -> Set[str]:
-        """
-        load dependencies from package sources
-
-        Args:
-            path(Path): path to package sources directory
-
-        Returns:
-            Set[str]: list of package dependencies including makedepends array, but excluding packages from this base
-
-        Raises:
-            InvalidPackageInfo: if there are parsing errors
-        """
-        # additional function to remove versions from dependencies
-        def extract_packages(raw_packages_list: List[str]) -> Set[str]:
-            return {trim_version(package_name) for package_name in raw_packages_list}
-
-        def trim_version(package_name: str) -> str:
-            for symbol in ("<", "=", ">"):
-                package_name = package_name.split(symbol)[0]
-            return package_name
-
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
-        makedepends = extract_packages(srcinfo.get("makedepends", []))
-        # sum over each package
-        depends = extract_packages(srcinfo.get("depends", []))
-        for package in srcinfo["packages"].values():
-            depends |= extract_packages(package.get("depends", []))
-        # we are not interested in dependencies inside pkgbase
-        packages = set(srcinfo["packages"].keys())
-        return (depends | makedepends) - packages
+            packages={package.name: PackageDescription.from_aur(package)})
 
     @staticmethod
     def supported_architectures(path: Path) -> Set[str]:
