@@ -28,6 +28,7 @@ Base configuration settings.
 * ``include`` - path to directory with configuration files overrides, string, required.
 * ``database`` - path to SQLite database, string, required.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
+* ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
 
 ``alpm`` group
 --------------
