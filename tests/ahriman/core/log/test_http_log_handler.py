@@ -42,7 +42,7 @@ def test_emit(configuration: Configuration, log_record: logging.LogRecord, packa
     log_record.package_base = package_ahriman.base
     log_mock = mocker.patch("ahriman.core.status.client.Client.logs")
 
-    handler = HttpLogHandler(configuration, report=False)
+    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     log_mock.assert_called_once_with(package_ahriman.base, log_record)
@@ -56,10 +56,24 @@ def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord
     log_record.package_base = package_ahriman.base
     mocker.patch("ahriman.core.status.client.Client.logs", side_effect=Exception())
     handle_error_mock = mocker.patch("logging.Handler.handleError")
-    handler = HttpLogHandler(configuration, report=False)
+    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     handle_error_mock.assert_called_once_with(log_record)
+
+
+def test_emit_suppress_failed(configuration: Configuration, log_record: logging.LogRecord, package_ahriman: Package,
+                              mocker: MockerFixture) -> None:
+    """
+    must not call handle error on exception if suppress flag is set
+    """
+    log_record.package_base = package_ahriman.base
+    mocker.patch("ahriman.core.status.client.Client.logs", side_effect=Exception())
+    handle_error_mock = mocker.patch("logging.Handler.handleError")
+    handler = HttpLogHandler(configuration, report=False, suppress_errors=True)
+
+    handler.emit(log_record)
+    handle_error_mock.assert_not_called()
 
 
 def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, mocker: MockerFixture) -> None:
@@ -67,7 +81,7 @@ def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, 
     must skip log record posting if no package base set
     """
     log_mock = mocker.patch("ahriman.core.status.client.Client.logs")
-    handler = HttpLogHandler(configuration, report=False)
+    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     log_mock.assert_not_called()

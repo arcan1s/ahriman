@@ -31,22 +31,25 @@ class HttpLogHandler(logging.Handler):
 
     Attributes:
         reporter(Client): build status reporter instance
+        suppress_errors(bool): suppress logging errors (e.g. if no web server available)
     """
 
-    def __init__(self, configuration: Configuration, *, report: bool) -> None:
+    def __init__(self, configuration: Configuration, *, report: bool, suppress_errors: bool) -> None:
         """
         default constructor
 
         Args:
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
+            suppress_errors(bool): suppress logging errors (e.g. if no web server available)
         """
         # we don't really care about those parameters because they will be handled by the reporter
         logging.Handler.__init__(self)
 
-        # client has to be importer here because of circular imports
+        # client has to be imported here because of circular imports
         from ahriman.core.status.client import Client
         self.reporter = Client.load(configuration, report=report)
+        self.suppress_errors = suppress_errors
 
     @classmethod
     def load(cls, configuration: Configuration, *, report: bool) -> HttpLogHandler:
@@ -62,7 +65,8 @@ class HttpLogHandler(logging.Handler):
         if (handler := next((handler for handler in root.handlers if isinstance(handler, cls)), None)) is not None:
             return handler  # there is already registered instance
 
-        handler = cls(configuration, report=report)
+        suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
+        handler = cls(configuration, report=report, suppress_errors=suppress_errors)
         root.addHandler(handler)
 
         return handler
@@ -81,4 +85,6 @@ class HttpLogHandler(logging.Handler):
         try:
             self.reporter.logs(package_base, record)
         except Exception:
+            if self.suppress_errors:
+                return
             self.handleError(record)

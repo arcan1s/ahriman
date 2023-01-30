@@ -47,6 +47,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "required": True,
                 "path_exists": True,
             },
+            "suppress_http_log_errors": {
+                "type": "boolean",
+                "coerce": "boolean",
+            }
         },
     },
     "alpm": {
