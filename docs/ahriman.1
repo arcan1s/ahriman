@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-01\-25" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-01\-27" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -156,7 +156,7 @@ web server
 
 .SH COMMAND \fI\,'ahriman aur\-search'\/\fR
 usage: ahriman aur\-search [\-h] [\-e] [\-\-info | \-\-no\-info]
-                          [\-\-sort\-by {description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,url,url_path,version}]
+                          [\-\-sort\-by {description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,submitter,url,url_path,version}]
                           search [search ...]
 
 search for package in AUR using API
@@ -175,7 +175,7 @@ return non\-zero exit status if result is empty
 show additional package information (default: False)
 
 .TP
-\fB\-\-sort\-by\fR \fI\,{description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,url,url_path,version}\/\fR
+\fB\-\-sort\-by\fR \fI\,{description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,submitter,url,url_path,version}\/\fR
 sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
 by name
 

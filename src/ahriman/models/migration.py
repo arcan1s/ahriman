@@ -18,7 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass
-from typing import List
+from sqlite3 import Connection
+from typing import Callable, List
+
+from ahriman.core.configuration import Configuration
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -30,8 +33,10 @@ class Migration:
         index(int): migration position
         name(str): migration name
         steps(List[str]): migration steps
+        migrate_data(Callable[[Connection, Configuration], None]): data migration callback
     """
 
     index: int
     name: str
     steps: List[str]
+    migrate_data: Callable[[Connection, Configuration], None]

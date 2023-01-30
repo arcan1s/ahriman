@@ -56,4 +56,4 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     RemoveUnknown.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
-    print_mock.assert_called_once_with(False)
+    print_mock.assert_called_once_with(verbose=False)

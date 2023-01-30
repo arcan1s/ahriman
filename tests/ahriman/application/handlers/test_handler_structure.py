@@ -1,5 +1,4 @@
 import argparse
-import pytest
 
 from pytest_mock import MockerFixture
 
@@ -20,7 +19,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Structure.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_mock.assert_called_once_with([package_ahriman], repository.paths, pytest.helpers.anyvar(int))
+    application_mock.assert_called_once_with([package_ahriman])
     print_mock.assert_called_once_with(verbose=True, separator=" ")
 
 

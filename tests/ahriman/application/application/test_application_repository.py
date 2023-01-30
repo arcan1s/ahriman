@@ -161,7 +161,7 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     must process package updates
     """
     paths = [package.filepath for package in package_ahriman.packages.values()]
-    tree = Tree([Leaf(package_ahriman, set())])
+    tree = Tree([Leaf(package_ahriman)])
 
     mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
@@ -181,7 +181,7 @@ def test_update_empty(application_repository: ApplicationRepository, package_ahr
     """
     must skip updating repository if no packages supplied
     """
-    tree = Tree([Leaf(package_ahriman, set())])
+    tree = Tree([Leaf(package_ahriman)])
 
     mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
@@ -197,7 +197,7 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
     """
     must get updates for all
     """
-    tree = Tree([Leaf(package_ahriman, set())])
+    tree = Tree([Leaf(package_ahriman)])
 
     mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[])

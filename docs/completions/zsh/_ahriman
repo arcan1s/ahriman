@@ -99,7 +99,7 @@ _shtab_ahriman_aur_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {--info,--no-info}"[show additional package information (default\: \%(default)s)]:info:"
-  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository url url_path version)"
+  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
 
@@ -408,7 +408,7 @@ _shtab_ahriman_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {--info,--no-info}"[show additional package information (default\: \%(default)s)]:info:"
-  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository url url_path version)"
+  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
 

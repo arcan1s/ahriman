@@ -66,6 +66,7 @@ def test_from_pacman(pyalpm_package_ahriman: pyalpm.Package, aur_package_ahriman
     object.__setattr__(model, "first_submitted", aur_package_ahriman.first_submitted)
     object.__setattr__(model, "url_path", aur_package_ahriman.url_path)
     object.__setattr__(model, "maintainer", aur_package_ahriman.maintainer)
+    object.__setattr__(model, "submitter", aur_package_ahriman.submitter)
 
     assert model == aur_package_ahriman
 

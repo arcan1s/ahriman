@@ -20,7 +20,7 @@ def leaf_ahriman(package_ahriman: Package) -> Leaf:
     Returns:
         Leaf: tree leaf test instance
     """
-    return Leaf(package_ahriman, set())
+    return Leaf(package_ahriman)
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def leaf_python_schedule(package_python_schedule: Package) -> Leaf:
     Returns:
         Leaf: tree leaf test instance
     """
-    return Leaf(package_python_schedule, set())
+    return Leaf(package_python_schedule)
 
 
 @pytest.fixture

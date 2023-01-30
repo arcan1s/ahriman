@@ -44,6 +44,14 @@ ahriman.core.database.migrations.m004\_logs module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m005\_make\_opt\_depends module
+----------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m005_make_opt_depends
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

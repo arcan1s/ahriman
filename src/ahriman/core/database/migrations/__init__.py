@@ -17,16 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
-from sqlite3 import Connection
-from typing import List, Type
+from sqlite3 import Connection, Cursor
+from typing import Callable, List
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database.data import migrate_data
 from ahriman.core.log import LazyLogging
 from ahriman.models.migration import Migration
 from ahriman.models.migration_result import MigrationResult
@@ -53,8 +50,8 @@ class Migrations(LazyLogging):
         self.connection = connection
         self.configuration = configuration
 
-    @classmethod
-    def migrate(cls: Type[Migrations], connection: Connection, configuration: Configuration) -> MigrationResult:
+    @staticmethod
+    def migrate(connection: Connection, configuration: Configuration) -> MigrationResult:
         """
         perform migrations implicitly
 
@@ -65,7 +62,26 @@ class Migrations(LazyLogging):
         Returns:
             MigrationResult: current schema version
         """
-        return cls(connection, configuration).run()
+        return Migrations(connection, configuration).run()
+
+    def migration(self, cursor: Cursor, migration: Migration) -> None:
+        """
+        perform single migration
+
+        Args:
+            cursor(Cursor): connection cursor
+            migration(Migration): single migration to perform
+        """
+        self.logger.info("applying table migration %s at index %s", migration.name, migration.index)
+        for statement in migration.steps:
+            cursor.execute(statement)
+        self.logger.info("table migration %s at index %s has been applied", migration.name, migration.index)
+
+        self.logger.info("perform data migration %s at index %s", migration.name, migration.index)
+        migration.migrate_data(self.connection, self.configuration)
+        self.logger.info(
+            "data migration %s at index %s has been performed",
+            migration.name, migration.index)
 
     def migrations(self) -> List[Migration]:
         """
@@ -81,9 +97,21 @@ class Migrations(LazyLogging):
 
         for index, module_name in enumerate(sorted(modules)):
             module = import_module(f"{__name__}.{module_name}")
+
             steps: List[str] = getattr(module, "steps", [])
             self.logger.debug("found migration %s at index %s with steps count %s", module_name, index, len(steps))
-            migrations.append(Migration(index=index, name=module_name, steps=steps))
+
+            migrate_data: Callable[[Connection, Configuration], None] = \
+                getattr(module, "migrate_data", lambda *args: None)
+
+            migrations.append(
+                Migration(
+                    index=index,
+                    name=module_name,
+                    steps=steps,
+                    migrate_data=migrate_data
+                )
+            )
 
         return migrations
 
@@ -110,13 +138,7 @@ class Migrations(LazyLogging):
             try:
                 cursor.execute("begin exclusive")
                 for migration in migrations[current_version:]:
-                    self.logger.info("applying migration %s at index %s", migration.name, migration.index)
-                    for statement in migration.steps:
-                        cursor.execute(statement)
-                    self.logger.info("migration %s at index %s has been applied", migration.name, migration.index)
-
-                migrate_data(result, self.connection, self.configuration)
-
+                    self.migration(cursor, migration)
                 cursor.execute(f"pragma user_version = {expected_version}")  # no support for ? placeholders
             except Exception:
                 self.logger.exception("migration failed with exception")

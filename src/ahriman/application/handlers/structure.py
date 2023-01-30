@@ -51,6 +51,6 @@ class Structure(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
         packages = application.repository.packages()
 
-        tree = Tree.resolve(packages, application.repository.paths, application.database)
+        tree = Tree.resolve(packages)
         for num, level in enumerate(tree):
             TreePrinter(num, level).print(verbose=True, separator=" ")

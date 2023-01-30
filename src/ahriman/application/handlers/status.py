@@ -53,7 +53,7 @@ class Status(Handler):
         client = Application(architecture, configuration, report=True, unsafe=unsafe).repository.reporter
         if args.ahriman:
             service_status = client.get_internal()
-            StatusPrinter(service_status.status).print(args.info)
+            StatusPrinter(service_status.status).print(verbose=args.info)
         if args.package:
             packages: Iterable[Tuple[Package, BuildStatus]] = sum(
                 (client.get(base) for base in args.package),
@@ -67,4 +67,4 @@ class Status(Handler):
         filter_fn: Callable[[Tuple[Package, BuildStatus]], bool] =\
             lambda item: args.status is None or item[1].status == args.status
         for package, package_status in sorted(filter(filter_fn, packages), key=comparator):
-            PackagePrinter(package, package_status).print(args.info)
+            PackagePrinter(package, package_status).print(verbose=args.info)

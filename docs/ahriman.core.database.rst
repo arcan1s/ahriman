@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   ahriman.core.database.data
    ahriman.core.database.migrations
    ahriman.core.database.operations
 

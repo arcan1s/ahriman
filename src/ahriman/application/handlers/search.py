@@ -64,7 +64,7 @@ class Search(Handler):
         for packages_list in (official_packages_list, aur_packages_list):
             # keep sorting by packages source
             for package in Search.sort(packages_list, args.sort_by):
-                AurPrinter(package).print(args.info)
+                AurPrinter(package).print(verbose=args.info)
 
     @staticmethod
     def sort(packages: Iterable[AURPackage], sort_by: str) -> List[AURPackage]:

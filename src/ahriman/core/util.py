@@ -35,7 +35,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 __all__ = ["check_output", "check_user", "enum_values", "exception_response_text", "filter_json", "full_version",
-           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "utcnow", "walk"]
+           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "trim_package", "utcnow", "walk"]
 
 
 def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
@@ -293,6 +293,23 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
+
+
+def trim_package(package_name: str) -> str:
+    """
+    remove version bound and description from package name. Pacman allows to specify version bound (=, <=, >= etc) for
+    packages in dependencies and also allows to specify description (via :); this function removes trailing parts and
+    return exact package name
+
+    Args:
+        package_name(str): source package name
+
+    Returns:
+        str: package name without description or version bound
+    """
+    for symbol in ("<", "=", ">", ":"):
+        package_name = package_name.partition(symbol)[0]
+    return package_name
 
 
 def utcnow() -> datetime.datetime:
