@@ -88,4 +88,6 @@ Initial setup
 
    .. code-block:: shell
 
-       sudo -u ahriman ahriman -a x86_64 package-add ahriman --now
+       sudo -u ahriman ahriman -a x86_64 package-add ahriman --now --refresh
+
+   The ``--refresh`` flag is required in order to handle local database update.
