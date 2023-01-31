@@ -98,7 +98,7 @@ class UpdateHandler(Cleaner):
             with self.in_package_context(cache_dir.name):
                 try:
                     Sources.fetch(cache_dir, remote=None)
-                    remote = Package.from_build(cache_dir)
+                    remote = Package.from_build(cache_dir, self.architecture)
 
                     local = packages.get(remote.base)
                     if local is None:

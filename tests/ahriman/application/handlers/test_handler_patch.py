@@ -45,7 +45,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
     Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
-    patch_mock.assert_called_once_with(args.package, args.track)
+    patch_mock.assert_called_once_with(args.package, "x86_64", args.track)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, PkgbuildPatch(None, "patch"))
 
 
@@ -108,8 +108,8 @@ def test_patch_create_from_diff(package_ahriman: Package, mocker: MockerFixture)
     package_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     sources_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create", return_value=patch.value)
 
-    assert Patch.patch_create_from_diff(path, ["*.diff"]) == (package_ahriman.base, patch)
-    package_mock.assert_called_once_with(path)
+    assert Patch.patch_create_from_diff(path, "x86_64", ["*.diff"]) == (package_ahriman.base, patch)
+    package_mock.assert_called_once_with(path, "x86_64")
     sources_mock.assert_called_once_with(path, "*.diff")
 
 

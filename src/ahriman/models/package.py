@@ -201,12 +201,13 @@ class Package(LazyLogging):
             packages={package.name: PackageDescription.from_aur(package)})
 
     @classmethod
-    def from_build(cls: Type[Package], path: Path) -> Package:
+    def from_build(cls: Type[Package], path: Path, architecture: str) -> Package:
         """
         construct package properties from sources directory
 
         Args:
             path(Path): path to package sources directory
+            architecture(str): load package for specific architecture
 
         Returns:
             Package: package properties
@@ -220,13 +221,16 @@ class Package(LazyLogging):
             raise PackageInfoError(errors)
 
         def get_property(key: str, properties: Dict[str, Any], default: Any) -> Any:
-            return properties.get(key, srcinfo.get(key, default))
+            return properties.get(key) or srcinfo.get(key) or default
+
+        def get_list(key: str, properties: Dict[str, Any]) -> Any:
+            return get_property(key, properties, []) + get_property(f"{key}_{architecture}", properties, [])
 
         packages = {
             package: PackageDescription(
-                depends=get_property("depends", properties, []),
-                make_depends=get_property("makedepends", properties, []),
-                opt_depends=get_property("optdepends", properties, []),
+                depends=get_list("depends", properties),
+                make_depends=get_list("makedepends", properties),
+                opt_depends=get_list("optdepends", properties),
             )
             for package, properties in srcinfo["packages"].items()
         }

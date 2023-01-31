@@ -120,7 +120,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
 
     assert update_handler.updates_local(vcs=True) == [package_ahriman]
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), remote=None)
-    package_load_mock.assert_called_once_with(Path(package_ahriman.base))
+    package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64")
     status_client_mock.assert_called_once_with(package_ahriman.base)
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.paths,
