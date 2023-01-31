@@ -58,7 +58,7 @@ class Patch(Handler):
             patch = Patch.patch_create_from_function(args.variable, args.patch)
             Patch.patch_set_create(application, args.package, patch)
         elif args.action == Action.Update and args.variable is None:
-            package_base, patch = Patch.patch_create_from_diff(args.package, args.track)
+            package_base, patch = Patch.patch_create_from_diff(args.package, architecture, args.track)
             Patch.patch_set_create(application, package_base, patch)
         elif args.action == Action.List:
             Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
@@ -66,19 +66,20 @@ class Patch(Handler):
             Patch.patch_set_remove(application, args.package, args.variable)
 
     @staticmethod
-    def patch_create_from_diff(sources_dir: Path, track: List[str]) -> Tuple[str, PkgbuildPatch]:
+    def patch_create_from_diff(sources_dir: Path, architecture: str, track: List[str]) -> Tuple[str, PkgbuildPatch]:
         """
         create PKGBUILD plain diff patches from sources directory
 
         Args:
             sources_dir(Path): path to directory with the package sources
+            architecture(str): repository architecture
             track(List[str]): track files which match the glob before creating the patch
 
         Returns:
             Tuple[str, PkgbuildPatch]: package base and created PKGBUILD patch based on the diff from master HEAD
                 to current files
         """
-        package = Package.from_build(sources_dir)
+        package = Package.from_build(sources_dir, architecture)
         patch = Sources.patch_create(sources_dir, *track)
         return package.base, PkgbuildPatch(None, patch)
 

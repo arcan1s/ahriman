@@ -111,7 +111,7 @@ class ApplicationRepository(ApplicationProperties):
 
         def unknown_local(probe: Package) -> List[str]:
             cache_dir = self.repository.paths.cache_for(probe.base)
-            local = Package.from_build(cache_dir)
+            local = Package.from_build(cache_dir, self.architecture)
             packages = set(probe.packages.keys()).difference(local.packages.keys())
             return list(packages)
 

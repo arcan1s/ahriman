@@ -84,7 +84,7 @@ class ApplicationPackages(ApplicationProperties):
             without_dependencies(bool): if set, dependency check will be disabled
         """
         source_dir = Path(source)
-        package = Package.from_build(source_dir)
+        package = Package.from_build(source_dir, self.architecture)
         cache_dir = self.repository.paths.cache_for(package.base)
         shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions

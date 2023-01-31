@@ -51,7 +51,7 @@ def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package_gcc10 = Package.from_build(Path("local"))
+    package_gcc10 = Package.from_build(Path("local"), "x86_64")
     assert package_gcc10.depends_build == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
 
 
@@ -154,7 +154,7 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"))
+    package = Package.from_build(Path("path"), "x86_64")
     assert package_ahriman.packages.keys() == package.packages.keys()
     package_ahriman.packages = package.packages  # we are not going to test PackageDescription here
     package_ahriman.remote = None
@@ -168,7 +168,7 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"))
+    package = Package.from_build(Path("path"), "x86_64")
     assert package.packages == {
         "gcc10": PackageDescription(
             depends=["gcc10-libs=10.3.0-2", "binutils>=2.28", "libmpc", "zstd"],
@@ -188,6 +188,34 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
     }
 
 
+def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must construct package with architecture specific depends list
+    """
+    srcinfo = (resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo").read_text()
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+
+    package = Package.from_build(Path("path"), "x86_64")
+    assert package.packages == {
+        "jellyfin-ffmpeg5-bin": PackageDescription(
+            depends=["glibc"],
+            make_depends=[],
+            opt_depends=[
+                "intel-media-driver: for Intel VAAPI support (Broadwell and newer)",
+                "intel-media-sdk: for Intel Quick Sync Video",
+                "onevpl-intel-gpu: for Intel Quick Sync Video (12th Gen and newer)",
+                "intel-compute-runtime: for Intel OpenCL runtime based Tonemapping",
+                "libva-intel-driver: for Intel legacy VAAPI support (10th Gen and older)",
+                "libva-mesa-driver: for AMD VAAPI support",
+                "nvidia-utils: for Nvidia NVDEC/NVENC support",
+                "opencl-amd: for AMD OpenCL runtime based Tonemapping",
+                "vulkan-radeon: for AMD RADV Vulkan support",
+                "vulkan-intel: for Intel ANV Vulkan support",
+            ],
+        ),
+    }
+
+
 def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must raise exception if there are errors during srcinfo load
@@ -196,7 +224,7 @@ def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> N
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(PackageInfoError):
-        Package.from_build(Path("path"))
+        Package.from_build(Path("path"), "x86_64")
 
 
 def test_from_json_view_1(package_ahriman: Package) -> None:

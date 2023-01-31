@@ -358,6 +358,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "package_akonadi_aur",
         resource_path_root / "models" / "package_ahriman_srcinfo",
         resource_path_root / "models" / "package_gcc10_srcinfo",
+        resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo",
         resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo",
         resource_path_root / "models" / "package_yay_srcinfo",
         resource_path_root / "web" / "templates" / "build-status" / "alerts.jinja2",
