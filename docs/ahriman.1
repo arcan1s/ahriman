@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-01\-27" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-02\-05" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -590,9 +590,14 @@ clear directory with built packages (default: False)
 clear directory with pacman local database cache (default: False)
 
 .SH COMMAND \fI\,'ahriman service\-config'\/\fR
-usage: ahriman service\-config [\-h]
+usage: ahriman service\-config [\-h] [\-\-secure | \-\-no\-secure]
 
 dump configuration for the specified architecture
+
+.SH OPTIONS \fI\,'ahriman service\-config'\/\fR
+.TP
+\fB\-\-secure\fR, \fB\-\-no\-secure\fR
+hide passwords and secrets from output (default: True)
 
 .SH COMMAND \fI\,'ahriman service\-config\-validate'\/\fR
 usage: ahriman service\-config\-validate [\-h] [\-e]

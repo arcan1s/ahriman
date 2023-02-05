@@ -82,15 +82,15 @@ class PackageOperations(Operations):
             on conflict (package_base) do update set
             version = :version, branch = :branch, git_url = :git_url, path = :path, web_url = :web_url, source = :source
             """,
-            dict(
-                package_base=package.base,
-                version=package.version,
-                branch=package.remote.branch if package.remote is not None else None,
-                git_url=package.remote.git_url if package.remote is not None else None,
-                path=package.remote.path if package.remote is not None else None,
-                web_url=package.remote.web_url if package.remote is not None else None,
-                source=package.remote.source.value if package.remote is not None else None,
-            )
+            {
+                "package_base": package.base,
+                "version": package.version,
+                "branch": package.remote.branch if package.remote is not None else None,
+                "git_url": package.remote.git_url if package.remote is not None else None,
+                "path": package.remote.path if package.remote is not None else None,
+                "web_url": package.remote.web_url if package.remote is not None else None,
+                "source": package.remote.source.value if package.remote is not None else None,
+            }
         )
 
     @staticmethod
@@ -106,7 +106,7 @@ class PackageOperations(Operations):
         for name, description in package.packages.items():
             if description.architecture is None:
                 continue  # architecture is required
-            package_list.append(dict(package=name, package_base=package.base, **description.view()))
+            package_list.append({"package": name, "package_base": package.base, **description.view()})
         connection.executemany(
             """
             insert into packages
@@ -145,7 +145,7 @@ class PackageOperations(Operations):
             on conflict (package_base) do update set
             status = :status, last_updated = :last_updated
             """,
-            dict(package_base=package_base, status=status.status.value, last_updated=status.timestamp))
+            {"package_base": package_base, "status": status.status.value, "last_updated": status.timestamp})
 
     @staticmethod
     def _packages_get_select_package_bases(connection: Connection) -> Dict[str, Package]:
