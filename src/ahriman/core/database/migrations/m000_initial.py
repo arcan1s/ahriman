@@ -114,19 +114,19 @@ def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> 
             values
             (:package_base, :version, :aur_url)
             """,
-            dict(package_base=metadata.base, version=metadata.version, aur_url=""))
+            {"package_base": metadata.base, "version": metadata.version, "aur_url": ""})
         connection.execute(
             """
             insert into package_statuses
             (package_base, status, last_updated)
             values
             (:package_base, :status, :last_updated)""",
-            dict(package_base=metadata.base, status=last_status.status.value, last_updated=last_status.timestamp))
+            {"package_base": metadata.base, "status": last_status.status.value, "last_updated": last_status.timestamp})
 
     def insert_packages(metadata: Package) -> None:
         package_list = []
         for name, description in metadata.packages.items():
-            package_list.append(dict(package=name, package_base=metadata.base, **description.view()))
+            package_list.append({"package": name, "package_base": metadata.base, **description.view()})
         connection.executemany(
             """
             insert into packages

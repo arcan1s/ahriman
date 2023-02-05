@@ -52,6 +52,14 @@ ahriman.core.database.migrations.m005\_make\_opt\_depends module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m006\_packages\_architecture\_required module
+------------------------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m006_packages_architecture_required
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

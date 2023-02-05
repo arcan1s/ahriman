@@ -28,8 +28,17 @@ class ConfigurationPrinter(StringPrinter):
     print content of the configuration section
 
     Attributes:
+        HIDE_KEYS(List[str]): (class attribute) hide values for mentioned keys. This list must be used in order to hide
+            passwords from outputs
         values(Dict[str, str]): configuration values dictionary
     """
+
+    HIDE_KEYS = [
+        "api_key",  # telegram key
+        "client_secret",  # oauth secret
+        "password",  # generic password (github, email, web server, etc)
+        "secret_key",  # aws secret key
+    ]
 
     def __init__(self, section: str, values: Dict[str, str]) -> None:
         """
@@ -50,6 +59,6 @@ class ConfigurationPrinter(StringPrinter):
             List[Property]: list of content properties
         """
         return [
-            Property(key, value, is_required=True)
+            Property(key, value, is_required=key not in self.HIDE_KEYS)
             for key, value in sorted(self.values.items())
         ]

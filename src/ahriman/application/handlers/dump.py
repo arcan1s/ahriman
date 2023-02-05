@@ -48,4 +48,4 @@ class Dump(Handler):
         """
         dump = configuration.dump()
         for section, values in sorted(dump.items()):
-            ConfigurationPrinter(section, values).print(verbose=False, separator=" = ")
+            ConfigurationPrinter(section, values).print(verbose=not args.secure, separator=" = ")

@@ -80,11 +80,11 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
             web_url = :web_url, source = :source
             where package_base = :package_base
             """,
-            dict(
-                package_base=base,
-                branch=remote.branch, git_url=remote.git_url, path=remote.path,
-                web_url=remote.web_url, source=remote.source
-            )
+            {
+                "package_base": base,
+                "branch": remote.branch, "git_url": remote.git_url, "path": remote.path,
+                "web_url": remote.web_url, "source": remote.source
+            }
         )
 
     packages = PackageOperations._packages_get_select_package_bases(connection)

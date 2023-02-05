@@ -750,6 +750,8 @@ def _set_service_config_parser(root: SubParserAction) -> argparse.ArgumentParser
     parser = root.add_parser("service-config", aliases=["config", "repo-config"], help="dump configuration",
                              description="dump configuration for the specified architecture",
                              formatter_class=_formatter)
+    parser.add_argument("--secure", help="hide passwords and secrets from output",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.set_defaults(handler=handlers.Dump, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 

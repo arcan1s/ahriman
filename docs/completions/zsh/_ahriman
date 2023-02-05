@@ -122,6 +122,7 @@ _shtab_ahriman_clean_options=(
 
 _shtab_ahriman_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: \%(default)s)]:secure:"
 )
 
 _shtab_ahriman_config_validate_options=(
@@ -293,6 +294,7 @@ _shtab_ahriman_repo_clean_options=(
 
 _shtab_ahriman_repo_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: \%(default)s)]:secure:"
 )
 
 _shtab_ahriman_repo_config_validate_options=(
@@ -423,6 +425,7 @@ _shtab_ahriman_service_clean_options=(
 
 _shtab_ahriman_service_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: \%(default)s)]:secure:"
 )
 
 _shtab_ahriman_service_config_validate_options=(

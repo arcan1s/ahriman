@@ -71,12 +71,12 @@ class LogsOperations(Operations):
                 values
                 (:package_base, :process_id, :created, :record)
                 """,
-                dict(
-                    package_base=log_record_id.package_base,
-                    process_id=log_record_id.process_id,
-                    created=created,
-                    record=record
-                )
+                {
+                    "package_base": log_record_id.package_base,
+                    "process_id": log_record_id.process_id,
+                    "created": created,
+                    "record": record,
+                }
             )
 
         return self.with_connection(run, commit=True)
