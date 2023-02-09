@@ -131,9 +131,10 @@ def test_disallow_auto_architecture_run() -> None:
     assert not Search.ALLOW_AUTO_ARCHITECTURE_RUN
 
 
-def test_sort_fields() -> None:
+def test_sort_fields(aur_package_ahriman: AURPackage) -> None:
     """
     must store valid field list which are allowed to be used for sorting
     """
     expected = {field.name for field in dataclasses.fields(AURPackage)}
     assert all(field in expected for field in Search.SORT_FIELDS)
+    assert all(not isinstance(getattr(aur_package_ahriman, field), list) for field in Search.SORT_FIELDS)
