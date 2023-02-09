@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Set
+from typing import Iterable, List, Set
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.application.application.application_repository import ApplicationRepository
+from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
@@ -87,3 +88,39 @@ class Application(ApplicationPackages, ApplicationRepository):
         directly as it will be called after on_start action
         """
         self.repository.triggers.on_stop()
+
+    def with_dependencies(self, packages: List[Package], *, process_dependencies: bool) -> List[Package]:
+        """
+        add missing dependencies to list of packages
+
+        Args:
+            packages(List[Package]): list of source packages of which dependencies have to be processed
+            process_dependencies(bool): if no set, dependencies will not be processed
+        """
+        def missing_dependencies(source: Iterable[Package]) -> Set[str]:
+            # build initial list of dependencies
+            result = set()
+            for package in source:
+                result.update(package.depends_build)
+
+            # remove ones which are already well-known
+            result = result.difference(known_packages)
+
+            # remove ones which are in this list already
+            for package in source:
+                result = result.difference(package.packages_full)
+
+            return result
+
+        if not process_dependencies or not packages:
+            return packages
+
+        known_packages = self._known_packages()
+        with_dependencies = {package.base: package for package in packages}
+
+        while missing := missing_dependencies(with_dependencies.values()):
+            for package_name in missing:
+                package = Package.from_aur(package_name, self.repository.pacman)
+                with_dependencies[package.base] = package
+
+        return list(with_dependencies.values())

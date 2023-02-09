@@ -23,6 +23,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.package = []
+    args.dependencies = True
     args.dry_run = False
     args.exit_code = False
     args.aur = True
@@ -44,6 +45,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
+                                     return_value=[package_ahriman])
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
@@ -51,6 +54,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     application_mock.assert_called_once_with([package_ahriman])
     updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
                                          log_fn=pytest.helpers.anyvar(int))
+    dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
 
@@ -81,6 +85,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
+    mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=[package_ahriman])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Update.run(args, "x86_64", configuration, report=False, unsafe=False)

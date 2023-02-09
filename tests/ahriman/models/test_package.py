@@ -125,6 +125,14 @@ def test_licenses(package_ahriman: Package) -> None:
     assert sorted(package_ahriman.licenses) == package_ahriman.licenses
 
 
+def test_packages_full(package_ahriman: Package) -> None:
+    """
+    must return full list of packages including provides
+    """
+    package_ahriman.packages[package_ahriman.base].provides = [f"{package_ahriman.base}-git"]
+    assert package_ahriman.packages_full == [package_ahriman.base, f"{package_ahriman.base}-git"]
+
+
 def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker: MockerFixture) -> None:
     """
     must construct package from alpm library
