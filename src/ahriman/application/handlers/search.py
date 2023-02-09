@@ -40,7 +40,7 @@ class Search(Handler):
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
-    SORT_FIELDS = {field.name for field in fields(AURPackage) if field.default_factory is not list}
+    SORT_FIELDS = {field.name for field in fields(AURPackage) if field.default_factory is not list}  # type: ignore
 
     @classmethod
     def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
