@@ -22,8 +22,13 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     patch2 = PkgbuildPatch("key", "value")
     local = Path("local")
 
-    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[".git", ".gitignore"])
+    mocker.patch(
+        "pathlib.Path.is_file",
+        autospec=True,
+        side_effect=lambda p: True if p == Path(".gitignore") else False)
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path(".git"), Path(".gitignore")])
     rmtree_mock = mocker.patch("shutil.rmtree")
+    unlink_mock = mocker.patch("pathlib.Path.unlink")
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_get", return_value=[patch1, patch2])
     patches_write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
@@ -33,9 +38,9 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     glob_mock.assert_called_once_with(".git*")
     rmtree_mock.assert_has_calls([
         MockCall(local / package_ahriman.base, ignore_errors=True),
-        MockCall(local / package_ahriman.base / ".git"),
-        MockCall(local / package_ahriman.base / ".gitignore"),
+        MockCall(Path(".git")),
     ])
+    unlink_mock.assert_called_once_with()
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.remote)
     patches_mock.assert_called_once_with(package_ahriman.base)
     patches_write_mock.assert_has_calls([
