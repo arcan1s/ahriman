@@ -21,7 +21,7 @@ import requests
 import shutil
 
 from pathlib import Path
-from typing import Any, Iterable, Set
+from typing import Any, Iterable
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
@@ -47,21 +47,17 @@ class ApplicationPackages(ApplicationProperties):
         dst = self.repository.paths.packages / local_path.name
         shutil.copy(local_path, dst)
 
-    def _add_aur(self, source: str, known_packages: Set[str], without_dependencies: bool) -> None:
+    def _add_aur(self, source: str) -> None:
         """
         add package from AUR
 
         Args:
             source(str): package base name
-            known_packages(Set[str]): list of packages which are known by the service
-            without_dependencies(bool): if set, dependency check will be disabled
         """
         package = Package.from_aur(source, self.repository.pacman)
 
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
-
-        self._process_dependencies(package, known_packages, without_dependencies)
 
     def _add_directory(self, source: str, *_: Any) -> None:
         """
@@ -74,14 +70,12 @@ class ApplicationPackages(ApplicationProperties):
         for full_path in filter(package_like, local_dir.iterdir()):
             self._add_archive(str(full_path))
 
-    def _add_local(self, source: str, known_packages: Set[str], without_dependencies: bool) -> None:
+    def _add_local(self, source: str) -> None:
         """
         add package from local PKGBUILDs
 
         Args:
             source(str): path to directory with local source files
-            known_packages(Set[str]): list of packages which are known by the service
-            without_dependencies(bool): if set, dependency check will be disabled
         """
         source_dir = Path(source)
         package = Package.from_build(source_dir, self.architecture)
@@ -90,8 +84,6 @@ class ApplicationPackages(ApplicationProperties):
         Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
 
         self.database.build_queue_insert(package)
-
-        self._process_dependencies(package, known_packages, without_dependencies)
 
     def _add_remote(self, source: str, *_: Any) -> None:
         """
@@ -118,50 +110,19 @@ class ApplicationPackages(ApplicationProperties):
         package = Package.from_official(source, self.repository.pacman)
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
-        # repository packages must not depend on unknown packages, thus we are not going to process dependencies
 
-    def _known_packages(self) -> Set[str]:
-        """
-        load packages from repository and pacman repositories
-
-        Returns:
-            Set[str]: list of known packages
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
-    def _process_dependencies(self, package: Package, known_packages: Set[str], without_dependencies: bool) -> None:
-        """
-        process package dependencies
-
-        Args:
-            package(Package): source package of which dependencies have to be processed
-            known_packages(Set[str]): list of packages which are known by the service
-            without_dependencies(bool): if set, dependency check will be disabled
-        """
-        if without_dependencies:
-            return
-
-        dependencies = package.depends_build
-        self.add(dependencies.difference(known_packages), PackageSource.AUR, without_dependencies)
-
-    def add(self, names: Iterable[str], source: PackageSource, without_dependencies: bool) -> None:
+    def add(self, names: Iterable[str], source: PackageSource) -> None:
         """
         add packages for the next build
 
         Args:
             names(Iterable[str]): list of package bases to add
             source(PackageSource): package source to add
-            without_dependencies(bool): if set, dependency check will be disabled
         """
-        known_packages = self._known_packages()  # speedup dependencies processing
-
         for name in names:
             resolved_source = source.resolve(name)
             fn = getattr(self, f"_add_{resolved_source.value}")
-            fn(name, known_packages, without_dependencies)
+            fn(name)
 
     def on_result(self, result: Result) -> None:
         """
