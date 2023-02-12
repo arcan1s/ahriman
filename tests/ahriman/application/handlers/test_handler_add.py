@@ -26,7 +26,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.now = False
     args.refresh = 0
     args.source = PackageSource.Auto
-    args.without_dependencies = False
+    args.dependencies = True
     return args
 
 
@@ -38,10 +38,12 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.add")
+    dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Add.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_mock.assert_called_once_with(args.package, args.source, args.without_dependencies)
+    application_mock.assert_called_once_with(args.package, args.source)
+    dependencies_mock.assert_not_called()
     on_start_mock.assert_called_once_with()
 
 
@@ -59,11 +61,14 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
+    dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
+                                     return_value=[package_ahriman])
 
     Add.run(args, "x86_64", configuration, report=False, unsafe=False)
     updates_mock.assert_called_once_with(args.package, aur=False, local=False, manual=True, vcs=False,
                                          log_fn=pytest.helpers.anyvar(int))
     application_mock.assert_called_once_with([package_ahriman])
+    dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, False)
 
 
@@ -78,6 +83,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
+    mocker.patch("ahriman.application.application.Application.with_dependencies")
     mocker.patch("ahriman.application.application.Application.updates")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 

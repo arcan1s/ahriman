@@ -53,6 +53,7 @@ class Update(Handler):
         if args.dry_run:
             return
 
+        packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
         result = application.update(packages)
         Update.check_if_empty(args.exit_code, result.is_empty)
 

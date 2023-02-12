@@ -342,9 +342,10 @@ def test_subparsers_repo_backup_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_repo_check(parser: argparse.ArgumentParser) -> None:
     """
-    repo-check command must imply dry-run, aur and manual
+    repo-check command must imply dependencies, dry-run, aur and manual
     """
     args = parser.parse_args(["repo-check"])
+    assert not args.dependencies
     assert args.dry_run
     assert args.aur
     assert not args.manual

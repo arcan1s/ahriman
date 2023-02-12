@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# pylint: disable=too-many-lines
+# pylint: disable=too-many-lines,too-many-public-methods
 from __future__ import annotations
 
 import copy
@@ -96,7 +96,7 @@ class Package(LazyLogging):
         Returns:
             Set[str]: full dependencies list used by devtools
         """
-        return (set(self.depends) | set(self.depends_make)) - self.packages.keys()
+        return (set(self.depends) | set(self.depends_make)).difference(self.packages_full)
 
     @property
     def depends_make(self) -> List[str]:
@@ -162,6 +162,20 @@ class Package(LazyLogging):
             List[str]: sum of licenses per each package
         """
         return sorted(set(sum((package.licenses for package in self.packages.values()), start=[])))
+
+    @property
+    def packages_full(self) -> List[str]:
+        """
+        get full packages list including provides
+
+        Returns:
+            List[str]: full list of packages which this base contains
+        """
+        packages = set()
+        for package, properties in self.packages.items():
+            packages.add(package)
+            packages.update(properties.provides)
+        return sorted(packages)
 
     @classmethod
     def from_archive(cls: Type[Package], path: Path, pacman: Pacman, remote: Optional[RemoteSource]) -> Package:
