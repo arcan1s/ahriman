@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-02\-05" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-02\-20" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -215,8 +215,8 @@ usage: ahriman help\-version [\-h]
 print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
-usage: ahriman package\-add [\-h] [\-e] [\-n] [\-y] [\-s {auto,archive,aur,directory,local,remote,repository}]
-                           [\-\-without\-dependencies]
+usage: ahriman package\-add [\-h] [\-\-dependencies | \-\-no\-dependencies] [\-e] [\-n] [\-y]
+                           [\-s {auto,archive,aur,directory,local,remote,repository}]
                            package [package ...]
 
 add existing or new package to the build queue
@@ -226,6 +226,10 @@ add existing or new package to the build queue
 package source (base name, path to local files, remote URL)
 
 .SH OPTIONS \fI\,'ahriman package\-add'\/\fR
+.TP
+\fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
+process missing package dependencies (default: True)
+
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
@@ -241,10 +245,6 @@ download fresh package databases from the mirror before actions, \-yy to force r
 .TP
 \fB\-s\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR, \fB\-\-source\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR
 explicitly specify the package source for this command
-
-.TP
-\fB\-\-without\-dependencies\fR
-do not add dependencies
 
 .SH COMMAND \fI\,'ahriman package\-remove'\/\fR
 usage: ahriman package\-remove [\-h] package [package ...]
@@ -401,8 +401,8 @@ fetch actual version of VCS packages (default: True)
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
-usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
-                           [\-\-vcs | \-\-no\-vcs] [\-y]
+usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies]
+                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-vcs | \-\-no\-vcs] [\-y]
 
 start process which periodically will run update process
 
@@ -414,6 +414,10 @@ interval between runs in seconds
 .TP
 \fB\-\-aur\fR, \fB\-\-no\-aur\fR
 enable or disable checking for AUR updates (default: True)
+
+.TP
+\fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
+process missing package dependencies (default: True)
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
@@ -523,8 +527,8 @@ run triggers on empty build result as configured by settings
 instead of running all triggers as set by configuration, just process specified ones in order of mention
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
-usage: ahriman repo\-update [\-h] [\-\-dry\-run] [\-e] [\-\-aur | \-\-no\-aur] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
-                           [\-\-vcs | \-\-no\-vcs] [\-y]
+usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e]
+                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-vcs | \-\-no\-vcs] [\-y]
                            [package ...]
 
 check for packages updates and run build process if requested
@@ -535,16 +539,20 @@ filter check by package base
 
 .SH OPTIONS \fI\,'ahriman repo\-update'\/\fR
 .TP
+\fB\-\-aur\fR, \fB\-\-no\-aur\fR
+enable or disable checking for AUR updates (default: True)
+
+.TP
+\fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
+process missing package dependencies (default: True)
+
+.TP
 \fB\-\-dry\-run\fR
 just perform check for updates, same as check command
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
-
-.TP
-\fB\-\-aur\fR, \fB\-\-no\-aur\fR
-enable or disable checking for AUR updates (default: True)
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
