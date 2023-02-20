@@ -87,11 +87,11 @@ _shtab_ahriman_options=(
 
 _shtab_ahriman_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  "--without-dependencies[do not add dependencies]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -134,6 +134,7 @@ _shtab_ahriman_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-i,--interval}"[interval between runs in seconds]:interval:"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: \%(default)s)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: \%(default)s)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: \%(default)s)]:vcs:"
@@ -183,11 +184,11 @@ _shtab_ahriman_key_import_options=(
 
 _shtab_ahriman_package_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  "--without-dependencies[do not add dependencies]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -218,11 +219,11 @@ _shtab_ahriman_package_status_update_options=(
 
 _shtab_ahriman_package_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  "--without-dependencies[do not add dependencies]"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -306,6 +307,7 @@ _shtab_ahriman_repo_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-i,--interval}"[interval between runs in seconds]:interval:"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: \%(default)s)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: \%(default)s)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: \%(default)s)]:vcs:"
@@ -392,9 +394,10 @@ _shtab_ahriman_repo_triggers_options=(
 
 _shtab_ahriman_repo_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: \%(default)s)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: \%(default)s)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: \%(default)s)]:vcs:"
@@ -507,9 +510,10 @@ _shtab_ahriman_sync_options=(
 
 _shtab_ahriman_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: \%(default)s)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: \%(default)s)]:aur:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: \%(default)s)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: \%(default)s)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: \%(default)s)]:vcs:"
