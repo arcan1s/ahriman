@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import aiohttp_security  # type: ignore
-import base64
 import socket
 import types
 
@@ -32,12 +31,13 @@ from cryptography import fernet
 from typing import Optional
 
 from ahriman.core.auth import Auth
+from ahriman.core.configuration import Configuration
 from ahriman.models.user_access import UserAccess
 from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
-__all__ = ["AuthorizationPolicy", "auth_handler", "setup_auth"]
+__all__ = ["AuthorizationPolicy", "auth_handler", "cookie_secret_key", "setup_auth"]
 
 
 class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type: ignore
@@ -125,19 +125,36 @@ def auth_handler(allow_read_only: bool) -> MiddlewareType:
     return handle
 
 
-def setup_auth(application: web.Application, validator: Auth) -> web.Application:
+def cookie_secret_key(configuration: Configuration) -> fernet.Fernet:
+    """
+    extract cookie secret key from configuration if set or generate new one
+
+    Args:
+        configuration(Configuration): configuration instance
+
+    Returns:
+        fernet.Fernet: fernet key instance
+    """
+    if (secret_key := configuration.get("auth", "cookie_secret_key", fallback=None)) is not None:
+        return fernet.Fernet(secret_key)
+
+    secret_key = fernet.Fernet.generate_key()
+    return fernet.Fernet(secret_key)
+
+
+def setup_auth(application: web.Application, configuration: Configuration, validator: Auth) -> web.Application:
     """
     setup authorization policies for the application
 
     Args:
         application(web.Application): web application instance
+        configuration(Configuration): configuration instance
         validator(Auth): authorization module instance
 
     Returns:
         web.Application: configured web application
     """
-    fernet_key = fernet.Fernet.generate_key()
-    secret_key = base64.urlsafe_b64decode(fernet_key)
+    secret_key = cookie_secret_key(configuration)
     storage = EncryptedCookieStorage(secret_key, cookie_name="API_SESSION", max_age=validator.max_age)
     setup_session(application, storage)
 

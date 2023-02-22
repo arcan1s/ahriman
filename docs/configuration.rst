@@ -50,6 +50,7 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``allow_read_only`` - allow requesting status APIs without authorization, boolean, required.
 * ``client_id`` - OAuth2 application client ID, string, required in case if ``oauth`` is used.
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
+* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 url-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically expired during restart.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service, integer, optional, default is 7 days.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
 * ``oauth_scopes`` - scopes list for OAuth2 provider, which will allow retrieving user email (which is used for checking user permissions), e.g. ``https://www.googleapis.com/auth/userinfo.email`` for ``GoogleClient`` or ``user:email`` for ``GithubClient``, space separated list of strings, required in case if ``oauth`` is used.
