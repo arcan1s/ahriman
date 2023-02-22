@@ -3,14 +3,16 @@ import socket
 
 from aiohttp import web
 from aiohttp.test_utils import TestClient
+from cryptography import fernet
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
 from ahriman.core.auth import Auth
+from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 from ahriman.models.user_identity import UserIdentity
-from ahriman.web.middlewares.auth_handler import auth_handler, AuthorizationPolicy, setup_auth
+from ahriman.web.middlewares.auth_handler import AuthorizationPolicy, auth_handler, cookie_secret_key, setup_auth
 
 
 def _identity(username: str) -> str:
@@ -175,11 +177,28 @@ async def test_auth_handler_write(mocker: MockerFixture) -> None:
         check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
 
-def test_setup_auth(application_with_auth: web.Application, auth: Auth, mocker: MockerFixture) -> None:
+def test_cookie_secret_key(configuration: Configuration) -> None:
+    """
+    must generate fernet key
+    """
+    secret_key = cookie_secret_key(configuration)
+    assert isinstance(secret_key, fernet.Fernet)
+
+
+def test_cookie_secret_key_cached(configuration: Configuration) -> None:
+    """
+    must use cookie key as set by configuration
+    """
+    configuration.set_option("auth", "cookie_secret_key", fernet.Fernet.generate_key().decode("utf8"))
+    assert cookie_secret_key(configuration) is not None
+
+
+def test_setup_auth(application_with_auth: web.Application, configuration: Configuration, auth: Auth,
+                    mocker: MockerFixture) -> None:
     """
     must set up authorization
     """
     setup_mock = mocker.patch("aiohttp_security.setup")
-    application = setup_auth(application_with_auth, auth)
+    application = setup_auth(application_with_auth, configuration, auth)
     assert application.get("validator") is not None
     setup_mock.assert_called_once_with(application_with_auth, pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))

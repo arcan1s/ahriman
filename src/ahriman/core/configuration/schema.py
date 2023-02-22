@@ -109,6 +109,9 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "client_secret": {
                 "type": "string",
             },
+            "cookie_secret_key": {
+                "type": "string",
+            },
             "max_age": {
                 "type": "integer",
                 "coerce": "integer",

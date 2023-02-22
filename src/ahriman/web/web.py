@@ -168,6 +168,6 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     validator = application["validator"] = Auth.load(configuration, database)
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth
-        setup_auth(application, validator)
+        setup_auth(application, configuration, validator)
 
     return application
