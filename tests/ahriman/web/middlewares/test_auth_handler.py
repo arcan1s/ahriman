@@ -5,27 +5,13 @@ from aiohttp import web
 from aiohttp.test_utils import TestClient
 from cryptography import fernet
 from pytest_mock import MockerFixture
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, call as MockCall
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares.auth_handler import AuthorizationPolicy, auth_handler, cookie_secret_key, setup_auth
-
-
-def _identity(username: str) -> str:
-    """
-    generate identity from user
-
-    Args:
-        username(str): name of the user
-
-    Returns:
-        str: user identity string
-    """
-    return f"{username} {UserIdentity.expire_when(60)}"
 
 
 async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user: User, mocker: MockerFixture) -> None:
@@ -33,14 +19,14 @@ async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user
     must return authorized user id
     """
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=user)
-    assert await authorization_policy.authorized_userid(_identity(user.username)) == user.username
+    assert await authorization_policy.authorized_userid(user.username) == user.username
 
 
 async def test_authorized_userid_unknown(authorization_policy: AuthorizationPolicy, user: User) -> None:
     """
     must not allow unknown user id for authorization
     """
-    assert await authorization_policy.authorized_userid(_identity("somerandomname")) is None
+    assert await authorization_policy.authorized_userid("somerandomname") is None
     assert await authorization_policy.authorized_userid("somerandomname") is None
 
 
@@ -51,11 +37,13 @@ async def test_permits(authorization_policy: AuthorizationPolicy, user: User) ->
     authorization_policy.validator = AsyncMock()
     authorization_policy.validator.verify_access.side_effect = lambda username, *args: username == user.username
 
-    assert await authorization_policy.permits(_identity(user.username), user.access, "/endpoint")
-    authorization_policy.validator.verify_access.assert_called_once_with(user.username, user.access, "/endpoint")
+    assert await authorization_policy.permits(user.username, user.access, "/endpoint")
+    assert not await authorization_policy.permits("somerandomname", user.access, "/endpoint")
 
-    assert not await authorization_policy.permits(_identity("somerandomname"), user.access, "/endpoint")
-    assert not await authorization_policy.permits(user.username, user.access, "/endpoint")
+    authorization_policy.validator.verify_access.assert_has_calls([
+        MockCall(user.username, user.access, "/endpoint"),
+        MockCall("somerandomname", user.access, "/endpoint"),
+    ])
 
 
 async def test_auth_handler_unix_socket(client_with_auth: TestClient, mocker: MockerFixture) -> None:

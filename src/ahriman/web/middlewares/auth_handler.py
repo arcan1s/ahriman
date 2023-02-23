@@ -33,7 +33,6 @@ from typing import Optional
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user_access import UserAccess
-from ahriman.models.user_identity import UserIdentity
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
@@ -67,10 +66,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         Returns:
             Optional[str]: user identity (username) in case if user exists and None otherwise
         """
-        user = UserIdentity.from_identity(identity)
-        if user is None:
-            return None
-        return user.username if await self.validator.known_username(user.username) else None
+        return identity if await self.validator.known_username(identity) else None
 
     async def permits(self, identity: str, permission: UserAccess, context: Optional[str] = None) -> bool:
         """
@@ -84,10 +80,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         Returns:
             bool: True in case if user is allowed to perform this request and False otherwise
         """
-        user = UserIdentity.from_identity(identity)
-        if user is None:
-            return False
-        return await self.validator.verify_access(user.username, permission, context)
+        return await self.validator.verify_access(identity, permission, context)
 
 
 def auth_handler(allow_read_only: bool) -> MiddlewareType:

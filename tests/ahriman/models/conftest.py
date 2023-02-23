@@ -13,7 +13,6 @@ from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
-from ahriman.models.user_identity import UserIdentity
 
 
 @pytest.fixture
@@ -149,14 +148,3 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     type(mock).provides = PropertyMock(return_value=package_description_ahriman.provides)
     type(mock).url = PropertyMock(return_value=package_description_ahriman.url)
     return mock
-
-
-@pytest.fixture
-def user_identity() -> UserIdentity:
-    """
-    identity fixture
-
-    Returns:
-        UserIdentity: user identity test instance
-    """
-    return UserIdentity("username", int(time.time()) + 30)
