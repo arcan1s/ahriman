@@ -64,6 +64,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "mirror": {
                 "type": "string",
                 "required": True,
+                "is_url": [],
             },
             "repositories": {
                 "type": "list",
@@ -111,10 +112,13 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "cookie_secret_key": {
                 "type": "string",
+                "minlength": 32,
+                "maxlength": 64,  # we cannot verify maxlength, because base64 representation might be longer than bytes
             },
             "max_age": {
                 "type": "integer",
                 "coerce": "integer",
+                "min": 0,
             },
             "oauth_provider": {
                 "type": "string",
@@ -162,6 +166,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "vcs_allowed_age": {
                 "type": "integer",
                 "coerce": "integer",
+                "min": 0,
             },
         },
     },
@@ -204,6 +209,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
         "schema": {
             "address": {
                 "type": "string",
+                "is_url": ["http", "https"],
             },
             "debug": {
                 "type": "boolean",
@@ -220,9 +226,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "host": {
                 "type": "string",
+                "is_ip_address": ["localhost"],
             },
             "index_url": {
                 "type": "string",
+                "is_url": ["http", "https"],
             },
             "password": {
                 "type": "string",
@@ -255,46 +263,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "username": {
                 "type": "string",
-            },
-        },
-    },
-    "remote-pull": {
-        "type": "dict",
-        "schema": {
-            "target": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
-            },
-        },
-    },
-    "remote-push": {
-        "type": "dict",
-        "schema": {
-            "target": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
-            },
-        },
-    },
-    "report": {
-        "type": "dict",
-        "schema": {
-            "target": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
-            },
-        },
-    },
-    "upload": {
-        "type": "dict",
-        "schema": {
-            "target": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
             },
         },
     },

@@ -52,7 +52,7 @@ class Validate(Handler):
             unsafe(bool): if set no user check will be performed before path creation
         """
         schema = Validate.schema(architecture, configuration)
-        validator = Validator(instance=configuration, schema=schema)
+        validator = Validator(configuration=configuration, schema=schema)
 
         if validator.validate(configuration.dump()):
             return  # no errors found

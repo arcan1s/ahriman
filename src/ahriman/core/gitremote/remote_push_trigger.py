@@ -38,6 +38,16 @@ class RemotePushTrigger(Trigger):
     """
 
     CONFIGURATION_SCHEMA = {
+        "remote-push": {
+            "type": "dict",
+            "schema": {
+                "target": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                },
+            },
+        },
         "gitremote": {
             "type": "dict",
             "schema": {

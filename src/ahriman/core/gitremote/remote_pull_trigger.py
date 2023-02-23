@@ -33,6 +33,16 @@ class RemotePullTrigger(Trigger):
     """
 
     CONFIGURATION_SCHEMA = {
+        "remote-pull": {
+            "type": "dict",
+            "schema": {
+                "target": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                },
+            },
+        },
         "gitremote": {
             "type": "dict",
             "schema": {

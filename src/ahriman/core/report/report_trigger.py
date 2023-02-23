@@ -35,6 +35,16 @@ class ReportTrigger(Trigger):
     """
 
     CONFIGURATION_SCHEMA = {
+        "report": {
+            "type": "dict",
+            "schema": {
+                "target": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                },
+            },
+        },
         "console": {
             "type": "dict",
             "schema": {
@@ -62,6 +72,7 @@ class ReportTrigger(Trigger):
                 },
                 "homepage": {
                     "type": "string",
+                    "is_url": ["http", "https"],
                 },
                 "host": {
                     "type": "string",
@@ -70,6 +81,7 @@ class ReportTrigger(Trigger):
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "is_url": [],
                 },
                 "no_empty_report": {
                     "type": "boolean",
@@ -82,6 +94,8 @@ class ReportTrigger(Trigger):
                     "type": "integer",
                     "coerce": "integer",
                     "required": True,
+                    "min": 0,
+                    "max": 65535,
                 },
                 "receivers": {
                     "type": "list",
@@ -118,10 +132,12 @@ class ReportTrigger(Trigger):
                 },
                 "homepage": {
                     "type": "string",
+                    "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "is_url": [],
                 },
                 "path": {
                     "type": "path",
@@ -153,10 +169,12 @@ class ReportTrigger(Trigger):
                 },
                 "homepage": {
                     "type": "string",
+                    "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "is_url": [],
                 },
                 "template_path": {
                     "type": "path",
@@ -171,6 +189,7 @@ class ReportTrigger(Trigger):
                 "timeout": {
                     "type": "integer",
                     "coerce": "integer",
+                    "min": 0,
                 },
             },
         },
