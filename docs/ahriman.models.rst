@@ -196,14 +196,6 @@ ahriman.models.user\_access module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.models.user\_identity module
-------------------------------------
-
-.. automodule:: ahriman.models.user_identity
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

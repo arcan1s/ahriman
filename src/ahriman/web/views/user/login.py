@@ -21,7 +21,6 @@ from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
-from ahriman.models.user_identity import UserIdentity
 from ahriman.web.views.base import BaseView
 
 
@@ -64,10 +63,9 @@ class LoginView(BaseView):
             raise HTTPFound(oauth_provider.get_oauth_url())
 
         response = HTTPFound("/")
-        username = await oauth_provider.get_oauth_username(code)
-        identity = UserIdentity.from_username(username, self.validator.max_age)
-        if identity is not None and await self.validator.known_username(username):
-            await remember(self.request, response, identity.to_identity())
+        identity = await oauth_provider.get_oauth_username(code)
+        if identity is not None and await self.validator.known_username(identity):
+            await remember(self.request, response, identity)
             raise response
 
         raise HTTPUnauthorized()
@@ -111,12 +109,11 @@ class LoginView(BaseView):
                 302: Found
         """
         data = await self.extract_data()
-        username = data.get("username")
+        identity = data.get("username")
 
         response = HTTPFound("/")
-        identity = UserIdentity.from_username(username, self.validator.max_age)
-        if identity is not None and await self.validator.check_credentials(username, data.get("password")):
-            await remember(self.request, response, identity.to_identity())
+        if identity is not None and await self.validator.check_credentials(identity, data.get("password")):
+            await remember(self.request, response, identity)
             raise response
 
         raise HTTPUnauthorized()
