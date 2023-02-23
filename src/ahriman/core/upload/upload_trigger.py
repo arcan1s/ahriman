@@ -35,6 +35,16 @@ class UploadTrigger(Trigger):
     """
 
     CONFIGURATION_SCHEMA = {
+        "upload": {
+            "type": "dict",
+            "schema": {
+                "target": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {"type": "string"},
+                },
+            },
+        },
         "github": {
             "type": "dict",
             "schema": {
@@ -57,6 +67,7 @@ class UploadTrigger(Trigger):
                 "timeout": {
                     "type": "integer",
                     "coerce": "integer",
+                    "min": 0,
                 },
                 "username": {
                     "type": "string",
@@ -101,6 +112,7 @@ class UploadTrigger(Trigger):
                 "chunk_size": {
                     "type": "integer",
                     "coerce": "integer",
+                    "min": 0,
                 },
                 "region": {
                     "type": "string",

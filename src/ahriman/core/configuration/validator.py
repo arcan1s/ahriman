@@ -17,9 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import ipaddress
+
 from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore
 from pathlib import Path
 from typing import Any, List
+from urllib.parse import urlparse
 
 from ahriman.core.configuration import Configuration
 
@@ -29,7 +32,7 @@ class Validator(RootValidator):  # type: ignore
     class which defines custom validation methods for the service configuration
 
     Attributes:
-        instance(Configuration): configuration instance
+        configuration(Configuration): configuration instance
     """
 
     types_mapping = RootValidator.types_mapping.copy()
@@ -40,12 +43,12 @@ class Validator(RootValidator):  # type: ignore
         default constructor
 
         Args:
-            instance(Configuration): configuration instance used for extraction
+            configuration(Configuration): configuration instance used for extraction
             *args(Any): positional arguments to be passed to base validator
             **kwargs(): keyword arguments to be passed to base validator
         """
         RootValidator.__init__(self, *args, **kwargs)
-        self.instance: Configuration = kwargs["instance"]
+        self.configuration: Configuration = kwargs["configuration"]
 
     def _normalize_coerce_absolute_path(self, value: str) -> Path:
         """
@@ -57,7 +60,7 @@ class Validator(RootValidator):  # type: ignore
         Returns:
             Path: value converted to path instance according to configuration rules
         """
-        converted: Path = self.instance.converters["path"](value)
+        converted: Path = self.configuration.converters["path"](value)
         return converted
 
     def _normalize_coerce_boolean(self, value: str) -> bool:
@@ -71,7 +74,7 @@ class Validator(RootValidator):  # type: ignore
             bool: value converted to boolean according to configuration rules
         """
         # pylint: disable=protected-access
-        converted: bool = self.instance._convert_to_boolean(value)  # type: ignore
+        converted: bool = self.configuration._convert_to_boolean(value)  # type: ignore
         return converted
 
     def _normalize_coerce_integer(self, value: str) -> int:
@@ -97,8 +100,49 @@ class Validator(RootValidator):  # type: ignore
         Returns:
             List[str]: value converted to string list instance according to configuration rules
         """
-        converted: List[str] = self.instance.converters["list"](value)
+        converted: List[str] = self.configuration.converters["list"](value)
         return converted
+
+    def _validate_is_ip_address(self, constraint: List[str], field: str, value: str) -> None:
+        """
+        check if the specified value is valid ip address
+
+        Args:
+            constraint(List[str]): optional list of allowed special words (e.g. ``localhost``)
+            field(str): field name to be checked
+            value(Path): value to be checked
+
+        Examples:
+            The rule's arguments are validated against this schema:
+            {"type": "list", "schema": {"type": "string"}}
+        """
+        if value in constraint:
+            return
+        try:
+            ipaddress.ip_address(value)
+        except ValueError:
+            self._error(field, f"Value {value} must be valid IP address")
+
+    def _validate_is_url(self, constraint: List[str], field: str, value: str) -> None:
+        """
+        check if the specified value is a valid url
+
+        Args:
+            constraint(List[str]): optional list of supported schemas. If empty, no schema validation will be performed
+            field(str): field name to be checked
+            value(str): value to be checked
+
+        Examples:
+            The rule's arguments are validated against this schema:
+            {"type": "list", "schema": {"type": "string"}}
+        """
+        url = urlparse(value)  # it probably will never rise exceptions on parse
+        if not url.scheme:
+            self._error(field, f"Url scheme is not set for {value}")
+        if not url.netloc and url.scheme not in ("file",):
+            self._error(field, f"Location must be set for url {value} of scheme {url.scheme}")
+        if constraint and url.scheme not in constraint:
+            self._error(field, f"Url {value} scheme must be one of {constraint}")
 
     def _validate_path_exists(self, constraint: bool, field: str, value: Path) -> None:
         """

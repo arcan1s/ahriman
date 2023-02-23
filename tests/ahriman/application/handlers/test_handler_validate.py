@@ -62,9 +62,11 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("email")
     assert schema.pop("github")
     assert schema.pop("html")
+    assert schema.pop("report")
     assert schema.pop("rsync")
     assert schema.pop("s3")
     assert schema.pop("telegram")
+    assert schema.pop("upload")
 
     assert schema == CONFIGURATION_SCHEMA
 

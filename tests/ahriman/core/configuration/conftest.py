@@ -16,4 +16,4 @@ def validator(configuration: Configuration) -> Validator:
     Returns:
         Validator: validator test instance
     """
-    return Validator(instance=configuration, schema=CONFIGURATION_SCHEMA)
+    return Validator(configuration=configuration, schema=CONFIGURATION_SCHEMA)
