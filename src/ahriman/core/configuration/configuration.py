@@ -56,7 +56,7 @@ class Configuration(configparser.RawConfigParser):
         architecture according to the merge rules. Moreover, the architecture names will be removed from section names.
 
         In order to get current settings, the ``check_loaded`` method can be used. This method will raise an
-        ``InitializeException`` in case if configuration was not yet loaded::
+        ``InitializeError`` in case if configuration was not yet loaded::
 
             >>> path, architecture = configuration.check_loaded()
     """
@@ -165,7 +165,7 @@ class Configuration(configparser.RawConfigParser):
             Tuple[Path, str]: configuration root path and architecture if loaded
 
         Raises:
-            InitializeException: in case if architecture and/or path are not set
+            InitializeError: in case if architecture and/or path are not set
         """
         if self.path is None or self.architecture is None:
             raise InitializeError("Configuration path and/or architecture are not set")
