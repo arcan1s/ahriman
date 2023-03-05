@@ -100,7 +100,7 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
 
     run_server(application)
     run_application_mock.assert_called_once_with(
-        application, host="127.0.0.1", port=port, sock=None, handle_signals=False,
+        application, host="127.0.0.1", port=port, sock=None, handle_signals=True,
         access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
     )
 
@@ -115,7 +115,7 @@ def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFix
 
     run_server(application_with_auth)
     run_application_mock.assert_called_once_with(
-        application_with_auth, host="127.0.0.1", port=port, sock=None, handle_signals=False,
+        application_with_auth, host="127.0.0.1", port=port, sock=None, handle_signals=True,
         access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
     )
 
@@ -130,7 +130,7 @@ def test_run_with_debug(application_with_debug: web.Application, mocker: MockerF
 
     run_server(application_with_debug)
     run_application_mock.assert_called_once_with(
-        application_with_debug, host="127.0.0.1", port=port, sock=None, handle_signals=False,
+        application_with_debug, host="127.0.0.1", port=port, sock=None, handle_signals=True,
         access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
     )
 
@@ -147,6 +147,6 @@ def test_run_with_socket(application: web.Application, mocker: MockerFixture) ->
     run_server(application)
     socket_mock.assert_called_once_with(application["configuration"], application)
     run_application_mock.assert_called_once_with(
-        application, host="127.0.0.1", port=port, sock=42, handle_signals=False,
+        application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
         access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
     )

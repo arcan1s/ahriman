@@ -55,3 +55,7 @@ class Web(Handler):
 
         application = setup_service(architecture, configuration, spawner)
         run_server(application)
+
+        # terminate spawn process at the last
+        spawner.stop()
+        spawner.join()
