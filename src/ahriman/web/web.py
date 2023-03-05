@@ -115,7 +115,7 @@ def run_server(application: web.Application) -> None:
     port = configuration.getint("web", "port")
     unix_socket = create_socket(configuration, application)
 
-    web.run_app(application, host=host, port=port, sock=unix_socket, handle_signals=False,
+    web.run_app(application, host=host, port=port, sock=unix_socket, handle_signals=True,
                 access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 

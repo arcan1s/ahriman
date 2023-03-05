@@ -36,11 +36,25 @@ def test_process_error(spawner: Spawn) -> None:
     assert spawner.queue.empty()
 
 
+def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
+    """
+    must correctly spawn child process
+    """
+    start_mock = mocker.patch("multiprocessing.Process.start")
+
+    spawner._spawn_process("add", "ahriman", now="", maybe="?")
+    start_mock.assert_called_once_with()
+    spawner.args_parser.parse_args.assert_called_once_with([
+        "--architecture", spawner.architecture, "--configuration", str(spawner.configuration.path),
+        "add", "ahriman", "--now", "--maybe", "?"
+    ])
+
+
 def test_key_import(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call key import
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.key_import("0xdeadbeaf", None)
     spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf")
 
@@ -49,7 +63,7 @@ def test_key_import_with_server(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call key import with server specified
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.key_import("0xdeadbeaf", "keyserver.ubuntu.com")
     spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf", **{"key-server": "keyserver.ubuntu.com"})
 
@@ -58,7 +72,7 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call package addition
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=False)
     spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur")
 
@@ -67,7 +81,7 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call package addition with update
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_add(["ahriman", "linux"], now=True)
     spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", now="")
 
@@ -76,7 +90,7 @@ def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call package rebuild
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_rebuild("python")
     spawn_mock.assert_called_once_with("repo-rebuild", **{"depends-on": "python"})
 
@@ -85,7 +99,7 @@ def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call package removal
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_remove(["ahriman", "linux"])
     spawn_mock.assert_called_once_with("package-remove", "ahriman", "linux")
 
@@ -94,23 +108,9 @@ def test_packages_update(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     must call repo update
     """
-    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn.spawn_process")
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_update()
     spawn_mock.assert_called_once_with("repo-update")
-
-
-def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
-    """
-    must correctly spawn child process
-    """
-    start_mock = mocker.patch("multiprocessing.Process.start")
-
-    spawner.spawn_process("add", "ahriman", now="", maybe="?")
-    start_mock.assert_called_once_with()
-    spawner.args_parser.parse_args.assert_called_once_with([
-        "--architecture", spawner.architecture, "--configuration", str(spawner.configuration.path),
-        "add", "ahriman", "--now", "--maybe", "?"
-    ])
 
 
 def test_run(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -145,3 +145,14 @@ def test_run_pop(spawner: Spawn) -> None:
     second.terminate.assert_called_once_with()
     second.join.assert_called_once_with()
     assert not spawner.active
+
+
+def test_stop(spawner: Spawn) -> None:
+    """
+    must gracefully terminate thread
+    """
+    spawner.start()
+    spawner.stop()
+    spawner.join()
+
+    assert not spawner.is_alive()

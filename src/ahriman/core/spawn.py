@@ -60,7 +60,7 @@ class Spawn(Thread, LazyLogging):
         self.lock = Lock()
         self.active: Dict[str, Process] = {}
         # stupid pylint does not know that it is possible
-        self.queue: Queue[Tuple[str, bool]] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[Tuple[str, bool] | None] = Queue()  # pylint: disable=unsubscriptable-object
 
     @staticmethod
     def process(callback: Callable[[argparse.Namespace, str], bool], args: argparse.Namespace, architecture: str,
@@ -78,55 +78,7 @@ class Spawn(Thread, LazyLogging):
         result = callback(args, architecture)
         queue.put((process_id, result))
 
-    def key_import(self, key: str, server: Optional[str]) -> None:
-        """
-        import key to service cache
-
-        Args:
-            key(str): key to import
-            server(str): PGP key server
-        """
-        kwargs = {} if server is None else {"key-server": server}
-        self.spawn_process("service-key-import", key, **kwargs)
-
-    def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
-        """
-        add packages
-
-        Args:
-            packages(Iterable[str]): packages list to add
-            now(bool): build packages now
-        """
-        kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
-        if now:
-            kwargs["now"] = ""
-        self.spawn_process("package-add", *packages, **kwargs)
-
-    def packages_rebuild(self, depends_on: str) -> None:
-        """
-        rebuild packages which depend on the specified package
-
-        Args:
-            depends_on(str): packages dependency
-        """
-        self.spawn_process("repo-rebuild", **{"depends-on": depends_on})
-
-    def packages_remove(self, packages: Iterable[str]) -> None:
-        """
-        remove packages
-
-        Args:
-            packages(Iterable[str]): packages list to remove
-        """
-        self.spawn_process("package-remove", *packages)
-
-    def packages_update(self, ) -> None:
-        """
-        run full repository update
-        """
-        self.spawn_process("repo-update")
-
-    def spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
+    def _spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
         """
         spawn external ahriman process with supplied arguments
 
@@ -161,6 +113,54 @@ class Spawn(Thread, LazyLogging):
         with self.lock:
             self.active[process_id] = process
 
+    def key_import(self, key: str, server: Optional[str]) -> None:
+        """
+        import key to service cache
+
+        Args:
+            key(str): key to import
+            server(str): PGP key server
+        """
+        kwargs = {} if server is None else {"key-server": server}
+        self._spawn_process("service-key-import", key, **kwargs)
+
+    def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
+        """
+        add packages
+
+        Args:
+            packages(Iterable[str]): packages list to add
+            now(bool): build packages now
+        """
+        kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
+        if now:
+            kwargs["now"] = ""
+        self._spawn_process("package-add", *packages, **kwargs)
+
+    def packages_rebuild(self, depends_on: str) -> None:
+        """
+        rebuild packages which depend on the specified package
+
+        Args:
+            depends_on(str): packages dependency
+        """
+        self._spawn_process("repo-rebuild", **{"depends-on": depends_on})
+
+    def packages_remove(self, packages: Iterable[str]) -> None:
+        """
+        remove packages
+
+        Args:
+            packages(Iterable[str]): packages list to remove
+        """
+        self._spawn_process("package-remove", *packages)
+
+    def packages_update(self, ) -> None:
+        """
+        run full repository update
+        """
+        self._spawn_process("repo-update")
+
     def run(self) -> None:
         """
         thread run method
@@ -174,3 +174,9 @@ class Spawn(Thread, LazyLogging):
             if process is not None:
                 process.terminate()  # make sure lol
                 process.join()
+
+    def stop(self) -> None:
+        """
+        gracefully terminate thread
+        """
+        self.queue.put(None)
