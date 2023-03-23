@@ -93,7 +93,8 @@ class ApplicationPackages(ApplicationProperties):
             source(str): remote URL of the package archive
         """
         dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
-        response = requests.get(source, stream=True, timeout=None)  # timeout=None to suppress pylint warns
+        # timeout=None to suppress pylint warns. Also suppress bandit warnings
+        response = requests.get(source, stream=True, timeout=None)  # nosec
         response.raise_for_status()
 
         with dst.open("wb") as local_file:

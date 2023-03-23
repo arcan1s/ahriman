@@ -21,7 +21,7 @@ def test_get_provider() -> None:
     """
     assert OAuth.get_provider("OAuth2Client") == aioauth_client.OAuth2Client
     assert OAuth.get_provider("GoogleClient") == aioauth_client.GoogleClient
-    assert OAuth.get_provider("GoogleClient") == aioauth_client.GoogleClient
+    assert OAuth.get_provider("GithubClient") == aioauth_client.GithubClient
 
 
 def test_get_provider_not_a_type() -> None:
@@ -29,7 +29,7 @@ def test_get_provider_not_a_type() -> None:
     must raise an exception if attribute is not a type
     """
     with pytest.raises(OptionError):
-        OAuth.get_provider("__version__")
+        OAuth.get_provider("RANDOM")
 
 
 def test_get_provider_invalid_type() -> None:
