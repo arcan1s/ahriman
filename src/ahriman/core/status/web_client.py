@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import contextlib
 import logging
 import requests
 
-from typing import List, Optional, Tuple
+from typing import Generator, List, Optional, Tuple
 from urllib.parse import quote_plus as urlencode
 
 from ahriman.core.configuration import Configuration
@@ -98,6 +99,18 @@ class WebClient(Client, LazyLogging):
             address = f"http://{host}:{port}"
         return address, False
 
+    @contextlib.contextmanager
+    def __execute_request(self) -> Generator[None, None, None]:
+        """
+        execute request and handle exceptions
+        """
+        try:
+            yield
+        except requests.HTTPError as e:
+            self.logger.exception("could not perform http request: %s", exception_response_text(e))
+        except Exception:
+            self.logger.exception("could not perform http request")
+
     def _create_session(self, *, use_unix_socket: bool) -> requests.Session:
         """
         generate new request session
@@ -130,13 +143,9 @@ class WebClient(Client, LazyLogging):
             "password": self.user.password
         }
 
-        try:
+        with self.__execute_request():
             response = self.__session.post(self._login_url, json=payload)
             response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not login as %s: %s", self.user, exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not login as %s", self.user)
 
     def _logs_url(self, package_base: str) -> str:
         """
@@ -177,13 +186,9 @@ class WebClient(Client, LazyLogging):
             "package": package.view()
         }
 
-        try:
+        with self.__execute_request():
             response = self.__session.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not add %s: %s", package.base, exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not add %s", package.base)
 
     def get(self, package_base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
         """
@@ -195,7 +200,7 @@ class WebClient(Client, LazyLogging):
         Returns:
             List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
-        try:
+        with self.__execute_request():
             response = self.__session.get(self._package_url(package_base or ""))
             response.raise_for_status()
 
@@ -204,10 +209,8 @@ class WebClient(Client, LazyLogging):
                 (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
                 for package in status_json
             ]
-        except requests.HTTPError as e:
-            self.logger.exception("could not get %s: %s", package_base, exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not get %s", package_base)
+
+        # noinspection PyUnreachableCode
         return []
 
     def get_internal(self) -> InternalStatus:
@@ -217,16 +220,14 @@ class WebClient(Client, LazyLogging):
         Returns:
             InternalStatus: current internal (web) service status
         """
-        try:
+        with self.__execute_request():
             response = self.__session.get(self._status_url)
             response.raise_for_status()
 
             status_json = response.json()
             return InternalStatus.from_json(status_json)
-        except requests.HTTPError as e:
-            self.logger.exception("could not get web service status: %s", exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not get web service status")
+
+        # noinspection PyUnreachableCode
         return InternalStatus(status=BuildStatus())
 
     def logs(self, package_base: str, record: logging.LogRecord) -> None:
@@ -254,13 +255,9 @@ class WebClient(Client, LazyLogging):
         Args:
             package_base(str): basename to remove
         """
-        try:
+        with self.__execute_request():
             response = self.__session.delete(self._package_url(package_base))
             response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not delete %s: %s", package_base, exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not delete %s", package_base)
 
     def update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
@@ -272,13 +269,9 @@ class WebClient(Client, LazyLogging):
         """
         payload = {"status": status.value}
 
-        try:
+        with self.__execute_request():
             response = self.__session.post(self._package_url(package_base), json=payload)
             response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not update %s: %s", package_base, exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not update %s", package_base)
 
     def update_self(self, status: BuildStatusEnum) -> None:
         """
@@ -289,10 +282,6 @@ class WebClient(Client, LazyLogging):
         """
         payload = {"status": status.value}
 
-        try:
+        with self.__execute_request():
             response = self.__session.post(self._status_url, json=payload)
             response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not update service status: %s", exception_response_text(e))
-        except Exception:
-            self.logger.exception("could not update service status")
