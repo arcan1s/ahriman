@@ -17,10 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPFound, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import check_authorized, forget
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -34,33 +38,26 @@ class LogoutView(BaseView):
 
     POST_PERMISSION = UserAccess.Unauthorized
 
+    @aiohttp_apispec.docs(
+        tags=["Login"],
+        summary="Logout",
+        description="Logout user and remove authorization cookies",
+        responses={
+            302: {"description": "Success response"},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def post(self) -> None:
         """
-        logout user from the service. No parameters supported here.
+        logout user from the service
 
         The server will respond with ``Set-Cookie`` header, in which API session cookie will be nullified.
 
         Raises:
             HTTPFound: on success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -XPOST 'http://example.com/api/v1/logout'
-                > POST /api/v1/logout HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                >
-                < HTTP/1.1 302 Found
-                < Content-Type: text/plain; charset=utf-8
-                < Location: /
-                < Content-Length: 10
-                < Set-Cookie: ...
-                < Date: Wed, 23 Nov 2022 19:10:51 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                302: Found
         """
         try:
             await check_authorized(self.request)

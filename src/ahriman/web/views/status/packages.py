@@ -17,9 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPNoContent, Response, json_response
 
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.package_status_schema import PackageStatusSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -29,36 +34,31 @@ class PackagesView(BaseView):
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    GET_PERMISSION = UserAccess.Read
     POST_PERMISSION = UserAccess.Full
 
+    @aiohttp_apispec.docs(
+        tags=["Packages"],
+        summary="Get packages list",
+        description="Retrieve all packages and their descriptors",
+        responses={
+            200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [GET_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def get(self) -> Response:
         """
         get current packages status
 
         Returns:
             Response: 200 with package description on success
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/packages'
-                > GET /api/v1/packages HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: application/json
-                >
-                < HTTP/1.1 200 OK
-                < Content-Type: application/json; charset=utf-8
-                < Content-Length: 2687
-                < Date: Wed, 23 Nov 2022 19:35:24 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                [{"package": {"base": "ahriman", "version": "2.3.0-1", "remote": {"git_url": "https://aur.archlinux.org/ahriman.git", "web_url": "https://aur.archlinux.org/packages/ahriman", "path": ".", "branch": "master", "source": "aur"}, "packages": {"ahriman": {"architecture": "any", "archive_size": 247573, "build_date": 1669231069, "depends": ["devtools", "git", "pyalpm", "python-inflection", "python-passlib", "python-requests", "python-setuptools", "python-srcinfo"], "description": "ArcH linux ReposItory MANager", "filename": "ahriman-2.3.0-1-any.pkg.tar.zst", "groups": [], "installed_size": 1676153, "licenses": ["GPL3"], "provides": [], "url": "https://github.com/arcan1s/ahriman"}}}, "status": {"status": "success", "timestamp": 1669231136}}]
         """
         response = [
             {
@@ -68,26 +68,25 @@ class PackagesView(BaseView):
         ]
         return json_response(response)
 
+    @aiohttp_apispec.docs(
+        tags=["Packages"],
+        summary="Load packages",
+        description="Load packages from cache",
+        responses={
+            204: {"description": "Success response"},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def post(self) -> None:
         """
-        reload all packages from repository. No parameters supported here
+        reload all packages from repository
 
         Raises:
             HTTPNoContent: on success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -XPOST 'http://example.com/api/v1/packages'
-                > POST /api/v1/packages HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Wed, 23 Nov 2022 19:38:06 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         self.service.load()
 

@@ -19,8 +19,9 @@
 #
 from __future__ import annotations
 
-from aiohttp.web import Request, View
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
+from aiohttp_cors import CorsViewMixin  # type: ignore
+from aiohttp.web import Request, StreamResponse, View
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Type, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -28,14 +29,18 @@ from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.user_access import UserAccess
 
-
 T = TypeVar("T", str, List[str])
 
 
-class BaseView(View):
+class BaseView(View, CorsViewMixin):
     """
     base web view to make things typed
+
+    Attributes:
+        OPTIONS_PERMISSION(UserAccess): (class attribute) options permissions of self
     """
+
+    OPTIONS_PERMISSION = UserAccess.Unauthorized
 
     @property
     def configuration(self) -> Configuration:
@@ -92,7 +97,8 @@ class BaseView(View):
         Returns:
             UserAccess: extracted permission
         """
-        permission: UserAccess = getattr(cls, f"{request.method.upper()}_PERMISSION", UserAccess.Full)
+        method = "GET" if (other := request.method.upper()) == "HEAD" else other
+        permission: UserAccess = getattr(cls, f"{method}_PERMISSION", UserAccess.Full)
         return permission
 
     @staticmethod
@@ -118,23 +124,6 @@ class BaseView(View):
             raise KeyError(f"Key {key} is missing or empty")
         return value
 
-    async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:
-        """
-        extract json data from either json or form data
-
-        Args:
-            list_keys(Optional[List[str]], optional): optional list of keys which must be forced to list from form data
-                (Default value = None)
-
-        Returns:
-            Dict[str, Any]: raw json object or form data converted to json
-        """
-        try:
-            json: Dict[str, Any] = await self.request.json()
-            return json
-        except ValueError:
-            return await self.data_as_json(list_keys or [])
-
     async def data_as_json(self, list_keys: List[str]) -> Dict[str, Any]:
         """
         extract form data and convert it to json object
@@ -158,3 +147,39 @@ class BaseView(View):
             else:
                 json[key] = value
         return json
+
+    async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        extract json data from either json or form data
+
+        Args:
+            list_keys(Optional[List[str]], optional): optional list of keys which must be forced to list from form data
+                (Default value = None)
+
+        Returns:
+            Dict[str, Any]: raw json object or form data converted to json
+        """
+        try:
+            json: Dict[str, Any] = await self.request.json()
+            return json
+        except ValueError:
+            return await self.data_as_json(list_keys or [])
+
+    # pylint: disable=not-callable,protected-access
+    async def head(self) -> StreamResponse:  # type: ignore
+        """
+        HEAD method implementation based on the result of GET method
+
+        Raises:
+            HTTPMethodNotAllowed: in case if there is no GET method implemented
+        """
+        get_method: Optional[Callable[[], Awaitable[StreamResponse]]] = getattr(self, "get", None)
+        # using if/else in order to suppress mypy warning which doesn't know that
+        # ``_raise_allowed_methods`` raises exception
+        if get_method is not None:
+            # there is a bug in pylint, see https://github.com/pylint-dev/pylint/issues/6005
+            response = await get_method()
+            response._body = b""  # type: ignore
+            return response
+
+        self._raise_allowed_methods()

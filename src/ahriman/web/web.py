@@ -22,7 +22,7 @@ import jinja2
 import logging
 import socket
 
-from aiohttp import web
+from aiohttp.web import Application, normalize_path_middleware, run_app
 from typing import Optional
 
 from ahriman.core.auth import Auth
@@ -32,20 +32,22 @@ from ahriman.core.exceptions import InitializeError
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.web.apispec import setup_apispec
+from ahriman.web.cors import setup_cors
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
-__all__ = ["create_socket", "on_shutdown", "on_startup", "run_server", "setup_service"]
+__all__ = ["run_server", "setup_service"]
 
 
-def create_socket(configuration: Configuration, application: web.Application) -> Optional[socket.socket]:
+def _create_socket(configuration: Configuration, application: Application) -> Optional[socket.socket]:
     """
     create unix socket based on configuration option
 
     Args:
         configuration(Configuration): configuration instance
-        application(web.Application): web application instance
+        application(Application): web application instance
 
     Returns:
         Optional[socket.socket]: unix socket object if set by option
@@ -64,7 +66,7 @@ def create_socket(configuration: Configuration, application: web.Application) ->
         unix_socket.chmod(0o666)  # for the glory of satan of course
 
     # register socket removal
-    async def remove_socket(_: web.Application) -> None:
+    async def remove_socket(_: Application) -> None:
         unix_socket.unlink(missing_ok=True)
 
     application.on_shutdown.append(remove_socket)
@@ -72,22 +74,22 @@ def create_socket(configuration: Configuration, application: web.Application) ->
     return sock
 
 
-async def on_shutdown(application: web.Application) -> None:
+async def _on_shutdown(application: Application) -> None:
     """
     web application shutdown handler
 
     Args:
-        application(web.Application): web application instance
+        application(Application): web application instance
     """
     application.logger.warning("server terminated")
 
 
-async def on_startup(application: web.Application) -> None:
+async def _on_startup(application: Application) -> None:
     """
     web application start handler
 
     Args:
-        application(web.Application): web application instance
+        application(Application): web application instance
 
     Raises:
         InitializeError: in case if matched could not be loaded
@@ -101,25 +103,25 @@ async def on_startup(application: web.Application) -> None:
         raise InitializeError(message)
 
 
-def run_server(application: web.Application) -> None:
+def run_server(application: Application) -> None:
     """
     run web application
 
     Args:
-        application(web.Application): web application instance
+        application(Application): web application instance
     """
     application.logger.info("start server")
 
     configuration: Configuration = application["configuration"]
     host = configuration.get("web", "host")
     port = configuration.getint("web", "port")
-    unix_socket = create_socket(configuration, application)
+    unix_socket = _create_socket(configuration, application)
 
-    web.run_app(application, host=host, port=port, sock=unix_socket, handle_signals=True,
-                access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
+    run_app(application, host=host, port=port, sock=unix_socket, handle_signals=True,
+            access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 
-def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> web.Application:
+def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> Application:
     """
     create web application
 
@@ -129,17 +131,20 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
         spawner(Spawn): spawner thread
 
     Returns:
-        web.Application: web application instance
+        Application: web application instance
     """
-    application = web.Application(logger=logging.getLogger(__name__))
-    application.on_shutdown.append(on_shutdown)
-    application.on_startup.append(on_startup)
+    application = Application(logger=logging.getLogger(__name__))
+    application.on_shutdown.append(_on_shutdown)
+    application.on_startup.append(_on_startup)
 
-    application.middlewares.append(web.normalize_path_middleware(append_slash=False, remove_slash=True))
+    application.middlewares.append(normalize_path_middleware(append_slash=False, remove_slash=True))
     application.middlewares.append(exception_handler(application.logger))
 
     application.logger.info("setup routes")
     setup_routes(application, configuration.getpath("web", "static_path"))
+
+    application.logger.info("setup CORS")
+    setup_cors(application)
 
     application.logger.info("setup templates")
     aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(configuration.getpath("web", "templates")))
@@ -169,5 +174,8 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth
         setup_auth(application, configuration, validator)
+
+    application.logger.info("setup api docs")
+    setup_apispec(application)
 
     return application

@@ -17,12 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.package_name_schema import PackageNameSchema
+from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -33,39 +39,53 @@ class PackageView(BaseView):
     Attributes:
         DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    GET_PERMISSION = UserAccess.Read
 
+    @aiohttp_apispec.docs(
+        tags=["Packages"],
+        summary="Delete package",
+        description="Delete package and its status from service",
+        responses={
+            204: {"description": "Success response"},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [DELETE_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.match_info_schema(PackageNameSchema)
     async def delete(self) -> None:
         """
         delete package base from status page
 
         Raises:
             HTTPNoContent: on success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -XDELETE 'http://example.com/api/v1/packages/ahriman'
-                > DELETE /api/v1/packages/ahriman HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Wed, 23 Nov 2022 19:43:40 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         package_base = self.request.match_info["package"]
         self.service.remove(package_base)
 
         raise HTTPNoContent()
 
+    @aiohttp_apispec.docs(
+        tags=["Packages"],
+        summary="Get package",
+        description="Retrieve packages and its descriptor",
+        responses={
+            200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Package base is unknown", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [GET_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.match_info_schema(PackageNameSchema)
     async def get(self) -> Response:
         """
         get current package base status
@@ -75,23 +95,6 @@ class PackageView(BaseView):
 
         Raises:
             HTTPNotFound: if no package was found
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/packages/ahriman'
-                > GET /api/v1/packages/ahriman HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: application/json
-                >
-                < HTTP/1.1 200 OK
-                < Content-Type: application/json; charset=utf-8
-                < Content-Length: 743
-                < Date: Wed, 23 Nov 2022 19:41:01 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                [{"package": {"base": "ahriman", "version": "2.3.0-1", "remote": {"git_url": "https://aur.archlinux.org/ahriman.git", "web_url": "https://aur.archlinux.org/packages/ahriman", "path": ".", "branch": "master", "source": "aur"}, "packages": {"ahriman": {"architecture": "any", "archive_size": 247573, "build_date": 1669231069, "depends": ["devtools", "git", "pyalpm", "python-inflection", "python-passlib", "python-requests", "python-setuptools", "python-srcinfo"], "description": "ArcH linux ReposItory MANager", "filename": "ahriman-2.3.0-1-any.pkg.tar.zst", "groups": [], "installed_size": 1676153, "licenses": ["GPL3"], "provides": [], "url": "https://github.com/arcan1s/ahriman"}}}, "status": {"status": "success", "timestamp": 1669231136}}]
         """
         package_base = self.request.match_info["package"]
 
@@ -108,37 +111,29 @@ class PackageView(BaseView):
         ]
         return json_response(response)
 
+    @aiohttp_apispec.docs(
+        tags=["Packages"],
+        summary="Update package",
+        description="Update package status and set its descriptior optionally",
+        responses={
+            204: {"description": "Success response"},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.match_info_schema(PackageNameSchema)
+    @aiohttp_apispec.json_schema(PackageStatusSimplifiedSchema)
     async def post(self) -> None:
         """
         update package build status
 
-        JSON body must be supplied, the following model is used::
-
-            {
-                "status": "unknown",   # package build status string, must be valid ``BuildStatusEnum``
-                "package": {}          # package body (use ``dataclasses.asdict`` to generate one), optional.
-                                       # Must be supplied in case if package base is unknown
-            }
-
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/packages/ahriman' -d '{"status": "success"}'
-                > POST /api/v1/packages/ahriman HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                > Content-Type: application/json
-                > Content-Length: 21
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Wed, 23 Nov 2022 19:42:49 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         package_base = self.request.match_info["package"]
         data = await self.extract_data()

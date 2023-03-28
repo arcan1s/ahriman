@@ -1,8 +1,8 @@
 import pytest
 import socket
 
-from aiohttp import web
 from aiohttp.test_utils import TestClient
+from aiohttp.web import Application
 from cryptography import fernet
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock, call as MockCall
@@ -11,10 +11,10 @@ from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.web.middlewares.auth_handler import AuthorizationPolicy, auth_handler, cookie_secret_key, setup_auth
+from ahriman.web.middlewares.auth_handler import _AuthorizationPolicy, _auth_handler, _cookie_secret_key, setup_auth
 
 
-async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user: User, mocker: MockerFixture) -> None:
+async def test_authorized_userid(authorization_policy: _AuthorizationPolicy, user: User, mocker: MockerFixture) -> None:
     """
     must return authorized user id
     """
@@ -22,7 +22,7 @@ async def test_authorized_userid(authorization_policy: AuthorizationPolicy, user
     assert await authorization_policy.authorized_userid(user.username) == user.username
 
 
-async def test_authorized_userid_unknown(authorization_policy: AuthorizationPolicy, user: User) -> None:
+async def test_authorized_userid_unknown(authorization_policy: _AuthorizationPolicy, user: User) -> None:
     """
     must not allow unknown user id for authorization
     """
@@ -30,7 +30,7 @@ async def test_authorized_userid_unknown(authorization_policy: AuthorizationPoli
     assert await authorization_policy.authorized_userid("somerandomname") is None
 
 
-async def test_permits(authorization_policy: AuthorizationPolicy, user: User) -> None:
+async def test_permits(authorization_policy: _AuthorizationPolicy, user: User) -> None:
     """
     must call validator check
     """
@@ -56,7 +56,7 @@ async def test_auth_handler_unix_socket(client_with_auth: TestClient, mocker: Mo
     request_handler.get_permission.return_value = UserAccess.Full
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(allow_read_only=False)
+    handler = _auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_not_called()
 
@@ -70,7 +70,7 @@ async def test_auth_handler_api(mocker: MockerFixture) -> None:
     request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(allow_read_only=False)
+    handler = _auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
@@ -102,7 +102,7 @@ async def test_auth_handler_allow_read_only(mocker: MockerFixture) -> None:
     request_handler.get_permission.return_value = UserAccess.Read
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(allow_read_only=True)
+    handler = _auth_handler(allow_read_only=True)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_not_called()
 
@@ -116,7 +116,7 @@ async def test_auth_handler_api_no_method(mocker: MockerFixture) -> None:
     request_handler.get_permission = None
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(allow_read_only=False)
+    handler = _auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
@@ -130,7 +130,7 @@ async def test_auth_handler_api_post(mocker: MockerFixture) -> None:
     request_handler.get_permission.return_value = UserAccess.Full
     check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-    handler = auth_handler(allow_read_only=False)
+    handler = _auth_handler(allow_read_only=False)
     await handler(aiohttp_request, request_handler)
     check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
@@ -145,7 +145,7 @@ async def test_auth_handler_read(mocker: MockerFixture) -> None:
         request_handler.get_permission.return_value = UserAccess.Read
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler(allow_read_only=False)
+        handler = _auth_handler(allow_read_only=False)
         await handler(aiohttp_request, request_handler)
         check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Read, aiohttp_request.path)
 
@@ -160,7 +160,7 @@ async def test_auth_handler_write(mocker: MockerFixture) -> None:
         request_handler.get_permission.return_value = UserAccess.Full
         check_permission_mock = mocker.patch("aiohttp_security.check_permission")
 
-        handler = auth_handler(allow_read_only=False)
+        handler = _auth_handler(allow_read_only=False)
         await handler(aiohttp_request, request_handler)
         check_permission_mock.assert_called_once_with(aiohttp_request, UserAccess.Full, aiohttp_request.path)
 
@@ -169,7 +169,7 @@ def test_cookie_secret_key(configuration: Configuration) -> None:
     """
     must generate fernet key
     """
-    secret_key = cookie_secret_key(configuration)
+    secret_key = _cookie_secret_key(configuration)
     assert isinstance(secret_key, fernet.Fernet)
 
 
@@ -178,10 +178,10 @@ def test_cookie_secret_key_cached(configuration: Configuration) -> None:
     must use cookie key as set by configuration
     """
     configuration.set_option("auth", "cookie_secret_key", fernet.Fernet.generate_key().decode("utf8"))
-    assert cookie_secret_key(configuration) is not None
+    assert _cookie_secret_key(configuration) is not None
 
 
-def test_setup_auth(application_with_auth: web.Application, configuration: Configuration, auth: Auth,
+def test_setup_auth(application_with_auth: Application, configuration: Configuration, auth: Auth,
                     mocker: MockerFixture) -> None:
     """
     must set up authorization

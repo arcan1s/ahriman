@@ -17,9 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
+from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
 from ahriman.web.views.base import BaseView
 
 
@@ -29,17 +35,31 @@ class PGPView(BaseView):
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
     POST_PERMISSION = UserAccess.Full
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Reporter
+    GET_PERMISSION = UserAccess.Reporter
 
+    @aiohttp_apispec.docs(
+        tags=["Actions"],
+        summary="Search for PGP key",
+        description="Search for PGP key and retrieve its body",
+        responses={
+            200: {"description": "Success response", "schema": PGPKeySchema},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Package base is unknown", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [GET_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(PGPKeyIdSchema)
     async def get(self) -> Response:
         """
-        retrieve key from the key server. It supports two query parameters: ``key`` - pgp key fingerprint and
-        ``server`` which points to valid PGP key server
+        retrieve key from the key server
 
         Returns:
             Response: 200 with key body on success
@@ -47,24 +67,7 @@ class PGPView(BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNotFound: if key wasn't found or service was unable to fetch it
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/service/pgp?key=0xE989490C&server=keyserver.ubuntu.com'
-                > GET /api/v1/service/pgp?key=0xE989490C&server=keyserver.ubuntu.com HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: application/json
-                >
-                < HTTP/1.1 200 OK
-                < Content-Type: application/json; charset=utf-8
-                < Content-Length: 3275
-                < Date: Fri, 25 Nov 2022 22:54:02 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                {"key": "key"}
-                        """
+        """
         try:
             key = self.get_non_empty(self.request.query.getone, "key")
             server = self.get_non_empty(self.request.query.getone, "server")
@@ -78,36 +81,28 @@ class PGPView(BaseView):
 
         return json_response({"key": key})
 
+    @aiohttp_apispec.docs(
+        tags=["Actions"],
+        summary="Fetch PGP key",
+        description="Fetch PGP key from the key server",
+        responses={
+            204: {"description": "Success response"},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.json_schema(PGPKeyIdSchema)
     async def post(self) -> None:
         """
         store key to the local service environment
 
-        JSON body must be supplied, the following model is used::
-
-            {
-                "key": "0x8BE91E5A773FB48AC05CC1EDBED105AED6246B39",  # key fingerprint to import
-                "server": "keyserver.ubuntu.com"                      # optional pgp server address
-            }
-
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/service/pgp' -d '{"key": "0xE989490C"}'
-                > POST /api/v1/service/pgp HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                > Content-Type: application/json
-                > Content-Length: 21
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Fri, 25 Nov 2022 22:55:56 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         data = await self.extract_data()
 

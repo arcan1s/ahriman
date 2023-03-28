@@ -19,6 +19,7 @@
 #
 import datetime
 import io
+import itertools
 import logging
 import os
 import re
@@ -28,14 +29,31 @@ import subprocess
 from enum import Enum
 from pathlib import Path
 from pwd import getpwuid
-from typing import Any, Dict, Generator, IO, Iterable, List, Optional, Type, Union
+from typing import Any, Callable, Dict, Generator, IO, Iterable, List, Optional, Type, TypeVar, Tuple, Union
 
 from ahriman.core.exceptions import OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-__all__ = ["check_output", "check_user", "enum_values", "exception_response_text", "filter_json", "full_version",
-           "package_like", "pretty_datetime", "pretty_size", "safe_filename", "trim_package", "utcnow", "walk"]
+__all__ = [
+    "check_output",
+    "check_user",
+    "enum_values",
+    "exception_response_text",
+    "filter_json",
+    "full_version",
+    "package_like",
+    "partition",
+    "pretty_datetime",
+    "pretty_size",
+    "safe_filename",
+    "trim_package",
+    "utcnow",
+    "walk",
+]
+
+
+T = TypeVar("T")
 
 
 def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
@@ -223,6 +241,21 @@ def package_like(filename: Path) -> bool:
     """
     name = filename.name
     return ".pkg." in name and not name.endswith(".sig")
+
+
+def partition(source: List[T], predicate: Callable[[T], bool]) -> Tuple[List[T], List[T]]:
+    """
+    partition list into two based on predicate, based on # https://docs.python.org/dev/library/itertools.html#itertools-recipes
+
+    Args:
+        source(List[T]): source list to be partitioned
+        predicate(Callable[[T], bool]): filter function
+
+    Returns:
+        Tuple[List[T], List[T]]: two lists, first is which ``predicate`` is ``True``, second is ``False``
+    """
+    first_iter, second_iter = itertools.tee(source)
+    return list(filter(predicate, first_iter)), list(itertools.filterfalse(predicate, second_iter))
 
 
 def pretty_datetime(timestamp: Optional[Union[datetime.datetime, float, int]]) -> str:

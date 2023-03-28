@@ -1,17 +1,17 @@
 import pytest
 import socket
 
-from aiohttp import web
+from aiohttp.web import Application
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.exceptions import InitializeError
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.status.watcher import Watcher
-from ahriman.web.web import create_socket, on_shutdown, on_startup, run_server
+from ahriman.web.web import _create_socket, _on_shutdown, _on_startup, run_server
 
 
-async def test_create_socket(application: web.Application, mocker: MockerFixture) -> None:
+async def test_create_socket(application: Application, mocker: MockerFixture) -> None:
     """
     must create socket
     """
@@ -23,7 +23,7 @@ async def test_create_socket(application: web.Application, mocker: MockerFixture
     chmod_mock = mocker.patch("pathlib.Path.chmod")
     unlink_mock = mocker.patch("pathlib.Path.unlink")
 
-    sock = create_socket(application["configuration"], application)
+    sock = _create_socket(application["configuration"], application)
     assert sock.family == socket.AF_UNIX
     assert sock.type == socket.SOCK_STREAM
     bind_mock.assert_called_once_with(str(path))
@@ -35,14 +35,14 @@ async def test_create_socket(application: web.Application, mocker: MockerFixture
     unlink_mock.assert_has_calls([MockCall(missing_ok=True), MockCall(missing_ok=True)])
 
 
-def test_create_socket_empty(application: web.Application) -> None:
+def test_create_socket_empty(application: Application) -> None:
     """
     must skip socket creation if not set by configuration
     """
-    assert create_socket(application["configuration"], application) is None
+    assert _create_socket(application["configuration"], application) is None
 
 
-def test_create_socket_safe(application: web.Application, mocker: MockerFixture) -> None:
+def test_create_socket_safe(application: Application, mocker: MockerFixture) -> None:
     """
     must create socket with default permission set
     """
@@ -54,32 +54,32 @@ def test_create_socket_safe(application: web.Application, mocker: MockerFixture)
     mocker.patch("pathlib.Path.unlink")
     chmod_mock = mocker.patch("pathlib.Path.chmod")
 
-    sock = create_socket(application["configuration"], application)
+    sock = _create_socket(application["configuration"], application)
     assert sock is not None
     chmod_mock.assert_not_called()
 
 
-async def test_on_shutdown(application: web.Application, mocker: MockerFixture) -> None:
+async def test_on_shutdown(application: Application, mocker: MockerFixture) -> None:
     """
     must write information to log
     """
     logging_mock = mocker.patch("logging.Logger.warning")
-    await on_shutdown(application)
+    await _on_shutdown(application)
     logging_mock.assert_called_once_with(pytest.helpers.anyvar(str, True))
 
 
-async def test_on_startup(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:
+async def test_on_startup(application: Application, watcher: Watcher, mocker: MockerFixture) -> None:
     """
     must call load method
     """
     mocker.patch("aiohttp.web.Application.__getitem__", return_value=watcher)
     load_mock = mocker.patch("ahriman.core.status.watcher.Watcher.load")
 
-    await on_startup(application)
+    await _on_startup(application)
     load_mock.assert_called_once_with()
 
 
-async def test_on_startup_exception(application: web.Application, watcher: Watcher, mocker: MockerFixture) -> None:
+async def test_on_startup_exception(application: Application, watcher: Watcher, mocker: MockerFixture) -> None:
     """
     must throw exception on load error
     """
@@ -87,16 +87,16 @@ async def test_on_startup_exception(application: web.Application, watcher: Watch
     mocker.patch("ahriman.core.status.watcher.Watcher.load", side_effect=Exception())
 
     with pytest.raises(InitializeError):
-        await on_startup(application)
+        await _on_startup(application)
 
 
-def test_run(application: web.Application, mocker: MockerFixture) -> None:
+def test_run(application: Application, mocker: MockerFixture) -> None:
     """
     must run application
     """
     port = 8080
     application["configuration"].set_option("web", "port", str(port))
-    run_application_mock = mocker.patch("aiohttp.web.run_app")
+    run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application)
     run_application_mock.assert_called_once_with(
@@ -105,13 +105,13 @@ def test_run(application: web.Application, mocker: MockerFixture) -> None:
     )
 
 
-def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFixture) -> None:
+def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture) -> None:
     """
     must run application with enabled authorization
     """
     port = 8080
     application_with_auth["configuration"].set_option("web", "port", str(port))
-    run_application_mock = mocker.patch("aiohttp.web.run_app")
+    run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application_with_auth)
     run_application_mock.assert_called_once_with(
@@ -120,13 +120,13 @@ def test_run_with_auth(application_with_auth: web.Application, mocker: MockerFix
     )
 
 
-def test_run_with_debug(application_with_debug: web.Application, mocker: MockerFixture) -> None:
+def test_run_with_debug(application_with_debug: Application, mocker: MockerFixture) -> None:
     """
     must run application with enabled debug panel
     """
     port = 8080
     application_with_debug["configuration"].set_option("web", "port", str(port))
-    run_application_mock = mocker.patch("aiohttp.web.run_app")
+    run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application_with_debug)
     run_application_mock.assert_called_once_with(
@@ -135,14 +135,14 @@ def test_run_with_debug(application_with_debug: web.Application, mocker: MockerF
     )
 
 
-def test_run_with_socket(application: web.Application, mocker: MockerFixture) -> None:
+def test_run_with_socket(application: Application, mocker: MockerFixture) -> None:
     """
     must run application
     """
     port = 8080
     application["configuration"].set_option("web", "port", str(port))
-    socket_mock = mocker.patch("ahriman.web.web.create_socket", return_value=42)
-    run_application_mock = mocker.patch("aiohttp.web.run_app")
+    socket_mock = mocker.patch("ahriman.web.web._create_socket", return_value=42)
+    run_application_mock = mocker.patch("ahriman.web.web.run_app")
 
     run_server(application)
     socket_mock.assert_called_once_with(application["configuration"], application)

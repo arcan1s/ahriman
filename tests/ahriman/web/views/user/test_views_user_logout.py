@@ -5,6 +5,7 @@ from aiohttp.web import HTTPUnauthorized
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.error_schema import ErrorSchema
 from ahriman.web.views.user.logout import LogoutView
 
 
@@ -24,8 +25,8 @@ async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None
     mocker.patch("aiohttp_security.check_authorized")
     forget_mock = mocker.patch("aiohttp_security.forget")
 
-    post_response = await client_with_auth.post("/api/v1/logout")
-    assert post_response.ok
+    response = await client_with_auth.post("/api/v1/logout")
+    assert response.ok
     forget_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 
 
@@ -35,9 +36,11 @@ async def test_post_unauthorized(client_with_auth: TestClient, mocker: MockerFix
     """
     mocker.patch("aiohttp_security.check_authorized", side_effect=HTTPUnauthorized())
     forget_mock = mocker.patch("aiohttp_security.forget")
+    response_schema = ErrorSchema()
 
-    post_response = await client_with_auth.post("/api/v1/logout")
-    assert post_response.status == 401
+    response = await client_with_auth.post("/api/v1/logout", headers={"accept": "application/json"})
+    assert response.status == 401
+    assert not response_schema.validate(await response.json())
     forget_mock.assert_not_called()
 
 
@@ -45,5 +48,5 @@ async def test_post_disabled(client: TestClient) -> None:
     """
     must raise exception if auth is disabled
     """
-    post_response = await client.post("/api/v1/logout")
-    assert post_response.ok
+    response = await client.post("/api/v1/logout")
+    assert response.ok
