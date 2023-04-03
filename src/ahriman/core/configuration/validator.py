@@ -27,7 +27,7 @@ from urllib.parse import urlparse
 from ahriman.core.configuration import Configuration
 
 
-class Validator(RootValidator):  # type: ignore
+class Validator(RootValidator):
     """
     class which defines custom validation methods for the service configuration
 

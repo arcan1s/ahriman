@@ -12,7 +12,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, enum_values, exception_response_text, filter_json, \
-    full_version, package_like, pretty_datetime, pretty_size, safe_filename, trim_package, utcnow, walk
+    full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -228,6 +228,15 @@ def test_package_like_sig(package_ahriman: Package) -> None:
     assert not package_like(sig_file)
 
 
+def test_partition() -> None:
+    """
+    must partition list based on predicate
+    """
+    even, odd = partition([1, 4, 2, 1, 3, 4], lambda i: i % 2 == 0)
+    assert even == [4, 2, 4]
+    assert odd == [1, 1, 3]
+
+
 def test_pretty_datetime() -> None:
     """
     must generate string from timestamp value
@@ -371,6 +380,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "static" / "favicon.ico",
         resource_path_root / "web" / "templates" / "utils" / "bootstrap-scripts.jinja2",
         resource_path_root / "web" / "templates" / "utils" / "style.jinja2",
+        resource_path_root / "web" / "templates" / "api.jinja2",
         resource_path_root / "web" / "templates" / "build-status.jinja2",
         resource_path_root / "web" / "templates" / "email-index.jinja2",
         resource_path_root / "web" / "templates" / "error.jinja2",

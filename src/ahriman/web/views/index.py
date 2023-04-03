@@ -41,10 +41,9 @@ class IndexView(BaseView):
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
     """
 
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Unauthorized
+    GET_PERMISSION = UserAccess.Unauthorized
 
     @aiohttp_jinja2.template("build-status.jinja2")
     async def get(self) -> Dict[str, Any]:

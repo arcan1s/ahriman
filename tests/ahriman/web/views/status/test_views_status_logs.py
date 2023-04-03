@@ -5,6 +5,9 @@ from aiohttp.test_utils import TestClient
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.log_schema import LogSchema
+from ahriman.web.schemas.logs_schema import LogsSchema
 from ahriman.web.views.status.logs import LogsView
 
 
@@ -12,7 +15,7 @@ async def test_get_permission() -> None:
     """
     must return correct permission for the request
     """
-    for method in ("GET", "HEAD"):
+    for method in ("GET",):
         request = pytest.helpers.request("", "", method)
         assert await LogsView.get_permission(request) == UserAccess.Reporter
     for method in ("DELETE", "POST"):
@@ -54,11 +57,13 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message", "process_id": 42})
+    response_schema = LogsSchema()
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 200
 
     logs = await response.json()
+    assert not response_schema.validate(logs)
     assert logs["logs"] == "[1970-01-01 00:00:42] message"
 
 
@@ -66,8 +71,11 @@ async def test_get_not_found(client: TestClient, package_ahriman: Package) -> No
     """
     must return not found for missing package
     """
+    response_schema = ErrorSchema()
+
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 404
+    assert not response_schema.validate(await response.json())
 
 
 async def test_post(client: TestClient, package_ahriman: Package) -> None:
@@ -76,10 +84,12 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    request_schema = LogSchema()
 
-    post_response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                                      json={"created": 42.0, "message": "message", "process_id": 42})
-    assert post_response.status == 204
+    payload = {"created": 42.0, "message": "message", "process_id": 42}
+    assert not request_schema.validate(payload)
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs", json=payload)
+    assert response.status == 204
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     logs = await response.json()
@@ -90,5 +100,8 @@ async def test_post_exception(client: TestClient, package_ahriman: Package) -> N
     """
     must raise exception on invalid payload
     """
-    post_response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs", json={})
-    assert post_response.status == 400
+    response_schema = ErrorSchema()
+
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs", json={})
+    assert response.status == 400
+    assert not response_schema.validate(await response.json())

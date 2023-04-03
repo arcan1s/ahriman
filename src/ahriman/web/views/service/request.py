@@ -17,9 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPBadRequest, HTTPNoContent
 
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.package_names_schema import PackageNamesSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -33,35 +38,28 @@ class RequestView(BaseView):
 
     POST_PERMISSION = UserAccess.Reporter
 
+    @aiohttp_apispec.docs(
+        tags=["Actions"],
+        summary="Request new package",
+        description="Request new package(s) to be added from AUR",
+        responses={
+            204: {"description": "Success response"},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.json_schema(PackageNamesSchema)
     async def post(self) -> None:
         """
         request to add new package
 
-        JSON body must be supplied, the following model is used::
-
-            {
-                "packages": ["ahriman"]  # either list of packages or package name as in AUR
-            }
-
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/service/request' -d '{"packages": ["ahriman"]}'
-                > POST /api/v1/service/request HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                > Content-Type: application/json
-                > Content-Length: 25
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Wed, 23 Nov 2022 18:59:32 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         try:
             data = await self.extract_data(["packages"])

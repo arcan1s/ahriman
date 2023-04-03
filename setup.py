@@ -68,6 +68,7 @@ setup(
         ]),
         # templates
         ("share/ahriman/templates", [
+            "package/share/ahriman/templates/api.jinja2",
             "package/share/ahriman/templates/build-status.jinja2",
             "package/share/ahriman/templates/email-index.jinja2",
             "package/share/ahriman/templates/error.jinja2",
@@ -140,9 +141,11 @@ setup(
         ],
         "web": [
             "Jinja2",
-            "aiohttp",
-            "aiohttp_jinja2",
             "aioauth-client",
+            "aiohttp",
+            "aiohttp-apispec",
+            "aiohttp_cors",
+            "aiohttp_jinja2",
             "aiohttp_debugtoolbar",
             "aiohttp_session",
             "aiohttp_security",

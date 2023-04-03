@@ -5,6 +5,9 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.login_schema import LoginSchema
+from ahriman.web.schemas.oauth2_schema import OAuth2Schema
 from ahriman.web.views.user.login import LoginView
 
 
@@ -21,8 +24,8 @@ async def test_get_default_validator(client_with_auth: TestClient) -> None:
     """
     must return 405 in case if no OAuth enabled
     """
-    get_response = await client_with_auth.get("/api/v1/login")
-    assert get_response.status == 405
+    response = await client_with_auth.get("/api/v1/login")
+    assert response.status == 405
 
 
 async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None:
@@ -31,9 +34,12 @@ async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None
     """
     oauth = client_with_oauth_auth.app["validator"]
     oauth.get_oauth_url.return_value = "https://httpbin.org"
+    request_schema = OAuth2Schema()
 
-    get_response = await client_with_oauth_auth.get("/api/v1/login")
-    assert get_response.ok
+    payload = {}
+    assert not request_schema.validate(payload)
+    response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
+    assert response.ok
     oauth.get_oauth_url.assert_called_once_with()
 
 
@@ -43,9 +49,12 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
     """
     oauth = client_with_oauth_auth.app["validator"]
     oauth.get_oauth_url.return_value = "https://httpbin.org"
+    request_schema = OAuth2Schema()
 
-    get_response = await client_with_oauth_auth.get("/api/v1/login", params={"code": ""})
-    assert get_response.ok
+    payload = {"code": ""}
+    assert not request_schema.validate(payload)
+    response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
+    assert response.ok
     oauth.get_oauth_url.assert_called_once_with()
 
 
@@ -59,10 +68,13 @@ async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) ->
     oauth.enabled = False  # lol
     oauth.max_age = 60
     remember_mock = mocker.patch("aiohttp_security.remember")
+    request_schema = OAuth2Schema()
 
-    get_response = await client_with_oauth_auth.get("/api/v1/login", params={"code": "code"})
+    payload = {"code": "code"}
+    assert not request_schema.validate(payload)
+    response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
 
-    assert get_response.ok
+    assert response.ok
     oauth.get_oauth_username.assert_called_once_with("code")
     oauth.known_username.assert_called_once_with("user")
     remember_mock.assert_called_once_with(
@@ -77,10 +89,13 @@ async def test_get_unauthorized(client_with_oauth_auth: TestClient, mocker: Mock
     oauth.known_username.return_value = False
     oauth.max_age = 60
     remember_mock = mocker.patch("aiohttp_security.remember")
+    response_schema = ErrorSchema()
 
-    get_response = await client_with_oauth_auth.get("/api/v1/login", params={"code": "code"})
+    response = await client_with_oauth_auth.get(
+        "/api/v1/login", params={"code": "code"}, headers={"accept": "application/json"})
 
-    assert get_response.status == 401
+    assert response.status == 401
+    assert not response_schema.validate(await response.json())
     remember_mock.assert_not_called()
 
 
@@ -90,12 +105,15 @@ async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixt
     """
     payload = {"username": user.username, "password": user.password}
     remember_mock = mocker.patch("aiohttp_security.remember")
+    request_schema = LoginSchema()
 
-    post_response = await client_with_auth.post("/api/v1/login", json=payload)
-    assert post_response.ok
+    assert not request_schema.validate(payload)
 
-    post_response = await client_with_auth.post("/api/v1/login", data=payload)
-    assert post_response.ok
+    response = await client_with_auth.post("/api/v1/login", json=payload)
+    assert response.ok
+
+    response = await client_with_auth.post("/api/v1/login", data=payload)
+    assert response.ok
 
     remember_mock.assert_called()
 
@@ -104,18 +122,24 @@ async def test_post_skip(client: TestClient, user: User) -> None:
     """
     must process if no auth configured
     """
+    request_schema = LoginSchema()
+
     payload = {"username": user.username, "password": user.password}
-    post_response = await client.post("/api/v1/login", json=payload)
-    assert post_response.ok
+    assert not request_schema.validate(payload)
+    response = await client.post("/api/v1/login", json=payload)
+    assert response.ok
 
 
 async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocker: MockerFixture) -> None:
     """
     must return unauthorized on invalid auth
     """
+    response_schema = ErrorSchema()
+
     payload = {"username": user.username, "password": ""}
     remember_mock = mocker.patch("aiohttp_security.remember")
 
-    post_response = await client_with_auth.post("/api/v1/login", json=payload)
-    assert post_response.status == 401
+    response = await client_with_auth.post("/api/v1/login", json=payload, headers={"accept": "application/json"})
+    assert response.status == 401
+    assert not response_schema.validate(await response.json())
     remember_mock.assert_not_called()

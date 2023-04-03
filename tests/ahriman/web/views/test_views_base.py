@@ -1,7 +1,9 @@
 import pytest
 
 from multidict import MultiDict
+from aiohttp.test_utils import TestClient
 
+from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
@@ -37,10 +39,16 @@ async def test_get_permission(base: BaseView) -> None:
     """
     must search for permission attribute in class
     """
+    for method in ("DELETE", "GET", "POST"):
+        setattr(BaseView, f"{method.upper()}_PERMISSION", "permission")
+
     for method in ("DELETE", "GET", "HEAD", "POST"):
         request = pytest.helpers.request(base.request.app, "", method)
-        setattr(BaseView, f"{method.upper()}_PERMISSION", "permission")
         assert await base.get_permission(request) == "permission"
+
+    for method in ("OPTIONS",):
+        request = pytest.helpers.request(base.request.app, "", method)
+        assert await base.get_permission(request) == UserAccess.Unauthorized
 
 
 def test_get_non_empty() -> None:
@@ -59,35 +67,6 @@ def test_get_non_empty() -> None:
 
     with pytest.raises(KeyError):
         BaseView.get_non_empty(lambda k: [], "key")
-
-
-async def test_extract_data_json(base: BaseView) -> None:
-    """
-    must parse and return json
-    """
-    json = {"key1": "value1", "key2": "value2"}
-
-    async def get_json():
-        return json
-
-    base._request = pytest.helpers.request(base.request.app, "", "", json=get_json)
-    assert await base.extract_data() == json
-
-
-async def test_extract_data_post(base: BaseView) -> None:
-    """
-    must parse and return form data
-    """
-    json = {"key1": "value1", "key2": "value2"}
-
-    async def get_json():
-        raise ValueError()
-
-    async def get_data():
-        return json
-
-    base._request = pytest.helpers.request(base.request.app, "", "", json=get_json, data=get_data)
-    assert await base.extract_data() == json
 
 
 async def test_data_as_json(base: BaseView) -> None:
@@ -121,3 +100,49 @@ async def test_data_as_json_with_list_keys(base: BaseView) -> None:
 
     base._request = pytest.helpers.request(base.request.app, "", "", data=get_data)
     assert await base.data_as_json(["key1"]) == {"key1": ["value1"]}
+
+
+async def test_extract_data_json(base: BaseView) -> None:
+    """
+    must parse and return json
+    """
+    json = {"key1": "value1", "key2": "value2"}
+
+    async def get_json():
+        return json
+
+    base._request = pytest.helpers.request(base.request.app, "", "", json=get_json)
+    assert await base.extract_data() == json
+
+
+async def test_extract_data_post(base: BaseView) -> None:
+    """
+    must parse and return form data
+    """
+    json = {"key1": "value1", "key2": "value2"}
+
+    async def get_json():
+        raise ValueError()
+
+    async def get_data():
+        return json
+
+    base._request = pytest.helpers.request(base.request.app, "", "", json=get_json, data=get_data)
+    assert await base.extract_data() == json
+
+
+async def test_head(client: TestClient) -> None:
+    """
+    must implement head as get method
+    """
+    response = await client.head("/")
+    assert response.ok
+    assert await response.text() == ""
+
+
+async def test_head_not_allowed(client: TestClient) -> None:
+    """
+    must raise MethodNotAllowed in case if no get method was implemented
+    """
+    response = await client.head("/api/v1/service/add")
+    assert response.status == 405

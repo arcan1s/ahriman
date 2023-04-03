@@ -156,6 +156,52 @@ Again, the most checks can be performed by `make check` command, though some add
 * No global variable is allowed outside of `ahriman.version` module. `ahriman.core.context` is also special case.
 * Single quotes are not allowed. The reason behind this restriction is the fact that docstrings must be written by using double quotes only, and we would like to make style consistent.
 * If your class writes anything to log, the `ahriman.core.log.LazyLogging` trait must be used.
+* Web API methods must be documented by using `aiohttp_apispec` library. Schema testing mostly should be implemented in related view class tests. Recommended example for documentation (excluding comments):
+
+    ```python
+    import aiohttp_apispec
+
+    from marshmallow import Schema, fields  
+
+    from ahriman.web.schemas.auth_schema import AuthSchema
+    from ahriman.web.schemas.error_schema import ErrorSchema
+    from ahriman.web.schemas.package_name_schema import PackageNameSchema
+    from ahriman.web.views.base import BaseView
+
+
+    class RequestSchema(Schema):
+
+        field = fields.String(metadata={"description": "Field description", "example": "foo"})
+
+
+    class ResponseSchema(Schema):
+
+        field = fields.String(required=True, metadata={"description": "Field description"})
+
+
+    class Foo(BaseView):
+
+        POST_PERMISSION = ...
+
+        @aiohttp_apispec.docs(
+            tags=["Tag"],
+            summary="Do foo",
+            description="Extended description of the method which does foo",
+            responses={
+                200: {"description": "Success response", "schema": ResponseSchema},
+                204: {"description": "Success response"},  # example without json schema response
+                400: {"description": "Bad data is supplied", "schema": ErrorSchema},  # exception raised by this method
+                401: {"description": "Authorization required", "schema": ErrorSchema},  # should be always presented
+                403: {"description": "Access is forbidden", "schema": ErrorSchema},  # should be always presented
+                500: {"description": "Internal server error", "schema": ErrorSchema},  # should be always presented
+            },
+            security=[{"token": [POST_PERMISSION]}],
+        )
+        @aiohttp_apispec.cookies_schema(AuthSchema)  # should be always presented
+        @aiohttp_apispec.match_info_schema(PackageNameSchema)
+        @aiohttp_apispec.json_schema(RequestSchema(many=True))
+        async def post(self) -> None: ...
+    ```
 
 ### Other checks
 
