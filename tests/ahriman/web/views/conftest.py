@@ -1,17 +1,17 @@
 import pytest
 
-from aiohttp import web
+from aiohttp.web import Application
 
 from ahriman.web.views.base import BaseView
 
 
 @pytest.fixture
-def base(application: web.Application) -> BaseView:
+def base(application: Application) -> BaseView:
     """
     base view fixture
 
     Args:
-        application(web.Application): application fixture
+        application(Application): application fixture
 
     Returns:
         BaseView: generated base view fixture

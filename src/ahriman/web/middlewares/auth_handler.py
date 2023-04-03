@@ -21,10 +21,7 @@ import aiohttp_security  # type: ignore
 import socket
 import types
 
-from aiohttp import web
-from aiohttp.web import middleware, Request
-from aiohttp.web_response import StreamResponse
-from aiohttp.web_urldispatcher import StaticResource
+from aiohttp.web import middleware, Application, Request, StaticResource, StreamResponse
 from aiohttp_session import setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
@@ -36,10 +33,10 @@ from ahriman.models.user_access import UserAccess
 from ahriman.web.middlewares import HandlerType, MiddlewareType
 
 
-__all__ = ["AuthorizationPolicy", "auth_handler", "cookie_secret_key", "setup_auth"]
+__all__ = ["setup_auth"]
 
 
-class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type: ignore
+class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
     """
     authorization policy implementation
 
@@ -83,7 +80,7 @@ class AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):  # type
         return await self.validator.verify_access(identity, permission, context)
 
 
-def auth_handler(allow_read_only: bool) -> MiddlewareType:
+def _auth_handler(allow_read_only: bool) -> MiddlewareType:
     """
     authorization and authentication middleware
 
@@ -118,7 +115,7 @@ def auth_handler(allow_read_only: bool) -> MiddlewareType:
     return handle
 
 
-def cookie_secret_key(configuration: Configuration) -> fernet.Fernet:
+def _cookie_secret_key(configuration: Configuration) -> fernet.Fernet:
     """
     extract cookie secret key from configuration if set or generate new one
 
@@ -135,26 +132,26 @@ def cookie_secret_key(configuration: Configuration) -> fernet.Fernet:
     return fernet.Fernet(secret_key)
 
 
-def setup_auth(application: web.Application, configuration: Configuration, validator: Auth) -> web.Application:
+def setup_auth(application: Application, configuration: Configuration, validator: Auth) -> Application:
     """
     setup authorization policies for the application
 
     Args:
-        application(web.Application): web application instance
+        application(Application): web application instance
         configuration(Configuration): configuration instance
         validator(Auth): authorization module instance
 
     Returns:
-        web.Application: configured web application
+        Application: configured web application
     """
-    secret_key = cookie_secret_key(configuration)
+    secret_key = _cookie_secret_key(configuration)
     storage = EncryptedCookieStorage(secret_key, cookie_name="API_SESSION", max_age=validator.max_age)
     setup_session(application, storage)
 
-    authorization_policy = AuthorizationPolicy(validator)
+    authorization_policy = _AuthorizationPolicy(validator)
     identity_policy = aiohttp_security.SessionIdentityPolicy()
 
     aiohttp_security.setup(application, identity_policy, authorization_policy)
-    application.middlewares.append(auth_handler(validator.allow_read_only))
+    application.middlewares.append(_auth_handler(validator.allow_read_only))
 
     return application

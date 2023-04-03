@@ -2,12 +2,12 @@ import json
 import logging
 import pytest
 
-from aiohttp.web import HTTPBadRequest, HTTPInternalServerError, HTTPNoContent, HTTPUnauthorized
+from aiohttp.web import HTTPBadRequest, HTTPInternalServerError, HTTPMethodNotAllowed, HTTPNoContent, HTTPUnauthorized
 from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
-from ahriman.web.middlewares.exception_handler import exception_handler, is_templated_unauthorized
+from ahriman.web.middlewares.exception_handler import _is_templated_unauthorized, exception_handler
 
 
 def _extract_body(response: Any) -> Any:
@@ -31,27 +31,27 @@ def test_is_templated_unauthorized() -> None:
 
     response_mock.path = "/api/v1/login"
     response_mock.headers.getall.return_value = ["*/*"]
-    assert is_templated_unauthorized(response_mock)
+    assert _is_templated_unauthorized(response_mock)
 
     response_mock.path = "/api/v1/login"
     response_mock.headers.getall.return_value = ["application/json"]
-    assert not is_templated_unauthorized(response_mock)
+    assert not _is_templated_unauthorized(response_mock)
 
     response_mock.path = "/api/v1/logout"
     response_mock.headers.getall.return_value = ["*/*"]
-    assert is_templated_unauthorized(response_mock)
+    assert _is_templated_unauthorized(response_mock)
 
     response_mock.path = "/api/v1/logout"
     response_mock.headers.getall.return_value = ["application/json"]
-    assert not is_templated_unauthorized(response_mock)
+    assert not _is_templated_unauthorized(response_mock)
 
     response_mock.path = "/api/v1/status"
     response_mock.headers.getall.return_value = ["*/*"]
-    assert not is_templated_unauthorized(response_mock)
+    assert not _is_templated_unauthorized(response_mock)
 
     response_mock.path = "/api/v1/status"
     response_mock.headers.getall.return_value = ["application/json"]
-    assert not is_templated_unauthorized(response_mock)
+    assert not _is_templated_unauthorized(response_mock)
 
 
 async def test_exception_handler(mocker: MockerFixture) -> None:
@@ -87,7 +87,7 @@ async def test_exception_handler_unauthorized(mocker: MockerFixture) -> None:
     """
     request = pytest.helpers.request("", "", "")
     request_handler = AsyncMock(side_effect=HTTPUnauthorized())
-    mocker.patch("ahriman.web.middlewares.exception_handler.is_templated_unauthorized", return_value=False)
+    mocker.patch("ahriman.web.middlewares.exception_handler._is_templated_unauthorized", return_value=False)
     render_mock = mocker.patch("aiohttp_jinja2.render_template")
 
     handler = exception_handler(logging.getLogger())
@@ -102,13 +102,51 @@ async def test_exception_handler_unauthorized_templated(mocker: MockerFixture) -
     """
     request = pytest.helpers.request("", "", "")
     request_handler = AsyncMock(side_effect=HTTPUnauthorized())
-    mocker.patch("ahriman.web.middlewares.exception_handler.is_templated_unauthorized", return_value=True)
+    mocker.patch("ahriman.web.middlewares.exception_handler._is_templated_unauthorized", return_value=True)
     render_mock = mocker.patch("aiohttp_jinja2.render_template")
 
     handler = exception_handler(logging.getLogger())
     await handler(request, request_handler)
     context = {"code": 401, "reason": "Unauthorized"}
     render_mock.assert_called_once_with("error.jinja2", request, context, status=HTTPUnauthorized.status_code)
+
+
+async def test_exception_handler_options() -> None:
+    """
+    must handle OPTIONS request
+    """
+    request = pytest.helpers.request("", "", "OPTIONS")
+    request_handler = AsyncMock(side_effect=HTTPMethodNotAllowed("OPTIONS", ["GET"]))
+
+    handler = exception_handler(logging.getLogger())
+    with pytest.raises(HTTPNoContent) as response:
+        await handler(request, request_handler)
+        assert response.headers["Allow"] == "GET"
+
+
+async def test_exception_handler_head() -> None:
+    """
+    must handle missing HEAD requests
+    """
+    request = pytest.helpers.request("", "", "HEAD")
+    request_handler = AsyncMock(side_effect=HTTPMethodNotAllowed("HEAD", ["HEAD,GET"]))
+
+    handler = exception_handler(logging.getLogger())
+    with pytest.raises(HTTPMethodNotAllowed) as response:
+        await handler(request, request_handler)
+        assert response.headers["Allow"] == "GET"
+
+
+async def test_exception_handler_method_not_allowed() -> None:
+    """
+    must handle not allowed methodss
+    """
+    request = pytest.helpers.request("", "", "POST")
+    request_handler = AsyncMock(side_effect=HTTPMethodNotAllowed("POST", ["GET"]))
+
+    handler = exception_handler(logging.getLogger())
+    with pytest.raises(HTTPMethodNotAllowed):
+        await handler(request, request_handler)
 
 
 async def test_exception_handler_client_error(mocker: MockerFixture) -> None:

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman import version
@@ -24,6 +26,10 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
+from ahriman.web.schemas.status_schema import StatusSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -33,36 +39,31 @@ class StatusView(BaseView):
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
-        HEAD_PERMISSION(UserAccess): (class attribute) head permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = HEAD_PERMISSION = UserAccess.Read
+    GET_PERMISSION = UserAccess.Read
     POST_PERMISSION = UserAccess.Full
 
+    @aiohttp_apispec.docs(
+        tags=["Status"],
+        summary="Web service status",
+        description="Get web service status counters",
+        responses={
+            200: {"description": "Success response", "schema": InternalStatusSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [GET_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def get(self) -> Response:
         """
         get current service status
 
         Returns:
             Response: 200 with service status object
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Accept: application/json' 'http://example.com/api/v1/status'
-                > GET /api/v1/status HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: application/json
-                >
-                < HTTP/1.1 200 OK
-                < Content-Type: application/json; charset=utf-8
-                < Content-Length: 222
-                < Date: Wed, 23 Nov 2022 19:32:31 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                {"status": {"status": "success", "timestamp": 1669231237}, "architecture": "x86_64", "packages": {"total": 4, "unknown": 0, "pending": 0, "building": 0, "failed": 0, "success": 4}, "repository": "repo", "version": "2.3.0"}
         """
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(
@@ -74,35 +75,28 @@ class StatusView(BaseView):
 
         return json_response(status.view())
 
+    @aiohttp_apispec.docs(
+        tags=["Status"],
+        summary="Set web service status",
+        description="Update web service status. Counters will remain unchanged",
+        responses={
+            204: {"description": "Success response"},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.json_schema(StatusSchema)
     async def post(self) -> None:
         """
         update service status
 
-        JSON body must be supplied, the following model is used::
-
-            {
-                "status": "unknown",   # service status string, must be valid ``BuildStatusEnum``
-            }
-
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPNoContent: in case of success response
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/status' -d '{"status": "success"}'
-                > POST /api/v1/status HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                > Content-Type: application/json
-                > Content-Length: 21
-                >
-                < HTTP/1.1 204 No Content
-                < Date: Wed, 23 Nov 2022 19:33:57 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
         """
         try:
             data = await self.extract_data()

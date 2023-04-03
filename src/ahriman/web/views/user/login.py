@@ -17,10 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import aiohttp_apispec  # type: ignore
+
 from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.login_schema import LoginSchema
+from ahriman.web.schemas.oauth2_schema import OAuth2Schema
 from ahriman.web.views.base import BaseView
 
 
@@ -35,6 +40,18 @@ class LoginView(BaseView):
 
     GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized
 
+    @aiohttp_apispec.docs(
+        tags=["Login"],
+        summary="Login via OAuth2",
+        description="Login by using OAuth2 authorization code. Only available if OAuth2 is enabled",
+        responses={
+            302: {"description": "Success response"},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [GET_PERMISSION]}],
+    )
+    @aiohttp_apispec.querystring_schema(OAuth2Schema)
     async def get(self) -> None:
         """
         OAuth2 response handler
@@ -48,9 +65,6 @@ class LoginView(BaseView):
             HTTPFound: on success response
             HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
             HTTPUnauthorized: if case of authorization error
-
-        Examples:
-            This request must not be used directly.
         """
         from ahriman.core.auth.oauth import OAuth
 
@@ -70,43 +84,25 @@ class LoginView(BaseView):
 
         raise HTTPUnauthorized()
 
+    @aiohttp_apispec.docs(
+        tags=["Login"],
+        summary="Login via basic authorization",
+        description="Login by using username and password",
+        responses={
+            302: {"description": "Success response"},
+            401: {"description": "Authorization required", "schema": ErrorSchema},
+            500: {"description": "Internal server error", "schema": ErrorSchema},
+        },
+        security=[{"token": [POST_PERMISSION]}],
+    )
+    @aiohttp_apispec.json_schema(LoginSchema)
     async def post(self) -> None:
         """
-        login user to service
-
-        either JSON body or form data must be supplied the following fields are required::
-
-            {
-                "username": "username",  # username to use for login
-                "password": "pa55w0rd"   # password to use for login
-            }
-
-        The authentication session will be passed in ``Set-Cookie`` header.
+        login user to service. The authentication session will be passed in ``Set-Cookie`` header.
 
         Raises:
             HTTPFound: on success response
             HTTPUnauthorized: if case of authorization error
-
-        Examples:
-            Example of command by using curl::
-
-                $ curl -v -H 'Content-Type: application/json' 'http://example.com/api/v1/login' -d '{"username": "test", "password": "test"}'
-                > POST /api/v1/login HTTP/1.1
-                > Host: example.com
-                > User-Agent: curl/7.86.0
-                > Accept: */*
-                > Content-Type: application/json
-                > Content-Length: 40
-                >
-                < HTTP/1.1 302 Found
-                < Content-Type: text/plain; charset=utf-8
-                < Location: /
-                < Content-Length: 10
-                < Set-Cookie: ...
-                < Date: Wed, 23 Nov 2022 17:51:27 GMT
-                < Server: Python/3.10 aiohttp/3.8.3
-                <
-                302: Found
         """
         data = await self.extract_data()
         identity = data.get("username")

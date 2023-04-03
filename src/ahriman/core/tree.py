@@ -19,10 +19,11 @@
 #
 from __future__ import annotations
 
-import itertools
+import functools
 
-from typing import Callable, Iterable, List, Tuple
+from typing import Callable, Iterable, List
 
+from ahriman.core.util import partition
 from ahriman.models.package import Package
 
 
@@ -149,13 +150,6 @@ class Tree:
         Returns:
             List[List[Package]]: sorted list of packages lists based on their dependencies
         """
-        # https://docs.python.org/dev/library/itertools.html#itertools-recipes
-        def partition(source: List[Leaf]) -> Tuple[List[Leaf], Iterable[Leaf]]:
-            first_iter, second_iter = itertools.tee(source)
-            filter_fn: Callable[[Leaf], bool] = lambda leaf: leaf.is_dependency(next_level)
-            # materialize first list and leave second as iterator
-            return list(filter(filter_fn, first_iter)), itertools.filterfalse(filter_fn, second_iter)
-
         unsorted: List[List[Leaf]] = []
 
         # build initial tree
@@ -170,7 +164,9 @@ class Tree:
             next_level = unsorted[next_num]
 
             # change lists inside the collection
-            unsorted[current_num], to_be_moved = partition(current_level)
+            # additional workaround with partial in order to hide cell-var-from-loop pylint warning
+            predicate = functools.partial(Leaf.is_dependency, packages=next_level)
+            unsorted[current_num], to_be_moved = partition(current_level, predicate)
             unsorted[next_num].extend(to_be_moved)
 
         comparator: Callable[[Package], str] = lambda package: package.base
