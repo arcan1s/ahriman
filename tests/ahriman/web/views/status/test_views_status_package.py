@@ -5,8 +5,6 @@ from aiohttp.test_utils import TestClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
 from ahriman.web.views.status.package import PackageView
 
 
@@ -66,7 +64,7 @@ async def test_get(client: TestClient, package_ahriman: Package, package_python_
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
-    response_schema = PackageStatusSchema()
+    response_schema = pytest.helpers.schema_response(PackageView.get)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
     assert response.ok
@@ -82,7 +80,7 @@ async def test_get_not_found(client: TestClient, package_ahriman: Package) -> No
     """
     must return Not Found for unknown package
     """
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(PackageView.get, code=404)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}")
     assert response.status == 404
@@ -93,7 +91,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     """
     must update package status
     """
-    request_schema = PackageStatusSimplifiedSchema()
+    request_schema = pytest.helpers.schema_request(PackageView.post)
 
     payload = {"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()}
     assert not request_schema.validate(payload)
@@ -108,7 +106,7 @@ async def test_post_exception(client: TestClient, package_ahriman: Package) -> N
     """
     must raise exception on invalid payload
     """
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(PackageView.post, code=400)
 
     response = await client.post(f"/api/v1/packages/{package_ahriman.base}", json={})
     assert response.status == 400
@@ -119,7 +117,7 @@ async def test_post_light(client: TestClient, package_ahriman: Package) -> None:
     """
     must update package status only
     """
-    request_schema = PackageStatusSimplifiedSchema()
+    request_schema = pytest.helpers.schema_request(PackageView.post)
 
     payload = {"status": BuildStatusEnum.Unknown.value, "package": package_ahriman.view()}
     assert not request_schema.validate(payload)
@@ -144,8 +142,8 @@ async def test_post_not_found(client: TestClient, package_ahriman: Package) -> N
     """
     must raise exception on status update for unknown package
     """
-    request_schema = PackageStatusSimplifiedSchema()
-    response_schema = ErrorSchema()
+    request_schema = pytest.helpers.schema_request(PackageView.post)
+    response_schema = pytest.helpers.schema_response(PackageView.post, code=400)
 
     payload = {"status": BuildStatusEnum.Success.value}
     assert not request_schema.validate(payload)

@@ -4,9 +4,6 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
-from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
 from ahriman.web.views.service.pgp import PGPView
 
 
@@ -27,8 +24,8 @@ async def test_get(client: TestClient, mocker: MockerFixture) -> None:
     must retrieve key from the keyserver
     """
     import_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_download", return_value="imported")
-    request_schema = PGPKeyIdSchema()
-    response_schema = PGPKeySchema()
+    request_schema = pytest.helpers.schema_request(PGPView.get, location="querystring")
+    response_schema = pytest.helpers.schema_response(PGPView.get)
 
     payload = {"key": "0xdeadbeaf", "server": "keyserver.ubuntu.com"}
     assert not request_schema.validate(payload)
@@ -44,7 +41,7 @@ async def test_get_empty(client: TestClient, mocker: MockerFixture) -> None:
     must raise 400 on missing parameters
     """
     import_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_download")
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(PGPView.get, code=400)
 
     response = await client.get("/api/v1/service/pgp")
     assert response.status == 400
@@ -57,7 +54,7 @@ async def test_get_process_exception(client: TestClient, mocker: MockerFixture) 
     must raise 404 on invalid PGP server response
     """
     import_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_download", side_effect=Exception())
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(PGPView.get, code=400)
 
     response = await client.get("/api/v1/service/pgp", params={"key": "0xdeadbeaf", "server": "keyserver.ubuntu.com"})
     assert response.status == 404
@@ -70,7 +67,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must call post request correctly
     """
     import_mock = mocker.patch("ahriman.core.spawn.Spawn.key_import")
-    request_schema = PGPKeyIdSchema()
+    request_schema = pytest.helpers.schema_request(PGPView.post)
 
     payload = {"key": "0xdeadbeaf", "server": "keyserver.ubuntu.com"}
     assert not request_schema.validate(payload)
@@ -84,7 +81,7 @@ async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None
     must raise exception on missing key payload
     """
     import_mock = mocker.patch("ahriman.core.spawn.Spawn.key_import")
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(PGPView.post, code=400)
 
     response = await client.post("/api/v1/service/pgp")
     assert response.status == 400

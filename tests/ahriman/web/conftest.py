@@ -3,8 +3,9 @@ import pytest
 from asyncio import BaseEventLoop
 from aiohttp.web import Application, Resource, UrlMappingMatchInfo
 from aiohttp.test_utils import TestClient
+from marshmallow import Schema
 from pytest_mock import MockerFixture
-from typing import Any, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Optional
 from unittest.mock import MagicMock
 
 import ahriman.core.auth.helpers
@@ -52,6 +53,41 @@ def request(application: Application, path: str, method: str, json: Any = None, 
     request_mock.get_extra_info.side_effect = lambda key: extra.get(key)
 
     return request_mock
+
+
+@pytest.helpers.register
+def schema_request(handler: Callable[..., Awaitable[Any]], *, location: str = "json") -> Schema:
+    """
+    extract request schema from docs
+
+    Args:
+        handler(Callable[[], Awaitable[Any]]): request handler
+        location(str, optional): location of the request (Default value = "json")
+
+    Returns:
+        Schema: request schema as set by the decorators
+    """
+    schemas: List[Dict[str, Any]] = handler.__schemas__  # type: ignore
+    return next(schema["schema"] for schema in schemas if schema["put_into"] == location)
+
+
+@pytest.helpers.register
+def schema_response(handler: Callable[..., Awaitable[Any]], *, code: int = 200) -> Schema:
+    """
+    extract response schema from docs
+
+    Args:
+        handler(Callable[[], Awaitable[Any]]): request handler
+        code(int, optional): return code of the request (Default value = 200)
+
+    Returns:
+        Schema: response schema as set by the decorators
+    """
+    schemas: Dict[int, Any] = handler.__apispec__["responses"]  # type: ignore
+    schema = schemas[code]["schema"]
+    if callable(schema):
+        schema = schema()
+    return schema
 
 
 @pytest.fixture
