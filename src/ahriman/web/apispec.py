@@ -56,7 +56,7 @@ def _info() -> Dict[str, Any]:
 """,
         "license": {
             "name": "GPL3",
-            "url": "https://raw.githubusercontent.com/arcan1s/ahriman/master/LICENSE",
+            "url": "https://raw.githubusercontent.com/arcan1s/ahriman/master/COPYING",
         },
         "version": version.__version__,
     }
