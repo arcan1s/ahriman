@@ -5,9 +5,6 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.aur_package_schema import AURPackageSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.search_schema import SearchSchema
 from ahriman.web.views.service.search import SearchView
 
 
@@ -25,8 +22,8 @@ async def test_get(client: TestClient, aur_package_ahriman: AURPackage, mocker: 
     must call get request correctly
     """
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
-    request_schema = SearchSchema()
-    response_schema = AURPackageSchema()
+    request_schema = pytest.helpers.schema_request(SearchView.get, location="querystring")
+    response_schema = pytest.helpers.schema_response(SearchView.get)
 
     payload = {"for": ["ahriman"]}
     assert not request_schema.validate(payload)
@@ -42,7 +39,7 @@ async def test_get_exception(client: TestClient, mocker: MockerFixture) -> None:
     must raise 400 on empty search string
     """
     search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch")
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(SearchView.get, code=400)
 
     response = await client.get("/api/v1/service/search")
     assert response.status == 400
@@ -55,7 +52,7 @@ async def test_get_empty(client: TestClient, mocker: MockerFixture) -> None:
     must raise 404 on empty search result
     """
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[])
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(SearchView.get, code=404)
 
     response = await client.get("/api/v1/service/search", params={"for": ["ahriman"]})
     assert response.status == 404
@@ -67,7 +64,7 @@ async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     must join search args with space
     """
     search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch")
-    request_schema = SearchSchema()
+    request_schema = pytest.helpers.schema_request(SearchView.get, location="querystring")
 
     payload = {"for": ["ahriman", "maybe"]}
     assert not request_schema.validate(payload)

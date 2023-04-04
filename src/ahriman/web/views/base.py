@@ -173,7 +173,7 @@ class BaseView(View, CorsViewMixin):
         Raises:
             HTTPMethodNotAllowed: in case if there is no GET method implemented
         """
-        get_method: Optional[Callable[[], Awaitable[StreamResponse]]] = getattr(self, "get", None)
+        get_method: Optional[Callable[..., Awaitable[StreamResponse]]] = getattr(self, "get", None)
         # using if/else in order to suppress mypy warning which doesn't know that
         # ``_raise_allowed_methods`` raises exception
         if get_method is not None:

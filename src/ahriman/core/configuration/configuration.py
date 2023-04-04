@@ -213,9 +213,9 @@ class Configuration(configparser.RawConfigParser):
         if self.has_section(full_section):
             return full_section, section
         # okay lets just use section as type
-        if not self.has_section(section):
-            raise configparser.NoSectionError(section)
-        return section, section
+        if self.has_section(section):
+            return section, section
+        raise configparser.NoSectionError(section)
 
     def load(self, path: Path) -> None:
         """

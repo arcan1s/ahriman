@@ -5,9 +5,6 @@ from aiohttp.test_utils import TestClient
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.log_schema import LogSchema
-from ahriman.web.schemas.logs_schema import LogsSchema
 from ahriman.web.views.status.logs import LogsView
 
 
@@ -57,7 +54,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
                       json={"created": 42.0, "message": "message", "process_id": 42})
-    response_schema = LogsSchema()
+    response_schema = pytest.helpers.schema_response(LogsView.get)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 200
@@ -71,7 +68,7 @@ async def test_get_not_found(client: TestClient, package_ahriman: Package) -> No
     """
     must return not found for missing package
     """
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(LogsView.get, code=404)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 404
@@ -84,7 +81,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
-    request_schema = LogSchema()
+    request_schema = pytest.helpers.schema_request(LogsView.post)
 
     payload = {"created": 42.0, "message": "message", "process_id": 42}
     assert not request_schema.validate(payload)
@@ -100,7 +97,7 @@ async def test_post_exception(client: TestClient, package_ahriman: Package) -> N
     """
     must raise exception on invalid payload
     """
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(LogsView.post, code=400)
 
     response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs", json={})
     assert response.status == 400

@@ -5,9 +5,6 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.login_schema import LoginSchema
-from ahriman.web.schemas.oauth2_schema import OAuth2Schema
 from ahriman.web.views.user.login import LoginView
 
 
@@ -34,7 +31,7 @@ async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None
     """
     oauth = client_with_oauth_auth.app["validator"]
     oauth.get_oauth_url.return_value = "https://httpbin.org"
-    request_schema = OAuth2Schema()
+    request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {}
     assert not request_schema.validate(payload)
@@ -49,7 +46,7 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
     """
     oauth = client_with_oauth_auth.app["validator"]
     oauth.get_oauth_url.return_value = "https://httpbin.org"
-    request_schema = OAuth2Schema()
+    request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {"code": ""}
     assert not request_schema.validate(payload)
@@ -68,7 +65,7 @@ async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) ->
     oauth.enabled = False  # lol
     oauth.max_age = 60
     remember_mock = mocker.patch("aiohttp_security.remember")
-    request_schema = OAuth2Schema()
+    request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {"code": "code"}
     assert not request_schema.validate(payload)
@@ -89,7 +86,7 @@ async def test_get_unauthorized(client_with_oauth_auth: TestClient, mocker: Mock
     oauth.known_username.return_value = False
     oauth.max_age = 60
     remember_mock = mocker.patch("aiohttp_security.remember")
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(LoginView.post, code=401)
 
     response = await client_with_oauth_auth.get(
         "/api/v1/login", params={"code": "code"}, headers={"accept": "application/json"})
@@ -105,7 +102,7 @@ async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixt
     """
     payload = {"username": user.username, "password": user.password}
     remember_mock = mocker.patch("aiohttp_security.remember")
-    request_schema = LoginSchema()
+    request_schema = pytest.helpers.schema_request(LoginView.post)
 
     assert not request_schema.validate(payload)
 
@@ -122,7 +119,7 @@ async def test_post_skip(client: TestClient, user: User) -> None:
     """
     must process if no auth configured
     """
-    request_schema = LoginSchema()
+    request_schema = pytest.helpers.schema_request(LoginView.post)
 
     payload = {"username": user.username, "password": user.password}
     assert not request_schema.validate(payload)
@@ -134,7 +131,7 @@ async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocke
     """
     must return unauthorized on invalid auth
     """
-    response_schema = ErrorSchema()
+    response_schema = pytest.helpers.schema_response(LoginView.post, code=401)
 
     payload = {"username": user.username, "password": ""}
     remember_mock = mocker.patch("aiohttp_security.remember")
