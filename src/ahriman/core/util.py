@@ -29,7 +29,7 @@ import subprocess
 from enum import Enum
 from pathlib import Path
 from pwd import getpwuid
-from typing import Any, Callable, Dict, Generator, IO, Iterable, List, Optional, Type, TypeVar, Tuple, Union
+from typing import Any, Callable, Dict, Generator, IO, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
 from ahriman.core.exceptions import OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths

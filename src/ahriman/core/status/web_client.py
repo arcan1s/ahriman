@@ -28,7 +28,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
-from ahriman.models.build_status import BuildStatusEnum, BuildStatus
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.user import User

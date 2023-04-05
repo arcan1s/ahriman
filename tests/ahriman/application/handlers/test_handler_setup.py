@@ -140,8 +140,7 @@ def test_configuration_create_devtools_mirror(args: argparse.Namespace, reposito
     """
     must create configuration for the devtools with mirror set explicitly
     """
-    def get(section: str, key: str, *args: Any, **kwargs: Any) -> Any:
-        del args
+    def get(section: str, key: str, **kwargs: Any) -> Any:
         if section == "core" and key == "Include":
             return str(Setup.MIRRORLIST_PATH)
         return kwargs["fallback"]

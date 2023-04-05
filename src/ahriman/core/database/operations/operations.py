@@ -20,7 +20,7 @@
 import sqlite3
 
 from pathlib import Path
-from typing import Any, Dict, Tuple, TypeVar, Callable
+from typing import Any, Callable, Dict, Tuple, TypeVar
 
 from ahriman.core.log import LazyLogging
 

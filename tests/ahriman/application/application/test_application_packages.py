@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock, call as MockCall
+from unittest.mock import MagicMock
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.models.package import Package
