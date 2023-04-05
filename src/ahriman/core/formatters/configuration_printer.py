@@ -36,7 +36,9 @@ class ConfigurationPrinter(StringPrinter):
     HIDE_KEYS = [
         "api_key",  # telegram key
         "client_secret",  # oauth secret
+        "cookie_secret_key",  # cookie secret key
         "password",  # generic password (github, email, web server, etc)
+        "salt",  # password default salt
         "secret_key",  # aws secret key
     ]
 
