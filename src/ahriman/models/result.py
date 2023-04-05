@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from typing import Any, List, Optional, Iterable
+from typing import Any, Iterable, List, Optional
 
 from ahriman.core.exceptions import UnprocessedPackageStatusError
 from ahriman.models.package import Package

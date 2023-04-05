@@ -21,7 +21,7 @@ import aiohttp_security  # type: ignore
 import socket
 import types
 
-from aiohttp.web import middleware, Application, Request, StaticResource, StreamResponse
+from aiohttp.web import Application, Request, StaticResource, StreamResponse, middleware
 from aiohttp_session import setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
