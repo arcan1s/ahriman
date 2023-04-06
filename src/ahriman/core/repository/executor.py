@@ -21,7 +21,7 @@ import shutil
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
@@ -122,26 +122,40 @@ class Executor(Cleaner):
             except Exception:
                 self.logger.exception("could not remove %s", package)
 
+        packages_to_remove: Dict[str, Path] = {}
+        bases_to_remove: List[str] = []
+
+        # build package list based on user input
         requested = set(packages)
         for local in self.packages():
             if local.base in packages or all(package in requested for package in local.packages):
-                to_remove = {
+                packages_to_remove.update({
                     package: properties.filepath
                     for package, properties in local.packages.items()
                     if properties.filepath is not None
-                }
-                remove_base(local.base)
+                })
+                bases_to_remove.append(local.base)
             elif requested.intersection(local.packages.keys()):
-                to_remove = {
+                packages_to_remove.update({
                     package: properties.filepath
                     for package, properties in local.packages.items()
                     if package in requested and properties.filepath is not None
-                }
-            else:
-                to_remove = {}
+                })
 
-            for package, filename in to_remove.items():
-                remove_package(package, filename)
+        # check for packages which were requested to remove, but weren't found locally
+        # it might happen for example, if there were no success build before
+        for unknown in requested:
+            if unknown in packages_to_remove or unknown in bases_to_remove:
+                continue
+            bases_to_remove.append(unknown)
+
+        # remove packages from repository files
+        for package, filename in packages_to_remove.items():
+            remove_package(package, filename)
+
+        # remove bases from registered
+        for package in bases_to_remove:
+            remove_base(package)
 
         return self.repo.repo_path
 
