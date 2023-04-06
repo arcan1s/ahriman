@@ -144,6 +144,19 @@ def test_process_remove_nothing(executor: Executor, package_ahriman: Package, pa
     repo_remove_mock.assert_not_called()
 
 
+def test_process_remove_unknown(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove unknown package base
+    """
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[])
+    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+
+    executor.process_remove([package_ahriman.base])
+    repo_remove_mock.assert_not_called()
+    status_client_mock.assert_called_once_with(package_ahriman.base)
+
+
 def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run update process
