@@ -19,8 +19,6 @@
 #
 from __future__ import annotations
 
-from typing import Dict, List, Type
-
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.log import LazyLogging
 from ahriman.models.aur_package import AURPackage
@@ -44,7 +42,7 @@ class Remote(LazyLogging):
     """
 
     @classmethod
-    def info(cls: Type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:
+    def info(cls: type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:
         """
         get package info by its name
 
@@ -58,7 +56,7 @@ class Remote(LazyLogging):
         return cls().package_info(package_name, pacman=pacman)
 
     @classmethod
-    def multisearch(cls: Type[Remote], *keywords: str, pacman: Pacman) -> List[AURPackage]:
+    def multisearch(cls: type[Remote], *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search in remote repository by using API with multiple words. This method is required in order to handle
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
@@ -68,10 +66,10 @@ class Remote(LazyLogging):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            List[AURPackage]: list of packages each of them matches all search terms
+            list[AURPackage]: list of packages each of them matches all search terms
         """
         instance = cls()
-        packages: Dict[str, AURPackage] = {}
+        packages: dict[str, AURPackage] = {}
         for term in filter(lambda word: len(word) >= 3, keywords):
             portion = instance.search(term, pacman=pacman)
             packages = {
@@ -82,7 +80,7 @@ class Remote(LazyLogging):
         return list(packages.values())
 
     @classmethod
-    def remote_git_url(cls: Type[Remote], package_base: str, repository: str) -> str:
+    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -99,7 +97,7 @@ class Remote(LazyLogging):
         raise NotImplementedError
 
     @classmethod
-    def remote_web_url(cls: Type[Remote], package_base: str) -> str:
+    def remote_web_url(cls: type[Remote], package_base: str) -> str:
         """
         generate remote web url from the package base
 
@@ -115,7 +113,7 @@ class Remote(LazyLogging):
         raise NotImplementedError
 
     @classmethod
-    def search(cls: Type[Remote], *keywords: str, pacman: Pacman) -> List[AURPackage]:
+    def search(cls: type[Remote], *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search package in AUR web
 
@@ -124,7 +122,7 @@ class Remote(LazyLogging):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            List[AURPackage]: list of packages which match the criteria
+            list[AURPackage]: list of packages which match the criteria
         """
         return cls().package_search(*keywords, pacman=pacman)
 
@@ -144,7 +142,7 @@ class Remote(LazyLogging):
         """
         raise NotImplementedError
 
-    def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search package in AUR web
 
@@ -153,7 +151,7 @@ class Remote(LazyLogging):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            List[AURPackage]: list of packages which match the criteria
+            list[AURPackage]: list of packages which match the criteria
 
         Raises:
             NotImplementedError: not implemented method

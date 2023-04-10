@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Optional
-
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -50,13 +48,13 @@ class Mapping(Auth):
         self.database = database
         self.salt = configuration.get("auth", "salt")
 
-    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
+    async def check_credentials(self, username: str | None, password: str | None) -> bool:
         """
         validate user password
 
         Args:
-            username(Optional[str]): username
-            password(Optional[str]): entered password
+            username(str | None): username
+            password(str | None): entered password
 
         Returns:
             bool: True in case if password matches, False otherwise
@@ -66,7 +64,7 @@ class Mapping(Auth):
         user = self.get_user(username)
         return user is not None and user.check_credentials(password, self.salt)
 
-    def get_user(self, username: str) -> Optional[User]:
+    def get_user(self, username: str) -> User | None:
         """
         retrieve user from in-memory mapping
 
@@ -74,30 +72,30 @@ class Mapping(Auth):
             username(str): username
 
         Returns:
-            Optional[User]: user descriptor if username is known and None otherwise
+            User | None: user descriptor if username is known and None otherwise
         """
         return self.database.user_get(username)
 
-    async def known_username(self, username: Optional[str]) -> bool:
+    async def known_username(self, username: str | None) -> bool:
         """
         check if user is known
 
         Args:
-            username(Optional[str]): username
+            username(str | None): username
 
         Returns:
             bool: True in case if user is known and can be authorized and False otherwise
         """
         return username is not None and self.get_user(username) is not None
 
-    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
+    async def verify_access(self, username: str, required: UserAccess, context: str | None) -> bool:
         """
         validate if user has access to requested resource
 
         Args:
             username(str): username
             required(UserAccess): required access level
-            context(Optional[str]): URI request path
+            context(str | None): URI request path
 
         Returns:
             bool: True in case if user is allowed to do this request and False otherwise

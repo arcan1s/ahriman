@@ -20,7 +20,6 @@
 import shutil
 
 from pathlib import Path
-from typing import List, Optional
 
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output, utcnow, walk
@@ -44,7 +43,7 @@ class Sources(LazyLogging):
     _check_output = check_output
 
     @staticmethod
-    def extend_architectures(sources_dir: Path, architecture: str) -> List[PkgbuildPatch]:
+    def extend_architectures(sources_dir: Path, architecture: str) -> list[PkgbuildPatch]:
         """
         extend existing PKGBUILD with repository architecture
 
@@ -53,7 +52,7 @@ class Sources(LazyLogging):
             architecture(str): repository architecture
 
         Returns:
-            List[PkgbuildPatch]: generated patch for PKGBUILD architectures if required
+            list[PkgbuildPatch]: generated patch for PKGBUILD architectures if required
         """
         architectures = Package.supported_architectures(sources_dir)
         if "any" in architectures:  # makepkg does not like when there is any other arch except for any
@@ -62,13 +61,13 @@ class Sources(LazyLogging):
         return [PkgbuildPatch("arch", list(architectures))]
 
     @staticmethod
-    def fetch(sources_dir: Path, remote: Optional[RemoteSource]) -> None:
+    def fetch(sources_dir: Path, remote: RemoteSource | None) -> None:
         """
         either clone repository or update it to origin/``remote.branch``
 
         Args:
             sources_dir(Path): local path to fetch
-            remote(Optional[RemoteSource]): remote target (from where to fetch)
+            remote(RemoteSource | None): remote target (from where to fetch)
         """
         instance = Sources()
         # local directory exists and there is .git directory
@@ -127,14 +126,14 @@ class Sources(LazyLogging):
                               cwd=sources_dir, logger=instance.logger)
 
     @staticmethod
-    def load(sources_dir: Path, package: Package, patches: List[PkgbuildPatch], paths: RepositoryPaths) -> None:
+    def load(sources_dir: Path, package: Package, patches: list[PkgbuildPatch], paths: RepositoryPaths) -> None:
         """
         fetch sources from remote and apply patches
 
         Args:
             sources_dir(Path): local path to fetch
             package(Package): package definitions
-            patches(List[PkgbuildPatch]): optional patch to be applied
+            patches(list[PkgbuildPatch]): optional patch to be applied
             paths(RepositoryPaths): repository paths instance
         """
         instance = Sources()
@@ -165,7 +164,7 @@ class Sources(LazyLogging):
         return f"{diff}\n"  # otherwise, patch will be broken
 
     @staticmethod
-    def push(sources_dir: Path, remote: RemoteSource, *pattern: str, commit_author: Optional[str] = None) -> None:
+    def push(sources_dir: Path, remote: RemoteSource, *pattern: str, commit_author: str | None = None) -> None:
         """
         commit selected changes and push files to the remote repository
 
@@ -173,7 +172,7 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to git repository
             remote(RemoteSource): remote target, branch and url
             *pattern(str): glob patterns
-            commit_author(Optional[str], optional): commit author in form of git config (i.e. ``user <user@host>``)
+            commit_author(str | None, optional): commit author in form of git config (i.e. ``user <user@host>``)
                 (Default value = None)
         """
         instance = Sources()
@@ -192,7 +191,7 @@ class Sources(LazyLogging):
                 --intent-to-add git flag (Default value = False)
         """
         # glob directory to find files which match the specified patterns
-        found_files: List[Path] = []
+        found_files: list[Path] = []
         for glob in pattern:
             found_files.extend(sources_dir.glob(glob))
         if not found_files:
@@ -203,15 +202,15 @@ class Sources(LazyLogging):
         Sources._check_output("git", "add", *args, *[str(fn.relative_to(sources_dir)) for fn in found_files],
                               cwd=sources_dir, logger=self.logger)
 
-    def commit(self, sources_dir: Path, message: Optional[str] = None, author: Optional[str] = None) -> None:
+    def commit(self, sources_dir: Path, message: str | None = None, author: str | None = None) -> None:
         """
         commit changes
 
         Args:
             sources_dir(Path): local path to git repository
-            message(Optional[str], optional): optional commit message if any. If none set, message will be generated
+            message(str | None, optional): optional commit message if any. If none set, message will be generated
                 according to the current timestamp (Default value = None)
-            author(Optional[str], optional): optional commit author if any (Default value = None)
+            author(str | None, optional): optional commit author if any (Default value = None)
         """
         if message is None:
             message = f"Autogenerated commit at {utcnow()}"

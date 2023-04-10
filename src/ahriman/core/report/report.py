@@ -19,8 +19,6 @@
 #
 from __future__ import annotations
 
-from typing import Iterable, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ReportError
 from ahriman.core.log import LazyLogging
@@ -69,7 +67,7 @@ class Report(LazyLogging):
         self.configuration = configuration
 
     @classmethod
-    def load(cls: Type[Report], architecture: str, configuration: Configuration, target: str) -> Report:
+    def load(cls: type[Report], architecture: str, configuration: Configuration, target: str) -> Report:
         """
         load client from settings
 
@@ -97,22 +95,22 @@ class Report(LazyLogging):
             return Telegram(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 
-    def generate(self, packages: Iterable[Package], result: Result) -> None:
+    def generate(self, packages: list[Package], result: Result) -> None:
         """
         generate report for the specified packages
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
 
-    def run(self, result: Result, packages: Iterable[Package]) -> None:
+    def run(self, result: Result, packages: list[Package]) -> None:
         """
         run report generation
 
         Args:
             result(Result): build result
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
 
         Raises:
             ReportFailed: in case of any report unmatched exception

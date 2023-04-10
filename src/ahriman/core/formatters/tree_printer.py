@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.package import Package
 from ahriman.models.property import Property
@@ -29,25 +27,25 @@ class TreePrinter(StringPrinter):
     print content of the package tree level
 
     Attributes:
-        packages(Iterable[Package]): packages which belong to this level
+        packages(list[Package]): packages which belong to this level
     """
 
-    def __init__(self, level: int, packages: Iterable[Package]) -> None:
+    def __init__(self, level: int, packages: list[Package]) -> None:
         """
         default constructor
 
         Args:
             level(int): dependencies tree level
-            packages(Iterable[Package]): packages which belong to this level
+            packages(list[Package]): packages which belong to this level
         """
         StringPrinter.__init__(self, f"level {level}")
         self.packages = packages
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [Property(package.base, package.version, is_required=True) for package in self.packages]

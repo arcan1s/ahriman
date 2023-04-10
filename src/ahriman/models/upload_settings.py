@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Type
 
 
 class UploadSettings(str, Enum):
@@ -40,7 +39,7 @@ class UploadSettings(str, Enum):
     Github = "github"
 
     @classmethod
-    def from_option(cls: Type[UploadSettings], value: str) -> UploadSettings:
+    def from_option(cls: type[UploadSettings], value: str) -> UploadSettings:
         """
         construct value from configuration
 

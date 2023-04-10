@@ -22,7 +22,6 @@ import code
 import sys
 
 from pathlib import Path
-from typing import Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -38,7 +37,7 @@ class Shell(Handler):
     ALLOW_MULTI_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

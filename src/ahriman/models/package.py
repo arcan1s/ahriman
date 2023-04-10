@@ -22,11 +22,12 @@ from __future__ import annotations
 
 import copy
 
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore
 from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any, Dict, Iterable, List, Optional, Set, Type, Union
+from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
@@ -46,9 +47,9 @@ class Package(LazyLogging):
 
     Attributes:
         base(str): package base name
-        packages(Dict[str, PackageDescription): map of package names to their properties.
+        packages(dict[str, PackageDescription): map of package names to their properties.
             Filled only on load from archive
-        remote(Optional[RemoteSource]): package remote source if applicable
+        remote(RemoteSource | None): package remote source if applicable
         version(str): package full version
 
     Examples:
@@ -73,58 +74,58 @@ class Package(LazyLogging):
 
     base: str
     version: str
-    remote: Optional[RemoteSource]
-    packages: Dict[str, PackageDescription]
+    remote: RemoteSource | None
+    packages: dict[str, PackageDescription]
 
     _check_output = check_output
 
     @property
-    def depends(self) -> List[str]:
+    def depends(self) -> list[str]:
         """
         get package base dependencies
 
         Returns:
-            List[str]: sum of dependencies per each package
+            list[str]: sum of dependencies per each package
         """
         return sorted(set(sum((package.depends for package in self.packages.values()), start=[])))
 
     @property
-    def depends_build(self) -> Set[str]:
+    def depends_build(self) -> set[str]:
         """
         get full list of external dependencies which has to be installed for build process
 
         Returns:
-            Set[str]: full dependencies list used by devtools
+            set[str]: full dependencies list used by devtools
         """
         return (set(self.depends) | set(self.depends_make)).difference(self.packages_full)
 
     @property
-    def depends_make(self) -> List[str]:
+    def depends_make(self) -> list[str]:
         """
         get package make dependencies
 
         Returns:
-            List[str]: sum of make dependencies per each package
+            list[str]: sum of make dependencies per each package
         """
         return sorted(set(sum((package.make_depends for package in self.packages.values()), start=[])))
 
     @property
-    def depends_opt(self) -> List[str]:
+    def depends_opt(self) -> list[str]:
         """
         get package optional dependencies
 
         Returns:
-            List[str]: sum of optional dependencies per each package
+            list[str]: sum of optional dependencies per each package
         """
         return sorted(set(sum((package.opt_depends for package in self.packages.values()), start=[])))
 
     @property
-    def groups(self) -> List[str]:
+    def groups(self) -> list[str]:
         """
         get package base groups
 
         Returns:
-            List[str]: sum of groups per each package
+            list[str]: sum of groups per each package
         """
         return sorted(set(sum((package.groups for package in self.packages.values()), start=[])))
 
@@ -154,22 +155,22 @@ class Package(LazyLogging):
             or self.base.endswith("-svn")
 
     @property
-    def licenses(self) -> List[str]:
+    def licenses(self) -> list[str]:
         """
         get package base licenses
 
         Returns:
-            List[str]: sum of licenses per each package
+            list[str]: sum of licenses per each package
         """
         return sorted(set(sum((package.licenses for package in self.packages.values()), start=[])))
 
     @property
-    def packages_full(self) -> List[str]:
+    def packages_full(self) -> list[str]:
         """
         get full packages list including provides
 
         Returns:
-            List[str]: full list of packages which this base contains
+            list[str]: full list of packages which this base contains
         """
         packages = set()
         for package, properties in self.packages.items():
@@ -178,7 +179,7 @@ class Package(LazyLogging):
         return sorted(packages)
 
     @classmethod
-    def from_archive(cls: Type[Package], path: Path, pacman: Pacman, remote: Optional[RemoteSource]) -> Package:
+    def from_archive(cls: type[Package], path: Path, pacman: Pacman, remote: RemoteSource | None) -> Package:
         """
         construct package properties from package archive
 
@@ -195,7 +196,7 @@ class Package(LazyLogging):
         return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description})
 
     @classmethod
-    def from_aur(cls: Type[Package], name: str, pacman: Pacman) -> Package:
+    def from_aur(cls: type[Package], name: str, pacman: Pacman) -> Package:
         """
         construct package properties from AUR page
 
@@ -215,7 +216,7 @@ class Package(LazyLogging):
             packages={package.name: PackageDescription.from_aur(package)})
 
     @classmethod
-    def from_build(cls: Type[Package], path: Path, architecture: str) -> Package:
+    def from_build(cls: type[Package], path: Path, architecture: str) -> Package:
         """
         construct package properties from sources directory
 
@@ -234,10 +235,10 @@ class Package(LazyLogging):
         if errors:
             raise PackageInfoError(errors)
 
-        def get_property(key: str, properties: Dict[str, Any], default: Any) -> Any:
+        def get_property(key: str, properties: dict[str, Any], default: Any) -> Any:
             return properties.get(key) or srcinfo.get(key) or default
 
-        def get_list(key: str, properties: Dict[str, Any]) -> Any:
+        def get_list(key: str, properties: dict[str, Any]) -> Any:
             return get_property(key, properties, []) + get_property(f"{key}_{architecture}", properties, [])
 
         packages = {
@@ -253,12 +254,12 @@ class Package(LazyLogging):
         return cls(base=srcinfo["pkgbase"], version=version, remote=None, packages=packages)
 
     @classmethod
-    def from_json(cls: Type[Package], dump: Dict[str, Any]) -> Package:
+    def from_json(cls: type[Package], dump: dict[str, Any]) -> Package:
         """
         construct package properties from json dump
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             Package: package properties
@@ -272,7 +273,7 @@ class Package(LazyLogging):
         return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
 
     @classmethod
-    def from_official(cls: Type[Package], name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Package:
+    def from_official(cls: type[Package], name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Package:
         """
         construct package properties from official repository page
 
@@ -293,7 +294,7 @@ class Package(LazyLogging):
             packages={package.name: PackageDescription.from_aur(package)})
 
     @staticmethod
-    def supported_architectures(path: Path) -> Set[str]:
+    def supported_architectures(path: Path) -> set[str]:
         """
         load supported architectures from package sources
 
@@ -301,7 +302,7 @@ class Package(LazyLogging):
             path(Path): path to package sources directory
 
         Returns:
-            Set[str]: list of package supported architectures
+            set[str]: list of package supported architectures
 
         Raises:
             InvalidPackageInfo: if there are parsing errors
@@ -349,7 +350,7 @@ class Package(LazyLogging):
 
         return self.version
 
-    def full_depends(self, pacman: Pacman, packages: Iterable[Package]) -> List[str]:
+    def full_depends(self, pacman: Pacman, packages: Iterable[Package]) -> list[str]:
         """
         generate full dependencies list including transitive dependencies
 
@@ -358,7 +359,7 @@ class Package(LazyLogging):
             packages(Iterable[Package]): repository package list
 
         Returns:
-            List[str]: all dependencies of the package
+            list[str]: all dependencies of the package
         """
         dependencies = {}
         # load own package dependencies
@@ -375,7 +376,7 @@ class Package(LazyLogging):
                     dependencies[provides] = pacman_package.depends
 
         result = set(self.depends)
-        current_depends: Set[str] = set()
+        current_depends: set[str] = set()
         while result != current_depends:
             current_depends = copy.deepcopy(result)
             for package in current_depends:
@@ -383,12 +384,12 @@ class Package(LazyLogging):
 
         return sorted(result)
 
-    def is_newer_than(self, timestamp: Union[float, int]) -> bool:
+    def is_newer_than(self, timestamp: float | int) -> bool:
         """
         check if package was built after the specified timestamp
 
         Args:
-            timestamp(int): timestamp to check build date against
+            timestamp(float | int): timestamp to check build date against
 
         Returns:
             bool: True in case if package was built after the specified date and False otherwise. In case if build date
@@ -401,7 +402,7 @@ class Package(LazyLogging):
         )
 
     def is_outdated(self, remote: Package, paths: RepositoryPaths, *,
-                    vcs_allowed_age: Union[float, int] = 0,
+                    vcs_allowed_age: float | int = 0,
                     calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
@@ -409,7 +410,7 @@ class Package(LazyLogging):
         Args:
             remote(Package): package properties from remote source
             paths(RepositoryPaths): repository paths instance. Required for VCS packages cache
-            vcs_allowed_age(Union[float, int], optional): max age of the built packages before they will be
+            vcs_allowed_age(float | int, optional): max age of the built packages before they will be
                 forced to calculate actual version (Default value = 0)
             calculate_version(bool, optional): expand version to actual value (by calculating git versions)
                 (Default value = True)
@@ -436,11 +437,11 @@ class Package(LazyLogging):
         details = "" if self.is_single_package else f""" ({" ".join(sorted(self.packages.keys()))})"""
         return f"{self.base}{details}"
 
-    def view(self) -> Dict[str, Any]:
+    def view(self) -> dict[str, Any]:
         """
         generate json package view
 
         Returns:
-            Dict[str, Any]: json-friendly dictionary
+            dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

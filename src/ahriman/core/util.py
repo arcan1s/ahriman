@@ -26,10 +26,11 @@ import re
 import requests
 import subprocess
 
+from collections.abc import Callable, Generator, Iterable
 from enum import Enum
 from pathlib import Path
 from pwd import getpwuid
-from typing import Any, Callable, Dict, Generator, IO, Iterable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, IO, TypeVar
 
 from ahriman.core.exceptions import OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths
@@ -56,20 +57,19 @@ __all__ = [
 T = TypeVar("T")
 
 
-def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optional[Path] = None,
-                 input_data: Optional[str] = None, logger: Optional[logging.Logger] = None,
-                 user: Optional[int] = None) -> str:
+def check_output(*args: str, exception: Exception | None = None, cwd: Path | None = None, input_data: str | None = None,
+                 logger: logging.Logger | None = None, user: int | None = None) -> str:
     """
     subprocess wrapper
 
     Args:
         *args(str): command line arguments
-        exception(Optional[Exception], optional): exception which has to be reraised instead of default subprocess
+        exception(Exception | None, optional): exception which has to be reraised instead of default subprocess
             exception (Default value = None)
-        cwd(Optional[Path], optional): current working directory (Default value = None)
-        input_data(Optional[str], optional): data which will be written to command stdin (Default value = None)
-        logger(Optional[logging.Logger], optional): logger to log command result if required (Default value = None)
-        user(Optional[int], optional): run process as specified user (Default value = None)
+        cwd(Path | None, optional): current working directory (Default value = None)
+        input_data(str | None, optional): data which will be written to command stdin (Default value = None)
+        logger(logging.Logger | None, optional): logger to log command result if required (Default value = None)
+        user(int | None, optional): run process as specified user (Default value = None)
 
     Returns:
         str: command output
@@ -94,9 +94,9 @@ def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optiona
 
             >>> check_output("false", exception=RuntimeError("An exception occurred"))
     """
-    # hack for Optional[IO[str]] handle
+    # hack for IO[str] handle
     def get_io(proc: subprocess.Popen[str], channel_name: str) -> IO[str]:
-        channel: Optional[IO[str]] = getattr(proc, channel_name, None)
+        channel: IO[str] | None = getattr(proc, channel_name, None)
         return channel if channel is not None else io.StringIO()
 
     def log(single: str) -> None:
@@ -114,7 +114,7 @@ def check_output(*args: str, exception: Optional[Exception] = None, cwd: Optiona
             input_channel.close()
 
         # read stdout and append to output result
-        result: List[str] = []
+        result: list[str] = []
         for line in iter(get_io(process, "stdout").readline, ""):
             line = line.strip()
             if not line:  # skip empty lines
@@ -162,15 +162,15 @@ def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
         raise UnsafeRunError(current_uid, root_uid)
 
 
-def enum_values(enum: Type[Enum]) -> List[str]:
+def enum_values(enum: type[Enum]) -> list[str]:
     """
     generate list of enumeration values from the source
 
     Args:
-        enum(Type[Enum]): source enumeration class
+        enum(type[Enum]): source enumeration class
 
     Returns:
-        List[str]: available enumeration values as string
+        list[str]: available enumeration values as string
     """
     return [str(key.value) for key in enum]  # explicit str conversion for typing
 
@@ -189,16 +189,16 @@ def exception_response_text(exception: requests.exceptions.HTTPError) -> str:
     return result
 
 
-def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str, Any]:
+def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:
     """
     filter json object by fields used for json-to-object conversion
 
     Args:
-        source(Dict[str, Any]): raw json object
+        source(dict[str, Any]): raw json object
         known_fields(Iterable[str]): list of fields which have to be known for the target object
 
     Returns:
-        Dict[str, Any]: json object without unknown and empty fields
+        dict[str, Any]: json object without unknown and empty fields
 
     Examples:
         This wrapper is mainly used for the dataclasses, thus the flow must be something like this::
@@ -213,12 +213,12 @@ def filter_json(source: Dict[str, Any], known_fields: Iterable[str]) -> Dict[str
     return {key: value for key, value in source.items() if key in known_fields and value is not None}
 
 
-def full_version(epoch: Union[str, int, None], pkgver: str, pkgrel: str) -> str:
+def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:
     """
     generate full version from components
 
     Args:
-        epoch(Union[str, int, None]): package epoch if any
+        epoch(str | int | None): package epoch if any
         pkgver(str): package version
         pkgrel(str): package release version (arch linux specific)
 
@@ -243,27 +243,27 @@ def package_like(filename: Path) -> bool:
     return ".pkg." in name and not name.endswith(".sig")
 
 
-def partition(source: List[T], predicate: Callable[[T], bool]) -> Tuple[List[T], List[T]]:
+def partition(source: list[T], predicate: Callable[[T], bool]) -> tuple[list[T], list[T]]:
     """
     partition list into two based on predicate, based on # https://docs.python.org/dev/library/itertools.html#itertools-recipes
 
     Args:
-        source(List[T]): source list to be partitioned
+        source(list[T]): source list to be partitioned
         predicate(Callable[[T], bool]): filter function
 
     Returns:
-        Tuple[List[T], List[T]]: two lists, first is which ``predicate`` is ``True``, second is ``False``
+        tuple[list[T], list[T]]: two lists, first is which ``predicate`` is ``True``, second is ``False``
     """
     first_iter, second_iter = itertools.tee(source)
     return list(filter(predicate, first_iter)), list(itertools.filterfalse(predicate, second_iter))
 
 
-def pretty_datetime(timestamp: Optional[Union[datetime.datetime, float, int]]) -> str:
+def pretty_datetime(timestamp: datetime.datetime | float | int | None) -> str:
     """
     convert datetime object to string
 
     Args:
-        timestamp(Optional[Union[datetime.datetime, float, int]]): datetime to convert
+        timestamp(datetime.datetime | float | int | None): datetime to convert
 
     Returns:
         str: pretty printable datetime as string
@@ -275,12 +275,12 @@ def pretty_datetime(timestamp: Optional[Union[datetime.datetime, float, int]]) -
     return timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 
-def pretty_size(size: Optional[float], level: int = 0) -> str:
+def pretty_size(size: float | None, level: int = 0) -> str:
     """
     convert size to string
 
     Args:
-        size(Optional[float]): size to convert
+        size(float | None): size to convert
         level(int, optional): represents current units, 0 is B, 1 is KiB, etc (Default value = 0)
 
     Returns:

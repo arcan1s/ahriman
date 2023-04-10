@@ -21,7 +21,6 @@ import shlex
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
@@ -30,15 +29,15 @@ class PkgbuildPatch:
     wrapper for patching PKBGUILDs
 
     Attributes:
-        key(Optional[str]): name of the property in PKGBUILD, e.g. version, url etc. If not set, patch will be
+        key(str | None): name of the property in PKGBUILD, e.g. version, url etc. If not set, patch will be
             considered as full PKGBUILD diffs
-        value(Union[str, List[str]]): value of the stored PKGBUILD property. It must be either string or list of string
+        value(str | list[str]): value of the stored PKGBUILD property. It must be either string or list of string
             values
         unsafe(bool): if set, value will be not quoted, might break PKGBUILD
     """
 
-    key: Optional[str]
-    value: Union[str, List[str]]
+    key: str | None
+    value: str | list[str]
     unsafe: bool = field(default=False, kw_only=True)
 
     def __post_init__(self) -> None:
@@ -81,7 +80,7 @@ class PkgbuildPatch:
 
     def serialize(self) -> str:
         """
-        serialize key-value pair into PKBGBUILD string. List values will be put inside parentheses. All string
+        serialize key-value pair into PKGBUILD string. List values will be put inside parentheses. All string
         values (including the ones inside list values) will be put inside quotes, no shell variables expanding supported
         at the moment
 

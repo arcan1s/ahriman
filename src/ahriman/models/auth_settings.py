@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Type
 
 
 class AuthSettings(str, Enum):
@@ -38,7 +37,7 @@ class AuthSettings(str, Enum):
     OAuth = "oauth2"
 
     @classmethod
-    def from_option(cls: Type[AuthSettings], value: str) -> AuthSettings:
+    def from_option(cls: type[AuthSettings], value: str) -> AuthSettings:
         """
         construct value from configuration
 

@@ -19,7 +19,8 @@
 #
 from __future__ import annotations
 
-from typing import Any, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import Any
 
 from ahriman.core.exceptions import UnprocessedPackageStatusError
 from ahriman.models.package import Package
@@ -30,13 +31,13 @@ class Result:
     build result class holder
     """
 
-    def __init__(self, success: Optional[Iterable[Package]] = None, failed: Optional[Iterable[Package]] = None) -> None:
+    def __init__(self, success: Iterable[Package] | None = None, failed: Iterable[Package] | None = None) -> None:
         """
         default constructor
 
         Args:
-            success(Optional[Iterable[Package]], optional): initial list of successes packages (Default value = None)
-            failed(Optional[Iterable[Package]], optional): initial list of failed packages (Default value = None)
+            success(Iterable[Package] | None, optional): initial list of successes packages (Default value = None)
+            failed(Iterable[Package] | None, optional): initial list of failed packages (Default value = None)
         """
         success = success or []
         self._success = {package.base: package for package in success}
@@ -44,12 +45,12 @@ class Result:
         self._failed = {package.base: package for package in failed}
 
     @property
-    def failed(self) -> List[Package]:
+    def failed(self) -> list[Package]:
         """
         get list of failed packages
 
         Returns:
-            List[Package]: list of packages which were failed
+            list[Package]: list of packages which were failed
         """
         return list(self._failed.values())
 
@@ -64,12 +65,12 @@ class Result:
         return not bool(self._success)
 
     @property
-    def success(self) -> List[Package]:
+    def success(self) -> list[Package]:
         """
         get list of success builds
 
         Returns:
-            List[Package]: list of packages with success result
+            list[Package]: list of packages with success result
         """
         return list(self._success.values())
 

@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass
-from typing import Generic, Type, TypeVar
+from typing import Generic, TypeVar
 
 
 T = TypeVar("T")
@@ -31,7 +31,7 @@ class ContextKey(Generic[T]):
 
     Attributes:
         key(str): context key to lookup
-        return_type(Type[T]): return type used for the specified context key
+        return_type(type[T]): return type used for the specified context key
     """
     key: str
-    return_type: Type[T]
+    return_type: type[T]

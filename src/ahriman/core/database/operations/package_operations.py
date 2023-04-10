@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Generator, Iterable
 from sqlite3 import Connection
-from typing import Dict, Generator, Iterable, List, Tuple
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.build_status import BuildStatus
@@ -148,7 +148,7 @@ class PackageOperations(Operations):
             {"package_base": package_base, "status": status.status.value, "last_updated": status.timestamp})
 
     @staticmethod
-    def _packages_get_select_package_bases(connection: Connection) -> Dict[str, Package]:
+    def _packages_get_select_package_bases(connection: Connection) -> dict[str, Package]:
         """
         select package bases from the table
 
@@ -156,7 +156,7 @@ class PackageOperations(Operations):
             connection(Connection): database connection
 
         Returns:
-            Dict[str, Package]: map of the package base to its descriptor (without packages themselves)
+            dict[str, Package]: map of the package base to its descriptor (without packages themselves)
         """
         return {
             row["package_base"]: Package(
@@ -168,16 +168,16 @@ class PackageOperations(Operations):
         }
 
     @staticmethod
-    def _packages_get_select_packages(connection: Connection, packages: Dict[str, Package]) -> Dict[str, Package]:
+    def _packages_get_select_packages(connection: Connection, packages: dict[str, Package]) -> dict[str, Package]:
         """
         select packages from the table
 
         Args:
             connection(Connection): database connection
-            packages(Dict[str, Package]): packages descriptor map
+            packages(dict[str, Package]): packages descriptor map
 
         Returns:
-            Dict[str, Package]: map of the package base to its descriptor including individual packages
+            dict[str, Package]: map of the package base to its descriptor including individual packages
         """
         for row in connection.execute("""select * from packages"""):
             if row["package_base"] not in packages:
@@ -186,7 +186,7 @@ class PackageOperations(Operations):
         return packages
 
     @staticmethod
-    def _packages_get_select_statuses(connection: Connection) -> Dict[str, BuildStatus]:
+    def _packages_get_select_statuses(connection: Connection) -> dict[str, BuildStatus]:
         """
         select package build statuses from the table
 
@@ -194,7 +194,7 @@ class PackageOperations(Operations):
             connection(Connection): database connection
 
         Returns:
-            Dict[str, BuildStatus]: map of the package base to its status
+            dict[str, BuildStatus]: map of the package base to its status
         """
         return {
             row["package_base"]: BuildStatus.from_json({"status": row["status"], "timestamp": row["last_updated"]})
@@ -230,14 +230,14 @@ class PackageOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def packages_get(self) -> List[Tuple[Package, BuildStatus]]:
+    def packages_get(self) -> list[tuple[Package, BuildStatus]]:
         """
         get package list and their build statuses from database
 
         Return:
-            List[Tuple[Package, BuildStatus]]: list of package properties and their statuses
+            list[tuple[Package, BuildStatus]]: list of package properties and their statuses
         """
-        def run(connection: Connection) -> Generator[Tuple[Package, BuildStatus], None, None]:
+        def run(connection: Connection) -> Generator[tuple[Package, BuildStatus], None, None]:
             packages = self._packages_get_select_package_bases(connection)
             statuses = self._packages_get_select_statuses(connection)
             for package_base, package in self._packages_get_select_packages(connection, packages).items():
@@ -256,12 +256,12 @@ class PackageOperations(Operations):
             lambda connection: self._package_update_insert_base(connection, package),
             commit=True)
 
-    def remotes_get(self) -> Dict[str, RemoteSource]:
+    def remotes_get(self) -> dict[str, RemoteSource]:
         """
         get packages remotes based on current settings
 
         Returns:
-            Dict[str, RemoteSource]: map of package base to its remote sources
+            dict[str, RemoteSource]: map of package base to its remote sources
         """
         packages = self.with_connection(self._packages_get_select_package_bases)
         return {

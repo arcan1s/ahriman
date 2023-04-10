@@ -121,7 +121,7 @@ Type conversions
 
 By default, it parses rows into python dictionary. In addition, the following pseudo-types are supported:
 
-* ``Dict[str, Any]``, ``List[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` data type and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
+* ``dict[str, Any]``, ``list[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` data type and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
 
 Basic flows
 -----------
@@ -235,7 +235,7 @@ Triggers are extensions which can be used in order to perform any actions on app
 
 The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.UploadTrigger``) by using ``importlib``: get the last part of the import and treat it as class name, join remain part by ``.`` and interpret as module path, import module and extract attribute from it.
 
-The loaded triggers will be called with ``ahriman.models.result.Result`` and ``List[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
+The loaded triggers will be called with ``ahriman.models.result.Result`` and ``list[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
 
 In addition triggers can implement ``on_start`` and ``on_stop`` actions which will be called on the application start and right before the application exit. The ``on_start`` action is usually being called from handlers directly in order to make sure that no trigger will be run when it is not required (e.g. on user management). As soon as ``on_start`` action is called, the additional flag will be set; ``ahriman.core.triggers.TriggerLoader`` class implements ``__del__`` method in which, if the flag is set, the ``on_stop`` actions will be called.
 

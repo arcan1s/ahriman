@@ -23,9 +23,9 @@ import contextlib
 import importlib
 import os
 
+from collections.abc import Generator
 from pathlib import Path
 from types import ModuleType
-from typing import Generator, Iterable, List, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExtensionError
@@ -40,7 +40,7 @@ class TriggerLoader(LazyLogging):
     trigger loader class
 
     Attributes:
-        triggers(List[Trigger]): list of loaded triggers according to the configuration
+        triggers(list[Trigger]): list of loaded triggers according to the configuration
 
     Examples:
         This class more likely must not be used directly, but the usual workflow is the following::
@@ -63,10 +63,10 @@ class TriggerLoader(LazyLogging):
         default constructor
         """
         self._on_stop_requested = False
-        self.triggers: List[Trigger] = []
+        self.triggers: list[Trigger] = []
 
     @classmethod
-    def load(cls: Type[TriggerLoader], architecture: str, configuration: Configuration) -> TriggerLoader:
+    def load(cls: type[TriggerLoader], architecture: str, configuration: Configuration) -> TriggerLoader:
         """
         create instance from configuration
 
@@ -86,7 +86,7 @@ class TriggerLoader(LazyLogging):
         return instance
 
     @staticmethod
-    def selected_triggers(configuration: Configuration) -> List[str]:
+    def selected_triggers(configuration: Configuration) -> list[str]:
         """
         read configuration and return triggers which are set by settings
 
@@ -94,7 +94,7 @@ class TriggerLoader(LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            List[str]: list of triggers according to configuration
+            list[str]: list of triggers according to configuration
         """
         return configuration.getlist("build", "triggers", fallback=[])
 
@@ -176,7 +176,7 @@ class TriggerLoader(LazyLogging):
 
         return trigger
 
-    def load_trigger_class(self, module_path: str) -> Type[Trigger]:
+    def load_trigger_class(self, module_path: str) -> type[Trigger]:
         """
         load trigger class by module path
 
@@ -184,7 +184,7 @@ class TriggerLoader(LazyLogging):
             module_path(str): module import path to load
 
         Returns:
-            Type[Trigger]: loaded trigger type by module path
+            type[Trigger]: loaded trigger type by module path
 
         Raises:
             InvalidExtension: in case if module cannot be loaded from the specified module path or is not a trigger
@@ -208,13 +208,13 @@ class TriggerLoader(LazyLogging):
         self.logger.info("loaded type %s of package %s", class_name, package_or_path)
         return trigger_type
 
-    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: list[Package]) -> None:
         """
         run trigger with result of application run
 
         Args:
             result(Result): build result
-            packages(Iterable[Package]): list of all available packages
+            packages(list[Package]): list of all available packages
         """
         self.logger.debug("executing triggers on result")
         for trigger in self.triggers:

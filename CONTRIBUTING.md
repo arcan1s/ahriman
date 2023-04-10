@@ -91,6 +91,7 @@ Again, the most checks can be performed by `make check` command, though some add
     ```
 
 * Type annotations are the must, even for local functions.
+* For collection types built-in classes must be used if possible (e.g. `dict` instead of `typing.Dict`, `tuple` instead of `typing.Tuple`). In case if built-in type is not available, but `collections.abc` provides interface, it must be used (e.g. `collections.abc.Awaitable` instead of `typing.Awaitable`, `collections.abc.Iterable` instead of `typing.Iterable`). For union classes, the bar operator (`|`) must be used (e.g. `float | int` instead of `typing.Union[float, int]`), which also includes `typinng.Optional` (e.g. `str | None` instead of `Optional[str]`).
 * Recommended order of function definitions in class:
 
     ```python
@@ -102,7 +103,7 @@ Again, the most checks can be performed by `make check` command, though some add
         def property(self) -> Any: ...
 
         @classmethod
-        def class_method(cls: Type[Clazz]) -> Clazz: ...
+        def class_method(cls: type[Clazz]) -> Clazz: ...
 
         @staticmethod
         def static_method() -> Any: ...

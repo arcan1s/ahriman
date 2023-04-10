@@ -21,7 +21,7 @@ import mimetypes
 import requests
 
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional
+from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.http_upload import HttpUpload
@@ -51,12 +51,12 @@ class Github(HttpUpload):
         self.github_owner = configuration.get(section, "owner")
         self.github_repository = configuration.get(section, "repository")
 
-    def asset_remove(self, release: Dict[str, Any], name: str) -> None:
+    def asset_remove(self, release: dict[str, Any], name: str) -> None:
         """
         remove asset from the release by name
 
         Args:
-            release(Dict[str, Any]): release object
+            release(dict[str, Any]): release object
             name(str): asset name
         """
         try:
@@ -65,12 +65,12 @@ class Github(HttpUpload):
         except StopIteration:
             self.logger.info("no asset %s found in release %s", name, release["name"])
 
-    def asset_upload(self, release: Dict[str, Any], path: Path) -> None:
+    def asset_upload(self, release: dict[str, Any], path: Path) -> None:
         """
         upload asset to the release
 
         Args:
-            release(Dict[str, Any]): release object
+            release(dict[str, Any]): release object
             path(Path): path to local file
         """
         exists = any(path.name == asset["name"] for asset in release["assets"])
@@ -81,7 +81,7 @@ class Github(HttpUpload):
         headers = {"Content-Type": mime} if mime is not None else {"Content-Type": "application/octet-stream"}
         self._request("POST", url, params={"name": path.name}, data=path.open("rb"), headers=headers)
 
-    def get_local_files(self, path: Path) -> Dict[Path, str]:
+    def get_local_files(self, path: Path) -> dict[Path, str]:
         """
         get all local files and their calculated checksums
 
@@ -89,21 +89,21 @@ class Github(HttpUpload):
             path(Path): local path to sync
 
         Returns:
-            Dict[Path, str]: map of path objects to its checksum
+            dict[Path, str]: map of path objects to its checksum
         """
         return {
             local_file: self.calculate_hash(local_file)
             for local_file in walk(path)
         }
 
-    def files_remove(self, release: Dict[str, Any], local_files: Dict[Path, str], remote_files: Dict[str, str]) -> None:
+    def files_remove(self, release: dict[str, Any], local_files: dict[Path, str], remote_files: dict[str, str]) -> None:
         """
         remove files from github
 
         Args:
-            release(Dict[str, Any]): release object
-            local_files(Dict[Path, str]): map of local file paths to its checksum
-            remote_files(Dict[str, str]): map of the remote files and its checksum
+            release(dict[str, Any]): release object
+            local_files(dict[Path, str]): map of local file paths to its checksum
+            remote_files(dict[str, str]): map of the remote files and its checksum
         """
         local_filenames = {local_file.name for local_file in local_files}
         for remote_file in remote_files:
@@ -111,14 +111,14 @@ class Github(HttpUpload):
                 continue
             self.asset_remove(release, remote_file)
 
-    def files_upload(self, release: Dict[str, Any], local_files: Dict[Path, str], remote_files: Dict[str, str]) -> None:
+    def files_upload(self, release: dict[str, Any], local_files: dict[Path, str], remote_files: dict[str, str]) -> None:
         """
         upload files to github
 
         Args:
-            release(Dict[str, Any]): release object
-            local_files(Dict[Path, str]): map of local file paths to its checksum
-            remote_files(Dict[str, str]): map of the remote files and its checksum
+            release(dict[str, Any]): release object
+            local_files(dict[Path, str]): map of local file paths to its checksum
+            remote_files(dict[str, str]): map of the remote files and its checksum
         """
         for local_file, checksum in local_files.items():
             remote_checksum = remote_files.get(local_file.name)
@@ -126,29 +126,29 @@ class Github(HttpUpload):
                 continue
             self.asset_upload(release, local_file)
 
-    def release_create(self) -> Dict[str, Any]:
+    def release_create(self) -> dict[str, Any]:
         """
         create empty release
 
         Returns:
-            Dict[str, Any]: github API release object for the new release
+            dict[str, Any]: github API release object for the new release
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases"
         response = self._request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
-        release: Dict[str, Any] = response.json()
+        release: dict[str, Any] = response.json()
         return release
 
-    def release_get(self) -> Optional[Dict[str, Any]]:
+    def release_get(self) -> dict[str, Any] | None:
         """
         get release object if any
 
         Returns:
-            Optional[Dict[str, Any]]: github API release object if release found and None otherwise
+            dict[str, Any] | None: github API release object if release found and None otherwise
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.architecture}"
         try:
             response = self._request("GET", url)
-            release: Dict[str, Any] = response.json()
+            release: dict[str, Any] = response.json()
             return release
         except requests.HTTPError as e:
             status_code = e.response.status_code if e.response is not None else None
@@ -156,23 +156,23 @@ class Github(HttpUpload):
                 return None
             raise
 
-    def release_update(self, release: Dict[str, Any], body: str) -> None:
+    def release_update(self, release: dict[str, Any], body: str) -> None:
         """
         update release
 
         Args:
-            release(Dict[str, Any]): release object
+            release(dict[str, Any]): release object
             body(str): new release body
         """
         self._request("POST", release["url"], json={"body": body})
 
-    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
+    def sync(self, path: Path, built_packages: list[Package]) -> None:
         """
         sync data to remote server
 
         Args:
             path(Path): local path to sync
-            built_packages(Iterable[Package]): list of packages which has just been built
+            built_packages(list[Package]): list of packages which has just been built
         """
         release = self.release_get()
         if release is None:

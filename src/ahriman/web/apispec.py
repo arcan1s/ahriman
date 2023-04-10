@@ -20,7 +20,7 @@
 import aiohttp_apispec  # type: ignore
 
 from aiohttp.web import Application
-from typing import Any, Dict, List
+from typing import Any
 
 from ahriman import version
 from ahriman.core.configuration import Configuration
@@ -29,12 +29,12 @@ from ahriman.core.configuration import Configuration
 __all__ = ["setup_apispec"]
 
 
-def _info() -> Dict[str, Any]:
+def _info() -> dict[str, Any]:
     """
     create info object for swagger docs
 
     Returns:
-        Dict[str, Any]: info object as per openapi specification
+        dict[str, Any]: info object as per openapi specification
     """
     return {
         "title": "ahriman",
@@ -62,12 +62,12 @@ def _info() -> Dict[str, Any]:
     }
 
 
-def _security() -> List[Dict[str, Any]]:
+def _security() -> list[dict[str, Any]]:
     """
     get security definitions
 
     Returns:
-        List[Dict[str, Any]]: generated security definition
+        list[dict[str, Any]]: generated security definition
     """
     return [{
         "token": {
@@ -78,7 +78,7 @@ def _security() -> List[Dict[str, Any]]:
     }]
 
 
-def _servers(application: Application) -> List[Dict[str, Any]]:
+def _servers(application: Application) -> list[dict[str, Any]]:
     """
     get list of defined addresses for server
 
@@ -86,7 +86,7 @@ def _servers(application: Application) -> List[Dict[str, Any]]:
         application(Application): web application instance
 
     Returns:
-        List[Dict[str, Any]]: list (actually only one) of defined web urls
+        list[dict[str, Any]]: list (actually only one) of defined web urls
     """
     configuration: Configuration = application["configuration"]
     address = configuration.get("web", "address", fallback=None)

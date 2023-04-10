@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, List, Type
-
 from ahriman.core import context
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -34,7 +32,7 @@ class RemotePushTrigger(Trigger):
     trigger for syncing PKGBUILDs to remote repository
 
     Attributes:
-        targets(List[str]): git remote target list
+        targets(list[str]): git remote target list
     """
 
     CONFIGURATION_SCHEMA = {
@@ -78,7 +76,7 @@ class RemotePushTrigger(Trigger):
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
-    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 
@@ -86,17 +84,17 @@ class RemotePushTrigger(Trigger):
             configuration(Configuration): configuration instance
 
         Returns:
-            List[str]: read configuration sections belong to this trigger
+            list[str]: read configuration sections belong to this trigger
         """
         return configuration.getlist("remote-push", "target", fallback=[])
 
-    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: list[Package]) -> None:
         """
         trigger action which will be called after build process with process result
 
         Args:
             result(Result): build result
-            packages(Iterable[Package]): list of all available packages
+            packages(list[Package]): list of all available packages
 
         Raises:
             GitRemoteError: if database is not set in context

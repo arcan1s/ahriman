@@ -21,7 +21,7 @@ import hashlib
 import requests
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
@@ -33,7 +33,7 @@ class HttpUpload(Upload):
     helper for the http based uploads
 
     Attributes:
-        auth(Optional[Tuple[str, str]]): HTTP auth object if set
+        auth(tuple[str, str] | None): HTTP auth object if set
         timeout(int): HTTP request timeout in seconds
     """
 
@@ -68,12 +68,12 @@ class HttpUpload(Upload):
             return md5.hexdigest()
 
     @staticmethod
-    def get_body(local_files: Dict[Path, str]) -> str:
+    def get_body(local_files: dict[Path, str]) -> str:
         """
         generate release body from the checksums as returned from HttpUpload.get_hashes method
 
         Args:
-            local_files(Dict[Path, str]): map of the paths to its checksum
+            local_files(dict[Path, str]): map of the paths to its checksum
 
         Returns:
             str: body to be inserted into release
@@ -81,7 +81,7 @@ class HttpUpload(Upload):
         return "\n".join(f"{file.name} {md5}" for file, md5 in sorted(local_files.items()))
 
     @staticmethod
-    def get_hashes(body: str) -> Dict[str, str]:
+    def get_hashes(body: str) -> dict[str, str]:
         """
         get checksums of the content from the repository
 
@@ -89,7 +89,7 @@ class HttpUpload(Upload):
             body(str): release string body object
 
         Returns:
-            Dict[str, str]: map of the filename to its checksum as it is written in body
+            dict[str, str]: map of the filename to its checksum as it is written in body
         """
         files = {}
         for line in body.splitlines():

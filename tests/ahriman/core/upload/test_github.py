@@ -3,13 +3,13 @@ import requests
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import call as MockCall
 
 from ahriman.core.upload.github import Github
 
 
-def test_asset_remove(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_remove(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove asset from the release
     """
@@ -18,7 +18,7 @@ def test_asset_remove(github: Github, github_release: Dict[str, Any], mocker: Mo
     request_mock.assert_called_once_with("DELETE", "asset_url")
 
 
-def test_asset_remove_unknown(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_remove_unknown(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must not fail if no asset found
     """
@@ -27,7 +27,7 @@ def test_asset_remove_unknown(github: Github, github_release: Dict[str, Any], mo
     request_mock.assert_not_called()
 
 
-def test_asset_upload(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload asset to the repository
     """
@@ -41,7 +41,7 @@ def test_asset_upload(github: Github, github_release: Dict[str, Any], mocker: Mo
     remove_mock.assert_not_called()
 
 
-def test_asset_upload_with_removal(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload_with_removal(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove existing file before upload
     """
@@ -57,7 +57,7 @@ def test_asset_upload_with_removal(github: Github, github_release: Dict[str, Any
     ])
 
 
-def test_asset_upload_empty_mimetype(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload_empty_mimetype(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload asset to the repository with empty mime type if the library cannot guess it
     """
@@ -80,7 +80,7 @@ def test_get_local_files(github: Github, resource_path_root: Path, mocker: Mocke
     walk_mock.assert_called()
 
 
-def test_files_remove(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_remove(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove files from the remote
     """
@@ -89,7 +89,7 @@ def test_files_remove(github: Github, github_release: Dict[str, Any], mocker: Mo
     remove_mock.assert_called_once_with(github_release, "b")
 
 
-def test_files_remove_empty(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_remove_empty(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove nothing if nothing changed
     """
@@ -98,7 +98,7 @@ def test_files_remove_empty(github: Github, github_release: Dict[str, Any], mock
     remove_mock.assert_not_called()
 
 
-def test_files_upload(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_upload(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload files to the remote
     """
@@ -110,7 +110,7 @@ def test_files_upload(github: Github, github_release: Dict[str, Any], mocker: Mo
     ])
 
 
-def test_files_upload_empty(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_upload_empty(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload nothing if nothing changed
     """
@@ -167,7 +167,7 @@ def test_release_get_exception_http_error(github: Github, mocker: MockerFixture)
         github.release_get()
 
 
-def test_release_update(github: Github, github_release: Dict[str, Any], mocker: MockerFixture) -> None:
+def test_release_update(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must update release
     """

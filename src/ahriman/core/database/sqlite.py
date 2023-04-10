@@ -23,7 +23,6 @@ import json
 import sqlite3
 
 from pathlib import Path
-from typing import Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
@@ -47,7 +46,7 @@ class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations,
     """
 
     @classmethod
-    def load(cls: Type[SQLite], configuration: Configuration) -> SQLite:
+    def load(cls: type[SQLite], configuration: Configuration) -> SQLite:
         """
         construct instance from configuration
 

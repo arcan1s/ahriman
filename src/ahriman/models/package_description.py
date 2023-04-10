@@ -22,7 +22,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from pyalpm import Package  # type: ignore
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 from ahriman.core.util import filter_json, trim_package
 from ahriman.models.aur_package import AURPackage
@@ -34,19 +34,19 @@ class PackageDescription:
     package specific properties
 
     Attributes:
-        architecture(Optional[str]): package architecture
-        archive_size(Optional[int]): package archive size
-        build_date(Optional[int]): package build date
-        depends(List[str]): package dependencies list
-        opt_depends(List[str]): optional package dependencies list
-        make_depends(List[str]): package dependencies list used for building
-        description(Optional[str]): package description
-        filename(Optional[str]): package archive name
-        groups(List[str]): package groups
-        installed_size(Optional[int]): package installed size
-        licenses(List[str]): package licenses list
-        provides(List[str]): list of provided packages
-        url(Optional[str]): package url
+        architecture(str | None): package architecture
+        archive_size(int | None): package archive size
+        build_date(int | None): package build date
+        depends(list[str]): package dependencies list
+        opt_depends(list[str]): optional package dependencies list
+        make_depends(list[str]): package dependencies list used for building
+        description(str | None): package description
+        filename(str | None): package archive name
+        groups(list[str]): package groups
+        installed_size(int | None): package installed size
+        licenses(list[str]): package licenses list
+        provides(list[str]): list of provided packages
+        url(str | None): package url
 
     Examples:
         Unlike the ``Package`` class, this implementation only holds properties. The recommended way to deal with it is
@@ -66,19 +66,19 @@ class PackageDescription:
             >>>     pyalpm_description, Path("/var/cache/pacman/pkg/pacman-6.0.1-4-x86_64.pkg.tar.zst"))
     """
 
-    architecture: Optional[str] = None
-    archive_size: Optional[int] = None
-    build_date: Optional[int] = None
-    depends: List[str] = field(default_factory=list)
-    make_depends: List[str] = field(default_factory=list)
-    opt_depends: List[str] = field(default_factory=list)
-    description: Optional[str] = None
-    filename: Optional[str] = None
-    groups: List[str] = field(default_factory=list)
-    installed_size: Optional[int] = None
-    licenses: List[str] = field(default_factory=list)
-    provides: List[str] = field(default_factory=list)
-    url: Optional[str] = None
+    architecture: str | None = None
+    archive_size: int | None = None
+    build_date: int | None = None
+    depends: list[str] = field(default_factory=list)
+    make_depends: list[str] = field(default_factory=list)
+    opt_depends: list[str] = field(default_factory=list)
+    description: str | None = None
+    filename: str | None = None
+    groups: list[str] = field(default_factory=list)
+    installed_size: int | None = None
+    licenses: list[str] = field(default_factory=list)
+    provides: list[str] = field(default_factory=list)
+    url: str | None = None
 
     def __post_init__(self) -> None:
         """
@@ -89,17 +89,17 @@ class PackageDescription:
         self.make_depends = [trim_package(package) for package in self.make_depends]
 
     @property
-    def filepath(self) -> Optional[Path]:
+    def filepath(self) -> Path | None:
         """
         wrapper for filename, convert it to Path object
 
         Returns:
-            Optional[Path]: path object for current filename
+            Path | None: path object for current filename
         """
         return Path(self.filename) if self.filename is not None else None
 
     @classmethod
-    def from_aur(cls: Type[PackageDescription], package: AURPackage) -> PackageDescription:
+    def from_aur(cls: type[PackageDescription], package: AURPackage) -> PackageDescription:
         """
         construct properties from AUR package model
 
@@ -120,12 +120,12 @@ class PackageDescription:
         )
 
     @classmethod
-    def from_json(cls: Type[PackageDescription], dump: Dict[str, Any]) -> PackageDescription:
+    def from_json(cls: type[PackageDescription], dump: dict[str, Any]) -> PackageDescription:
         """
         construct package properties from json dump
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             PackageDescription: package properties
@@ -135,7 +135,7 @@ class PackageDescription:
         return cls(**filter_json(dump, known_fields))
 
     @classmethod
-    def from_package(cls: Type[PackageDescription], package: Package, path: Path) -> PackageDescription:
+    def from_package(cls: type[PackageDescription], package: Package, path: Path) -> PackageDescription:
         """
         construct class from alpm package class
 
@@ -162,11 +162,11 @@ class PackageDescription:
             url=package.url,
         )
 
-    def view(self) -> Dict[str, Any]:
+    def view(self) -> dict[str, Any]:
         """
         generate json package view
 
         Returns:
-            Dict[str, Any]: json-friendly dictionary
+            dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

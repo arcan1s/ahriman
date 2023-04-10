@@ -19,7 +19,7 @@
 #
 import aiohttp_jinja2
 
-from typing import Any, Dict
+from typing import Any
 
 from ahriman.core.auth.helpers import authorized_userid
 from ahriman.models.user_access import UserAccess
@@ -46,12 +46,12 @@ class IndexView(BaseView):
     GET_PERMISSION = UserAccess.Unauthorized
 
     @aiohttp_jinja2.template("build-status.jinja2")
-    async def get(self) -> Dict[str, Any]:
+    async def get(self) -> dict[str, Any]:
         """
         process get request. No parameters supported here
 
         Returns:
-            Dict[str, Any]: parameters for jinja template
+            dict[str, Any]: parameters for jinja template
         """
         auth_username = await authorized_userid(self.request)
         auth = {

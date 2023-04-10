@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.property import Property
 from ahriman.models.user import User
@@ -42,11 +40,11 @@ class UserPrinter(StringPrinter):
         StringPrinter.__init__(self, user.username)
         self.user = user
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [Property("role", self.user.access.value, is_required=True)]

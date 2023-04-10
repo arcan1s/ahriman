@@ -19,7 +19,7 @@
 #
 import requests
 
-from typing import Any, Dict, List, Type
+from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
@@ -45,15 +45,15 @@ class AUR(Remote):
     DEFAULT_TIMEOUT = 30
 
     @staticmethod
-    def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
+    def parse_response(response: dict[str, Any]) -> list[AURPackage]:
         """
         parse RPC response to package list
 
         Args:
-            response(Dict[str, Any]): RPC response json
+            response(dict[str, Any]): RPC response json
 
         Returns:
-            List[AURPackage]: list of parsed packages
+            list[AURPackage]: list of parsed packages
 
         Raises:
             InvalidPackageInfo: for error API response
@@ -65,7 +65,7 @@ class AUR(Remote):
         return [AURPackage.from_json(package) for package in response["results"]]
 
     @classmethod
-    def remote_git_url(cls: Type[Remote], package_base: str, repository: str) -> str:
+    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -79,7 +79,7 @@ class AUR(Remote):
         return f"{AUR.DEFAULT_AUR_URL}/{package_base}.git"
 
     @classmethod
-    def remote_web_url(cls: Type[Remote], package_base: str) -> str:
+    def remote_web_url(cls: type[Remote], package_base: str) -> str:
         """
         generate remote web url from the package base
 
@@ -91,7 +91,7 @@ class AUR(Remote):
         """
         return f"{AUR.DEFAULT_AUR_URL}/packages/{package_base}"
 
-    def make_request(self, request_type: str, *args: str, **kwargs: str) -> List[AURPackage]:
+    def make_request(self, request_type: str, *args: str, **kwargs: str) -> list[AURPackage]:
         """
         perform request to AUR RPC
 
@@ -101,9 +101,9 @@ class AUR(Remote):
             **kwargs(str): list of additional named parameters like by
 
         Returns:
-            List[AURPackage]: response parsed to package list
+            list[AURPackage]: response parsed to package list
         """
-        query: Dict[str, Any] = {
+        query: dict[str, Any] = {
             "type": request_type,
             "v": self.DEFAULT_RPC_VERSION
         }
@@ -145,7 +145,7 @@ class AUR(Remote):
         except StopIteration:
             raise UnknownPackageError(package_name)
 
-    def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search package in AUR web
 
@@ -154,6 +154,6 @@ class AUR(Remote):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            List[AURPackage]: list of packages which match the criteria
+            list[AURPackage]: list of packages which match the criteria
         """
         return self.make_request("search", *keywords, by="name-desc")

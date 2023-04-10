@@ -23,7 +23,6 @@ import argparse
 import logging
 
 from multiprocessing import Pool
-from typing import List, Type
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
@@ -53,7 +52,7 @@ class Handler:
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
-    def architectures_extract(cls: Type[Handler], args: argparse.Namespace) -> List[str]:
+    def architectures_extract(cls: type[Handler], args: argparse.Namespace) -> list[str]:
         """
         get known architectures
 
@@ -61,7 +60,7 @@ class Handler:
             args(argparse.Namespace): command line args
 
         Returns:
-            List[str]: list of architectures for which tree is created
+            list[str]: list of architectures for which tree is created
 
         Raises:
             MissingArchitecture: if no architecture set and automatic detection is not allowed or failed
@@ -84,7 +83,7 @@ class Handler:
         return sorted(architectures)
 
     @classmethod
-    def call(cls: Type[Handler], args: argparse.Namespace, architecture: str) -> bool:
+    def call(cls: type[Handler], args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
 
@@ -109,7 +108,7 @@ class Handler:
             return False
 
     @classmethod
-    def execute(cls: Type[Handler], args: argparse.Namespace) -> int:
+    def execute(cls: type[Handler], args: argparse.Namespace) -> int:
         """
         execute function for all aru
 
@@ -138,7 +137,7 @@ class Handler:
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

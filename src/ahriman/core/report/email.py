@@ -21,7 +21,6 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Dict, Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
@@ -40,13 +39,13 @@ class Email(Report, JinjaTemplate):
         full_template_path(Path): path to template for full package list
         host(str): SMTP host to connect
         no_empty_report(bool): skip empty report generation
-        password(Optional[str]): password to authenticate via SMTP
+        password(str | None): password to authenticate via SMTP
         port(int): SMTP port to connect
-        receivers(List[str]): list of receivers emails
+        receivers(list[str]): list of receivers emails
         sender(str): sender email address
         ssl(SmtpSSLSettings): SSL mode for SMTP connection
         template_path(Path): path to template for built packages
-        user(Optional[str]): username to authenticate via SMTP
+        user(str | None): username to authenticate via SMTP
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -74,13 +73,13 @@ class Email(Report, JinjaTemplate):
         self.ssl = SmtpSSLSettings.from_option(configuration.get(section, "ssl", fallback="disabled"))
         self.user = configuration.get(section, "user", fallback=None)
 
-    def _send(self, text: str, attachment: Dict[str, str]) -> None:
+    def _send(self, text: str, attachment: dict[str, str]) -> None:
         """
         send email callback
 
         Args:
             text(str): email body text
-            attachment(Dict[str, str]): map of attachment filename to attachment content
+            attachment(dict[str, str]): map of attachment filename to attachment content
         """
         message = MIMEMultipart()
         message["From"] = self.sender
@@ -104,12 +103,12 @@ class Email(Report, JinjaTemplate):
         session.sendmail(self.sender, self.receivers, message.as_string())
         session.quit()
 
-    def generate(self, packages: Iterable[Package], result: Result) -> None:
+    def generate(self, packages: list[Package], result: Result) -> None:
         """
         generate report for the specified packages
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
         if self.no_empty_report and not result.success:

@@ -20,7 +20,6 @@
 import requests
 
 from pathlib import Path
-from typing import List, Optional, Set, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildError
@@ -37,8 +36,8 @@ class GPG(LazyLogging):
         DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        default_key(Optional[str]): default PGP key ID to use
-        targets(Set[SignSettings]): list of targets to sign (repository, package etc)
+        default_key(str | None): default PGP key ID to use
+        targets(set[SignSettings]): list of targets to sign (repository, package etc)
     """
 
     _check_output = check_output
@@ -57,12 +56,12 @@ class GPG(LazyLogging):
         self.targets, self.default_key = self.sign_options(configuration)
 
     @property
-    def repository_sign_args(self) -> List[str]:
+    def repository_sign_args(self) -> list[str]:
         """
         get command line arguments based on settings
 
         Returns:
-            List[str]: command line arguments for repo-add command to sign database
+            list[str]: command line arguments for repo-add command to sign database
         """
         if SignSettings.Repository not in self.targets:
             return []
@@ -72,7 +71,7 @@ class GPG(LazyLogging):
         return ["--sign", "--key", self.default_key]
 
     @staticmethod
-    def sign_command(path: Path, key: str) -> List[str]:
+    def sign_command(path: Path, key: str) -> list[str]:
         """
         gpg command to run
 
@@ -81,12 +80,12 @@ class GPG(LazyLogging):
             key(str): PGP key ID
 
         Returns:
-            List[str]: gpg command with all required arguments
+            list[str]: gpg command with all required arguments
         """
         return ["gpg", "-u", key, "-b", str(path)]
 
     @staticmethod
-    def sign_options(configuration: Configuration) -> Tuple[Set[SignSettings], Optional[str]]:
+    def sign_options(configuration: Configuration) -> tuple[set[SignSettings], str | None]:
         """
         extract default sign options from configuration
 
@@ -94,9 +93,9 @@ class GPG(LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            Tuple[Set[SignSettings], Optional[str]]: tuple of sign targets and default PGP key
+            tuple[set[SignSettings], str | None]: tuple of sign targets and default PGP key
         """
-        targets: Set[SignSettings] = set()
+        targets: set[SignSettings] = set()
         for option in configuration.getlist("sign", "target", fallback=[]):
             target = SignSettings.from_option(option)
             if target == SignSettings.Disabled:
@@ -140,7 +139,7 @@ class GPG(LazyLogging):
         key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, logger=self.logger)
 
-    def process(self, path: Path, key: str) -> List[Path]:
+    def process(self, path: Path, key: str) -> list[Path]:
         """
         gpg command wrapper
 
@@ -149,7 +148,7 @@ class GPG(LazyLogging):
             key(str): PGP key ID
 
         Returns:
-            List[Path]: list of generated files including original file
+            list[Path]: list of generated files including original file
         """
         GPG._check_output(
             *GPG.sign_command(path, key),
@@ -157,7 +156,7 @@ class GPG(LazyLogging):
             logger=self.logger)
         return [path, path.parent / f"{path.name}.sig"]
 
-    def process_sign_package(self, path: Path, package_base: str) -> List[Path]:
+    def process_sign_package(self, path: Path, package_base: str) -> list[Path]:
         """
         sign package if required by configuration
 
@@ -166,7 +165,7 @@ class GPG(LazyLogging):
             package_base(str): package base required to check for key overrides
 
         Returns:
-            List[Path]: list of generated files including original file
+            list[Path]: list of generated files including original file
         """
         if SignSettings.Packages not in self.targets:
             return [path]
@@ -176,7 +175,7 @@ class GPG(LazyLogging):
             return [path]
         return self.process(path, key)
 
-    def process_sign_repository(self, path: Path) -> List[Path]:
+    def process_sign_repository(self, path: Path) -> list[Path]:
         """
         sign repository if required by configuration
 
@@ -187,7 +186,7 @@ class GPG(LazyLogging):
             path(Path): path to repository database
 
         Returns:
-            List[Path]: list of generated files including original file
+            list[Path]: list of generated files including original file
         """
         if SignSettings.Repository not in self.targets:
             return [path]

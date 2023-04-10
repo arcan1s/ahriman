@@ -22,7 +22,7 @@ import hashlib
 import mimetypes
 
 from pathlib import Path
-from typing import Any, Dict, Iterable
+from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
@@ -97,27 +97,27 @@ class S3(Upload):
         return client.Bucket(configuration.get(section, "bucket"))
 
     @staticmethod
-    def files_remove(local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+    def files_remove(local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:
         """
         remove files which have been removed locally
 
         Args:
-            local_files(Dict[Path, str]): map of local path object to its checksum
-            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
+            local_files(dict[Path, str]): map of local path object to its checksum
+            remote_objects(dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, remote_object in remote_objects.items():
             if local_file in local_files:
                 continue
             remote_object.delete()
 
-    def files_upload(self, path: Path, local_files: Dict[Path, str], remote_objects: Dict[Path, Any]) -> None:
+    def files_upload(self, path: Path, local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:
         """
         upload changed files to s3
 
         Args:
             path(Path): local path to sync
-            local_files(Dict[Path, str]): map of local path object to its checksum
-            remote_objects(Dict[Path, Any]): map of remote path object to the remote s3 object
+            local_files(dict[Path, str]): map of local path object to its checksum
+            remote_objects(dict[Path, Any]): map of remote path object to the remote s3 object
         """
         for local_file, checksum in local_files.items():
             remote_object = remote_objects.get(local_file)
@@ -133,7 +133,7 @@ class S3(Upload):
 
             self.bucket.upload_file(Filename=str(local_path), Key=str(remote_path), ExtraArgs=extra_args)
 
-    def get_local_files(self, path: Path) -> Dict[Path, str]:
+    def get_local_files(self, path: Path) -> dict[Path, str]:
         """
         get all local files and their calculated checksums
 
@@ -141,30 +141,30 @@ class S3(Upload):
             path(Path): local path to sync
 
         Returns:
-            Dict[Path, str]: map of path object to its checksum
+            dict[Path, str]: map of path object to its checksum
         """
         return {
             local_file.relative_to(path): self.calculate_etag(local_file, self.chunk_size)
             for local_file in walk(path)
         }
 
-    def get_remote_objects(self) -> Dict[Path, Any]:
+    def get_remote_objects(self) -> dict[Path, Any]:
         """
         get all remote objects and their checksums
 
         Returns:
-            Dict[Path, Any]: map of path object to the remote s3 object
+            dict[Path, Any]: map of path object to the remote s3 object
         """
         objects = self.bucket.objects.filter(Prefix=self.architecture)
         return {Path(item.key).relative_to(self.architecture): item for item in objects}
 
-    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
+    def sync(self, path: Path, built_packages: list[Package]) -> None:
         """
         sync data to remote server
 
         Args:
             path(Path): local path to sync
-            built_packages(Iterable[Package]): list of packages which has just been built
+            built_packages(list[Package]): list of packages which has just been built
         """
         remote_objects = self.get_remote_objects()
         local_files = self.get_local_files(path)

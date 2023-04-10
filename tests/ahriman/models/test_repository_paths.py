@@ -1,8 +1,8 @@
 import pytest
 
+from collections.abc import Callable
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Callable, Tuple
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.exceptions import PathError
@@ -10,7 +10,7 @@ from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-def _get_owner(root: Path, same: bool) -> Callable[[Path], Tuple[int, int]]:
+def _get_owner(root: Path, same: bool) -> Callable[[Path], tuple[int, int]]:
     """
     mocker function for owner definition
 
@@ -19,7 +19,7 @@ def _get_owner(root: Path, same: bool) -> Callable[[Path], Tuple[int, int]]:
         same(bool): if True then returns the same as root directory and different otherwise
 
     Returns:
-        Callable[[Path], Tuple[int, int]]: function which can define ownership
+        Callable[[Path], tuple[int, int]]: function which can define ownership
     """
     root_owner = (42, 42)
     non_root_owner = (42, 42) if same else (1, 1)

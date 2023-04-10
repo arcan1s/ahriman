@@ -25,7 +25,6 @@ from aiohttp.web import Application, Request, StaticResource, StreamResponse, mi
 from aiohttp_session import setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
-from typing import Optional
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -53,7 +52,7 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
         """
         self.validator = validator
 
-    async def authorized_userid(self, identity: str) -> Optional[str]:
+    async def authorized_userid(self, identity: str) -> str | None:
         """
         retrieve authenticated username
 
@@ -61,18 +60,18 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
             identity(str): username
 
         Returns:
-            Optional[str]: user identity (username) in case if user exists and None otherwise
+            str | None: user identity (username) in case if user exists and None otherwise
         """
         return identity if await self.validator.known_username(identity) else None
 
-    async def permits(self, identity: str, permission: UserAccess, context: Optional[str] = None) -> bool:
+    async def permits(self, identity: str, permission: UserAccess, context: str | None = None) -> bool:
         """
         check user permissions
 
         Args:
             identity(str): username
             permission(UserAccess): requested permission level
-            context(Optional[str], optional): URI request path (Default value = None)
+            context(str | None, optional): URI request path (Default value = None)
 
         Returns:
             bool: True in case if user is allowed to perform this request and False otherwise

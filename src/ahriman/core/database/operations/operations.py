@@ -19,8 +19,9 @@
 #
 import sqlite3
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, Tuple, TypeVar
+from typing import Any, TypeVar
 
 from ahriman.core.log import LazyLogging
 
@@ -46,16 +47,16 @@ class Operations(LazyLogging):
         self.path = path
 
     @staticmethod
-    def factory(cursor: sqlite3.Cursor, row: Tuple[Any, ...]) -> Dict[str, Any]:
+    def factory(cursor: sqlite3.Cursor, row: tuple[Any, ...]) -> dict[str, Any]:
         """
         dictionary factory based on official documentation
 
         Args:
             cursor(Cursor): cursor descriptor
-            row(Tuple[Any, ...]): fetched row
+            row(tuple[Any, ...]): fetched row
 
         Returns:
-            Dict[str, Any]: row converted to dictionary
+            dict[str, Any]: row converted to dictionary
         """
         result = {}
         for index, column in enumerate(cursor.description):

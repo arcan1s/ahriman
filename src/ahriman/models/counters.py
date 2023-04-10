@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any
 
 from ahriman.core.util import filter_json
 from ahriman.models.build_status import BuildStatus
@@ -49,12 +49,12 @@ class Counters:
     success: int = 0
 
     @classmethod
-    def from_json(cls: Type[Counters], dump: Dict[str, Any]) -> Counters:
+    def from_json(cls: type[Counters], dump: dict[str, Any]) -> Counters:
         """
         construct counters from json dump
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             Counters: status counters
@@ -64,12 +64,12 @@ class Counters:
         return cls(**filter_json(dump, known_fields))
 
     @classmethod
-    def from_packages(cls: Type[Counters], packages: List[Tuple[Package, BuildStatus]]) -> Counters:
+    def from_packages(cls: type[Counters], packages: list[tuple[Package, BuildStatus]]) -> Counters:
         """
         construct counters from packages statuses
 
         Args:
-            packages(List[Tuple[Package, BuildStatus]]): list of package and their status as per watcher property
+            packages(list[tuple[Package, BuildStatus]]): list of package and their status as per watcher property
 
         Returns:
             Counters: status counters

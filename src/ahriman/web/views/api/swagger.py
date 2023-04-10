@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import Response, json_response
-from typing import Callable, Dict
+from collections.abc import Callable
 
 from ahriman.core.util import partition
 from ahriman.models.user_access import UserAccess
@@ -43,7 +43,7 @@ class SwaggerView(BaseView):
             Response: 200 with json api specification
         """
         spec = self.request.app["swagger_dict"]
-        is_body_parameter: Callable[[Dict[str, str]], bool] = lambda p: p["in"] == "body"
+        is_body_parameter: Callable[[dict[str, str]], bool] = lambda p: p["in"] == "body"
 
         # special workaround because it writes request body to parameters section
         paths = spec["paths"]

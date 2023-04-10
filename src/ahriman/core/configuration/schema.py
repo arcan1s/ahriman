@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any, Dict
+from typing import Any
 
 
 __all__ = ["CONFIGURATION_SCHEMA", "ConfigurationSchema"]
 
 
-ConfigurationSchema = Dict[str, Dict[str, Any]]
+ConfigurationSchema = dict[str, dict[str, Any]]
 
 
 CONFIGURATION_SCHEMA: ConfigurationSchema = {
