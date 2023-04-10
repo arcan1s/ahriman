@@ -8,10 +8,27 @@ Subpackages
    :maxdepth: 4
 
    ahriman.web.middlewares
+   ahriman.web.schemas
    ahriman.web.views
 
 Submodules
 ----------
+
+ahriman.web.apispec module
+--------------------------
+
+.. automodule:: ahriman.web.apispec
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.cors module
+-----------------------
+
+.. automodule:: ahriman.web.cors
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
 
 ahriman.web.routes module
 -------------------------
