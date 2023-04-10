@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   ahriman.web.views.api
    ahriman.web.views.service
    ahriman.web.views.status
    ahriman.web.views.user
