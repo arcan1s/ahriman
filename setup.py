@@ -1,10 +1,10 @@
 from pathlib import Path
 from setuptools import find_packages, setup
-from typing import Any, Dict
+from typing import Any
 
 
 metadata_path = Path(__file__).resolve().parent / "src/ahriman/version.py"
-metadata: Dict[str, Any] = {}
+metadata: dict[str, Any] = {}
 with metadata_path.open() as metadata_file:
     exec(metadata_file.read(), metadata)  # pylint: disable=exec-used
 

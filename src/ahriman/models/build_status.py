@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Any, Dict, Type
+from typing import Any
 
 from ahriman.core.util import filter_json, pretty_datetime, utcnow
 
@@ -65,12 +65,12 @@ class BuildStatus:
         object.__setattr__(self, "status", BuildStatusEnum(self.status))
 
     @classmethod
-    def from_json(cls: Type[BuildStatus], dump: Dict[str, Any]) -> BuildStatus:
+    def from_json(cls: type[BuildStatus], dump: dict[str, Any]) -> BuildStatus:
         """
         construct status properties from json dump
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             BuildStatus: status properties
@@ -87,12 +87,12 @@ class BuildStatus:
         """
         return f"{self.status.value} ({pretty_datetime(self.timestamp)})"
 
-    def view(self) -> Dict[str, Any]:
+    def view(self) -> dict[str, Any]:
         """
         generate json status view
 
         Returns:
-            Dict[str, Any]: json-friendly dictionary
+            dict[str, Any]: json-friendly dictionary
         """
         return {
             "status": self.status.value,

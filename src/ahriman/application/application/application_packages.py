@@ -20,8 +20,9 @@
 import requests
 import shutil
 
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources

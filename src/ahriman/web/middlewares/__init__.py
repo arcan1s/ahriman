@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import Request, StreamResponse
-from typing import Awaitable, Callable
+from collections.abc import Awaitable, Callable
 
 
 HandlerType = Callable[[Request], Awaitable[StreamResponse]]

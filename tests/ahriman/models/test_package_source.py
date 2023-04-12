@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from pytest_mock import MockerFixture
 from pathlib import Path
-from typing import Callable
 
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource

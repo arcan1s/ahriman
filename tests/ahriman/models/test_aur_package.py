@@ -5,12 +5,12 @@ import pyalpm  # typing: ignore
 from dataclasses import asdict, fields
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, Dict
+from typing import Any
 
 from ahriman.models.aur_package import AURPackage
 
 
-def _get_aur_data(resource_path_root: Path) -> Dict[str, Any]:
+def _get_aur_data(resource_path_root: Path) -> dict[str, Any]:
     """
     load package description from resource file
 
@@ -18,13 +18,13 @@ def _get_aur_data(resource_path_root: Path) -> Dict[str, Any]:
         resource_path_root(Path): path to resource root
 
     Returns:
-        Dict[str, Any]: json descriptor
+        dict[str, Any]: json descriptor
     """
     response = (resource_path_root / "models" / "package_ahriman_aur").read_text()
     return json.loads(response)["results"][0]
 
 
-def _get_official_data(resource_path_root: Path) -> Dict[str, Any]:
+def _get_official_data(resource_path_root: Path) -> dict[str, Any]:
     """
     load package description from resource file
 
@@ -32,7 +32,7 @@ def _get_official_data(resource_path_root: Path) -> Dict[str, Any]:
         resource_path_root(Path): path to resource root
 
     Returns:
-        Dict[str, Any]: json descriptor
+        dict[str, Any]: json descriptor
     """
     response = (resource_path_root / "models" / "package_akonadi_aur").read_text()
     return json.loads(response)["results"][0]

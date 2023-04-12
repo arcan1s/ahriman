@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import BuildPrinter
 from ahriman.core.report.report import Report
@@ -46,12 +44,12 @@ class Console(Report):
         Report.__init__(self, architecture, configuration)
         self.use_utf = configuration.getboolean(section, "use_utf", fallback=True)
 
-    def generate(self, packages: Iterable[Package], result: Result) -> None:
+    def generate(self, packages: list[Package], result: Result) -> None:
         """
         generate report for the specified packages
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
         for package in result.success:

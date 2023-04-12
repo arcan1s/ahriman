@@ -19,8 +19,6 @@
 #
 import argparse
 
-from typing import List, Type
-
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -34,7 +32,7 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -46,13 +44,11 @@ class Rebuild(Handler):
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
-        depends_on = set(args.depends_on) if args.depends_on else None
-
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
         application.on_start()
 
         packages = Rebuild.extract_packages(application, from_database=args.from_database)
-        updates = application.repository.packages_depend_on(packages, depends_on)
+        updates = application.repository.packages_depend_on(packages, args.depends_on or None)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:
@@ -64,7 +60,7 @@ class Rebuild(Handler):
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod
-    def extract_packages(application: Application, *, from_database: bool) -> List[Package]:
+    def extract_packages(application: Application, *, from_database: bool) -> list[Package]:
         """
         extract packages from database file
 
@@ -73,7 +69,7 @@ class Rebuild(Handler):
             from_database(bool): extract packages from database instead of repository filesystem
 
         Returns:
-            List[Package]: list of packages which were stored in database
+            list[Package]: list of packages which were stored in database
         """
         if from_database:
             return [package for (package, _) in application.database.packages_get()]

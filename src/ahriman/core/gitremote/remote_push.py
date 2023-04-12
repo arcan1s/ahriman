@@ -19,9 +19,9 @@
 #
 import shutil
 
+from collections.abc import Generator
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Generator
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
@@ -39,7 +39,7 @@ class RemotePush(LazyLogging):
     sync PKGBUILDs to remote repository after actions
 
     Attributes:
-        commit_author(Optional[str]): optional commit author in form of git config (i.e. ``user <user@host>``)
+        commit_author(str | None): optional commit author in form of git config (i.e. ``user <user@host>``)
         database(SQLite): database instance
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
     """

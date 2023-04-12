@@ -3,9 +3,10 @@ import pytest
 from asyncio import BaseEventLoop
 from aiohttp.web import Application, Resource, UrlMappingMatchInfo
 from aiohttp.test_utils import TestClient
+from collections.abc import Awaitable, Callable
 from marshmallow import Schema
 from pytest_mock import MockerFixture
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any
 from unittest.mock import MagicMock
 
 import ahriman.core.auth.helpers
@@ -21,7 +22,7 @@ from ahriman.web.web import setup_service
 
 @pytest.helpers.register
 def request(application: Application, path: str, method: str, json: Any = None, data: Any = None,
-            extra: Optional[Dict[str, Any]] = None, resource: Optional[Resource] = None) -> MagicMock:
+            extra: dict[str, Any] | None = None, resource: Resource | None = None) -> MagicMock:
     """
     request generator helper
 
@@ -31,8 +32,8 @@ def request(application: Application, path: str, method: str, json: Any = None, 
         method(str): method for the request
         json(Any, optional): json payload of the request (Default value = None)
         data(Any, optional): form data payload of the request (Default value = None)
-        extra(Optional[Dict[str, Any]], optional): extra info which will be injected for ``get_extra_info`` command
-        resource(Optional[Resource], optional): optional web resource for the request (Default value = None)
+        extra(dict[str, Any] | None, optional): extra info which will be injected for ``get_extra_info`` command
+        resource(Resource | None, optional): optional web resource for the request (Default value = None)
 
     Returns:
         MagicMock: dummy request mock
@@ -67,7 +68,7 @@ def schema_request(handler: Callable[..., Awaitable[Any]], *, location: str = "j
     Returns:
         Schema: request schema as set by the decorators
     """
-    schemas: List[Dict[str, Any]] = handler.__schemas__  # type: ignore
+    schemas: list[dict[str, Any]] = handler.__schemas__  # type: ignore
     return next(schema["schema"] for schema in schemas if schema["put_into"] == location)
 
 
@@ -83,7 +84,7 @@ def schema_response(handler: Callable[..., Awaitable[Any]], *, code: int = 200) 
     Returns:
         Schema: response schema as set by the decorators
     """
-    schemas: Dict[int, Any] = handler.__apispec__["responses"]  # type: ignore
+    schemas: dict[int, Any] = handler.__apispec__["responses"]  # type: ignore
     schema = schemas[code]["schema"]
     if callable(schema):
         schema = schema()

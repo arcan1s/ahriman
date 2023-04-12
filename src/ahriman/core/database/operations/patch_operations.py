@@ -20,7 +20,6 @@
 from collections import defaultdict
 
 from sqlite3 import Connection
-from typing import Dict, List, Optional, Tuple
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -31,7 +30,7 @@ class PatchOperations(Operations):
     operations for patches
     """
 
-    def patches_get(self, package_base: str) -> List[PkgbuildPatch]:
+    def patches_get(self, package_base: str) -> list[PkgbuildPatch]:
         """
         retrieve patches for the package
 
@@ -39,7 +38,7 @@ class PatchOperations(Operations):
             package_base(str): package base to search for patches
 
         Returns:
-            List[PkgbuildPatch]: plain text patch for the package
+            list[PkgbuildPatch]: plain text patch for the package
         """
         return self.patches_list(package_base, []).get(package_base, [])
 
@@ -65,18 +64,18 @@ class PatchOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def patches_list(self, package_base: Optional[str], variables: List[str]) -> Dict[str, List[PkgbuildPatch]]:
+    def patches_list(self, package_base: str | None, variables: list[str]) -> dict[str, list[PkgbuildPatch]]:
         """
         extract all patches
 
         Args:
-            package_base(Optional[str]): optional filter by package base
-            variables(List[str]): extract patches only for specified PKGBUILD variables
+            package_base(str | None): optional filter by package base
+            variables(list[str]): extract patches only for specified PKGBUILD variables
 
         Returns:
-            Dict[str, List[PkgbuildPatch]]: map of package base to patch content
+            dict[str, list[PkgbuildPatch]]: map of package base to patch content
         """
-        def run(connection: Connection) -> List[Tuple[str, PkgbuildPatch]]:
+        def run(connection: Connection) -> list[tuple[str, PkgbuildPatch]]:
             return [
                 (cursor["package_base"], PkgbuildPatch(cursor["variable"], cursor["patch"]))
                 for cursor in connection.execute(
@@ -85,20 +84,20 @@ class PatchOperations(Operations):
             ]
 
         # we could use itertools & operator but why?
-        patches: Dict[str, List[PkgbuildPatch]] = defaultdict(list)
+        patches: dict[str, list[PkgbuildPatch]] = defaultdict(list)
         for package, patch in self.with_connection(run):
             if variables and patch.key not in variables:
                 continue
             patches[package].append(patch)
         return dict(patches)
 
-    def patches_remove(self, package_base: str, variables: List[str]) -> None:
+    def patches_remove(self, package_base: str, variables: list[str]) -> None:
         """
         remove patch set
 
         Args:
             package_base(str): package base to clear patches
-            variables(List[str]): remove patches only for specified PKGBUILD variables
+            variables(list[str]): remove patches only for specified PKGBUILD variables
         """
         def run_many(connection: Connection) -> None:
             connection.executemany(

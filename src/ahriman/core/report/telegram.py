@@ -19,8 +19,6 @@
 #
 import requests  # technically we could use python-telegram-bot, but it is just a single request, c'mon
 
-from typing import Iterable
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
@@ -84,12 +82,12 @@ class Telegram(Report, JinjaTemplate):
             self.logger.exception("could not perform request")
             raise
 
-    def generate(self, packages: Iterable[Package], result: Result) -> None:
+    def generate(self, packages: list[Package], result: Result) -> None:
         """
         generate report for the specified packages
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
         if not result.success:

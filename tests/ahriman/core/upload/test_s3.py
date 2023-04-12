@@ -1,6 +1,6 @@
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, List, Optional, Tuple
+from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.upload.s3 import S3
@@ -33,7 +33,7 @@ def test_calculate_etag_small(resource_path_root: Path) -> None:
     assert S3.calculate_etag(path, _chunk_size) == "79b0f84e0232ed34fd191a85c383ecc5"
 
 
-def test_files_remove(s3_remote_objects: List[Any]) -> None:
+def test_files_remove(s3_remote_objects: list[Any]) -> None:
     """
     must remove remote objects
     """
@@ -46,11 +46,11 @@ def test_files_remove(s3_remote_objects: List[Any]) -> None:
     remote_objects[Path("x86_64/a")].delete.assert_called_once_with()
 
 
-def test_files_upload(s3: S3, s3_remote_objects: List[Any], mocker: MockerFixture) -> None:
+def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixture) -> None:
     """
     must upload changed files
     """
-    def mimetype(path: Path) -> Tuple[Optional[str], None]:
+    def mimetype(path: Path) -> tuple[str | None, None]:
         return ("text/html", None) if path.name == "b" else (None, None)
 
     root = Path("path")
@@ -87,7 +87,7 @@ def test_get_local_files(s3: S3, resource_path_root: Path, mocker: MockerFixture
     walk_mock.assert_called()
 
 
-def test_get_remote_objects(s3: S3, s3_remote_objects: List[Any]) -> None:
+def test_get_remote_objects(s3: S3, s3_remote_objects: list[Any]) -> None:
     """
     must generate list of remote objects by calling boto3 function
     """

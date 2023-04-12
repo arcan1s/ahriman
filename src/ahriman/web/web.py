@@ -23,7 +23,6 @@ import logging
 import socket
 
 from aiohttp.web import Application, normalize_path_middleware, run_app
-from typing import Optional
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -41,7 +40,7 @@ from ahriman.web.routes import setup_routes
 __all__ = ["run_server", "setup_service"]
 
 
-def _create_socket(configuration: Configuration, application: Application) -> Optional[socket.socket]:
+def _create_socket(configuration: Configuration, application: Application) -> socket.socket | None:
     """
     create unix socket based on configuration option
 
@@ -50,7 +49,7 @@ def _create_socket(configuration: Configuration, application: Application) -> Op
         application(Application): web application instance
 
     Returns:
-        Optional[socket.socket]: unix socket object if set by option
+        socket.socket | None: unix socket object if set by option
     """
     unix_socket = configuration.getpath("web", "unix_socket", fallback=None)
     if unix_socket is None:

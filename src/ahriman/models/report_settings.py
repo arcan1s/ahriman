@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Type
 
 
 class ReportSettings(str, Enum):
@@ -42,7 +41,7 @@ class ReportSettings(str, Enum):
     Telegram = "telegram"
 
     @classmethod
-    def from_option(cls: Type[ReportSettings], value: str) -> ReportSettings:
+    def from_option(cls: type[ReportSettings], value: str) -> ReportSettings:
         """
         construct value from configuration
 

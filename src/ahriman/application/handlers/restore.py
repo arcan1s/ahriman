@@ -19,7 +19,6 @@
 #
 import argparse
 
-from typing import Type
 from tarfile import TarFile
 
 from ahriman.application.handlers import Handler
@@ -34,7 +33,7 @@ class Restore(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

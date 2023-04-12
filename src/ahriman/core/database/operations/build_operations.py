@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from sqlite3 import Connection
-from typing import List, Optional
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.package import Package
@@ -29,12 +28,12 @@ class BuildOperations(Operations):
     operations for build queue functions
     """
 
-    def build_queue_clear(self, package_base: Optional[str]) -> None:
+    def build_queue_clear(self, package_base: str | None) -> None:
         """
         remove packages from build queue
 
         Args:
-            package_base(Optional[str]): optional filter by package base
+            package_base(str | None): optional filter by package base
         """
         def run(connection: Connection) -> None:
             connection.execute(
@@ -46,14 +45,14 @@ class BuildOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def build_queue_get(self) -> List[Package]:
+    def build_queue_get(self) -> list[Package]:
         """
         retrieve packages from build queue
 
         Return:
-            List[Package]: list of packages to be built
+            list[Package]: list of packages to be built
         """
-        def run(connection: Connection) -> List[Package]:
+        def run(connection: Connection) -> list[Package]:
             return [
                 Package.from_json(row["properties"])
                 for row in connection.execute("""select * from build_queue""")

@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
-from typing import List
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
@@ -60,7 +59,7 @@ class Task(LazyLogging):
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    def build(self, sources_dir: Path) -> List[Path]:
+    def build(self, sources_dir: Path) -> list[Path]:
         """
         run package build
 
@@ -68,7 +67,7 @@ class Task(LazyLogging):
             sources_dir(Path): path to where sources are
 
         Returns:
-            List[Path]: paths of produced packages
+            list[Path]: paths of produced packages
         """
         command = [self.build_command, "-r", str(self.paths.chroot)]
         command.extend(self.archbuild_flags)

@@ -37,7 +37,7 @@ class RepositoryProperties(LazyLogging):
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
         database(SQLite): database instance
-        ignore_list(List[str]): package bases which will be ignored during auto updates
+        ignore_list(list[str]): package bases which will be ignored during auto updates
         name(str): repository name
         pacman(Pacman): alpm wrapper instance
         paths(RepositoryPaths): repository paths instance

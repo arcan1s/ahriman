@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import Callable, Type
+from collections.abc import Callable
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -32,7 +32,7 @@ class Update(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

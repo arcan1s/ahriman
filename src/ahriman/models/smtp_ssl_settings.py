@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Type
 
 
 class SmtpSSLSettings(str, Enum):
@@ -38,7 +37,7 @@ class SmtpSSLSettings(str, Enum):
     STARTTLS = "starttls"
 
     @classmethod
-    def from_option(cls: Type[SmtpSSLSettings], value: str) -> SmtpSSLSettings:
+    def from_option(cls: type[SmtpSSLSettings], value: str) -> SmtpSSLSettings:
         """
         construct value from configuration
 

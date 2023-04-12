@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from sqlite3 import Connection
-from typing import List, Optional
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.user import User
@@ -30,7 +29,7 @@ class AuthOperations(Operations):
     authorization operations
     """
 
-    def user_get(self, username: str) -> Optional[User]:
+    def user_get(self, username: str) -> User | None:
         """
         get user by username
 
@@ -38,25 +37,25 @@ class AuthOperations(Operations):
             username(str): username
 
         Returns:
-            Optional[User]: user if it was found
+            User | None: user if it was found
         """
         return next(iter(self.user_list(username, None)), None)
 
-    def user_list(self, username: Optional[str], access: Optional[UserAccess]) -> List[User]:
+    def user_list(self, username: str | None, access: UserAccess | None) -> list[User]:
         """
         get users by filter
 
         Args:
-            username(Optional[str]): optional filter by username
-            access(Optional[UserAccess]): optional filter by role
+            username(str | None): optional filter by username
+            access(UserAccess | None): optional filter by role
 
         Returns:
-            List[User]: list of users who match criteria
+            list[User]: list of users who match criteria
         """
         username_filter = username.lower() if username is not None else username
         access_filter = access.value if access is not None else access
 
-        def run(connection: Connection) -> List[User]:
+        def run(connection: Connection) -> list[User]:
             return [
                 User(username=cursor["username"], password=cursor["password"], access=UserAccess(cursor["access"]))
                 for cursor in connection.execute(

@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
@@ -46,12 +44,12 @@ class PackagePrinter(StringPrinter):
         self.package = package
         self.status = status
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [
             Property("Version", self.package.version, is_required=True),

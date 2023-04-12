@@ -1,6 +1,6 @@
 import pytest
 
-from typing import Any, Dict, List
+from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.configuration import Configuration
@@ -24,12 +24,12 @@ def github(configuration: Configuration) -> Github:
 
 
 @pytest.fixture
-def github_release() -> Dict[str, Any]:
+def github_release() -> dict[str, Any]:
     """
     fixture for the github release object
 
     Returns:
-        Dict[str, Any]: github test release object
+        dict[str, Any]: github test release object
     """
     return {
         "url": "release_url",
@@ -74,12 +74,12 @@ def s3(configuration: Configuration) -> S3:
 
 
 @pytest.fixture
-def s3_remote_objects() -> List[MagicMock]:
+def s3_remote_objects() -> list[MagicMock]:
     """
     fixture for boto3 like S3 objects
 
     Returns:
-        List[MagicMock]: boto3 like S3 objects test instance
+        list[MagicMock]: boto3 like S3 objects test instance
     """
     delete_mock = MagicMock()
 

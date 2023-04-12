@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, List
+from collections.abc import Iterable
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.repository.cleaner import Cleaner
@@ -30,19 +30,19 @@ class UpdateHandler(Cleaner):
     trait to get package update list
     """
 
-    def packages(self) -> List[Package]:
+    def packages(self) -> list[Package]:
         """
         generate list of repository packages
 
         Returns:
-            List[Package]: list of packages properties
+            list[Package]: list of packages properties
 
         Raises:
             NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
-    def updates_aur(self, filter_packages: Iterable[str], *, vcs: bool) -> List[Package]:
+    def updates_aur(self, filter_packages: Iterable[str], *, vcs: bool) -> list[Package]:
         """
         check AUR for updates
 
@@ -51,9 +51,9 @@ class UpdateHandler(Cleaner):
             vcs(bool): enable or disable checking of VCS packages
 
         Returns:
-            List[Package]: list of packages which are out-of-dated
+            list[Package]: list of packages which are out-of-dated
         """
-        result: List[Package] = []
+        result: list[Package] = []
 
         for local in self.packages():
             with self.in_package_context(local.base):
@@ -81,7 +81,7 @@ class UpdateHandler(Cleaner):
 
         return result
 
-    def updates_local(self, *, vcs: bool) -> List[Package]:
+    def updates_local(self, *, vcs: bool) -> list[Package]:
         """
         check local packages for updates
 
@@ -89,9 +89,9 @@ class UpdateHandler(Cleaner):
             vcs(bool): enable or disable checking of VCS packages
 
         Returns:
-            List[Package]: list of local packages which are out-of-dated
+            list[Package]: list of local packages which are out-of-dated
         """
-        result: List[Package] = []
+        result: list[Package] = []
         packages = {local.base: local for local in self.packages()}
 
         for cache_dir in self.paths.cache.iterdir():
@@ -114,14 +114,14 @@ class UpdateHandler(Cleaner):
 
         return result
 
-    def updates_manual(self) -> List[Package]:
+    def updates_manual(self) -> list[Package]:
         """
         check for packages for which manual update has been requested
 
         Returns:
-            List[Package]: list of packages which are out-of-dated
+            list[Package]: list of packages which are out-of-dated
         """
-        result: List[Package] = []
+        result: list[Package] = []
         known_bases = {package.base for package in self.packages()}
 
         try:

@@ -19,7 +19,7 @@
 #
 import argparse
 
-from typing import Callable, Iterable, Tuple, Type
+from collections.abc import Callable
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -37,7 +37,7 @@ class Status(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -55,7 +55,7 @@ class Status(Handler):
             service_status = client.get_internal()
             StatusPrinter(service_status.status).print(verbose=args.info)
         if args.package:
-            packages: Iterable[Tuple[Package, BuildStatus]] = sum(
+            packages: list[tuple[Package, BuildStatus]] = sum(
                 (client.get(base) for base in args.package),
                 start=[])
         else:
@@ -63,8 +63,8 @@ class Status(Handler):
 
         Status.check_if_empty(args.exit_code, not packages)
 
-        comparator: Callable[[Tuple[Package, BuildStatus]], str] = lambda item: item[0].base
-        filter_fn: Callable[[Tuple[Package, BuildStatus]], bool] =\
+        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda item: item[0].base
+        filter_fn: Callable[[tuple[Package, BuildStatus]], bool] =\
             lambda item: args.status is None or item[1].status == args.status
         for package, package_status in sorted(filter(filter_fn, packages), key=comparator):
             PackagePrinter(package, package_status).print(verbose=args.info)

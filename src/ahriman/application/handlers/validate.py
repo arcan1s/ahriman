@@ -20,7 +20,7 @@
 import argparse
 import copy
 
-from typing import Any, Dict, Type
+from typing import Any
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -39,7 +39,7 @@ class Validate(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -112,17 +112,17 @@ class Validate(Handler):
         return schema
 
     @staticmethod
-    def schema_merge(source: Dict[str, Any], schema: Dict[str, Any]) -> Dict[str, Any]:
+    def schema_merge(source: dict[str, Any], schema: dict[str, Any]) -> dict[str, Any]:
         """
         merge child schema into source. In case if source already contains values, new keys will be added
             (possibly with overrides - in case if such key already set also)
 
         Args:
-            source(Dict[str, Any]): source (current) schema into which will be merged
-            schema(Dict[str, Any]): new schema to be merged
+            source(dict[str, Any]): source (current) schema into which will be merged
+            schema(dict[str, Any]): new schema to be merged
 
         Returns:
-            Dict[str, Any]: schema with added elements from source schema if they were set before and not presented
+            dict[str, Any]: schema with added elements from source schema if they were set before and not presented
                 in the new one. Note, that schema will be modified in-place
         """
         for key, value in source.items():

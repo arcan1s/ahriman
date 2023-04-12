@@ -19,8 +19,6 @@
 #
 import argparse
 
-from typing import Type
-
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
@@ -35,7 +33,7 @@ class Web(Handler):
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

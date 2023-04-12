@@ -19,8 +19,6 @@
 #
 import os
 
-from typing import Dict, List, Optional, Tuple
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
@@ -38,7 +36,7 @@ class Watcher(LazyLogging):
     Attributes:
         architecture(str): repository architecture
         database(SQLite): database instance
-        known(Dict[str, Tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
+        known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
             be used instead
         repository(Repository): repository object
         status(BuildStatus): daemon status
@@ -57,23 +55,23 @@ class Watcher(LazyLogging):
         self.database = database
         self.repository = Repository.load(architecture, configuration, database, report=False, unsafe=False)
 
-        self.known: Dict[str, Tuple[Package, BuildStatus]] = {}
+        self.known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
 
         # special variables for updating logs
         self._last_log_record_id = LogRecordId("", os.getpid())
 
     @property
-    def packages(self) -> List[Tuple[Package, BuildStatus]]:
+    def packages(self) -> list[tuple[Package, BuildStatus]]:
         """
         get current known packages list
 
         Returns:
-            List[Tuple[Package, BuildStatus]]: list of packages together with their statuses
+            list[tuple[Package, BuildStatus]]: list of packages together with their statuses
         """
         return list(self.known.values())
 
-    def get(self, package_base: str) -> Tuple[Package, BuildStatus]:
+    def get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
         get current package base build status
 
@@ -81,7 +79,7 @@ class Watcher(LazyLogging):
             package_base(str): package base
 
         Returns:
-            Tuple[Package, BuildStatus]: package and its status
+            tuple[Package, BuildStatus]: package and its status
 
         Raises:
             UnknownPackage: if no package found
@@ -130,24 +128,24 @@ class Watcher(LazyLogging):
         self.database.package_remove(package_base)
         self.remove_logs(package_base, None)
 
-    def remove_logs(self, package_base: str, current_process_id: Optional[int]) -> None:
+    def remove_logs(self, package_base: str, current_process_id: int | None) -> None:
         """
         remove package related logs
 
         Args:
             package_base(str): package base
-            current_process_id(int): current process id
+            current_process_id(int | None): current process id
         """
         self.database.logs_remove(package_base, current_process_id)
 
-    def update(self, package_base: str, status: BuildStatusEnum, package: Optional[Package]) -> None:
+    def update(self, package_base: str, status: BuildStatusEnum, package: Package | None) -> None:
         """
         update package status and description
 
         Args:
             package_base(str): package base to update
             status(BuildStatusEnum): new build status
-            package(Optional[Package]): optional new package description. In case if not set current properties will be used
+            package(Package | None): optional package description. In case if not set current properties will be used
 
         Raises:
             UnknownPackage: if no package found

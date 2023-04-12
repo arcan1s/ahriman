@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.property import Property
@@ -29,26 +27,26 @@ class PatchPrinter(StringPrinter):
     print content of the PKGBUILD patch
 
     Attributes:
-        patches(List[PkgbuildPatch]): PKGBUILD patch object
+        patches(list[PkgbuildPatch]): PKGBUILD patch object
     """
 
-    def __init__(self, package_base: str, patches: List[PkgbuildPatch]) -> None:
+    def __init__(self, package_base: str, patches: list[PkgbuildPatch]) -> None:
         """
         default constructor
 
         Args:
             package_base(str): package base
-            patches(List[PkgbuildPatch]): PKGBUILD patch object
+            patches(list[PkgbuildPatch]): PKGBUILD patch object
         """
         StringPrinter.__init__(self, package_base)
         self.patches = patches
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [
             Property(patch.key or "Full source diff", patch.value, is_required=True)

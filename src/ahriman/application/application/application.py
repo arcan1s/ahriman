@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, List, Set
+from collections.abc import Iterable
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.application.application.application_repository import ApplicationRepository
@@ -50,14 +50,14 @@ class Application(ApplicationPackages, ApplicationRepository):
         be used instead.
     """
 
-    def _known_packages(self) -> Set[str]:
+    def _known_packages(self) -> set[str]:
         """
         load packages from repository and pacman repositories
 
         Returns:
-            Set[str]: list of known packages
+            set[str]: list of known packages
         """
-        known_packages: Set[str] = set()
+        known_packages: set[str] = set()
         # local set
         for base in self.repository.packages():
             for package, properties in base.packages.items():
@@ -89,15 +89,15 @@ class Application(ApplicationPackages, ApplicationRepository):
         """
         self.repository.triggers.on_stop()
 
-    def with_dependencies(self, packages: List[Package], *, process_dependencies: bool) -> List[Package]:
+    def with_dependencies(self, packages: list[Package], *, process_dependencies: bool) -> list[Package]:
         """
         add missing dependencies to list of packages
 
         Args:
-            packages(List[Package]): list of source packages of which dependencies have to be processed
+            packages(list[Package]): list of source packages of which dependencies have to be processed
             process_dependencies(bool): if no set, dependencies will not be processed
         """
-        def missing_dependencies(source: Iterable[Package]) -> Set[str]:
+        def missing_dependencies(source: Iterable[Package]) -> set[str]:
             # build initial list of dependencies
             result = set()
             for package in source:

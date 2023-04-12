@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Callable
 from dataclasses import dataclass
 from sqlite3 import Connection
-from typing import Callable, List
 
 from ahriman.core.configuration import Configuration
 
@@ -32,11 +32,11 @@ class Migration:
     Attributes:
         index(int): migration position
         name(str): migration name
-        steps(List[str]): migration steps
+        steps(list[str]): migration steps
         migrate_data(Callable[[Connection, Configuration], None]): data migration callback
     """
 
     index: int
     name: str
-    steps: List[str]
+    steps: list[str]
     migrate_data: Callable[[Connection, Configuration], None]

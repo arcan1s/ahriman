@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable, Type
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SynchronizationError
@@ -68,7 +67,7 @@ class Upload(LazyLogging):
         self.configuration = configuration
 
     @classmethod
-    def load(cls: Type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:
+    def load(cls: type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:
         """
         load client from settings
 
@@ -93,13 +92,13 @@ class Upload(LazyLogging):
             return Github(architecture, configuration, section)
         return cls(architecture, configuration)  # should never happen
 
-    def run(self, path: Path, built_packages: Iterable[Package]) -> None:
+    def run(self, path: Path, built_packages: list[Package]) -> None:
         """
         run remote sync
 
         Args:
             path(Path): local path to sync
-            built_packages(Iterable[Package]): list of packages which has just been built
+            built_packages(list[Package]): list of packages which has just been built
 
         Raises:
             SyncFailed: in case of any synchronization unmatched exception
@@ -110,11 +109,11 @@ class Upload(LazyLogging):
             self.logger.exception("remote sync failed")
             raise SynchronizationError()
 
-    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
+    def sync(self, path: Path, built_packages: list[Package]) -> None:
         """
         sync data to remote server
 
         Args:
             path(Path): local path to sync
-            built_packages(Iterable[Package]): list of packages which has just been built
+            built_packages(list[Package]): list of packages which has just been built
         """

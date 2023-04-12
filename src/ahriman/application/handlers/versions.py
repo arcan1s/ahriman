@@ -21,8 +21,6 @@ import argparse
 import pkg_resources
 import sys
 
-from typing import Dict, List, Tuple, Type
-
 from ahriman import version
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -37,7 +35,7 @@ class Versions(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -55,23 +53,23 @@ class Versions(Handler):
         VersionPrinter("Installed packages", packages).print(verbose=False, separator=" ")
 
     @staticmethod
-    def package_dependencies(root: str, root_extras: Tuple[str, ...] = ()) -> Dict[str, str]:
+    def package_dependencies(root: str, root_extras: tuple[str, ...] = ()) -> dict[str, str]:
         """
         extract list of ahriman package dependencies installed into system with their versions
 
         Args:
             root(str): root package name
-            root_extras(Tuple[str, ...], optional): extras for the root package (Default value = ())
+            root_extras(tuple[str, ...], optional): extras for the root package (Default value = ())
 
         Returns:
-            Dict[str, str]: map of installed dependency to its version
+            dict[str, str]: map of installed dependency to its version
         """
-        resources: Dict[str, pkg_resources.Distribution] = pkg_resources.working_set.by_key  # type: ignore
+        resources: dict[str, pkg_resources.Distribution] = pkg_resources.working_set.by_key  # type: ignore
 
-        def dependencies_by_key(key: str, extras: Tuple[str, ...] = ()) -> List[str]:
+        def dependencies_by_key(key: str, extras: tuple[str, ...] = ()) -> list[str]:
             return [entry.key for entry in resources[key].requires(extras)]
 
-        keys: List[str] = []
+        keys: list[str] = []
         portion = {key for key in dependencies_by_key(root, root_extras) if key in resources}
         while portion:
             keys.extend(portion)

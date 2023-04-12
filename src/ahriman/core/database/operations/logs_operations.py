@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from sqlite3 import Connection
-from typing import List, Optional
 
 from ahriman.core.database.operations import Operations
 from ahriman.core.util import pretty_datetime
@@ -40,7 +39,7 @@ class LogsOperations(Operations):
         Return:
             str: full package log
         """
-        def run(connection: Connection) -> List[str]:
+        def run(connection: Connection) -> list[str]:
             return [
                 f"""[{pretty_datetime(row["created"])}] {row["record"]}"""
                 for row in connection.execute(
@@ -81,13 +80,13 @@ class LogsOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def logs_remove(self, package_base: str, current_process_id: Optional[int]) -> None:
+    def logs_remove(self, package_base: str, current_process_id: int | None) -> None:
         """
         remove log records for the specified package
 
         Args:
             package_base(str): package base to remove logs
-            current_process_id(Optional[int]): current process id. If set it will remove only logs belonging to another
+            current_process_id(int | None): current process id. If set it will remove only logs belonging to another
                 process
         """
         def run(connection: Connection) -> None:
