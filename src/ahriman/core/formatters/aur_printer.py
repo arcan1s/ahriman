@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.core.util import pretty_datetime
 from ahriman.models.aur_package import AURPackage
@@ -43,12 +41,12 @@ class AurPrinter(StringPrinter):
         StringPrinter.__init__(self, f"{package.name} {package.version} ({package.num_votes})")
         self.package = package
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [
             Property("Package base", self.package.package_base),

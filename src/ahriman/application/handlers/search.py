@@ -20,7 +20,7 @@
 import argparse
 
 from dataclasses import fields
-from typing import Callable, Iterable, List, Tuple, Type
+from collections.abc import Callable, Iterable
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -36,14 +36,14 @@ class Search(Handler):
     packages search handler
 
     Attributes:
-        SORT_FIELDS(Set[str]): (class attribute) allowed fields to sort the package list
+        SORT_FIELDS(set[str]): (class attribute) allowed fields to sort the package list
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
     SORT_FIELDS = {field.name for field in fields(AURPackage) if field.default_factory is not list}  # type: ignore
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -67,7 +67,7 @@ class Search(Handler):
                 AurPrinter(package).print(verbose=args.info)
 
     @staticmethod
-    def sort(packages: Iterable[AURPackage], sort_by: str) -> List[AURPackage]:
+    def sort(packages: Iterable[AURPackage], sort_by: str) -> list[AURPackage]:
         """
         sort package list by specified field
 
@@ -76,7 +76,7 @@ class Search(Handler):
             sort_by(str): AUR package field name to sort by
 
         Returns:
-            List[AURPackage]: sorted list for packages
+            list[AURPackage]: sorted list for packages
 
         Raises:
             InvalidOption: if search fields is not in list of allowed ones
@@ -85,6 +85,6 @@ class Search(Handler):
             raise OptionError(sort_by)
         # always sort by package name at the last
         # well technically it is not a string, but we can deal with it
-        comparator: Callable[[AURPackage], Tuple[str, str]] =\
+        comparator: Callable[[AURPackage], tuple[str, str]] =\
             lambda package: (getattr(package, sort_by), package.name)
         return sorted(packages, key=comparator)

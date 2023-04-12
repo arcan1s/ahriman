@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any, Dict, Generator, List, Union
+from collections.abc import Generator
+from typing import Any
 
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.property import Property
@@ -29,30 +30,30 @@ class ValidationPrinter(StringPrinter):
 
     Attributes:
         node(str): root level name
-        errors(List[Union[str, Dict[str, Any]]]): validation errors
+        errors(list[str | dict[str, Any]]): validation errors
     """
 
-    def __init__(self, node: str, errors: List[Union[str, Dict[str, Any]]]) -> None:
+    def __init__(self, node: str, errors: list[str | dict[str, Any]]) -> None:
         """
         default constructor
 
         Args:
             node(str): root level name
-            errors(List[Union[str, Dict[str, Any]]]): validation errors
+            errors(list[str | dict[str, Any]]): validation errors
         """
         StringPrinter.__init__(self, node)
         self.node = node
         self.errors = errors
 
     @staticmethod
-    def get_error_messages(node: str, errors: List[Union[str, Dict[str, Any]]],
+    def get_error_messages(node: str, errors: list[str | dict[str, Any]],
                            current_level: int = 1) -> Generator[Property, None, None]:
         """
         extract default error message from cerberus class
 
         Args:
             node(str): current node level name
-            errors(List[Union[str, Dict[str, Any]]]): current node validation errors
+            errors(list[str | dict[str, Any]]): current node validation errors
             current_level(int, optional): current level number (Default value = 1)
 
         Yields:
@@ -67,11 +68,11 @@ class ValidationPrinter(StringPrinter):
             else:  # current node errors
                 yield Property(node, error, is_required=True, indent=current_level)
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return list(self.get_error_messages(self.node, self.errors))

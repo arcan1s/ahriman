@@ -22,9 +22,9 @@ from __future__ import annotations
 import argparse
 import uuid
 
+from collections.abc import Callable, Iterable
 from multiprocessing import Process, Queue
 from threading import Lock, Thread
-from typing import Callable, Dict, Iterable, Optional, Tuple
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -37,10 +37,10 @@ class Spawn(Thread, LazyLogging):
     MUST NOT be used directly, the only one usage allowed is to spawn process from web services
 
     Attributes:
-        active(Dict[str, Process]): map of active child processes required to avoid zombies
+        active(dict[str, Process]): map of active child processes required to avoid zombies
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
-        queue(Queue[Tuple[str, bool]]): multiprocessing queue to read updates from processes
+        queue(Queue[tuple[str, bool]]): multiprocessing queue to read updates from processes
     """
 
     def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, configuration: Configuration) -> None:
@@ -58,13 +58,13 @@ class Spawn(Thread, LazyLogging):
         self.configuration = configuration
 
         self.lock = Lock()
-        self.active: Dict[str, Process] = {}
+        self.active: dict[str, Process] = {}
         # stupid pylint does not know that it is possible
-        self.queue: Queue[Tuple[str, bool] | None] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[tuple[str, bool] | None] = Queue()  # pylint: disable=unsubscriptable-object
 
     @staticmethod
     def process(callback: Callable[[argparse.Namespace, str], bool], args: argparse.Namespace, architecture: str,
-                process_id: str, queue: Queue[Tuple[str, bool]]) -> None:  # pylint: disable=unsubscriptable-object
+                process_id: str, queue: Queue[tuple[str, bool]]) -> None:  # pylint: disable=unsubscriptable-object
         """
         helper to run external process
 
@@ -73,7 +73,7 @@ class Spawn(Thread, LazyLogging):
             args(argparse.Namespace): command line arguments
             architecture(str): repository architecture
             process_id(str): process unique identifier
-            queue(Queue[Tuple[str, bool]]): output queue
+            queue(Queue[tuple[str, bool]]): output queue
         """
         result = callback(args, architecture)
         queue.put((process_id, result))
@@ -113,13 +113,13 @@ class Spawn(Thread, LazyLogging):
         with self.lock:
             self.active[process_id] = process
 
-    def key_import(self, key: str, server: Optional[str]) -> None:
+    def key_import(self, key: str, server: str | None) -> None:
         """
         import key to service cache
 
         Args:
             key(str): key to import
-            server(str): PGP key server
+            server(str | None): PGP key server
         """
         kwargs = {} if server is None else {"key-server": server}
         self._spawn_process("service-key-import", key, **kwargs)
@@ -155,7 +155,7 @@ class Spawn(Thread, LazyLogging):
         """
         self._spawn_process("package-remove", *packages)
 
-    def packages_update(self, ) -> None:
+    def packages_update(self) -> None:
         """
         run full repository update
         """

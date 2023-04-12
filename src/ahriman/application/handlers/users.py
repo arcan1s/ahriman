@@ -21,7 +21,6 @@ import argparse
 import getpass
 
 from pathlib import Path
-from typing import Optional, Tuple, Type
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -40,7 +39,7 @@ class Users(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -119,7 +118,7 @@ class Users(Handler):
             path.chmod(0o600)
 
     @staticmethod
-    def get_salt(configuration: Configuration, salt_length: int = 20) -> Tuple[Optional[str], str]:
+    def get_salt(configuration: Configuration, salt_length: int = 20) -> tuple[str | None, str]:
         """
         get salt from configuration or create new string
 
@@ -128,7 +127,7 @@ class Users(Handler):
             salt_length(int, optional): salt length (Default value = 20)
 
         Returns:
-            Tuple[Optional[str], str]: tuple containing salt from configuration if any and actual salt which must be
+            tuple[str | None, str]: tuple containing salt from configuration if any and actual salt which must be
                 used for password hash
         """
         if salt := configuration.get("auth", "salt", fallback=None):

@@ -19,7 +19,7 @@
 #
 import aiohttp_jinja2
 
-from typing import Any, Dict
+from typing import Any
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -36,11 +36,11 @@ class DocsView(BaseView):
     GET_PERMISSION = UserAccess.Unauthorized
 
     @aiohttp_jinja2.template("api.jinja2")
-    async def get(self) -> Dict[str, Any]:
+    async def get(self) -> dict[str, Any]:
         """
         return static docs html
 
         Returns:
-            Dict[str, Any]: parameters for jinja template
+            dict[str, Any]: parameters for jinja template
         """
         return {}

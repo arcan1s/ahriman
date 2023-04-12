@@ -99,7 +99,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, repo
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_packages_mock.assert_called_once_with([], {"python-aur"})
+    application_packages_mock.assert_called_once_with([], ["python-aur"])
 
 
 def test_run_without_filter(args: argparse.Namespace, configuration: Configuration, repository: Repository,

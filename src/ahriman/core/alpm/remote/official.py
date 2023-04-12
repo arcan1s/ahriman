@@ -19,7 +19,7 @@
 #
 import requests
 
-from typing import Any, Dict, List, Type
+from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
@@ -34,7 +34,7 @@ class Official(Remote):
 
     Attributes:
         DEFAULT_ARCHLINUX_URL(str): (class attribute) default archlinux url
-        DEFAULT_SEARCH_REPOSITORIES(List[str]): (class attribute) default list of repositories to search
+        DEFAULT_SEARCH_REPOSITORIES(list[str]): (class attribute) default list of repositories to search
         DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
         DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
@@ -45,15 +45,15 @@ class Official(Remote):
     DEFAULT_TIMEOUT = 30
 
     @staticmethod
-    def parse_response(response: Dict[str, Any]) -> List[AURPackage]:
+    def parse_response(response: dict[str, Any]) -> list[AURPackage]:
         """
         parse RPC response to package list
 
         Args:
-            response(Dict[str, Any]): RPC response json
+            response(dict[str, Any]): RPC response json
 
         Returns:
-            List[AURPackage]: list of parsed packages
+            list[AURPackage]: list of parsed packages
 
         Raises:
             InvalidPackageInfo: for error API response
@@ -63,7 +63,7 @@ class Official(Remote):
         return [AURPackage.from_repo(package) for package in response["results"]]
 
     @classmethod
-    def remote_git_url(cls: Type[Remote], package_base: str, repository: str) -> str:
+    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -79,7 +79,7 @@ class Official(Remote):
         return "https://github.com/archlinux/svntogit-community.git"
 
     @classmethod
-    def remote_web_url(cls: Type[Remote], package_base: str) -> str:
+    def remote_web_url(cls: type[Remote], package_base: str) -> str:
         """
         generate remote web url from the package base
 
@@ -91,7 +91,7 @@ class Official(Remote):
         """
         return f"{Official.DEFAULT_ARCHLINUX_URL}/packages/{package_base}"
 
-    def make_request(self, *args: str, by: str) -> List[AURPackage]:
+    def make_request(self, *args: str, by: str) -> list[AURPackage]:
         """
         perform request to official repositories RPC
 
@@ -100,7 +100,7 @@ class Official(Remote):
             by(str): search by the field
 
         Returns:
-            List[AURPackage]: response parsed to package list
+            list[AURPackage]: response parsed to package list
         """
         try:
             response = requests.get(
@@ -133,7 +133,7 @@ class Official(Remote):
         except StopIteration:
             raise UnknownPackageError(package_name)
 
-    def package_search(self, *keywords: str, pacman: Pacman) -> List[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search package in AUR web
 
@@ -142,6 +142,6 @@ class Official(Remote):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            List[AURPackage]: list of packages which match the criteria
+            list[AURPackage]: list of packages which match the criteria
         """
         return self.make_request(*keywords, by="q")

@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
-from typing import List
 
 from ahriman.core.exceptions import BuildError
 from ahriman.core.log import LazyLogging
@@ -33,20 +32,20 @@ class Repo(LazyLogging):
     Attributes:
         name(str): repository name
         paths(RepositoryPaths): repository paths instance
-        sign_args(List[str]): additional args which have to be used to sign repository archive
+        sign_args(list[str]): additional args which have to be used to sign repository archive
         uid(int): uid of the repository owner user
     """
 
     _check_output = check_output
 
-    def __init__(self, name: str, paths: RepositoryPaths, sign_args: List[str]) -> None:
+    def __init__(self, name: str, paths: RepositoryPaths, sign_args: list[str]) -> None:
         """
         default constructor
 
         Args:
             name(str): repository name
             paths(RepositoryPaths): repository paths instance
-            sign_args(List[str]): additional args which have to be used to sign repository archive
+            sign_args(list[str]): additional args which have to be used to sign repository archive
         """
         self.name = name
         self.paths = paths

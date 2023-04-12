@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Callable
 from importlib import import_module
 from pathlib import Path
 from pkgutil import iter_modules
 from sqlite3 import Connection, Cursor
-from typing import Callable, List
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -83,22 +83,22 @@ class Migrations(LazyLogging):
             "data migration %s at index %s has been performed",
             migration.name, migration.index)
 
-    def migrations(self) -> List[Migration]:
+    def migrations(self) -> list[Migration]:
         """
         extract all migrations from the current package
         idea comes from https://julienharbulot.com/python-dynamical-import.html
 
         Returns:
-            List[Migration]: list of found migrations
+            list[Migration]: list of found migrations
         """
-        migrations: List[Migration] = []
+        migrations: list[Migration] = []
         package_dir = Path(__file__).resolve().parent
         modules = [module_name for (_, module_name, _) in iter_modules([str(package_dir)])]
 
         for index, module_name in enumerate(sorted(modules)):
             module = import_module(f"{__name__}.{module_name}")
 
-            steps: List[str] = getattr(module, "steps", [])
+            steps: list[str] = getattr(module, "steps", [])
             self.logger.debug("found migration %s at index %s with steps count %s", module_name, index, len(steps))
 
             migrate_data: Callable[[Connection, Configuration], None] = \

@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, Optional, Type
+from typing import Any
 
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
@@ -33,25 +33,25 @@ class InternalStatus:
 
     Attributes:
         status(BuildStatus): service status
-        architecture(Optional[str]): repository architecture
+        architecture(str | None): repository architecture
         packages(Counters): packages statuses counter object
-        repository(Optional[str]): repository name
-        version(Optional[str]): service version
+        repository(str | None): repository name
+        version(str | None): service version
     """
 
     status: BuildStatus
-    architecture: Optional[str] = None
+    architecture: str | None = None
     packages: Counters = field(default=Counters(total=0))
-    repository: Optional[str] = None
-    version: Optional[str] = None
+    repository: str | None = None
+    version: str | None = None
 
     @classmethod
-    def from_json(cls: Type[InternalStatus], dump: Dict[str, Any]) -> InternalStatus:
+    def from_json(cls: type[InternalStatus], dump: dict[str, Any]) -> InternalStatus:
         """
         construct internal status from json dump
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             InternalStatus: internal status
@@ -64,11 +64,11 @@ class InternalStatus:
                    repository=dump.get("repository"),
                    version=dump.get("version"))
 
-    def view(self) -> Dict[str, Any]:
+    def view(self) -> dict[str, Any]:
         """
         generate json status view
 
         Returns:
-            Dict[str, Any]: json-friendly dictionary
+            dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

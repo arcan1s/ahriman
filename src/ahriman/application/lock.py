@@ -22,7 +22,7 @@ from __future__ import annotations
 import argparse
 
 from types import TracebackType
-from typing import Literal, Optional, Type
+from typing import Literal
 
 from ahriman import version
 from ahriman.core.configuration import Configuration
@@ -127,14 +127,14 @@ class Lock(LazyLogging):
         self.reporter.update_self(BuildStatusEnum.Building)
         return self
 
-    def __exit__(self, exc_type: Optional[Type[Exception]], exc_val: Optional[Exception],
+    def __exit__(self, exc_type: type[Exception] | None, exc_val: Exception | None,
                  exc_tb: TracebackType) -> Literal[False]:
         """
         remove lock file when done
 
         Args:
-            exc_type(Optional[Type[Exception]]): exception type name if any
-            exc_val(Optional[Exception]): exception raised if any
+            exc_type(type[Exception] | None): exception type name if any
+            exc_val(Exception | None): exception raised if any
             exc_tb(TracebackType): exception traceback if any
 
         Returns:

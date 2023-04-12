@@ -21,8 +21,6 @@ from __future__ import annotations
 
 import logging
 
-from typing import List, Optional, Tuple, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
@@ -35,7 +33,7 @@ class Client:
     """
 
     @classmethod
-    def load(cls: Type[Client], configuration: Configuration, *, report: bool) -> Client:
+    def load(cls: type[Client], configuration: Configuration, *, report: bool) -> Client:
         """
         load client from settings
 
@@ -71,15 +69,15 @@ class Client:
             status(BuildStatusEnum): current package build status
         """
 
-    def get(self, package_base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+    def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
         get package status
 
         Args:
-            package_base(Optional[str]): package base to get
+            package_base(str | None): package base to get
 
         Returns:
-            List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
+            list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         del package_base
         return []

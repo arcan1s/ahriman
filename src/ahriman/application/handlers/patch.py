@@ -21,7 +21,6 @@ import argparse
 import sys
 
 from pathlib import Path
-from typing import List, Optional, Tuple, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -39,7 +38,7 @@ class Patch(Handler):
     """
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -66,17 +65,17 @@ class Patch(Handler):
             Patch.patch_set_remove(application, args.package, args.variable)
 
     @staticmethod
-    def patch_create_from_diff(sources_dir: Path, architecture: str, track: List[str]) -> Tuple[str, PkgbuildPatch]:
+    def patch_create_from_diff(sources_dir: Path, architecture: str, track: list[str]) -> tuple[str, PkgbuildPatch]:
         """
         create PKGBUILD plain diff patches from sources directory
 
         Args:
             sources_dir(Path): path to directory with the package sources
             architecture(str): repository architecture
-            track(List[str]): track files which match the glob before creating the patch
+            track(list[str]): track files which match the glob before creating the patch
 
         Returns:
-            Tuple[str, PkgbuildPatch]: package base and created PKGBUILD patch based on the diff from master HEAD
+            tuple[str, PkgbuildPatch]: package base and created PKGBUILD patch based on the diff from master HEAD
                 to current files
         """
         package = Package.from_build(sources_dir, architecture)
@@ -84,13 +83,13 @@ class Patch(Handler):
         return package.base, PkgbuildPatch(None, patch)
 
     @staticmethod
-    def patch_create_from_function(variable: str, patch_path: Optional[Path]) -> PkgbuildPatch:
+    def patch_create_from_function(variable: str, patch_path: Path | None) -> PkgbuildPatch:
         """
         create single-function patch set for the package base
 
         Args:
             variable(str): function or variable name inside PKGBUILD
-            patch_path(Path): optional path to patch content. If not set, it will be read from stdin
+            patch_path(Path | None): optional path to patch content. If not set, it will be read from stdin
 
         Returns:
             PkgbuildPatch: created patch for the PKGBUILD function
@@ -116,15 +115,15 @@ class Patch(Handler):
         application.database.patches_insert(package_base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: Optional[str], variables: List[str],
+    def patch_set_list(application: Application, package_base: str | None, variables: list[str],
                        exit_code: bool) -> None:
         """
         list patches available for the package base
 
         Args:
             application(Application): application instance
-            package_base(Optional[str]): package base
-            variables(List[str]): extract patches only for specified PKGBUILD variables
+            package_base(str | None): package base
+            variables(list[str]): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base, variables)
@@ -134,13 +133,13 @@ class Patch(Handler):
             PatchPrinter(base, patch).print(verbose=True, separator=" = ")
 
     @staticmethod
-    def patch_set_remove(application: Application, package_base: str, variables: List[str]) -> None:
+    def patch_set_remove(application: Application, package_base: str, variables: list[str]) -> None:
         """
         remove patch set for the package base
 
         Args:
             application(Application): application instance
             package_base(str): package base
-            variables(List[str]): remove patches only for specified PKGBUILD variables
+            variables(list[str]): remove patches only for specified PKGBUILD variables
         """
         application.database.patches_remove(package_base, variables)

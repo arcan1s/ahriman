@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
@@ -50,12 +48,12 @@ class HTML(Report, JinjaTemplate):
         self.report_path = configuration.getpath(section, "path")
         self.template_path = configuration.getpath(section, "template_path")
 
-    def generate(self, packages: Iterable[Package], result: Result) -> None:
+    def generate(self, packages: list[Package], result: Result) -> None:
         """
         generate report for the specified packages
 
         Args:
-            packages(Iterable[Package]): list of packages to generate report
+            packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
         html = self.make_html(Result(success=packages), self.template_path)

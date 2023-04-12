@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Callable, Iterable, List
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
@@ -89,19 +89,19 @@ class ApplicationRepository(ApplicationProperties):
         # process triggers
         self.on_result(Result())
 
-    def unknown(self) -> List[str]:
+    def unknown(self) -> list[str]:
         """
         get packages which were not found in AUR
 
         Returns:
-            List[str]: unknown package archive list
+            list[str]: unknown package archive list
         """
         def has_local(probe: Package) -> bool:
             cache_dir = self.repository.paths.cache_for(probe.base)
             return cache_dir.is_dir() and not Sources.has_remotes(cache_dir)
 
-        def unknown_aur(probe: Package) -> List[str]:
-            packages: List[str] = []
+        def unknown_aur(probe: Package) -> list[str]:
+            packages: list[str] = []
             for single in probe.packages:
                 try:
                     _ = Package.from_aur(single, self.repository.pacman)
@@ -109,7 +109,7 @@ class ApplicationRepository(ApplicationProperties):
                     packages.append(single)
             return packages
 
-        def unknown_local(probe: Package) -> List[str]:
+        def unknown_local(probe: Package) -> list[str]:
             cache_dir = self.repository.paths.cache_for(probe.base)
             local = Package.from_build(cache_dir, self.architecture)
             packages = set(probe.packages.keys()).difference(local.packages.keys())
@@ -155,7 +155,7 @@ class ApplicationRepository(ApplicationProperties):
         return build_result
 
     def updates(self, filter_packages: Iterable[str], *,
-                aur: bool, local: bool, manual: bool, vcs: bool, log_fn: Callable[[str], None]) -> List[Package]:
+                aur: bool, local: bool, manual: bool, vcs: bool, log_fn: Callable[[str], None]) -> list[Package]:
         """
         get list of packages to run update process
 
@@ -168,7 +168,7 @@ class ApplicationRepository(ApplicationProperties):
             log_fn(Callable[[str], None]): logger function to log updates
 
         Returns:
-            List[Package]: list of out-of-dated packages
+            list[Package]: list of out-of-dated packages
         """
         updates = {}
 

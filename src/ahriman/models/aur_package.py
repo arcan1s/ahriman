@@ -22,9 +22,10 @@ from __future__ import annotations
 import datetime
 import inflection
 
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from pyalpm import Package  # type: ignore
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
 
 from ahriman.core.util import filter_json, full_version
 
@@ -40,23 +41,23 @@ class AURPackage:
         package_base_id(int): package base ID
         version(str): package base version
         description(str): package base description
-        url(Optional[str]): package upstream URL
+        url(str | None): package upstream URL
         num_votes(int): number of votes for the package
         popularity(float): package popularity
-        out_of_date(Optional[datetime.datetime]): package out of date timestamp if any
-        maintainer(Optional[str]): package maintainer
-        submitter(Optional[str]): package first submitter
+        out_of_date(datetime.datetime | None): package out of date timestamp if any
+        maintainer(str | None): package maintainer
+        submitter(str | None): package first submitter
         first_submitted(datetime.datetime): timestamp of the first package submission
         last_modified(datetime.datetime): timestamp of the last package submission
         url_path(str): AUR package path
         repository(str): repository name of the package
-        depends(List[str]): list of package dependencies
-        make_depends(List[str]): list of package make dependencies
-        opt_depends(List[str]): list of package optional dependencies
-        conflicts(List[str]): conflicts list for the package
-        provides(List[str]): list of packages which this package provides
-        license(List[str]): list of package licenses
-        keywords(List[str]): list of package keywords
+        depends(list[str]): list of package dependencies
+        make_depends(l[str]): list of package make dependencies
+        opt_depends(list[str]): list of package optional dependencies
+        conflicts(list[str]): conflicts list for the package
+        provides(list[str]): list of packages which this package provides
+        license(list[str]): list of package licenses
+        keywords(list[str]): list of package keywords
 
     Examples:
         Mainly this class must be used from class methods instead of default ``__init__``::
@@ -87,26 +88,26 @@ class AURPackage:
     last_modified: datetime.datetime
     url_path: str
     description: str = ""  # despite the fact that the field is required some packages don't have it
-    url: Optional[str] = None
-    out_of_date: Optional[datetime.datetime] = None
-    maintainer: Optional[str] = None
-    submitter: Optional[str] = None
+    url: str | None = None
+    out_of_date: datetime.datetime | None = None
+    maintainer: str | None = None
+    submitter: str | None = None
     repository: str = "aur"
-    depends: List[str] = field(default_factory=list)
-    make_depends: List[str] = field(default_factory=list)
-    opt_depends: List[str] = field(default_factory=list)
-    conflicts: List[str] = field(default_factory=list)
-    provides: List[str] = field(default_factory=list)
-    license: List[str] = field(default_factory=list)
-    keywords: List[str] = field(default_factory=list)
+    depends: list[str] = field(default_factory=list)
+    make_depends: list[str] = field(default_factory=list)
+    opt_depends: list[str] = field(default_factory=list)
+    conflicts: list[str] = field(default_factory=list)
+    provides: list[str] = field(default_factory=list)
+    license: list[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_json(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
+    def from_json(cls: type[AURPackage], dump: dict[str, Any]) -> AURPackage:
         """
         construct package descriptor from RPC properties
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             AURPackage: AUR package descriptor
@@ -117,7 +118,7 @@ class AURPackage:
         return cls(**filter_json(properties, known_fields))
 
     @classmethod
-    def from_pacman(cls: Type[AURPackage], package: Package) -> AURPackage:
+    def from_pacman(cls: type[AURPackage], package: Package) -> AURPackage:
         """
         construct package descriptor from official repository wrapper
 
@@ -154,12 +155,12 @@ class AURPackage:
         )
 
     @classmethod
-    def from_repo(cls: Type[AURPackage], dump: Dict[str, Any]) -> AURPackage:
+    def from_repo(cls: type[AURPackage], dump: dict[str, Any]) -> AURPackage:
         """
         construct package descriptor from official repository RPC properties
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
             AURPackage: AUR package descriptor
@@ -193,24 +194,24 @@ class AURPackage:
         )
 
     @staticmethod
-    def convert(descriptor: Dict[str, Any]) -> Dict[str, Any]:
+    def convert(descriptor: dict[str, Any]) -> dict[str, Any]:
         """
         covert AUR RPC key names to package keys
 
         Args:
-            descriptor(Dict[str, Any]): RPC package descriptor
+            descriptor(dict[str, Any]): RPC package descriptor
 
         Returns:
-            Dict[str, Any]: package descriptor with names converted to snake case
+            dict[str, Any]: package descriptor with names converted to snake case
         """
         identity_mapper: Callable[[Any], Any] = lambda value: value
-        value_mapper: Dict[str, Callable[[Any], Any]] = {
+        value_mapper: dict[str, Callable[[Any], Any]] = {
             "out_of_date": lambda value: datetime.datetime.utcfromtimestamp(value) if value is not None else None,
             "first_submitted": datetime.datetime.utcfromtimestamp,
             "last_modified": datetime.datetime.utcfromtimestamp,
         }
 
-        result: Dict[str, Any] = {}
+        result: dict[str, Any] = {}
         for api_key, api_value in descriptor.items():
             property_key = inflection.underscore(api_key)
             mapper = value_mapper.get(property_key, identity_mapper)

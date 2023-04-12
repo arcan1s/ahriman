@@ -21,7 +21,6 @@ import argparse
 
 from pathlib import Path
 from pwd import getpwuid
-from typing import Optional, Type
 
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
@@ -46,7 +45,7 @@ class Setup(Handler):
     SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -132,7 +131,7 @@ class Setup(Handler):
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def configuration_create_devtools(prefix: str, architecture: str, source: Path, mirror: Optional[str],
+    def configuration_create_devtools(prefix: str, architecture: str, source: Path, mirror: str | None,
                                       multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on ``source`` configuration
@@ -144,7 +143,7 @@ class Setup(Handler):
             prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
             source(Path): path to source configuration file
-            mirror(Optional[str]): link to package server mirror
+            mirror(str | None): link to package server mirror
             multilib(bool): add or do not multilib repository to the configuration
             repository(str): repository name
             paths(RepositoryPaths): repository paths instance

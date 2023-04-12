@@ -19,9 +19,10 @@
 #
 import shutil
 
+from collections.abc import Callable, Generator
 from pathlib import Path
 from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore
-from typing import Any, Callable, Generator, Set
+from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -166,14 +167,14 @@ class Pacman(LazyLogging):
                 continue
             yield package
 
-    def packages(self) -> Set[str]:
+    def packages(self) -> set[str]:
         """
         get list of packages known for alpm
 
         Returns:
-            Set[str]: list of package names
+            set[str]: list of package names
         """
-        result: Set[str] = set()
+        result: set[str] = set()
         for database in self.handle.get_syncdbs():
             for package in database.pkgcache:
                 # package itself

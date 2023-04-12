@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 from ahriman.models.property import Property
 
@@ -44,19 +44,19 @@ class Printer:
             indent = "\t" * prop.indent
             log_fn(f"{indent}{prop.name}{separator}{prop.value}")
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return []
 
-    def title(self) -> Optional[str]:
+    def title(self) -> str | None:
         """
         generate entry title from content
 
         Returns:
-            Optional[str]: content title if it can be generated and None otherwise
+            str | None: content title if it can be generated and None otherwise
         """

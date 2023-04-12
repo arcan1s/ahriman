@@ -19,8 +19,8 @@
 #
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Type
 
 from ahriman.core import _Context, context
 from ahriman.core.alpm.pacman import Pacman
@@ -58,7 +58,7 @@ class Repository(Executor, UpdateHandler):
     """
 
     @classmethod
-    def load(cls: Type[Repository], architecture: str, configuration: Configuration, database: SQLite, *,
+    def load(cls: type[Repository], architecture: str, configuration: Configuration, database: SQLite, *,
              report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> Repository:
         """
         load instance from argument list
@@ -99,7 +99,7 @@ class Repository(Executor, UpdateHandler):
 
         context.set(ctx)
 
-    def load_archives(self, packages: Iterable[Path]) -> List[Package]:
+    def load_archives(self, packages: Iterable[Path]) -> list[Package]:
         """
         load packages from list of archives
 
@@ -107,11 +107,11 @@ class Repository(Executor, UpdateHandler):
             packages(Iterable[Path]): paths to package archives
 
         Returns:
-            List[Package]: list of read packages
+            list[Package]: list of read packages
         """
         sources = self.database.remotes_get()
 
-        result: Dict[str, Package] = {}
+        result: dict[str, Package] = {}
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
@@ -130,34 +130,34 @@ class Repository(Executor, UpdateHandler):
                 self.logger.exception("could not load package from %s", full_path)
         return list(result.values())
 
-    def packages(self) -> List[Package]:
+    def packages(self) -> list[Package]:
         """
         generate list of repository packages
 
         Returns:
-            List[Package]: list of packages properties
+            list[Package]: list of packages properties
         """
         return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
 
-    def packages_built(self) -> List[Path]:
+    def packages_built(self) -> list[Path]:
         """
         get list of files in built packages directory
 
         Returns:
-            List[Path]: list of filenames from the directory
+            list[Path]: list of filenames from the directory
         """
         return list(filter(package_like, self.paths.packages.iterdir()))
 
-    def packages_depend_on(self, packages: List[Package], depends_on: Optional[Iterable[str]]) -> List[Package]:
+    def packages_depend_on(self, packages: list[Package], depends_on: Iterable[str] | None) -> list[Package]:
         """
         extract list of packages which depends on specified package
 
         Args:
-            packages(List[Package]): list of packages to be filtered
-            depends_on(Optional[Iterable[str]]): dependencies of the packages
+            packages(list[Package]): list of packages to be filtered
+            depends_on(Iterable[str] | None): dependencies of the packages
 
         Returns:
-            List[Package]: list of repository packages which depend on specified packages
+            list[Package]: list of repository packages which depend on specified packages
         """
         if depends_on is None:
             return packages  # no list provided extract everything by default

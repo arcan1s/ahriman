@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.property import Property
 
@@ -28,26 +26,26 @@ class VersionPrinter(StringPrinter):
     print content of the python package versions
 
     Attributes:
-        packages(Dict[str, str]): map of package name to its version
+        packages(dict[str, str]): map of package name to its version
     """
 
-    def __init__(self, title: str, packages: Dict[str, str]) -> None:
+    def __init__(self, title: str, packages: dict[str, str]) -> None:
         """
         default constructor
 
         Args:
             title(str): title of the message
-            packages(Dict[str, str]): map of package name to its version
+            packages(dict[str, str]): map of package name to its version
         """
         StringPrinter.__init__(self, title)
         self.packages = packages
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [
             Property(package, version, is_required=True)

@@ -20,8 +20,6 @@
 import argparse
 import shlex
 
-from typing import List, Type
-
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
@@ -35,7 +33,7 @@ class UnsafeCommands(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -56,20 +54,20 @@ class UnsafeCommands(Handler):
             UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
 
     @staticmethod
-    def check_unsafe(command: str, unsafe_commands: List[str], parser: argparse.ArgumentParser) -> None:
+    def check_unsafe(command: str, unsafe_commands: list[str], parser: argparse.ArgumentParser) -> None:
         """
         check if command is unsafe
 
         Args:
             command(str): command to check
-            unsafe_commands(List[str]): list of unsafe commands
+            unsafe_commands(list[str]): list of unsafe commands
             parser(argparse.ArgumentParser): generated argument parser
         """
         args = parser.parse_args(shlex.split(command))
         UnsafeCommands.check_if_empty(True, args.command in unsafe_commands)
 
     @staticmethod
-    def get_unsafe_commands(parser: argparse.ArgumentParser) -> List[str]:
+    def get_unsafe_commands(parser: argparse.ArgumentParser) -> list[str]:
         """
         extract unsafe commands from argument parser
 
@@ -77,7 +75,7 @@ class UnsafeCommands(Handler):
             parser(argparse.ArgumentParser): generated argument parser
 
         Returns:
-            List[str]: list of commands with default unsafe flag
+            list[str]: list of commands with default unsafe flag
         """
         # should never fail
         # pylint: disable=protected-access

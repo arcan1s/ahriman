@@ -23,8 +23,9 @@ import configparser
 import shlex
 import sys
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import Any
 
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
@@ -35,11 +36,11 @@ class Configuration(configparser.RawConfigParser):
     extension for built-in configuration parser
 
     Attributes:
-        ARCHITECTURE_SPECIFIC_SECTIONS(List[str]): (class attribute) known sections which can be architecture specific.
+        ARCHITECTURE_SPECIFIC_SECTIONS(list[str]): (class attribute) known sections which can be architecture specific.
             Required by dump and merging functions
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
-        architecture(Optional[str]): repository architecture
-        path(Optional[Path]): path to root configuration file
+        architecture(str | None): repository architecture
+        path(Path | None): path to root configuration file
 
     Examples:
         Configuration class provides additional method in order to handle application configuration. Since this class is
@@ -63,7 +64,7 @@ class Configuration(configparser.RawConfigParser):
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign", "web"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
-    converters: Dict[str, Callable[[str], Any]]  # typing guard
+    converters: dict[str, Callable[[str], Any]]  # typing guard
 
     def __init__(self, allow_no_value: bool = False) -> None:
         """
@@ -77,8 +78,8 @@ class Configuration(configparser.RawConfigParser):
             "list": shlex.split,
             "path": self._convert_path,
         })
-        self.architecture: Optional[str] = None
-        self.path: Optional[Path] = None
+        self.architecture: str | None = None
+        self.path: Path | None = None
 
     @property
     def include(self) -> Path:
@@ -112,7 +113,7 @@ class Configuration(configparser.RawConfigParser):
         return RepositoryPaths(self.getpath("repository", "root"), architecture)
 
     @classmethod
-    def from_path(cls: Type[Configuration], path: Path, architecture: str) -> Configuration:
+    def from_path(cls: type[Configuration], path: Path, architecture: str) -> Configuration:
         """
         constructor with full object initialization
 
@@ -157,12 +158,12 @@ class Configuration(configparser.RawConfigParser):
             return path
         return self.path.parent / path
 
-    def check_loaded(self) -> Tuple[Path, str]:
+    def check_loaded(self) -> tuple[Path, str]:
         """
         check if service was actually loaded
 
         Returns:
-            Tuple[Path, str]: configuration root path and architecture if loaded
+            tuple[Path, str]: configuration root path and architecture if loaded
 
         Raises:
             InitializeError: in case if architecture and/or path are not set
@@ -171,12 +172,12 @@ class Configuration(configparser.RawConfigParser):
             raise InitializeError("Configuration path and/or architecture are not set")
         return self.path, self.architecture
 
-    def dump(self) -> Dict[str, Dict[str, str]]:
+    def dump(self) -> dict[str, dict[str, str]]:
         """
         dump configuration to dictionary
 
         Returns:
-            Dict[str, Dict[str, str]]: configuration dump for specific architecture
+            dict[str, dict[str, str]]: configuration dump for specific architecture
         """
         return {
             section: dict(self[section])
@@ -185,11 +186,11 @@ class Configuration(configparser.RawConfigParser):
 
     # pylint and mypy are too stupid to find these methods
     # pylint: disable=missing-function-docstring,multiple-statements,unused-argument
-    def getlist(self, *args: Any, **kwargs: Any) -> List[str]: ...  # type: ignore
+    def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore
 
-    def gettype(self, section: str, architecture: str, *, fallback: Optional[str] = None) -> Tuple[str, str]:
+    def gettype(self, section: str, architecture: str, *, fallback: str | None = None) -> tuple[str, str]:
         """
         get type variable with fallback to old logic. Despite the fact that it has same semantics as other get* methods,
         but it has different argument list
@@ -197,11 +198,11 @@ class Configuration(configparser.RawConfigParser):
         Args:
             section(str): section name
             architecture(str): repository architecture
-            fallback(Optional[str], optional): optional fallback type if any. If set, second element of the tuple will
+            fallback(str | None, optional): optional fallback type if any. If set, second element of the tuple will
                 be always set to this value (Default value = None)
 
         Returns:
-            Tuple[str, str]: section name and found type name
+            tuple[str, str]: section name and found type name
 
         Raises:
             configparser.NoSectionError: in case if no section found

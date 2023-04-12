@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Type
 
 
 class SignSettings(str, Enum):
@@ -38,7 +37,7 @@ class SignSettings(str, Enum):
     Repository = "repository"
 
     @classmethod
-    def from_option(cls: Type[SignSettings], value: str) -> SignSettings:
+    def from_option(cls: type[SignSettings], value: str) -> SignSettings:
         """
         construct value from configuration
 

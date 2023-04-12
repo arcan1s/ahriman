@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import List, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.gitremote.remote_pull import RemotePull
 from ahriman.core.triggers import Trigger
@@ -29,7 +27,7 @@ class RemotePullTrigger(Trigger):
     trigger based on pulling PKGBUILDs before the actions
 
     Attributes:
-        targets(List[str]): git remote target list
+        targets(list[str]): git remote target list
     """
 
     CONFIGURATION_SCHEMA = {
@@ -70,7 +68,7 @@ class RemotePullTrigger(Trigger):
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
-    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 
@@ -78,7 +76,7 @@ class RemotePullTrigger(Trigger):
             configuration(Configuration): configuration instance
 
         Returns:
-            List[str]: read configuration sections belong to this trigger
+            list[str]: read configuration sections belong to this trigger
         """
         return configuration.getlist("remote-pull", "target", fallback=[])
 

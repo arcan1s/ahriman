@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
-from typing import Any, Dict, Optional, Type
+from typing import Any
 
 from ahriman.core.util import filter_json
 from ahriman.models.package_source import PackageSource
@@ -63,15 +63,15 @@ class RemoteSource:
         return Path(self.path)
 
     @classmethod
-    def from_json(cls: Type[RemoteSource], dump: Dict[str, Any]) -> Optional[RemoteSource]:
+    def from_json(cls: type[RemoteSource], dump: dict[str, Any]) -> RemoteSource | None:
         """
         construct remote source from the json dump (or database row)
 
         Args:
-            dump(Dict[str, Any]): json dump body
+            dump(dict[str, Any]): json dump body
 
         Returns:
-            Optional[RemoteSource]: remote source
+            RemoteSource | None: remote source
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -81,8 +81,8 @@ class RemoteSource:
         return None
 
     @classmethod
-    def from_source(cls: Type[RemoteSource], source: PackageSource, package_base: str,
-                    repository: str) -> Optional[RemoteSource]:
+    def from_source(cls: type[RemoteSource], source: PackageSource, package_base: str,
+                    repository: str) -> RemoteSource | None:
         """
         generate remote source from the package base
 
@@ -92,7 +92,7 @@ class RemoteSource:
             repository(str): repository name
 
         Returns:
-            Optional[RemoteSource]: generated remote source if any, None otherwise
+            RemoteSource | None: generated remote source if any, None otherwise
         """
         if source == PackageSource.AUR:
             from ahriman.core.alpm.remote import AUR
@@ -114,11 +114,11 @@ class RemoteSource:
             )
         return None
 
-    def view(self) -> Dict[str, Any]:
+    def view(self) -> dict[str, Any]:
         """
         generate json package remote view
 
         Returns:
-            Dict[str, Any]: json-friendly dictionary
+            dict[str, Any]: json-friendly dictionary
         """
         return asdict(self)

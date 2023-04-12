@@ -19,8 +19,8 @@
 #
 import jinja2
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
@@ -56,11 +56,11 @@ class JinjaTemplate:
         * repository - repository name, string, required
 
     Attributes:
-        homepage(Optional[str]): homepage link if any (for footer)
+        homepage(str | None): homepage link if any (for footer)
         link_path(str): prefix fo packages to download
         name(str): repository name
-        default_pgp_key(Optional[str]): default PGP key
-        sign_targets(Set[SignSettings]): targets to sign enabled in configuration
+        default_pgp_key(str | None): default PGP key
+        sign_targets(set[SignSettings]): targets to sign enabled in configuration
     """
 
     def __init__(self, section: str, configuration: Configuration) -> None:
@@ -108,7 +108,7 @@ class JinjaTemplate:
                 "version": base.version
             } for base in result.success for package, properties in base.packages.items()
         ]
-        comparator: Callable[[Dict[str, str]], str] = lambda item: item["filename"]
+        comparator: Callable[[dict[str, str]], str] = lambda item: item["filename"]
 
         return template.render(
             homepage=self.homepage,

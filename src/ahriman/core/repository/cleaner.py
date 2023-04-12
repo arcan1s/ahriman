@@ -20,7 +20,6 @@
 import shutil
 
 from pathlib import Path
-from typing import List
 
 from ahriman.core.repository.repository_properties import RepositoryProperties
 
@@ -69,12 +68,12 @@ class Cleaner(RepositoryProperties):
         self.logger.info("clear build queue")
         self.database.build_queue_clear(None)
 
-    def packages_built(self) -> List[Path]:
+    def packages_built(self) -> list[Path]:
         """
         get list of files in built packages directory
 
         Returns:
-            List[Path]: list of filenames from the directory
+            list[Path]: list of filenames from the directory
 
         Raises:
             NotImplementedError: not implemented method

@@ -21,7 +21,7 @@ import contextlib
 import logging
 import requests
 
-from typing import Generator, List, Optional, Tuple
+from collections.abc import Generator
 from urllib.parse import quote_plus as urlencode
 
 from ahriman.core.configuration import Configuration
@@ -40,7 +40,7 @@ class WebClient(Client, LazyLogging):
 
     Attributes:
         address(str): address of the web service
-        user(Optional[User]): web service user descriptor
+        user(User | None): web service user descriptor
     """
 
     def __init__(self, configuration: Configuration) -> None:
@@ -78,7 +78,7 @@ class WebClient(Client, LazyLogging):
         return f"{self.address}/api/v1/status"
 
     @staticmethod
-    def parse_address(configuration: Configuration) -> Tuple[str, bool]:
+    def parse_address(configuration: Configuration) -> tuple[str, bool]:
         """
         parse address from configuration
 
@@ -86,7 +86,7 @@ class WebClient(Client, LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            Tuple[str, bool]: tuple of server address and socket flag (True in case if unix socket must be used)
+            tuple[str, bool]: tuple of server address and socket flag (True in case if unix socket must be used)
         """
         if (unix_socket := configuration.get("web", "unix_socket", fallback=None)) is not None:
             # special pseudo-protocol which is used for unix sockets
@@ -190,15 +190,15 @@ class WebClient(Client, LazyLogging):
             response = self.__session.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
 
-    def get(self, package_base: Optional[str]) -> List[Tuple[Package, BuildStatus]]:
+    def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
         get package status
 
         Args:
-            package_base(Optional[str]): package base to get
+            package_base(str | None): package base to get
 
         Returns:
-            List[Tuple[Package, BuildStatus]]: list of current package description and status if it has been found
+            list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         with self.__execute_request():
             response = self.__session.get(self._package_url(package_base or ""))

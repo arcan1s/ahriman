@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Optional
-
 from ahriman.core.formatters import Printer
 
 
@@ -39,11 +37,11 @@ class StringPrinter(Printer):
         """
         self.content = content
 
-    def title(self) -> Optional[str]:
+    def title(self) -> str | None:
         """
         generate entry title from content
 
         Returns:
-            Optional[str]: content title if it can be generated and None otherwise
+            str | None: content title if it can be generated and None otherwise
         """
         return self.content

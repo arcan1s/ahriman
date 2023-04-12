@@ -19,8 +19,6 @@
 #
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
 from ahriman.core.log import LazyLogging
@@ -34,7 +32,7 @@ class Trigger(LazyLogging):
 
     Attributes:
         CONFIGURATION_SCHEMA(ConfigurationSchema): (class attribute) configuration schema template
-        CONFIGURATION_SCHEMA_FALLBACK(Optional[str]): (class attribute) optional fallback option for defining
+        CONFIGURATION_SCHEMA_FALLBACK(str | None): (class attribute) optional fallback option for defining
             configuration schema type used
         architecture(str): repository architecture
         configuration(Configuration): configuration instance
@@ -43,7 +41,7 @@ class Trigger(LazyLogging):
         This class must be used in order to create own extension. Basically idea is the following::
 
             >>> class CustomTrigger(Trigger):
-            >>>     def on_result(self, result: Result, packages: Iterable[Package]) -> None:
+            >>>     def on_result(self, result: Result, packages: list[Package]) -> None:
             >>>         perform_some_action()
 
         Having this class you can pass it to ``configuration`` and it will be run on action::
@@ -58,7 +56,7 @@ class Trigger(LazyLogging):
     """
 
     CONFIGURATION_SCHEMA: ConfigurationSchema = {}
-    CONFIGURATION_SCHEMA_FALLBACK: Optional[str] = None
+    CONFIGURATION_SCHEMA_FALLBACK: str | None = None
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:
         """
@@ -72,8 +70,8 @@ class Trigger(LazyLogging):
         self.configuration = configuration
 
     @classmethod
-    def configuration_schema(cls: Type[Trigger], architecture: str,
-                             configuration: Optional[Configuration]) -> ConfigurationSchema:
+    def configuration_schema(cls: type[Trigger], architecture: str,
+                             configuration: Configuration | None) -> ConfigurationSchema:
         """
         configuration schema based on supplied service configuration
 
@@ -82,7 +80,7 @@ class Trigger(LazyLogging):
 
         Args:
             architecture(str): repository architecture
-            configuration(Optional[Configuration]): configuration instance. If set to None, the default schema
+            configuration(Configuration | None): configuration instance. If set to None, the default schema
                 should be returned
 
         Returns:
@@ -104,7 +102,7 @@ class Trigger(LazyLogging):
         return result
 
     @classmethod
-    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 
@@ -112,26 +110,26 @@ class Trigger(LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            List[str]: read configuration sections belong to this trigger
+            list[str]: read configuration sections belong to this trigger
 
         Examples:
             This method can be used in order to extract specific configuration sections which are set by user, e.g.
             from sources::
 
                 >>> @staticmethod
-                >>> def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+                >>> def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
                 >>>     return configuration.getlist("report", "target", fallback=[])
         """
         del configuration
         return []
 
-    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: list[Package]) -> None:
         """
         trigger action which will be called after build process with process result
 
         Args:
             result(Result): build result
-            packages(Iterable[Package]): list of all available packages
+            packages(list[Package]): list of all available packages
         """
         if (run := getattr(self, "run", None)) is not None:
             run(result, packages)  # compatibility with old triggers

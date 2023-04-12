@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Dict, List
-
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.property import Property
 
@@ -28,9 +26,9 @@ class ConfigurationPrinter(StringPrinter):
     print content of the configuration section
 
     Attributes:
-        HIDE_KEYS(List[str]): (class attribute) hide values for mentioned keys. This list must be used in order to hide
+        HIDE_KEYS(list[str]): (class attribute) hide values for mentioned keys. This list must be used in order to hide
             passwords from outputs
-        values(Dict[str, str]): configuration values dictionary
+        values(dict[str, str]): configuration values dictionary
     """
 
     HIDE_KEYS = [
@@ -42,23 +40,23 @@ class ConfigurationPrinter(StringPrinter):
         "secret_key",  # aws secret key
     ]
 
-    def __init__(self, section: str, values: Dict[str, str]) -> None:
+    def __init__(self, section: str, values: dict[str, str]) -> None:
         """
         default constructor
 
         Args:
             section(str): section name
-            values(Dict[str, str]): configuration values dictionary
+            values(dict[str, str]): configuration values dictionary
         """
         StringPrinter.__init__(self, f"[{section}]")
         self.values = values
 
-    def properties(self) -> List[Property]:
+    def properties(self) -> list[Property]:
         """
         convert content into printable data
 
         Returns:
-            List[Property]: list of content properties
+            list[Property]: list of content properties
         """
         return [
             Property(key, value, is_required=key not in self.HIDE_KEYS)

@@ -24,7 +24,6 @@ import shutil
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set, Tuple, Type
 
 from ahriman.core.exceptions import PathError
 
@@ -108,17 +107,17 @@ class RepositoryPaths:
         return self.root / "repository" / self.architecture
 
     @property
-    def root_owner(self) -> Tuple[int, int]:
+    def root_owner(self) -> tuple[int, int]:
         """
         get UID and GID of the root directory
 
         Returns:
-            Tuple[int, int]: owner user and group of the root directory
+            tuple[int, int]: owner user and group of the root directory
         """
         return self.owner(self.root)
 
     @classmethod
-    def known_architectures(cls: Type[RepositoryPaths], root: Path) -> Set[str]:
+    def known_architectures(cls: type[RepositoryPaths], root: Path) -> set[str]:
         """
         get known architectures
 
@@ -126,7 +125,7 @@ class RepositoryPaths:
             root(Path): repository root
 
         Returns:
-            Set[str]: list of architectures for which tree is created
+            set[str]: list of architectures for which tree is created
         """
         paths = cls(root, "")
         return {
@@ -136,7 +135,7 @@ class RepositoryPaths:
         }
 
     @staticmethod
-    def owner(path: Path) -> Tuple[int, int]:
+    def owner(path: Path) -> tuple[int, int]:
         """
         retrieve owner information by path
 
@@ -144,7 +143,7 @@ class RepositoryPaths:
             path(Path): path for which extract ids
 
         Returns:
-            Tuple[int, int]: owner user and group ids of the directory
+            tuple[int, int]: owner user and group ids of the directory
         """
         stat = path.stat()
         return stat.st_uid, stat.st_gid

@@ -19,9 +19,9 @@
 #
 import shutil
 
+from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Iterable, List, Optional
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
@@ -36,7 +36,7 @@ class Executor(Cleaner):
     trait for common repository update processes
     """
 
-    def load_archives(self, packages: Iterable[Path]) -> List[Package]:
+    def load_archives(self, packages: Iterable[Path]) -> list[Package]:
         """
         load packages from list of archives
 
@@ -44,19 +44,19 @@ class Executor(Cleaner):
             packages(Iterable[Path]): paths to package archives
 
         Returns:
-            List[Package]: list of read packages
+            list[Package]: list of read packages
 
         Raises:
             NotImplementedError: not implemented method
         """
         raise NotImplementedError
 
-    def packages(self) -> List[Package]:
+    def packages(self) -> list[Package]:
         """
         generate list of repository packages
 
         Returns:
-            List[Package]: list of packages properties
+            list[Package]: list of packages properties
 
         Raises:
             NotImplementedError: not implemented method
@@ -122,8 +122,8 @@ class Executor(Cleaner):
             except Exception:
                 self.logger.exception("could not remove %s", package)
 
-        packages_to_remove: Dict[str, Path] = {}
-        bases_to_remove: List[str] = []
+        packages_to_remove: dict[str, Path] = {}
+        bases_to_remove: list[str] = []
 
         # build package list based on user input
         requested = set(packages)
@@ -177,7 +177,7 @@ class Executor(Cleaner):
                 shutil.move(self.paths.packages / archive.filename, self.paths.packages / safe)
                 archive.filename = safe
 
-        def update_single(name: Optional[str], package_base: str) -> None:
+        def update_single(name: str | None, package_base: str) -> None:
             if name is None:
                 self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
@@ -191,7 +191,7 @@ class Executor(Cleaner):
             self.repo.add(package_path)
 
         current_packages = self.packages()
-        removed_packages: List[str] = []  # list of packages which have been removed from the base
+        removed_packages: list[str] = []  # list of packages which have been removed from the base
         updates = self.load_archives(packages)
 
         result = Result()

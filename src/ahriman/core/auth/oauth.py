@@ -19,8 +19,6 @@
 #
 import aioauth_client
 
-from typing import Optional, Type
-
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -72,7 +70,7 @@ class OAuth(Mapping):
         return """<a class="nav-link" href="/api/v1/login" title="login via OAuth2"><i class="bi bi-google"></i> login</a>"""
 
     @staticmethod
-    def get_provider(name: str) -> Type[aioauth_client.OAuth2Client]:
+    def get_provider(name: str) -> type[aioauth_client.OAuth2Client]:
         """
         load OAuth2 provider by name
 
@@ -80,12 +78,12 @@ class OAuth(Mapping):
             name(str): name of the provider. Must be valid class defined in aioauth-client library
 
         Returns:
-            Type[aioauth_client.OAuth2Client]: loaded provider type
+            type[aioauth_client.OAuth2Client]: loaded provider type
 
         Raises:
             InvalidOption: in case if invalid OAuth provider name supplied
         """
-        provider: Type[aioauth_client.OAuth2Client] = getattr(aioauth_client, name)
+        provider: type[aioauth_client.OAuth2Client] = getattr(aioauth_client, name)
         try:
             is_oauth2_client = issubclass(provider, aioauth_client.OAuth2Client)
         except TypeError:  # what if it is random string?
@@ -114,7 +112,7 @@ class OAuth(Mapping):
         uri: str = client.get_authorize_url(scope=self.scopes, redirect_uri=self.redirect_uri)
         return uri
 
-    async def get_oauth_username(self, code: str) -> Optional[str]:
+    async def get_oauth_username(self, code: str) -> str | None:
         """
         extract OAuth username from remote
 
@@ -122,7 +120,7 @@ class OAuth(Mapping):
             code(str): authorization code provided by external service
 
         Returns:
-            Optional[str]: username as is in OAuth provider
+            str | None: username as is in OAuth provider
         """
         try:
             client = self.get_client()

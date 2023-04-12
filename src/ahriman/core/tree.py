@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import functools
 
-from typing import Callable, Iterable, List
+from collections.abc import Callable, Iterable
 
 from ahriman.core.util import partition
 from ahriman.models.package import Package
@@ -32,7 +32,7 @@ class Leaf:
     tree leaf implementation
 
     Attributes:
-        dependencies(Set[str]): list of package dependencies
+        dependencies(set[str]): list of package dependencies
         package(Package): leaf package properties
     """
 
@@ -92,7 +92,7 @@ class Tree:
     dependency tree implementation
 
     Attributes:
-        leaves[List[Leaf]): list of tree leaves
+        leaves[list[Leaf]): list of tree leaves
 
     Examples:
         The most important feature here is to generate tree levels one by one which can be achieved by using class
@@ -119,17 +119,17 @@ class Tree:
             >>> tree = Tree(leaves)
     """
 
-    def __init__(self, leaves: List[Leaf]) -> None:
+    def __init__(self, leaves: list[Leaf]) -> None:
         """
         default constructor
 
         Args:
-            leaves(List[Leaf]): leaves to build the tree
+            leaves(list[Leaf]): leaves to build the tree
         """
         self.leaves = leaves
 
     @staticmethod
-    def resolve(packages: Iterable[Package]) -> List[List[Package]]:
+    def resolve(packages: Iterable[Package]) -> list[list[Package]]:
         """
         resolve dependency tree
 
@@ -137,20 +137,20 @@ class Tree:
             packages(Iterable[Package]): packages list
 
         Returns:
-            List[List[Package]]: list of packages lists based on their dependencies
+            list[list[Package]]: list of packages lists based on their dependencies
         """
         leaves = [Leaf(package) for package in packages]
         instance = Tree(leaves)
         return instance.levels()
 
-    def levels(self) -> List[List[Package]]:
+    def levels(self) -> list[list[Package]]:
         """
         get build levels starting from the packages which do not require any other package to build
 
         Returns:
-            List[List[Package]]: sorted list of packages lists based on their dependencies
+            list[list[Package]]: sorted list of packages lists based on their dependencies
         """
-        unsorted: List[List[Leaf]] = []
+        unsorted: list[list[Leaf]] = []
 
         # build initial tree
         unprocessed = self.leaves[:]

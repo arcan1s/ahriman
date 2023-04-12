@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Iterator
 from contextvars import ContextVar
-from typing import Any, Dict, Iterator, TypeVar
+from typing import Any, TypeVar
 
 from ahriman.models.context_key import ContextKey
 
@@ -35,7 +36,7 @@ class _Context:
         """
         default constructor. Must not be used directly
         """
-        self._content: Dict[str, Any] = {}
+        self._content: dict[str, Any] = {}
 
     def get(self, key: ContextKey[T]) -> T:
         """

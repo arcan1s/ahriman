@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Iterable, List, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.triggers import Trigger
 from ahriman.core.upload.upload import Upload
@@ -31,7 +29,7 @@ class UploadTrigger(Trigger):
     synchronization trigger
 
     Attributes:
-        targets(List[str]): upload target list
+        targets(list[str]): upload target list
     """
 
     CONFIGURATION_SCHEMA = {
@@ -138,7 +136,7 @@ class UploadTrigger(Trigger):
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
-    def configuration_sections(cls: Type[Trigger], configuration: Configuration) -> List[str]:
+    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 
@@ -146,17 +144,17 @@ class UploadTrigger(Trigger):
             configuration(Configuration): configuration instance
 
         Returns:
-            List[str]: read configuration sections belong to this trigger
+            list[str]: read configuration sections belong to this trigger
         """
         return configuration.getlist("upload", "target", fallback=[])
 
-    def on_result(self, result: Result, packages: Iterable[Package]) -> None:
+    def on_result(self, result: Result, packages: list[Package]) -> None:
         """
         run trigger
 
         Args:
             result(Result): build result
-            packages(Iterable[Package]): list of all available packages
+            packages(list[Package]): list of all available packages
         """
         for target in self.targets:
             runner = Upload.load(self.architecture, self.configuration, target)

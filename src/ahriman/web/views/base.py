@@ -21,7 +21,8 @@ from __future__ import annotations
 
 from aiohttp_cors import CorsViewMixin  # type: ignore
 from aiohttp.web import Request, StreamResponse, View
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Type, TypeVar
+from collections.abc import Awaitable, Callable
+from typing import Any, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -29,7 +30,8 @@ from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.user_access import UserAccess
 
-T = TypeVar("T", str, List[str])
+
+T = TypeVar("T", str, list[str])
 
 
 class BaseView(View, CorsViewMixin):
@@ -87,7 +89,7 @@ class BaseView(View, CorsViewMixin):
         return validator
 
     @classmethod
-    async def get_permission(cls: Type[BaseView], request: Request) -> UserAccess:
+    async def get_permission(cls: type[BaseView], request: Request) -> UserAccess:
         """
         retrieve user permission from the request
 
@@ -102,12 +104,12 @@ class BaseView(View, CorsViewMixin):
         return permission
 
     @staticmethod
-    def get_non_empty(extractor: Callable[[str], Optional[T]], key: str) -> T:
+    def get_non_empty(extractor: Callable[[str], T | None], key: str) -> T:
         """
         get non-empty value from request parameters
 
         Args:
-            extractor(Callable[[str], T]): function to get value by the specified key
+            extractor(Callable[[str], T | None]): function to get value by the specified key
             key(str): key to extract value
 
         Returns:
@@ -124,19 +126,19 @@ class BaseView(View, CorsViewMixin):
             raise KeyError(f"Key {key} is missing or empty")
         return value
 
-    async def data_as_json(self, list_keys: List[str]) -> Dict[str, Any]:
+    async def data_as_json(self, list_keys: list[str]) -> dict[str, Any]:
         """
         extract form data and convert it to json object
 
         Args:
-            list_keys(List[str]): list of keys which must be forced to list from form data
+            list_keys(list[str]): list of keys which must be forced to list from form data
 
         Returns:
-            Dict[str, Any]: form data converted to json. In case if a key is found multiple times
+            dict[str, Any]: form data converted to json. In case if a key is found multiple times
                 it will be returned as list
         """
         raw = await self.request.post()
-        json: Dict[str, Any] = {}
+        json: dict[str, Any] = {}
         for key, value in raw.items():
             if key in json and isinstance(json[key], list):
                 json[key].append(value)
@@ -148,19 +150,19 @@ class BaseView(View, CorsViewMixin):
                 json[key] = value
         return json
 
-    async def extract_data(self, list_keys: Optional[List[str]] = None) -> Dict[str, Any]:
+    async def extract_data(self, list_keys: list[str] | None = None) -> dict[str, Any]:
         """
         extract json data from either json or form data
 
         Args:
-            list_keys(Optional[List[str]], optional): optional list of keys which must be forced to list from form data
+            list_keys(list[str] | None, optional): optional list of keys which must be forced to list from form data
                 (Default value = None)
 
         Returns:
-            Dict[str, Any]: raw json object or form data converted to json
+            dict[str, Any]: raw json object or form data converted to json
         """
         try:
-            json: Dict[str, Any] = await self.request.json()
+            json: dict[str, Any] = await self.request.json()
             return json
         except ValueError:
             return await self.data_as_json(list_keys or [])
@@ -173,7 +175,7 @@ class BaseView(View, CorsViewMixin):
         Raises:
             HTTPMethodNotAllowed: in case if there is no GET method implemented
         """
-        get_method: Optional[Callable[..., Awaitable[StreamResponse]]] = getattr(self, "get", None)
+        get_method: Callable[..., Awaitable[StreamResponse]] | None = getattr(self, "get", None)
         # using if/else in order to suppress mypy warning which doesn't know that
         # ``_raise_allowed_methods`` raises exception
         if get_method is not None:

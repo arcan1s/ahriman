@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from pathlib import Path
-from typing import Iterable
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
@@ -31,7 +30,7 @@ class Rsync(Upload):
     rsync wrapper
 
     Attributes:
-        command(List[str]): command arguments for sync
+        command(list[str]): command arguments for sync
         remote(str): remote address to sync
     """
 
@@ -50,12 +49,12 @@ class Rsync(Upload):
         self.command = configuration.getlist(section, "command")
         self.remote = configuration.get(section, "remote")
 
-    def sync(self, path: Path, built_packages: Iterable[Package]) -> None:
+    def sync(self, path: Path, built_packages: list[Package]) -> None:
         """
         sync data to remote server
 
         Args:
             path(Path): local path to sync
-            built_packages(Iterable[Package]): list of packages which has just been built
+            built_packages(list[Package]): list of packages which has just been built
         """
         Rsync._check_output(*self.command, str(path), self.remote, logger=self.logger)

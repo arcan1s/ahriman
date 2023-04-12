@@ -3,7 +3,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from typing import Any, Dict, Type, TypeVar
+from typing import Any, TypeVar
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
@@ -31,12 +31,12 @@ T = TypeVar("T")
 # helpers
 # https://stackoverflow.com/a/21611963
 @pytest.helpers.register
-def anyvar(cls: Type[T], strict: bool = False) -> T:
+def anyvar(cls: type[T], strict: bool = False) -> T:
     """
     any value helper for mocker calls check
 
     Args:
-        cls(Type[T]): type of the variable to check
+        cls(type[T]): type of the variable to check
         strict(bool, optional): if True then check type of supplied argument (Default value = False)
 
     Returns:
@@ -61,7 +61,7 @@ def anyvar(cls: Type[T], strict: bool = False) -> T:
 
 
 @pytest.helpers.register
-def get_package_status(package: Package) -> Dict[str, Any]:
+def get_package_status(package: Package) -> dict[str, Any]:
     """
     helper to extract package status from package
 
@@ -69,13 +69,13 @@ def get_package_status(package: Package) -> Dict[str, Any]:
         package(Package): package object
 
     Returns:
-        Dict[str, Any]: simplified package status map (with only status and view)
+        dict[str, Any]: simplified package status map (with only status and view)
     """
     return {"status": BuildStatusEnum.Unknown.value, "package": package.view()}
 
 
 @pytest.helpers.register
-def get_package_status_extended(package: Package) -> Dict[str, Any]:
+def get_package_status_extended(package: Package) -> dict[str, Any]:
     """
     helper to extract package status from package
 
@@ -83,7 +83,7 @@ def get_package_status_extended(package: Package) -> Dict[str, Any]:
         package(Package): package object
 
     Returns:
-        Dict[str, Any]: full package status map (with timestamped build status and view)
+        dict[str, Any]: full package status map (with timestamped build status and view)
     """
     return {"status": BuildStatus().view(), "package": package.view()}
 

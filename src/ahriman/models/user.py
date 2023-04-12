@@ -20,9 +20,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Optional, Type
+from passlib.hash import sha512_crypt
 from passlib.pwd import genword as generate_password
-from passlib.handlers.sha2_crypt import sha512_crypt
 
 from ahriman.models.user_access import UserAccess
 
@@ -67,18 +66,18 @@ class User:
     _HASHER = sha512_crypt
 
     @classmethod
-    def from_option(cls: Type[User], username: Optional[str], password: Optional[str],
-                    access: UserAccess = UserAccess.Read) -> Optional[User]:
+    def from_option(cls: type[User], username: str | None, password: str | None,
+                    access: UserAccess = UserAccess.Read) -> User | None:
         """
         build user descriptor from configuration options
 
         Args:
-            username(Optional[str]): username
-            password(Optional[str]): password as string
+            username(str | None): username
+            password(str | None): password as string
             access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
 
         Returns:
-            Optional[User]: generated user descriptor if all options are supplied and None otherwise
+            User | None: generated user descriptor if all options are supplied and None otherwise
         """
         if username is None or password is None:
             return None

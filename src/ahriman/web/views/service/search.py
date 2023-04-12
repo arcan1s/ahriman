@@ -20,7 +20,7 @@
 import aiohttp_apispec  # type: ignore
 
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
-from typing import Callable, List
+from collections.abc import Callable
 
 from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
@@ -70,7 +70,7 @@ class SearchView(BaseView):
             HTTPNotFound: if no packages found
         """
         try:
-            search: List[str] = self.get_non_empty(lambda key: self.request.query.getall(key, default=[]), "for")
+            search: list[str] = self.get_non_empty(lambda key: self.request.query.getall(key, default=[]), "for")
             packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))

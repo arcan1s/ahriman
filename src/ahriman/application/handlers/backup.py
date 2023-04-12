@@ -22,7 +22,6 @@ import pwd
 
 from pathlib import Path
 from tarfile import TarFile
-from typing import Set, Type
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -37,7 +36,7 @@ class Backup(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: Type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -55,7 +54,7 @@ class Backup(Handler):
                 archive.add(backup_path)
 
     @staticmethod
-    def get_paths(configuration: Configuration) -> Set[Path]:
+    def get_paths(configuration: Configuration) -> set[Path]:
         """
         extract paths to back up
 
@@ -63,7 +62,7 @@ class Backup(Handler):
             configuration(Configuration): configuration instance
 
         Returns:
-            Set[Path]: map of the filesystem paths
+            set[Path]: map of the filesystem paths
         """
         paths = set(configuration.include.glob("*.ini"))
 

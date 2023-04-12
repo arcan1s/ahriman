@@ -19,8 +19,6 @@
 #
 from __future__ import annotations
 
-from typing import Optional, Type
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
@@ -65,7 +63,7 @@ class Auth(LazyLogging):
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#login-modal" style="text-decoration: none"><i class="bi bi-box-arrow-in-right"></i> login</button>"""
 
     @classmethod
-    def load(cls: Type[Auth], configuration: Configuration, database: SQLite) -> Auth:
+    def load(cls: type[Auth], configuration: Configuration, database: SQLite) -> Auth:
         """
         load authorization module from settings
 
@@ -85,13 +83,13 @@ class Auth(LazyLogging):
             return OAuth(configuration, database)
         return cls(configuration)
 
-    async def check_credentials(self, username: Optional[str], password: Optional[str]) -> bool:
+    async def check_credentials(self, username: str | None, password: str | None) -> bool:
         """
         validate user password
 
         Args:
-            username(Optional[str]): username
-            password(Optional[str]): entered password
+            username(str | None): username
+            password(str | None): entered password
 
         Returns:
             bool: True in case if password matches, False otherwise
@@ -99,12 +97,12 @@ class Auth(LazyLogging):
         del username, password
         return True
 
-    async def known_username(self, username: Optional[str]) -> bool:
+    async def known_username(self, username: str | None) -> bool:
         """
         check if user is known
 
         Args:
-            username(Optional[str]): username
+            username(str | None): username
 
         Returns:
             bool: True in case if user is known and can be authorized and False otherwise
@@ -112,14 +110,14 @@ class Auth(LazyLogging):
         del username
         return True
 
-    async def verify_access(self, username: str, required: UserAccess, context: Optional[str]) -> bool:
+    async def verify_access(self, username: str, required: UserAccess, context: str | None) -> bool:
         """
         validate if user has access to requested resource
 
         Args:
             username(str): username
             required(UserAccess): required access level
-            context(Optional[str]): URI request path
+            context(str | None): URI request path
 
         Returns:
             bool: True in case if user is allowed to do this request and False otherwise

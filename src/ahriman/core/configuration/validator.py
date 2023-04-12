@@ -21,7 +21,7 @@ import ipaddress
 
 from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 from urllib.parse import urlparse
 
 from ahriman.core.configuration import Configuration
@@ -90,7 +90,7 @@ class Validator(RootValidator):
         del self
         return int(value)
 
-    def _normalize_coerce_list(self, value: str) -> List[str]:
+    def _normalize_coerce_list(self, value: str) -> list[str]:
         """
         extract string list from string value
 
@@ -98,17 +98,17 @@ class Validator(RootValidator):
             value(str): converting value
 
         Returns:
-            List[str]: value converted to string list instance according to configuration rules
+            list[str]: value converted to string list instance according to configuration rules
         """
-        converted: List[str] = self.configuration.converters["list"](value)
+        converted: list[str] = self.configuration.converters["list"](value)
         return converted
 
-    def _validate_is_ip_address(self, constraint: List[str], field: str, value: str) -> None:
+    def _validate_is_ip_address(self, constraint: list[str], field: str, value: str) -> None:
         """
         check if the specified value is valid ip address
 
         Args:
-            constraint(List[str]): optional list of allowed special words (e.g. ``localhost``)
+            constraint(list[str]): optional list of allowed special words (e.g. ``localhost``)
             field(str): field name to be checked
             value(Path): value to be checked
 
@@ -123,12 +123,12 @@ class Validator(RootValidator):
         except ValueError:
             self._error(field, f"Value {value} must be valid IP address")
 
-    def _validate_is_url(self, constraint: List[str], field: str, value: str) -> None:
+    def _validate_is_url(self, constraint: list[str], field: str, value: str) -> None:
         """
         check if the specified value is a valid url
 
         Args:
-            constraint(List[str]): optional list of supported schemas. If empty, no schema validation will be performed
+            constraint(list[str]): optional list of supported schemas. If empty, no schema validation will be performed
             field(str): field name to be checked
             value(str): value to be checked
 
