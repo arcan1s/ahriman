@@ -19,7 +19,7 @@ Features
 Live demos
 ----------
 
-* `Build status page <https://ahriman-demo.arcanis.me>`_. You can login as ``demo`` user by using ``demo`` password. Note, however, you will not be able to run tasks.
+* `Build status page <https://ahriman-demo.arcanis.me>`_. You can login as ``demo`` user by using ``demo`` password. Note, however, you will not be able to run tasks. `HTTP API documentation <https://ahriman-demo.arcanis.me/api-docs>`_ is also available.
 * `Repository index <http://repo.arcanis.me/x86_64/index.html>`_.
 * `Telegram feed <https://t.me/arcanisrepo>`_.
 
