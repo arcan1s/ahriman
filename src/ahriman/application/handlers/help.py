@@ -31,7 +31,7 @@ class Help(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

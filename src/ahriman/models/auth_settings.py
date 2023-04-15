@@ -36,23 +36,6 @@ class AuthSettings(str, Enum):
     Configuration = "configuration"
     OAuth = "oauth2"
 
-    @classmethod
-    def from_option(cls: type[AuthSettings], value: str) -> AuthSettings:
-        """
-        construct value from configuration
-
-        Args:
-            value(str): configuration value
-
-        Returns:
-            AuthSettings: parsed value
-        """
-        if value.lower() in ("configuration", "mapping"):
-            return cls.Configuration
-        if value.lower() in ("oauth", "oauth2"):
-            return cls.OAuth
-        return cls.Disabled
-
     @property
     def is_enabled(self) -> bool:
         """
@@ -64,3 +47,20 @@ class AuthSettings(str, Enum):
         if self == AuthSettings.Disabled:
             return False
         return True
+
+    @staticmethod
+    def from_option(value: str) -> AuthSettings:
+        """
+        construct value from configuration
+
+        Args:
+            value(str): configuration value
+
+        Returns:
+            AuthSettings: parsed value
+        """
+        if value.lower() in ("configuration", "mapping"):
+            return AuthSettings.Configuration
+        if value.lower() in ("oauth", "oauth2"):
+            return AuthSettings.OAuth
+        return AuthSettings.Disabled

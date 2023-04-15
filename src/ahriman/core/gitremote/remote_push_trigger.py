@@ -76,7 +76,7 @@ class RemotePushTrigger(Trigger):
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
-    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
+    def configuration_sections(cls, configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 

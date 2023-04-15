@@ -17,11 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from ahriman.core.util import filter_json
 from ahriman.models.package_source import PackageSource
@@ -63,7 +61,7 @@ class RemoteSource:
         return Path(self.path)
 
     @classmethod
-    def from_json(cls: type[RemoteSource], dump: dict[str, Any]) -> RemoteSource | None:
+    def from_json(cls, dump: dict[str, Any]) -> Self | None:
         """
         construct remote source from the json dump (or database row)
 
@@ -71,7 +69,7 @@ class RemoteSource:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            RemoteSource | None: remote source
+            Self | None: remote source
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -81,8 +79,7 @@ class RemoteSource:
         return None
 
     @classmethod
-    def from_source(cls: type[RemoteSource], source: PackageSource, package_base: str,
-                    repository: str) -> RemoteSource | None:
+    def from_source(cls, source: PackageSource, package_base: str, repository: str) -> Self | None:
         """
         generate remote source from the package base
 
@@ -92,11 +89,11 @@ class RemoteSource:
             repository(str): repository name
 
         Returns:
-            RemoteSource | None: generated remote source if any, None otherwise
+            Self | None: generated remote source if any, None otherwise
         """
         if source == PackageSource.AUR:
             from ahriman.core.alpm.remote import AUR
-            return RemoteSource(
+            return cls(
                 git_url=AUR.remote_git_url(package_base, repository),
                 web_url=AUR.remote_web_url(package_base),
                 path=".",
@@ -105,7 +102,7 @@ class RemoteSource:
             )
         if source == PackageSource.Repository:
             from ahriman.core.alpm.remote import Official
-            return RemoteSource(
+            return cls(
                 git_url=Official.remote_git_url(package_base, repository),
                 web_url=Official.remote_web_url(package_base),
                 path="trunk",

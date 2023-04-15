@@ -163,7 +163,7 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     application.logger.info("setup debug panel")
     debug_enabled = configuration.getboolean("web", "debug", fallback=False)
     if debug_enabled:
-        import aiohttp_debugtoolbar  # type: ignore
+        import aiohttp_debugtoolbar  # type: ignore[import]
         aiohttp_debugtoolbar.setup(application,
                                    hosts=configuration.getlist("web", "debug_allowed_hosts", fallback=[]),
                                    check_host=configuration.getboolean("web", "debug_check_host", fallback=False))

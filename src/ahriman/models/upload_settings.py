@@ -38,8 +38,8 @@ class UploadSettings(str, Enum):
     S3 = "s3"
     Github = "github"
 
-    @classmethod
-    def from_option(cls: type[UploadSettings], value: str) -> UploadSettings:
+    @staticmethod
+    def from_option(value: str) -> UploadSettings:
         """
         construct value from configuration
 
@@ -50,9 +50,9 @@ class UploadSettings(str, Enum):
             UploadSettings: parsed value
         """
         if value.lower() in ("rsync",):
-            return cls.Rsync
+            return UploadSettings.Rsync
         if value.lower() in ("s3",):
-            return cls.S3
+            return UploadSettings.S3
         if value.lower() in ("github",):
-            return cls.Github
-        return cls.Disabled
+            return UploadSettings.Github
+        return UploadSettings.Disabled

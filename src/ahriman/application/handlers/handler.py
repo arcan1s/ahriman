@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import argparse
 import logging
 
@@ -52,7 +50,7 @@ class Handler:
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
-    def architectures_extract(cls: type[Handler], args: argparse.Namespace) -> list[str]:
+    def architectures_extract(cls, args: argparse.Namespace) -> list[str]:
         """
         get known architectures
 
@@ -83,7 +81,7 @@ class Handler:
         return sorted(architectures)
 
     @classmethod
-    def call(cls: type[Handler], args: argparse.Namespace, architecture: str) -> bool:
+    def call(cls, args: argparse.Namespace, architecture: str) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
 
@@ -108,7 +106,7 @@ class Handler:
             return False
 
     @classmethod
-    def execute(cls: type[Handler], args: argparse.Namespace) -> int:
+    def execute(cls, args: argparse.Namespace) -> int:
         """
         execute function for all aru
 
@@ -137,7 +135,7 @@ class Handler:
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

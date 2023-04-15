@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import boto3  # type: ignore
+import boto3  # type: ignore[import]
 import hashlib
 import mimetypes
 

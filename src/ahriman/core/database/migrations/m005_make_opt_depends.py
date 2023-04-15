@@ -23,6 +23,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 
 
 __all__ = ["migrate_data", "steps"]
@@ -61,7 +62,7 @@ def migrate_package_depends(connection: Connection, configuration: Configuration
         return
 
     _, architecture = configuration.check_loaded()
-    pacman = Pacman(architecture, configuration, refresh_database=False)
+    pacman = Pacman(architecture, configuration, refresh_database=PacmanSynchronization.Disabled)
 
     package_list = []
     for full_path in filter(package_like, configuration.repository_paths.repository.iterdir()):

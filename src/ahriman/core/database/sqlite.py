@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import json
 import sqlite3
 
 from pathlib import Path
+from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
@@ -46,7 +45,7 @@ class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations,
     """
 
     @classmethod
-    def load(cls: type[SQLite], configuration: Configuration) -> SQLite:
+    def load(cls, configuration: Configuration) -> Self:
         """
         construct instance from configuration
 
@@ -54,7 +53,7 @@ class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations,
             configuration(Configuration): configuration instance
 
         Returns:
-            SQLite: fully initialized instance of the database
+            Self: fully initialized instance of the database
         """
         path = cls.database_path(configuration)
         database = cls(path)

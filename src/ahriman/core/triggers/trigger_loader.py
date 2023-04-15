@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import contextlib
 import os
 
@@ -26,6 +24,7 @@ from collections.abc import Generator
 from importlib import import_module, machinery
 from pathlib import Path
 from types import ModuleType
+from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExtensionError
@@ -66,7 +65,7 @@ class TriggerLoader(LazyLogging):
         self.triggers: list[Trigger] = []
 
     @classmethod
-    def load(cls: type[TriggerLoader], architecture: str, configuration: Configuration) -> TriggerLoader:
+    def load(cls, architecture: str, configuration: Configuration) -> Self:
         """
         create instance from configuration
 
@@ -75,7 +74,7 @@ class TriggerLoader(LazyLogging):
             configuration(Configuration): configuration instance
 
         Returns:
-            TriggerLoader: fully loaded trigger instance
+            Self: fully loaded trigger instance
         """
         instance = cls()
         instance.triggers = [

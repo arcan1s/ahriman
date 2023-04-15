@@ -44,6 +44,33 @@ class AUR(Remote):
     DEFAULT_RPC_VERSION = "5"
     DEFAULT_TIMEOUT = 30
 
+    @classmethod
+    def remote_git_url(cls, package_base: str, repository: str) -> str:
+        """
+        generate remote git url from the package base
+
+        Args
+            package_base(str): package base
+            repository(str): repository name
+
+        Returns:
+            str: git url for the specific base
+        """
+        return f"{AUR.DEFAULT_AUR_URL}/{package_base}.git"
+
+    @classmethod
+    def remote_web_url(cls, package_base: str) -> str:
+        """
+        generate remote web url from the package base
+
+        Args
+            package_base(str): package base
+
+        Returns:
+            str: web url for the specific base
+        """
+        return f"{AUR.DEFAULT_AUR_URL}/packages/{package_base}"
+
     @staticmethod
     def parse_response(response: dict[str, Any]) -> list[AURPackage]:
         """
@@ -63,33 +90,6 @@ class AUR(Remote):
             error_details = response.get("error", "Unknown API error")
             raise PackageInfoError(error_details)
         return [AURPackage.from_json(package) for package in response["results"]]
-
-    @classmethod
-    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
-        """
-        generate remote git url from the package base
-
-        Args
-            package_base(str): package base
-            repository(str): repository name
-
-        Returns:
-            str: git url for the specific base
-        """
-        return f"{AUR.DEFAULT_AUR_URL}/{package_base}.git"
-
-    @classmethod
-    def remote_web_url(cls: type[Remote], package_base: str) -> str:
-        """
-        generate remote web url from the package base
-
-        Args
-            package_base(str): package base
-
-        Returns:
-            str: web url for the specific base
-        """
-        return f"{AUR.DEFAULT_AUR_URL}/packages/{package_base}"
 
     def make_request(self, request_type: str, *args: str, **kwargs: str) -> list[AURPackage]:
         """

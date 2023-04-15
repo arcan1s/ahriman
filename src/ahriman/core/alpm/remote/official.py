@@ -44,6 +44,35 @@ class Official(Remote):
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
     DEFAULT_TIMEOUT = 30
 
+    @classmethod
+    def remote_git_url(cls, package_base: str, repository: str) -> str:
+        """
+        generate remote git url from the package base
+
+        Args
+            package_base(str): package base
+            repository(str): repository name
+
+        Returns:
+            str: git url for the specific base
+        """
+        if repository.lower() in ("core", "extra", "testing", "kde-unstable"):
+            return "https://github.com/archlinux/svntogit-packages.git"  # hardcoded, ok
+        return "https://github.com/archlinux/svntogit-community.git"
+
+    @classmethod
+    def remote_web_url(cls, package_base: str) -> str:
+        """
+        generate remote web url from the package base
+
+        Args
+            package_base(str): package base
+
+        Returns:
+            str: web url for the specific base
+        """
+        return f"{Official.DEFAULT_ARCHLINUX_URL}/packages/{package_base}"
+
     @staticmethod
     def parse_response(response: dict[str, Any]) -> list[AURPackage]:
         """
@@ -61,35 +90,6 @@ class Official(Remote):
         if not response["valid"]:
             raise PackageInfoError("API validation error")
         return [AURPackage.from_repo(package) for package in response["results"]]
-
-    @classmethod
-    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
-        """
-        generate remote git url from the package base
-
-        Args
-            package_base(str): package base
-            repository(str): repository name
-
-        Returns:
-            str: git url for the specific base
-        """
-        if repository.lower() in ("core", "extra", "testing", "kde-unstable"):
-            return "https://github.com/archlinux/svntogit-packages.git"  # hardcoded, ok
-        return "https://github.com/archlinux/svntogit-community.git"
-
-    @classmethod
-    def remote_web_url(cls: type[Remote], package_base: str) -> str:
-        """
-        generate remote web url from the package base
-
-        Args
-            package_base(str): package base
-
-        Returns:
-            str: web url for the specific base
-        """
-        return f"{Official.DEFAULT_ARCHLINUX_URL}/packages/{package_base}"
 
     def make_request(self, *args: str, by: str) -> list[AURPackage]:
         """

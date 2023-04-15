@@ -68,7 +68,7 @@ def schema_request(handler: Callable[..., Awaitable[Any]], *, location: str = "j
     Returns:
         Schema: request schema as set by the decorators
     """
-    schemas: list[dict[str, Any]] = handler.__schemas__  # type: ignore
+    schemas: list[dict[str, Any]] = handler.__schemas__  # type: ignore[attr-defined]
     return next(schema["schema"] for schema in schemas if schema["put_into"] == location)
 
 
@@ -84,7 +84,7 @@ def schema_response(handler: Callable[..., Awaitable[Any]], *, code: int = 200) 
     Returns:
         Schema: response schema as set by the decorators
     """
-    schemas: dict[int, Any] = handler.__apispec__["responses"]  # type: ignore
+    schemas: dict[int, Any] = handler.__apispec__["responses"]  # type: ignore[attr-defined]
     schema = schemas[code]["schema"]
     if callable(schema):
         schema = schema()

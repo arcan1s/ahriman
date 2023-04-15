@@ -17,12 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# workaround for python3.10 while it wasn't yet released in arch
-# also remove mypy --python-version flag later
-import typing
-import typing_extensions
+from enum import Enum
 
 
-for extension in dir(typing_extensions):
-    if extension not in dir(typing):
-        setattr(typing, extension, getattr(typing_extensions, extension))
+class PacmanSynchronization(int, Enum):
+    """
+    pacman database synchronization flag
+
+    Attributes:
+        Disabled(PacmanSynchronization): (class attribute) do not synchronize local database
+        Enabled(PacmanSynchronization): (class attribute) synchronize local database (same as pacman -Sy)
+        Force(PacmanSynchronization): (class attribute) force synchronize local database (same as pacman -Syy)
+    """
+
+    Disabled = 0
+    Enabled = 1
+    Force = 2

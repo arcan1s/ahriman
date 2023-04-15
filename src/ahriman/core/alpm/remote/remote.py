@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.log import LazyLogging
 from ahriman.models.aur_package import AURPackage
@@ -42,7 +40,7 @@ class Remote(LazyLogging):
     """
 
     @classmethod
-    def info(cls: type[Remote], package_name: str, *, pacman: Pacman) -> AURPackage:
+    def info(cls, package_name: str, *, pacman: Pacman) -> AURPackage:
         """
         get package info by its name
 
@@ -56,7 +54,7 @@ class Remote(LazyLogging):
         return cls().package_info(package_name, pacman=pacman)
 
     @classmethod
-    def multisearch(cls: type[Remote], *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def multisearch(cls, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search in remote repository by using API with multiple words. This method is required in order to handle
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
@@ -80,7 +78,7 @@ class Remote(LazyLogging):
         return list(packages.values())
 
     @classmethod
-    def remote_git_url(cls: type[Remote], package_base: str, repository: str) -> str:
+    def remote_git_url(cls, package_base: str, repository: str) -> str:
         """
         generate remote git url from the package base
 
@@ -97,7 +95,7 @@ class Remote(LazyLogging):
         raise NotImplementedError
 
     @classmethod
-    def remote_web_url(cls: type[Remote], package_base: str) -> str:
+    def remote_web_url(cls, package_base: str) -> str:
         """
         generate remote web url from the package base
 
@@ -113,7 +111,7 @@ class Remote(LazyLogging):
         raise NotImplementedError
 
     @classmethod
-    def search(cls: type[Remote], *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def search(cls, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """
         search package in AUR web
 

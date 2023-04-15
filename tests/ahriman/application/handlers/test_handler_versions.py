@@ -15,7 +15,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     Versions.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_mock.assert_called_once_with("ahriman", ("pacman", "s3", "web"))
+    application_mock.assert_called_once_with("ahriman")
     print_mock.assert_has_calls([MockCall(verbose=False, separator=" "), MockCall(verbose=False, separator=" ")])
 
 
@@ -23,7 +23,7 @@ def test_package_dependencies() -> None:
     """
     must extract package dependencies
     """
-    packages = Versions.package_dependencies("srcinfo")
+    packages = dict(Versions.package_dependencies("srcinfo"))
     assert packages
     assert packages.get("parse") is not None
 
@@ -32,7 +32,7 @@ def test_package_dependencies_missing() -> None:
     """
     must extract package dependencies even if some of them are missing
     """
-    packages = Versions.package_dependencies("ahriman", ("docs", "pacman", "s3", "web"))
+    packages = dict(Versions.package_dependencies("ahriman"))
     assert packages
     assert packages.get("pyalpm") is not None
     assert packages.get("Sphinx") is None

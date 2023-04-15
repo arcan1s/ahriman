@@ -34,7 +34,6 @@ setup(
         "inflection",
         "passlib",
         "requests",
-        "setuptools",
         "srcinfo",
     ],
     setup_requires=[
