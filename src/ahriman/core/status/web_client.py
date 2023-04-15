@@ -40,6 +40,7 @@ class WebClient(Client, LazyLogging):
 
     Attributes:
         address(str): address of the web service
+        suppress_errors(bool): suppress logging errors (e.g. if no web server available)
         user(User | None): web service user descriptor
     """
 
@@ -54,6 +55,7 @@ class WebClient(Client, LazyLogging):
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),
             configuration.get("web", "password", fallback=None))
+        self.suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
 
         self.__session = self._create_session(use_unix_socket=use_unix_socket)
 
@@ -106,9 +108,13 @@ class WebClient(Client, LazyLogging):
         """
         try:
             yield
-        except requests.HTTPError as e:
+        except requests.RequestException as e:
+            if self.suppress_errors:
+                return
             self.logger.exception("could not perform http request: %s", exception_response_text(e))
         except Exception:
+            if self.suppress_errors:
+                return
             self.logger.exception("could not perform http request")
 
     def _create_session(self, *, use_unix_socket: bool) -> requests.Session:

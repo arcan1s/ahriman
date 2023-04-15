@@ -157,6 +157,30 @@ def test_add_failed_http_error(web_client: WebClient, package_ahriman: Package, 
     web_client.add(package_ahriman, BuildStatusEnum.Unknown)
 
 
+def test_add_failed_suppress(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during addition and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.post", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.add(package_ahriman, BuildStatusEnum.Unknown)
+    logging_mock.assert_not_called()
+
+
+def test_add_failed_http_error_suppress(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during addition and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.add(package_ahriman, BuildStatusEnum.Unknown)
+    logging_mock.assert_not_called()
+
+
 def test_get_all(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must return all packages status
