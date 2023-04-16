@@ -27,6 +27,7 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
 from ahriman.core.util import check_user
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class RepositoryProperties(LazyLogging):
@@ -68,7 +69,7 @@ class RepositoryProperties(LazyLogging):
         self.name = configuration.get("repository", "name")
         self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
-        self.paths = configuration.repository_paths
+        self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing
         try:
             check_user(self.paths, unsafe=unsafe)
             self.paths.tree_create()

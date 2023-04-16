@@ -31,7 +31,7 @@ class LogsSchema(Schema):
         "description": "Package base name",
         "example": "ahriman",
     })
-    status = fields.Nested(StatusSchema, required=True, metadata={
+    status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Last package status",
     })
     logs = fields.String(required=True, metadata={

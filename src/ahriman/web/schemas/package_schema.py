@@ -37,10 +37,10 @@ class PackageSchema(Schema):
         "description": "Package version",
         "example": version.__version__,
     })
-    remote = fields.Nested(RemoteSchema, required=True, metadata={
+    remote = fields.Nested(RemoteSchema(), required=True, metadata={
         "description": "Package remote properties",
     })
     packages = fields.Dict(
-        keys=fields.String(), values=fields.Nested(PackagePropertiesSchema), required=True, metadata={
+        keys=fields.String(), values=fields.Nested(PackagePropertiesSchema()), required=True, metadata={
             "description": "Packages which belong to this base",
         })

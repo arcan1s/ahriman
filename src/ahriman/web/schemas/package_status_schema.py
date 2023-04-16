@@ -29,7 +29,7 @@ class PackageStatusSimplifiedSchema(Schema):
     special request package status schema
     """
 
-    package = fields.Nested(PackageSchema, metadata={
+    package = fields.Nested(PackageSchema(), metadata={
         "description": "Package description",
     })
     status = fields.Enum(BuildStatusEnum, by_value=True, required=True, metadata={
@@ -42,9 +42,9 @@ class PackageStatusSchema(Schema):
     response package status schema
     """
 
-    package = fields.Nested(PackageSchema, required=True, metadata={
+    package = fields.Nested(PackageSchema(), required=True, metadata={
         "description": "Package description",
     })
-    status = fields.Nested(StatusSchema, required=True, metadata={
+    status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Last package status",
     })
