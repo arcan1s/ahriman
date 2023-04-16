@@ -20,10 +20,10 @@
 from __future__ import annotations
 
 import contextlib
-import importlib
 import os
 
 from collections.abc import Generator
+from importlib import import_module, machinery
 from pathlib import Path
 from types import ModuleType
 
@@ -128,7 +128,7 @@ class TriggerLoader(LazyLogging):
         self.logger.info("load module %s from path %s", implementation, module_path)
         # basically this method is called only if ``module_path`` exists and is file.
         # Thus, this method should never throw ``FileNotFoundError`` exception
-        loader = importlib.machinery.SourceFileLoader(implementation, module_path)
+        loader = machinery.SourceFileLoader(implementation, module_path)
         module = ModuleType(loader.name)
         loader.exec_module(module)
 
@@ -149,7 +149,7 @@ class TriggerLoader(LazyLogging):
         """
         self.logger.info("load module from package %s", package)
         try:
-            return importlib.import_module(package)
+            return import_module(package)
         except ModuleNotFoundError:
             raise ExtensionError(f"Module {package} not found")
 

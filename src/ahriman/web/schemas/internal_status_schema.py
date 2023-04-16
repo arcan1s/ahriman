@@ -33,14 +33,14 @@ class InternalStatusSchema(Schema):
         "description": "Repository architecture",
         "example": "x86_64",
     })
-    packages = fields.Nested(CountersSchema, required=True, metadata={
+    packages = fields.Nested(CountersSchema(), required=True, metadata={
         "description": "Repository package counters",
     })
     repository = fields.String(required=True, metadata={
         "description": "Repository name",
         "example": "repo-clone",
     })
-    status = fields.Nested(StatusSchema, required=True, metadata={
+    status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Repository status as stored by web service",
     })
     version = fields.String(required=True, metadata={

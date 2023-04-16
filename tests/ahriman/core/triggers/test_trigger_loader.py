@@ -52,7 +52,7 @@ def test_load_trigger_class_package_invalid_import(trigger_loader: TriggerLoader
     """
     must raise InvalidExtension on invalid import
     """
-    mocker.patch("ahriman.core.triggers.trigger_loader.importlib.import_module", side_effect=ModuleNotFoundError())
+    mocker.patch("importlib.import_module", side_effect=ModuleNotFoundError())
     with pytest.raises(ExtensionError):
         trigger_loader.load_trigger_class("random.module")
 
