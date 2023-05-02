@@ -100,6 +100,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_patch_set_add_parser(subparsers)
     _set_repo_backup_parser(subparsers)
     _set_repo_check_parser(subparsers)
+    _set_repo_create_mirrorlist_parser(subparsers)
     _set_repo_daemon_parser(subparsers)
     _set_repo_rebuild_parser(subparsers)
     _set_repo_remove_unknown_parser(subparsers)
@@ -475,6 +476,25 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                 "-yy to force refresh even if up to date",
                         action="count", default=False)
     parser.set_defaults(handler=handlers.Update, dependencies=False, dry_run=True, aur=True, local=True, manual=False)
+    return parser
+
+
+def _set_repo_create_mirrorlist_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for create-mirrorlist subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-create-mirrorlist", help="create mirrorlist package",
+                             description="create package which contains list of available mirrors as set by "
+                                         "configuration. Note, that this action will only create package, the package "
+                                         "itself has to be built manually",
+                             formatter_class=_formatter)
+    parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.support.MirrorlistTrigger"])
     return parser
 
 

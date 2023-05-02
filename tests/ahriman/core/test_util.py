@@ -81,12 +81,12 @@ def test_check_output_with_user(passwd: Any, mocker: MockerFixture) -> None:
     """
     must run command as specified user and set its homedir
     """
-    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))") != passwd.pw_dir
+    assert check_output("python", "-c", """import os; print(os.getenv("HOME"))""") != passwd.pw_dir
 
     getpwuid_mock = mocker.patch("ahriman.core.util.getpwuid", return_value=passwd)
     user = os.getuid()
 
-    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))", user=user) == passwd.pw_dir
+    assert check_output("python", "-c", """import os; print(os.getenv("HOME"))""", user=user) == passwd.pw_dir
     getpwuid_mock.assert_called_once_with(user)
 
 

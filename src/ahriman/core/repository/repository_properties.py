@@ -67,7 +67,7 @@ class RepositoryProperties(LazyLogging):
         self.configuration = configuration
         self.database = database
 
-        self.name = configuration.get("repository", "name")
+        self.name = configuration.repository_name
         self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
         self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing

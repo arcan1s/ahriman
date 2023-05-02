@@ -85,6 +85,20 @@ class TriggerLoader(LazyLogging):
         return instance
 
     @staticmethod
+    def known_triggers(configuration: Configuration) -> list[str]:
+        """
+        read configuration and return list of known triggers. Unlike ``selected_triggers`` this option is used mainly
+        for configuration and validation and mentioned triggers are not being executed automatically
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            list[str]: list of registered, but not enabled, triggers
+        """
+        return configuration.getlist("build", "triggers_known", fallback=[])
+
+    @staticmethod
     def selected_triggers(configuration: Configuration) -> list[str]:
         """
         read configuration and return triggers which are set by settings

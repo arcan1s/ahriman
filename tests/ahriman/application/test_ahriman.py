@@ -373,6 +373,24 @@ def test_subparsers_repo_check_option_refresh(parser: argparse.ArgumentParser) -
     assert args.refresh == 2
 
 
+def test_subparsers_repo_create_mirrorlist(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-create-mirrorlist command must imply trigger
+    """
+    args = parser.parse_args(["repo-create-mirrorlist"])
+    assert args.trigger == ["ahriman.core.support.MirrorlistTrigger"]
+
+
+def test_subparsers_repo_create_mirrorlist_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-create-mirrorlist command must correctly parse architecture list
+    """
+    args = parser.parse_args(["repo-create-mirrorlist"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "repo-create-mirrorlist"])
+    assert args.architecture == ["x86_64"]
+
+
 def test_subparsers_repo_daemon(parser: argparse.ArgumentParser) -> None:
     """
     repo-daemon command must imply dry run, exit code and package

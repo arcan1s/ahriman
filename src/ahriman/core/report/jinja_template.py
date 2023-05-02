@@ -75,7 +75,7 @@ class JinjaTemplate:
 
         # base template vars
         self.homepage = configuration.get(section, "homepage", fallback=None)
-        self.name = configuration.get("repository", "name")
+        self.name = configuration.repository_name
 
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 

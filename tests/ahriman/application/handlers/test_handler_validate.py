@@ -62,6 +62,8 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("email")
     assert schema.pop("github")
     assert schema.pop("html")
+    assert schema.pop("mirrorlist")
+    assert schema.pop("mirrorlist_generator")
     assert schema.pop("report")
     assert schema.pop("rsync")
     assert schema.pop("s3")
@@ -76,6 +78,7 @@ def test_schema_invalid_trigger(configuration: Configuration) -> None:
     must skip trigger if it caused exception on load
     """
     configuration.set_option("build", "triggers", "some.invalid.trigger.path.Trigger")
+    configuration.remove_option("build", "triggers_known")
     assert Validate.schema("x86_64", configuration) == CONFIGURATION_SCHEMA
 
 
