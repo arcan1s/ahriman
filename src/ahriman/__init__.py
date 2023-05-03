@@ -17,12 +17,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# workaround for python3.10 while it wasn't yet released in arch
-# also remove mypy --python-version flag later
-import typing
-import typing_extensions
-
-
-for extension in dir(typing_extensions):
-    if extension not in dir(typing):
-        setattr(typing, extension, getattr(typing_extensions, extension))
