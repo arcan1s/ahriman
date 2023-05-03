@@ -30,12 +30,12 @@ async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None
     must redirect to OAuth service provider in case if no code is supplied
     """
     oauth = client_with_oauth_auth.app["validator"]
-    oauth.get_oauth_url.return_value = "https://httpbin.org"
+    oauth.get_oauth_url.return_value = "http://localhost"
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {}
     assert not request_schema.validate(payload)
-    response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
+    response = await client_with_oauth_auth.get("/api/v1/login", params=payload, allow_redirects=False)
     assert response.ok
     oauth.get_oauth_url.assert_called_once_with()
 
@@ -45,12 +45,12 @@ async def test_get_redirect_to_oauth_empty_code(client_with_oauth_auth: TestClie
     must redirect to OAuth service provider in case if empty code is supplied
     """
     oauth = client_with_oauth_auth.app["validator"]
-    oauth.get_oauth_url.return_value = "https://httpbin.org"
+    oauth.get_oauth_url.return_value = "http://localhost"
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {"code": ""}
     assert not request_schema.validate(payload)
-    response = await client_with_oauth_auth.get("/api/v1/login", params=payload)
+    response = await client_with_oauth_auth.get("/api/v1/login", params=payload, allow_redirects=False)
     assert response.ok
     oauth.get_oauth_url.assert_called_once_with()
 

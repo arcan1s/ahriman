@@ -102,12 +102,15 @@ class WebClient(Client, LazyLogging):
         return address, False
 
     @contextlib.contextmanager
-    def __execute_request(self) -> Generator[None, None, None]:
+    def __get_session(self) -> Generator[requests.Session, None, None]:
         """
         execute request and handle exceptions
+
+        Yields:
+            requests.Session: session for requests
         """
         try:
-            yield
+            yield self.__session
         except requests.RequestException as e:
             if self.suppress_errors:
                 return
@@ -149,8 +152,8 @@ class WebClient(Client, LazyLogging):
             "password": self.user.password
         }
 
-        with self.__execute_request():
-            response = self.__session.post(self._login_url, json=payload)
+        with self.__get_session() as session:
+            response = session.post(self._login_url, json=payload)
             response.raise_for_status()
 
     def _logs_url(self, package_base: str) -> str:
@@ -192,8 +195,8 @@ class WebClient(Client, LazyLogging):
             "package": package.view()
         }
 
-        with self.__execute_request():
-            response = self.__session.post(self._package_url(package.base), json=payload)
+        with self.__get_session() as session:
+            response = session.post(self._package_url(package.base), json=payload)
             response.raise_for_status()
 
     def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
@@ -206,8 +209,8 @@ class WebClient(Client, LazyLogging):
         Returns:
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
-        with self.__execute_request():
-            response = self.__session.get(self._package_url(package_base or ""))
+        with self.__get_session() as session:
+            response = session.get(self._package_url(package_base or ""))
             response.raise_for_status()
 
             status_json = response.json()
@@ -226,8 +229,8 @@ class WebClient(Client, LazyLogging):
         Returns:
             InternalStatus: current internal (web) service status
         """
-        with self.__execute_request():
-            response = self.__session.get(self._status_url)
+        with self.__get_session() as session:
+            response = session.get(self._status_url)
             response.raise_for_status()
 
             status_json = response.json()
@@ -261,8 +264,8 @@ class WebClient(Client, LazyLogging):
         Args:
             package_base(str): basename to remove
         """
-        with self.__execute_request():
-            response = self.__session.delete(self._package_url(package_base))
+        with self.__get_session() as session:
+            response = session.delete(self._package_url(package_base))
             response.raise_for_status()
 
     def update(self, package_base: str, status: BuildStatusEnum) -> None:
@@ -275,8 +278,8 @@ class WebClient(Client, LazyLogging):
         """
         payload = {"status": status.value}
 
-        with self.__execute_request():
-            response = self.__session.post(self._package_url(package_base), json=payload)
+        with self.__get_session() as session:
+            response = session.post(self._package_url(package_base), json=payload)
             response.raise_for_status()
 
     def update_self(self, status: BuildStatusEnum) -> None:
@@ -288,6 +291,6 @@ class WebClient(Client, LazyLogging):
         """
         payload = {"status": status.value}
 
-        with self.__execute_request():
-            response = self.__session.post(self._status_url, json=payload)
+        with self.__get_session() as session:
+            response = session.post(self._status_url, json=payload)
             response.raise_for_status()
