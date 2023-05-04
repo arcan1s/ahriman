@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
 from ahriman.core.log import LazyLogging
@@ -70,8 +68,7 @@ class Trigger(LazyLogging):
         self.configuration = configuration
 
     @classmethod
-    def configuration_schema(cls: type[Trigger], architecture: str,
-                             configuration: Configuration | None) -> ConfigurationSchema:
+    def configuration_schema(cls, architecture: str, configuration: Configuration | None) -> ConfigurationSchema:
         """
         configuration schema based on supplied service configuration
 
@@ -102,7 +99,7 @@ class Trigger(LazyLogging):
         return result
 
     @classmethod
-    def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
+    def configuration_sections(cls, configuration: Configuration) -> list[str]:
         """
         extract configuration sections from configuration
 
@@ -116,8 +113,8 @@ class Trigger(LazyLogging):
             This method can be used in order to extract specific configuration sections which are set by user, e.g.
             from sources::
 
-                >>> @staticmethod
-                >>> def configuration_sections(cls: type[Trigger], configuration: Configuration) -> list[str]:
+                >>> @classmethod
+                >>> def configuration_sections(cls, configuration: Configuration) -> list[str]:
                 >>>     return configuration.getlist("report", "target", fallback=[])
         """
         del configuration

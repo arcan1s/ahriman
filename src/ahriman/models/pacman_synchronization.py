@@ -17,32 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_cors  # type: ignore[import]
-
-from aiohttp.web import Application
+from enum import Enum
 
 
-__all__ = ["setup_cors"]
-
-
-def setup_cors(application: Application) -> aiohttp_cors.CorsConfig:
+class PacmanSynchronization(int, Enum):
     """
-    setup CORS for the web application
+    pacman database synchronization flag
 
-    Args:
-        application(Application): web application instance
-
-    Returns:
-        aiohttp_cors.CorsConfig: generated CORS configuration
+    Attributes:
+        Disabled(PacmanSynchronization): (class attribute) do not synchronize local database
+        Enabled(PacmanSynchronization): (class attribute) synchronize local database (same as pacman -Sy)
+        Force(PacmanSynchronization): (class attribute) force synchronize local database (same as pacman -Syy)
     """
-    cors = aiohttp_cors.setup(application, defaults={
-        "*": aiohttp_cors.ResourceOptions(
-            expose_headers="*",
-            allow_headers="*",
-            allow_methods="*",
-        )
-    })
-    for route in application.router.routes():
-        cors.add(route)
 
-    return cors
+    Disabled = 0
+    Enabled = 1
+    Force = 2

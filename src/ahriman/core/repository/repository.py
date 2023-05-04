@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from collections.abc import Iterable
 from pathlib import Path
+from typing import Self
 
 from ahriman.core import _Context, context
 from ahriman.core.alpm.pacman import Pacman
@@ -32,6 +31,7 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.util import package_like
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 
 
 class Repository(Executor, UpdateHandler):
@@ -58,8 +58,8 @@ class Repository(Executor, UpdateHandler):
     """
 
     @classmethod
-    def load(cls: type[Repository], architecture: str, configuration: Configuration, database: SQLite, *,
-             report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> Repository:
+    def load(cls, architecture: str, configuration: Configuration, database: SQLite, *, report: bool, unsafe: bool,
+             refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> Self:
         """
         load instance from argument list
 
@@ -69,8 +69,11 @@ class Repository(Executor, UpdateHandler):
             database(SQLite): database instance
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
-            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
-                (Default value = 0)
+            refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
+                (Default value = PacmanSynchronization.Disabled)
+
+        Returns:
+            Self: fully loaded repository class instance
         """
         instance = cls(architecture, configuration, database,
                        report=report, unsafe=unsafe, refresh_pacman_database=refresh_pacman_database)

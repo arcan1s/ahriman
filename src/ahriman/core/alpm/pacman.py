@@ -21,12 +21,13 @@ import shutil
 
 from collections.abc import Callable, Generator
 from pathlib import Path
-from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore
+from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import]
 from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import trim_package
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -40,28 +41,28 @@ class Pacman(LazyLogging):
 
     handle: Handle
 
-    def __init__(self, architecture: str, configuration: Configuration, *, refresh_database: int) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, *,
+                 refresh_database: PacmanSynchronization) -> None:
         """
         default constructor
 
         Args:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            refresh_database(int): synchronize local cache to remote. If set to ``0``, no synchronization will be
-                enabled, if set to ``1`` - normal synchronization, if set to ``2`` - force synchronization
+            refresh_database(PacmanSynchronization): synchronize local cache to remote
         """
         self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
             architecture, configuration, refresh_database=refresh_database)
 
-    def __create_handle(self, architecture: str, configuration: Configuration, *, refresh_database: int) -> Handle:
+    def __create_handle(self, architecture: str, configuration: Configuration, *,
+                        refresh_database: PacmanSynchronization) -> Handle:
         """
         create lazy handle function
 
         Args:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
-            refresh_database(int): synchronize local cache to remote. If set to ``0``, no synchronization will be
-                enabled, if set to ``1`` - normal synchronization, if set to ``2`` - force synchronization
+            refresh_database(PacmanSynchronization): synchronize local cache to remote
 
         Returns:
             Handle: fully initialized pacman handle
@@ -79,7 +80,7 @@ class Pacman(LazyLogging):
             self.database_copy(handle, database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
 
         if use_ahriman_cache and refresh_database:
-            self.database_sync(handle, force=refresh_database > 1)
+            self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
 
         return handle
 

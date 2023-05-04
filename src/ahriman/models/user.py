@@ -17,11 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import dataclass, replace
 from passlib.hash import sha512_crypt
 from passlib.pwd import genword as generate_password
+from typing import Self
 
 from ahriman.models.user_access import UserAccess
 
@@ -66,8 +65,8 @@ class User:
     _HASHER = sha512_crypt
 
     @classmethod
-    def from_option(cls: type[User], username: str | None, password: str | None,
-                    access: UserAccess = UserAccess.Read) -> User | None:
+    def from_option(cls, username: str | None, password: str | None,
+                    access: UserAccess = UserAccess.Read) -> Self | None:
         """
         build user descriptor from configuration options
 
@@ -77,7 +76,7 @@ class User:
             access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
 
         Returns:
-            User | None: generated user descriptor if all options are supplied and None otherwise
+            Self | None: generated user descriptor if all options are supplied and None otherwise
         """
         if username is None or password is None:
             return None
@@ -114,7 +113,7 @@ class User:
             verified = False  # the absence of evidence is not the evidence of absence (c) Gin Rummy
         return verified
 
-    def hash_password(self, salt: str) -> User:
+    def hash_password(self, salt: str) -> Self:
         """
         generate hashed password from plain text
 
@@ -122,7 +121,7 @@ class User:
             salt(str): salt for hashed password
 
         Returns:
-            User: user with hashed password to store in configuration
+            Self: user with hashed password to store in configuration
         """
         if not self.password:
             # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider

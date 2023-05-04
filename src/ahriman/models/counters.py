@@ -17,10 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import dataclass, fields
-from typing import Any
+from typing import Any, Self
 
 from ahriman.core.util import filter_json
 from ahriman.models.build_status import BuildStatus
@@ -49,7 +47,7 @@ class Counters:
     success: int = 0
 
     @classmethod
-    def from_json(cls: type[Counters], dump: dict[str, Any]) -> Counters:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct counters from json dump
 
@@ -57,14 +55,14 @@ class Counters:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            Counters: status counters
+            Self: status counters
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))
 
     @classmethod
-    def from_packages(cls: type[Counters], packages: list[tuple[Package, BuildStatus]]) -> Counters:
+    def from_packages(cls, packages: list[tuple[Package, BuildStatus]]) -> Self:
         """
         construct counters from packages statuses
 
@@ -72,7 +70,7 @@ class Counters:
             packages(list[tuple[Package, BuildStatus]]): list of package and their status as per watcher property
 
         Returns:
-            Counters: status counters
+            Self: status counters
         """
         per_status = {"total": len(packages)}
         for _, status in packages:

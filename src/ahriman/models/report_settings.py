@@ -40,8 +40,8 @@ class ReportSettings(str, Enum):
     Console = "console"
     Telegram = "telegram"
 
-    @classmethod
-    def from_option(cls: type[ReportSettings], value: str) -> ReportSettings:
+    @staticmethod
+    def from_option(value: str) -> ReportSettings:
         """
         construct value from configuration
 
@@ -52,11 +52,11 @@ class ReportSettings(str, Enum):
             ReportSettings: parsed value
         """
         if value.lower() in ("html",):
-            return cls.HTML
+            return ReportSettings.HTML
         if value.lower() in ("email",):
-            return cls.Email
+            return ReportSettings.Email
         if value.lower() in ("console",):
-            return cls.Console
+            return ReportSettings.Console
         if value.lower() in ("telegram",):
-            return cls.Telegram
-        return cls.Disabled
+            return ReportSettings.Telegram
+        return ReportSettings.Disabled

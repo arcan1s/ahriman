@@ -27,6 +27,7 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
 from ahriman.core.util import check_user
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -49,8 +50,8 @@ class RepositoryProperties(LazyLogging):
         vcs_allowed_age(int): maximal age of the VCS packages before they will be checked
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *,
-                 report: bool, unsafe: bool, refresh_pacman_database: int) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *, report: bool, unsafe: bool,
+                 refresh_pacman_database: PacmanSynchronization) -> None:
         """
         default constructor
 
@@ -60,7 +61,7 @@ class RepositoryProperties(LazyLogging):
             database(SQLite): database instance
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
-            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
+            refresh_pacman_database(PacmanSynchronization): pacman database synchronization level
         """
         self.architecture = architecture
         self.configuration = configuration

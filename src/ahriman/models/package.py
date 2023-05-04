@@ -25,9 +25,9 @@ import copy
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from pyalpm import vercmp  # type: ignore
-from srcinfo.parse import parse_srcinfo  # type: ignore
-from typing import Any
+from pyalpm import vercmp  # type: ignore[import]
+from srcinfo.parse import parse_srcinfo  # type: ignore[import]
+from typing import Any, Self
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
@@ -179,7 +179,7 @@ class Package(LazyLogging):
         return sorted(packages)
 
     @classmethod
-    def from_archive(cls: type[Package], path: Path, pacman: Pacman, remote: RemoteSource | None) -> Package:
+    def from_archive(cls, path: Path, pacman: Pacman, remote: RemoteSource | None) -> Self:
         """
         construct package properties from package archive
 
@@ -189,14 +189,14 @@ class Package(LazyLogging):
             remote(RemoteSource): package remote source if applicable
 
         Returns:
-            Package: package properties
+            Self: package properties
         """
         package = pacman.handle.load_pkg(str(path))
         description = PackageDescription.from_package(package, path)
         return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description})
 
     @classmethod
-    def from_aur(cls: type[Package], name: str, pacman: Pacman) -> Package:
+    def from_aur(cls, name: str, pacman: Pacman) -> Self:
         """
         construct package properties from AUR page
 
@@ -205,7 +205,7 @@ class Package(LazyLogging):
             pacman(Pacman): alpm wrapper instance
 
         Returns:
-            Package: package properties
+            Self: package properties
         """
         package = AUR.info(name, pacman=pacman)
         remote = RemoteSource.from_source(PackageSource.AUR, package.package_base, package.repository)
@@ -216,7 +216,7 @@ class Package(LazyLogging):
             packages={package.name: PackageDescription.from_aur(package)})
 
     @classmethod
-    def from_build(cls: type[Package], path: Path, architecture: str) -> Package:
+    def from_build(cls, path: Path, architecture: str) -> Self:
         """
         construct package properties from sources directory
 
@@ -225,7 +225,7 @@ class Package(LazyLogging):
             architecture(str): load package for specific architecture
 
         Returns:
-            Package: package properties
+            Self: package properties
 
         Raises:
             InvalidPackageInfo: if there are parsing errors
@@ -254,7 +254,7 @@ class Package(LazyLogging):
         return cls(base=srcinfo["pkgbase"], version=version, remote=None, packages=packages)
 
     @classmethod
-    def from_json(cls: type[Package], dump: dict[str, Any]) -> Package:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct package properties from json dump
 
@@ -262,7 +262,7 @@ class Package(LazyLogging):
             dump(dict[str, Any]): json dump body
 
         Returns:
-            Package: package properties
+            Self: package properties
         """
         packages_json = dump.get("packages") or {}
         packages = {
@@ -273,7 +273,7 @@ class Package(LazyLogging):
         return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
 
     @classmethod
-    def from_official(cls: type[Package], name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Package:
+    def from_official(cls, name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Self:
         """
         construct package properties from official repository page
 
@@ -283,7 +283,7 @@ class Package(LazyLogging):
             use_syncdb(bool, optional): use pacman databases instead of official repositories RPC (Default value = True)
 
         Returns:
-            Package: package properties
+            Self: package properties
         """
         package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
         remote = RemoteSource.from_source(PackageSource.Repository, package.package_base, package.repository)

@@ -36,8 +36,8 @@ class SignSettings(str, Enum):
     Packages = "packages"
     Repository = "repository"
 
-    @classmethod
-    def from_option(cls: type[SignSettings], value: str) -> SignSettings:
+    @staticmethod
+    def from_option(value: str) -> SignSettings:
         """
         construct value from configuration
 
@@ -48,7 +48,7 @@ class SignSettings(str, Enum):
             SignSettings: parsed value
         """
         if value.lower() in ("package", "packages", "sign-package"):
-            return cls.Packages
+            return SignSettings.Packages
         if value.lower() in ("repository", "sign-repository"):
-            return cls.Repository
-        return cls.Disabled
+            return SignSettings.Repository
+        return SignSettings.Disabled

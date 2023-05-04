@@ -32,8 +32,8 @@ class Client:
     base build status reporter client
     """
 
-    @classmethod
-    def load(cls: type[Client], configuration: Configuration, *, report: bool) -> Client:
+    @staticmethod
+    def load(configuration: Configuration, *, report: bool) -> Client:
         """
         load client from settings
 
@@ -45,7 +45,7 @@ class Client:
             Client: client according to current settings
         """
         if not report:
-            return cls()
+            return Client()
 
         address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
@@ -58,7 +58,7 @@ class Client:
         if address or (host and port) or socket:
             from ahriman.core.status.web_client import WebClient
             return WebClient(configuration)
-        return cls()
+        return Client()
 
     def add(self, package: Package, status: BuildStatusEnum) -> None:
         """

@@ -131,7 +131,7 @@ class WebClient(Client, LazyLogging):
             requests.Session: generated session object
         """
         if use_unix_socket:
-            import requests_unixsocket  # type: ignore
+            import requests_unixsocket  # type: ignore[import]
             session: requests.Session = requests_unixsocket.Session()
             return session
 

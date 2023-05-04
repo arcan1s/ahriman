@@ -45,7 +45,7 @@ class Setup(Handler):
     SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
 
     @classmethod
-    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -153,7 +153,7 @@ class Setup(Handler):
         configuration = Configuration(allow_no_value=True)
         # preserve case
         # stupid mypy thinks that it is impossible
-        configuration.optionxform = lambda key: key  # type: ignore
+        configuration.optionxform = lambda key: key  # type: ignore[method-assign]
 
         # load default configuration first
         # we cannot use Include here because it will be copied to new chroot, thus no includes there

@@ -17,11 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import dataclass, field, fields
 from enum import Enum
-from typing import Any
+from typing import Any, Self
 
 from ahriman.core.util import filter_json, pretty_datetime, utcnow
 
@@ -65,7 +63,7 @@ class BuildStatus:
         object.__setattr__(self, "status", BuildStatusEnum(self.status))
 
     @classmethod
-    def from_json(cls: type[BuildStatus], dump: dict[str, Any]) -> BuildStatus:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct status properties from json dump
 
@@ -73,7 +71,7 @@ class BuildStatus:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            BuildStatus: status properties
+            Self: status properties
         """
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))

@@ -17,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
-from aiohttp_cors import CorsViewMixin  # type: ignore
+from aiohttp_cors import CorsViewMixin  # type: ignore[import]
 from aiohttp.web import Request, StreamResponse, View
 from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
@@ -89,7 +87,7 @@ class BaseView(View, CorsViewMixin):
         return validator
 
     @classmethod
-    async def get_permission(cls: type[BaseView], request: Request) -> UserAccess:
+    async def get_permission(cls, request: Request) -> UserAccess:
         """
         retrieve user permission from the request
 
@@ -168,7 +166,7 @@ class BaseView(View, CorsViewMixin):
             return await self.data_as_json(list_keys or [])
 
     # pylint: disable=not-callable,protected-access
-    async def head(self) -> StreamResponse:  # type: ignore
+    async def head(self) -> StreamResponse:  # type: ignore[return]
         """
         HEAD method implementation based on the result of GET method
 
@@ -181,7 +179,7 @@ class BaseView(View, CorsViewMixin):
         if get_method is not None:
             # there is a bug in pylint, see https://github.com/pylint-dev/pylint/issues/6005
             response = await get_method()
-            response._body = b""  # type: ignore
+            response._body = b""  # type: ignore[assignment]
             return response
 
         self._raise_allowed_methods()
