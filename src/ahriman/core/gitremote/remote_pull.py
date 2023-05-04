@@ -61,7 +61,8 @@ class RemotePull(LazyLogging):
         """
         clone repository from remote source
         """
-        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
+        with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
+            clone_dir = Path(dir_name)
             Sources.fetch(clone_dir, self.remote_source)
             self.repo_copy(clone_dir)
 
