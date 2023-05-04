@@ -120,6 +120,7 @@ def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture
     )
 
 
+@pytest.mark.skip(reason="https://github.com/aio-libs/aiohttp-debugtoolbar/issues/477")
 def test_run_with_debug(application_with_debug: Application, mocker: MockerFixture) -> None:
     """
     must run application with enabled debug panel
