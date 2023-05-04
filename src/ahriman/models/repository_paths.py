@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import os
 import shutil
 
@@ -117,7 +115,7 @@ class RepositoryPaths:
         return self.owner(self.root)
 
     @classmethod
-    def known_architectures(cls: type[RepositoryPaths], root: Path) -> set[str]:
+    def known_architectures(cls, root: Path) -> set[str]:
         """
         get known architectures
 

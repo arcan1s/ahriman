@@ -90,8 +90,9 @@ Again, the most checks can be performed by `make check` command, though some add
             self.instance_attribute = ""
     ```
 
-* Type annotations are the must, even for local functions.
+* Type annotations are the must, even for local functions. For the function argument `self` (for instance methods) and `cls` (for class methods) should not be annotated.
 * For collection types built-in classes must be used if possible (e.g. `dict` instead of `typing.Dict`, `tuple` instead of `typing.Tuple`). In case if built-in type is not available, but `collections.abc` provides interface, it must be used (e.g. `collections.abc.Awaitable` instead of `typing.Awaitable`, `collections.abc.Iterable` instead of `typing.Iterable`). For union classes, the bar operator (`|`) must be used (e.g. `float | int` instead of `typing.Union[float, int]`), which also includes `typinng.Optional` (e.g. `str | None` instead of `Optional[str]`).
+* `classmethod` should always return `Self`. In case of mypy warning (e.g. if there is a branch in which function doesn't return the instance of `cls`) consider using `staticmethod` instead.
 * Recommended order of function definitions in class:
 
     ```python
@@ -103,7 +104,7 @@ Again, the most checks can be performed by `make check` command, though some add
         def property(self) -> Any: ...
 
         @classmethod
-        def class_method(cls: type[Clazz]) -> Clazz: ...
+        def class_method(cls) -> Self: ...
 
         @staticmethod
         def static_method() -> Any: ...

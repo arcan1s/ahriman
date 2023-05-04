@@ -128,7 +128,7 @@ class OAuth(Mapping):
             client.access_token = access_token
 
             user, _ = await client.user_info()
-            username: str = user.email  # type: ignore
+            username: str = user.email  # type: ignore[attr-defined]
             return username
         except Exception:
             self.logger.exception("got exception while performing request")

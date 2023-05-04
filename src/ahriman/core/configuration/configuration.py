@@ -17,15 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import configparser
 import shlex
 import sys
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
@@ -113,7 +111,7 @@ class Configuration(configparser.RawConfigParser):
         return RepositoryPaths(self.getpath("repository", "root"), architecture)
 
     @classmethod
-    def from_path(cls: type[Configuration], path: Path, architecture: str) -> Configuration:
+    def from_path(cls, path: Path, architecture: str) -> Self:
         """
         constructor with full object initialization
 
@@ -122,7 +120,7 @@ class Configuration(configparser.RawConfigParser):
             architecture(str): repository architecture
 
         Returns:
-            Configuration: configuration instance
+            Self: configuration instance
         """
         configuration = cls()
         configuration.load(path)
@@ -186,9 +184,9 @@ class Configuration(configparser.RawConfigParser):
 
     # pylint and mypy are too stupid to find these methods
     # pylint: disable=missing-function-docstring,multiple-statements,unused-argument
-    def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore
+    def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore[empty-body]
 
-    def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore
+    def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore[empty-body]
 
     def gettype(self, section: str, architecture: str, *, fallback: str | None = None) -> tuple[str, str]:
         """

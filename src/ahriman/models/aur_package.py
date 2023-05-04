@@ -17,15 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import datetime
 import inflection
 
 from collections.abc import Callable
 from dataclasses import dataclass, field, fields
-from pyalpm import Package  # type: ignore
-from typing import Any
+from pyalpm import Package  # type: ignore[import]
+from typing import Any, Self
 
 from ahriman.core.util import filter_json, full_version
 
@@ -102,7 +100,7 @@ class AURPackage:
     keywords: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_json(cls: type[AURPackage], dump: dict[str, Any]) -> AURPackage:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct package descriptor from RPC properties
 
@@ -110,7 +108,7 @@ class AURPackage:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            AURPackage: AUR package descriptor
+            Self: AUR package descriptor
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
@@ -118,7 +116,7 @@ class AURPackage:
         return cls(**filter_json(properties, known_fields))
 
     @classmethod
-    def from_pacman(cls: type[AURPackage], package: Package) -> AURPackage:
+    def from_pacman(cls, package: Package) -> Self:
         """
         construct package descriptor from official repository wrapper
 
@@ -126,7 +124,7 @@ class AURPackage:
             package(Package): pyalpm package descriptor
 
         Returns:
-            AURPackage: AUR package descriptor
+            Self: AUR package descriptor
         """
         return cls(
             id=0,
@@ -155,7 +153,7 @@ class AURPackage:
         )
 
     @classmethod
-    def from_repo(cls: type[AURPackage], dump: dict[str, Any]) -> AURPackage:
+    def from_repo(cls, dump: dict[str, Any]) -> Self:
         """
         construct package descriptor from official repository RPC properties
 
@@ -163,7 +161,7 @@ class AURPackage:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            AURPackage: AUR package descriptor
+            Self: AUR package descriptor
         """
         return cls(
             id=0,

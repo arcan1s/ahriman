@@ -62,8 +62,8 @@ class Auth(LazyLogging):
         """
         return """<button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#login-modal" style="text-decoration: none"><i class="bi bi-box-arrow-in-right"></i> login</button>"""
 
-    @classmethod
-    def load(cls: type[Auth], configuration: Configuration, database: SQLite) -> Auth:
+    @staticmethod
+    def load(configuration: Configuration, database: SQLite) -> Auth:
         """
         load authorization module from settings
 
@@ -81,7 +81,7 @@ class Auth(LazyLogging):
         if provider == AuthSettings.OAuth:
             from ahriman.core.auth.oauth import OAuth
             return OAuth(configuration, database)
-        return cls(configuration)
+        return Auth(configuration)
 
     async def check_credentials(self, username: str | None, password: str | None) -> bool:
         """

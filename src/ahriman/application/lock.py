@@ -17,12 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import argparse
 
 from types import TracebackType
-from typing import Literal
+from typing import Literal, Self
 
 from ahriman import version
 from ahriman.core.configuration import Configuration
@@ -111,7 +109,7 @@ class Lock(LazyLogging):
         except FileExistsError:
             raise DuplicateRunError()
 
-    def __enter__(self) -> Lock:
+    def __enter__(self) -> Self:
         """
         default workflow is the following:
 
@@ -120,6 +118,9 @@ class Lock(LazyLogging):
             3. Check web status watcher status
             4. Create lock file
             5. Report to status page if enabled
+
+        Returns:
+            Self: always instance of self
         """
         self.check_user()
         self.check_version()

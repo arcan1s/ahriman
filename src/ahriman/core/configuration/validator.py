@@ -19,7 +19,7 @@
 #
 import ipaddress
 
-from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore
+from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore[import]
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -74,7 +74,7 @@ class Validator(RootValidator):
             bool: value converted to boolean according to configuration rules
         """
         # pylint: disable=protected-access
-        converted: bool = self.configuration._convert_to_boolean(value)  # type: ignore
+        converted: bool = self.configuration._convert_to_boolean(value)  # type: ignore[attr-defined]
         return converted
 
     def _normalize_coerce_integer(self, value: str) -> int:

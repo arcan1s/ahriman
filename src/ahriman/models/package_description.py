@@ -17,12 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
-from pyalpm import Package  # type: ignore
-from typing import Any
+from pyalpm import Package  # type: ignore[import]
+from typing import Any, Self
 
 from ahriman.core.util import filter_json, trim_package
 from ahriman.models.aur_package import AURPackage
@@ -99,7 +97,7 @@ class PackageDescription:
         return Path(self.filename) if self.filename is not None else None
 
     @classmethod
-    def from_aur(cls: type[PackageDescription], package: AURPackage) -> PackageDescription:
+    def from_aur(cls, package: AURPackage) -> Self:
         """
         construct properties from AUR package model
 
@@ -107,7 +105,7 @@ class PackageDescription:
             package(AURPackage): AUR package model
 
         Returns:
-            PackageDescription: package properties based on source AUR package
+            Self: package properties based on source AUR package
         """
         return cls(
             depends=package.depends,
@@ -120,7 +118,7 @@ class PackageDescription:
         )
 
     @classmethod
-    def from_json(cls: type[PackageDescription], dump: dict[str, Any]) -> PackageDescription:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct package properties from json dump
 
@@ -128,14 +126,14 @@ class PackageDescription:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            PackageDescription: package properties
+            Self: package properties
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))
 
     @classmethod
-    def from_package(cls: type[PackageDescription], package: Package, path: Path) -> PackageDescription:
+    def from_package(cls, package: Package, path: Path) -> Self:
         """
         construct class from alpm package class
 
@@ -144,7 +142,7 @@ class PackageDescription:
             path(Path): path to package archive
 
         Returns:
-            PackageDescription: package properties based on tarball
+            Self: package properties based on tarball
         """
         return cls(
             architecture=package.arch,

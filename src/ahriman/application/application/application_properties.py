@@ -21,6 +21,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
 from ahriman.core.repository import Repository
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 
 
 class ApplicationProperties(LazyLogging):
@@ -34,8 +35,8 @@ class ApplicationProperties(LazyLogging):
         repository(Repository): repository instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, *,
-                 report: bool, unsafe: bool, refresh_pacman_database: int = 0) -> None:
+    def __init__(self, architecture: str, configuration: Configuration, *, report: bool, unsafe: bool,
+                 refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> None:
         """
         default constructor
 
@@ -44,8 +45,8 @@ class ApplicationProperties(LazyLogging):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
-            refresh_pacman_database(int, optional): pacman database syncronization level, ``0`` is disabled
-                (Default value = 0)
+            refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
+                (Default value = PacmanSynchronization.Disabled)
         """
         self.configuration = configuration
         self.architecture = architecture

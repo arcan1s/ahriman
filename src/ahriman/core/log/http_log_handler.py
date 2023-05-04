@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 import logging
+
+from typing import Self
 
 from ahriman.core.configuration import Configuration
 
@@ -52,7 +52,7 @@ class HttpLogHandler(logging.Handler):
         self.suppress_errors = suppress_errors
 
     @classmethod
-    def load(cls, configuration: Configuration, *, report: bool) -> HttpLogHandler:
+    def load(cls, configuration: Configuration, *, report: bool) -> Self:
         """
         install logger. This function creates handler instance and adds it to the handler list in case if no other
         http handler found
@@ -60,6 +60,9 @@ class HttpLogHandler(logging.Handler):
         Args:
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
+
+        Returns:
+            Self: logger instance with loaded settings
         """
         root = logging.getLogger()
         if (handler := next((handler for handler in root.handlers if isinstance(handler, cls)), None)) is not None:

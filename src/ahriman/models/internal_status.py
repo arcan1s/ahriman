@@ -17,10 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import Any, Self
 
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
@@ -46,7 +44,7 @@ class InternalStatus:
     version: str | None = None
 
     @classmethod
-    def from_json(cls: type[InternalStatus], dump: dict[str, Any]) -> InternalStatus:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct internal status from json dump
 
@@ -54,7 +52,7 @@ class InternalStatus:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            InternalStatus: internal status
+            Self: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
         build_status = dump.get("status") or {}

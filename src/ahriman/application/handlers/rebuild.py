@@ -32,7 +32,7 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line

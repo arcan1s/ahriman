@@ -66,8 +66,8 @@ class Upload(LazyLogging):
         self.architecture = architecture
         self.configuration = configuration
 
-    @classmethod
-    def load(cls: type[Upload], architecture: str, configuration: Configuration, target: str) -> Upload:
+    @staticmethod
+    def load(architecture: str, configuration: Configuration, target: str) -> Upload:
         """
         load client from settings
 
@@ -90,7 +90,7 @@ class Upload(LazyLogging):
         if provider == UploadSettings.Github:
             from ahriman.core.upload.github import Github
             return Github(architecture, configuration, section)
-        return cls(architecture, configuration)  # should never happen
+        return Upload(architecture, configuration)  # should never happen
 
     def run(self, path: Path, built_packages: list[Package]) -> None:
         """

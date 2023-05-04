@@ -66,8 +66,8 @@ class Report(LazyLogging):
         self.architecture = architecture
         self.configuration = configuration
 
-    @classmethod
-    def load(cls: type[Report], architecture: str, configuration: Configuration, target: str) -> Report:
+    @staticmethod
+    def load(architecture: str, configuration: Configuration, target: str) -> Report:
         """
         load client from settings
 
@@ -93,7 +93,7 @@ class Report(LazyLogging):
         if provider == ReportSettings.Telegram:
             from ahriman.core.report.telegram import Telegram
             return Telegram(architecture, configuration, section)
-        return cls(architecture, configuration)  # should never happen
+        return Report(architecture, configuration)  # should never happen
 
     def generate(self, packages: list[Package], result: Result) -> None:
         """

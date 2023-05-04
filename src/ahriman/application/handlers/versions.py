@@ -18,8 +18,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import pkg_resources
+import re
 import sys
+
+from collections.abc import Generator
+from importlib import metadata
 
 from ahriman import version
 from ahriman.application.handlers import Handler
@@ -30,12 +33,16 @@ from ahriman.core.formatters import VersionPrinter
 class Versions(Handler):
     """
     version handler
+
+    Attributes:
+        PEP423_PACKAGE_NAME(str): (class attribute) special regex for valid PEP423 package name
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+    PEP423_PACKAGE_NAME = re.compile(r"^[A-Za-z0-9._-]+")
 
     @classmethod
-    def run(cls: type[Handler], args: argparse.Namespace, architecture: str, configuration: Configuration, *,
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
             report: bool, unsafe: bool) -> None:
         """
         callback for command line
@@ -49,37 +56,43 @@ class Versions(Handler):
         """
         VersionPrinter(f"Module version {version.__version__}",
                        {"Python": sys.version}).print(verbose=False, separator=" ")
-        packages = Versions.package_dependencies("ahriman", ("pacman", "s3", "web"))
-        VersionPrinter("Installed packages", packages).print(verbose=False, separator=" ")
+        packages = Versions.package_dependencies("ahriman")
+        VersionPrinter("Installed packages", dict(packages)).print(verbose=False, separator=" ")
 
     @staticmethod
-    def package_dependencies(root: str, root_extras: tuple[str, ...] = ()) -> dict[str, str]:
+    def package_dependencies(root: str) -> Generator[tuple[str, str], None, None]:
         """
         extract list of ahriman package dependencies installed into system with their versions
 
         Args:
             root(str): root package name
-            root_extras(tuple[str, ...], optional): extras for the root package (Default value = ())
 
         Returns:
-            dict[str, str]: map of installed dependency to its version
+            Generator[tuple[str, str], None, None]: map of installed dependency to its version
         """
-        resources: dict[str, pkg_resources.Distribution] = pkg_resources.working_set.by_key  # type: ignore
-
-        def dependencies_by_key(key: str, extras: tuple[str, ...] = ()) -> list[str]:
-            return [entry.key for entry in resources[key].requires(extras)]
+        def dependencies_by_key(key: str) -> Generator[str, None, None]:
+            # in importlib it returns requires in the following format
+            # ["pytest (>=3.0.0) ; extra == 'test'", "pytest-cov ; extra == 'test'"]
+            try:
+                requires = metadata.requires(key)
+            except metadata.PackageNotFoundError:
+                return
+            for entry in requires or []:
+                yield from Versions.PEP423_PACKAGE_NAME.findall(entry)
 
         keys: list[str] = []
-        portion = {key for key in dependencies_by_key(root, root_extras) if key in resources}
+        portion = set(dependencies_by_key(root))
         while portion:
             keys.extend(portion)
             portion = {
                 key
-                for key in sum((dependencies_by_key(key) for key in portion), start=[])
-                if key not in keys and key in resources
+                for key in sum((list(dependencies_by_key(key)) for key in portion), start=[])
+                if key not in keys
             }
 
-        return {
-            resource.project_name: resource.version
-            for resource in map(lambda key: resources[key], keys)
-        }
+        for key in keys:
+            try:
+                distribution = metadata.distribution(key)
+                yield distribution.name, distribution.version
+            except metadata.PackageNotFoundError:
+                continue
