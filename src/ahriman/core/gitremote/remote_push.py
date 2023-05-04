@@ -115,7 +115,8 @@ class RemotePush(LazyLogging):
             result(Result): build result
         """
         try:
-            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (clone_dir := Path(dir_name)):
+            with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
+                clone_dir = Path(dir_name)
                 Sources.fetch(clone_dir, self.remote_source)
                 Sources.push(clone_dir, self.remote_source, *self.packages_update(result, clone_dir),
                              commit_author=self.commit_author)

@@ -84,10 +84,9 @@ class Executor(Cleaner):
 
         result = Result()
         for single in updates:
-            with self.in_package_context(single.base), \
-                    TemporaryDirectory(ignore_cleanup_errors=True) as dir_name, (build_dir := Path(dir_name)):
+            with self.in_package_context(single.base), TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
-                    build_single(single, build_dir)
+                    build_single(single, Path(dir_name))
                     result.add_success(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
