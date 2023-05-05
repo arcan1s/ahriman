@@ -108,6 +108,24 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
 
+``keyring`` group
+--------------------
+
+Keyring package generator plugin.
+
+* ``target`` - list of generator settings sections, space separated list of strings, required. It must point to valid section name.
+
+Keyring generator plugin
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``description`` - keyring package description, string, optional, default is ``repo PGP keyring``, where ``repo`` is the repository name.
+* ``homepage`` - url to homepage location if any, string, optional.
+* ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
+* ``package`` - keyring package name, string, optional, default is ``repo-keyring``, where ``repo`` is the repository name.
+* ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the ``key_*`` options from ``sign`` group will be used.
+* ``revoked`` - list of revoked packagers keys, space separated list of strings, optional.
+* ``trusted`` - list of master keys, space separated list of strings, optional, if not set, the ``key`` option from ``sign`` group will be used.
+
 ``mirrorlist`` group
 --------------------
 

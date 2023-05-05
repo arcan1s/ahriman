@@ -97,6 +97,33 @@ def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:
         gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
 
 
+def test_key_export(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must export gpg key correctly
+    """
+    check_output_mock = mocker.patch("ahriman.core.sign.gpg.GPG._check_output", return_value="key")
+    assert gpg.key_export("k") == "key"
+    check_output_mock.assert_called_once_with("gpg", "--armor", "--no-emit-version", "--export", "k",
+                                              logger=pytest.helpers.anyvar(int))
+
+
+def test_key_fingerprint(gpg: GPG, mocker: MockerFixture) -> None:
+    """
+    must extract fingerprint
+    """
+    check_output_mock = mocker.patch(
+        "ahriman.core.sign.gpg.GPG._check_output",
+        return_value="""tru::1:1576103830:0:3:1:5
+fpr:::::::::C6EBB9222C3C8078631A0DE4BD2AC8C5E989490C:
+sub:-:4096:1:7E3A4240CE3C45C2:1615121387::::::e::::::23:
+fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:""")
+
+    key = "0xCE3C45C2"
+    assert gpg.key_fingerprint(key) == "C6EBB9222C3C8078631A0DE4BD2AC8C5E989490C"
+    check_output_mock.assert_called_once_with("gpg", "--with-colons", "--fingerprint", key,
+                                              logger=pytest.helpers.anyvar(int))
+
+
 def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     """
     must import PGP key from the server
@@ -106,6 +133,21 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
 
     gpg.key_import("keyserver.ubuntu.com", "0xE989490C")
     check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=pytest.helpers.anyvar(int))
+
+
+def test_keys(gpg: GPG) -> None:
+    """
+    must extract keys
+    """
+    assert gpg.keys() == []
+
+    gpg.default_key = "key"
+    assert gpg.keys() == [gpg.default_key]
+
+    gpg.configuration.set_option("sign", "key_a", "key1")
+    gpg.configuration.set_option("sign", "key_b", "key1")
+    gpg.configuration.set_option("sign", "key_c", "key2")
+    assert gpg.keys() == ["key", "key1", "key2"]
 
 
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:

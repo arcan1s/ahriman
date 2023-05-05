@@ -106,8 +106,8 @@ class MirrorlistGenerator(PkgbuildGenerator):
         Args:
             source_path(Path): destination of the mirrorlist content
         """
-        with source_path.open("w") as source_file:
-            source_file.writelines([f"Server = {server}\n" for server in self.servers])
+        content = "".join([f"Server = {server}\n" for server in self.servers])
+        source_path.write_text(content, encoding="utf8")
 
     def package(self) -> str:
         """
@@ -139,5 +139,5 @@ class MirrorlistGenerator(PkgbuildGenerator):
             dict[str, Callable[[Path], None]]: map of source identifier (e.g. filename) to its generator function
         """
         return {
-            "mirrorlist": self._generate_mirrorlist
+            "mirrorlist": self._generate_mirrorlist,
         }

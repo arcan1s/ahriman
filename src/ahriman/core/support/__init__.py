@@ -17,4 +17,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman.core.support.keyring_trigger import KeyringTrigger
 from ahriman.core.support.mirrorlist_trigger import MirrorlistTrigger

@@ -57,4 +57,4 @@ class HTML(Report, JinjaTemplate):
             result(Result): build result
         """
         html = self.make_html(Result(success=packages), self.template_path)
-        self.report_path.write_text(html)
+        self.report_path.write_text(html, encoding="utf8")

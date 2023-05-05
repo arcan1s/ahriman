@@ -48,6 +48,13 @@ def test_url(pkgbuild_generator: PkgbuildGenerator) -> None:
     assert pkgbuild_generator.url == ""
 
 
+def test_install(pkgbuild_generator: PkgbuildGenerator) -> None:
+    """
+    must return empty install function
+    """
+    assert pkgbuild_generator.install() is None
+
+
 def test_package(pkgbuild_generator: PkgbuildGenerator) -> None:
     """
     must raise NotImplementedError on missing package function
@@ -70,6 +77,25 @@ def test_sources(pkgbuild_generator: PkgbuildGenerator) -> None:
     assert pkgbuild_generator.sources() == {}
 
 
+def test_write_install(pkgbuild_generator: PkgbuildGenerator, mocker: MockerFixture) -> None:
+    """
+    must write install file
+    """
+    mocker.patch.object(PkgbuildGenerator, "pkgname", "package")
+    mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.PkgbuildGenerator.install", return_value="content")
+    write_mock = mocker.patch("pathlib.Path.write_text")
+
+    assert pkgbuild_generator.write_install(Path("local")) == [PkgbuildPatch("install", "package.install")]
+    write_mock.assert_called_once_with("content")
+
+
+def test_write_install_empty(pkgbuild_generator: PkgbuildGenerator) -> None:
+    """
+    must return empty patch list for missing install function
+    """
+    assert pkgbuild_generator.write_install(Path("local")) == []
+
+
 def test_write_pkgbuild(pkgbuild_generator: PkgbuildGenerator, mocker: MockerFixture) -> None:
     """
     must write PKGBUILD content to file
@@ -80,14 +106,17 @@ def test_write_pkgbuild(pkgbuild_generator: PkgbuildGenerator, mocker: MockerFix
     mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.PkgbuildGenerator.package", return_value="{}")
     patches_mock = mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.PkgbuildGenerator.patches",
                                 return_value=[PkgbuildPatch("property", "value")])
+    install_mock = mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.PkgbuildGenerator.write_install",
+                                return_value=[PkgbuildPatch("install", "pkgname.install")])
     sources_mock = mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.PkgbuildGenerator.write_sources",
                                 return_value=[PkgbuildPatch("source", []), PkgbuildPatch("sha512sums", [])])
     write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
 
     pkgbuild_generator.write_pkgbuild(path)
     patches_mock.assert_called_once_with()
+    install_mock.assert_called_once_with(path)
     sources_mock.assert_called_once_with(path)
-    write_mock.assert_has_calls([MockCall(path / "PKGBUILD")] * 11)
+    write_mock.assert_has_calls([MockCall(path / "PKGBUILD")] * 12)
 
 
 def test_write_sources(pkgbuild_generator: PkgbuildGenerator, mocker: MockerFixture) -> None:

@@ -1,6 +1,4 @@
 from pathlib import Path
-from unittest.mock import MagicMock
-
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
@@ -61,14 +59,9 @@ def test_generate_mirrorlist(mirrorlist_generator: MirrorlistGenerator, mocker: 
     """
     must correctly generate mirrorlist file
     """
-    path = Path("local")
-    file_mock = MagicMock()
-    open_mock = mocker.patch("pathlib.Path.open")
-    open_mock.return_value.__enter__.return_value = file_mock
-
-    mirrorlist_generator._generate_mirrorlist(path)
-    open_mock.assert_called_once_with("w")
-    file_mock.writelines.assert_called_once_with(["Server = http://localhost\n"])
+    write_mock = mocker.patch("pathlib.Path.write_text")
+    mirrorlist_generator._generate_mirrorlist(Path("local"))
+    write_mock.assert_called_once_with("Server = http://localhost\n", encoding="utf8")
 
 
 def test_package(mirrorlist_generator: MirrorlistGenerator) -> None:

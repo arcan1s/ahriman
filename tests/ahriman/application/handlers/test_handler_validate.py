@@ -62,6 +62,8 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("email")
     assert schema.pop("github")
     assert schema.pop("html")
+    assert schema.pop("keyring")
+    assert schema.pop("keyring_generator")
     assert schema.pop("mirrorlist")
     assert schema.pop("mirrorlist_generator")
     assert schema.pop("report")

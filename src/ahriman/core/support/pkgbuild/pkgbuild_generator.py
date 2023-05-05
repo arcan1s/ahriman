@@ -23,12 +23,11 @@ import itertools
 from collections.abc import Callable, Generator
 from pathlib import Path
 
-from ahriman.core.log import LazyLogging
 from ahriman.core.util import utcnow
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
-class PkgbuildGenerator(LazyLogging):
+class PkgbuildGenerator:
     """
     main class for generating PKGBUILDs
 
@@ -97,6 +96,14 @@ class PkgbuildGenerator(LazyLogging):
         """
         return ""
 
+    def install(self) -> str | None:
+        """
+        content of the install functions
+
+        Returns:
+            str | None: content of the install functions if any
+        """
+
     def package(self) -> str:
         """
         package function generator
@@ -127,6 +134,24 @@ class PkgbuildGenerator(LazyLogging):
         """
         return {}
 
+    def write_install(self, source_dir: Path) -> list[PkgbuildPatch]:
+        """
+        generate content of install file
+
+        Args:
+            source_dir(Path): path to directory in which sources must be generated
+
+        Returns:
+            list[PkgbuildPatch]: patch for the pkgbuild if install file exists and empty list otherwise
+        """
+        content: str | None = self.install()
+        if content is None:
+            return []
+
+        source_path = source_dir / f"{self.pkgname}.install"
+        source_path.write_text(content)
+        return [PkgbuildPatch("install", source_path.name)]
+
     def write_pkgbuild(self, source_dir: Path) -> None:
         """
         generate PKGBUILD content to the specified path
@@ -143,6 +168,7 @@ class PkgbuildGenerator(LazyLogging):
             PkgbuildPatch("url", self.url),
         ])  # ...main properties as defined by derived class...
         patches.extend(self.patches())  # ...optional properties as defined by derived class...
+        patches.extend(self.write_install(source_dir))  # ...install function...
         patches.append(PkgbuildPatch("package()", self.package()))  # ...package function...
 
         patches.extend(self.write_sources(source_dir))  # ...and finally source files

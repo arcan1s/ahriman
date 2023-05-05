@@ -23,14 +23,13 @@ from ahriman.core import context
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.log import LazyLogging
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 
 
-class PackageCreator(LazyLogging):
+class PackageCreator:
     """
     helper which creates packages based on pkgbuild generator
 

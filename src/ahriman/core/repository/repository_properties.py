@@ -79,7 +79,7 @@ class RepositoryProperties(LazyLogging):
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)
-        self.sign = GPG(architecture, configuration)
+        self.sign = GPG(configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(configuration, report=report)
         self.triggers = TriggerLoader.load(architecture, configuration)
