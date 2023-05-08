@@ -134,11 +134,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
     "build": {
         "type": "dict",
         "schema": {
-            "archbuild_flags": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
-            },
             "build_command": {
                 "type": "string",
                 "required": True,
@@ -148,12 +143,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "list",
                 "schema": {"type": "string"},
             },
-            "makepkg_flags": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {"type": "string"},
-            },
-            "makechrootpkg_flags": {
+            "pkgctl_flags": {
                 "type": "list",
                 "coerce": "list",
                 "schema": {"type": "string"},

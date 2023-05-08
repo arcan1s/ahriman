@@ -28,7 +28,7 @@ RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build && \
 COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
 ## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
-RUN pacman --noconfirm -Sy devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo && \
+RUN pacman --noconfirm -Sy devtools-git-poc git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo && \
     pacman --noconfirm -Sy python-build python-installer python-wheel && \
     pacman --noconfirm -Sy breezy mercurial python-aiohttp python-aiohttp-cors python-boto3 python-cryptography python-jinja python-requests-unixsocket rsync subversion && \
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-apispec-git python-aiohttp-jinja2  \

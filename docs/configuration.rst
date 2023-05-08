@@ -63,11 +63,9 @@ Authorized users are stored inside internal database, if any of external provide
 
 Build related configuration. Group name can refer to architecture, e.g. ``build:x86_64`` can be used for x86_64 architecture specific settings.
 
-* ``archbuild_flags`` - additional flags passed to ``archbuild`` command, space separated list of strings, optional.
 * ``build_command`` - default build command, string, required.
+* ``build_flags`` - additional ``pkgctl`` flags, space separated list of strings, optional.
 * ``ignore_packages`` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
-* ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.
-* ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of mention.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, int, optional, default ``604800``.
 

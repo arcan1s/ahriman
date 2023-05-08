@@ -24,46 +24,31 @@ Initial setup
    #.
       Configure build tools (it is required for correct dependency management system):
 
-      #. 
-         Create build command (you can choose any name for command, basically it should be ``{name}-{arch}-build``):
+      #.
+         Create configuration file ``{repository}.conf``:
 
          .. code-block:: shell
 
-            ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build
-
-      #. 
-         Create configuration file (same as previous ``pacman-{name}.conf``):
-
-         .. code-block:: shell
-
-            cp /usr/share/devtools/pacman-{extra,ahriman}.conf
+            cp /usr/local/share/devtools-git-poc/pacman.conf.d/{extra,aur-clone}.conf
 
       #. 
          Change configuration file, add your own repository, add multilib repository etc:
 
          .. code-block:: shell
 
-            echo '[multilib]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman-ahriman.conf
+            echo '[multilib]' | tee -a /usr/local/share/devtools-git-poc/pacman.conf.d/aur-clone.conf
+            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/local/share/devtools-git-poc/pacman.conf.d/aur-clone.conf
 
-            echo '[aur-clone]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'Server = file:///var/lib/ahriman/repository/$arch' | tee -a /usr/share/devtools/pacman-ahriman.conf
-
-      #. 
-         Set ``build_command`` option to point to your command:
-
-         .. code-block:: shell
-
-            echo '[build]' | tee -a /etc/ahriman.ini.d/build.ini
-            echo 'build_command = ahriman-x86_64-build' | tee -a /etc/ahriman.ini.d/build.ini
+            echo '[aur-clone]' | tee -a /usr/local/share/devtools-git-poc/pacman.conf.d/aur-clone.conf
+            echo 'SigLevel = Optional TrustAll' | tee -a /usr/local/share/devtools-git-poc/pacman.conf.d/aur-clone.conf
+            echo 'Server = file:///var/lib/ahriman/repository/$arch' | tee -a /usr/local/share/devtools-git-poc/pacman.conf.d/aur-clone.conf
 
       #.
-         Configure ``/etc/sudoers.d/ahriman`` to allow running command without a password:
+         Configure ``/etc/sudoers.d/ahriman`` to allow running devtools command without a password:
 
          .. code-block:: shell
 
-            echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/ahriman-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
+            echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/bin/pkgctl build *' | tee -a /etc/sudoers.d/ahriman
             echo 'ahriman ALL=(ALL) NOPASSWD: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
             chmod 400 /etc/sudoers.d/ahriman
 

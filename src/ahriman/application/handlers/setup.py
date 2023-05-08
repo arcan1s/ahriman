@@ -33,14 +33,12 @@ class Setup(Handler):
     setup handler
 
     Attributes:
-        ARCHBUILD_COMMAND_PATH(Path): (class attribute) default devtools command
         MIRRORLIST_PATH(Path): (class attribute) path to pacman default mirrorlist (used by multilib repository)
         SUDOERS_DIR_PATH(Path): (class attribute) path to sudoers.d includes directory
     """
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
-    ARCHBUILD_COMMAND_PATH = Path("/usr/bin/archbuild")
     MIRRORLIST_PATH = Path("/etc/pacman.d/mirrorlist")
     SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
 
@@ -63,29 +61,13 @@ class Setup(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
-        Setup.executable_create(application.repository.paths, args.build_command, architecture)
-        Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration, args.mirror,
+        Setup.configuration_create_devtools(architecture, args.from_configuration, args.mirror,
                                             args.multilib, args.repository, application.repository.paths)
-        Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
+        Setup.configuration_create_sudo(args.build_command)
 
         application.repository.repo.init()
         # lazy database sync
         application.repository.pacman.handle  # pylint: disable=pointless-statement
-
-    @staticmethod
-    def build_command(root: Path, prefix: str, architecture: str) -> Path:
-        """
-        generate build command name
-
-        Args:
-            root(Path): root directory for the build command (must be root of the repository)
-            prefix(str): command prefix in {prefix}-{architecture}-build
-            architecture(str): repository architecture
-
-        Returns:
-            Path: valid devtools command name
-        """
-        return root / f"{prefix}-{architecture}-build"
 
     @staticmethod
     def configuration_create_ahriman(args: argparse.Namespace, architecture: str, repository: str,
@@ -101,12 +83,10 @@ class Setup(Handler):
         """
         configuration = Configuration()
 
-        section = Configuration.section_name("build", architecture)
-        build_command = Setup.build_command(root.repository_paths.root, args.build_command, architecture)
-        configuration.set_option(section, "build_command", str(build_command))
         configuration.set_option("repository", "name", repository)
-        if args.build_as_user is not None:
-            configuration.set_option(section, "makechrootpkg_flags", f"-U {args.build_as_user}")
+
+        section = Configuration.section_name("build", architecture)
+        configuration.set_option(section, "build_command", str(args.build_command))
 
         section = Configuration.section_name("alpm", architecture)
         if args.mirror is not None:
@@ -131,7 +111,7 @@ class Setup(Handler):
             configuration.write(ahriman_configuration)
 
     @staticmethod
-    def configuration_create_devtools(prefix: str, architecture: str, source: Path, mirror: str | None,
+    def configuration_create_devtools(architecture: str, source: Path, mirror: str | None,
                                       multilib: bool, repository: str, paths: RepositoryPaths) -> None:
         """
         create configuration for devtools based on ``source`` configuration
@@ -140,7 +120,6 @@ class Setup(Handler):
             devtools does not allow to specify the pacman configuration, thus we still have to use configuration in /usr
 
         Args:
-            prefix(str): command prefix in {prefix}-{architecture}-build
             architecture(str): repository architecture
             source(Path): path to source configuration file
             mirror(str | None): link to package server mirror
@@ -178,7 +157,7 @@ class Setup(Handler):
         configuration.set_option(repository, "SigLevel", "Optional TrustAll")  # we don't care
         configuration.set_option(repository, "Server", f"file://{paths.repository}")
 
-        target = source.parent / f"pacman-{prefix}-{architecture}.conf"
+        target = source.parent / f"{repository}.conf"
         with target.open("w") as devtools_configuration:
             configuration.write(devtools_configuration)
 
@@ -202,31 +181,13 @@ class Setup(Handler):
         (home_dir / ".makepkg.conf").write_text(content, encoding="utf8")
 
     @staticmethod
-    def configuration_create_sudo(paths: RepositoryPaths, prefix: str, architecture: str) -> None:
+    def configuration_create_sudo(build_command: Path) -> None:
         """
         create configuration to run build command with sudo without password
 
         Args:
-            paths(RepositoryPaths): repository paths instance
-            prefix(str): command prefix in {prefix}-{architecture}-build
-            architecture(str): repository architecture
+            build_command(Path): path to build command
         """
-        command = Setup.build_command(paths.root, prefix, architecture)
-        sudoers_file = Setup.build_command(Setup.SUDOERS_DIR_PATH, prefix, architecture)
-        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
+        sudoers_file = Setup.SUDOERS_DIR_PATH / f"ahriman-{build_command.name}"
+        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD: {build_command} build *\n", encoding="utf8")
         sudoers_file.chmod(0o400)  # security!
-
-    @staticmethod
-    def executable_create(paths: RepositoryPaths, prefix: str, architecture: str) -> None:
-        """
-        create executable for the service
-
-        Args:
-            paths(RepositoryPaths): repository paths instance
-            prefix(str): command prefix in {prefix}-{architecture}-build
-            architecture(str): repository architecture
-        """
-        command = Setup.build_command(paths.root, prefix, architecture)
-        command.unlink(missing_ok=True)
-        command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)
-        paths.chown(command)  # we would like to keep owner inside ahriman's home

@@ -23,9 +23,8 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.build_as_user = "ahriman"
-    args.build_command = "ahriman"
-    args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
+    args.build_command = Path("/usr") / "bin" / "pkgctl"
+    args.from_configuration = Path("/usr") / "local" / "share" / "devtools-git-poc" / "pacman.conf.d" / "extra.conf"
     args.makeflags_jobs = True
     args.mirror = "mirror"
     args.multilib = True
@@ -49,30 +48,15 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
     makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")
     sudo_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_sudo")
-    executable_mock = mocker.patch("ahriman.application.handlers.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
     Setup.run(args, "x86_64", configuration, report=False, unsafe=False)
     ahriman_configuration_mock.assert_called_once_with(args, "x86_64", args.repository, configuration)
     devtools_configuration_mock.assert_called_once_with(
-        args.build_command, "x86_64", args.from_configuration, args.mirror, args.multilib, args.repository,
-        repository_paths)
+        "x86_64", args.from_configuration, args.mirror, args.multilib, args.repository, repository_paths)
     makepkg_configuration_mock.assert_called_once_with(args.packager, args.makeflags_jobs, repository_paths)
-    sudo_configuration_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
-    executable_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
+    sudo_configuration_mock.assert_called_once_with(args.build_command)
     init_mock.assert_called_once_with()
-
-
-def test_build_command(args: argparse.Namespace) -> None:
-    """
-    must generate correct build command name
-    """
-    args = _default_args(args)
-    path = Path("local")
-
-    build_command = Setup.build_command(path, args.build_command, "x86_64")
-    assert build_command.name == f"{args.build_command}-x86_64-build"
-    assert build_command.parent == path
 
 
 def test_configuration_create_ahriman(args: argparse.Namespace, configuration: Configuration,
@@ -84,13 +68,11 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
     mocker.patch("pathlib.Path.open")
     set_option_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
-    command = Setup.build_command(repository_paths.root, args.build_command, "x86_64")
 
     Setup.configuration_create_ahriman(args, "x86_64", args.repository, configuration)
     set_option_mock.assert_has_calls([
-        MockCall(Configuration.section_name("build", "x86_64"), "build_command", str(command)),
         MockCall("repository", "name", args.repository),
-        MockCall(Configuration.section_name("build", "x86_64"), "makechrootpkg_flags", f"-U {args.build_as_user}"),
+        MockCall(Configuration.section_name("build", "x86_64"), "build_command", str(args.build_command)),
         MockCall(Configuration.section_name("alpm", "x86_64"), "mirror", args.mirror),
         MockCall(Configuration.section_name("sign", "x86_64"), "target",
                  " ".join([target.name.lower() for target in args.sign_target])),
@@ -129,8 +111,8 @@ def test_configuration_create_devtools(args: argparse.Namespace, repository_path
     add_section_mock = mocker.patch("ahriman.core.configuration.Configuration.add_section")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        None, args.multilib, args.repository, repository_paths)
+    Setup.configuration_create_devtools("x86_64", args.from_configuration, None,
+                                        args.multilib, args.repository, repository_paths)
     add_section_mock.assert_has_calls([MockCall("multilib"), MockCall(args.repository)])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
@@ -154,8 +136,8 @@ def test_configuration_create_devtools_mirror(args: argparse.Namespace, reposito
     remove_option_mock = mocker.patch("ahriman.core.configuration.Configuration.remove_option")
     set_option_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
 
-    Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        args.mirror, False, args.repository, repository_paths)
+    Setup.configuration_create_devtools("x86_64", args.from_configuration, args.mirror,
+                                        False, args.repository, repository_paths)
     get_mock.assert_has_calls([MockCall("core", "Include", fallback=None), MockCall("extra", "Include", fallback=None)])
     remove_option_mock.assert_called_once_with("core", "Include")
     set_option_mock.assert_has_calls([MockCall("core", "Server", args.mirror)])  # non-strict check called intentionally
@@ -171,8 +153,8 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, rep
     mocker.patch("ahriman.core.configuration.Configuration.set")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
-    Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        None, False, args.repository, repository_paths)
+    Setup.configuration_create_devtools("x86_64", args.from_configuration, None,
+                                        False, args.repository, repository_paths)
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
@@ -199,24 +181,9 @@ def test_configuration_create_sudo(args: argparse.Namespace, repository_paths: R
     chmod_text_mock = mocker.patch("pathlib.Path.chmod")
     write_text_mock = mocker.patch("pathlib.Path.write_text")
 
-    Setup.configuration_create_sudo(repository_paths, args.build_command, "x86_64")
+    Setup.configuration_create_sudo(args.build_command)
     chmod_text_mock.assert_called_once_with(0o400)
     write_text_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), encoding="utf8")
-
-
-def test_executable_create(args: argparse.Namespace, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
-    """
-    must create executable
-    """
-    args = _default_args(args)
-    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
-    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
-    unlink_mock = mocker.patch("pathlib.Path.unlink")
-
-    Setup.executable_create(repository_paths, args.build_command, "x86_64")
-    chown_mock.assert_called_once_with(Setup.build_command(repository_paths.root, args.build_command, "x86_64"))
-    symlink_mock.assert_called_once_with(Setup.ARCHBUILD_COMMAND_PATH)
-    unlink_mock.assert_called_once_with(missing_ok=True)
 
 
 def test_disallow_auto_architecture_run() -> None:

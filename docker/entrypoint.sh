@@ -36,7 +36,6 @@ AHRIMAN_GNUPG_HOME="$(getent passwd "$AHRIMAN_USER" | cut -d : -f 6)/.gnupg"
 chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_GNUPG_HOME"
 
 # run built-in setup command
-AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
 AHRIMAN_SETUP_ARGS+=("--packager" "$AHRIMAN_PACKAGER")
 AHRIMAN_SETUP_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
 if [ -z "$AHRIMAN_MULTILIB" ]; then
