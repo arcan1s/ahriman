@@ -19,6 +19,7 @@ Subpackages
    ahriman.core.repository
    ahriman.core.sign
    ahriman.core.status
+   ahriman.core.support
    ahriman.core.triggers
    ahriman.core.upload
 
