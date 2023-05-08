@@ -117,8 +117,6 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         result: list[str] = []
         for line in iter(get_io(process, "stdout").readline, ""):
             line = line.strip()
-            if not line:  # skip empty lines
-                continue
             result.append(line)
             log(line)
 
@@ -133,7 +131,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
                 raise exception
             raise subprocess.CalledProcessError(status_code, process.args)
 
-        return "\n".join(result)
+        return "\n".join(result).rstrip("\n")  # remove newline at the end of any
 
 
 def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
