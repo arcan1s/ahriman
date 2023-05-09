@@ -10,7 +10,7 @@ echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never'
 # refresh the image
 pacman --noconfirm -Syu
 # main dependencies
-pacman --noconfirm -Sy base-devel devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo sudo
+pacman --noconfirm -Sy base-devel devtools-git-poc git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo sudo
 # make dependencies
 pacman --noconfirm -Sy python-build python-installer python-wheel
 # optional dependencies
@@ -52,9 +52,9 @@ if [[ -z $MINIMAL_INSTALL ]]; then
 fi
 # add the first package
 # the build itself does not really work in the container
-sudo -u ahriman -- ahriman package-add --now yay
+sudo -u ahriman -- ahriman package-add --now ahriman
 # check if package was actually installed
-test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
+test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "ahriman*pkg*")"
 # run package check
 sudo -u ahriman -- ahriman repo-update
 # stop web service lol

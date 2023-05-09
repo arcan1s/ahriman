@@ -34,6 +34,10 @@ class Task(LazyLogging):
     base package build task
 
     Attributes:
+        architecture(str): repository architecture
+        build_command(str): build command
+        build_flags(list[str]): list of additional flags to pkgctl
+        name(str): repository name
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance
         uid(int): uid of the repository owner user
@@ -52,12 +56,13 @@ class Task(LazyLogging):
         """
         self.package = package
         self.paths = paths
-        self.uid, _ = paths.root_owner
 
-        self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
+        _, self.architecture = configuration.check_loaded()
+        self.uid, _ = paths.root_owner
+        self.name = configuration.get("repository", "name")
+
         self.build_command = configuration.get("build", "build_command")
-        self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
-        self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
+        self.build_flags = configuration.getlist("build", "pkgctl_flags", fallback=[])
 
     def build(self, sources_dir: Path) -> list[Path]:
         """
@@ -69,10 +74,9 @@ class Task(LazyLogging):
         Returns:
             list[Path]: paths of produced packages
         """
-        command = [self.build_command, "-r", str(self.paths.chroot)]
-        command.extend(self.archbuild_flags)
-        command.extend(["--"] + self.makechrootpkg_flags)
-        command.extend(["--"] + self.makepkg_flags)
+        command = [self.build_command, "build"] + self.build_flags
+        command.extend(["--arch", self.architecture])
+        command.extend(["--repo", self.name])
         self.logger.info("using %s for %s", command, self.package.base)
 
         Task._check_output(

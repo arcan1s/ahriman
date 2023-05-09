@@ -70,7 +70,8 @@ def _parser() -> argparse.ArgumentParser:
                                      fromfile_prefix_chars="@", formatter_class=_formatter)
     parser.add_argument("-a", "--architecture", help="target architectures. For several subcommands it can be used "
                                                      "multiple times", action="append")
-    parser.add_argument("-c", "--configuration", help="configuration path", type=Path, default=Path("/etc/ahriman.ini"))
+    parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
+                        default=Path("/etc") / "ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
                         default=Path(tempfile.gettempdir()) / "ahriman.lock")
@@ -819,10 +820,9 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="create initial service configuration, requires root",
                              epilog="Create _minimal_ configuration for the service according to provided options.",
                              formatter_class=_formatter)
-    parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
-    parser.add_argument("--build-command", help="build command prefix", default="ahriman")
-    parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
-                        type=Path, default=Path("/usr/share/devtools/pacman-extra.conf"))
+    parser.add_argument("--build-command", help="path to build command", default=Path("/usr") / "bin" / "pkgctl")
+    parser.add_argument("--from-configuration", help="path to default devtools pacman configuration", type=Path,
+                        default=Path("/usr") / "local" / "share" / "devtools-git-poc" / "pacman.conf.d" / "extra.conf")
     parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--mirror", help="use the specified explicitly mirror instead of including mirrorlist")
