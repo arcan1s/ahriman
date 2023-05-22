@@ -25,7 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.build_as_user = "ahriman"
     args.build_command = "ahriman"
-    args.from_configuration = Path("/usr/share/devtools/pacman-extra.conf")
+    args.from_configuration = Path("/usr/share/devtools/pacman.conf.d/extra.conf")
     args.makeflags_jobs = True
     args.mirror = "mirror"
     args.multilib = True

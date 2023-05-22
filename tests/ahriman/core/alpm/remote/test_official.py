@@ -50,19 +50,7 @@ def test_remote_git_url(aur_package_akonadi: AURPackage) -> None:
         Official.remote_git_url(aur_package_akonadi.package_base, repository)
         for repository in ("core", "extra", "Core", "Extra")
     ]
-    assert all(git_url.endswith("svntogit-packages.git") for git_url in git_urls)
-    assert len(set(git_urls)) == 1
-
-
-def test_remote_git_url_community(aur_package_akonadi: AURPackage) -> None:
-    """
-    must generate package git url for core packages
-    """
-    git_urls = [
-        Official.remote_git_url(aur_package_akonadi.package_base, repository)
-        for repository in ("community", "multilib", "Community", "Multilib")
-    ]
-    assert all(git_url.endswith("svntogit-community.git") for git_url in git_urls)
+    assert all(git_url.endswith(f"{aur_package_akonadi.package_base}.git") for git_url in git_urls)
     assert len(set(git_urls)) == 1
 
 

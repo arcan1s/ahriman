@@ -40,9 +40,9 @@ class Setup(Handler):
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
-    ARCHBUILD_COMMAND_PATH = Path("/usr/bin/archbuild")
-    MIRRORLIST_PATH = Path("/etc/pacman.d/mirrorlist")
-    SUDOERS_DIR_PATH = Path("/etc/sudoers.d")
+    ARCHBUILD_COMMAND_PATH = Path("/usr") / "bin" / "archbuild"
+    MIRRORLIST_PATH = Path("/etc") / "pacman.d" / "mirrorlist"
+    SUDOERS_DIR_PATH = Path("/etc") / "sudoers.d"
 
     @classmethod
     def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
@@ -178,7 +178,7 @@ class Setup(Handler):
         configuration.set_option(repository, "SigLevel", "Optional TrustAll")  # we don't care
         configuration.set_option(repository, "Server", f"file://{paths.repository}")
 
-        target = source.parent / f"pacman-{prefix}-{architecture}.conf"
+        target = source.parent / f"{prefix}-{architecture}.conf"
         with target.open("w") as devtools_configuration:
             configuration.write(devtools_configuration)
 

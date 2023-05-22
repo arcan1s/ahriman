@@ -67,8 +67,8 @@ def test_from_source_official(package_ahriman: Package, mocker: MockerFixture) -
     remote = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
     remote_git_url_mock.assert_called_once_with(package_ahriman.base, "community")
     remote_web_url_mock.assert_called_once_with(package_ahriman.base)
-    assert remote.pkgbuild_dir == Path("trunk")
-    assert remote.branch.endswith(package_ahriman.base)
+    assert remote.pkgbuild_dir == Path(".")
+    assert remote.branch == "main"
     assert remote.source == PackageSource.Repository
 
 
