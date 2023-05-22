@@ -32,11 +32,11 @@ Initial setup
             ln -s /usr/bin/archbuild /usr/local/bin/ahriman-x86_64-build
 
       #. 
-         Create configuration file (same as previous ``pacman-{name}.conf``):
+         Create configuration file (same as previous ``{name}.conf``):
 
          .. code-block:: shell
 
-            cp /usr/share/devtools/pacman-{extra,ahriman}.conf
+            cp /usr/share/devtools/pacman.conf.d/{extra,ahriman}.conf
 
       #. 
          Change configuration file, add your own repository, add multilib repository etc:
@@ -44,11 +44,11 @@ Initial setup
          .. code-block:: shell
 
             echo '[multilib]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman-ahriman.conf
+            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/ahriman.conf
 
             echo '[aur-clone]' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman-ahriman.conf
-            echo 'Server = file:///var/lib/ahriman/repository/$arch' | tee -a /usr/share/devtools/pacman-ahriman.conf
+            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/ahriman.conf
+            echo 'Server = file:///var/lib/ahriman/repository/$arch' | tee -a /usr/share/devtools/pacman.conf.d/ahriman.conf
 
       #. 
          Set ``build_command`` option to point to your command:

@@ -105,8 +105,8 @@ class RemoteSource:
             return cls(
                 git_url=Official.remote_git_url(package_base, repository),
                 web_url=Official.remote_web_url(package_base),
-                path="trunk",
-                branch=f"packages/{package_base}",
+                path=".",
+                branch="main",
                 source=source,
             )
         return None

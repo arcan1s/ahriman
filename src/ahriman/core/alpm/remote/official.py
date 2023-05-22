@@ -34,13 +34,15 @@ class Official(Remote):
 
     Attributes:
         DEFAULT_ARCHLINUX_URL(str): (class attribute) default archlinux url
+        DEFAULT_ARCHLINUX_GIT_URL(str): (class attribute) default url for git packages
         DEFAULT_SEARCH_REPOSITORIES(list[str]): (class attribute) default list of repositories to search
         DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
         DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
 
+    DEFAULT_ARCHLINUX_GIT_URL = "https://gitlab.archlinux.org"
     DEFAULT_ARCHLINUX_URL = "https://archlinux.org"
-    DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib", "Community"]
+    DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib"]
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
     DEFAULT_TIMEOUT = 30
 
@@ -56,9 +58,7 @@ class Official(Remote):
         Returns:
             str: git url for the specific base
         """
-        if repository.lower() in ("core", "extra", "testing", "kde-unstable"):
-            return "https://github.com/archlinux/svntogit-packages.git"  # hardcoded, ok
-        return "https://github.com/archlinux/svntogit-community.git"
+        return f"{Official.DEFAULT_ARCHLINUX_GIT_URL}/archlinux/packaging/packages/{package_base}.git"
 
     @classmethod
     def remote_web_url(cls, package_base: str) -> str:
