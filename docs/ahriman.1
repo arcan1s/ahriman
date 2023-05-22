@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-04\-09" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-05\-22" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -26,7 +26,7 @@ lock file
 
 .TP
 \fB\-\-report\fR, \fB\-\-no\-report\fR
-force enable or disable reporting to web service (default: True)
+force enable or disable reporting to web service
 
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
@@ -172,7 +172,7 @@ return non\-zero exit status if result is empty
 
 .TP
 \fB\-\-info\fR, \fB\-\-no\-info\fR
-show additional package information (default: False)
+show additional package information
 
 .TP
 \fB\-\-sort\-by\fR \fI\,{description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,submitter,url,url_path,version}\/\fR
@@ -228,7 +228,7 @@ package source (base name, path to local files, remote URL)
 .SH OPTIONS \fI\,'ahriman package\-add'\/\fR
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
-process missing package dependencies (default: True)
+process missing package dependencies
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
@@ -276,7 +276,7 @@ return non\-zero exit status if result is empty
 
 .TP
 \fB\-\-info\fR, \fB\-\-no\-info\fR
-show additional package information (default: False)
+show additional package information
 
 .TP
 \fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
@@ -394,7 +394,7 @@ return non\-zero exit status if result is empty
 
 .TP
 \fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
-fetch actual version of VCS packages (default: True)
+fetch actual version of VCS packages
 
 .TP
 \fB\-y\fR, \fB\-\-refresh\fR
@@ -413,23 +413,23 @@ interval between runs in seconds
 
 .TP
 \fB\-\-aur\fR, \fB\-\-no\-aur\fR
-enable or disable checking for AUR updates (default: True)
+enable or disable checking for AUR updates
 
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
-process missing package dependencies (default: True)
+process missing package dependencies
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
-enable or disable checking of local packages for updates (default: True)
+enable or disable checking of local packages for updates
 
 .TP
 \fB\-\-manual\fR, \fB\-\-no\-manual\fR
-include or exclude manual updates (default: True)
+include or exclude manual updates
 
 .TP
 \fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
-fetch actual version of VCS packages (default: True)
+fetch actual version of VCS packages
 
 .TP
 \fB\-y\fR, \fB\-\-refresh\fR
@@ -540,11 +540,11 @@ filter check by package base
 .SH OPTIONS \fI\,'ahriman repo\-update'\/\fR
 .TP
 \fB\-\-aur\fR, \fB\-\-no\-aur\fR
-enable or disable checking for AUR updates (default: True)
+enable or disable checking for AUR updates
 
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
-process missing package dependencies (default: True)
+process missing package dependencies
 
 .TP
 \fB\-\-dry\-run\fR
@@ -556,15 +556,15 @@ return non\-zero exit status if result is empty
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
-enable or disable checking of local packages for updates (default: True)
+enable or disable checking of local packages for updates
 
 .TP
 \fB\-\-manual\fR, \fB\-\-no\-manual\fR
-include or exclude manual updates (default: True)
+include or exclude manual updates
 
 .TP
 \fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
-fetch actual version of VCS packages (default: True)
+fetch actual version of VCS packages
 
 .TP
 \fB\-y\fR, \fB\-\-refresh\fR
@@ -579,23 +579,23 @@ remove local caches
 .SH OPTIONS \fI\,'ahriman service\-clean'\/\fR
 .TP
 \fB\-\-cache\fR, \fB\-\-no\-cache\fR
-clear directory with package caches (default: False)
+clear directory with package caches
 
 .TP
 \fB\-\-chroot\fR, \fB\-\-no\-chroot\fR
-clear build chroot (default: False)
+clear build chroot
 
 .TP
 \fB\-\-manual\fR, \fB\-\-no\-manual\fR
-clear manually added packages queue (default: False)
+clear manually added packages queue
 
 .TP
 \fB\-\-packages\fR, \fB\-\-no\-packages\fR
-clear directory with built packages (default: False)
+clear directory with built packages
 
 .TP
 \fB\-\-pacman\fR, \fB\-\-no\-pacman\fR
-clear directory with pacman local database cache (default: False)
+clear directory with pacman local database cache
 
 .SH COMMAND \fI\,'ahriman service\-config'\/\fR
 usage: ahriman service\-config [\-h] [\-\-secure | \-\-no\-secure]
@@ -605,7 +605,7 @@ dump configuration for the specified architecture
 .SH OPTIONS \fI\,'ahriman service\-config'\/\fR
 .TP
 \fB\-\-secure\fR, \fB\-\-no\-secure\fR
-hide passwords and secrets from output (default: True)
+hide passwords and secrets from output
 
 .SH COMMAND \fI\,'ahriman service\-config\-validate'\/\fR
 usage: ahriman service\-config\-validate [\-h] [\-e]
@@ -655,7 +655,7 @@ path to default devtools pacman configuration
 
 .TP
 \fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
-append MAKEFLAGS variable with parallelism set to number of cores (default: True)
+append MAKEFLAGS variable with parallelism set to number of cores
 
 .TP
 \fB\-\-mirror\fR \fI\,MIRROR\/\fR
@@ -663,7 +663,7 @@ use the specified explicitly mirror instead of including mirrorlist
 
 .TP
 \fB\-\-multilib\fR, \fB\-\-no\-multilib\fR
-add or do not multilib repository (default: True)
+add or do not multilib repository
 
 .TP
 \fB\-\-packager\fR \fI\,PACKAGER\/\fR
@@ -756,7 +756,7 @@ start web server
 .SH COMMENTS
 Argument list can also be read from file by using @ prefix.
 
-.SH AUTHORS
+.SH AUTHOR
 .nf
 ahriman team
 .fi
