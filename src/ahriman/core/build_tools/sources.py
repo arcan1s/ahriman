@@ -125,6 +125,12 @@ class Sources(LazyLogging):
         Sources._check_output("git", "init", "--initial-branch", instance.DEFAULT_BRANCH,
                               cwd=sources_dir, logger=instance.logger)
 
+        # extract local files...
+        files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Package.local_files(sources_dir)]
+        instance.add(sources_dir, *files)
+        # ...and commit them
+        instance.commit(sources_dir, author="ahriman <ahriman@localhost>")
+
     @staticmethod
     def load(sources_dir: Path, package: Package, patches: list[PkgbuildPatch], paths: RepositoryPaths) -> None:
         """

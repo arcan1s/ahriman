@@ -135,12 +135,17 @@ def test_init(mocker: MockerFixture) -> None:
     """
     must create empty repository at the specified path
     """
+    mocker.patch("ahriman.models.package.Package.local_files", return_value=[Path("local")])
+    add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    commit_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.commit")
 
     local = Path("local")
     Sources.init(local)
     check_output_mock.assert_called_once_with("git", "init", "--initial-branch", Sources.DEFAULT_BRANCH,
                                               cwd=local, logger=pytest.helpers.anyvar(int))
+    add_mock.assert_called_once_with(local, "PKGBUILD", ".SRCINFO", "local")
+    commit_mock.assert_called_once_with(local, author="ahriman <ahriman@localhost>")
 
 
 def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
