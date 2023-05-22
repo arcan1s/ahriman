@@ -108,6 +108,14 @@ ahriman.models.package\_source module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.pacman\_synchronization module
+---------------------------------------------
+
+.. automodule:: ahriman.models.pacman_synchronization
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.pkgbuild\_patch module
 -------------------------------------
 
