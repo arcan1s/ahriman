@@ -73,7 +73,7 @@ The ``context`` also implements collection methods such as ``__iter__`` and ``__
 Trigger example
 ---------------
 
-Lets consider example of reporting trigger (e.g. `slack <https://slack.com/>`_, which provides easy HTTP API for integration triggers).gre
+Lets consider example of reporting trigger (e.g. `slack <https://slack.com/>`_, which provides easy HTTP API for integration triggers).
 
 In order to post message to slack we will need a specific trigger url (something like ``https://hooks.slack.com/services/company_id/trigger_id``), channel (e.g. ``#archrepo``) and username (``repo-bot``).
 
