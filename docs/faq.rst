@@ -1,4 +1,3 @@
-
 FAQ
 ===
 
@@ -765,7 +764,7 @@ How to setup web service
 
    .. code-block:: shell
 
-      yay -S python-aiohttp python-aiohttp-jinja2
+      yay -S python-aiohttp python-aiohttp-jinja2 python-aiohttp-apispec>=3.0.0 python-aiohttp-cors
 
 #. 
    Configure service:
