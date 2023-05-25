@@ -22,18 +22,19 @@ from __future__ import annotations
 
 import copy
 
-from collections.abc import Iterable
+from collections.abc import Generator, Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore[import]
 from srcinfo.parse import parse_srcinfo  # type: ignore[import]
 from typing import Any, Self
+from urllib.parse import urlparse
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, full_version, utcnow
+from ahriman.core.util import check_output, full_version, srcinfo_property_list, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -235,23 +236,25 @@ class Package(LazyLogging):
         if errors:
             raise PackageInfoError(errors)
 
-        def get_property(key: str, properties: dict[str, Any], default: Any) -> Any:
-            return properties.get(key) or srcinfo.get(key) or default
-
-        def get_list(key: str, properties: dict[str, Any]) -> Any:
-            return get_property(key, properties, []) + get_property(f"{key}_{architecture}", properties, [])
-
         packages = {
             package: PackageDescription(
-                depends=get_list("depends", properties),
-                make_depends=get_list("makedepends", properties),
-                opt_depends=get_list("optdepends", properties),
+                depends=srcinfo_property_list("depends", srcinfo, properties, architecture=architecture),
+                make_depends=srcinfo_property_list("makedepends", srcinfo, properties, architecture=architecture),
+                opt_depends=srcinfo_property_list("optdepends", srcinfo, properties, architecture=architecture),
             )
             for package, properties in srcinfo["packages"].items()
         }
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
-        return cls(base=srcinfo["pkgbase"], version=version, remote=None, packages=packages)
+        remote = RemoteSource(
+            git_url=path.absolute().as_uri(),
+            web_url="",
+            path=".",
+            branch="master",
+            source=PackageSource.Local,
+        )
+
+        return cls(base=srcinfo["pkgbase"], version=version, remote=remote, packages=packages)
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -292,6 +295,41 @@ class Package(LazyLogging):
             version=package.version,
             remote=remote,
             packages={package.name: PackageDescription.from_aur(package)})
+
+    @staticmethod
+    def local_files(path: Path) -> Generator[Path, None, None]:
+        """
+        extract list of local files
+
+        Args:
+            path(Path): path to package sources directory
+
+        Returns:
+            Generator[Path, None, None]: list of paths of files which belong to the package and distributed together
+                with this tarball. All paths are relative to the ``path``
+        """
+        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
+        srcinfo, errors = parse_srcinfo(srcinfo_source)
+        if errors:
+            raise PackageInfoError(errors)
+
+        # we could use arch property, but for consistency it is better to call special method
+        architectures = Package.supported_architectures(path)
+
+        for architecture in architectures:
+            for source in srcinfo_property_list("source", srcinfo, {}, architecture=architecture):
+                if "::" in source:
+                    _, source = source.split("::", 1)  # in case if filename is specified, remove it
+
+                if urlparse(source).scheme:
+                    # basically file schema should use absolute path which is impossible if we are distributing
+                    # files together with PKGBUILD. In this case we are going to skip it also
+                    continue
+
+                yield Path(source)
+
+        if (install := srcinfo.get("install", None)) is not None:
+            yield Path(install)
 
     @staticmethod
     def supported_architectures(path: Path) -> set[str]:

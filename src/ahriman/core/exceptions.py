@@ -194,6 +194,18 @@ class PasswordError(ValueError):
         ValueError.__init__(self, f"Password error: {details}")
 
 
+class PkgbuildGeneratorError(RuntimeError):
+    """
+    exception class for support type triggers
+    """
+
+    def __init__(self) -> None:
+        """
+        default constructor
+        """
+        RuntimeError.__init__(self, "Could not generate package")
+
+
 class ReportError(RuntimeError):
     """
     report generation exception

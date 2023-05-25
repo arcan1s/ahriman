@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# pylint: disable=too-many-lines
 import datetime
 import io
 import itertools
@@ -48,6 +49,8 @@ __all__ = [
     "pretty_datetime",
     "pretty_size",
     "safe_filename",
+    "srcinfo_property",
+    "srcinfo_property_list",
     "trim_package",
     "utcnow",
     "walk",
@@ -117,8 +120,6 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         result: list[str] = []
         for line in iter(get_io(process, "stdout").readline, ""):
             line = line.strip()
-            if not line:  # skip empty lines
-                continue
             result.append(line)
             log(line)
 
@@ -133,7 +134,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
                 raise exception
             raise subprocess.CalledProcessError(status_code, process.args)
 
-        return "\n".join(result)
+        return "\n".join(result).rstrip("\n")  # remove newline at the end of any
 
 
 def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
@@ -326,6 +327,47 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
+
+
+def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[str, Any], *,
+                     default: Any = None) -> Any:
+    """
+    extract property from SRCINFO. This method extracts property from package if this property is presented in
+    ``package``. Otherwise, it looks for the same property in root srcinfo. If none found, the default value will be
+    returned
+
+    Args:
+        key(str): key to extract from srcinfo
+        srcinfo(dict[str, Any]): root structure of SRCINFO
+        package_srcinfo(dict[str, Any]): package specific SRCINFO
+        default(Any, optional): the default value for the specified key (Default value = None)
+
+    Returns:
+        Any: extracted value from SRCINFO
+    """
+    return package_srcinfo.get(key) or srcinfo.get(key) or default
+
+
+def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[str, Any], *,
+                          architecture: str | None = None) -> list[Any]:
+    """
+    extract list property from SRCINFO. Unlike ``srcinfo_property`` it supposes that default return value is always
+    empty list. If ``architecture`` is supplied, then it will try to lookup for architecture specific values and will
+    append it at the end of result
+
+    Args:
+        key(str): key to extract from srcinfo
+        srcinfo(dict[str, Any]): root structure of SRCINFO
+        package_srcinfo(dict[str, Any]): package specific SRCINFO
+        architecture(str | None, optional): package architecture if set (Default value = None)
+
+    Returns:
+        list[Any]: list of extracted properties from SRCINFO
+    """
+    values: list[Any] = srcinfo_property(key, srcinfo, package_srcinfo, default=[])
+    if architecture is not None:
+        values.extend(srcinfo_property(f"{key}_{architecture}", srcinfo, package_srcinfo, default=[]))
+    return values
 
 
 def trim_package(package_name: str) -> str:

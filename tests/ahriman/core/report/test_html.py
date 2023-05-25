@@ -16,4 +16,4 @@ def test_generate(configuration: Configuration, package_ahriman: Package, mocker
 
     report = HTML("x86_64", configuration, "html")
     report.generate([package_ahriman], Result())
-    write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+    write_mock.assert_called_once_with(pytest.helpers.anyvar(int), encoding="utf8")

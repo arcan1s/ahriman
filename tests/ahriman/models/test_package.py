@@ -2,6 +2,7 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from srcinfo.parse import parse_srcinfo
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
@@ -165,7 +166,7 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     package = Package.from_build(Path("path"), "x86_64")
     assert package_ahriman.packages.keys() == package.packages.keys()
     package_ahriman.packages = package.packages  # we are not going to test PackageDescription here
-    package_ahriman.remote = None
+    package_ahriman.remote = package.remote
     assert package_ahriman == package
 
 
@@ -267,6 +268,70 @@ def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
+
+
+def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract local file sources
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
+    parsed_srcinfo["source"] = ["local-file.tar.gz"]
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
+
+    assert list(Package.local_files(Path("path"))) == [Path("local-file.tar.gz")]
+
+
+def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract empty local files list when there is no local files
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
+
+    assert list(Package.local_files(Path("path"))) == []
+
+
+def test_local_files_error(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must raise exception on package parsing for local sources
+    """
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
+
+    with pytest.raises(PackageInfoError):
+        list(Package.local_files(Path("path")))
+
+
+def test_local_files_schema(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must skip local file source when file schema is used
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
+    parsed_srcinfo["source"] = ["file:///local-file.tar.gz"]
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
+
+    assert list(Package.local_files(Path("path"))) == []
+
+
+def test_local_files_with_install(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract local file sources with install file
+    """
+    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
+    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
+    parsed_srcinfo["install"] = "install"
+    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
+    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
+
+    assert list(Package.local_files(Path("path"))) == [Path("install")]
 
 
 def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path) -> None:

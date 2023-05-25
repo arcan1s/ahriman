@@ -30,8 +30,8 @@ Base configuration settings.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 * ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
 
-``alpm`` group
---------------
+``alpm:*`` groups
+-----------------
 
 libalpm and AUR related configuration. Group name can refer to architecture, e.g. ``alpm:x86_64`` can be used for x86_64 architecture specific settings.
 
@@ -69,6 +69,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of mention.
+* ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, int, optional, default ``604800``.
 
 ``repository`` group
@@ -106,6 +107,41 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
+
+``keyring`` group
+--------------------
+
+Keyring package generator plugin.
+
+* ``target`` - list of generator settings sections, space separated list of strings, required. It must point to valid section name.
+
+Keyring generator plugin
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``description`` - keyring package description, string, optional, default is ``repo PGP keyring``, where ``repo`` is the repository name.
+* ``homepage`` - url to homepage location if any, string, optional.
+* ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
+* ``package`` - keyring package name, string, optional, default is ``repo-keyring``, where ``repo`` is the repository name.
+* ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the ``key_*`` options from ``sign`` group will be used.
+* ``revoked`` - list of revoked packagers keys, space separated list of strings, optional.
+* ``trusted`` - list of master keys, space separated list of strings, optional, if not set, the ``key`` option from ``sign`` group will be used.
+
+``mirrorlist`` group
+--------------------
+
+Mirrorlist package generator plugin.
+
+* ``target`` - list of generator settings sections, space separated list of strings, required. It must point to valid section name.
+
+Mirrorlist generator plugin
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``description`` - mirrorlist package description, string, optional, default is ``repo mirror list for use by pacman``, where ``repo`` is the repository name.
+* ``homepage`` - url to homepage location if any, string, optional.
+* ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
+* ``package`` - mirrorlist package name, string, optional, default is ``repo-mirrorlist``, where ``repo`` is the repository name.
+* ``path`` - absolute path to generated mirrorlist file, string, optional, default is ``/etc/pacman.d/repo-mirrorlist``, where ``repo`` is the repository name.
+* ``servers`` - list of repository mirrors, space separated list of strings, required.
 
 ``remote-pull`` group
 ---------------------
