@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-05\-22" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-05\-25" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -453,6 +453,7 @@ download fresh package databases from the mirror before actions, \-yy to force r
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
 usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]
+                            [\-s {unknown,pending,building,failed,success}]
 
 force rebuild whole repository
 
@@ -474,6 +475,10 @@ original ahriman instance run with web service and have run repo\-update at leas
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
+
+.TP
+\fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
+filter packages by status. Requires \-\-from\-database to be set
 
 .SH COMMAND \fI\,'ahriman repo\-remove\-unknown'\/\fR
 usage: ahriman repo\-remove\-unknown [\-h] [\-\-dry\-run]
