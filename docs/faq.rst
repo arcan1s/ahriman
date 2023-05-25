@@ -974,13 +974,17 @@ It is automation tools for ``repoctl`` mentioned above. Except for using shell i
 How to check service logs
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-By default, the service writes logs to ``/dev/log`` which can be accessed by using ``journalctl`` command (logs are written to the journal of the user under which command is run).
+By default, the service writes logs to ``/dev/log`` which can be accessed by using ``journalctl`` command (logs are written to the journal of the user under which command is run). In order to retrieve logs for the process you can use the following command:
+
+.. code-block:: shell
+
+   sudo journalctl SYSLOG_IDENTIFIER=ahriman
 
 You can also edit configuration and forward logs to ``stderr``, just change ``handlers`` value, e.g.:
 
 .. code-block:: shell
 
-   sed -i 's/handlers = syslog_handler/handlers = console_handler/g' /etc/ahriman.ini.d/logging.ini
+   sed -i 's/handlers = journald_handler/handlers = console_handler/g' /etc/ahriman.ini.d/logging.ini
 
 You can even configure logging as you wish, but kindly refer to python ``logging`` module `configuration <https://docs.python.org/3/library/logging.config.html>`_. The application uses java concept to log messages, e.g. class ``Application`` imported from ``ahriman.application.application`` package will have logger called ``ahriman.application.application.Application``. In order to e.g. change logger name for whole application package it is possible to change values for ``ahriman.application`` package; thus editing ``ahriman`` logger configuration will change logging for whole application (unless there are overrides for another logger).
 
