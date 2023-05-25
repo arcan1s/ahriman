@@ -451,6 +451,14 @@ def test_subparsers_repo_rebuild_architecture(parser: argparse.ArgumentParser) -
     assert args.architecture == ["x86_64"]
 
 
+def test_subparsers_repo_rebuild_option_status(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-rebuild command must convert status option to BuildStatusEnum instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "repo-rebuild", "--status", "failed"])
+    assert isinstance(args.status, BuildStatusEnum)
+
+
 def test_subparsers_repo_remove_unknown_architecture(parser: argparse.ArgumentParser) -> None:
     """
     repo-remove-unknown command must correctly parse architecture list
@@ -524,7 +532,7 @@ def test_subparsers_repo_status_update(parser: argparse.ArgumentParser) -> None:
 
 def test_subparsers_repo_status_update_option_status(parser: argparse.ArgumentParser) -> None:
     """
-    repo-status-update command must convert status option to buildstatusenum instance
+    repo-status-update command must convert status option to BuildStatusEnum instance
     """
     args = parser.parse_args(["-a", "x86_64", "repo-status-update"])
     assert isinstance(args.status, BuildStatusEnum)
@@ -691,7 +699,7 @@ def test_subparsers_service_setup_option_from_configuration(parser: argparse.Arg
 
 def test_subparsers_service_setup_option_sign_target(parser: argparse.ArgumentParser) -> None:
     """
-    service-setup command must convert sign-target option to signsettings instance
+    service-setup command must convert sign-target option to SignSettings instance
     """
     args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>",
                               "--repository", "aur-clone", "--sign-target", "packages"])
@@ -730,7 +738,7 @@ def test_subparsers_user_add_architecture(parser: argparse.ArgumentParser) -> No
 
 def test_subparsers_user_add_option_role(parser: argparse.ArgumentParser) -> None:
     """
-    user-add command must convert role option to useraccess instance
+    user-add command must convert role option to UserAccess instance
     """
     args = parser.parse_args(["user-add", "username"])
     assert isinstance(args.role, UserAccess)
@@ -762,7 +770,7 @@ def test_subparsers_user_list_architecture(parser: argparse.ArgumentParser) -> N
 
 def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> None:
     """
-    user-list command must convert role option to useraccess instance
+    user-list command must convert role option to UserAccess instance
     """
     args = parser.parse_args(["user-list", "--role", "full"])
     assert isinstance(args.role, UserAccess)

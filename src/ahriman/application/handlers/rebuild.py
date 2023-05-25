@@ -23,6 +23,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import UpdatePrinter
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 
 
@@ -47,7 +48,7 @@ class Rebuild(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
         application.on_start()
 
-        packages = Rebuild.extract_packages(application, from_database=args.from_database)
+        packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
         updates = application.repository.packages_depend_on(packages, args.depends_on or None)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
@@ -60,17 +61,24 @@ class Rebuild(Handler):
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod
-    def extract_packages(application: Application, *, from_database: bool) -> list[Package]:
+    def extract_packages(application: Application, status: BuildStatusEnum | None, *,
+                         from_database: bool) -> list[Package]:
         """
         extract packages from database file
 
         Args:
             application(Application): application instance
+            status(BuildStatusEnum | None): optional filter by package status
             from_database(bool): extract packages from database instead of repository filesystem
 
         Returns:
             list[Package]: list of packages which were stored in database
         """
         if from_database:
-            return [package for (package, _) in application.database.packages_get()]
+            return [
+                package
+                for (package, last_status) in application.database.packages_get()
+                if status is None or last_status.status == status
+            ]
+
         return application.repository.packages()

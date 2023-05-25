@@ -571,6 +571,8 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              "ahriman instance run with web service and have run repo-update at least once.",
                         action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
+    parser.add_argument("-s", "--status", help="filter packages by status. Requires --from-database to be set",
+                        type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 

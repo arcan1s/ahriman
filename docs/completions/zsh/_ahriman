@@ -261,6 +261,7 @@ _shtab_ahriman_rebuild_options=(
   "--dry-run[just perform check for packages without rebuild process itself]"
   "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
+  {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
 )
 
 _shtab_ahriman_remove_options=(
@@ -346,6 +347,7 @@ _shtab_ahriman_repo_rebuild_options=(
   "--dry-run[just perform check for packages without rebuild process itself]"
   "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
+  {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
 )
 
 _shtab_ahriman_repo_remove_unknown_options=(
