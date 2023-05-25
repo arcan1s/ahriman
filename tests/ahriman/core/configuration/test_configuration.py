@@ -10,6 +10,13 @@ from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+def test_repository_name(configuration: Configuration) -> None:
+    """
+    must return valid repository name
+    """
+    assert configuration.repository_name == "aur-clone"
+
+
 def test_repository_paths(configuration: Configuration, repository_paths: RepositoryPaths) -> None:
     """
     must return repository paths

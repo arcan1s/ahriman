@@ -36,6 +36,8 @@ _shtab_ahriman_commands() {
     "repo-clean:remove local caches"
     "repo-config:dump configuration for the specified architecture"
     "repo-config-validate:validate configuration and print found errors"
+    "repo-create-keyring:create package which contains list of trusted keys as set by configuration. Note, that this action will only create package, the package itself has to be built manually"
+    "repo-create-mirrorlist:create package which contains list of available mirrors as set by configuration. Note, that this action will only create package, the package itself has to be built manually"
     "repo-daemon:start process which periodically will run update process"
     "repo-init:create initial service configuration, requires root"
     "repo-rebuild:force rebuild whole repository"
@@ -301,6 +303,14 @@ _shtab_ahriman_repo_config_options=(
 _shtab_ahriman_repo_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
+)
+
+_shtab_ahriman_repo_create_keyring_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
+_shtab_ahriman_repo_create_mirrorlist_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
 )
 
 _shtab_ahriman_repo_daemon_options=(
@@ -595,6 +605,8 @@ _shtab_ahriman() {
         repo-clean) _arguments -C $_shtab_ahriman_repo_clean_options ;;
         repo-config) _arguments -C $_shtab_ahriman_repo_config_options ;;
         repo-config-validate) _arguments -C $_shtab_ahriman_repo_config_validate_options ;;
+        repo-create-keyring) _arguments -C $_shtab_ahriman_repo_create_keyring_options ;;
+        repo-create-mirrorlist) _arguments -C $_shtab_ahriman_repo_create_mirrorlist_options ;;
         repo-daemon) _arguments -C $_shtab_ahriman_repo_daemon_options ;;
         repo-init) _arguments -C $_shtab_ahriman_repo_init_options ;;
         repo-rebuild) _arguments -C $_shtab_ahriman_repo_rebuild_options ;;

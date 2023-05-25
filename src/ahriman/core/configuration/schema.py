@@ -163,6 +163,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "list",
                 "schema": {"type": "string"},
             },
+            "triggers_known": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {"type": "string"},
+            },
             "vcs_allowed_age": {
                 "type": "integer",
                 "coerce": "integer",

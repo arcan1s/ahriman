@@ -31,6 +31,16 @@ This trigger will be called right after build process (``on_result``). It will p
 
 Trigger which can be used for reporting. It implements ``on_result`` method and thus being called on each build update and generates report (e.g. html, telegram etc) according to the current settings.
 
+``ahriman.core.support.KeyringTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Generator for keyring package. This trigger will extract keys from local keychain and pack them into keyring specific format. This trigger will generate sources including PKGBUILD, which can be used later for package building.
+
+``ahriman.core.support.MirrorlistTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Simple generator for mirrorlist package, based on the urls which were set by configuration. This trigger will generate sources including PKGBUILD, which can be used later for package building.
+
 ``ahriman.core.upload.UploadTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

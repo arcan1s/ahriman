@@ -19,6 +19,7 @@
 #
 import requests
 
+from collections.abc import Generator
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
@@ -34,7 +35,6 @@ class GPG(LazyLogging):
 
     Attributes:
         DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
-        architecture(str): repository architecture
         configuration(Configuration): configuration instance
         default_key(str | None): default PGP key ID to use
         targets(set[SignSettings]): list of targets to sign (repository, package etc)
@@ -43,15 +43,13 @@ class GPG(LazyLogging):
     _check_output = check_output
     DEFAULT_TIMEOUT = 30
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.architecture = architecture
         self.configuration = configuration
         self.targets, self.default_key = self.sign_options(configuration)
 
@@ -128,6 +126,34 @@ class GPG(LazyLogging):
             raise
         return response.text
 
+    def key_export(self, key: str) -> str:
+        """
+        export public key from stored keychain
+
+        Args:
+            key(str): key ID to export
+
+        Returns:
+            str: PGP key in .asc format
+        """
+        return GPG._check_output("gpg", "--armor", "--no-emit-version", "--export", key, logger=self.logger)
+
+    def key_fingerprint(self, key: str) -> str:
+        """
+        get full key fingerprint from short key id
+
+        Args:
+            key(str): key ID to lookup
+
+        Returns:
+            str: full PGP key fingerprint
+        """
+        metadata = GPG._check_output("gpg", "--with-colons", "--fingerprint", key, logger=self.logger)
+        # fingerprint line will be like
+        # fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:
+        fingerprint = next(filter(lambda line: line[:3] == "fpr", metadata.splitlines()))
+        return fingerprint.split(":")[-2]
+
     def key_import(self, server: str, key: str) -> None:
         """
         import key to current user and sign it locally
@@ -138,6 +164,21 @@ class GPG(LazyLogging):
         """
         key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, logger=self.logger)
+
+    def keys(self) -> list[str]:
+        """
+        extract list of keys described in configuration
+
+        Returns:
+            list[str]: list of unique keys which are set in configuration
+        """
+        def generator() -> Generator[str, None, None]:
+            if self.default_key is not None:
+                yield self.default_key
+            for _, value in filter(lambda pair: pair[0].startswith("key_"), self.configuration["sign"].items()):
+                yield value
+
+        return sorted(set(generator()))
 
     def process(self, path: Path, key: str) -> list[Path]:
         """

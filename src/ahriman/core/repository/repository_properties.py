@@ -67,7 +67,7 @@ class RepositoryProperties(LazyLogging):
         self.configuration = configuration
         self.database = database
 
-        self.name = configuration.get("repository", "name")
+        self.name = configuration.repository_name
         self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
         self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing
@@ -79,7 +79,7 @@ class RepositoryProperties(LazyLogging):
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)
-        self.sign = GPG(architecture, configuration)
+        self.sign = GPG(configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(configuration, report=report)
         self.triggers = TriggerLoader.load(architecture, configuration)

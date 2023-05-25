@@ -3,7 +3,7 @@
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--report | --no-report] [-q] [--unsafe] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -90,6 +90,12 @@ backup repository data
 .TP
 \fBahriman\fR \fI\,repo\-check\/\fR
 check for updates
+.TP
+\fBahriman\fR \fI\,repo\-create\-keyring\/\fR
+create keyring package
+.TP
+\fBahriman\fR \fI\,repo\-create\-mirrorlist\/\fR
+create mirrorlist package
 .TP
 \fBahriman\fR \fI\,repo\-daemon\/\fR
 run application as daemon
@@ -399,6 +405,16 @@ fetch actual version of VCS packages
 .TP
 \fB\-y\fR, \fB\-\-refresh\fR
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
+
+.SH COMMAND \fI\,'ahriman repo\-create\-keyring'\/\fR
+usage: ahriman repo\-create\-keyring [\-h]
+
+create package which contains list of trusted keys as set by configuration. Note, that this action will only create package, the package itself has to be built manually
+
+.SH COMMAND \fI\,'ahriman repo\-create\-mirrorlist'\/\fR
+usage: ahriman repo\-create\-mirrorlist [\-h]
+
+create package which contains list of available mirrors as set by configuration. Note, that this action will only create package, the package itself has to be built manually
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
 usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies]

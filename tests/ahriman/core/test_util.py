@@ -12,7 +12,8 @@ from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, enum_values, exception_response_text, filter_json, \
-    full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, trim_package, utcnow, walk
+    full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, srcinfo_property, \
+    srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -81,12 +82,12 @@ def test_check_output_with_user(passwd: Any, mocker: MockerFixture) -> None:
     """
     must run command as specified user and set its homedir
     """
-    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))") != passwd.pw_dir
+    assert check_output("python", "-c", """import os; print(os.getenv("HOME"))""") != passwd.pw_dir
 
     getpwuid_mock = mocker.patch("ahriman.core.util.getpwuid", return_value=passwd)
     user = os.getuid()
 
-    assert check_output("python", "-c", "import os; print(os.getenv('HOME'))", user=user) == passwd.pw_dir
+    assert check_output("python", "-c", """import os; print(os.getenv("HOME"))""", user=user) == passwd.pw_dir
     getpwuid_mock.assert_called_once_with(user)
 
 
@@ -329,6 +330,31 @@ def test_safe_filename() -> None:
         "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
     assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
+
+
+def test_srcinfo_property() -> None:
+    """
+    must correctly extract properties
+    """
+    assert srcinfo_property("key", {"key": "root"}, {"key": "overrides"}, default="default") == "overrides"
+    assert srcinfo_property("key", {"key": "root"}, {}, default="default") == "root"
+    assert srcinfo_property("key", {}, {"key": "overrides"}, default="default") == "overrides"
+    assert srcinfo_property("key", {}, {}, default="default") == "default"
+    assert srcinfo_property("key", {}, {}) is None
+
+
+def test_srcinfo_property_list() -> None:
+    """
+    must correctly extract property list
+    """
+    assert srcinfo_property_list("key", {"key": ["root"]}, {"key": ["overrides"]}) == ["overrides"]
+    assert srcinfo_property_list("key", {"key": ["root"]}, {"key_x86_64": ["overrides"]}, architecture="x86_64") == [
+        "root", "overrides"
+    ]
+    assert srcinfo_property_list("key", {"key": ["root"], "key_x86_64": ["overrides"]}, {}, architecture="x86_64") == [
+        "root", "overrides"
+    ]
+    assert srcinfo_property_list("key", {"key_x86_64": ["overrides"]}, {}, architecture="x86_64") == ["overrides"]
 
 
 def test_trim_package() -> None:

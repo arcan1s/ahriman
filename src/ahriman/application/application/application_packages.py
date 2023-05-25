@@ -26,6 +26,7 @@ from typing import Any
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.util import package_like
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -43,8 +44,14 @@ class ApplicationPackages(ApplicationProperties):
 
         Args:
             source(str): path to package archive
+
+        Raises:
+            UnknownPackageError: if specified path doesn't exist
         """
         local_path = Path(source)
+        if not local_path.is_file():
+            raise UnknownPackageError(source)
+
         dst = self.repository.paths.packages / local_path.name
         shutil.copy(local_path, dst)
 
@@ -68,6 +75,9 @@ class ApplicationPackages(ApplicationProperties):
             source(str): path to local directory
         """
         local_dir = Path(source)
+        if not local_dir.is_dir():
+            raise UnknownPackageError(source)
+
         for full_path in filter(package_like, local_dir.iterdir()):
             self._add_archive(str(full_path))
 
@@ -77,12 +87,19 @@ class ApplicationPackages(ApplicationProperties):
 
         Args:
             source(str): path to directory with local source files
+
+        Raises:
+            UnknownPackageError: if specified package is unknown or doesn't exist
         """
-        source_dir = Path(source)
-        package = Package.from_build(source_dir, self.architecture)
-        cache_dir = self.repository.paths.cache_for(package.base)
-        shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
-        Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
+        if (source_dir := Path(source)).is_dir():
+            package = Package.from_build(source_dir, self.architecture)
+            cache_dir = self.repository.paths.cache_for(package.base)
+            shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
+            Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
+        elif (source_dir := self.repository.paths.cache_for(source)).is_dir():
+            package = Package.from_build(source_dir, self.architecture)
+        else:
+            raise UnknownPackageError(source)
 
         self.database.build_queue_insert(package)
 
@@ -95,8 +112,11 @@ class ApplicationPackages(ApplicationProperties):
         """
         dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         # timeout=None to suppress pylint warns. Also suppress bandit warnings
-        response = requests.get(source, stream=True, timeout=None)  # nosec
-        response.raise_for_status()
+        try:
+            response = requests.get(source, stream=True, timeout=None)  # nosec
+            response.raise_for_status()
+        except Exception:
+            raise UnknownPackageError(source)
 
         with dst.open("wb") as local_file:
             for chunk in response.iter_content(chunk_size=1024):

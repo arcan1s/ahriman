@@ -100,6 +100,16 @@ class Configuration(configparser.RawConfigParser):
         return self.getpath("settings", "logging")
 
     @property
+    def repository_name(self) -> str:
+        """
+        repository name as defined by configuration
+
+        Returns:
+            str: repository name from configuration
+        """
+        return self.get("repository", "name")
+
+    @property
     def repository_paths(self) -> RepositoryPaths:
         """
         construct RepositoryPaths instance based on the configuration

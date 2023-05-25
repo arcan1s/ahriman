@@ -5,23 +5,34 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.application.application.application_packages import ApplicationPackages
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result
 
 
-def test_add_archive(
-        application_packages: ApplicationPackages,
-        package_ahriman: Package,
-        mocker: MockerFixture) -> None:
+def test_add_archive(application_packages: ApplicationPackages, package_ahriman: Package,
+                     mocker: MockerFixture) -> None:
     """
     must add package from archive
     """
+    is_file_mock = mocker.patch("pathlib.Path.is_file", return_value=True)
     copy_mock = mocker.patch("shutil.copy")
+
     application_packages._add_archive(package_ahriman.base)
+    is_file_mock.assert_called_once_with()
     copy_mock.assert_called_once_with(
         Path(package_ahriman.base), application_packages.repository.paths.packages / package_ahriman.base)
+
+
+def test_add_archive_missing(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+    """
+    must raise UnknownPackageError on unknown path
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    with pytest.raises(UnknownPackageError):
+        application_packages._add_archive("package")
 
 
 def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -37,21 +48,29 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     update_remote_mock.assert_called_once_with(package_ahriman)
 
 
-def test_add_directory(
-        application_packages: ApplicationPackages,
-        package_ahriman: Package,
-        mocker: MockerFixture) -> None:
+def test_add_directory(application_packages: ApplicationPackages, package_ahriman: Package,
+                       mocker: MockerFixture) -> None:
     """
     must add packages from directory
     """
-    iterdir_mock = mocker.patch("pathlib.Path.iterdir",
-                                return_value=[package.filepath for package in package_ahriman.packages.values()])
-    copy_mock = mocker.patch("shutil.copy")
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", return_value=True)
     filename = package_ahriman.packages[package_ahriman.base].filepath
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", return_value=[filename])
+    add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_archive")
 
     application_packages._add_directory(package_ahriman.base)
+    is_dir_mock.assert_called_once_with()
     iterdir_mock.assert_called_once_with()
-    copy_mock.assert_called_once_with(filename, application_packages.repository.paths.packages / filename.name)
+    add_mock.assert_called_once_with(str(filename))
+
+
+def test_add_directory_missing(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+    """
+    must raise UnknownPackageError on unknown directory path
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    with pytest.raises(UnknownPackageError):
+        application_packages._add_directory("package")
 
 
 def test_add_local(application_packages: ApplicationPackages, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -59,15 +78,44 @@ def test_add_local(application_packages: ApplicationPackages, package_ahriman: P
     must add package from local sources
     """
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", return_value=True)
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
     copytree_mock = mocker.patch("shutil.copytree")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
 
     application_packages._add_local(package_ahriman.base)
+    is_dir_mock.assert_called_once_with()
     copytree_mock.assert_called_once_with(
         Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base))
     init_mock.assert_called_once_with(application_packages.repository.paths.cache_for(package_ahriman.base))
     build_queue_mock.assert_called_once_with(package_ahriman)
+
+
+def test_add_local_cache(application_packages: ApplicationPackages, package_ahriman: Package,
+                         mocker: MockerFixture) -> None:
+    """
+    must add package from local source if there is cache
+    """
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+    mocker.patch("pathlib.Path.is_dir", autospec=True,
+                 side_effect=lambda p: True if p.is_relative_to(application_packages.repository.paths.cache) else False)
+    init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
+    copytree_mock = mocker.patch("shutil.copytree")
+    build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
+
+    application_packages._add_local(package_ahriman.base)
+    copytree_mock.assert_not_called()
+    init_mock.assert_not_called()
+    build_queue_mock.assert_called_once_with(package_ahriman)
+
+
+def test_add_local_missing(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+    """
+    must raise UnknownPackageError if package wasn't found
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    with pytest.raises(UnknownPackageError):
+        application_packages._add_local("package")
 
 
 def test_add_remote(application_packages: ApplicationPackages, package_description_ahriman: PackageDescription,
@@ -85,6 +133,15 @@ def test_add_remote(application_packages: ApplicationPackages, package_descripti
     open_mock.assert_called_once_with("wb")
     request_mock.assert_called_once_with(url, stream=True, timeout=None)
     response_mock.raise_for_status.assert_called_once_with()
+
+
+def test_add_remote_missing(application_packages: ApplicationPackages, mocker: MockerFixture) -> None:
+    """
+    must add package from remote source
+    """
+    mocker.patch("requests.get", side_effect=Exception())
+    with pytest.raises(UnknownPackageError):
+        application_packages._add_remote("url")
 
 
 def test_add_repository(application_packages: ApplicationPackages, package_ahriman: Package,
@@ -112,10 +169,8 @@ def test_add_add_archive(application_packages: ApplicationPackages, package_ahri
     add_mock.assert_called_once_with(package_ahriman.base)
 
 
-def test_add_add_aur(
-        application_packages: ApplicationPackages,
-        package_ahriman: Package,
-        mocker: MockerFixture) -> None:
+def test_add_add_aur(application_packages: ApplicationPackages, package_ahriman: Package,
+                     mocker: MockerFixture) -> None:
     """
     must add package from AUR via add function
     """
