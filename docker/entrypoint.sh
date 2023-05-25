@@ -15,7 +15,7 @@ database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db
 host = $AHRIMAN_HOST
 
 EOF
-sed -i "s|handlers = syslog_handler|handlers = ${AHRIMAN_OUTPUT}_handler|g" "/etc/ahriman.ini.d/logging.ini"
+sed -i "s|handlers = journald_handler|handlers = ${AHRIMAN_OUTPUT}_handler|g" "/etc/ahriman.ini.d/logging.ini"
 
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
 if [[ "$AHRIMAN_OUTPUT" == "syslog" ]]; then
