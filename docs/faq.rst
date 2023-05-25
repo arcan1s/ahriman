@@ -769,7 +769,7 @@ The application provides special plugin which generates keyring package. This pl
       [keyring]
       target = keyring_generator
 
-   By default it will use ``sign.key`` as trusted key and all other keys as packagers ones. For all available options refer to :doc:`configuration <configuration>.
+   By default it will use ``sign.key`` as trusted key and all other keys as packagers ones. For all available options refer to :doc:`configuration <configuration>`.
 
 #.
    Create package source files:
@@ -807,7 +807,7 @@ The application provides special plugin which generates mirrorlist package also.
       [mirrorlist_generator]
       servers = https://repo.example.com/$arch
 
-   The ``mirrorlist_generator.servers`` must contain list of available mirrors, the ``$arch`` and ``$repo`` variables are supported. For more options kindly refer to :doc:`configuration <configuration>.
+   The ``mirrorlist_generator.servers`` must contain list of available mirrors, the ``$arch`` and ``$repo`` variables are supported. For more options kindly refer to :doc:`configuration <configuration>`.
 
 #.
    Create package source files:
