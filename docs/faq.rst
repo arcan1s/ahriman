@@ -1027,6 +1027,11 @@ Don't know, haven't tried it. But it lacks of documentation at least.
 * ``repoctl`` is able to store old packages.
 * Ability to host repository from same command in ``repoctl`` vs external services (e.g. nginx) in ``ahriman``.
 
+`repod <https://gitlab.archlinux.org/archlinux/repod>`_
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Official tool provided by distribution, has clean logic, but it is just a helper for ``repo-add``, e.g. it doesn't work with AUR and all packages builds have to be handled separately.
+
 `repo-scripts <https://github.com/arcan1s/repo-scripts>`_
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
