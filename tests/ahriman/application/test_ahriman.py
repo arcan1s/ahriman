@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.handlers import Handler
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.log_handler import LogHandler
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
 
@@ -35,6 +36,14 @@ def test_parser_option_lock(parser: argparse.ArgumentParser) -> None:
     assert isinstance(args.lock, Path)
     args = parser.parse_args(["-l", "ahriman.lock", "repo-update"])
     assert isinstance(args.lock, Path)
+
+
+def test_parser_option_log_handler(parser: argparse.ArgumentParser) -> None:
+    """
+    must convert log-handler option to LogHandler instance
+    """
+    args = parser.parse_args(["--log-handler", "console", "service-config"])
+    assert isinstance(args.log_handler, LogHandler)
 
 
 def test_multiple_architectures(parser: argparse.ArgumentParser) -> None:

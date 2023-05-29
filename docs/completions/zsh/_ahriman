@@ -81,6 +81,7 @@ _shtab_ahriman_options=(
   {-c,--configuration}"[configuration path]:configuration:"
   "--force[force run, remove file lock]"
   {-l,--lock}"[lock file]:lock:"
+  "--log-handler[explicit log handler specification. If none set, the handler will be guessed from environment]:log_handler:(console syslog journald)"
   {--report,--no-report}"[force enable or disable reporting to web service]:report:"
   {-q,--quiet}"[force disable any logging]"
   "--unsafe[allow to run ahriman as non-ahriman user. Some actions might be unavailable]"

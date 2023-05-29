@@ -30,6 +30,7 @@ from ahriman.application import handlers
 from ahriman.core.util import enum_values
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.log_handler import LogHandler
 from ahriman.models.package_source import PackageSource
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
@@ -58,6 +59,7 @@ def _formatter(prog: str) -> argparse.HelpFormatter:
     return argparse.ArgumentDefaultsHelpFormatter(prog, width=120)
 
 
+# pylint: disable=too-many-statements
 def _parser() -> argparse.ArgumentParser:
     """
     command line parser generator
@@ -75,6 +77,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
                         default=Path(tempfile.gettempdir()) / "ahriman.lock")
+    parser.add_argument("--log-handler", help="explicit log handler specification. If none set, the handler will be "
+                                              "guessed from environment",
+                        type=LogHandler, choices=enum_values(LogHandler))
     parser.add_argument("--report", help="force enable or disable reporting to web service",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")

@@ -2,7 +2,7 @@
 
 _shtab_ahriman_subparsers=('aur-search' 'search' 'help' 'help-commands-unsafe' 'help-updates' 'help-version' 'version' 'package-add' 'add' 'package-update' 'package-remove' 'remove' 'package-status' 'status' 'package-status-remove' 'package-status-update' 'status-update' 'patch-add' 'patch-list' 'patch-remove' 'patch-set-add' 'repo-backup' 'repo-check' 'check' 'repo-create-keyring' 'repo-create-mirrorlist' 'repo-daemon' 'daemon' 'repo-rebuild' 'rebuild' 'repo-remove-unknown' 'remove-unknown' 'repo-report' 'report' 'repo-restore' 'repo-sign' 'sign' 'repo-status-update' 'repo-sync' 'sync' 'repo-tree' 'repo-triggers' 'repo-update' 'update' 'service-clean' 'clean' 'repo-clean' 'service-config' 'config' 'repo-config' 'service-config-validate' 'config-validate' 'repo-config-validate' 'service-key-import' 'key-import' 'service-setup' 'init' 'repo-init' 'repo-setup' 'setup' 'service-shell' 'shell' 'user-add' 'user-list' 'user-remove' 'web')
 
-_shtab_ahriman_option_strings=('-h' '--help' '-a' '--architecture' '-c' '--configuration' '--force' '-l' '--lock' '--report' '--no-report' '-q' '--quiet' '--unsafe' '-V' '--version')
+_shtab_ahriman_option_strings=('-h' '--help' '-a' '--architecture' '-c' '--configuration' '--force' '-l' '--lock' '--log-handler' '--report' '--no-report' '-q' '--quiet' '--unsafe' '-V' '--version')
 _shtab_ahriman_aur_search_option_strings=('-h' '--help' '-e' '--exit-code' '--info' '--no-info' '--sort-by')
 _shtab_ahriman_search_option_strings=('-h' '--help' '-e' '--exit-code' '--info' '--no-info' '--sort-by')
 _shtab_ahriman_help_option_strings=('-h' '--help')
@@ -73,6 +73,7 @@ _shtab_ahriman_web_option_strings=('-h' '--help')
 
 
 _shtab_ahriman_pos_0_choices=('aur-search' 'search' 'help' 'help-commands-unsafe' 'help-updates' 'help-version' 'version' 'package-add' 'add' 'package-update' 'package-remove' 'remove' 'package-status' 'status' 'package-status-remove' 'package-status-update' 'status-update' 'patch-add' 'patch-list' 'patch-remove' 'patch-set-add' 'repo-backup' 'repo-check' 'check' 'repo-create-keyring' 'repo-create-mirrorlist' 'repo-daemon' 'daemon' 'repo-rebuild' 'rebuild' 'repo-remove-unknown' 'remove-unknown' 'repo-report' 'report' 'repo-restore' 'repo-sign' 'sign' 'repo-status-update' 'repo-sync' 'sync' 'repo-tree' 'repo-triggers' 'repo-update' 'update' 'service-clean' 'clean' 'repo-clean' 'service-config' 'config' 'repo-config' 'service-config-validate' 'config-validate' 'repo-config-validate' 'service-key-import' 'key-import' 'service-setup' 'init' 'repo-init' 'repo-setup' 'setup' 'service-shell' 'shell' 'user-add' 'user-list' 'user-remove' 'web')
+_shtab_ahriman___log_handler_choices=('console' 'syslog' 'journald')
 _shtab_ahriman_aur_search___sort_by_choices=('description' 'first_submitted' 'id' 'last_modified' 'maintainer' 'name' 'num_votes' 'out_of_date' 'package_base' 'package_base_id' 'popularity' 'repository' 'submitter' 'url' 'url_path' 'version')
 _shtab_ahriman_search___sort_by_choices=('description' 'first_submitted' 'id' 'last_modified' 'maintainer' 'name' 'num_votes' 'out_of_date' 'package_base' 'package_base_id' 'popularity' 'repository' 'submitter' 'url' 'url_path' 'version')
 _shtab_ahriman_package_add__s_choices=('auto' 'archive' 'aur' 'directory' 'local' 'remote' 'repository')

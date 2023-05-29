@@ -94,7 +94,8 @@ class Handler:
         """
         try:
             configuration = Configuration.from_path(args.configuration, architecture)
-            Log.load(configuration, quiet=args.quiet, report=args.report)
+            log_handler = Log.handler(args.log_handler)
+            Log.load(configuration, log_handler, quiet=args.quiet, report=args.report)
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration, report=args.report, unsafe=args.unsafe)
             return True
