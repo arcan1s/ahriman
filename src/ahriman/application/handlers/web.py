@@ -19,6 +19,8 @@
 #
 import argparse
 
+from collections.abc import Generator
+
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
@@ -31,6 +33,7 @@ class Web(Handler):
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
+    COMMAND_ARGS_WHITELIST = ["force", "log_handler", ""]
 
     @classmethod
     def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
@@ -48,7 +51,8 @@ class Web(Handler):
         # we are using local import for optional dependencies
         from ahriman.web.web import run_server, setup_service
 
-        spawner = Spawn(args.parser(), architecture, configuration)
+        spawner_args = Web.extract_arguments(args, architecture, configuration)
+        spawner = Spawn(args.parser(), architecture, list(spawner_args))
         spawner.start()
 
         application = setup_service(architecture, configuration, spawner)
@@ -57,3 +61,33 @@ class Web(Handler):
         # terminate spawn process at the last
         spawner.stop()
         spawner.join()
+
+    @staticmethod
+    def extract_arguments(args: argparse.Namespace, architecture: str,
+                          configuration: Configuration) -> Generator[str, None, None]:
+        """
+        extract list of arguments used for current command, except for command specific ones
+
+        Args:
+            args(argparse.Namespace): command line args
+            architecture(str): repository architecture
+            configuration(Configuration): configuration instance
+
+        Returns:
+            Generator[str, None, None]: command line arguments which were used for this specific command
+        """
+        # read architecture from the same argument list
+        yield from ["--architecture", architecture]
+        # read configuration path from current settings
+        if (configuration_path := configuration.path) is not None:
+            yield from ["--configuration", str(configuration_path)]
+
+        # arguments from command line
+        if args.force:
+            yield "--force"
+        if args.log_handler is not None:
+            yield from ["--log-handler", args.log_handler.value]
+        if args.quiet:
+            yield "--quiet"
+        if args.unsafe:
+            yield "--unsafe"

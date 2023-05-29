@@ -44,10 +44,11 @@ def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
 
     spawner._spawn_process("add", "ahriman", now="", maybe="?")
     start_mock.assert_called_once_with()
-    spawner.args_parser.parse_args.assert_called_once_with([
-        "--architecture", spawner.architecture, "--configuration", str(spawner.configuration.path),
-        "add", "ahriman", "--now", "--maybe", "?"
-    ])
+    spawner.args_parser.parse_args.assert_called_once_with(
+        spawner.command_arguments + [
+            "add", "ahriman", "--now", "--maybe", "?"
+        ]
+    )
 
 
 def test_key_import(spawner: Spawn, mocker: MockerFixture) -> None:
