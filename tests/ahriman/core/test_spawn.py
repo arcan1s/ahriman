@@ -140,9 +140,7 @@ def test_run_pop(spawner: Spawn) -> None:
 
     spawner.run()
 
-    first.terminate.assert_called_once_with()
     first.join.assert_called_once_with()
-    second.terminate.assert_called_once_with()
     second.join.assert_called_once_with()
     assert not spawner.active
 
