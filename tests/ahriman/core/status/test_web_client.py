@@ -55,7 +55,7 @@ def test_create_session(web_client: WebClient, mocker: MockerFixture) -> None:
     session = web_client._create_session(use_unix_socket=False)
     assert isinstance(session, requests.Session)
     assert not isinstance(session, requests_unixsocket.Session)
-    login_mock.assert_called_once_with()
+    login_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
 def test_create_session_unix_socket(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -80,7 +80,7 @@ def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None
         "password": user.password
     }
 
-    web_client._login()
+    web_client._login(requests.Session())
     requests_mock.assert_called_once_with(pytest.helpers.anyvar(str, True), json=payload)
 
 
@@ -90,7 +90,7 @@ def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) 
     """
     web_client.user = user
     mocker.patch("requests.Session.post", side_effect=Exception())
-    web_client._login()
+    web_client._login(requests.Session())
 
 
 def test_login_failed_http_error(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
@@ -99,7 +99,7 @@ def test_login_failed_http_error(web_client: WebClient, user: User, mocker: Mock
     """
     web_client.user = user
     mocker.patch("requests.Session.post", side_effect=requests.exceptions.HTTPError())
-    web_client._login()
+    web_client._login(requests.Session())
 
 
 def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
@@ -107,7 +107,7 @@ def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
     must skip login if no user set
     """
     requests_mock = mocker.patch("requests.Session.post")
-    web_client._login()
+    web_client._login(requests.Session())
     requests_mock.assert_not_called()
 
 

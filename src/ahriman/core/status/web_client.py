@@ -102,15 +102,22 @@ class WebClient(Client, LazyLogging):
         return address, False
 
     @contextlib.contextmanager
-    def __get_session(self) -> Generator[requests.Session, None, None]:
+    def __get_session(self, session: requests.Session | None = None) -> Generator[requests.Session, None, None]:
         """
         execute request and handle exceptions
+
+        Args:
+            session(requests.Session | None, optional): session to be used or stored instance property otherwise
+                (Default value = None)
 
         Yields:
             requests.Session: session for requests
         """
         try:
-            yield self.__session
+            if session is not None:
+                yield session  # use session from arguments
+            else:
+                yield self.__session  # use instance generated session
         except requests.RequestException as e:
             if self.suppress_errors:
                 return
@@ -136,13 +143,16 @@ class WebClient(Client, LazyLogging):
             return session
 
         session = requests.Session()
-        self._login()
+        self._login(session)
 
         return session
 
-    def _login(self) -> None:
+    def _login(self, session: requests.Session) -> None:
         """
         process login to the service
+
+        Args:
+            session(requests.Session): request session to login
         """
         if self.user is None:
             return  # no auth configured
@@ -152,7 +162,7 @@ class WebClient(Client, LazyLogging):
             "password": self.user.password
         }
 
-        with self.__get_session() as session:
+        with self.__get_session(session):
             response = session.post(self._login_url, json=payload)
             response.raise_for_status()
 
