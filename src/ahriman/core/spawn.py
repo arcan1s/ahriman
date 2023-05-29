@@ -172,7 +172,6 @@ class Spawn(Thread, LazyLogging):
                 process = self.active.pop(process_id, None)
 
             if process is not None:
-                process.terminate()  # make sure lol
                 process.join()
 
     def stop(self) -> None:
