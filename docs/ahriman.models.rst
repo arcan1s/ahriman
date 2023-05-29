@@ -60,6 +60,14 @@ ahriman.models.internal\_status module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.log\_handler module
+----------------------------------
+
+.. automodule:: ahriman.models.log_handler
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.log\_record\_id module
 -------------------------------------
 

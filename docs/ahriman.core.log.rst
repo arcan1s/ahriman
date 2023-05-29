@@ -20,6 +20,14 @@ ahriman.core.log.http\_log\_handler module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.log.journal\_handler module
+----------------------------------------
+
+.. automodule:: ahriman.core.log.journal_handler
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.log.lazy\_logging module
 -------------------------------------
 

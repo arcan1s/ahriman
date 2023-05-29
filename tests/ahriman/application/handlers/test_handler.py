@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
+from ahriman.models.log_handler import LogHandler
 
 
 def test_architectures_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -56,17 +57,20 @@ def test_call(args: argparse.Namespace, configuration: Configuration, mocker: Mo
     must call inside lock
     """
     args.configuration = Path("")
+    args.log_handler = LogHandler.Console
     args.quiet = False
     args.report = False
     mocker.patch("ahriman.application.handlers.Handler.run")
     configuration_mock = mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
+    log_handler_mock = mocker.patch("ahriman.core.log.Log.handler", return_value=args.log_handler)
     log_load_mock = mocker.patch("ahriman.core.log.Log.load")
     enter_mock = mocker.patch("ahriman.application.lock.Lock.__enter__")
     exit_mock = mocker.patch("ahriman.application.lock.Lock.__exit__")
 
     assert Handler.call(args, "x86_64")
     configuration_mock.assert_called_once_with(args.configuration, "x86_64")
-    log_load_mock.assert_called_once_with(configuration, quiet=args.quiet, report=args.report)
+    log_handler_mock.assert_called_once_with(args.log_handler)
+    log_load_mock.assert_called_once_with(configuration, args.log_handler, quiet=args.quiet, report=args.report)
     enter_mock.assert_called_once_with()
     exit_mock.assert_called_once_with(None, None, None)
 

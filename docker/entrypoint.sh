@@ -15,15 +15,10 @@ database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db
 host = $AHRIMAN_HOST
 
 EOF
-sed -i "s|handlers = journald_handler|handlers = ${AHRIMAN_OUTPUT}_handler|g" "/etc/ahriman.ini.d/logging.ini"
 
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
-if [[ "$AHRIMAN_OUTPUT" == "syslog" ]]; then
-    if [ ! -e "/dev/log" ]; then
-        # by default ahriman uses syslog which is not available inside container
-        # to make noise less we force quiet mode in case if /dev/log was not mounted
-        AHRIMAN_DEFAULT_ARGS+=("--quiet")
-    fi
+if [ -n "$AHRIMAN_OUTPUT" ]; then
+    AHRIMAN_DEFAULT_ARGS+=("--log-handler" "$AHRIMAN_OUTPUT")
 fi
 
 # create repository root inside the [[mounted]] directory and set correct ownership

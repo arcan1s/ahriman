@@ -7,8 +7,7 @@ pkgdesc="ArcH linux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-cerberus' 'python-inflection' 'python-passlib' 'python-requests'
-         'python-srcinfo' 'python-systemd')
+depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-cerberus' 'python-inflection' 'python-passlib' 'python-requests' 'python-srcinfo')
 makedepends=('python-build' 'python-installer' 'python-wheel')
 optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
@@ -25,6 +24,7 @@ optdepends=('breezy: -bzr packages support'
             'python-cryptography: web server with authorization'
             'python-requests-unixsocket: client report to web server by unix socket'
             'python-jinja: html report generation'
+            'python-systemd: journal support'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
