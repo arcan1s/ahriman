@@ -482,7 +482,7 @@ def spawner(configuration: Configuration) -> Spawn:
     Returns:
         Spawn: spawner fixture
     """
-    return Spawn(MagicMock(), "x86_64", configuration)
+    return Spawn(MagicMock(), "x86_64", ["--architecture", "x86_64", "--configuration", str(configuration.path)])
 
 
 @pytest.fixture

@@ -26,7 +26,6 @@ from collections.abc import Callable, Iterable
 from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
-from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.models.package_source import PackageSource
 
@@ -39,23 +38,24 @@ class Spawn(Thread, LazyLogging):
     Attributes:
         active(dict[str, Process]): map of active child processes required to avoid zombies
         architecture(str): repository architecture
-        configuration(Configuration): configuration instance
+        command_arguments(list[str]): base command line arguments
         queue(Queue[tuple[str, bool]]): multiprocessing queue to read updates from processes
     """
 
-    def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, command_arguments: list[str]) -> None:
         """
         default constructor
 
         Args:
             args_parser(argparse.ArgumentParser): command line parser for the application
             architecture(str): repository architecture
-            configuration(Configuration): configuration instance
+            command_arguments(list[str]): base command line arguments
         """
         Thread.__init__(self, name="spawn")
         self.architecture = architecture
+
         self.args_parser = args_parser
-        self.configuration = configuration
+        self.command_arguments = command_arguments
 
         self.lock = Lock()
         self.active: dict[str, Process] = {}
@@ -88,9 +88,7 @@ class Spawn(Thread, LazyLogging):
             **kwargs(str): named command arguments
         """
         # default arguments
-        arguments = ["--architecture", self.architecture]
-        if self.configuration.path is not None:
-            arguments.extend(["--configuration", str(self.configuration.path)])
+        arguments = self.command_arguments[:]
         # positional command arguments
         arguments.append(command)
         arguments.extend(args)
