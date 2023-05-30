@@ -79,5 +79,6 @@ class UnsafeCommands(Handler):
         """
         # should never fail
         # pylint: disable=protected-access
-        subparser = next(action for action in parser._actions if isinstance(action, argparse._SubParsersAction))
-        return sorted(action_name for action_name, action in subparser.choices.items() if action.get_default("unsafe"))
+        subparser = next((action for action in parser._actions if isinstance(action, argparse._SubParsersAction)), None)
+        actions = subparser.choices if subparser is not None else {}
+        return sorted(action_name for action_name, action in actions.items() if action.get_default("unsafe"))
