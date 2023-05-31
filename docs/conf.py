@@ -14,7 +14,6 @@ import os
 import sys
 
 from pathlib import Path
-from unittest import mock
 
 from ahriman.version import __version__
 
@@ -23,13 +22,6 @@ basedir = Path(__file__).resolve().parent.parent / "src"
 sys.path.insert(0, str(basedir))
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-
-for module in (
-        "pyalpm",
-):
-    if module in sys.modules:
-        continue
-    sys.modules[module] = mock.Mock()
 
 
 # -- Project information -----------------------------------------------------
@@ -91,6 +83,8 @@ modindex_common_prefix = ["ahriman.application.", "ahriman.core.", "ahriman.mode
 autoclass_content = "both"
 
 autodoc_member_order = "groupwise"
+
+autodoc_mock_imports = ["pyalpm"]
 
 autodoc_default_options = {
     "no-undoc-members": True,
