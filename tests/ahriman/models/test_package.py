@@ -36,6 +36,10 @@ def test_depends_build(package_ahriman: Package, package_python_schedule: Packag
         set(package_ahriman.depends_build).intersection(package.make_depends)
         for package in package_ahriman.packages.values()
     )
+    assert all(
+        set(package_ahriman.depends_build).intersection(package.check_depends)
+        for package in package_ahriman.packages.values()
+    )
 
     assert all(
         set(package_python_schedule.depends_build).intersection(package.depends)
@@ -53,7 +57,21 @@ def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
     package_gcc10 = Package.from_build(Path("local"), "x86_64")
-    assert package_gcc10.depends_build == {"glibc", "doxygen", "binutils", "git", "libmpc", "python", "zstd"}
+    assert package_gcc10.depends_build == {
+        "glibc", "zstd",  # depends
+        "doxygen", "binutils", "git", "libmpc", "python",  # make depends
+        "dejagnu", "inetutils",  # check depends
+    }
+
+
+def test_depends_check(package_ahriman: Package) -> None:
+    """
+    must return list of test dependencies
+    """
+    assert all(
+        set(package_ahriman.depends_check).intersection(package.check_depends)
+        for package in package_ahriman.packages.values()
+    )
 
 
 def test_depends_make(package_ahriman: Package) -> None:
@@ -183,16 +201,19 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
             depends=["gcc10-libs=10.3.0-2", "binutils>=2.28", "libmpc", "zstd"],
             make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
             opt_depends=[],
+            check_depends=["dejagnu", "inetutils"],
         ),
         "gcc10-libs": PackageDescription(
             depends=["glibc>=2.27"],
             make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
             opt_depends=[],
+            check_depends=["dejagnu", "inetutils"],
         ),
         "gcc10-fortran": PackageDescription(
             depends=["gcc10=10.3.0-2"],
             make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
             opt_depends=[],
+            check_depends=["dejagnu", "inetutils"],
         ),
     }
 

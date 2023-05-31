@@ -52,6 +52,7 @@ class AURPackage:
         depends(list[str]): list of package dependencies
         make_depends(l[str]): list of package make dependencies
         opt_depends(list[str]): list of package optional dependencies
+        check_depends(list[str]): list of package test dependencies
         conflicts(list[str]): conflicts list for the package
         provides(list[str]): list of packages which this package provides
         license(list[str]): list of package licenses
@@ -94,6 +95,7 @@ class AURPackage:
     depends: list[str] = field(default_factory=list)
     make_depends: list[str] = field(default_factory=list)
     opt_depends: list[str] = field(default_factory=list)
+    check_depends: list[str] = field(default_factory=list)
     conflicts: list[str] = field(default_factory=list)
     provides: list[str] = field(default_factory=list)
     license: list[str] = field(default_factory=list)
@@ -146,6 +148,7 @@ class AURPackage:
             depends=package.depends,
             make_depends=package.makedepends,
             opt_depends=package.optdepends,
+            check_depends=package.checkdepends,
             conflicts=package.conflicts,
             provides=package.provides,
             license=package.licenses,
@@ -185,6 +188,7 @@ class AURPackage:
             depends=dump["depends"],
             make_depends=dump["makedepends"],
             opt_depends=dump["optdepends"],
+            check_depends=dump["checkdepends"],
             conflicts=dump["conflicts"],
             provides=dump["provides"],
             license=dump["licenses"],
