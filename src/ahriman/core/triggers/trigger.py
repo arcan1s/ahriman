@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Callable
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
 from ahriman.core.log import LazyLogging
@@ -128,8 +130,10 @@ class Trigger(LazyLogging):
             result(Result): build result
             packages(list[Package]): list of all available packages
         """
-        if (run := getattr(self, "run", None)) is not None:
-            run(result, packages)  # compatibility with old triggers
+        # compatibility with old triggers
+        run: Callable[[Result, list[Package]], None] | None = getattr(self, "run", None)
+        if run is not None:
+            run(result, packages)
 
     def on_start(self) -> None:
         """
