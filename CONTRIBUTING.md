@@ -34,7 +34,7 @@ Again, the most checks can be performed by `make check` command, though some add
         do foo. With very very very long
         docstring
   
-        Note:
+        Notes:
             Very important note about this function
   
         Args:

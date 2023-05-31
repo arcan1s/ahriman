@@ -5,6 +5,7 @@ pkgbase = ahriman
 	url = https://github.com/arcan1s/ahriman
 	arch = any
 	license = GPL3
+	checkdepends = python-pytest
 	makedepends = python-build
 	makedepends = python-installer
 	makedepends = python-wheel

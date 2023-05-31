@@ -60,6 +60,14 @@ ahriman.core.database.migrations.m006\_packages\_architecture\_required module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m007\_check\_depends module
+------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m007_check_depends
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

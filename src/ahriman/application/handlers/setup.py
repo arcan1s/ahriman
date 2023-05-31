@@ -136,7 +136,7 @@ class Setup(Handler):
         """
         create configuration for devtools based on ``source`` configuration
 
-        Note:
+        Notes:
             devtools does not allow to specify the pacman configuration, thus we still have to use configuration in /usr
 
         Args:

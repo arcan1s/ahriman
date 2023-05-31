@@ -35,6 +35,7 @@ class PackageDescription:
         architecture(str | None): package architecture
         archive_size(int | None): package archive size
         build_date(int | None): package build date
+        check_depends(list[str]): package dependencies list used for check functions
         depends(list[str]): package dependencies list
         opt_depends(list[str]): optional package dependencies list
         make_depends(list[str]): package dependencies list used for building
@@ -70,6 +71,7 @@ class PackageDescription:
     depends: list[str] = field(default_factory=list)
     make_depends: list[str] = field(default_factory=list)
     opt_depends: list[str] = field(default_factory=list)
+    check_depends: list[str] = field(default_factory=list)
     description: str | None = None
     filename: str | None = None
     groups: list[str] = field(default_factory=list)
@@ -85,6 +87,7 @@ class PackageDescription:
         self.depends = [trim_package(package) for package in self.depends]
         self.opt_depends = [trim_package(package) for package in self.opt_depends]
         self.make_depends = [trim_package(package) for package in self.make_depends]
+        self.check_depends = [trim_package(package) for package in self.check_depends]
 
     @property
     def filepath(self) -> Path | None:
@@ -111,6 +114,7 @@ class PackageDescription:
             depends=package.depends,
             make_depends=package.make_depends,
             opt_depends=package.opt_depends,
+            check_depends=package.check_depends,
             description=package.description,
             licenses=package.license,
             provides=package.provides,
@@ -151,6 +155,7 @@ class PackageDescription:
             depends=package.depends,
             make_depends=package.makedepends,
             opt_depends=package.optdepends,
+            check_depends=package.checkdepends,
             description=package.desc,
             filename=path.name,
             groups=package.groups,

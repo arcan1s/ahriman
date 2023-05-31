@@ -74,7 +74,7 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
 
     package_mock = mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda p, _: packages[p])
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages",
-                                 return_value=["devtools", "python-build"])
+                                 return_value=["devtools", "python-build", "python-pytest"])
 
     result = application.with_dependencies([package_ahriman], process_dependencies=True)
     assert {package.base: package for package in result} == packages

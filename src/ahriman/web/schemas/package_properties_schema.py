@@ -49,6 +49,10 @@ class PackagePropertiesSchema(Schema):
         "description": "Package optional dependencies list",
         "example": ["python-aiohttp"],
     })
+    check_depends = fields.List(fields.String(), metadata={
+        "description": "Package test dependencies list",
+        "example": ["python-pytest"],
+    })
     description = fields.String(metadata={
         "description": "Package description",
         "example": "ArcH linux ReposItory MANager",

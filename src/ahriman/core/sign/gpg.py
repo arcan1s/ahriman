@@ -220,7 +220,7 @@ class GPG(LazyLogging):
         """
         sign repository if required by configuration
 
-        Note:
+        Notes:
             More likely you just want to pass ``repository_sign_args`` to repo wrapper
 
         Args:

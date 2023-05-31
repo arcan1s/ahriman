@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import copy
 
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore[import]
@@ -88,7 +88,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: sum of dependencies per each package
         """
-        return sorted(set(sum((package.depends for package in self.packages.values()), start=[])))
+        return self._package_list_property(lambda package: package.depends)
 
     @property
     def depends_build(self) -> set[str]:
@@ -98,7 +98,17 @@ class Package(LazyLogging):
         Returns:
             set[str]: full dependencies list used by devtools
         """
-        return (set(self.depends) | set(self.depends_make)).difference(self.packages_full)
+        return (set(self.depends) | set(self.depends_make) | set(self.depends_check)).difference(self.packages_full)
+
+    @property
+    def depends_check(self) -> list[str]:
+        """
+        get package test dependencies
+
+        Returns:
+            list[str]: sum of test dependencies per each package
+        """
+        return self._package_list_property(lambda package: package.check_depends)
 
     @property
     def depends_make(self) -> list[str]:
@@ -108,7 +118,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: sum of make dependencies per each package
         """
-        return sorted(set(sum((package.make_depends for package in self.packages.values()), start=[])))
+        return self._package_list_property(lambda package: package.make_depends)
 
     @property
     def depends_opt(self) -> list[str]:
@@ -118,7 +128,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: sum of optional dependencies per each package
         """
-        return sorted(set(sum((package.opt_depends for package in self.packages.values()), start=[])))
+        return self._package_list_property(lambda package: package.opt_depends)
 
     @property
     def groups(self) -> list[str]:
@@ -128,7 +138,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: sum of groups per each package
         """
-        return sorted(set(sum((package.groups for package in self.packages.values()), start=[])))
+        return self._package_list_property(lambda package: package.groups)
 
     @property
     def is_single_package(self) -> bool:
@@ -163,7 +173,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: sum of licenses per each package
         """
-        return sorted(set(sum((package.licenses for package in self.packages.values()), start=[])))
+        return self._package_list_property(lambda package: package.licenses)
 
     @property
     def packages_full(self) -> list[str]:
@@ -241,6 +251,7 @@ class Package(LazyLogging):
                 depends=srcinfo_property_list("depends", srcinfo, properties, architecture=architecture),
                 make_depends=srcinfo_property_list("makedepends", srcinfo, properties, architecture=architecture),
                 opt_depends=srcinfo_property_list("optdepends", srcinfo, properties, architecture=architecture),
+                check_depends=srcinfo_property_list("checkdepends", srcinfo, properties, architecture=architecture),
             )
             for package, properties in srcinfo["packages"].items()
         }
@@ -350,6 +361,26 @@ class Package(LazyLogging):
         if errors:
             raise PackageInfoError(errors)
         return set(srcinfo.get("arch", []))
+
+    def _package_list_property(self, extractor: Callable[[PackageDescription], list[str]]) -> list[str]:
+        """
+        extract list property from single packages and combine them into one list
+
+        Notes:
+            Basically this method is generic for type of ``list[T]``, but there is no trait ``Comparable`` in default
+        packages, thus we limit this method only to new types
+
+        Args:
+            extractor(Callable[[PackageDescription], list[str]): package property extractor
+
+        Returns:
+            list[str]: combined list of unique entries in properties list
+        """
+        def generator() -> Generator[str, None, None]:
+            for package in self.packages.values():
+                yield from extractor(package)
+
+        return sorted(set(generator()))
 
     def actual_version(self, paths: RepositoryPaths) -> str:
         """

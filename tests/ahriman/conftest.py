@@ -146,6 +146,9 @@ def aur_package_ahriman() -> AURPackage:
             "rsync",
             "subversion",
         ],
+        check_depends=[
+            "python-pytest",
+        ],
         conflicts=[],
         provides=[],
         license=["GPL3"],
@@ -334,6 +337,9 @@ def package_description_ahriman() -> PackageDescription:
             "python-jinja",
             "rsync",
             "subversion",
+        ],
+        check_depends=[
+            "python-pytest",
         ],
         description="ArcH linux ReposItory MANager",
         filename="ahriman-2.6.0-1-any.pkg.tar.zst",

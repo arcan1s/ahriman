@@ -113,17 +113,17 @@ class PackageOperations(Operations):
             (package, package_base, architecture, archive_size,
             build_date, depends, description, filename,
             "groups", installed_size, licenses, provides,
-            url, make_depends, opt_depends)
+            url, make_depends, opt_depends, check_depends)
             values
             (:package, :package_base, :architecture, :archive_size,
             :build_date, :depends, :description, :filename,
             :groups, :installed_size, :licenses, :provides,
-            :url, :make_depends, :opt_depends)
+            :url, :make_depends, :opt_depends, :check_depends)
             on conflict (package, architecture) do update set
             package_base = :package_base, archive_size = :archive_size,
             build_date = :build_date, depends = :depends, description = :description, filename = :filename,
             "groups" = :groups, installed_size = :installed_size, licenses = :licenses, provides = :provides,
-            url = :url, make_depends = :make_depends, opt_depends = :opt_depends
+            url = :url, make_depends = :make_depends, opt_depends = :opt_depends, check_depends = :check_depends
             """,
             package_list)
 
