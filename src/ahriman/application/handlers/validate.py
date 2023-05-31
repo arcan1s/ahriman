@@ -80,7 +80,7 @@ class Validate(Handler):
         loader = TriggerLoader()
         triggers = loader.selected_triggers(configuration) + loader.known_triggers(configuration)
 
-        for trigger in triggers:
+        for trigger in set(triggers):
             try:
                 trigger_class = loader.load_trigger_class(trigger)
             except ExtensionError:

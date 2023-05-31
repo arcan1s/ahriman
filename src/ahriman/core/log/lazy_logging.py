@@ -21,18 +21,24 @@ import contextlib
 import logging
 
 from collections.abc import Generator
+from functools import cached_property
 from typing import Any
 
 
 class LazyLogging:
     """
     wrapper for the logger library inspired by scala lazy logging module
-
-    Attributes:
-        logger(logging.Logger): class logger instance
     """
 
-    logger: logging.Logger
+    @cached_property
+    def logger(self) -> logging.Logger:
+        """
+        get class logger instance
+
+        Returns:
+            logging.Logger: class logger instance
+        """
+        return logging.getLogger(self.logger_name)
 
     @property
     def logger_name(self) -> str:
@@ -89,22 +95,3 @@ class LazyLogging:
             yield
         finally:
             self._package_logger_reset()
-
-    def __getattr__(self, item: str) -> Any:
-        """
-        logger extractor
-
-        Args:
-            item(str): property name
-
-        Returns:
-            Any: attribute by its name
-
-        Raises:
-            AttributeError: in case if no such attribute found
-        """
-        if item == "logger":
-            logger = logging.getLogger(self.logger_name)
-            setattr(self, item, logger)
-            return logger
-        raise AttributeError(f"'{self.__class__.__qualname__}' object has no attribute '{item}'")

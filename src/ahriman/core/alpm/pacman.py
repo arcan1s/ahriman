@@ -20,9 +20,9 @@
 import shutil
 
 from collections.abc import Callable, Generator
+from functools import cached_property
 from pathlib import Path
 from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import]
-from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
@@ -34,12 +34,7 @@ from ahriman.models.repository_paths import RepositoryPaths
 class Pacman(LazyLogging):
     """
     alpm wrapper
-
-    Attributes:
-        handle(Handle): pyalpm root ``Handle``
     """
-
-    handle: Handle
 
     def __init__(self, architecture: str, configuration: Configuration, *,
                  refresh_database: PacmanSynchronization) -> None:
@@ -83,6 +78,16 @@ class Pacman(LazyLogging):
             self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
 
         return handle
+
+    @cached_property
+    def handle(self) -> Handle:
+        """
+        pyalpm handle
+
+        Returns:
+            Handle: generated pyalpm handle instance
+        """
+        return self.__create_handle_fn()
 
     def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
                       use_ahriman_cache: bool) -> None:
@@ -184,22 +189,3 @@ class Pacman(LazyLogging):
                 result.update(trim_package(provides) for provides in package.provides)
 
         return result
-
-    def __getattr__(self, item: str) -> Any:
-        """
-        pacman handle extractor
-
-        Args:
-            item(str): property name
-
-        Returns:
-            Any: attribute by its name
-
-        Raises:
-            AttributeError: in case if no such attribute found
-        """
-        if item == "handle":
-            handle = self.__create_handle_fn()
-            setattr(self, item, handle)
-            return handle
-        return super().__getattr__(item)  # required for logging attribute

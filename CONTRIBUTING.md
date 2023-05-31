@@ -102,6 +102,9 @@ Again, the most checks can be performed by `make check` command, though some add
 
         @property
         def property(self) -> Any: ...
+  
+        @cached_property
+        def property_cached(self) -> Any: ...  # cached property has to be treated as normal one
 
         @classmethod
         def class_method(cls) -> Self: ...
