@@ -1,7 +1,9 @@
 import datetime
 import pytest
 
+from typing import Any
 from unittest.mock import MagicMock, PropertyMock
+from pytest_mock import MockerFixture
 
 from ahriman import __version__
 from ahriman.core.alpm.remote import AUR
@@ -10,9 +12,11 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
+from ahriman.models.package_archive import PackageArchive
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 @pytest.fixture
@@ -58,6 +62,25 @@ def internal_status(counters: Counters) -> InternalStatus:
                           packages=counters,
                           version=__version__,
                           repository="aur-clone")
+
+
+@pytest.fixture
+def package_archive_ahriman(package_ahriman: Package, repository_paths: RepositoryPaths,
+                            passwd: Any, mocker: MockerFixture) -> PackageArchive:
+    """
+    package archive fixture
+
+    Args:
+        package_ahriman(Package): package test instance
+        repository_paths(RepositoryPaths): repository paths test instance
+        passwd(Any): passwd structure test instance
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        PackageArchive: package archive test instance
+    """
+    mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
+    return PackageArchive(repository_paths.build_directory, package_ahriman)
 
 
 @pytest.fixture

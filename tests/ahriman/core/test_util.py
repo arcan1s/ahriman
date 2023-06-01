@@ -480,6 +480,7 @@ def test_walk(resource_path_root: Path) -> None:
     """
     expected = sorted([
         resource_path_root / "core" / "ahriman.ini",
+        resource_path_root / "core" / "arcanisrepo.files.tar.gz",
         resource_path_root / "core" / "logging.ini",
         resource_path_root / "models" / "aur_error",
         resource_path_root / "models" / "big_file_checksum",
@@ -487,6 +488,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "official_error",
         resource_path_root / "models" / "package_ahriman_aur",
         resource_path_root / "models" / "package_akonadi_aur",
+        resource_path_root / "models" / "package_ahriman_files",
         resource_path_root / "models" / "package_ahriman_srcinfo",
         resource_path_root / "models" / "package_gcc10_srcinfo",
         resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo",

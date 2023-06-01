@@ -89,7 +89,8 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
 
     _, repository_id = configuration.check_loaded()
     Add.run(args, repository_id, configuration, report=False)
-    updates_mock.assert_called_once_with(args.package, aur=False, local=False, manual=True, vcs=False)
+    updates_mock.assert_called_once_with(args.package,
+                                         aur=False, local=False, manual=True, vcs=False, check_files=False)
     application_mock.assert_called_once_with([package_ahriman],
                                              Packagers(args.username, {package_ahriman.base: "packager"}),
                                              bump_pkgrel=args.increment)

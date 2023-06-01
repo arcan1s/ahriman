@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2024\-02\-09" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2024\-02\-10" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -447,7 +447,9 @@ backup repository settings and database
 path of the output archive
 
 .SH COMMAND \fI\,'ahriman repo\-check'\/\fR
-usage: ahriman repo\-check [\-h] [\-\-changes | \-\-no\-changes] [\-e] [\-\-vcs | \-\-no\-vcs] [\-y] [package ...]
+usage: ahriman repo\-check [\-h] [\-\-changes | \-\-no\-changes] [\-\-check\-files | \-\-no\-check\-files] [\-e] [\-\-vcs | \-\-no\-vcs]
+                          [\-y]
+                          [package ...]
 
 check for packages updates. Same as repo\-update \-\-dry\-run \-\-no\-manual
 
@@ -459,6 +461,10 @@ filter check by package base
 .TP
 \fB\-\-changes\fR, \fB\-\-no\-changes\fR
 calculate changes from the latest known commit if available. Only applicable in dry run mode
+
+.TP
+\fB\-\-check\-files\fR, \fB\-\-no\-check\-files\fR
+enable or disable checking of broken dependencies (e.g. dynamically linked libraries or modules directories)
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
@@ -484,9 +490,9 @@ create package which contains list of available mirrors as set by configuration.
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
 usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes]
-                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-\-increment | \-\-no\-increment]
-                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-partitions | \-\-no\-partitions]
-                           [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
+                           [\-\-check\-files | \-\-no\-check\-files] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run]
+                           [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
+                           [\-\-partitions | \-\-no\-partitions] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
 
 start process which periodically will run update process
 
@@ -502,6 +508,10 @@ enable or disable checking for AUR updates
 .TP
 \fB\-\-changes\fR, \fB\-\-no\-changes\fR
 calculate changes from the latest known commit if available. Only applicable in dry run mode
+
+.TP
+\fB\-\-check\-files\fR, \fB\-\-no\-check\-files\fR
+enable or disable checking of broken dependencies (e.g. dynamically linked libraries or modules directories)
 
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
@@ -649,9 +659,9 @@ run triggers on empty build result as configured by settings
 instead of running all triggers as set by configuration, just process specified ones in order of mention
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
-usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes] [\-\-dependencies | \-\-no\-dependencies]
-                           [\-\-dry\-run] [\-e] [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local]
-                           [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
+usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes] [\-\-check\-files | \-\-no\-check\-files]
+                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e] [\-\-increment | \-\-no\-increment]
+                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
                            [package ...]
 
 check for packages updates and run build process if requested
@@ -668,6 +678,10 @@ enable or disable checking for AUR updates
 .TP
 \fB\-\-changes\fR, \fB\-\-no\-changes\fR
 calculate changes from the latest known commit if available. Only applicable in dry run mode
+
+.TP
+\fB\-\-check\-files\fR, \fB\-\-no\-check\-files\fR
+enable or disable checking of broken dependencies (e.g. dynamically linked libraries or modules directories)
 
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR

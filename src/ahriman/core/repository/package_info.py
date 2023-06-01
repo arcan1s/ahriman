@@ -86,14 +86,21 @@ class PackageInfo(RepositoryProperties):
 
             return Changes(last_commit_sha, changes)
 
-    def packages(self) -> list[Package]:
+    def packages(self, filter_packages: Iterable[str] | None = None) -> list[Package]:
         """
         generate list of repository packages
+
+        Args:
+            filter_packages(Iterable[str] | None, optional): filter packages list by specified only
 
         Returns:
             list[Package]: list of packages properties
         """
-        return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
+        packages = self.load_archives(filter(package_like, self.paths.repository.iterdir()))
+        if filter_packages:
+            packages = [package for package in packages if package.base in filter_packages]
+
+        return packages
 
     def packages_built(self) -> list[Path]:
         """

@@ -219,6 +219,21 @@ class PackageInfoError(RuntimeError):
         RuntimeError.__init__(self, f"There are errors during reading package information: `{details}`")
 
 
+class PacmanError(RuntimeError):
+    """
+    exception in case of pacman operation errors
+    """
+
+    def __init__(self, details: Any) -> None:
+        """
+        default constructor
+
+        Args:
+            details(Any): error details
+        """
+        RuntimeError.__init__(self, f"Could not perform operation with pacman: `{details}`")
+
+
 class PathError(ValueError):
     """
     exception which will be raised on path which is not belong to root directory
