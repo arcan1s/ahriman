@@ -116,6 +116,14 @@ ahriman.models.package\_source module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.packagers module
+-------------------------------
+
+.. automodule:: ahriman.models.packagers
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.pacman\_synchronization module
 ---------------------------------------------
 

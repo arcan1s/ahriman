@@ -65,9 +65,9 @@ class UpdateHandler(Cleaner):
 
                 try:
                     if source == PackageSource.Repository:
-                        remote = Package.from_official(local.base, self.pacman)
+                        remote = Package.from_official(local.base, self.pacman, None)
                     else:
-                        remote = Package.from_aur(local.base, self.pacman)
+                        remote = Package.from_aur(local.base, self.pacman, None)
 
                     if local.is_outdated(
                             remote, self.paths,
@@ -98,7 +98,7 @@ class UpdateHandler(Cleaner):
             with self.in_package_context(cache_dir.name):
                 try:
                     Sources.fetch(cache_dir, remote=None)
-                    remote = Package.from_build(cache_dir, self.architecture)
+                    remote = Package.from_build(cache_dir, self.architecture, None)
 
                     local = packages.get(remote.base)
                     if local is None:

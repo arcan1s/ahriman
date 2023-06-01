@@ -35,6 +35,6 @@ def test_run(package_creator: PackageCreator, database: SQLite, mocker: MockerFi
     write_mock.assert_called_once_with(local_path)
     init_mock.assert_called_once_with(local_path)
 
-    package_mock.assert_called_once_with(local_path, "x86_64")
+    package_mock.assert_called_once_with(local_path, "x86_64", None)
     database_mock.assert_called_once_with(ContextKey("database", SQLite))
     insert_mock.assert_called_once_with(package, pytest.helpers.anyvar(int))

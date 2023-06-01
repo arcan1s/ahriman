@@ -98,10 +98,10 @@ class PkgbuildGenerator:
 
     def install(self) -> str | None:
         """
-        content of the install functions
+        content of the .install functions
 
         Returns:
-            str | None: content of the install functions if any
+            str | None: content of the .install functions if any
         """
 
     def package(self) -> str:

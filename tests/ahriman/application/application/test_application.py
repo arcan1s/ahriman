@@ -72,16 +72,16 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
         "python-installer": create_package_mock("python-installer"),
     }
 
-    package_mock = mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda p, _: packages[p])
+    package_mock = mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda *args: packages[args[0]])
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages",
-                                 return_value=["devtools", "python-build", "python-pytest"])
+                                 return_value={"devtools", "python-build", "python-pytest"})
 
     result = application.with_dependencies([package_ahriman], process_dependencies=True)
     assert {package.base: package for package in result} == packages
     package_mock.assert_has_calls([
-        MockCall(package_python_schedule.base, application.repository.pacman),
-        MockCall("python", application.repository.pacman),
-        MockCall("python-installer", application.repository.pacman),
+        MockCall(package_python_schedule.base, application.repository.pacman, package_ahriman.packager),
+        MockCall("python", application.repository.pacman, package_ahriman.packager),
+        MockCall("python-installer", application.repository.pacman, package_ahriman.packager),
     ], any_order=True)
     packages_mock.assert_called_once_with()
 

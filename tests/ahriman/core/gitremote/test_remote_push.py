@@ -32,7 +32,7 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_get", return_value=[patch1, patch2])
     patches_write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
-    runner = RemotePush(configuration, database, "gitremote")
+    runner = RemotePush(database, configuration, "gitremote")
 
     assert runner.package_update(package_ahriman, local) == package_ahriman.base
     glob_mock.assert_called_once_with(".git*")
@@ -56,7 +56,7 @@ def test_packages_update(database: SQLite, configuration: Configuration, result:
     """
     update_mock = mocker.patch("ahriman.core.gitremote.remote_push.RemotePush.package_update",
                                return_value=[package_ahriman.base])
-    runner = RemotePush(configuration, database, "gitremote")
+    runner = RemotePush(database, configuration, "gitremote")
 
     local = Path("local")
     assert list(runner.packages_update(result, local))
@@ -71,7 +71,7 @@ def test_run(database: SQLite, configuration: Configuration, result: Result, pac
     mocker.patch("ahriman.core.gitremote.remote_push.RemotePush.packages_update", return_value=[package_ahriman.base])
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     push_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.push")
-    runner = RemotePush(configuration, database, "gitremote")
+    runner = RemotePush(database, configuration, "gitremote")
 
     runner.run(result)
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), runner.remote_source)
@@ -85,7 +85,7 @@ def test_run_failed(database: SQLite, configuration: Configuration, result: Resu
     must reraise exception on error occurred
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
-    runner = RemotePush(configuration, database, "gitremote")
+    runner = RemotePush(database, configuration, "gitremote")
 
     with pytest.raises(GitRemoteError):
         runner.run(result)

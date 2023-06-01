@@ -74,7 +74,7 @@ def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Pack
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
 
     assert update_handler.updates_aur([package_ahriman.base], vcs=True) == [package_ahriman]
-    package_load_mock.assert_called_once_with(package_ahriman.base, update_handler.pacman)
+    package_load_mock.assert_called_once_with(package_ahriman.base, update_handler.pacman, None)
 
 
 def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Package,
@@ -120,7 +120,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
 
     assert update_handler.updates_local(vcs=True) == [package_ahriman]
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), remote=None)
-    package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64")
+    package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64", None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.paths,

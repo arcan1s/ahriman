@@ -78,7 +78,7 @@ class Spawn(Thread, LazyLogging):
         result = callback(args, architecture)
         queue.put((process_id, result))
 
-    def _spawn_process(self, command: str, *args: str, **kwargs: str) -> None:
+    def _spawn_process(self, command: str, *args: str, **kwargs: str | None) -> None:
         """
         spawn external ahriman process with supplied arguments
 
@@ -94,6 +94,8 @@ class Spawn(Thread, LazyLogging):
         arguments.extend(args)
         # named command arguments
         for argument, value in kwargs.items():
+            if value is None:
+                continue  # skip null values
             arguments.append(f"--{argument}")
             if value:
                 arguments.append(value)
@@ -122,27 +124,31 @@ class Spawn(Thread, LazyLogging):
         kwargs = {} if server is None else {"key-server": server}
         self._spawn_process("service-key-import", key, **kwargs)
 
-    def packages_add(self, packages: Iterable[str], *, now: bool) -> None:
+    def packages_add(self, packages: Iterable[str], username: str | None, *, now: bool) -> None:
         """
         add packages
 
         Args:
             packages(Iterable[str]): packages list to add
+            username(str | None): optional override of username for build process
             now(bool): build packages now
         """
-        kwargs = {"source": PackageSource.AUR.value}  # avoid abusing by building non-aur packages
+        # avoid abusing by building non-aur packages
+        kwargs = {"source": PackageSource.AUR.value, "username": username}
         if now:
             kwargs["now"] = ""
         self._spawn_process("package-add", *packages, **kwargs)
 
-    def packages_rebuild(self, depends_on: str) -> None:
+    def packages_rebuild(self, depends_on: str, username: str | None) -> None:
         """
         rebuild packages which depend on the specified package
 
         Args:
             depends_on(str): packages dependency
+            username(str | None): optional override of username for build process
         """
-        self._spawn_process("repo-rebuild", **{"depends-on": depends_on})
+        kwargs = {"depends-on": depends_on, "username": username}
+        self._spawn_process("repo-rebuild", **kwargs)
 
     def packages_remove(self, packages: Iterable[str]) -> None:
         """
@@ -153,11 +159,15 @@ class Spawn(Thread, LazyLogging):
         """
         self._spawn_process("package-remove", *packages)
 
-    def packages_update(self) -> None:
+    def packages_update(self, username: str | None) -> None:
         """
         run full repository update
+
+        Args:
+            username(str | None): optional override of username for build process
         """
-        self._spawn_process("repo-update")
+        kwargs = {"username": username}
+        self._spawn_process("repo-update", **kwargs)
 
     def run(self) -> None:
         """

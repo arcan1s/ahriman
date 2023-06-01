@@ -43,7 +43,7 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
     update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
 
-    application_packages._add_aur(package_ahriman.base)
+    application_packages._add_aur(package_ahriman.base, "packager")
     build_queue_mock.assert_called_once_with(package_ahriman)
     update_remote_mock.assert_called_once_with(package_ahriman)
 
@@ -83,7 +83,7 @@ def test_add_local(application_packages: ApplicationPackages, package_ahriman: P
     copytree_mock = mocker.patch("shutil.copytree")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
 
-    application_packages._add_local(package_ahriman.base)
+    application_packages._add_local(package_ahriman.base, "packager")
     is_dir_mock.assert_called_once_with()
     copytree_mock.assert_called_once_with(
         Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base))
@@ -103,7 +103,7 @@ def test_add_local_cache(application_packages: ApplicationPackages, package_ahri
     copytree_mock = mocker.patch("shutil.copytree")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
 
-    application_packages._add_local(package_ahriman.base)
+    application_packages._add_local(package_ahriman.base, "packager")
     copytree_mock.assert_not_called()
     init_mock.assert_not_called()
     build_queue_mock.assert_called_once_with(package_ahriman)
@@ -115,7 +115,7 @@ def test_add_local_missing(application_packages: ApplicationPackages, mocker: Mo
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     with pytest.raises(UnknownPackageError):
-        application_packages._add_local("package")
+        application_packages._add_local("package", "packager")
 
 
 def test_add_remote(application_packages: ApplicationPackages, package_description_ahriman: PackageDescription,
@@ -153,7 +153,7 @@ def test_add_repository(application_packages: ApplicationPackages, package_ahrim
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
     update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
 
-    application_packages._add_repository(package_ahriman.base)
+    application_packages._add_repository(package_ahriman.base, "packager")
     build_queue_mock.assert_called_once_with(package_ahriman)
     update_remote_mock.assert_called_once_with(package_ahriman)
 
@@ -165,8 +165,8 @@ def test_add_add_archive(application_packages: ApplicationPackages, package_ahri
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_archive")
 
-    application_packages.add([package_ahriman.base], PackageSource.Archive)
-    add_mock.assert_called_once_with(package_ahriman.base)
+    application_packages.add([package_ahriman.base], PackageSource.Archive, "packager")
+    add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
 def test_add_add_aur(application_packages: ApplicationPackages, package_ahriman: Package,
@@ -176,8 +176,8 @@ def test_add_add_aur(application_packages: ApplicationPackages, package_ahriman:
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_aur")
 
-    application_packages.add([package_ahriman.base], PackageSource.AUR)
-    add_mock.assert_called_once_with(package_ahriman.base)
+    application_packages.add([package_ahriman.base], PackageSource.AUR, "packager")
+    add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
 def test_add_add_directory(application_packages: ApplicationPackages, package_ahriman: Package,
@@ -187,8 +187,8 @@ def test_add_add_directory(application_packages: ApplicationPackages, package_ah
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_directory")
 
-    application_packages.add([package_ahriman.base], PackageSource.Directory)
-    add_mock.assert_called_once_with(package_ahriman.base)
+    application_packages.add([package_ahriman.base], PackageSource.Directory, "packager")
+    add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
 def test_add_add_local(application_packages: ApplicationPackages, package_ahriman: Package,
@@ -198,8 +198,8 @@ def test_add_add_local(application_packages: ApplicationPackages, package_ahrima
     """
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_local")
 
-    application_packages.add([package_ahriman.base], PackageSource.Local)
-    add_mock.assert_called_once_with(package_ahriman.base)
+    application_packages.add([package_ahriman.base], PackageSource.Local, "packager")
+    add_mock.assert_called_once_with(package_ahriman.base, "packager")
 
 
 def test_add_add_remote(application_packages: ApplicationPackages, package_description_ahriman: PackageDescription,
@@ -210,8 +210,8 @@ def test_add_add_remote(application_packages: ApplicationPackages, package_descr
     add_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages._add_remote")
     url = f"https://host/{package_description_ahriman.filename}"
 
-    application_packages.add([url], PackageSource.Remote)
-    add_mock.assert_called_once_with(url)
+    application_packages.add([url], PackageSource.Remote, "packager")
+    add_mock.assert_called_once_with(url, "packager")
 
 
 def test_on_result(application_packages: ApplicationPackages) -> None:

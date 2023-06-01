@@ -156,4 +156,5 @@ class Users(Handler):
         if password is None:
             password = read_password()
 
-        return User(username=args.username, password=password, access=args.role)
+        return User(username=args.username, password=password, access=args.role,
+                    packager_id=args.packager, key=args.key)

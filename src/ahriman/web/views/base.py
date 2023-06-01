@@ -183,3 +183,16 @@ class BaseView(View, CorsViewMixin):
             return response
 
         self._raise_allowed_methods()
+
+    async def username(self) -> str | None:
+        """
+        extract username from request if any
+
+        Returns:
+            str | None: authorized username if any and None otherwise (e.g. if authorization is disabled)
+        """
+        policy = self.request.app.get("identity")
+        if policy is not None:
+            identity: str = await policy.identify(self.request)
+            return identity
+        return None

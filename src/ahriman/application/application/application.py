@@ -39,7 +39,7 @@ class Application(ApplicationPackages, ApplicationRepository):
             >>> configuration = Configuration()
             >>> application = Application("x86_64", configuration, report=True, unsafe=False)
             >>> # add packages to build queue
-            >>> application.add(["ahriman"], PackageSource.AUR, without_dependencies=False)
+            >>> application.add(["ahriman"], PackageSource.AUR)
             >>>
             >>> # check for updates
             >>> updates = application.updates([], aur=True, local=True, manual=True, vcs=True, log_fn=print)
@@ -96,21 +96,25 @@ class Application(ApplicationPackages, ApplicationRepository):
         Args:
             packages(list[Package]): list of source packages of which dependencies have to be processed
             process_dependencies(bool): if no set, dependencies will not be processed
+
+        Returns:
+            list[Package]: updated packages list. Packager for dependencies will be copied from
+        original package
         """
-        def missing_dependencies(source: Iterable[Package]) -> set[str]:
-            # build initial list of dependencies
-            result = set()
-            for package in source:
-                result.update(package.depends_build)
+        def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
+            # append list of known packages with packages which are in current sources
+            satisfied_packages = known_packages | {
+                single
+                for package in source
+                for single in package.packages_full
+            }
 
-            # remove ones which are already well-known
-            result = result.difference(known_packages)
-
-            # remove ones which are in this list already
-            for package in source:
-                result = result.difference(package.packages_full)
-
-            return result
+            return {
+                dependency: package.packager
+                for package in source
+                for dependency in package.depends_build
+                if dependency not in satisfied_packages
+            }
 
         if not process_dependencies or not packages:
             return packages
@@ -119,8 +123,8 @@ class Application(ApplicationPackages, ApplicationRepository):
         with_dependencies = {package.base: package for package in packages}
 
         while missing := missing_dependencies(with_dependencies.values()):
-            for package_name in missing:
-                package = Package.from_aur(package_name, self.repository.pacman)
+            for package_name, username in missing.items():
+                package = Package.from_aur(package_name, self.repository.pacman, username)
                 with_dependencies[package.base] = package
 
         return list(with_dependencies.values())

@@ -105,5 +105,5 @@ class RemotePushTrigger(Trigger):
         for target in self.targets:
             section, _ = self.configuration.gettype(
                 target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
-            runner = RemotePush(self.configuration, database, section)
+            runner = RemotePush(database, self.configuration, section)
             runner.run(result)

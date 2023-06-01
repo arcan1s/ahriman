@@ -28,6 +28,7 @@ import requests
 import subprocess
 
 from collections.abc import Callable, Generator, Iterable
+from dataclasses import asdict
 from enum import Enum
 from pathlib import Path
 from pwd import getpwuid
@@ -40,8 +41,10 @@ from ahriman.models.repository_paths import RepositoryPaths
 __all__ = [
     "check_output",
     "check_user",
+    "dataclass_view",
     "enum_values",
     "exception_response_text",
+    "extract_user",
     "filter_json",
     "full_version",
     "package_like",
@@ -61,7 +64,8 @@ T = TypeVar("T")
 
 
 def check_output(*args: str, exception: Exception | None = None, cwd: Path | None = None, input_data: str | None = None,
-                 logger: logging.Logger | None = None, user: int | None = None) -> str:
+                 logger: logging.Logger | None = None, user: int | None = None,
+                 environment: dict[str, str] | None = None) -> str:
     """
     subprocess wrapper
 
@@ -73,6 +77,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         input_data(str | None, optional): data which will be written to command stdin (Default value = None)
         logger(logging.Logger | None, optional): logger to log command result if required (Default value = None)
         user(int | None, optional): run process as specified user (Default value = None)
+        environment(dict[str, str] | None, optional): optional environment variables if any (Default value = None)
 
     Returns:
         str: command output
@@ -106,7 +111,9 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         if logger is not None:
             logger.debug(single)
 
-    environment = {"HOME": getpwuid(user).pw_dir} if user is not None else {}
+    environment = environment or {}
+    if user is not None:
+        environment["HOME"] = getpwuid(user).pw_dir
     # FIXME additional workaround for linter and type check which do not know that user arg is supported
     # pylint: disable=unexpected-keyword-arg
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -163,6 +170,19 @@ def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
         raise UnsafeRunError(current_uid, root_uid)
 
 
+def dataclass_view(instance: Any) -> dict[str, Any]:
+    """
+    convert dataclass instance to json object
+
+    Args:
+        instance(Any): dataclass instance
+
+    Returns:
+        dict[str, Any]: json representation of the dataclass with empty field removed
+    """
+    return asdict(instance, dict_factory=lambda fields: {key: value for key, value in fields if value is not None})
+
+
 def enum_values(enum: type[Enum]) -> list[str]:
     """
     generate list of enumeration values from the source
@@ -188,6 +208,17 @@ def exception_response_text(exception: requests.exceptions.RequestException) -> 
     """
     result: str = exception.response.text if exception.response is not None else ""
     return result
+
+
+def extract_user() -> str | None:
+    """
+    extract user from system environment
+
+    Returns:
+        str | None: SUDO_USER in case if set and USER otherwise. It can return None in case if environment has been
+    cleared before application start
+    """
+    return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
 
 
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:

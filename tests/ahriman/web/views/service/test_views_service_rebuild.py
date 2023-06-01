@@ -2,6 +2,7 @@ import pytest
 
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
+from unittest.mock import AsyncMock
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.service.rebuild import RebuildView
@@ -21,13 +22,16 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     must call post request correctly
     """
     rebuild_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_rebuild")
+    user_mock = AsyncMock()
+    user_mock.return_value = "username"
+    mocker.patch("ahriman.web.views.base.BaseView.username", side_effect=user_mock)
     request_schema = pytest.helpers.schema_request(RebuildView.post)
 
     payload = {"packages": ["python", "ahriman"]}
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/rebuild", json=payload)
     assert response.ok
-    rebuild_mock.assert_called_once_with("python")
+    rebuild_mock.assert_called_once_with("python", "username")
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

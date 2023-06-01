@@ -2,6 +2,8 @@ import pytest
 
 from multidict import MultiDict
 from aiohttp.test_utils import TestClient
+from pytest_mock import MockerFixture
+from unittest.mock import AsyncMock
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -146,3 +148,22 @@ async def test_head_not_allowed(client: TestClient) -> None:
     """
     response = await client.head("/api/v1/service/add")
     assert response.status == 405
+
+
+async def test_username(base: BaseView, mocker: MockerFixture) -> None:
+    """
+    must return identity of logged-in user
+    """
+    policy = AsyncMock()
+    policy.identify.return_value = "identity"
+    mocker.patch("aiohttp.web.Application.get", return_value=policy)
+
+    assert await base.username() == "identity"
+    policy.identify.assert_called_once_with(base.request)
+
+
+async def test_username_no_auth(base: BaseView) -> None:
+    """
+    must return None in case if auth is disabled
+    """
+    assert await base.username() is None

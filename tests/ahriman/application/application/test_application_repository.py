@@ -76,9 +76,9 @@ def test_sign(application_repository: ApplicationRepository, package_ahriman: Pa
 
     application_repository.sign([])
     sign_package_mock.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(int), package_ahriman.base),
-        MockCall(pytest.helpers.anyvar(int), package_python_schedule.base),
-        MockCall(pytest.helpers.anyvar(int), package_python_schedule.base),
+        MockCall(pytest.helpers.anyvar(int), None),
+        MockCall(pytest.helpers.anyvar(int), None),
+        MockCall(pytest.helpers.anyvar(int), None),
     ])
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
     on_result_mock.assert_called_once_with(Result())
@@ -111,7 +111,7 @@ def test_sign_specific(application_repository: ApplicationRepository, package_ah
 
     filename = package_ahriman.packages[package_ahriman.base].filepath
     application_repository.sign([package_ahriman.base])
-    sign_package_mock.assert_called_once_with(filename, package_ahriman.base)
+    sign_package_mock.assert_called_once_with(filename, None)
     sign_repository_mock.assert_called_once_with(application_repository.repository.repo.repo_path)
     on_result_mock.assert_called_once_with(Result())
 
@@ -170,9 +170,9 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     on_result_mock = mocker.patch(
         "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
-    application_repository.update([package_ahriman])
-    build_mock.assert_called_once_with([package_ahriman])
-    update_mock.assert_has_calls([MockCall(paths), MockCall(paths)])
+    application_repository.update([package_ahriman], "username")
+    build_mock.assert_called_once_with([package_ahriman], "username")
+    update_mock.assert_has_calls([MockCall(paths, "username"), MockCall(paths, "username")])
     on_result_mock.assert_has_calls([MockCall(result), MockCall(result)])
 
 

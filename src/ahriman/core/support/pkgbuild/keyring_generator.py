@@ -21,6 +21,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import PkgbuildGeneratorError
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
@@ -42,11 +43,12 @@ class KeyringGenerator(PkgbuildGenerator):
         trusted(list[str]): lif of trusted PGP keys
     """
 
-    def __init__(self, sign: GPG, configuration: Configuration, section: str) -> None:
+    def __init__(self, database: SQLite, sign: GPG, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
+            database(SQLite): database instance
             sign(GPG): GPG wrapper instance
             configuration(Configuration): configuration instance
             section(str): settings section name
@@ -55,7 +57,8 @@ class KeyringGenerator(PkgbuildGenerator):
         self.name = configuration.repository_name
 
         # configuration fields
-        self.packagers = configuration.getlist(section, "packagers", fallback=sign.keys())
+        packager_keys = [packager.key for packager in database.user_list(None, None) if packager.key is not None]
+        self.packagers = configuration.getlist(section, "packagers", fallback=packager_keys)
         self.revoked = configuration.getlist(section, "revoked", fallback=[])
         self.trusted = configuration.getlist(
             section, "trusted", fallback=[sign.default_key] if sign.default_key is not None else [])
@@ -148,10 +151,10 @@ class KeyringGenerator(PkgbuildGenerator):
 
     def install(self) -> str | None:
         """
-        content of the install functions
+        content of the .install functions
 
         Returns:
-            str | None: content of the install functions if any
+            str | None: content of the .install functions if any
         """
         # copy-paste from archlinux-keyring
         return f"""post_upgrade() {{

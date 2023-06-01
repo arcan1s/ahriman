@@ -59,12 +59,13 @@ class Task(LazyLogging):
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    def build(self, sources_dir: Path) -> list[Path]:
+    def build(self, sources_dir: Path, packager: str | None = None) -> list[Path]:
         """
         run package build
 
         Args:
             sources_dir(Path): path to where sources are
+            packager(str | None, optional): optional packager override (Default value = None)
 
         Returns:
             list[Path]: paths of produced packages
@@ -75,12 +76,18 @@ class Task(LazyLogging):
         command.extend(["--"] + self.makepkg_flags)
         self.logger.info("using %s for %s", command, self.package.base)
 
+        environment: dict[str, str] = {}
+        if packager is not None:
+            environment["PACKAGER"] = packager
+        self.logger.info("using environment variables %s", environment)
+
         Task._check_output(
             *command,
             exception=BuildError(self.package.base),
             cwd=sources_dir,
             logger=self.logger,
-            user=self.uid)
+            user=self.uid,
+            environment=environment)
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output(

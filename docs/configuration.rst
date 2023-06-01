@@ -87,7 +87,6 @@ Settings for signing packages or repository. Group name can refer to architectur
 
 * ``target`` - configuration flag to enable signing, space separated list of strings, required. Allowed values are ``package`` (sign each package separately), ``repository`` (sign repository database file).
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
-* ``key_*`` settings - PGP key which will be used for specific packages, string, optional. For example, if there is ``key_yay`` option the specified key will be used for yay package and default key for others.
 
 ``web:*`` groups
 ----------------
