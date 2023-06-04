@@ -64,7 +64,7 @@ Initial setup
          .. code-block:: shell
 
             echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/ahriman-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
-            echo 'ahriman ALL=(ALL) NOPASSWD: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
+            echo 'ahriman ALL=(ALL) NOPASSWD:SETENV: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
             chmod 400 /etc/sudoers.d/ahriman
 
       This command supports several arguments, kindly refer to its help message.

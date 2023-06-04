@@ -49,7 +49,7 @@ class ServiceUpdates(Handler):
         """
         application = Application(architecture, configuration, report=report, unsafe=unsafe)
 
-        remote = Package.from_aur("ahriman", application.repository.pacman)
+        remote = Package.from_aur("ahriman", application.repository.pacman, None)
         release = remote.version.rsplit("-", 1)[-1]  # we don't store pkgrel locally, so we just append it
         local_version = f"{version.__version__}-{release}"
 

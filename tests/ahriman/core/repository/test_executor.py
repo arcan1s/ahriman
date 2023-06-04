@@ -6,6 +6,8 @@ from unittest.mock import call as MockCall
 
 from ahriman.core.repository.executor import Executor
 from ahriman.models.package import Package
+from ahriman.models.packagers import Packagers
+from ahriman.models.user import User
 
 
 def test_load_archives(executor: Executor) -> None:
@@ -33,7 +35,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_building")
 
-    executor.process_build([package_ahriman])
+    executor.process_build([package_ahriman], Packagers("packager"))
     # must move files (once)
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
@@ -157,7 +159,7 @@ def test_process_remove_unknown(executor: Executor, package_ahriman: Package, mo
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
-def test_process_update(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_process_update(executor: Executor, package_ahriman: Package, user: User, mocker: MockerFixture) -> None:
     """
     must run update process
     """
@@ -168,14 +170,16 @@ def test_process_update(executor: Executor, package_ahriman: Package, mocker: Mo
     sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_success")
     remove_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
+    packager_mock = mocker.patch("ahriman.core.repository.executor.Executor.packager", return_value=user)
     filepath = next(package.filepath for package in package_ahriman.packages.values())
 
     # must return complete
-    assert executor.process_update([filepath])
+    assert executor.process_update([filepath], Packagers("packager"))
+    packager_mock.assert_called_once_with(Packagers("packager"), "ahriman")
     # must move files (once)
     move_mock.assert_called_once_with(executor.paths.packages / filepath, executor.paths.repository / filepath)
     # must sign package
-    sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, package_ahriman.base)
+    sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, user.key)
     # must add package
     repo_add_mock.assert_called_once_with(executor.paths.repository / filepath)
     # must update status

@@ -67,6 +67,7 @@ class RequestView(BaseView):
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.spawner.packages_add(packages, now=False)
+        username = await self.username()
+        self.spawner.packages_add(packages, username, now=False)
 
         raise HTTPNoContent()

@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-05\-28" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-06\-03" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -199,13 +199,12 @@ show help message for application or command and exit
 show help message for specific command
 
 .SH COMMAND \fI\,'ahriman help\-commands\-unsafe'\/\fR
-usage: ahriman help\-commands\-unsafe [\-h] [\-\-command COMMAND]
+usage: ahriman help\-commands\-unsafe [\-h] [command ...]
 
 list unsafe commands as defined in default args
 
-.SH OPTIONS \fI\,'ahriman help\-commands\-unsafe'\/\fR
 .TP
-\fB\-\-command\fR \fI\,COMMAND\/\fR
+\fBcommand\fR
 instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1
 otherwise
 
@@ -226,7 +225,7 @@ print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
 usage: ahriman package\-add [\-h] [\-\-dependencies | \-\-no\-dependencies] [\-e] [\-n] [\-y]
-                           [\-s {auto,archive,aur,directory,local,remote,repository}]
+                           [\-s {auto,archive,aur,directory,local,remote,repository}] [\-u USERNAME]
                            package [package ...]
 
 add existing or new package to the build queue
@@ -255,6 +254,10 @@ download fresh package databases from the mirror before actions, \-yy to force r
 .TP
 \fB\-s\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR, \fB\-\-source\fR \fI\,{auto,archive,aur,directory,local,remote,repository}\/\fR
 explicitly specify the package source for this command
+
+.TP
+\fB\-u\fR \fI\,USERNAME\/\fR, \fB\-\-username\fR \fI\,USERNAME\/\fR
+build as user
 
 .SH COMMAND \fI\,'ahriman package\-remove'\/\fR
 usage: ahriman package\-remove [\-h] package [package ...]
@@ -457,7 +460,7 @@ download fresh package databases from the mirror before actions, \-yy to force r
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
 usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]
-                            [\-s {unknown,pending,building,failed,success}]
+                            [\-s {unknown,pending,building,failed,success}] [\-u USERNAME]
 
 force rebuild whole repository
 
@@ -483,6 +486,10 @@ return non\-zero exit status if result is empty
 .TP
 \fB\-s\fR \fI\,{unknown,pending,building,failed,success}\/\fR, \fB\-\-status\fR \fI\,{unknown,pending,building,failed,success}\/\fR
 filter packages by status. Requires \-\-from\-database to be set
+
+.TP
+\fB\-u\fR \fI\,USERNAME\/\fR, \fB\-\-username\fR \fI\,USERNAME\/\fR
+build as user
 
 .SH COMMAND \fI\,'ahriman repo\-remove\-unknown'\/\fR
 usage: ahriman repo\-remove\-unknown [\-h] [\-\-dry\-run]
@@ -553,7 +560,7 @@ instead of running all triggers as set by configuration, just process specified 
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
 usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e]
-                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-vcs | \-\-no\-vcs] [\-y]
+                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
                            [package ...]
 
 check for packages updates and run build process if requested
@@ -586,6 +593,10 @@ enable or disable checking of local packages for updates
 .TP
 \fB\-\-manual\fR, \fB\-\-no\-manual\fR
 include or exclude manual updates
+
+.TP
+\fB\-u\fR \fI\,USERNAME\/\fR, \fB\-\-username\fR \fI\,USERNAME\/\fR
+build as user
 
 .TP
 \fB\-\-vcs\fR, \fB\-\-no\-vcs\fR
@@ -724,7 +735,8 @@ drop into python shell while having created application
 instead of dropping into shell, just execute the specified code
 
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
-usage: ahriman user\-add [\-h] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}] [\-s] username
+usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}] [\-s]
+                        username
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
 
@@ -733,6 +745,14 @@ update user for web services with the given password and role. In case if passwo
 username for web service
 
 .SH OPTIONS \fI\,'ahriman user\-add'\/\fR
+.TP
+\fB\-\-key\fR \fI\,KEY\/\fR
+optional PGP key used by this user. The private key must be imported
+
+.TP
+\fB\-\-packager\fR \fI\,PACKAGER\/\fR
+optional packager id used for build process in form of `Name Surname <mail@example.com>`
+
 .TP
 \fB\-p\fR \fI\,PASSWORD\/\fR, \fB\-\-password\fR \fI\,PASSWORD\/\fR
 user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2

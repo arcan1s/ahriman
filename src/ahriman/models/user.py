@@ -34,12 +34,14 @@ class User:
         username(str): username
         password(str): hashed user password with salt
         access(UserAccess): user role
+        packager_id(str | None): packager id to be used. If not set, the default service packager will be used
+        key(str | None): personal packager key if any. If user id is empty, it is interpreted as default key
 
     Examples:
         Simply create user from database data and perform required validation::
 
             >>> password = User.generate_password(24)
-            >>> user = User("ahriman", password, UserAccess.Full)
+            >>> user = User(username="ahriman", password=password, access=UserAccess.Full, packager_id=None, key=None)
 
         Since the password supplied may be plain text, the ``hash_password`` method can be used to hash the password::
 
@@ -61,8 +63,17 @@ class User:
     username: str
     password: str
     access: UserAccess
+    packager_id: str | None
+    key: str | None
 
     _HASHER = sha512_crypt
+
+    def __post_init__(self) -> None:
+        """
+        remove empty fields
+        """
+        object.__setattr__(self, "packager_id", self.packager_id or None)
+        object.__setattr__(self, "key", self.key or None)
 
     @classmethod
     def from_option(cls, username: str | None, password: str | None,
@@ -80,7 +91,7 @@ class User:
         """
         if username is None or password is None:
             return None
-        return cls(username=username, password=password, access=access)
+        return cls(username=username, password=password, access=access, packager_id=None, key=None)
 
     @staticmethod
     def generate_password(length: int) -> str:
@@ -149,4 +160,4 @@ class User:
         Returns:
             str: unique string representation
         """
-        return f"User(username={self.username}, access={self.access})"
+        return f"User(username={self.username}, access={self.access}, packager_id={self.packager_id}, key={self.key})"

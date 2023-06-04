@@ -56,7 +56,7 @@ def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package_gcc10 = Package.from_build(Path("local"), "x86_64")
+    package_gcc10 = Package.from_build(Path("local"), "x86_64", None)
     assert package_gcc10.depends_build == {
         "glibc", "zstd",  # depends
         "doxygen", "binutils", "git", "libmpc", "python",  # make depends
@@ -168,10 +168,11 @@ def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, pac
     """
     mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
 
-    package = Package.from_aur(package_ahriman.base, pacman)
+    package = Package.from_aur(package_ahriman.base, pacman, package_ahriman.packager)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
+    assert package_ahriman.packager == package.packager
 
 
 def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_path_root: Path) -> None:
@@ -181,7 +182,7 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"), "x86_64")
+    package = Package.from_build(Path("path"), "x86_64", "packager")
     assert package_ahriman.packages.keys() == package.packages.keys()
     package_ahriman.packages = package.packages  # we are not going to test PackageDescription here
     package_ahriman.remote = package.remote
@@ -195,7 +196,7 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"), "x86_64")
+    package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
         "gcc10": PackageDescription(
             depends=["gcc10-libs=10.3.0-2", "binutils>=2.28", "libmpc", "zstd"],
@@ -225,7 +226,7 @@ def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path
     srcinfo = (resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo").read_text()
     mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
 
-    package = Package.from_build(Path("path"), "x86_64")
+    package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
         "jellyfin-ffmpeg5-bin": PackageDescription(
             depends=["glibc"],
@@ -254,7 +255,7 @@ def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> N
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(PackageInfoError):
-        Package.from_build(Path("path"), "x86_64")
+        Package.from_build(Path("path"), "x86_64", None)
 
 
 def test_from_json_view_1(package_ahriman: Package) -> None:
@@ -285,10 +286,11 @@ def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage
     """
     mocker.patch("ahriman.core.alpm.remote.Official.info", return_value=aur_package_ahriman)
 
-    package = Package.from_official(package_ahriman.base, pacman)
+    package = Package.from_official(package_ahriman.base, pacman, package_ahriman.packager)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
+    assert package_ahriman.packager == package.packager
 
 
 def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:

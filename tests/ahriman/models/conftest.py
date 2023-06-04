@@ -116,6 +116,7 @@ def pyalpm_package_ahriman(aur_package_ahriman: AURPackage) -> MagicMock:
     type(mock).name = PropertyMock(return_value=aur_package_ahriman.name)
     type(mock).optdepends = PropertyMock(return_value=aur_package_ahriman.opt_depends)
     type(mock).checkdepends = PropertyMock(return_value=aur_package_ahriman.check_depends)
+    type(mock).packager = PropertyMock(return_value="packager")
     type(mock).provides = PropertyMock(return_value=aur_package_ahriman.provides)
     type(mock).version = PropertyMock(return_value=aur_package_ahriman.version)
     type(mock).url = PropertyMock(return_value=aur_package_ahriman.url)

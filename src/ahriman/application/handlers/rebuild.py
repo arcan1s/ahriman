@@ -57,7 +57,7 @@ class Rebuild(Handler):
                 UpdatePrinter(package, package.version).print(verbose=True)
             return
 
-        result = application.update(updates)
+        result = application.update(updates, args.username)
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod

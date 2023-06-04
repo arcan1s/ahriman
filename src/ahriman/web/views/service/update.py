@@ -57,6 +57,7 @@ class UpdateView(BaseView):
         Raises:
             HTTPNoContent: in case of success response
         """
-        self.spawner.packages_update()
+        username = await self.username()
+        self.spawner.packages_update(username)
 
         raise HTTPNoContent()

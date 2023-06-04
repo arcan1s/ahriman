@@ -95,6 +95,7 @@ _shtab_ahriman_add_options=(
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -151,7 +152,7 @@ _shtab_ahriman_help_options=(
 
 _shtab_ahriman_help_commands_unsafe_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--command[instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise]:command:"
+  "(*)::instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise:"
 )
 
 _shtab_ahriman_help_updates_options=(
@@ -192,6 +193,7 @@ _shtab_ahriman_package_add_options=(
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -227,6 +229,7 @@ _shtab_ahriman_package_update_options=(
   {-n,--now}"[run update function after]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -263,6 +266,7 @@ _shtab_ahriman_rebuild_options=(
   "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
+  {-u,--username}"[build as user]:username:"
 )
 
 _shtab_ahriman_remove_options=(
@@ -349,6 +353,7 @@ _shtab_ahriman_repo_rebuild_options=(
   "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
+  {-u,--username}"[build as user]:username:"
 )
 
 _shtab_ahriman_repo_remove_unknown_options=(
@@ -413,6 +418,7 @@ _shtab_ahriman_repo_update_options=(
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
   {--manual,--no-manual}"[include or exclude manual updates]:manual:"
+  {-u,--username}"[build as user]:username:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   "(*)::filter check by package base:"
@@ -529,6 +535,7 @@ _shtab_ahriman_update_options=(
   {-e,--exit-code}"[return non-zero exit status if result is empty]"
   {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
   {--manual,--no-manual}"[include or exclude manual updates]:manual:"
+  {-u,--username}"[build as user]:username:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
   "(*)::filter check by package base:"
@@ -536,6 +543,8 @@ _shtab_ahriman_update_options=(
 
 _shtab_ahriman_user_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  "--key[optional PGP key used by this user. The private key must be imported]:key:"
+  "--packager[optional packager id used for build process in form of \`Name Surname \<mail\@example.com\>\`]:packager:"
   {-p,--password}"[user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2 authorization type.]:password:"
   {-r,--role}"[user access level]:role:(unauthorized read reporter full)"
   {-s,--secure}"[set file permissions to user-only]"

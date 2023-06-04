@@ -76,11 +76,12 @@ class PackageOperations(Operations):
         connection.execute(
             """
             insert into package_bases
-            (package_base, version, source, branch, git_url, path, web_url)
+            (package_base, version, source, branch, git_url, path, web_url, packager)
             values
-            (:package_base, :version, :source, :branch, :git_url, :path, :web_url)
+            (:package_base, :version, :source, :branch, :git_url, :path, :web_url, :packager)
             on conflict (package_base) do update set
-            version = :version, branch = :branch, git_url = :git_url, path = :path, web_url = :web_url, source = :source
+            version = :version, branch = :branch, git_url = :git_url, path = :path, web_url = :web_url,
+            source = :source, packager = :packager
             """,
             {
                 "package_base": package.base,
@@ -90,6 +91,7 @@ class PackageOperations(Operations):
                 "path": package.remote.path if package.remote is not None else None,
                 "web_url": package.remote.web_url if package.remote is not None else None,
                 "source": package.remote.source.value if package.remote is not None else None,
+                "packager": package.packager,
             }
         )
 
@@ -163,8 +165,9 @@ class PackageOperations(Operations):
                 base=row["package_base"],
                 version=row["version"],
                 remote=RemoteSource.from_json(row),
-                packages={})
-            for row in connection.execute("""select * from package_bases""")
+                packages={},
+                packager=row["packager"] or None,
+            ) for row in connection.execute("""select * from package_bases""")
         }
 
     @staticmethod

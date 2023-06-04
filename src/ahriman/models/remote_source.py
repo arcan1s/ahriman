@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Self
 
-from ahriman.core.util import filter_json
+from ahriman.core.util import dataclass_view, filter_json
 from ahriman.models.package_source import PackageSource
 
 
@@ -118,4 +118,4 @@ class RemoteSource:
         Returns:
             dict[str, Any]: json-friendly dictionary
         """
-        return asdict(self)
+        return dataclass_view(self)

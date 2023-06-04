@@ -24,6 +24,7 @@ from collections.abc import Callable
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.packagers import Packagers
 
 
 class Update(Handler):
@@ -54,7 +55,9 @@ class Update(Handler):
             return
 
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
-        result = application.update(packages)
+        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
+
+        result = application.update(packages, packagers)
         Update.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod

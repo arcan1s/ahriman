@@ -28,6 +28,7 @@ from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.util import safe_filename
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
@@ -63,30 +64,35 @@ class Executor(Cleaner):
         """
         raise NotImplementedError
 
-    def process_build(self, updates: Iterable[Package]) -> Result:
+    def process_build(self, updates: Iterable[Package], packagers: Packagers | None = None) -> Result:
         """
         build packages
 
         Args:
             updates(Iterable[Package]): list of packages properties to build
+            packagers(Packagers | None, optional): optional override of username for build process
+                (Default value = None)
 
         Returns:
             Result: build result
         """
-        def build_single(package: Package, local_path: Path) -> None:
+        def build_single(package: Package, local_path: Path, packager_id: str | None) -> None:
             self.reporter.set_building(package.base)
             task = Task(package, self.configuration, self.paths)
             task.init(local_path, self.database)
-            built = task.build(local_path)
+            built = task.build(local_path, packager_id)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
+
+        packagers = packagers or Packagers()
 
         result = Result()
         for single in updates:
             with self.in_package_context(single.base), TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
-                    build_single(single, Path(dir_name))
+                    packager = self.packager(packagers, single.base)
+                    build_single(single, Path(dir_name), packager.packager_id)
                     result.add_success(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
@@ -158,12 +164,14 @@ class Executor(Cleaner):
 
         return self.repo.repo_path
 
-    def process_update(self, packages: Iterable[Path]) -> Result:
+    def process_update(self, packages: Iterable[Path], packagers: Packagers | None = None) -> Result:
         """
         sign packages, add them to repository and update repository database
 
         Args:
             packages(Iterable[Path]): list of filenames to run
+            packagers(Packagers | None, optional): optional override of username for build process
+                (Default value = None)
 
         Returns:
             Result: path to repository database
@@ -176,13 +184,13 @@ class Executor(Cleaner):
                 shutil.move(self.paths.packages / archive.filename, self.paths.packages / safe)
                 archive.filename = safe
 
-        def update_single(name: str | None, package_base: str) -> None:
+        def update_single(name: str | None, package_base: str, packager_key: str | None) -> None:
             if name is None:
                 self.logger.warning("received empty package name for base %s", package_base)
                 return  # suppress type checking, it never can be none actually
             # in theory, it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / name
-            files = self.sign.process_sign_package(full_path, package_base)
+            files = self.sign.process_sign_package(full_path, packager_key)
             for src in files:
                 dst = self.paths.repository / safe_filename(src.name)
                 shutil.move(src, dst)
@@ -192,14 +200,17 @@ class Executor(Cleaner):
         current_packages = self.packages()
         removed_packages: list[str] = []  # list of packages which have been removed from the base
         updates = self.load_archives(packages)
+        packagers = packagers or Packagers()
 
         result = Result()
         for local in updates:
             with self.in_package_context(local.base):
                 try:
+                    packager = self.packager(packagers, local.base)
+
                     for description in local.packages.values():
                         rename(description, local.base)
-                        update_single(description.filename, local.base)
+                        update_single(description.filename, local.base, packager.key)
                     self.reporter.set_success(local)
                     result.add_success(local)
 

@@ -22,6 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.packagers import Packagers
 
 
 class Add(Handler):
@@ -45,12 +46,14 @@ class Add(Handler):
         application = Application(architecture, configuration,
                                   report=report, unsafe=unsafe, refresh_pacman_database=args.refresh)
         application.on_start()
-        application.add(args.package, args.source)
+        application.add(args.package, args.source, args.username)
         if not args.now:
             return
 
         packages = application.updates(args.package, aur=False, local=False, manual=True, vcs=False,
                                        log_fn=application.logger.info)
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
-        result = application.update(packages)
+        packagers = Packagers(args.username, {package.base: package.packager for package in packages})
+
+        result = application.update(packages, packagers)
         Add.check_if_empty(args.exit_code, result.is_empty)

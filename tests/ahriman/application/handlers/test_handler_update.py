@@ -9,6 +9,7 @@ from ahriman.application.handlers import Update
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
+from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
@@ -31,6 +32,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.manual = True
     args.vcs = True
     args.refresh = 0
+    args.username = "username"
     return args
 
 
@@ -51,7 +53,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Update.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_mock.assert_called_once_with([package_ahriman])
+    application_mock.assert_called_once_with([package_ahriman],
+                                             Packagers(args.username, {package_ahriman.base: "packager"}))
     updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
                                          log_fn=pytest.helpers.anyvar(int))
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)

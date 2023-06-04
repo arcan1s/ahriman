@@ -28,6 +28,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.from_database = False
     args.exit_code = False
     args.status = None
+    args.username = "username"
     return args
 
 
@@ -50,7 +51,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
     application_packages_mock.assert_called_once_with([package_ahriman], None)
-    application_mock.assert_called_once_with([package_ahriman])
+    application_mock.assert_called_once_with([package_ahriman], args.username)
     check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
 

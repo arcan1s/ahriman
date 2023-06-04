@@ -58,7 +58,7 @@ systemd-machine-id-setup &> /dev/null
 # otherwise we prepend executable by sudo command
 if [ -n "$AHRIMAN_FORCE_ROOT" ]; then
     AHRIMAN_EXECUTABLE=("ahriman")
-elif ahriman help-commands-unsafe --command="$*" &> /dev/null; then
+elif ahriman help-commands-unsafe -- "$@" &> /dev/null; then
     AHRIMAN_EXECUTABLE=("sudo" "-u" "$AHRIMAN_USER" "--" "ahriman")
 else
     AHRIMAN_EXECUTABLE=("ahriman")

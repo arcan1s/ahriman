@@ -44,13 +44,13 @@ class RemotePush(LazyLogging):
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
     """
 
-    def __init__(self, configuration: Configuration, database: SQLite, section: str) -> None:
+    def __init__(self, database: SQLite, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            configuration(Configuration): configuration instance
             database(SQLite): database instance
+            configuration(Configuration): configuration instance
             section(str): settings section name
         """
         self.database = database

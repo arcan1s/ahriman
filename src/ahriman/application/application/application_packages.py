@@ -55,15 +55,15 @@ class ApplicationPackages(ApplicationProperties):
         dst = self.repository.paths.packages / local_path.name
         shutil.copy(local_path, dst)
 
-    def _add_aur(self, source: str) -> None:
+    def _add_aur(self, source: str, username: str | None) -> None:
         """
         add package from AUR
 
         Args:
             source(str): package base name
+            username(str | None): optional override of username for build process
         """
-        package = Package.from_aur(source, self.repository.pacman)
-
+        package = Package.from_aur(source, self.repository.pacman, username)
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
@@ -81,23 +81,24 @@ class ApplicationPackages(ApplicationProperties):
         for full_path in filter(package_like, local_dir.iterdir()):
             self._add_archive(str(full_path))
 
-    def _add_local(self, source: str) -> None:
+    def _add_local(self, source: str, username: str | None) -> None:
         """
         add package from local PKGBUILDs
 
         Args:
             source(str): path to directory with local source files
+            username(str | None): optional override of username for build process
 
         Raises:
             UnknownPackageError: if specified package is unknown or doesn't exist
         """
         if (source_dir := Path(source)).is_dir():
-            package = Package.from_build(source_dir, self.architecture)
+            package = Package.from_build(source_dir, self.architecture, username)
             cache_dir = self.repository.paths.cache_for(package.base)
             shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
             Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
         elif (source_dir := self.repository.paths.cache_for(source)).is_dir():
-            package = Package.from_build(source_dir, self.architecture)
+            package = Package.from_build(source_dir, self.architecture, username)
         else:
             raise UnknownPackageError(source)
 
@@ -122,29 +123,31 @@ class ApplicationPackages(ApplicationProperties):
             for chunk in response.iter_content(chunk_size=1024):
                 local_file.write(chunk)
 
-    def _add_repository(self, source: str, *_: Any) -> None:
+    def _add_repository(self, source: str, username: str | None) -> None:
         """
         add package from official repository
 
         Args:
             source(str): package base name
+            username(str | None): optional override of username for build process
         """
-        package = Package.from_official(source, self.repository.pacman)
+        package = Package.from_official(source, self.repository.pacman, username)
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 
-    def add(self, names: Iterable[str], source: PackageSource) -> None:
+    def add(self, names: Iterable[str], source: PackageSource, username: str | None = None) -> None:
         """
         add packages for the next build
 
         Args:
             names(Iterable[str]): list of package bases to add
             source(PackageSource): package source to add
+            username(str | None, optional): optional override of username for build process (Default value = None)
         """
         for name in names:
             resolved_source = source.resolve(name)
             fn = getattr(self, f"_add_{resolved_source.value}")
-            fn(name)
+            fn(name, username)
 
     def on_result(self, result: Result) -> None:
         """

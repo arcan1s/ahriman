@@ -57,8 +57,9 @@ class AuthOperations(Operations):
 
         def run(connection: Connection) -> list[User]:
             return [
-                User(username=cursor["username"], password=cursor["password"], access=UserAccess(cursor["access"]))
-                for cursor in connection.execute(
+                User(username=row["username"], password=row["password"], access=UserAccess(row["access"]),
+                     packager_id=row["packager_id"], key=row["key_id"])
+                for row in connection.execute(
                     """
                     select * from users
                     where (:username is null or username = :username) and (:access is null or access = :access)
@@ -91,12 +92,13 @@ class AuthOperations(Operations):
             connection.execute(
                 """
                 insert into users
-                (username, access, password)
+                (username, access, password, packager_id, key_id)
                 values
-                (:username, :access, :password)
+                (:username, :access, :password, :packager_id, :key_id)
                 on conflict (username) do update set
-                access = :access, password = :password
+                access = :access, password = :password, packager_id = :packager_id, key_id = :key_id
                 """,
-                {"username": user.username.lower(), "access": user.access.value, "password": user.password})
+                {"username": user.username.lower(), "access": user.access.value, "password": user.password,
+                 "packager_id": user.packager_id, "key_id": user.key})
 
         self.with_connection(run, commit=True)

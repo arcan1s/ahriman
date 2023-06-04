@@ -27,8 +27,11 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
 from ahriman.core.util import check_user
+from ahriman.models.packagers import Packagers
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.user import User
+from ahriman.models.user_access import UserAccess
 
 
 class RepositoryProperties(LazyLogging):
@@ -83,3 +86,23 @@ class RepositoryProperties(LazyLogging):
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(configuration, report=report)
         self.triggers = TriggerLoader.load(architecture, configuration)
+
+    def packager(self, packagers: Packagers, package_base: str) -> User:
+        """
+        extract packager from configuration having username
+
+        Args:
+            packagers(Packagers): packagers override holder
+            package_base(str): package base to lookup
+
+        Returns:
+            User | None: user found in database if any and empty object otherwise
+        """
+        username = packagers.for_base(package_base)
+        if username is None:  # none to search
+            return User(username="", password="", access=UserAccess.Read, packager_id=None, key=None)  # nosec
+
+        if (user := self.database.user_get(username)) is not None:  # found user
+            return user
+        # empty user with the username
+        return User(username=username, password="", access=UserAccess.Read, packager_id=None, key=None)  # nosec

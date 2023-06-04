@@ -68,6 +68,7 @@ class RebuildView(BaseView):
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.spawner.packages_rebuild(depends_on)
+        username = await self.username()
+        self.spawner.packages_rebuild(depends_on, username)
 
         raise HTTPNoContent()

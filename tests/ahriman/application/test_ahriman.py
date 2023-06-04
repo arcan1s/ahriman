@@ -351,13 +351,14 @@ def test_subparsers_repo_backup_architecture(parser: argparse.ArgumentParser) ->
 
 def test_subparsers_repo_check(parser: argparse.ArgumentParser) -> None:
     """
-    repo-check command must imply dependencies, dry-run, aur and manual
+    repo-check command must imply dependencies, dry-run, aur, manual and username
     """
     args = parser.parse_args(["repo-check"])
     assert not args.dependencies
     assert args.dry_run
     assert args.aur
     assert not args.manual
+    assert args.username is None
 
 
 def test_subparsers_repo_check_architecture(parser: argparse.ArgumentParser) -> None:
@@ -757,14 +758,13 @@ def test_subparsers_user_add_option_role(parser: argparse.ArgumentParser) -> Non
 
 def test_subparsers_user_list(parser: argparse.ArgumentParser) -> None:
     """
-    user-list command must imply action, architecture, lock, report, password, quiet and unsafe
+    user-list command must imply action, architecture, lock, report, quiet and unsafe
     """
     args = parser.parse_args(["user-list"])
     assert args.action == Action.List
     assert args.architecture == [""]
     assert args.lock is None
     assert not args.report
-    assert args.password is not None
     assert args.quiet
     assert args.unsafe
 
@@ -787,14 +787,13 @@ def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> No
 
 def test_subparsers_user_remove(parser: argparse.ArgumentParser) -> None:
     """
-    user-remove command must imply action, architecture, lock, report, password and quiet
+    user-remove command must imply action, architecture, lock, report and quiet
     """
     args = parser.parse_args(["user-remove", "username"])
     assert args.action == Action.Remove
     assert args.architecture == [""]
     assert args.lock is None
     assert not args.report
-    assert args.password is not None
     assert args.quiet
 
 

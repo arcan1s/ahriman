@@ -19,7 +19,6 @@
 #
 import requests
 
-from collections.abc import Generator
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
@@ -165,21 +164,6 @@ class GPG(LazyLogging):
         key_body = self.key_download(server, key)
         GPG._check_output("gpg", "--import", input_data=key_body, logger=self.logger)
 
-    def keys(self) -> list[str]:
-        """
-        extract list of keys described in configuration
-
-        Returns:
-            list[str]: list of unique keys which are set in configuration
-        """
-        def generator() -> Generator[str, None, None]:
-            if self.default_key is not None:
-                yield self.default_key
-            for _, value in filter(lambda pair: pair[0].startswith("key_"), self.configuration["sign"].items()):
-                yield value
-
-        return sorted(set(generator()))
-
     def process(self, path: Path, key: str) -> list[Path]:
         """
         gpg command wrapper
@@ -197,20 +181,21 @@ class GPG(LazyLogging):
             logger=self.logger)
         return [path, path.parent / f"{path.name}.sig"]
 
-    def process_sign_package(self, path: Path, package_base: str) -> list[Path]:
+    def process_sign_package(self, path: Path, packager_key: str | None) -> list[Path]:
         """
         sign package if required by configuration
 
         Args:
             path(Path): path to file to sign
-            package_base(str): package base required to check for key overrides
+            packager_key(str | None): optional packager key to sign
 
         Returns:
             list[Path]: list of generated files including original file
         """
         if SignSettings.Packages not in self.targets:
             return [path]
-        key = self.configuration.get("sign", f"key_{package_base}", fallback=self.default_key)
+
+        key = packager_key or self.default_key
         if key is None:
             self.logger.error("no default key set, skip package %s sign", path)
             return [path]

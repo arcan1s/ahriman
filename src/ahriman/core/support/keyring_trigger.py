@@ -19,6 +19,7 @@
 #
 from ahriman.core import context
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.support.package_creator import PackageCreator
 from ahriman.core.support.pkgbuild.keyring_generator import KeyringGenerator
@@ -107,8 +108,9 @@ class KeyringTrigger(Trigger):
         """
         ctx = context.get()
         sign = ctx.get(ContextKey("sign", GPG))
+        database = ctx.get(ContextKey("database", SQLite))
 
         for target in self.targets:
-            generator = KeyringGenerator(sign, self.configuration, target)
+            generator = KeyringGenerator(database, sign, self.configuration, target)
             runner = PackageCreator(self.configuration, generator)
             runner.run()

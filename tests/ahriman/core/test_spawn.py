@@ -42,7 +42,7 @@ def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     start_mock = mocker.patch("multiprocessing.Process.start")
 
-    spawner._spawn_process("add", "ahriman", now="", maybe="?")
+    spawner._spawn_process("add", "ahriman", now="", maybe="?", none=None)
     start_mock.assert_called_once_with()
     spawner.args_parser.parse_args.assert_called_once_with(
         spawner.command_arguments + [
@@ -74,8 +74,8 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     must call package addition
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    spawner.packages_add(["ahriman", "linux"], now=False)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur")
+    spawner.packages_add(["ahriman", "linux"], None, now=False)
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username=None)
 
 
 def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -83,8 +83,17 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     must call package addition with update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    spawner.packages_add(["ahriman", "linux"], now=True)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", now="")
+    spawner.packages_add(["ahriman", "linux"], None, now=True)
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username=None, now="")
+
+
+def test_packages_add_with_username(spawner: Spawn, mocker: MockerFixture) -> None:
+    """
+    must call package addition with username
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    spawner.packages_add(["ahriman", "linux"], "username", now=False)
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username="username")
 
 
 def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -92,8 +101,8 @@ def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:
     must call package rebuild
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    spawner.packages_rebuild("python")
-    spawn_mock.assert_called_once_with("repo-rebuild", **{"depends-on": "python"})
+    spawner.packages_rebuild("python", "packager")
+    spawn_mock.assert_called_once_with("repo-rebuild", **{"depends-on": "python", "username": "packager"})
 
 
 def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -110,8 +119,8 @@ def test_packages_update(spawner: Spawn, mocker: MockerFixture) -> None:
     must call repo update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    spawner.packages_update()
-    spawn_mock.assert_called_once_with("repo-update")
+    spawner.packages_update("packager")
+    spawn_mock.assert_called_once_with("repo-update", username="packager")
 
 
 def test_run(spawner: Spawn, mocker: MockerFixture) -> None:
