@@ -98,6 +98,7 @@
                         id: package_base,
                         base: web_url ? `<a href="${safe(web_url)}" title="${safe(package_base)}">${safe(package_base)}</a>` : safe(package_base),
                         version: safe(description.package.version),
+                        packager: description.package.packager ? safe(description.package.packager) : "",
                         packages: listToTable(Object.keys(description.package.packages)),
                         groups: listToTable(extractListProperties(description.package, "groups")),
                         licenses: listToTable(extractListProperties(description.package, "licenses")),
@@ -120,8 +121,8 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    const messaga = error => { return `Could not load list of packages: ${error}`; };
-                    showFailure("Load failure", messaga, jqXHR, errorThrown);
+                    const message = error => { return `Could not load list of packages: ${error}`; };
+                    showFailure("Load failure", message, jqXHR, errorThrown);
                 }
                 hideControls(true);
             },

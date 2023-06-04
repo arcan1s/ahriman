@@ -148,7 +148,7 @@ def setup_auth(application: Application, configuration: Configuration, validator
     setup_session(application, storage)
 
     authorization_policy = _AuthorizationPolicy(validator)
-    identity_policy = aiohttp_security.SessionIdentityPolicy()
+    identity_policy = application["identity"] = aiohttp_security.SessionIdentityPolicy()
 
     aiohttp_security.setup(application, identity_policy, authorization_policy)
     application.middlewares.append(_auth_handler(validator.allow_read_only))

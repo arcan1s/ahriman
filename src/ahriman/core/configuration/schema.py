@@ -191,10 +191,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
     "sign": {
         "type": "dict",
         "allow_unknown": True,
-        "keysrules": {
-            "type": "string",
-            "anyof_regex": ["^target$", "^key$", "^key_.*"],
-        },
         "schema": {
             "target": {
                 "type": "list",

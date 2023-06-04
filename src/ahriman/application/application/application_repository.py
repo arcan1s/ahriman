@@ -25,6 +25,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.formatters import UpdatePrinter
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
+from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
@@ -83,7 +84,7 @@ class ApplicationRepository(ApplicationProperties):
                 if archive.filepath is None:
                     self.logger.warning("filepath is empty for %s", package.base)
                     continue  # avoid mypy warning
-                self.repository.sign.process_sign_package(archive.filepath, package.base)
+                self.repository.sign.process_sign_package(archive.filepath, None)
         # sign repository database if set
         self.repository.sign.process_sign_repository(self.repository.repo.repo_path)
         # process triggers
@@ -104,14 +105,14 @@ class ApplicationRepository(ApplicationProperties):
             packages: list[str] = []
             for single in probe.packages:
                 try:
-                    _ = Package.from_aur(single, self.repository.pacman)
+                    _ = Package.from_aur(single, self.repository.pacman, None)
                 except Exception:
                     packages.append(single)
             return packages
 
         def unknown_local(probe: Package) -> list[str]:
             cache_dir = self.repository.paths.cache_for(probe.base)
-            local = Package.from_build(cache_dir, self.architecture)
+            local = Package.from_build(cache_dir, self.architecture, None)
             packages = set(probe.packages.keys()).difference(local.packages.keys())
             return list(packages)
 
@@ -123,12 +124,14 @@ class ApplicationRepository(ApplicationProperties):
                 result.extend(unknown_aur(package))  # local package not found
         return result
 
-    def update(self, updates: Iterable[Package]) -> Result:
+    def update(self, updates: Iterable[Package], packagers: Packagers | None = None) -> Result:
         """
         run package updates
 
         Args:
             updates(Iterable[Package]): list of packages to update
+            packagers(Packagers | None, optional): optional override of username for build process
+                (Default value = None)
 
         Returns:
             Result: update result
@@ -136,7 +139,7 @@ class ApplicationRepository(ApplicationProperties):
         def process_update(paths: Iterable[Path], result: Result) -> None:
             if not paths:
                 return  # don't need to process if no update supplied
-            update_result = self.repository.process_update(paths)
+            update_result = self.repository.process_update(paths, packagers)
             self.on_result(result.merge(update_result))
 
         # process built packages
@@ -148,7 +151,7 @@ class ApplicationRepository(ApplicationProperties):
         tree = Tree.resolve(updates)
         for num, level in enumerate(tree):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
-            build_result = self.repository.process_build(level)
+            build_result = self.repository.process_build(level, packagers)
             packages = self.repository.packages_built()
             process_update(packages, build_result)
 

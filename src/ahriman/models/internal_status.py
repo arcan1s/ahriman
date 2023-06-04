@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any, Self
 
+from ahriman.core.util import dataclass_view
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
 
@@ -69,4 +70,4 @@ class InternalStatus:
         Returns:
             dict[str, Any]: json-friendly dictionary
         """
-        return asdict(self)
+        return dataclass_view(self)

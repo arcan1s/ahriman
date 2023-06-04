@@ -19,7 +19,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.parser = _parser
-    args.command = None
+    args.command = []
     return args
 
 
@@ -42,14 +42,14 @@ def test_run_check(args: argparse.Namespace, configuration: Configuration, mocke
     must run command and check if command is unsafe
     """
     args = _default_args(args)
-    args.command = "clean"
+    args.command = ["clean"]
     commands_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.get_unsafe_commands",
                                  return_value=["command"])
     check_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.check_unsafe")
 
     UnsafeCommands.run(args, "x86_64", configuration, report=False, unsafe=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-    check_mock.assert_called_once_with("clean", ["command"], pytest.helpers.anyvar(int))
+    check_mock.assert_called_once_with(["clean"], ["command"], pytest.helpers.anyvar(int))
 
 
 def test_check_unsafe(mocker: MockerFixture) -> None:
@@ -57,7 +57,7 @@ def test_check_unsafe(mocker: MockerFixture) -> None:
     must check if command is unsafe
     """
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
-    UnsafeCommands.check_unsafe("service-clean", ["service-clean"], _parser())
+    UnsafeCommands.check_unsafe(["service-clean"], ["service-clean"], _parser())
     check_mock.assert_called_once_with(True, True)
 
 
@@ -66,7 +66,7 @@ def test_check_unsafe_safe(mocker: MockerFixture) -> None:
     must check if command is safe
     """
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
-    UnsafeCommands.check_unsafe("package-status", ["service-clean"], _parser())
+    UnsafeCommands.check_unsafe(["package-status"], ["service-clean"], _parser())
     check_mock.assert_called_once_with(True, False)
 
 

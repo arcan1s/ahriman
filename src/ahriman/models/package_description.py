@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from pyalpm import Package  # type: ignore[import]
 from typing import Any, Self
 
-from ahriman.core.util import filter_json, trim_package
+from ahriman.core.util import dataclass_view, filter_json, trim_package
 from ahriman.models.aur_package import AURPackage
 
 
@@ -172,4 +172,4 @@ class PackageDescription:
         Returns:
             dict[str, Any]: json-friendly dictionary
         """
-        return asdict(self)
+        return dataclass_view(self)

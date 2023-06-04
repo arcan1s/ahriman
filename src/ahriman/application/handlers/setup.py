@@ -213,7 +213,7 @@ class Setup(Handler):
         """
         command = Setup.build_command(paths.root, prefix, architecture)
         sudoers_file = Setup.build_command(Setup.SUDOERS_DIR_PATH, prefix, architecture)
-        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD: {command} *\n", encoding="utf8")
+        sudoers_file.write_text(f"ahriman ALL=(ALL) NOPASSWD:SETENV: {command} *\n", encoding="utf8")
         sudoers_file.chmod(0o400)  # security!
 
     @staticmethod

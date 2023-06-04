@@ -109,7 +109,7 @@ def test_patch_create_from_diff(package_ahriman: Package, mocker: MockerFixture)
     sources_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create", return_value=patch.value)
 
     assert Patch.patch_create_from_diff(path, "x86_64", ["*.diff"]) == (package_ahriman.base, patch)
-    package_mock.assert_called_once_with(path, "x86_64")
+    package_mock.assert_called_once_with(path, "x86_64", None)
     sources_mock.assert_called_once_with(path, "*.diff")
 
 

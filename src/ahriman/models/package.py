@@ -23,7 +23,7 @@ from __future__ import annotations
 import copy
 
 from collections.abc import Callable, Generator, Iterable
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore[import]
 from srcinfo.parse import parse_srcinfo  # type: ignore[import]
@@ -34,7 +34,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, full_version, srcinfo_property_list, utcnow
+from ahriman.core.util import check_output, dataclass_view, full_version, srcinfo_property_list, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -48,6 +48,7 @@ class Package(LazyLogging):
 
     Attributes:
         base(str): package base name
+        packager(str | None): package packager if available
         packages(dict[str, PackageDescription): map of package names to their properties.
             Filled only on load from archive
         remote(RemoteSource | None): package remote source if applicable
@@ -77,6 +78,7 @@ class Package(LazyLogging):
     version: str
     remote: RemoteSource | None
     packages: dict[str, PackageDescription]
+    packager: str | None = None
 
     _check_output = check_output
 
@@ -204,16 +206,18 @@ class Package(LazyLogging):
         """
         package = pacman.handle.load_pkg(str(path))
         description = PackageDescription.from_package(package, path)
-        return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description})
+        return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description},
+                   packager=package.packager)
 
     @classmethod
-    def from_aur(cls, name: str, pacman: Pacman) -> Self:
+    def from_aur(cls, name: str, pacman: Pacman, packager: str | None = None) -> Self:
         """
         construct package properties from AUR page
 
         Args:
             name(str): package name (either base or normal name)
             pacman(Pacman): alpm wrapper instance
+            packager(str | None, optional): packager to be used for this build (Default value = None)
 
         Returns:
             Self: package properties
@@ -224,16 +228,19 @@ class Package(LazyLogging):
             base=package.package_base,
             version=package.version,
             remote=remote,
-            packages={package.name: PackageDescription.from_aur(package)})
+            packages={package.name: PackageDescription.from_aur(package)},
+            packager=packager,
+        )
 
     @classmethod
-    def from_build(cls, path: Path, architecture: str) -> Self:
+    def from_build(cls, path: Path, architecture: str, packager: str | None = None) -> Self:
         """
         construct package properties from sources directory
 
         Args:
             path(Path): path to package sources directory
             architecture(str): load package for specific architecture
+            packager(str | None, optional): packager to be used for this build (Default value = None)
 
         Returns:
             Self: package properties
@@ -265,7 +272,7 @@ class Package(LazyLogging):
             source=PackageSource.Local,
         )
 
-        return cls(base=srcinfo["pkgbase"], version=version, remote=remote, packages=packages)
+        return cls(base=srcinfo["pkgbase"], version=version, remote=remote, packages=packages, packager=packager)
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -284,16 +291,18 @@ class Package(LazyLogging):
             for key, value in packages_json.items()
         }
         remote = dump.get("remote") or {}
-        return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages)
+        return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages,
+                   packager=dump.get("packager"))
 
     @classmethod
-    def from_official(cls, name: str, pacman: Pacman, *, use_syncdb: bool = True) -> Self:
+    def from_official(cls, name: str, pacman: Pacman, packager: str | None = None, *, use_syncdb: bool = True) -> Self:
         """
         construct package properties from official repository page
 
         Args:
             name(str): package name (either base or normal name)
             pacman(Pacman): alpm wrapper instance
+            packager(str | None, optional): packager to be used for this build (Default value = None)
             use_syncdb(bool, optional): use pacman databases instead of official repositories RPC (Default value = True)
 
         Returns:
@@ -305,7 +314,9 @@ class Package(LazyLogging):
             base=package.package_base,
             version=package.version,
             remote=remote,
-            packages={package.name: PackageDescription.from_aur(package)})
+            packages={package.name: PackageDescription.from_aur(package)},
+            packager=packager,
+        )
 
     @staticmethod
     def local_files(path: Path) -> Generator[Path, None, None]:
@@ -513,4 +524,4 @@ class Package(LazyLogging):
         Returns:
             dict[str, Any]: json-friendly dictionary
         """
-        return asdict(self)
+        return dataclass_view(self)

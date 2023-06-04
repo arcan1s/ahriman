@@ -11,9 +11,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
-from ahriman.core.util import check_output, check_user, enum_values, exception_response_text, filter_json, \
-    full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, srcinfo_property, \
-    srcinfo_property_list, trim_package, utcnow, walk
+from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text,\
+    extract_user, filter_json, full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, \
+    srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -91,6 +91,16 @@ def test_check_output_with_user(passwd: Any, mocker: MockerFixture) -> None:
     getpwuid_mock.assert_called_once_with(user)
 
 
+def test_check_output_with_user_and_environment(passwd: Any, mocker: MockerFixture) -> None:
+    """
+    must run set environment if both environment and user are set
+    """
+    mocker.patch("ahriman.core.util.getpwuid", return_value=passwd)
+    user = os.getuid()
+    assert check_output("python", "-c", """import os; print(os.getenv("HOME"), os.getenv("VAR"))""",
+                        environment={"VAR": "VALUE"}, user=user) == f"{passwd.pw_dir} VALUE"
+
+
 def test_check_output_failure(mocker: MockerFixture) -> None:
     """
     must process exception correctly
@@ -155,6 +165,23 @@ def test_check_user_unsafe(mocker: MockerFixture) -> None:
     check_user(paths, unsafe=True)
 
 
+def test_dataclass_view(package_ahriman: Package) -> None:
+    """
+    must serialize dataclasses
+    """
+    assert Package.from_json(dataclass_view(package_ahriman)) == package_ahriman
+
+
+def test_dataclass_view_without_none(package_ahriman: Package) -> None:
+    """
+    must serialize dataclasses with None fields removed
+    """
+    package_ahriman.packager = None
+    result = dataclass_view(package_ahriman)
+    assert "packager" not in result
+    assert Package.from_json(result) == package_ahriman
+
+
 def test_exception_response_text() -> None:
     """
     must parse HTTP response to string
@@ -172,6 +199,23 @@ def test_exception_response_text_empty() -> None:
     """
     exception = requests.exceptions.HTTPError(response=None)
     assert exception_response_text(exception) == ""
+
+
+def test_extract_user() -> None:
+    """
+    must extract user from system environment
+    """
+    os.environ["USER"] = "user"
+    assert extract_user() == "user"
+
+    os.environ["SUDO_USER"] = "sudo"
+    assert extract_user() == "sudo"
+
+    os.environ["DOAS_USER"] = "doas"
+    assert extract_user() == "sudo"
+
+    del os.environ["SUDO_USER"]
+    assert extract_user() == "doas"
 
 
 def test_filter_json(package_ahriman: Package) -> None:

@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import shlex
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
@@ -47,14 +46,14 @@ class UnsafeCommands(Handler):
         """
         parser = args.parser()
         unsafe_commands = UnsafeCommands.get_unsafe_commands(parser)
-        if args.command is None:
+        if args.command:
+            UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
+        else:
             for command in unsafe_commands:
                 StringPrinter(command).print(verbose=True)
-        else:
-            UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
 
     @staticmethod
-    def check_unsafe(command: str, unsafe_commands: list[str], parser: argparse.ArgumentParser) -> None:
+    def check_unsafe(command: list[str], unsafe_commands: list[str], parser: argparse.ArgumentParser) -> None:
         """
         check if command is unsafe
 
@@ -63,7 +62,7 @@ class UnsafeCommands(Handler):
             unsafe_commands(list[str]): list of unsafe commands
             parser(argparse.ArgumentParser): generated argument parser
         """
-        args = parser.parse_args(shlex.split(command))
+        args = parser.parse_args(command)
         UnsafeCommands.check_if_empty(True, args.command in unsafe_commands)
 
     @staticmethod

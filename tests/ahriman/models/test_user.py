@@ -8,7 +8,7 @@ def test_from_option(user: User) -> None:
     """
     must generate user from options
     """
-    user = replace(user, access=UserAccess.Read)
+    user = replace(user, access=UserAccess.Read, packager_id=None, key=None)
     assert User.from_option(user.username, user.password) == user
     # default is read access
     user = replace(user, access=UserAccess.Full)

@@ -8,6 +8,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
+from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
@@ -27,6 +28,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.refresh = 0
     args.source = PackageSource.Auto
     args.dependencies = True
+    args.username = "username"
     return args
 
 
@@ -42,7 +44,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     Add.run(args, "x86_64", configuration, report=False, unsafe=False)
-    application_mock.assert_called_once_with(args.package, args.source)
+    application_mock.assert_called_once_with(args.package, args.source, args.username)
     dependencies_mock.assert_not_called()
     on_start_mock.assert_called_once_with()
 
@@ -67,7 +69,8 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     Add.run(args, "x86_64", configuration, report=False, unsafe=False)
     updates_mock.assert_called_once_with(args.package, aur=False, local=False, manual=True, vcs=False,
                                          log_fn=pytest.helpers.anyvar(int))
-    application_mock.assert_called_once_with([package_ahriman])
+    application_mock.assert_called_once_with([package_ahriman],
+                                             Packagers(args.username, {package_ahriman.base: "packager"}))
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, False)
 

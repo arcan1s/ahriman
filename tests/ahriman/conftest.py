@@ -265,7 +265,8 @@ def package_ahriman(package_description_ahriman: PackageDescription, remote_sour
         base="ahriman",
         version="2.6.0-1",
         remote=remote_source,
-        packages=packages)
+        packages=packages,
+        packager="packager")
 
 
 @pytest.fixture
@@ -499,7 +500,7 @@ def user() -> User:
     Returns:
         User: user descriptor instance
     """
-    return User(username="user", password="pa55w0rd", access=UserAccess.Reporter)
+    return User(username="user", password="pa55w0rd", access=UserAccess.Reporter, packager_id="packager", key="key")
 
 
 @pytest.fixture

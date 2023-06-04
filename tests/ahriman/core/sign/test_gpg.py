@@ -135,21 +135,6 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=pytest.helpers.anyvar(int))
 
 
-def test_keys(gpg: GPG) -> None:
-    """
-    must extract keys
-    """
-    assert gpg.keys() == []
-
-    gpg.default_key = "key"
-    assert gpg.keys() == [gpg.default_key]
-
-    gpg.configuration.set_option("sign", "key_a", "key1")
-    gpg.configuration.set_option("sign", "key_b", "key1")
-    gpg.configuration.set_option("sign", "key_c", "key2")
-    assert gpg.keys() == ["key", "key1", "key2"]
-
-
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
     must call process method correctly
@@ -170,7 +155,7 @@ def test_process_sign_package_1(gpg_with_key: GPG, mocker: MockerFixture) -> Non
 
     gpg_with_key.targets = {SignSettings.Packages}
     assert gpg_with_key.process_sign_package(Path("a"), "a") == result
-    process_mock.assert_called_once_with(Path("a"), "key")
+    process_mock.assert_called_once_with(Path("a"), "a")
 
 
 def test_process_sign_package_2(gpg_with_key: GPG, mocker: MockerFixture) -> None:
@@ -182,7 +167,19 @@ def test_process_sign_package_2(gpg_with_key: GPG, mocker: MockerFixture) -> Non
 
     gpg_with_key.targets = {SignSettings.Packages, SignSettings.Repository}
     assert gpg_with_key.process_sign_package(Path("a"), "a") == result
-    process_mock.assert_called_once_with(Path("a"), "key")
+    process_mock.assert_called_once_with(Path("a"), "a")
+
+
+def test_process_sign_package_3(gpg_with_key: GPG, mocker: MockerFixture) -> None:
+    """
+    must sign package with default key if none passed
+    """
+    result = [Path("a"), Path("a.sig")]
+    process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process", return_value=result)
+
+    gpg_with_key.targets = {SignSettings.Packages}
+    assert gpg_with_key.process_sign_package(Path("a"), None) == result
+    process_mock.assert_called_once_with(Path("a"), gpg_with_key.default_key)
 
 
 def test_process_sign_package_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:
@@ -211,7 +208,7 @@ def test_process_sign_package_skip_3(gpg: GPG, mocker: MockerFixture) -> None:
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg.targets = {SignSettings.Packages}
-    gpg.process_sign_package(Path("a"), "a")
+    gpg.process_sign_package(Path("a"), None)
     process_mock.assert_not_called()
 
 
@@ -221,7 +218,7 @@ def test_process_sign_package_skip_4(gpg: GPG, mocker: MockerFixture) -> None:
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg.targets = {SignSettings.Packages, SignSettings.Repository}
-    gpg.process_sign_package(Path("a"), "a")
+    gpg.process_sign_package(Path("a"), None)
     process_mock.assert_not_called()
 
 

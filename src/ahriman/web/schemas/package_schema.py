@@ -44,3 +44,7 @@ class PackageSchema(Schema):
         keys=fields.String(), values=fields.Nested(PackagePropertiesSchema()), required=True, metadata={
             "description": "Packages which belong to this base",
         })
+    packager = fields.String(metadata={
+        "description": "packager for the last success package build",
+        "example": "John Doe <john@doe.com>",
+    })

@@ -27,7 +27,7 @@ from typing import TypeVar
 
 from ahriman import version
 from ahriman.application import handlers
-from ahriman.core.util import enum_values
+from ahriman.core.util import enum_values, extract_user
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.log_handler import LogHandler
@@ -187,8 +187,8 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
     """
     parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
                              description="list unsafe commands as defined in default args", formatter_class=_formatter)
-    parser.add_argument("--command", help="instead of showing commands, just test command line for unsafe subcommand "
-                                          "and return 0 in case if command is safe and 1 otherwise")
+    parser.add_argument("command", help="instead of showing commands, just test command line for unsafe subcommand "
+                                        "and return 0 in case if command is safe and 1 otherwise", nargs="*")
     parser.set_defaults(handler=handlers.UnsafeCommands, architecture=[""], lock=None, report=False, quiet=True,
                         unsafe=True, parser=_parser)
     return parser
@@ -262,6 +262,7 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action="count", default=False)
     parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
                         type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
+    parser.add_argument("-u", "--username", help="build as user", default=extract_user())
     parser.set_defaults(handler=handlers.Add)
     return parser
 
@@ -481,7 +482,8 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
                         action="count", default=False)
-    parser.set_defaults(handler=handlers.Update, dependencies=False, dry_run=True, aur=True, local=True, manual=False)
+    parser.set_defaults(handler=handlers.Update, dependencies=False, dry_run=True, aur=True, local=True, manual=False,
+                        username=None)
     return parser
 
 
@@ -578,6 +580,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-s", "--status", help="filter packages by status. Requires --from-database to be set",
                         type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
+    parser.add_argument("-u", "--username", help="build as user", default=extract_user())
     parser.set_defaults(handler=handlers.Rebuild)
     return parser
 
@@ -752,6 +755,7 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--manual", help="include or exclude manual updates",
                         action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("-u", "--username", help="build as user", default=extract_user())
     parser.add_argument("--vcs", help="fetch actual version of VCS packages",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
@@ -923,6 +927,9 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "root privileges because it performs write to filesystem configuration.",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
+    parser.add_argument("--key", help="optional PGP key used by this user. The private key must be imported")
+    parser.add_argument("--packager", help="optional packager id used for build process in form of "
+                                           "`Name Surname <mail@example.com>`")
     parser.add_argument("-p", "--password", help="user password. Blank password will be treated as empty password, "
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-r", "--role", help="user access level",
@@ -949,8 +956,8 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
-    parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, report=False,  # nosec
-                        password="", quiet=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, report=False,
+                        quiet=True, unsafe=True)
     return parser
 
 
@@ -968,8 +975,8 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, report=False,  # nosec
-                        password="", quiet=True)
+    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, report=False,
+                        quiet=True)
     return parser
 
 
