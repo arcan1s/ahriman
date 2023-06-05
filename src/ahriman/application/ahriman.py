@@ -923,8 +923,6 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
                                          "In case if password was not entered it will be asked interactively",
-                             epilog="In case of first run (i.e. if password salt is not set yet) this action requires "
-                                    "root privileges because it performs write to filesystem configuration.",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("--key", help="optional PGP key used by this user. The private key must be imported")
@@ -934,7 +932,6 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-r", "--role", help="user access level",
                         type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
-    parser.add_argument("-s", "--secure", help="set file permissions to user-only", action="store_true")
     parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, report=False,
                         quiet=True)
     return parser
