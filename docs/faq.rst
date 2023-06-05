@@ -862,12 +862,13 @@ How to enable basic authorization
       yay -S --asdeps python-aiohttp-security python-aiohttp-session python-cryptography
 
 #. 
-   Configure the service to enable authorization:
+   Configure the service to enable authorization (``salt`` can be generated as any random string):
 
    .. code-block:: ini
 
       [auth]
       target = configuration
+      salt = somerandomstring
 
 #.
    In order to provide access for reporting from application instances you can (recommended way) use unix sockets by configuring the following (note, that it requires ``python-requests-unixsocket`` package to be installed):
@@ -933,7 +934,7 @@ How to enable OAuth authorization
    Configure ``oauth_provider`` and ``oauth_scopes`` in case if you would like to use different from Google provider. Scope must grant access to user email. ``web.address`` is required to make callback URL available from internet.
 
 #. 
-   Create service user:
+   If you are not going to use unix socket, you also need to create service user (remember to set ``auth.salt`` option before):
 
    .. code-block:: shell
 

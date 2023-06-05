@@ -20,8 +20,6 @@
 import argparse
 import getpass
 
-from pathlib import Path
-
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -54,13 +52,9 @@ class Users(Handler):
         database = SQLite.load(configuration)
 
         if args.action == Action.Update:
-            old_salt, salt = Users.get_salt(configuration)
             user = Users.user_create(args)
-
-            if old_salt is None:
-                auth_configuration = Users.configuration_get(configuration.include)
-                Users.configuration_create(auth_configuration, salt, args.secure)
-
+            # if password is left blank we are not going to require salt to be set
+            salt = configuration.get("auth", "salt") if user.password else ""
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
             users = database.user_list(args.username, args.role)
@@ -69,70 +63,6 @@ class Users(Handler):
                 UserPrinter(user).print(verbose=True)
         elif args.action == Action.Remove:
             database.user_remove(args.username)
-
-    @staticmethod
-    def configuration_create(configuration: Configuration, salt: str, secure: bool) -> None:
-        """
-        enable configuration if it has been disabled
-
-        Args:
-            configuration(Configuration): configuration instance
-            salt(str): password hash salt
-            secure(bool): if true then set file permissions to 0o600
-        """
-        configuration.set_option("auth", "salt", salt)
-        Users.configuration_write(configuration, secure)
-
-    @staticmethod
-    def configuration_get(include_path: Path) -> Configuration:
-        """
-        create configuration instance
-
-        Args:
-            include_path(Path): path to directory with configuration includes
-
-        Returns:
-            Configuration: configuration instance. In case if there are local settings they will be loaded
-        """
-        target = include_path / "00-auth.ini"
-        configuration = Configuration()
-        configuration.load(target)
-
-        configuration.architecture = ""  # not user anyway
-
-        return configuration
-
-    @staticmethod
-    def configuration_write(configuration: Configuration, secure: bool) -> None:
-        """
-        write configuration file
-
-        Args:
-            configuration(Configuration): configuration instance
-            secure(bool): if true then set file permissions to 0o600
-        """
-        path, _ = configuration.check_loaded()
-        with path.open("w") as ahriman_configuration:
-            configuration.write(ahriman_configuration)
-        if secure:
-            path.chmod(0o600)
-
-    @staticmethod
-    def get_salt(configuration: Configuration, salt_length: int = 20) -> tuple[str | None, str]:
-        """
-        get salt from configuration or create new string
-
-        Args:
-            configuration(Configuration): configuration instance
-            salt_length(int, optional): salt length (Default value = 20)
-
-        Returns:
-            tuple[str | None, str]: tuple containing salt from configuration if any and actual salt which must be
-                used for password hash
-        """
-        if salt := configuration.get("auth", "salt", fallback=None):
-            return salt, salt
-        return None, User.generate_password(salt_length)
 
     @staticmethod
     def user_create(args: argparse.Namespace) -> User:
