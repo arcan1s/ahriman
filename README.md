@@ -16,7 +16,7 @@ Wrapper for managing custom repository inspired by [repo-scripts](https://github
 * VCS packages support.
 * Official repository support.
 * Ability to patch AUR packages and even create package from local PKGBUILDs.
-* Sign support with gpg (repository, package, per package settings).
+* Sign support with gpg (repository, package), multiple packagers support.
 * Triggers for repository updates, e.g. synchronization to remote services (rsync, s3 and github) and report generation (email, html, telegram).
 * Repository status interface with optional authorization and control options:
 

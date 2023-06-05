@@ -33,6 +33,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
 * ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be called by ``load`` method.
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
+* ``ahriman.core.configuration`` contains extension for standard ``configparser`` library and some validation related classes.
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
@@ -41,12 +42,12 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
+* ``ahriman.core.support`` provides plugins for support packages (mirrorlist and keyring) generation.
 * ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` use this package.
 * ``ahriman.core.upload`` package provides sync feature, should not be called directly.
 
 This package also provides some generic functions and classes which may be used by other packages:
 
-* ``ahriman.core.configuration.Configuration`` is an extension for standard ``configparser`` library.
 * ``ahriman.core.exceptions`` provides custom exceptions.
 * ``ahriman.core.spawn.Spawn`` is a tool which can spawn another ``ahriman`` process. This feature is used by web application.
 * ``ahriman.core.tree`` is a dependency tree implementation.
@@ -62,20 +63,23 @@ It provides models for any other part of application. Unlike ``ahriman.core`` pa
 Web application. It is important that this package is isolated from any other to allow it to be optional feature (i.e. dependencies which are required by the package are optional).
 
 * ``ahriman.web.middlewares`` provides middlewares for request handlers.
+* ``ahriman.web.schemas`` provides schemas (actually copy paste from dataclasses) used by swagger documentation.
 * ``ahriman.web.views`` contains web views derived from aiohttp view class.
+* ``ahriman.web.apispec`` provides generators for swagger documentation.
+* ``ahriman.web.cors`` contains helpers for cross origin resource sharing middlewares.
 * ``ahriman.web.routes`` creates routes for web application.
 * ``ahriman.web.web`` provides main web application functions (e.g. start, initialization).
 
 Application run
 ---------------
 
-* Parse command line arguments, find command and related handler which is set by parser.
-* Call ``Handler.execute`` method.
-* Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do from daemonic processes).
-* In each child process call lock functions.
-* After success checks pass control to ``Handler.run`` method defined by specific handler class.
-* Return result (success or failure) of each subprocess and exit from application.
-* Some handlers may override their status and throw ``ExitCode`` exception. This exception is just silently suppressed and changes application exit code to ``1``.
+#. Parse command line arguments, find command and related handler which is set by parser.
+#. Call ``Handler.execute`` method.
+#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do from daemonic processes).
+#. In each child process call lock functions.
+#. After success checks pass control to ``Handler.run`` method defined by specific handler class.
+#. Return result (success or failure) of each subprocess and exit from application.
+#. Some handlers may override their status and throw ``ExitCode`` exception. This exception is just silently suppressed and changes application exit code to ``1``.
 
 In the most cases handlers spawn god class ``ahriman.application.application.Application`` class and call required methods.
 
@@ -114,7 +118,7 @@ Schema and data migrations
 
 The schema migration are applied according to current ``pragma user_info`` values, located at ``ahriman.core.database.migrations`` package and named as ``m000_migration_name.py`` (the preceding ``m`` is required in order to import migration content for tests). Additional class ``ahriman.core.database.migrations.Migrations`` reads all migrations automatically and applies them in alphabetical order.
 
-These migrations also contain data migrations. Though the recommended way is to migrate data directly from SQL requests, sometimes it is required to have external data (like packages list) in order to set correct data. To do so, special method `migrate_data` is used.
+These migrations can also contain data migrations. Though the recommended way is to migrate data directly from SQL requests, sometimes it is required to have external data (like packages list) in order to set correct data. To do so, special method `migrate_data` is used.
 
 Type conversions
 ^^^^^^^^^^^^^^^^
@@ -125,6 +129,12 @@ By default, it parses rows into python dictionary. In addition, the following ps
 
 Basic flows
 -----------
+
+By default package build operations are performed with ``PACKAGER`` which is specified in ``makepkg.conf``, however, it is possible to override this variable from command line; in this case service performs lookup in the following way:
+
+* If packager is not set, it reads environment variables (e.g. ``SUDO_USER`` and ``USER``), otherwise it uses value from command line.
+* It checks users for the specified username and tries to extract packager variable from it.
+* If packager value has been found, it will be passed as ``PACKAGER`` system variable (sudo configuration required).
 
 Add new packages or rebuild existing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,7 +150,7 @@ This logic can be overwritten by specifying the ``source`` parameter, which is p
 Rebuild packages
 ^^^^^^^^^^^^^^^^
 
-Same as add function for every package in repository. Optional filter by reverse dependency can be supplied.
+Same as add function for every package in repository. Optional filters by reverse dependency or build status can be supplied.
 
 Remove packages
 ^^^^^^^^^^^^^^^
@@ -224,7 +234,7 @@ OAuth provider uses library definitions (``aioauth-client``) in order *authentic
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature can be used by service reporting (aka robots).
 
-In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any furher checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration.
+In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any further checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration.
 
 In order to configure users there are special commands.
 
@@ -319,3 +329,5 @@ External calls
 ^^^^^^^^^^^^^^
 
 Web application provides external calls to control main service. It spawns child process with specific arguments and waits for its termination. This feature must be used either with authorization or in safe (i.e. when status page is not available world-wide) environment.
+
+For most actions it also extracts user from authentication (if provided) and passes it to underlying process.
