@@ -175,7 +175,7 @@ class Setup(Handler):
                 configuration.set_option(section, "Server", mirror)
 
         # add repository itself
-        configuration.set_option(repository, "SigLevel", "Optional TrustAll")  # we don't care
+        configuration.set_option(repository, "SigLevel", "Never")  # we don't care
         configuration.set_option(repository, "Server", f"file://{paths.repository}")
 
         target = source.parent / f"{prefix}-{architecture}.conf"
