@@ -875,6 +875,8 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         type=Path, default=Path("/usr") / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
+    parser.add_argument("--generate-salt", help="generate salt for user passwords",
+                        action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--mirror", help="use the specified explicitly mirror instead of including mirrorlist")
