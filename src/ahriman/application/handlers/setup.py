@@ -26,6 +26,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.user import User
 
 
 class Setup(Handler):
@@ -125,6 +126,9 @@ class Setup(Handler):
             configuration.set_option(section, "port", str(args.web_port))
         if args.web_unix_socket is not None:
             configuration.set_option(section, "unix_socket", str(args.web_unix_socket))
+
+        if args.generate_salt:
+            configuration.set_option("auth", "salt", User.generate_password(20))
 
         target = root.include / "00-setup-overrides.ini"
         with target.open("w") as ahriman_configuration:

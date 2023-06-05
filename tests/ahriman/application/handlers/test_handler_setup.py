@@ -26,6 +26,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.build_as_user = "ahriman"
     args.build_command = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman.conf.d/extra.conf")
+    args.generate_salt = True
     args.makeflags_jobs = True
     args.mirror = "mirror"
     args.multilib = True
@@ -97,6 +98,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
         MockCall(Configuration.section_name("sign", "x86_64"), "key", args.sign_key),
         MockCall(Configuration.section_name("web", "x86_64"), "port", str(args.web_port)),
         MockCall(Configuration.section_name("web", "x86_64"), "unix_socket", str(args.web_unix_socket)),
+        MockCall("auth", "salt", pytest.helpers.anyvar(str, strict=True)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
