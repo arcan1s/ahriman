@@ -38,6 +38,7 @@ class Configuration(configparser.RawConfigParser):
             Required by dump and merging functions
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
         architecture(str | None): repository architecture
+        includes(list[Path]): list of includes which were read
         path(Path | None): path to root configuration file
 
     Examples:
@@ -78,6 +79,7 @@ class Configuration(configparser.RawConfigParser):
         })
         self.architecture: str | None = None
         self.path: Path | None = None
+        self.includes: list[Path] = []
 
     @property
     def include(self) -> Path:
@@ -193,7 +195,7 @@ class Configuration(configparser.RawConfigParser):
         }
 
     # pylint and mypy are too stupid to find these methods
-    # pylint: disable=missing-function-docstring,multiple-statements,unused-argument
+    # pylint: disable=missing-function-docstring,unused-argument
     def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore[empty-body]
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore[empty-body]
@@ -243,11 +245,13 @@ class Configuration(configparser.RawConfigParser):
         """
         load configuration includes
         """
+        self.includes = []  # reset state
         try:
             for path in sorted(self.include.glob("*.ini")):
                 if path == self.logging_path:
                     continue  # we don't want to load logging explicitly
                 self.read(path)
+                self.includes.append(path)
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 

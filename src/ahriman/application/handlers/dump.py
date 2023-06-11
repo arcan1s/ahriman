@@ -21,7 +21,7 @@ import argparse
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import ConfigurationPrinter
+from ahriman.core.formatters import ConfigurationPathsPrinter, ConfigurationPrinter, StringPrinter
 
 
 class Dump(Handler):
@@ -44,6 +44,12 @@ class Dump(Handler):
             report(bool): force enable or disable reporting
             unsafe(bool): if set no user check will be performed before path creation
         """
+        root, _ = configuration.check_loaded()
+        ConfigurationPathsPrinter(root, configuration.includes).print(verbose=True, separator=" = ")
+
+        # empty line
+        StringPrinter("").print(verbose=False)
+
         dump = configuration.dump()
         for section, values in sorted(dump.items()):
             ConfigurationPrinter(section, values).print(verbose=not args.secure, separator=" = ")
