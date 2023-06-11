@@ -22,6 +22,7 @@ from ahriman.core.formatters.string_printer import StringPrinter
 
 from ahriman.core.formatters.aur_printer import AurPrinter
 from ahriman.core.formatters.build_printer import BuildPrinter
+from ahriman.core.formatters.configuration_paths_printer import ConfigurationPathsPrinter
 from ahriman.core.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.core.formatters.package_printer import PackagePrinter
 from ahriman.core.formatters.patch_printer import PatchPrinter
