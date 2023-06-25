@@ -75,6 +75,7 @@ def test_make_request(official: Official, aur_package_akonadi: AURPackage,
     request_mock.assert_called_once_with(
         "https://archlinux.org/packages/search/json",
         params={"q": ("akonadi",), "repo": Official.DEFAULT_SEARCH_REPOSITORIES},
+        headers={"User-Agent": Official.DEFAULT_USER_AGENT},
         timeout=official.DEFAULT_TIMEOUT)
 
 

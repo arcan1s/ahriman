@@ -80,6 +80,7 @@ def test_make_request(aur: AUR, aur_package_ahriman: AURPackage,
     request_mock.assert_called_once_with(
         "https://aur.archlinux.org/rpc",
         params={"v": "5", "type": "info", "arg": ["ahriman"]},
+        headers={"User-Agent": AUR.DEFAULT_USER_AGENT},
         timeout=aur.DEFAULT_TIMEOUT)
 
 
@@ -96,6 +97,7 @@ def test_make_request_multi_arg(aur: AUR, aur_package_ahriman: AURPackage,
     request_mock.assert_called_once_with(
         "https://aur.archlinux.org/rpc",
         params={"v": "5", "type": "search", "arg[]": ["ahriman", "is", "cool"]},
+        headers={"User-Agent": AUR.DEFAULT_USER_AGENT},
         timeout=aur.DEFAULT_TIMEOUT)
 
 
@@ -112,6 +114,7 @@ def test_make_request_with_kwargs(aur: AUR, aur_package_ahriman: AURPackage,
     request_mock.assert_called_once_with(
         "https://aur.archlinux.org/rpc",
         params={"v": "5", "type": "search", "arg": ["ahriman"], "by": "name"},
+        headers={"User-Agent": AUR.DEFAULT_USER_AGENT},
         timeout=aur.DEFAULT_TIMEOUT)
 
 
