@@ -106,6 +106,7 @@ class Official(Remote):
             response = requests.get(
                 self.DEFAULT_RPC_URL,
                 params={by: args, "repo": self.DEFAULT_SEARCH_REPOSITORIES},
+                headers={"User-Agent": self.DEFAULT_USER_AGENT},
                 timeout=self.DEFAULT_TIMEOUT)
             response.raise_for_status()
             return self.parse_response(response.json())
