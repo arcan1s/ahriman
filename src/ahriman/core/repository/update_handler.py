@@ -20,6 +20,7 @@
 from collections.abc import Iterable
 
 from ahriman.core.build_tools.sources import Sources
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -53,6 +54,19 @@ class UpdateHandler(Cleaner):
         Returns:
             list[Package]: list of packages which are out-of-dated
         """
+        def load_remote(package: Package) -> Package:
+            source = package.remote.source if package.remote is not None else None
+
+            # try to load package from base and if none found try to load by separated packages
+            for probe in [package.base] + sorted(package.packages.keys()):
+                try:
+                    if source == PackageSource.Repository:
+                        return Package.from_official(probe, self.pacman, None)
+                    return Package.from_aur(probe, self.pacman, None)
+                except UnknownPackageError:
+                    continue
+            raise UnknownPackageError(package.base)
+
         result: list[Package] = []
 
         for local in self.packages():
@@ -61,13 +75,9 @@ class UpdateHandler(Cleaner):
                     continue
                 if filter_packages and local.base not in filter_packages:
                     continue
-                source = local.remote.source if local.remote is not None else None
 
                 try:
-                    if source == PackageSource.Repository:
-                        remote = Package.from_official(local.base, self.pacman, None)
-                    else:
-                        remote = Package.from_aur(local.base, self.pacman, None)
+                    remote = load_remote(local)
 
                     if local.is_outdated(
                             remote, self.paths,

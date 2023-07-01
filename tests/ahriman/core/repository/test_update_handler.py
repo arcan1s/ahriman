@@ -2,7 +2,9 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from typing import Any
 
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -105,6 +107,35 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
         package_ahriman, update_handler.paths,
         vcs_allowed_age=update_handler.vcs_allowed_age,
         calculate_version=False)
+
+
+def test_updates_aur_load_by_package(update_handler: UpdateHandler, package_python_schedule: Package,
+                                     mocker: MockerFixture) -> None:
+    """
+    must load package by package name if none found by base
+    """
+    def package_selector(name: str, *_: Any) -> Package:
+        if name == package_python_schedule.base:
+            raise UnknownPackageError(name)
+        return package_python_schedule
+
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
+                 return_value=[package_python_schedule])
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=package_selector)
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    assert update_handler.updates_aur([], vcs=True) == [package_python_schedule]
+
+
+def test_updates_load_by_package_aur_failed(update_handler: UpdateHandler, package_ahriman: Package,
+                                            mocker: MockerFixture) -> None:
+    """
+    must update status via client for failed load
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=UnknownPackageError(package_ahriman.base))
+    mocker.patch("ahriman.core.status.client.Client.set_failed")
+
+    update_handler.updates_aur([], vcs=True)
 
 
 def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
