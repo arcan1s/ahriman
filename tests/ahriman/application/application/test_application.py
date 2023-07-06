@@ -2,6 +2,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.application.application import Application
+from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -47,6 +48,19 @@ def test_on_stop(application: Application, mocker: MockerFixture) -> None:
     triggers_mock.assert_called_once_with()
 
 
+def test_print_updates(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must print updates
+    """
+    tree = Tree([Leaf(package_ahriman)])
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
+
+    application.print_updates([package_ahriman], log_fn=print)
+    print_mock.assert_called_once_with(verbose=True, log_fn=print, separator=" -> ")
+
+
 def test_with_dependencies(application: Application, package_ahriman: Package, package_python_schedule: Package,
                            mocker: MockerFixture) -> None:
     """
@@ -75,6 +89,8 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     package_mock = mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda *args: packages[args[0]])
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages",
                                  return_value={"devtools", "python-build", "python-pytest"})
+    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     result = application.with_dependencies([package_ahriman], process_dependencies=True)
     assert {package.base: package for package in result} == packages
@@ -84,6 +100,17 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
         MockCall("python-installer", application.repository.pacman, package_ahriman.packager),
     ], any_order=True)
     packages_mock.assert_called_once_with()
+
+    update_remote_mock.assert_has_calls([
+        MockCall(package_python_schedule),
+        MockCall(packages["python"]),
+        MockCall(packages["python-installer"]),
+    ], any_order=True)
+    status_client_mock.assert_has_calls([
+        MockCall(package_python_schedule),
+        MockCall(packages["python"]),
+        MockCall(packages["python-installer"]),
+    ], any_order=True)
 
 
 def test_with_dependencies_skip(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

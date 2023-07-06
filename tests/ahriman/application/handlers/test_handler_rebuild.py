@@ -66,6 +66,7 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     args.dry_run = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.add")
+    mocker.patch("ahriman.application.application.Application.print_updates")
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -83,10 +84,12 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, False)
+    print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
 
 
 def test_run_filter(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -131,6 +134,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[])
+    mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Rebuild.run(args, "x86_64", configuration, report=False, unsafe=False)
