@@ -196,7 +196,7 @@ Alternatively you can create full-diff patches, which are calculated by using ``
 
    .. code-block:: shell
 
-   sudo -u ahriman ahriman patch-set-add /path/to/local/directory/with/PKGBUILD
+      sudo -u ahriman ahriman patch-set-add /path/to/local/directory/with/PKGBUILD
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 
