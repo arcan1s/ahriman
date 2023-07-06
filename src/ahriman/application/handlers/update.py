@@ -48,8 +48,7 @@ class Update(Handler):
         application = Application(architecture, configuration, report=report, unsafe=unsafe,
                                   refresh_pacman_database=args.refresh)
         application.on_start()
-        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
-                                       log_fn=Update.log_fn(application, args.dry_run))
+        packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
         Update.check_if_empty(args.exit_code, not packages)
         if args.dry_run:
             return
@@ -57,6 +56,7 @@ class Update(Handler):
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
         packagers = Packagers(args.username, {package.base: package.packager for package in packages})
 
+        application.print_updates(packages, log_fn=application.logger.info)
         result = application.update(packages, packagers)
         Update.check_if_empty(args.exit_code, result.is_empty)
 

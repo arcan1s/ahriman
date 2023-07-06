@@ -51,15 +51,16 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
                                      return_value=[package_ahriman])
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
+    print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
     Update.run(args, "x86_64", configuration, report=False, unsafe=False)
     application_mock.assert_called_once_with([package_ahriman],
                                              Packagers(args.username, {package_ahriman.base: "packager"}))
-    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
-                                         log_fn=pytest.helpers.anyvar(int))
+    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])
     on_start_mock.assert_called_once_with()
+    print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -89,6 +90,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=[package_ahriman])
+    mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Update.run(args, "x86_64", configuration, report=False, unsafe=False)
@@ -108,8 +110,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
     Update.run(args, "x86_64", configuration, report=False, unsafe=False)
-    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs,
-                                         log_fn=pytest.helpers.anyvar(int))
+    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, pytest.helpers.anyvar(int))
 

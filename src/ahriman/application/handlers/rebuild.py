@@ -22,7 +22,6 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import UpdatePrinter
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 
@@ -53,8 +52,7 @@ class Rebuild(Handler):
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:
-            for package in updates:
-                UpdatePrinter(package, package.version).print(verbose=True)
+            application.print_updates(updates, log_fn=print)
             return
 
         result = application.update(updates, args.username)

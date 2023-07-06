@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.application.application.application_repository import ApplicationRepository
+from ahriman.core.formatters import UpdatePrinter
+from ahriman.core.tree import Tree
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -89,6 +91,22 @@ class Application(ApplicationPackages, ApplicationRepository):
         """
         self.repository.triggers.on_stop()
 
+    def print_updates(self, packages: list[Package], *, log_fn: Callable[[str], None]) -> None:
+        """
+        print list of packages to be built. This method will build dependency tree and print updates accordingly
+
+        Args:
+            packages(list[Package]): package list to be printed
+            log_fn(Callable[[str], None]): logger function to log updates
+        """
+        local_versions = {package.base: package.version for package in self.repository.packages()}
+
+        tree = Tree.resolve(packages)
+        for level in tree:
+            for package in level:
+                UpdatePrinter(package, local_versions.get(package.base)).print(
+                    verbose=True, log_fn=log_fn, separator=" -> ")
+
     def with_dependencies(self, packages: list[Package], *, process_dependencies: bool) -> list[Package]:
         """
         add missing dependencies to list of packages
@@ -126,5 +144,8 @@ class Application(ApplicationPackages, ApplicationRepository):
             for package_name, username in missing.items():
                 package = Package.from_aur(package_name, self.repository.pacman, username)
                 with_dependencies[package.base] = package
+                # register package in local database
+                self.database.remote_update(package)
+                self.repository.reporter.set_unknown(package)
 
         return list(with_dependencies.values())

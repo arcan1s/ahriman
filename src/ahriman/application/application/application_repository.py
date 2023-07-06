@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from pathlib import Path
 
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
-from ahriman.core.formatters import UpdatePrinter
 from ahriman.core.tree import Tree
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
@@ -158,7 +157,7 @@ class ApplicationRepository(ApplicationProperties):
         return build_result
 
     def updates(self, filter_packages: Iterable[str], *,
-                aur: bool, local: bool, manual: bool, vcs: bool, log_fn: Callable[[str], None]) -> list[Package]:
+                aur: bool, local: bool, manual: bool, vcs: bool) -> list[Package]:
         """
         get list of packages to run update process
 
@@ -168,7 +167,6 @@ class ApplicationRepository(ApplicationProperties):
             local(bool): enable or disable checking of local packages for updates
             manual(bool): include or exclude manual updates
             vcs(bool): enable or disable checking of VCS packages
-            log_fn(Callable[[str], None]): logger function to log updates
 
         Returns:
             list[Package]: list of out-of-dated packages
@@ -182,14 +180,4 @@ class ApplicationRepository(ApplicationProperties):
         if manual:
             updates.update({package.base: package for package in self.repository.updates_manual()})
 
-        local_versions = {package.base: package.version for package in self.repository.packages()}
-        updated_packages = [package for _, package in sorted(updates.items())]
-
-        # reorder updates according to the dependency tree
-        tree = Tree.resolve(updated_packages)
-        for level in tree:
-            for package in level:
-                UpdatePrinter(package, local_versions.get(package.base)).print(
-                    verbose=True, log_fn=log_fn, separator=" -> ")
-
-        return updated_packages
+        return [package for _, package in sorted(updates.items())]
