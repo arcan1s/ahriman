@@ -86,6 +86,7 @@ class Lock(LazyLogging):
         check if current user is actually owner of ahriman root
         """
         check_user(self.paths, unsafe=self.unsafe)
+        self.paths.tree_create()
 
     def clear(self) -> None:
         """
@@ -116,7 +117,7 @@ class Lock(LazyLogging):
             1. Check user UID
             2. Check if there is lock file
             3. Check web status watcher status
-            4. Create lock file
+            4. Create lock file and directory tree
             5. Report to status page if enabled
 
         Returns:

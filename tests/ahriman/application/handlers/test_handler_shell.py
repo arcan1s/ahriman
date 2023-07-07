@@ -32,7 +32,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("code.interact")
 
-    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Shell.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
 
 
@@ -46,7 +46,7 @@ def test_run_eval(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("code.InteractiveConsole.runcode")
 
-    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Shell.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(args.code)
 
 
@@ -61,6 +61,6 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("code.interact")
 
-    Shell.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Shell.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
     print_mock.assert_called_once_with(verbose=False)

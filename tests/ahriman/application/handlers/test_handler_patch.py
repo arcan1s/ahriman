@@ -44,7 +44,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
                               return_value=(args.package, PkgbuildPatch(None, "patch")))
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
-    Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Patch.run(args, "x86_64", configuration, report=False)
     patch_mock.assert_called_once_with(args.package, "x86_64", args.track)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, PkgbuildPatch(None, "patch"))
 
@@ -63,7 +63,7 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, re
     patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_function", return_value=patch)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
-    Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Patch.run(args, "x86_64", configuration, report=False)
     patch_mock.assert_called_once_with(args.variable, args.patch)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, patch)
 
@@ -79,7 +79,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_list")
 
-    Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Patch.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, ["version"], False)
 
 
@@ -94,7 +94,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_remove")
 
-    Patch.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Patch.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, ["version"])
 
 

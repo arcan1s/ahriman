@@ -30,8 +30,7 @@ class Daemon(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -40,11 +39,10 @@ class Daemon(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         from ahriman.application.handlers import Update
-        Update.run(args, architecture, configuration, report=report, unsafe=unsafe)
+        Update.run(args, architecture, configuration, report=report)
         timer = threading.Timer(args.interval, Daemon.run, args=[args, architecture, configuration],
-                                kwargs={"report": report, "unsafe": unsafe})
+                                kwargs={"report": report})
         timer.start()
         timer.join()

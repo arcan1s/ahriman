@@ -37,8 +37,7 @@ class Shell(Handler):
     ALLOW_MULTI_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -47,10 +46,9 @@ class Shell(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         # pylint: disable=possibly-unused-variable
-        application = Application(architecture, configuration, report=report, unsafe=unsafe)
+        application = Application(architecture, configuration, report=report)
         if args.verbose:
             # licensed by https://creativecommons.org/licenses/by-sa/3.0
             path = Path(sys.prefix) / "share" / "ahriman" / "templates" / "shell"

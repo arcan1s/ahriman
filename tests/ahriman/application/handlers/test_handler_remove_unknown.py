@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    RemoveUnknown.run(args, "x86_64", configuration, report=False, unsafe=False)
+    RemoveUnknown.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_called_once_with([package_ahriman])
     on_start_mock.assert_called_once_with()
@@ -53,7 +53,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    RemoveUnknown.run(args, "x86_64", configuration, report=False, unsafe=False)
+    RemoveUnknown.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
     print_mock.assert_called_once_with(verbose=False)

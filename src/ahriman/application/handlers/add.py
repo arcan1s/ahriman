@@ -31,8 +31,7 @@ class Add(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -41,10 +40,8 @@ class Add(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration,
-                                  report=report, unsafe=unsafe, refresh_pacman_database=args.refresh)
+        application = Application(architecture, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
         application.add(args.package, args.source, args.username)
         if not args.now:

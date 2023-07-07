@@ -36,8 +36,7 @@ class Web(Handler):
     COMMAND_ARGS_WHITELIST = ["force", "log_handler", ""]
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -46,7 +45,6 @@ class Web(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         # we are using local import for optional dependencies
         from ahriman.web.web import run_server, setup_service

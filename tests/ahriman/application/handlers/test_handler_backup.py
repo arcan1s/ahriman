@@ -33,7 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     add_mock = tarfile.__enter__.return_value = MagicMock()
     mocker.patch("tarfile.TarFile.__new__", return_value=tarfile)
 
-    Backup.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Backup.run(args, "x86_64", configuration, report=False)
     add_mock.add.assert_called_once_with(Path("path"))
 
 

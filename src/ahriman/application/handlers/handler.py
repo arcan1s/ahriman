@@ -97,7 +97,7 @@ class Handler:
             log_handler = Log.handler(args.log_handler)
             Log.load(configuration, log_handler, quiet=args.quiet, report=args.report)
             with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration, report=args.report, unsafe=args.unsafe)
+                cls.run(args, architecture, configuration, report=args.report)
             return True
         except ExitCode:
             return False
@@ -136,8 +136,7 @@ class Handler:
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -146,7 +145,6 @@ class Handler:
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
 
         Raises:
             NotImplementedError: not implemented method

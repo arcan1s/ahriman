@@ -21,12 +21,10 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.exceptions import UnsafeRunError
 from ahriman.core.log import LazyLogging
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.client import Client
 from ahriman.core.triggers import TriggerLoader
-from ahriman.core.util import check_user
 from ahriman.models.packagers import Packagers
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
@@ -53,7 +51,7 @@ class RepositoryProperties(LazyLogging):
         vcs_allowed_age(int): maximal age of the VCS packages before they will be checked
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *, report: bool, unsafe: bool,
+    def __init__(self, architecture: str, configuration: Configuration, database: SQLite, *, report: bool,
                  refresh_pacman_database: PacmanSynchronization) -> None:
         """
         default constructor
@@ -63,7 +61,6 @@ class RepositoryProperties(LazyLogging):
             configuration(Configuration): configuration instance
             database(SQLite): database instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
             refresh_pacman_database(PacmanSynchronization): pacman database synchronization level
         """
         self.architecture = architecture
@@ -74,11 +71,6 @@ class RepositoryProperties(LazyLogging):
         self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
         self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing
-        try:
-            check_user(self.paths, unsafe=unsafe)
-            self.paths.tree_create()
-        except UnsafeRunError:
-            self.logger.warning("root owner differs from the current user, skipping tree creation")
 
         self.ignore_list = configuration.getlist("build", "ignore_packages", fallback=[])
         self.pacman = Pacman(architecture, configuration, refresh_database=refresh_pacman_database)

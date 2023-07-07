@@ -26,10 +26,9 @@ def application(configuration: Configuration, repository: Repository, database: 
     Returns:
         Application: application test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    return Application("x86_64", configuration, report=False, unsafe=False)
+    return Application("x86_64", configuration, report=False)
 
 
 @pytest.fixture

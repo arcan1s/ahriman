@@ -443,9 +443,8 @@ def repository(configuration: Configuration, database: SQLite, mocker: MockerFix
     Returns:
         Repository: repository test instance
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     mocker.patch("ahriman.core.repository.Repository._set_context")
-    return Repository.load("x86_64", configuration, database, report=False, unsafe=False)
+    return Repository.load("x86_64", configuration, database, report=False)
 
 
 @pytest.fixture

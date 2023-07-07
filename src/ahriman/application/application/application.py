@@ -39,12 +39,12 @@ class Application(ApplicationPackages, ApplicationRepository):
             >>> from ahriman.models.package_source import PackageSource
             >>>
             >>> configuration = Configuration()
-            >>> application = Application("x86_64", configuration, report=True, unsafe=False)
+            >>> application = Application("x86_64", configuration, report=True)
             >>> # add packages to build queue
             >>> application.add(["ahriman"], PackageSource.AUR)
             >>>
             >>> # check for updates
-            >>> updates = application.updates([], aur=True, local=True, manual=True, vcs=True, log_fn=print)
+            >>> updates = application.updates([], aur=True, local=True, manual=True, vcs=True)
             >>> # updates for specified packages
             >>> application.update(updates)
 

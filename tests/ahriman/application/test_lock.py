@@ -57,8 +57,11 @@ def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     must check user correctly
     """
     check_user_patch = mocker.patch("ahriman.application.lock.check_user")
+    tree_create = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
+
     lock.check_user()
     check_user_patch.assert_called_once_with(lock.paths, unsafe=False)
+    tree_create.assert_called_once_with()
 
 
 def test_check_user_exception(lock: Lock, mocker: MockerFixture) -> None:
@@ -70,10 +73,11 @@ def test_check_user_exception(lock: Lock, mocker: MockerFixture) -> None:
         lock.check_user()
 
 
-def test_check_user_unsafe(lock: Lock) -> None:
+def test_check_user_unsafe(lock: Lock, mocker: MockerFixture) -> None:
     """
     must skip user check if unsafe flag set
     """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     lock.unsafe = True
     lock.check_user()
 
