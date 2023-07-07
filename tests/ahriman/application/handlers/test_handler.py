@@ -143,7 +143,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration) -> None:
     must raise NotImplemented for missing method
     """
     with pytest.raises(NotImplementedError):
-        Handler.run(args, "x86_64", configuration, report=True, unsafe=True)
+        Handler.run(args, "x86_64", configuration, report=True)
 
 
 def test_check_if_empty() -> None:

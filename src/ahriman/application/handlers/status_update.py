@@ -33,8 +33,7 @@ class StatusUpdate(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -43,10 +42,9 @@ class StatusUpdate(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         # we are using reporter here
-        client = Application(architecture, configuration, report=True, unsafe=unsafe).repository.reporter
+        client = Application(architecture, configuration, report=True).repository.reporter
 
         if args.action == Action.Update and args.package:
             # update packages statuses

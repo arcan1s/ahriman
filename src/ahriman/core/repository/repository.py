@@ -47,7 +47,7 @@ class Repository(Executor, UpdateHandler):
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository.load("x86_64", configuration, database, report=True, unsafe=False)
+            >>> repository = Repository.load("x86_64", configuration, database, report=True)
             >>> known_packages = repository.packages()
             >>>
             >>> build_result = repository.process_build(known_packages)
@@ -58,7 +58,7 @@ class Repository(Executor, UpdateHandler):
     """
 
     @classmethod
-    def load(cls, architecture: str, configuration: Configuration, database: SQLite, *, report: bool, unsafe: bool,
+    def load(cls, architecture: str, configuration: Configuration, database: SQLite, *, report: bool,
              refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> Self:
         """
         load instance from argument list
@@ -68,7 +68,6 @@ class Repository(Executor, UpdateHandler):
             configuration(Configuration): configuration instance
             database(SQLite): database instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
             refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
                 (Default value = PacmanSynchronization.Disabled)
 
@@ -76,7 +75,7 @@ class Repository(Executor, UpdateHandler):
             Self: fully loaded repository class instance
         """
         instance = cls(architecture, configuration, database,
-                       report=report, unsafe=unsafe, refresh_pacman_database=refresh_pacman_database)
+                       report=report, refresh_pacman_database=refresh_pacman_database)
         instance._set_context()
         return instance
 

@@ -30,8 +30,7 @@ class Remove(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -40,8 +39,7 @@ class Remove(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
-        application = Application(architecture, configuration, report=report, unsafe=unsafe)
+        application = Application(architecture, configuration, report=report)
         application.on_start()
         application.remove(args.package)

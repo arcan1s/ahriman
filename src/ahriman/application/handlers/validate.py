@@ -39,8 +39,7 @@ class Validate(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -49,7 +48,6 @@ class Validate(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         schema = Validate.schema(architecture, configuration)
         validator = Validator(configuration=configuration, schema=schema)

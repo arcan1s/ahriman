@@ -36,8 +36,7 @@ class Backup(Handler):
     ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -46,7 +45,6 @@ class Backup(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         backup_paths = Backup.get_paths(configuration)
         with TarFile(args.path, mode="w") as archive:  # well we don't actually use compression

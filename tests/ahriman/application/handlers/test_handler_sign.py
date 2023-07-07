@@ -30,5 +30,5 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.sign")
 
-    Sign.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Sign.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with([])

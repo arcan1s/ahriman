@@ -53,7 +53,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
     print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
-    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Update.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with([package_ahriman],
                                              Packagers(args.username, {package_ahriman.base: "packager"}))
     updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
@@ -75,7 +75,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.application.application.Application.updates", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Update.run(args, "x86_64", configuration, report=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -93,7 +93,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Update.run(args, "x86_64", configuration, report=False)
     check_mock.assert_has_calls([MockCall(True, False), MockCall(True, True)])
 
 
@@ -109,7 +109,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates")
 
-    Update.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Update.run(args, "x86_64", configuration, report=False)
     updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, pytest.helpers.anyvar(int))

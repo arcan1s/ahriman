@@ -46,8 +46,7 @@ class Setup(Handler):
     SUDOERS_DIR_PATH = Path("/etc") / "sudoers.d"
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -56,12 +55,11 @@ class Setup(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
         Setup.configuration_create_ahriman(args, architecture, args.repository, configuration)
         configuration.reload()
 
-        application = Application(architecture, configuration, report=report, unsafe=unsafe)
+        application = Application(architecture, configuration, report=report)
 
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         Setup.executable_create(application.repository.paths, args.build_command, architecture)

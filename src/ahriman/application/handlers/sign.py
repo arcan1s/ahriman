@@ -30,8 +30,7 @@ class Sign(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *,
-            report: bool, unsafe: bool) -> None:
+    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
         """
         callback for command line
 
@@ -40,6 +39,5 @@ class Sign(Handler):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            unsafe(bool): if set no user check will be performed before path creation
         """
-        Application(architecture, configuration, report=report, unsafe=unsafe).sign(args.package)
+        Application(architecture, configuration, report=report).sign(args.package)

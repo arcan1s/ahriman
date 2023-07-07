@@ -35,7 +35,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    ServiceUpdates.run(args, "x86_64", configuration, report=False, unsafe=False)
+    ServiceUpdates.run(args, "x86_64", configuration, report=False)
     package_mock.assert_called_once_with(package_ahriman.base, repository.pacman, None)
     application_mock.assert_called_once_with(verbose=True, separator=" -> ")
     check_mock.assert_called_once_with(args.exit_code, True)
@@ -53,6 +53,6 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, reposi
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    ServiceUpdates.run(args, "x86_64", configuration, report=False, unsafe=False)
+    ServiceUpdates.run(args, "x86_64", configuration, report=False)
     application_mock.assert_not_called()
     check_mock.assert_not_called()

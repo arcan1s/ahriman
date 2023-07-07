@@ -33,7 +33,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=False)
 
-    Validate.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Validate.run(args, "x86_64", configuration, report=False)
 
     application_mock.assert_called_once_with(configuration.dump())
     print_mock.assert_called_once_with(verbose=True)
@@ -47,7 +47,7 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, mocker
     mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=True)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Validate.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Validate.run(args, "x86_64", configuration, report=False)
     print_mock.assert_not_called()
 
 

@@ -53,7 +53,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     executable_mock = mocker.patch("ahriman.application.handlers.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
-    Setup.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Setup.run(args, "x86_64", configuration, report=False)
     ahriman_configuration_mock.assert_called_once_with(args, "x86_64", args.repository, configuration)
     devtools_configuration_mock.assert_called_once_with(
         args.build_command, "x86_64", args.from_configuration, args.mirror, args.multilib, args.repository,

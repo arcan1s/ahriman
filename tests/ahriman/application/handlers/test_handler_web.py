@@ -41,7 +41,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")
     join_mock = mocker.patch("ahriman.core.spawn.Spawn.join")
 
-    Web.run(args, "x86_64", configuration, report=False, unsafe=False)
+    Web.run(args, "x86_64", configuration, report=False)
     setup_mock.assert_called_once_with("x86_64", configuration, pytest.helpers.anyvar(int))
     run_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     start_mock.assert_called_once_with()
