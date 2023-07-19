@@ -84,7 +84,7 @@
                     showSuccess("Success", `Key ${key} has been imported`);
                 },
                 error: (jqXHR, _, errorThrown) => {
-                    const message = _ => { return `Could not import key ${key} from ${server}`; };
+                    const message = _ => `Could not import key ${key} from ${server}`;
                     showFailure("Action failed", message, jqXHR, errorThrown);
                 },
             });

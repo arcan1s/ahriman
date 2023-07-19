@@ -61,7 +61,7 @@
             error: (jqXHR, _, errorThrown) => {
                 // show failed modal in case if first time loading
                 if (isPackageBaseSet) {
-                    const message = error => { return `Could not load package ${packageBase} logs: ${error}`; };
+                    const message = error => `Could not load package ${packageBase} logs: ${error}`;
                     showFailure("Load failure", message, jqXHR, errorThrown);
                 }
             },
