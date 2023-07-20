@@ -15,6 +15,25 @@
             table.bootstrapTable(method, {field: "id", values: [data.id]});
         } else showLogs(data.id);
     });
+    table.on("created-controls.bs.table", () => {
+        const pickerInput = $(".bootstrap-table-filter-control-timestamp");
+        pickerInput.daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                cancelLabel: "Clear",
+            },
+        });
+
+        pickerInput.on("apply.daterangepicker", (event, picker) => {
+            pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
+            table.bootstrapTable("triggerSearch");
+        });
+
+        pickerInput.on("cancel.daterangepicker", () => {
+            pickerInput.val("");
+            table.bootstrapTable("triggerSearch");
+        });
+    });
 
     const repositoryBadge = $("#badge-repository");
     const statusBadge = $("#badge-status");
@@ -37,21 +56,21 @@
     }
 
     function getSelection() {
-        return table.bootstrapTable("getSelections").map(row => { return row.id; });
+        return table.bootstrapTable("getSelections").map(row => row.id);
     }
 
     function removePackages() {
-        const onSuccess = update => { return `Packages ${update} have been removed`; };
-        const onFailure = error => { return `Could not remove packages: ${error}`; };
+        const onSuccess = update => `Packages ${update} have been removed`;
+        const onFailure = error => `Could not remove packages: ${error}`;
         doPackageAction("/api/v1/service/remove", getSelection(), onSuccess, onFailure);
     }
 
     function updatePackages() {
         const currentSelection = getSelection();
         const [url, onSuccess] = currentSelection.length === 0
-            ? ["/api/v1/service/update", _ => { return "Repository update has been run"; }]
-            : ["/api/v1/service/add", update => { return `Run update for packages ${update}`; }];
-        const onFailure = error => { return `Packages update failed: ${error}`; };
+            ? ["/api/v1/service/update", _ => "Repository update has been run"]
+            : ["/api/v1/service/add", update => `Run update for packages ${update}`];
+        const onFailure = error => `Packages update failed: ${error}`;
         doPackageAction(url, currentSelection, onSuccess, onFailure);
     }
 
@@ -81,13 +100,13 @@
             success: response => {
                 const extractListProperties = (description, property) => {
                     return Object.values(description.packages)
-                        .map(pkg => { return pkg[property]; })
-                        .reduce((left, right) => { return left.concat(right); }, []);
+                        .map(pkg => pkg[property])
+                        .reduce((left, right) => left.concat(right), []);
                 };
                 const listToTable = data => {
                     return Array.from(new Set(data))
                         .sort()
-                        .map(entry => { return safe(entry); })
+                        .map(entry => safe(entry))
                         .join("<br>");
                 };
 
@@ -121,7 +140,7 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    const message = error => { return `Could not load list of packages: ${error}`; };
+                    const message = error => `Could not load list of packages: ${error}`;
                     showFailure("Load failure", message, jqXHR, errorThrown);
                 }
                 hideControls(true);
@@ -156,6 +175,18 @@
             return "table-secondary";
         };
         return {classes: cellClass(value)};
+    }
+
+    function filterListGroups() {
+        return extractDataList(table.bootstrapTable("getData"), "groups");
+    }
+
+    function filterListLicenses() {
+        return extractDataList(table.bootstrapTable("getData"), "licenses");
+    }
+
+    function filterListPackagers() {
+        return extractDataList(table.bootstrapTable("getData"), "packager");
     }
 
     $(() => {
