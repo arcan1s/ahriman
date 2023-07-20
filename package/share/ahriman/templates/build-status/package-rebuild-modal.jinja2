@@ -33,8 +33,8 @@
         const packages = dependencyInput.val();
         if (packages) {
             packageRebuildModal.modal("hide");
-            const onSuccess = update => { return `Repository rebuild has been run for packages which depend on ${update}`; };
-            const onFailure = error => { return `Repository rebuild failed: ${error}`; };
+            const onSuccess = update => `Repository rebuild has been run for packages which depend on ${update}`;
+            const onFailure = error => `Repository rebuild failed: ${error}`;
             doPackageAction("/api/v1/service/rebuild", [packages], onSuccess, onFailure);
         }
     }

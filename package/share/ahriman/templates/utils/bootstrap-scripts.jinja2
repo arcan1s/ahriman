@@ -1,16 +1,21 @@
-<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js" integrity="sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js" integrity="sha384-8hHkOkbWN1TLWwet/jpbJ0zbx3FJDeYJgQ8dX1mRrv/vfCfHCqFSFZYCgaMML3z9" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js" integrity="sha384-u4eJN1VWrTf/FnYYQJo2kqJyVxEQf5UmWY4iUcNAoLenOEtEuCkfwc5bKvZOWBi5" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.28.0/tableExport.min.js" integrity="sha384-1Rz4Kz/y1rSWw+ZsjTcxB684XgofbO8iizY+UFIzCwFeQ+QUyhBNWBMh/STOyomI" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/bootstrap-table@1.21.1/dist/bootstrap-table.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js" integrity="sha384-IazMVNyYoUNx6357fWJoqtHYUWWCNHIXxFVtbpVgvImQNWuRP2WbHPaIb3QF8j97" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://unpkg.com/bootstrap-table@1.21.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.1/dist/bootstrap-table.min.js" integrity="sha384-GVLHfbEvuGA/RFiQ3MK2ClEJkWYJXABg55t9LpoDPZFGIsSq8xhFlQydm5poV2jW" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://unpkg.com/bootstrap-table@1.21.1/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.4/dist/extensions/export/bootstrap-table-export.min.js" integrity="sha384-jeldDadm+qM2RwGER3qVqxFgWVpAEJ7Jie+0rlYj8ni3KkQA654T8TSXDtol022X" crossorigin="anonymous" type="application/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.4/dist/extensions/resizable/bootstrap-table-resizable.js" integrity="sha384-wd8Vc6Febikdnsnk9vthRWRvMwffw246vhqiqNO3aSNe1maTEA07Vh3zAQiSyDji" crossorigin="anonymous" type="application/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.4/dist/extensions/filter-control/bootstrap-table-filter-control.js" integrity="sha384-B6xNXlSOaOFxjlKo9OW3htbox+9/DcaEcjPPEi1+pTMwH5Tzc/s2wNTYriHz7Tb8" crossorigin="anonymous" type="application/javascript"></script>
 
 <script>
     async function copyToClipboard(text, button) {
@@ -37,5 +42,29 @@
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;");
+    }
+
+    function extractDataList(data, column) {
+        const elements = data.flatMap(row => row[column].split("<br>")).filter(v => v); // remove empty elements from array
+        return Array.from(new Set(elements)).sort();
+    }
+
+    function filterContains(text, value) {
+        return value.includes(text.toLowerCase().trim());
+    }
+
+    function filterDateRange(text, value) {
+        const asOfStartOfDay = date => date.setUTCHours(0, 0, 0, 0);
+
+        const [minDate, maxDate] = text.split(" - ");
+        const buildDate = asOfStartOfDay(new Date(value));
+
+        return (buildDate >= asOfStartOfDay(new Date(minDate))) && (buildDate <= asOfStartOfDay(new Date(maxDate)));
+    }
+
+    function filterList(index, value, field, data) {
+        const dataList = extractDataList(data, field);
+        // the library removes all symbols from string, so it is just string
+        return value.includes(dataList[index].toLowerCase());
     }
 </script>
