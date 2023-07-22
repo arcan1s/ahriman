@@ -24,11 +24,7 @@ from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, j
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.auth_schema import AuthSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.log_schema import LogSchema
-from ahriman.web.schemas.logs_schema import LogsSchema
-from ahriman.web.schemas.package_name_schema import PackageNameSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, LogsSchema, PackageNameSchema
 from ahriman.web.views.base import BaseView
 
 

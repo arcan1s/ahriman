@@ -22,10 +22,7 @@ import aiohttp_apispec  # type: ignore[import]
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.auth_schema import AuthSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
-from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PGPKeyIdSchema, PGPKeySchema
 from ahriman.web.views.base import BaseView
 
 

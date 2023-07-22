@@ -25,10 +25,7 @@ from collections.abc import Callable
 from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.aur_package_schema import AURPackageSchema
-from ahriman.web.schemas.auth_schema import AuthSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.search_schema import SearchSchema
+from ahriman.web.schemas import AURPackageSchema, AuthSchema, ErrorSchema, SearchSchema
 from ahriman.web.views.base import BaseView
 
 

@@ -25,10 +25,7 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.auth_schema import AuthSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.package_name_schema import PackageNameSchema
-from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PackageStatusSchema, PackageStatusSimplifiedSchema
 from ahriman.web.views.base import BaseView
 
 

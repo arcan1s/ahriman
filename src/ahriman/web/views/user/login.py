@@ -23,9 +23,7 @@ from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.login_schema import LoginSchema
-from ahriman.web.schemas.oauth2_schema import OAuth2Schema
+from ahriman.web.schemas import ErrorSchema, LoginSchema, OAuth2Schema
 from ahriman.web.views.base import BaseView
 
 

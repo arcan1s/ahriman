@@ -1,5 +1,5 @@
 from ahriman.models.package import Package
-from ahriman.web.schemas.package_name_schema import PackageNameSchema
+from ahriman.web.schemas import PackageNameSchema
 
 
 def test_schema(package_ahriman: Package) -> None:
