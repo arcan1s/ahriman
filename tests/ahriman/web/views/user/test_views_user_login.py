@@ -25,6 +25,15 @@ async def test_get_default_validator(client_with_auth: TestClient) -> None:
     assert response.status == 405
 
 
+async def test_get_import_error(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+    """
+    must return 405 on import error
+    """
+    pytest.helpers.import_error("ahriman.core.auth.oauth", ["OAuth"], mocker)
+    response = await client_with_auth.get("/api/v1/login")
+    assert response.status == 405
+
+
 async def test_get_redirect_to_oauth(client_with_oauth_auth: TestClient) -> None:
     """
     must redirect to OAuth service provider in case if no code is supplied

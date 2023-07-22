@@ -64,7 +64,11 @@ class LoginView(BaseView):
             HTTPMethodNotAllowed: in case if method is used, but OAuth is disabled
             HTTPUnauthorized: if case of authorization error
         """
-        from ahriman.core.auth.oauth import OAuth
+        try:
+            from ahriman.core.auth.oauth import OAuth
+        except ImportError:
+            # no aioauth library found
+            raise HTTPMethodNotAllowed(self.request.method, ["POST"])
 
         oauth_provider = self.validator
         if not isinstance(oauth_provider, OAuth):  # there is actually property, but mypy does not like it anyway
