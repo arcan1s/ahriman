@@ -88,6 +88,30 @@ def get_package_status_extended(package: Package) -> dict[str, Any]:
     return {"status": BuildStatus().view(), "package": package.view()}
 
 
+@pytest.helpers.register
+def import_error(package: str, components: list[str], mocker: MockerFixture) -> MagicMock:
+    """
+    mock import error
+
+    Args:
+        package(str): package name to import
+        components(list[str]): component to import if any (e.g. from ... import ...)
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        MagicMock: mocked object
+    """
+    import builtins
+    _import = builtins.__import__
+
+    def test_import(name: str, globals: Any, locals: Any, from_list: list[str], level: Any):
+        if name == package and (not components or any(component in from_list for component in components)):
+            raise ImportError
+        return _import(name, globals, locals, from_list, level)
+
+    return mocker.patch.object(builtins, "__import__", test_import)
+
+
 # generic fixtures
 @pytest.fixture
 def aur_package_ahriman() -> AURPackage:
