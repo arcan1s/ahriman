@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-06\-03" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-07\-22" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -669,9 +669,10 @@ key server for key import
 
 .SH COMMAND \fI\,'ahriman service\-setup'\/\fR
 usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
-                             [\-\-from\-configuration FROM_CONFIGURATION] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
-                             [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER \-\-repository REPOSITORY
-                             [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
+                             [\-\-from\-configuration FROM_CONFIGURATION] [\-\-generate\-salt | \-\-no\-generate\-salt]
+                             [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs] [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib]
+                             \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY]
+                             [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
                              [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
 create initial service configuration, requires root
@@ -688,6 +689,10 @@ build command prefix
 .TP
 \fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
 path to default devtools pacman configuration
+
+.TP
+\fB\-\-generate\-salt\fR, \fB\-\-no\-generate\-salt\fR
+generate salt for user passwords
 
 .TP
 \fB\-\-makeflags\-jobs\fR, \fB\-\-no\-makeflags\-jobs\fR
@@ -735,7 +740,7 @@ drop into python shell while having created application
 instead of dropping into shell, just execute the specified code
 
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
-usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}] [\-s]
+usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}]
                         username
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
@@ -761,10 +766,6 @@ authorization type.
 .TP
 \fB\-r\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
 user access level
-
-.TP
-\fB\-s\fR, \fB\-\-secure\fR
-set file permissions to user\-only
 
 .SH COMMAND \fI\,'ahriman user\-list'\/\fR
 usage: ahriman user\-list [\-h] [\-e] [\-r {unauthorized,read,reporter,full}] [username]
