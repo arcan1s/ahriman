@@ -1,4 +1,4 @@
-from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas import AuthSchema
 
 
 def test_schema() -> None:

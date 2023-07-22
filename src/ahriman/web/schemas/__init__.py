@@ -17,3 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman.web.schemas.aur_package_schema import AURPackageSchema
+from ahriman.web.schemas.auth_schema import AuthSchema
+from ahriman.web.schemas.counters_schema import CountersSchema
+from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
+from ahriman.web.schemas.log_schema import LogSchema
+from ahriman.web.schemas.login_schema import LoginSchema
+from ahriman.web.schemas.logs_schema import LogsSchema
+from ahriman.web.schemas.oauth2_schema import OAuth2Schema
+from ahriman.web.schemas.package_name_schema import PackageNameSchema
+from ahriman.web.schemas.package_names_schema import PackageNamesSchema
+from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchema
+from ahriman.web.schemas.package_schema import PackageSchema
+from ahriman.web.schemas.package_status_schema import PackageStatusSimplifiedSchema, PackageStatusSchema
+from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
+from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
+from ahriman.web.schemas.remote_schema import RemoteSchema
+from ahriman.web.schemas.search_schema import SearchSchema
+from ahriman.web.schemas.status_schema import StatusSchema

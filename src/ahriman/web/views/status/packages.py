@@ -22,9 +22,7 @@ import aiohttp_apispec  # type: ignore[import]
 from aiohttp.web import HTTPNoContent, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas.auth_schema import AuthSchema
-from ahriman.web.schemas.error_schema import ErrorSchema
-from ahriman.web.schemas.package_status_schema import PackageStatusSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema
 from ahriman.web.views.base import BaseView
 
 
