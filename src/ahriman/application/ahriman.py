@@ -904,8 +904,7 @@ def _set_service_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("service-shell", aliases=["shell"], help="invoke python shell",
-                             description="drop into python shell while having created application",
-                             formatter_class=_formatter)
+                             description="drop into python shell", formatter_class=_formatter)
     parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
     parser.add_argument("-v", "--verbose", help=argparse.SUPPRESS, action="store_true")
     parser.set_defaults(handler=handlers.Shell, lock=None, report=False)
