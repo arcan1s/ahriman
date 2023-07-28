@@ -23,7 +23,6 @@ import sys
 
 from pathlib import Path
 
-from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
@@ -47,14 +46,12 @@ class Shell(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        # pylint: disable=possibly-unused-variable
-        application = Application(architecture, configuration, report=report)
         if args.verbose:
             # licensed by https://creativecommons.org/licenses/by-sa/3.0
             path = Path(sys.prefix) / "share" / "ahriman" / "templates" / "shell"
             StringPrinter(path.read_text(encoding="utf8")).print(verbose=False)
-        # we only want to pass application instance inside
+        local_variables = {"architecture": architecture, "configuration": configuration}
         if args.code is None:
-            code.interact(local={"application": application})
+            code.interact(local=local_variables)
         else:
-            code.InteractiveConsole(locals={"application": application}).runcode(args.code)
+            code.InteractiveConsole(locals=local_variables).runcode(args.code)
