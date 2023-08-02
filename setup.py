@@ -119,7 +119,6 @@ setup(
             "shtab",
             "sphinx-argparse",
             "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
-            "sphinxcontrib-napoleon",
         ],
         "journald": [
             "systemd-python",

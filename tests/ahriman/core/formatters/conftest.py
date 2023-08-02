@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 
-from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, ConfigurationPathsPrinter, PackagePrinter,\
+from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, ConfigurationPathsPrinter, PackagePrinter, \
     PatchPrinter, StatusPrinter, StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, ValidationPrinter, \
     VersionPrinter
 from ahriman.models.aur_package import AURPackage
