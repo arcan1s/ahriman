@@ -77,87 +77,87 @@ _shtab_ahriman_commands() {
 
 _shtab_ahriman_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "*"{-a,--architecture}"[target architectures. For several subcommands it can be used multiple times]:architecture:"
-  {-c,--configuration}"[configuration path]:configuration:"
-  "--force[force run, remove file lock]"
-  {-l,--lock}"[lock file]:lock:"
-  "--log-handler[explicit log handler specification. If none set, the handler will be guessed from environment]:log_handler:(console syslog journald)"
-  {--report,--no-report}"[force enable or disable reporting to web service]:report:"
-  {-q,--quiet}"[force disable any logging]"
-  "--unsafe[allow to run ahriman as non-ahriman user. Some actions might be unavailable]"
+  "*"{-a,--architecture}"[target architectures. For several subcommands it can be used multiple times (default\: None)]:architecture:"
+  {-c,--configuration}"[configuration path (default\: \/etc\/ahriman.ini)]:configuration:"
+  "--force[force run, remove file lock (default\: False)]"
+  {-l,--lock}"[lock file (default\: \/tmp\/ahriman.lock)]:lock:"
+  "--log-handler[explicit log handler specification. If none set, the handler will be guessed from environment (default\: None)]:log_handler:(console syslog journald)"
+  {--report,--no-report}"[force enable or disable reporting to web service (default\: True)]:report:"
+  {-q,--quiet}"[force disable any logging (default\: False)]"
+  "--unsafe[allow to run ahriman as non-ahriman user. Some actions might be unavailable (default\: False)]"
   "(- : *)"{-V,--version}"[show program\'s version number and exit]"
 )
 
 _shtab_ahriman_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-n,--now}"[run update function after]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  {-u,--username}"[build as user]:username:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-n,--now}"[run update function after (default\: False)]"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user (default\: None)]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
 _shtab_ahriman_aur_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--info,--no-info}"[show additional package information]:info:"
-  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--info,--no-info}"[show additional package information (default\: False)]:info:"
+  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name (default\: name)]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
 
 _shtab_ahriman_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  "(*)::filter check by package base:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  "(*)::filter check by package base (default\: None):"
 )
 
 _shtab_ahriman_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--cache,--no-cache}"[clear directory with package caches]:cache:"
-  {--chroot,--no-chroot}"[clear build chroot]:chroot:"
-  {--manual,--no-manual}"[clear manually added packages queue]:manual:"
-  {--packages,--no-packages}"[clear directory with built packages]:packages:"
-  {--pacman,--no-pacman}"[clear directory with pacman local database cache]:pacman:"
+  {--cache,--no-cache}"[clear directory with package caches (default\: False)]:cache:"
+  {--chroot,--no-chroot}"[clear build chroot (default\: False)]:chroot:"
+  {--manual,--no-manual}"[clear manually added packages queue (default\: False)]:manual:"
+  {--packages,--no-packages}"[clear directory with built packages (default\: False)]:packages:"
+  {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
 _shtab_ahriman_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--secure,--no-secure}"[hide passwords and secrets from output]:secure:"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: True)]:secure:"
 )
 
 _shtab_ahriman_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
 
 _shtab_ahriman_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-i,--interval}"[interval between runs in seconds]:interval:"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates]:aur:"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
-  {--manual,--no-manual}"[include or exclude manual updates]:manual:"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
+  {-i,--interval}"[interval between runs in seconds (default\: 43200)]:interval:"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
+  {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )
 
 _shtab_ahriman_help_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  ":show help message for specific command:"
+  ":show help message for specific command (default\: None):"
 )
 
 _shtab_ahriman_help_commands_unsafe_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "(*)::instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise:"
+  "(*)::instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise (default\: None):"
 )
 
 _shtab_ahriman_help_updates_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit code if updates available]"
+  {-e,--exit-code}"[return non-zero exit code if updates available (default\: False)]"
 )
 
 _shtab_ahriman_help_version_options=(
@@ -166,35 +166,35 @@ _shtab_ahriman_help_version_options=(
 
 _shtab_ahriman_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
-  "--build-command[build command prefix]:build_command:"
-  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
-  {--generate-salt,--no-generate-salt}"[generate salt for user passwords]:generate_salt:"
-  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores]:makeflags_jobs:"
-  "--mirror[use the specified explicitly mirror instead of including mirrorlist]:mirror:"
-  {--multilib,--no-multilib}"[add or do not multilib repository]:multilib:"
-  "--packager[packager name and email]:packager:"
-  "--repository[repository name]:repository:"
-  "--sign-key[sign key id]:sign_key:"
-  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
-  "--web-port[port of the web service]:web_port:"
-  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+  "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
+  "--build-command[build command prefix (default\: ahriman)]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
+  {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
+  "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
+  "--packager[packager name and email (default\: None)]:packager:"
+  "--repository[repository name (default\: None)]:repository:"
+  "--sign-key[sign key id (default\: None)]:sign_key:"
+  "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service (default\: None)]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
 _shtab_ahriman_key_import_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--key-server[key server for key import]:key_server:"
+  "--key-server[key server for key import (default\: keyserver.ubuntu.com)]:key_server:"
   ":PGP key to import from public server:"
 )
 
 _shtab_ahriman_package_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-n,--now}"[run update function after]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  {-u,--username}"[build as user]:username:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-n,--now}"[run update function after (default\: False)]"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user (default\: None)]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -205,11 +205,11 @@ _shtab_ahriman_package_remove_options=(
 
 _shtab_ahriman_package_status_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--ahriman[get service status itself]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--info,--no-info}"[show additional package information]:info:"
-  {-s,--status}"[filter packages by status]:status:(unknown pending building failed success)"
-  "(*)::filter status by package base:"
+  "--ahriman[get service status itself (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--info,--no-info}"[show additional package information (default\: False)]:info:"
+  {-s,--status}"[filter packages by status (default\: None)]:status:(unknown pending building failed success)"
+  "(*)::filter status by package base (default\: None):"
 )
 
 _shtab_ahriman_package_status_remove_options=(
@@ -219,18 +219,18 @@ _shtab_ahriman_package_status_remove_options=(
 
 _shtab_ahriman_package_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new package build status]:status:(unknown pending building failed success)"
-  "(*)::set status for specified packages. If no packages supplied, service status will be updated:"
+  {-s,--status}"[new package build status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
+  "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
 
 _shtab_ahriman_package_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-n,--now}"[run update function after]"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  {-s,--source}"[explicitly specify the package source for this command]:source:(auto archive aur directory local remote repository)"
-  {-u,--username}"[build as user]:username:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-n,--now}"[run update function after (default\: False)]"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-u,--username}"[build as user (default\: None)]:username:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -238,36 +238,36 @@ _shtab_ahriman_patch_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":package base:"
   ":PKGBUILD variable or function name. If variable is a function, it must end with ():"
-  ":path to file which contains function or variable value. If not set, the value will be read from stdin:"
+  ":path to file which contains function or variable value. If not set, the value will be read from stdin (default\: None):"
 )
 
 _shtab_ahriman_patch_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  "*"{-v,--variable}"[if set, show only patches for specified PKGBUILD variables]:variable:"
-  ":package base:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  "*"{-v,--variable}"[if set, show only patches for specified PKGBUILD variables (default\: None)]:variable:"
+  ":package base (default\: None):"
 )
 
 _shtab_ahriman_patch_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "*"{-v,--variable}"[should be used for single-function patches in case if you wold like to remove only specified PKGBUILD variables. In case if not set, it will remove all patches related to the package]:variable:"
+  "*"{-v,--variable}"[should be used for single-function patches in case if you wold like to remove only specified PKGBUILD variables. In case if not set, it will remove all patches related to the package (default\: None)]:variable:"
   ":package base:"
 )
 
 _shtab_ahriman_patch_set_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "*"{-t,--track}"[files which has to be tracked]:track:"
+  "*"{-t,--track}"[files which has to be tracked (default\: \[\'\*.diff\', \'\*.patch\'\])]:track:"
   ":path to directory with changed files for patch addition\/update:"
 )
 
 _shtab_ahriman_rebuild_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "*--depends-on[only rebuild packages that depend on specified packages]:depends_on:"
-  "--dry-run[just perform check for packages without rebuild process itself]"
-  "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
-  {-u,--username}"[build as user]:username:"
+  "*--depends-on[only rebuild packages that depend on specified packages (default\: None)]:depends_on:"
+  "--dry-run[just perform check for packages without rebuild process itself (default\: False)]"
+  "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once. (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-s,--status}"[filter packages by status. Requires --from-database to be set (default\: None)]:status:(unknown pending building failed success)"
+  {-u,--username}"[build as user (default\: None)]:username:"
 )
 
 _shtab_ahriman_remove_options=(
@@ -277,7 +277,7 @@ _shtab_ahriman_remove_options=(
 
 _shtab_ahriman_remove_unknown_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--dry-run[just perform check for packages without removal]"
+  "--dry-run[just perform check for packages without removal (default\: False)]"
 )
 
 _shtab_ahriman_repo_backup_options=(
@@ -287,29 +287,29 @@ _shtab_ahriman_repo_backup_options=(
 
 _shtab_ahriman_repo_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  "(*)::filter check by package base:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  "(*)::filter check by package base (default\: None):"
 )
 
 _shtab_ahriman_repo_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--cache,--no-cache}"[clear directory with package caches]:cache:"
-  {--chroot,--no-chroot}"[clear build chroot]:chroot:"
-  {--manual,--no-manual}"[clear manually added packages queue]:manual:"
-  {--packages,--no-packages}"[clear directory with built packages]:packages:"
-  {--pacman,--no-pacman}"[clear directory with pacman local database cache]:pacman:"
+  {--cache,--no-cache}"[clear directory with package caches (default\: False)]:cache:"
+  {--chroot,--no-chroot}"[clear build chroot (default\: False)]:chroot:"
+  {--manual,--no-manual}"[clear manually added packages queue (default\: False)]:manual:"
+  {--packages,--no-packages}"[clear directory with built packages (default\: False)]:packages:"
+  {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
 _shtab_ahriman_repo_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--secure,--no-secure}"[hide passwords and secrets from output]:secure:"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: True)]:secure:"
 )
 
 _shtab_ahriman_repo_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
 
 _shtab_ahriman_repo_create_keyring_options=(
@@ -322,45 +322,45 @@ _shtab_ahriman_repo_create_mirrorlist_options=(
 
 _shtab_ahriman_repo_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-i,--interval}"[interval between runs in seconds]:interval:"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates]:aur:"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
-  {--manual,--no-manual}"[include or exclude manual updates]:manual:"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
+  {-i,--interval}"[interval between runs in seconds (default\: 43200)]:interval:"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
+  {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )
 
 _shtab_ahriman_repo_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
-  "--build-command[build command prefix]:build_command:"
-  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
-  {--generate-salt,--no-generate-salt}"[generate salt for user passwords]:generate_salt:"
-  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores]:makeflags_jobs:"
-  "--mirror[use the specified explicitly mirror instead of including mirrorlist]:mirror:"
-  {--multilib,--no-multilib}"[add or do not multilib repository]:multilib:"
-  "--packager[packager name and email]:packager:"
-  "--repository[repository name]:repository:"
-  "--sign-key[sign key id]:sign_key:"
-  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
-  "--web-port[port of the web service]:web_port:"
-  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+  "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
+  "--build-command[build command prefix (default\: ahriman)]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
+  {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
+  "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
+  "--packager[packager name and email (default\: None)]:packager:"
+  "--repository[repository name (default\: None)]:repository:"
+  "--sign-key[sign key id (default\: None)]:sign_key:"
+  "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service (default\: None)]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
 _shtab_ahriman_repo_rebuild_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "*--depends-on[only rebuild packages that depend on specified packages]:depends_on:"
-  "--dry-run[just perform check for packages without rebuild process itself]"
-  "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once.]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-s,--status}"[filter packages by status. Requires --from-database to be set]:status:(unknown pending building failed success)"
-  {-u,--username}"[build as user]:username:"
+  "*--depends-on[only rebuild packages that depend on specified packages (default\: None)]:depends_on:"
+  "--dry-run[just perform check for packages without rebuild process itself (default\: False)]"
+  "--from-database[read packages from database instead of filesystem. This feature in particular is required in case if you would like to restore repository from another repository instance. Note, however, that in order to restore packages you need to have original ahriman instance run with web service and have run repo-update at least once. (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-s,--status}"[filter packages by status. Requires --from-database to be set (default\: None)]:status:(unknown pending building failed success)"
+  {-u,--username}"[build as user (default\: None)]:username:"
 )
 
 _shtab_ahriman_repo_remove_unknown_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--dry-run[just perform check for packages without removal]"
+  "--dry-run[just perform check for packages without removal (default\: False)]"
 )
 
 _shtab_ahriman_repo_report_options=(
@@ -369,35 +369,35 @@ _shtab_ahriman_repo_report_options=(
 
 _shtab_ahriman_repo_restore_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-o,--output}"[root path of the extracted files]:output:"
+  {-o,--output}"[root path of the extracted files (default\: \/)]:output:"
   ":path of the input archive:"
 )
 
 _shtab_ahriman_repo_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
-  "--build-command[build command prefix]:build_command:"
-  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
-  {--generate-salt,--no-generate-salt}"[generate salt for user passwords]:generate_salt:"
-  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores]:makeflags_jobs:"
-  "--mirror[use the specified explicitly mirror instead of including mirrorlist]:mirror:"
-  {--multilib,--no-multilib}"[add or do not multilib repository]:multilib:"
-  "--packager[packager name and email]:packager:"
-  "--repository[repository name]:repository:"
-  "--sign-key[sign key id]:sign_key:"
-  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
-  "--web-port[port of the web service]:web_port:"
-  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+  "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
+  "--build-command[build command prefix (default\: ahriman)]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
+  {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
+  "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
+  "--packager[packager name and email (default\: None)]:packager:"
+  "--repository[repository name (default\: None)]:repository:"
+  "--sign-key[sign key id (default\: None)]:sign_key:"
+  "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service (default\: None)]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
 _shtab_ahriman_repo_sign_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "(*)::sign only specified packages:"
+  "(*)::sign only specified packages (default\: None):"
 )
 
 _shtab_ahriman_repo_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new status]:status:(unknown pending building failed success)"
+  {-s,--status}"[new status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
 )
 
 _shtab_ahriman_repo_sync_options=(
@@ -410,21 +410,21 @@ _shtab_ahriman_repo_tree_options=(
 
 _shtab_ahriman_repo_triggers_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "(*)::instead of running all triggers as set by configuration, just process specified ones in order of mention:"
+  "(*)::instead of running all triggers as set by configuration, just process specified ones in order of mention (default\: None):"
 )
 
 _shtab_ahriman_repo_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates]:aur:"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  "--dry-run[just perform check for updates, same as check command]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
-  {--manual,--no-manual}"[include or exclude manual updates]:manual:"
-  {-u,--username}"[build as user]:username:"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  "(*)::filter check by package base:"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  "--dry-run[just perform check for updates, same as check command (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
+  {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
+  {-u,--username}"[build as user (default\: None)]:username:"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  "(*)::filter check by package base (default\: None):"
 )
 
 _shtab_ahriman_report_options=(
@@ -433,99 +433,99 @@ _shtab_ahriman_report_options=(
 
 _shtab_ahriman_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--info,--no-info}"[show additional package information]:info:"
-  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--info,--no-info}"[show additional package information (default\: False)]:info:"
+  "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name (default\: name)]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
 
 _shtab_ahriman_service_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--cache,--no-cache}"[clear directory with package caches]:cache:"
-  {--chroot,--no-chroot}"[clear build chroot]:chroot:"
-  {--manual,--no-manual}"[clear manually added packages queue]:manual:"
-  {--packages,--no-packages}"[clear directory with built packages]:packages:"
-  {--pacman,--no-pacman}"[clear directory with pacman local database cache]:pacman:"
+  {--cache,--no-cache}"[clear directory with package caches (default\: False)]:cache:"
+  {--chroot,--no-chroot}"[clear build chroot (default\: False)]:chroot:"
+  {--manual,--no-manual}"[clear manually added packages queue (default\: False)]:manual:"
+  {--packages,--no-packages}"[clear directory with built packages (default\: False)]:packages:"
+  {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
 _shtab_ahriman_service_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--secure,--no-secure}"[hide passwords and secrets from output]:secure:"
+  {--secure,--no-secure}"[hide passwords and secrets from output (default\: True)]:secure:"
 )
 
 _shtab_ahriman_service_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if configuration is invalid]"
+  {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
 
 _shtab_ahriman_service_key_import_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--key-server[key server for key import]:key_server:"
+  "--key-server[key server for key import (default\: keyserver.ubuntu.com)]:key_server:"
   ":PGP key to import from public server:"
 )
 
 _shtab_ahriman_service_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
-  "--build-command[build command prefix]:build_command:"
-  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
-  {--generate-salt,--no-generate-salt}"[generate salt for user passwords]:generate_salt:"
-  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores]:makeflags_jobs:"
-  "--mirror[use the specified explicitly mirror instead of including mirrorlist]:mirror:"
-  {--multilib,--no-multilib}"[add or do not multilib repository]:multilib:"
-  "--packager[packager name and email]:packager:"
-  "--repository[repository name]:repository:"
-  "--sign-key[sign key id]:sign_key:"
-  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
-  "--web-port[port of the web service]:web_port:"
-  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+  "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
+  "--build-command[build command prefix (default\: ahriman)]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
+  {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
+  "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
+  "--packager[packager name and email (default\: None)]:packager:"
+  "--repository[repository name (default\: None)]:repository:"
+  "--sign-key[sign key id (default\: None)]:sign_key:"
+  "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service (default\: None)]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
 _shtab_ahriman_service_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  ":instead of dropping into shell, just execute the specified code:"
+  ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
 _shtab_ahriman_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--build-as-user[force makepkg user to the specific one]:build_as_user:"
-  "--build-command[build command prefix]:build_command:"
-  "--from-configuration[path to default devtools pacman configuration]:from_configuration:"
-  {--generate-salt,--no-generate-salt}"[generate salt for user passwords]:generate_salt:"
-  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores]:makeflags_jobs:"
-  "--mirror[use the specified explicitly mirror instead of including mirrorlist]:mirror:"
-  {--multilib,--no-multilib}"[add or do not multilib repository]:multilib:"
-  "--packager[packager name and email]:packager:"
-  "--repository[repository name]:repository:"
-  "--sign-key[sign key id]:sign_key:"
-  "*--sign-target[sign options]:sign_target:(disabled packages repository)"
-  "--web-port[port of the web service]:web_port:"
-  "--web-unix-socket[path to unix socket used for interprocess communications]:web_unix_socket:"
+  "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
+  "--build-command[build command prefix (default\: ahriman)]:build_command:"
+  "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
+  {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
+  {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
+  "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
+  {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
+  "--packager[packager name and email (default\: None)]:packager:"
+  "--repository[repository name (default\: None)]:repository:"
+  "--sign-key[sign key id (default\: None)]:sign_key:"
+  "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
+  "--web-port[port of the web service (default\: None)]:web_port:"
+  "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
 _shtab_ahriman_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  ":instead of dropping into shell, just execute the specified code:"
+  ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
 _shtab_ahriman_sign_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "(*)::sign only specified packages:"
+  "(*)::sign only specified packages (default\: None):"
 )
 
 _shtab_ahriman_status_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--ahriman[get service status itself]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--info,--no-info}"[show additional package information]:info:"
-  {-s,--status}"[filter packages by status]:status:(unknown pending building failed success)"
-  "(*)::filter status by package base:"
+  "--ahriman[get service status itself (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--info,--no-info}"[show additional package information (default\: False)]:info:"
+  {-s,--status}"[filter packages by status (default\: None)]:status:(unknown pending building failed success)"
+  "(*)::filter status by package base (default\: None):"
 )
 
 _shtab_ahriman_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new package build status]:status:(unknown pending building failed success)"
-  "(*)::set status for specified packages. If no packages supplied, service status will be updated:"
+  {-s,--status}"[new package build status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
+  "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
 
 _shtab_ahriman_sync_options=(
@@ -534,32 +534,32 @@ _shtab_ahriman_sync_options=(
 
 _shtab_ahriman_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--aur,--no-aur}"[enable or disable checking for AUR updates]:aur:"
-  {--dependencies,--no-dependencies}"[process missing package dependencies]:dependencies:"
-  "--dry-run[just perform check for updates, same as check command]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {--local,--no-local}"[enable or disable checking of local packages for updates]:local:"
-  {--manual,--no-manual}"[include or exclude manual updates]:manual:"
-  {-u,--username}"[build as user]:username:"
-  {--vcs,--no-vcs}"[fetch actual version of VCS packages]:vcs:"
-  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date]"
-  "(*)::filter check by package base:"
+  {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  "--dry-run[just perform check for updates, same as check command (default\: False)]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
+  {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
+  {-u,--username}"[build as user (default\: None)]:username:"
+  {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
+  "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
+  "(*)::filter check by package base (default\: None):"
 )
 
 _shtab_ahriman_user_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  "--key[optional PGP key used by this user. The private key must be imported]:key:"
-  "--packager[optional packager id used for build process in form of \`Name Surname \<mail\@example.com\>\`]:packager:"
-  {-p,--password}"[user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2 authorization type.]:password:"
-  {-r,--role}"[user access level]:role:(unauthorized read reporter full)"
+  "--key[optional PGP key used by this user. The private key must be imported (default\: None)]:key:"
+  "--packager[optional packager id used for build process in form of \`Name Surname \<mail\@example.com\>\` (default\: None)]:packager:"
+  {-p,--password}"[user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2 authorization type. (default\: None)]:password:"
+  {-r,--role}"[user access level (default\: UserAccess.Read)]:role:(unauthorized read reporter full)"
   ":username for web service:"
 )
 
 _shtab_ahriman_user_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-e,--exit-code}"[return non-zero exit status if result is empty]"
-  {-r,--role}"[filter users by role]:role:(unauthorized read reporter full)"
-  ":filter users by username:"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  {-r,--role}"[filter users by role (default\: None)]:role:(unauthorized read reporter full)"
+  ":filter users by username (default\: None):"
 )
 
 _shtab_ahriman_user_remove_options=(
@@ -582,7 +582,7 @@ _shtab_ahriman() {
   if ((${_shtab_ahriman_options[(I)${(q)one_or_more}*]} + ${_shtab_ahriman_options[(I)${(q)remainder}*]} == 0)); then  # noqa: E501
     _shtab_ahriman_options+=(': :_shtab_ahriman_commands' '*::: :->ahriman')
   fi
-  _arguments -C $_shtab_ahriman_options
+  _arguments -C -s $_shtab_ahriman_options
 
   case $state in
     ahriman)
@@ -590,72 +590,72 @@ _shtab_ahriman() {
       (( CURRENT += 1 ))
       curcontext="${curcontext%:*:*}:_shtab_ahriman-$line[1]:"
       case $line[1] in
-        add) _arguments -C $_shtab_ahriman_add_options ;;
-        aur-search) _arguments -C $_shtab_ahriman_aur_search_options ;;
-        check) _arguments -C $_shtab_ahriman_check_options ;;
-        clean) _arguments -C $_shtab_ahriman_clean_options ;;
-        config) _arguments -C $_shtab_ahriman_config_options ;;
-        config-validate) _arguments -C $_shtab_ahriman_config_validate_options ;;
-        daemon) _arguments -C $_shtab_ahriman_daemon_options ;;
-        help) _arguments -C $_shtab_ahriman_help_options ;;
-        help-commands-unsafe) _arguments -C $_shtab_ahriman_help_commands_unsafe_options ;;
-        help-updates) _arguments -C $_shtab_ahriman_help_updates_options ;;
-        help-version) _arguments -C $_shtab_ahriman_help_version_options ;;
-        init) _arguments -C $_shtab_ahriman_init_options ;;
-        key-import) _arguments -C $_shtab_ahriman_key_import_options ;;
-        package-add) _arguments -C $_shtab_ahriman_package_add_options ;;
-        package-remove) _arguments -C $_shtab_ahriman_package_remove_options ;;
-        package-status) _arguments -C $_shtab_ahriman_package_status_options ;;
-        package-status-remove) _arguments -C $_shtab_ahriman_package_status_remove_options ;;
-        package-status-update) _arguments -C $_shtab_ahriman_package_status_update_options ;;
-        package-update) _arguments -C $_shtab_ahriman_package_update_options ;;
-        patch-add) _arguments -C $_shtab_ahriman_patch_add_options ;;
-        patch-list) _arguments -C $_shtab_ahriman_patch_list_options ;;
-        patch-remove) _arguments -C $_shtab_ahriman_patch_remove_options ;;
-        patch-set-add) _arguments -C $_shtab_ahriman_patch_set_add_options ;;
-        rebuild) _arguments -C $_shtab_ahriman_rebuild_options ;;
-        remove) _arguments -C $_shtab_ahriman_remove_options ;;
-        remove-unknown) _arguments -C $_shtab_ahriman_remove_unknown_options ;;
-        repo-backup) _arguments -C $_shtab_ahriman_repo_backup_options ;;
-        repo-check) _arguments -C $_shtab_ahriman_repo_check_options ;;
-        repo-clean) _arguments -C $_shtab_ahriman_repo_clean_options ;;
-        repo-config) _arguments -C $_shtab_ahriman_repo_config_options ;;
-        repo-config-validate) _arguments -C $_shtab_ahriman_repo_config_validate_options ;;
-        repo-create-keyring) _arguments -C $_shtab_ahriman_repo_create_keyring_options ;;
-        repo-create-mirrorlist) _arguments -C $_shtab_ahriman_repo_create_mirrorlist_options ;;
-        repo-daemon) _arguments -C $_shtab_ahriman_repo_daemon_options ;;
-        repo-init) _arguments -C $_shtab_ahriman_repo_init_options ;;
-        repo-rebuild) _arguments -C $_shtab_ahriman_repo_rebuild_options ;;
-        repo-remove-unknown) _arguments -C $_shtab_ahriman_repo_remove_unknown_options ;;
-        repo-report) _arguments -C $_shtab_ahriman_repo_report_options ;;
-        repo-restore) _arguments -C $_shtab_ahriman_repo_restore_options ;;
-        repo-setup) _arguments -C $_shtab_ahriman_repo_setup_options ;;
-        repo-sign) _arguments -C $_shtab_ahriman_repo_sign_options ;;
-        repo-status-update) _arguments -C $_shtab_ahriman_repo_status_update_options ;;
-        repo-sync) _arguments -C $_shtab_ahriman_repo_sync_options ;;
-        repo-tree) _arguments -C $_shtab_ahriman_repo_tree_options ;;
-        repo-triggers) _arguments -C $_shtab_ahriman_repo_triggers_options ;;
-        repo-update) _arguments -C $_shtab_ahriman_repo_update_options ;;
-        report) _arguments -C $_shtab_ahriman_report_options ;;
-        search) _arguments -C $_shtab_ahriman_search_options ;;
-        service-clean) _arguments -C $_shtab_ahriman_service_clean_options ;;
-        service-config) _arguments -C $_shtab_ahriman_service_config_options ;;
-        service-config-validate) _arguments -C $_shtab_ahriman_service_config_validate_options ;;
-        service-key-import) _arguments -C $_shtab_ahriman_service_key_import_options ;;
-        service-setup) _arguments -C $_shtab_ahriman_service_setup_options ;;
-        service-shell) _arguments -C $_shtab_ahriman_service_shell_options ;;
-        setup) _arguments -C $_shtab_ahriman_setup_options ;;
-        shell) _arguments -C $_shtab_ahriman_shell_options ;;
-        sign) _arguments -C $_shtab_ahriman_sign_options ;;
-        status) _arguments -C $_shtab_ahriman_status_options ;;
-        status-update) _arguments -C $_shtab_ahriman_status_update_options ;;
-        sync) _arguments -C $_shtab_ahriman_sync_options ;;
-        update) _arguments -C $_shtab_ahriman_update_options ;;
-        user-add) _arguments -C $_shtab_ahriman_user_add_options ;;
-        user-list) _arguments -C $_shtab_ahriman_user_list_options ;;
-        user-remove) _arguments -C $_shtab_ahriman_user_remove_options ;;
-        version) _arguments -C $_shtab_ahriman_version_options ;;
-        web) _arguments -C $_shtab_ahriman_web_options ;;
+        add) _arguments -C -s $_shtab_ahriman_add_options ;;
+        aur-search) _arguments -C -s $_shtab_ahriman_aur_search_options ;;
+        check) _arguments -C -s $_shtab_ahriman_check_options ;;
+        clean) _arguments -C -s $_shtab_ahriman_clean_options ;;
+        config) _arguments -C -s $_shtab_ahriman_config_options ;;
+        config-validate) _arguments -C -s $_shtab_ahriman_config_validate_options ;;
+        daemon) _arguments -C -s $_shtab_ahriman_daemon_options ;;
+        help) _arguments -C -s $_shtab_ahriman_help_options ;;
+        help-commands-unsafe) _arguments -C -s $_shtab_ahriman_help_commands_unsafe_options ;;
+        help-updates) _arguments -C -s $_shtab_ahriman_help_updates_options ;;
+        help-version) _arguments -C -s $_shtab_ahriman_help_version_options ;;
+        init) _arguments -C -s $_shtab_ahriman_init_options ;;
+        key-import) _arguments -C -s $_shtab_ahriman_key_import_options ;;
+        package-add) _arguments -C -s $_shtab_ahriman_package_add_options ;;
+        package-remove) _arguments -C -s $_shtab_ahriman_package_remove_options ;;
+        package-status) _arguments -C -s $_shtab_ahriman_package_status_options ;;
+        package-status-remove) _arguments -C -s $_shtab_ahriman_package_status_remove_options ;;
+        package-status-update) _arguments -C -s $_shtab_ahriman_package_status_update_options ;;
+        package-update) _arguments -C -s $_shtab_ahriman_package_update_options ;;
+        patch-add) _arguments -C -s $_shtab_ahriman_patch_add_options ;;
+        patch-list) _arguments -C -s $_shtab_ahriman_patch_list_options ;;
+        patch-remove) _arguments -C -s $_shtab_ahriman_patch_remove_options ;;
+        patch-set-add) _arguments -C -s $_shtab_ahriman_patch_set_add_options ;;
+        rebuild) _arguments -C -s $_shtab_ahriman_rebuild_options ;;
+        remove) _arguments -C -s $_shtab_ahriman_remove_options ;;
+        remove-unknown) _arguments -C -s $_shtab_ahriman_remove_unknown_options ;;
+        repo-backup) _arguments -C -s $_shtab_ahriman_repo_backup_options ;;
+        repo-check) _arguments -C -s $_shtab_ahriman_repo_check_options ;;
+        repo-clean) _arguments -C -s $_shtab_ahriman_repo_clean_options ;;
+        repo-config) _arguments -C -s $_shtab_ahriman_repo_config_options ;;
+        repo-config-validate) _arguments -C -s $_shtab_ahriman_repo_config_validate_options ;;
+        repo-create-keyring) _arguments -C -s $_shtab_ahriman_repo_create_keyring_options ;;
+        repo-create-mirrorlist) _arguments -C -s $_shtab_ahriman_repo_create_mirrorlist_options ;;
+        repo-daemon) _arguments -C -s $_shtab_ahriman_repo_daemon_options ;;
+        repo-init) _arguments -C -s $_shtab_ahriman_repo_init_options ;;
+        repo-rebuild) _arguments -C -s $_shtab_ahriman_repo_rebuild_options ;;
+        repo-remove-unknown) _arguments -C -s $_shtab_ahriman_repo_remove_unknown_options ;;
+        repo-report) _arguments -C -s $_shtab_ahriman_repo_report_options ;;
+        repo-restore) _arguments -C -s $_shtab_ahriman_repo_restore_options ;;
+        repo-setup) _arguments -C -s $_shtab_ahriman_repo_setup_options ;;
+        repo-sign) _arguments -C -s $_shtab_ahriman_repo_sign_options ;;
+        repo-status-update) _arguments -C -s $_shtab_ahriman_repo_status_update_options ;;
+        repo-sync) _arguments -C -s $_shtab_ahriman_repo_sync_options ;;
+        repo-tree) _arguments -C -s $_shtab_ahriman_repo_tree_options ;;
+        repo-triggers) _arguments -C -s $_shtab_ahriman_repo_triggers_options ;;
+        repo-update) _arguments -C -s $_shtab_ahriman_repo_update_options ;;
+        report) _arguments -C -s $_shtab_ahriman_report_options ;;
+        search) _arguments -C -s $_shtab_ahriman_search_options ;;
+        service-clean) _arguments -C -s $_shtab_ahriman_service_clean_options ;;
+        service-config) _arguments -C -s $_shtab_ahriman_service_config_options ;;
+        service-config-validate) _arguments -C -s $_shtab_ahriman_service_config_validate_options ;;
+        service-key-import) _arguments -C -s $_shtab_ahriman_service_key_import_options ;;
+        service-setup) _arguments -C -s $_shtab_ahriman_service_setup_options ;;
+        service-shell) _arguments -C -s $_shtab_ahriman_service_shell_options ;;
+        setup) _arguments -C -s $_shtab_ahriman_setup_options ;;
+        shell) _arguments -C -s $_shtab_ahriman_shell_options ;;
+        sign) _arguments -C -s $_shtab_ahriman_sign_options ;;
+        status) _arguments -C -s $_shtab_ahriman_status_options ;;
+        status-update) _arguments -C -s $_shtab_ahriman_status_update_options ;;
+        sync) _arguments -C -s $_shtab_ahriman_sync_options ;;
+        update) _arguments -C -s $_shtab_ahriman_update_options ;;
+        user-add) _arguments -C -s $_shtab_ahriman_user_add_options ;;
+        user-list) _arguments -C -s $_shtab_ahriman_user_list_options ;;
+        user-remove) _arguments -C -s $_shtab_ahriman_user_remove_options ;;
+        version) _arguments -C -s $_shtab_ahriman_version_options ;;
+        web) _arguments -C -s $_shtab_ahriman_web_options ;;
       esac
   esac
 }

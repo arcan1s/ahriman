@@ -11,7 +11,7 @@ from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
-from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text,\
+from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text, \
     extract_user, filter_json, full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, \
     srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
