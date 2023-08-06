@@ -6,6 +6,7 @@ from unittest.mock import call as MockCall
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.tree import Leaf, Tree
 from ahriman.models.package import Package
+from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
@@ -170,9 +171,12 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     on_result_mock = mocker.patch(
         "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
-    application_repository.update([package_ahriman], "username")
-    build_mock.assert_called_once_with([package_ahriman], "username")
-    update_mock.assert_has_calls([MockCall(paths, "username"), MockCall(paths, "username")])
+    application_repository.update([package_ahriman], Packagers("username"), bump_pkgrel=True)
+    build_mock.assert_called_once_with([package_ahriman], Packagers("username"), bump_pkgrel=True)
+    update_mock.assert_has_calls([
+        MockCall(paths, Packagers("username")),
+        MockCall(paths, Packagers("username")),
+    ])
     on_result_mock.assert_has_calls([MockCall(result), MockCall(result)])
 
 

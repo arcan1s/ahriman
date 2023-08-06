@@ -26,6 +26,7 @@ from ahriman.core.exceptions import BuildError
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -34,6 +35,11 @@ class Task(LazyLogging):
     base package build task
 
     Attributes:
+        archbuild_flags(list[str]): command flags for archbuild command
+        architecture(str): repository architecture
+        build_command(str): build command
+        makechroootpkg_flags(list[str]): command flags for makechrootpkg command
+        makepkg_flags(list[str]): command flags for makepkg command
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance
         uid(int): uid of the repository owner user
@@ -41,18 +47,21 @@ class Task(LazyLogging):
 
     _check_output = check_output
 
-    def __init__(self, package: Package, configuration: Configuration, paths: RepositoryPaths) -> None:
+    def __init__(self, package: Package, configuration: Configuration, architecture: str,
+                 paths: RepositoryPaths) -> None:
         """
         default constructor
 
         Args:
             package(Package): package definitions
             configuration(Configuration): configuration instance
+            architecture(str): repository architecture
             paths(RepositoryPaths): repository paths instance
         """
         self.package = package
         self.paths = paths
         self.uid, _ = paths.root_owner
+        self.architecture = architecture
 
         self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
         self.build_command = configuration.get("build", "build_command")
@@ -98,12 +107,23 @@ class Task(LazyLogging):
         ).splitlines()
         return [Path(package) for package in packages]
 
-    def init(self, sources_dir: Path, database: SQLite) -> None:
+    def init(self, sources_dir: Path, database: SQLite, local_version: str | None) -> None:
         """
         fetch package from git
 
         Args:
             sources_dir(Path): local path to fetch
             database(SQLite): database instance
+            local_version(str | None): local version of the package. If set and equal to current version, it will
+                automatically bump pkgrel
         """
         Sources.load(sources_dir, self.package, database.patches_get(self.package.base), self.paths)
+        if local_version is None:
+            return  # there is no local package or pkgrel increment is disabled
+
+        # load fresh package
+        loaded_package = Package.from_build(sources_dir, self.architecture, None)
+        if (pkgrel := loaded_package.next_pkgrel(local_version)) is not None:
+            self.logger.info("package %s is the same as in repo, bumping pkgrel to %s", self.package.base, pkgrel)
+            patch = PkgbuildPatch("pkgrel", pkgrel)
+            patch.write(sources_dir / "PKGBUILD")

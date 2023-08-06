@@ -305,7 +305,7 @@ TL;DR
 
    sudo -u ahriman ahriman repo-rebuild --depends-on python
 
-You can even rebuild the whole repository (which is particular useful in case if you would like to change packager) if you do not supply ``--depends-on`` option.
+You can even rebuild the whole repository (which is particular useful in case if you would like to change packager) if you do not supply ``--depends-on`` option. This action will automatically increment ``pkgrel`` value; in case if you don't want to, the ``--no-increment`` option has to be supplied.
 
 However, note that you do not need to rebuild repository in case if you just changed signing option, just use ``repo-sign`` command instead. 
 

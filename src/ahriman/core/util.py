@@ -25,6 +25,7 @@ import logging
 import os
 import re
 import requests
+import selectors
 import subprocess
 
 from collections.abc import Callable, Generator, Iterable
@@ -48,6 +49,7 @@ __all__ = [
     "filter_json",
     "full_version",
     "package_like",
+    "parse_version",
     "partition",
     "pretty_datetime",
     "pretty_size",
@@ -107,15 +109,24 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         channel: IO[str] | None = getattr(proc, channel_name, None)
         return channel if channel is not None else io.StringIO()
 
-    def log(single: str) -> None:
-        if logger is not None:
-            logger.debug(single)
+    # wrapper around selectors polling
+    def poll(sel: selectors.BaseSelector) -> Generator[str, None, None]:
+        for key, _ in sel.select():  # we don't need to check mask here because we have only subscribed on reading
+            line = key.fileobj.readline()  # type: ignore[union-attr]
+            if not line:  # in case of empty line we remove selector as there is no data here anymore
+                sel.unregister(key.fileobj)
+                continue
+            line = line.rstrip()
+
+            if logger is not None:
+                logger.debug(line)
+
+            if key.data == "stdout":
+                yield line  # yield only stdout data
 
     environment = environment or {}
     if user is not None:
         environment["HOME"] = getpwuid(user).pw_dir
-    # FIXME additional workaround for linter and type check which do not know that user arg is supported
-    # pylint: disable=unexpected-keyword-arg
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           user=user, env=environment, text=True, encoding="utf8", bufsize=1) as process:
         if input_data is not None:
@@ -123,16 +134,13 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
             input_channel.write(input_data)
             input_channel.close()
 
-        # read stdout and append to output result
-        result: list[str] = []
-        for line in iter(get_io(process, "stdout").readline, ""):
-            line = line.strip()
-            result.append(line)
-            log(line)
+        selector = selectors.DefaultSelector()
+        selector.register(get_io(process, "stdout"), selectors.EVENT_READ, data="stdout")
+        selector.register(get_io(process, "stderr"), selectors.EVENT_READ, data="stderr")
 
-        # read stderr and write info to logs
-        for line in iter(get_io(process, "stderr").readline, ""):
-            log(line.strip())
+        result: list[str] = []
+        while selector.get_map():  # while there are unread selectors, keep reading
+            result.extend(poll(selector))
 
         process.terminate()  # make sure that process is terminated
         status_code = process.wait()
@@ -273,6 +281,25 @@ def package_like(filename: Path) -> bool:
     """
     name = filename.name
     return ".pkg." in name and not name.endswith(".sig")
+
+
+def parse_version(version: str) -> tuple[str | None, str, str]:
+    """
+    parse version and returns its components
+
+    Args:
+        version(str): full version string
+
+    Returns:
+        tuple[str | None, str, str]: epoch if any, pkgver and pkgrel variables
+    """
+    if ":" in version:
+        epoch, version = version.split(":", maxsplit=1)
+    else:
+        epoch = None
+    pkgver, pkgrel = version.rsplit("-", maxsplit=1)
+
+    return epoch, pkgver, pkgrel
 
 
 def partition(source: list[T], predicate: Callable[[T], bool]) -> tuple[list[T], list[T]]:

@@ -256,6 +256,8 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--dependencies", help="process missing package dependencies",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
+    parser.add_argument("--increment", help="increment package release (pkgrel) version on duplicate",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-n", "--now", help="run update function after", action="store_true")
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
@@ -577,6 +579,8 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              "instance. Note, however, that in order to restore packages you need to have original "
                              "ahriman instance run with web service and have run repo-update at least once.",
                         action="store_true")
+    parser.add_argument("--increment", help="increment package release (pkgrel) on duplicate",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-s", "--status", help="filter packages by status. Requires --from-database to be set",
                         type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
@@ -751,6 +755,8 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
+    parser.add_argument("--increment", help="increment package release (pkgrel) on duplicate",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--local", help="enable or disable checking of local packages for updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--manual", help="include or exclude manual updates",

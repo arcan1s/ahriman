@@ -8,12 +8,12 @@ import subprocess
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text, \
-    extract_user, filter_json, full_version, package_like, partition, pretty_datetime, pretty_size, safe_filename, \
-    srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
+    extract_user, filter_json, full_version, package_like, parse_version, partition, pretty_datetime, pretty_size, \
+    safe_filename, srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -126,6 +126,15 @@ def test_check_output_failure_exception(mocker: MockerFixture) -> None:
 
     with pytest.raises(BuildError):
         check_output("echo", "hello", exception=exception, logger=logging.getLogger(""))
+
+
+def test_check_output_empty_line(mocker: MockerFixture) -> None:
+    """
+    must correctly process empty lines in command output
+    """
+    logger_mock = mocker.patch("logging.Logger.debug")
+    assert check_output("python", "-c", """print(); print("hello")""", logger=logging.getLogger("")) == "\nhello"
+    logger_mock.assert_has_calls([MockCall(""), MockCall("hello")])
 
 
 def test_check_user(mocker: MockerFixture) -> None:
@@ -271,6 +280,17 @@ def test_package_like_sig(package_ahriman: Package) -> None:
     package_file = package_ahriman.packages[package_ahriman.base].filepath
     sig_file = package_file.parent / f"{package_file.name}.sig"
     assert not package_like(sig_file)
+
+
+def test_parse_version() -> None:
+    """
+    must correctly parse version into components
+    """
+    assert parse_version("1.2.3-4") == (None, "1.2.3", "4")
+    assert parse_version("5:1.2.3-4") == ("5", "1.2.3", "4")
+    assert parse_version("1.2.3-4.2") == (None, "1.2.3", "4.2")
+    assert parse_version("0:1.2.3-4.2") == ("0", "1.2.3", "4.2")
+    assert parse_version("0:1.2.3-4") == ("0", "1.2.3", "4")
 
 
 def test_partition() -> None:
