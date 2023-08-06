@@ -123,7 +123,8 @@ class ApplicationRepository(ApplicationProperties):
                 result.extend(unknown_aur(package))  # local package not found
         return result
 
-    def update(self, updates: Iterable[Package], packagers: Packagers | None = None) -> Result:
+    def update(self, updates: Iterable[Package], packagers: Packagers | None = None, *,
+               bump_pkgrel: bool = False) -> Result:
         """
         run package updates
 
@@ -131,6 +132,7 @@ class ApplicationRepository(ApplicationProperties):
             updates(Iterable[Package]): list of packages to update
             packagers(Packagers | None, optional): optional override of username for build process
                 (Default value = None)
+            bump_pkgrel(bool, optional): bump pkgrel in case of local version conflict (Default value = False)
 
         Returns:
             Result: update result
@@ -150,7 +152,7 @@ class ApplicationRepository(ApplicationProperties):
         tree = Tree.resolve(updates)
         for num, level in enumerate(tree):
             self.logger.info("processing level #%i %s", num, [package.base for package in level])
-            build_result = self.repository.process_build(level, packagers)
+            build_result = self.repository.process_build(level, packagers, bump_pkgrel=bump_pkgrel)
             packages = self.repository.packages_built()
             process_update(packages, build_result)
 

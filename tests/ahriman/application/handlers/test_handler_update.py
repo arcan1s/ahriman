@@ -27,6 +27,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.dependencies = True
     args.dry_run = False
     args.exit_code = False
+    args.increment = True
     args.aur = True
     args.local = True
     args.manual = True
@@ -55,7 +56,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
 
     Update.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with([package_ahriman],
-                                             Packagers(args.username, {package_ahriman.base: "packager"}))
+                                             Packagers(args.username, {package_ahriman.base: "packager"}),
+                                             bump_pkgrel=args.increment)
     updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_has_calls([MockCall(False, False), MockCall(False, False)])

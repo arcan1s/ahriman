@@ -168,12 +168,27 @@ This feature is divided into to stages: check AUR for updates and run rebuild fo
 #. For each level of tree it does:
 
    #. Download package data from AUR.
+   #. Bump ``pkgrel`` if there is duplicate version in the local repository (see explanation below).
    #. Build every package in clean chroot.
    #. Sign packages if required.
    #. Add packages to database and sign database if required.
    #. Process triggers.
 
 After any step any package data is being removed.
+
+pkgrel bump rules
+^^^^^^^^^^^^^^^^^
+
+The application is able to automatically bump package release (``pkgrel``) during build process if there is duplicate version in repository. The version will be incremented as following:
+
+#. Get version of the remote package.
+#. Get version of the local package if any.
+#. If local version is not set, proceed with remote one.
+#. If local version is set and epoch or package version (``pkgver``) are different, proceed with remote version.
+#. If local version is set and remote version is newer than local one, proceed with remote.
+#. Extract ``pkgrel`` value.
+#. If it has ``major.minor`` notation (e.g. ``1.1``), then increment last part by 1, e.g. ``1.1 -> 1.2``, ``1.0.1 -> 1.0.2``.
+#. If ``pkgrel`` is a number (e.g. ``1``), then append 1 to the end of the string, e.g. ``1 -> 1.1``.
 
 Core functions reference
 ------------------------

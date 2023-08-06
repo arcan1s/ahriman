@@ -30,22 +30,41 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     """
     must run build process
     """
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
-    mocker.patch("ahriman.core.build_tools.task.Task.init")
+    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_building")
 
-    executor.process_build([package_ahriman], Packagers("packager"))
+    executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
+    init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
     # must move files (once)
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
+def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run build process and pass current package version to build tools
+    """
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
+    mocker.patch("shutil.move")
+    mocker.patch("ahriman.core.status.client.Client.set_building")
+    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
+
+    executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=True)
+    init_mock.assert_called_once_with(pytest.helpers.anyvar(int),
+                                      pytest.helpers.anyvar(int),
+                                      package_ahriman.version)
+
+
 def test_process_build_failure(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run correct process failed builds
     """
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.executor.Executor.packages_built")
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.task.Task.init")

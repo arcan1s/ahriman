@@ -501,6 +501,30 @@ def test_is_outdated_fresh_package(package_ahriman: Package, repository_paths: R
     actual_version_mock.assert_not_called()
 
 
+def test_next_pkgrel(package_ahriman: Package) -> None:
+    """
+    must correctly bump pkgrel
+    """
+    assert package_ahriman.next_pkgrel(package_ahriman.version) == "1.1"
+
+    package_ahriman.version = "1.0.0-1.1"
+    assert package_ahriman.next_pkgrel(package_ahriman.version) == "1.2"
+
+    package_ahriman.version = "1.0.0-1.2.1"
+    assert package_ahriman.next_pkgrel(package_ahriman.version) == "1.2.2"
+
+    package_ahriman.version = "1:1.0.0-1"
+    assert package_ahriman.next_pkgrel("1:1.0.1-1") is None
+    assert package_ahriman.next_pkgrel("2:1.0.0-1") is None
+
+    package_ahriman.version = "1.0.0-1.1"
+    assert package_ahriman.next_pkgrel("1.0.1-2") is None
+    assert package_ahriman.next_pkgrel("1.0.0-2") == "2.1"
+
+    package_ahriman.version = "1.0.0-2"
+    assert package_ahriman.next_pkgrel("1.0.0-1.1") is None
+
+
 def test_build_status_pretty_print(package_ahriman: Package) -> None:
     """
     must return string in pretty print function

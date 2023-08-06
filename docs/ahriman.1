@@ -224,7 +224,7 @@ usage: ahriman help\-version [\-h]
 print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
-usage: ahriman package\-add [\-h] [\-\-dependencies | \-\-no\-dependencies] [\-e] [\-n] [\-y]
+usage: ahriman package\-add [\-h] [\-\-dependencies | \-\-no\-dependencies] [\-e] [\-\-increment | \-\-no\-increment] [\-n] [\-y]
                            [\-s {auto,archive,aur,directory,local,remote,repository}] [\-u USERNAME]
                            package [package ...]
 
@@ -242,6 +242,10 @@ process missing package dependencies
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
+
+.TP
+\fB\-\-increment\fR, \fB\-\-no\-increment\fR
+increment package release (pkgrel) version on duplicate
 
 .TP
 \fB\-n\fR, \fB\-\-now\fR
@@ -459,8 +463,8 @@ fetch actual version of VCS packages
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
-usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-e]
-                            [\-s {unknown,pending,building,failed,success}] [\-u USERNAME]
+usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-\-increment | \-\-no\-increment]
+                            [\-e] [\-s {unknown,pending,building,failed,success}] [\-u USERNAME]
 
 force rebuild whole repository
 
@@ -478,6 +482,10 @@ just perform check for packages without rebuild process itself
 read packages from database instead of filesystem. This feature in particular is required in case if you would like to
 restore repository from another repository instance. Note, however, that in order to restore packages you need to have
 original ahriman instance run with web service and have run repo\-update at least once.
+
+.TP
+\fB\-\-increment\fR, \fB\-\-no\-increment\fR
+increment package release (pkgrel) on duplicate
 
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
@@ -560,7 +568,8 @@ instead of running all triggers as set by configuration, just process specified 
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
 usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e]
-                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
+                           [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME]
+                           [\-\-vcs | \-\-no\-vcs] [\-y]
                            [package ...]
 
 check for packages updates and run build process if requested
@@ -585,6 +594,10 @@ just perform check for updates, same as check command
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
+
+.TP
+\fB\-\-increment\fR, \fB\-\-no\-increment\fR
+increment package release (pkgrel) on duplicate
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR

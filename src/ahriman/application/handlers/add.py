@@ -52,5 +52,5 @@ class Add(Handler):
         packagers = Packagers(args.username, {package.base: package.packager for package in packages})
 
         application.print_updates(packages, log_fn=application.logger.info)
-        result = application.update(packages, packagers)
+        result = application.update(packages, packagers, bump_pkgrel=args.increment)
         Add.check_if_empty(args.exit_code, result.is_empty)

@@ -53,7 +53,7 @@ class Rebuild(Handler):
             application.print_updates(updates, log_fn=print)
             return
 
-        result = application.update(updates, args.username)
+        result = application.update(updates, args.username, bump_pkgrel=args.increment)
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod

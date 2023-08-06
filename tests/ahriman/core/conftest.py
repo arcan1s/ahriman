@@ -91,4 +91,4 @@ def task_ahriman(package_ahriman: Package, configuration: Configuration, reposit
     Returns:
         Task: built task test instance
     """
-    return Task(package_ahriman, configuration, repository_paths)
+    return Task(package_ahriman, configuration, "x86_64", repository_paths)

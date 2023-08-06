@@ -64,7 +64,8 @@ class Executor(Cleaner):
         """
         raise NotImplementedError
 
-    def process_build(self, updates: Iterable[Package], packagers: Packagers | None = None) -> Result:
+    def process_build(self, updates: Iterable[Package], packagers: Packagers | None = None, *,
+                      bump_pkgrel: bool = False) -> Result:
         """
         build packages
 
@@ -72,20 +73,23 @@ class Executor(Cleaner):
             updates(Iterable[Package]): list of packages properties to build
             packagers(Packagers | None, optional): optional override of username for build process
                 (Default value = None)
+            bump_pkgrel(bool, optional): bump pkgrel in case of local version conflict (Default value = False)
 
         Returns:
             Result: build result
         """
         def build_single(package: Package, local_path: Path, packager_id: str | None) -> None:
             self.reporter.set_building(package.base)
-            task = Task(package, self.configuration, self.paths)
-            task.init(local_path, self.database)
+            task = Task(package, self.configuration, self.architecture, self.paths)
+            local_version = local_versions.get(package.base) if bump_pkgrel else None
+            task.init(local_path, self.database, local_version)
             built = task.build(local_path, packager_id)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
 
         packagers = packagers or Packagers()
+        local_versions = {package.base: package.version for package in self.packages()}
 
         result = Result()
         for single in updates:

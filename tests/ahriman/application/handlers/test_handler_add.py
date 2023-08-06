@@ -24,6 +24,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.package = []
     args.exit_code = False
+    args.increment = True
     args.now = False
     args.refresh = 0
     args.source = PackageSource.Auto
@@ -70,7 +71,8 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     Add.run(args, "x86_64", configuration, report=False)
     updates_mock.assert_called_once_with(args.package, aur=False, local=False, manual=True, vcs=False)
     application_mock.assert_called_once_with([package_ahriman],
-                                             Packagers(args.username, {package_ahriman.base: "packager"}))
+                                             Packagers(args.username, {package_ahriman.base: "packager"}),
+                                             bump_pkgrel=args.increment)
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, False)
     print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
