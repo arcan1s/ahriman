@@ -87,5 +87,5 @@ class RemotePullTrigger(Trigger):
         for target in self.targets:
             section, _ = self.configuration.gettype(
                 target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
-            runner = RemotePull(self.configuration, section)
+            runner = RemotePull(self.configuration, self.architecture, section)
             runner.run()

@@ -27,6 +27,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import walk
+from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 
@@ -36,16 +37,18 @@ class RemotePull(LazyLogging):
     fetch PKGBUILDs from remote repository and use them for following actions
 
     Attributes:
+        architecture(str): repository architecture
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
         repository_paths(RepositoryPaths): repository paths instance
     """
 
-    def __init__(self, configuration: Configuration, section: str) -> None:
+    def __init__(self, configuration: Configuration, architecture: str, section: str) -> None:
         """
         default constructor
 
         Args:
             configuration(Configuration): configuration instance
+            architecture(str): repository architecture
             section(str): settings section name
         """
         self.remote_source = RemoteSource(
@@ -55,7 +58,29 @@ class RemotePull(LazyLogging):
             branch=configuration.get(section, "pull_branch", fallback="master"),
             source=PackageSource.Local,
         )
+        self.architecture = architecture
         self.repository_paths = configuration.repository_paths
+
+    def package_copy(self, pkgbuild_path: Path) -> None:
+        """
+        copy single PKGBUILD content to the repository tree
+
+        Args:
+            pkgbuild_path(Path): path to PKGBUILD to copy
+        """
+        cloned_pkgbuild_dir = pkgbuild_path.parent
+
+        # load package from the PKGBUILD, because it might be possible that name doesn't match
+        # e.g. if we have just cloned repo with just one PKGBUILD
+        package = Package.from_build(cloned_pkgbuild_dir, self.architecture, None)
+        package_base = package.base
+        local_pkgbuild_dir = self.repository_paths.cache_for(package_base)
+
+        # copy source ignoring the git files
+        shutil.copytree(cloned_pkgbuild_dir, local_pkgbuild_dir,
+                        ignore=shutil.ignore_patterns(".git*"), dirs_exist_ok=True)
+        # initialized git repository is required for local sources
+        Sources.init(local_pkgbuild_dir)
 
     def repo_clone(self) -> None:
         """
@@ -74,11 +99,7 @@ class RemotePull(LazyLogging):
             clone_dir(Path): path to temporary cloned directory
         """
         for pkgbuild_path in filter(lambda path: path.name == "PKGBUILD", walk(clone_dir)):
-            cloned_pkgbuild_dir = pkgbuild_path.parent
-            package_base = cloned_pkgbuild_dir.name
-            local_pkgbuild_dir = self.repository_paths.cache_for(package_base)
-            shutil.copytree(cloned_pkgbuild_dir, local_pkgbuild_dir, dirs_exist_ok=True)
-            Sources.init(local_pkgbuild_dir)  # initialized git repository is required for local sources
+            self.package_copy(pkgbuild_path)
 
     def run(self) -> None:
         """
