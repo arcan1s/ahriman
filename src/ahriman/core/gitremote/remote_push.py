@@ -79,6 +79,7 @@ class RemotePush(LazyLogging):
         package_target_dir = target_dir / package.base
         shutil.rmtree(package_target_dir, ignore_errors=True)
         # ...secondly, we clone whole tree...
+        # fetch is used intentionally here in order to avoid copying downloaded blobs
         Sources.fetch(package_target_dir, package.remote)
         # ...and last, but not least, we remove the dot-git directory...
         for git_file in package_target_dir.glob(".git*"):
