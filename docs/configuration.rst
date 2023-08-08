@@ -179,7 +179,8 @@ Available options are:
 Remote push trigger
 ^^^^^^^^^^^^^^^^^^^
 
-* ``commit_author`` - git commit author, string, optional. In case if not set, the git will generate author for you. Note, however, that in this case it will disclosure your hostname.
+* ``commit_email`` - git commit email, string, optional, default is ``ahriman@localhost``.
+* ``commit_user`` - git commit user, string, optional, default is ``ahriman``.
 * ``push_url`` - url of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
 * ``push_branch`` - branch of the remote repository to which PKGBUILDs should be pushed after build process, string, optional, default is ``master``.
 
