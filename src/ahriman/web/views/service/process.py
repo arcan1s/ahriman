@@ -19,59 +19,56 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 
-from aiohttp.web import HTTPBadRequest, Response, json_response
+from aiohttp.web import HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, UpdateFlagsSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, ProcessSchema
 from ahriman.web.views.base import BaseView
 
 
-class UpdateView(BaseView):
+class ProcessView(BaseView):
     """
-    update repository web view
+    Process information web view
 
     Attributes:
-        POST_PERMISSION(UserAccess): (class attribute) post permissions of self
+        GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Full
+    GET_PERMISSION = UserAccess.Reporter
 
     @aiohttp_apispec.docs(
         tags=["Actions"],
-        summary="Update packages",
-        description="Run repository update process",
+        summary="Get process",
+        description="Get process information",
         responses={
-            200: {"description": "Success response", "schema": ProcessIdSchema},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
+            200: {"description": "Success response", "schema": ProcessSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Process ID is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
-        security=[{"token": [POST_PERMISSION]}],
+        security=[{"token": [GET_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.json_schema(UpdateFlagsSchema)
-    async def post(self) -> Response:
+    @aiohttp_apispec.match_info_schema(ProcessIdSchema)
+    async def get(self) -> Response:
         """
-        run repository update. No parameters supported here
+        get spawned process status
 
         Returns:
-            Response: 200 with spawned process id
+            Response: 200 with process information
 
         Raises:
-            HTTPBadRequest: if bad data is supplied
+            HTTPNotFound: if no process found
         """
-        try:
-            data = await self.extract_data()
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        process_id = self.request.match_info["process_id"]
 
-        username = await self.username()
-        process_id = self.spawner.packages_update(
-            username,
-            aur=data.get("aur", True),
-            local=data.get("local", True),
-            manual=data.get("manual", True),
-        )
+        is_alive = self.spawner.has_process(process_id)
+        if not is_alive:
+            raise HTTPNotFound(reason=f"No process {process_id} found")
 
-        return json_response({"process_id": process_id})
+        response = {
+            "is_alive": is_alive,
+        }
+
+        return json_response(response)

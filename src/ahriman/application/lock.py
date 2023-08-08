@@ -18,7 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import time
 
+from pathlib import Path
 from types import TracebackType
 from typing import Literal, Self
 
@@ -41,6 +43,7 @@ class Lock(LazyLogging):
         reporter(Client): build status reporter instance
         paths(RepositoryPaths): repository paths instance
         unsafe(bool): skip user check
+        wait_timeout(int): wait in seconds until lock will free
 
     Examples:
         Instance of this class except for controlling file-based lock is also required for basic applications checks.
@@ -65,9 +68,11 @@ class Lock(LazyLogging):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.path = args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
-        self.force = args.force
-        self.unsafe = args.unsafe
+        self.path: Path | None = \
+            args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
+        self.force: bool = args.force
+        self.unsafe: bool = args.unsafe
+        self.wait_timeout: int = args.wait_timeout
 
         self.paths = configuration.repository_paths
         self.reporter = Client.load(configuration, report=args.report)
@@ -110,6 +115,27 @@ class Lock(LazyLogging):
         except FileExistsError:
             raise DuplicateRunError()
 
+    def watch(self, interval: int = 10) -> None:
+        """
+        watch until lock disappear
+
+        Args:
+            interval(int, optional): interval to check in seconds (Default value = 10)
+        """
+        def is_timed_out(start: float) -> bool:
+            since_start: float = time.monotonic() - start
+            return self.wait_timeout != 0 and since_start > self.wait_timeout
+
+        # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
+        # race conditions because multiple processes will be notified in the same time. Secondly, it is good library,
+        # but platform-specific, and we only need to check if file exists
+        if self.path is None:
+            return
+
+        start_time = time.monotonic()
+        while not is_timed_out(start_time) and self.path.is_file():
+            time.sleep(interval)
+
     def __enter__(self) -> Self:
         """
         default workflow is the following:
@@ -117,14 +143,16 @@ class Lock(LazyLogging):
             1. Check user UID
             2. Check if there is lock file
             3. Check web status watcher status
-            4. Create lock file and directory tree
-            5. Report to status page if enabled
+            4. Wait for lock file to be free
+            5. Create lock file and directory tree
+            6. Report to status page if enabled
 
         Returns:
             Self: always instance of self
         """
         self.check_user()
         self.check_version()
+        self.watch()
         self.create()
         self.reporter.update_self(BuildStatusEnum.Building)
         return self

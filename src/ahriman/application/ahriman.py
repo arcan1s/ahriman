@@ -84,6 +84,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
+    parser.add_argument("--wait-timeout", help="wait for lock to be free. Negative value will lead to "
+                                               "immediate application run even if there is lock file. "
+                                               "In case of zero value, tthe application will wait infinitely",
+                        type=int, default=-1)
     parser.add_argument("-V", "--version", action="version", version=__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)

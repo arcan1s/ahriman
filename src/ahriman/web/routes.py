@@ -25,6 +25,7 @@ from ahriman.web.views.api.swagger import SwaggerView
 from ahriman.web.views.index import IndexView
 from ahriman.web.views.service.add import AddView
 from ahriman.web.views.service.pgp import PGPView
+from ahriman.web.views.service.process import ProcessView
 from ahriman.web.views.service.rebuild import RebuildView
 from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
@@ -60,6 +61,7 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_view("/api/v1/service/add", AddView)
     application.router.add_view("/api/v1/service/pgp", PGPView)
     application.router.add_view("/api/v1/service/rebuild", RebuildView)
+    application.router.add_view("/api/v1/service/process/{process_id}", ProcessView)
     application.router.add_view("/api/v1/service/remove", RemoveView)
     application.router.add_view("/api/v1/service/request", RequestView)
     application.router.add_view("/api/v1/service/search", SearchView)

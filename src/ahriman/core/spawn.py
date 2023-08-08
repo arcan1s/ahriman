@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 import uuid
 
 from collections.abc import Callable, Iterable
@@ -38,7 +39,7 @@ class Spawn(Thread, LazyLogging):
         active(dict[str, Process]): map of active child processes required to avoid zombies
         architecture(str): repository architecture
         command_arguments(list[str]): base command line arguments
-        queue(Queue[tuple[str, bool]]): multiprocessing queue to read updates from processes
+        queue(Queue[tuple[str, bool, int]]): multiprocessing queue to read updates from processes
     """
 
     def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, command_arguments: list[str]) -> None:
@@ -59,11 +60,25 @@ class Spawn(Thread, LazyLogging):
         self.lock = Lock()
         self.active: dict[str, Process] = {}
         # stupid pylint does not know that it is possible
-        self.queue: Queue[tuple[str, bool] | None] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[tuple[str, bool, int] | None] = Queue()  # pylint: disable=unsubscriptable-object
+
+    @staticmethod
+    def boolean_action_argument(name: str, value: bool) -> str:
+        """
+        convert option of given name with value to boolean action argument
+
+        Args:
+            name(str): command line argument name
+            value(bool): command line argument value
+
+        Returns:
+            str: if ``value`` is True, then returns positive flag and negative otherwise
+        """
+        return name if value else f"no-{name}"
 
     @staticmethod
     def process(callback: Callable[[argparse.Namespace, str], bool], args: argparse.Namespace, architecture: str,
-                process_id: str, queue: Queue[tuple[str, bool]]) -> None:  # pylint: disable=unsubscriptable-object
+                process_id: str, queue: Queue[tuple[str, bool, int]]) -> None:  # pylint: disable=unsubscriptable-object
         """
         helper to run external process
 
@@ -72,12 +87,17 @@ class Spawn(Thread, LazyLogging):
             args(argparse.Namespace): command line arguments
             architecture(str): repository architecture
             process_id(str): process unique identifier
-            queue(Queue[tuple[str, bool]]): output queue
+            queue(Queue[tuple[str, bool, int]]): output queue
         """
+        start_time = time.monotonic()
         result = callback(args, architecture)
-        queue.put((process_id, result))
+        stop_time = time.monotonic()
 
-    def _spawn_process(self, command: str, *args: str, **kwargs: str | None) -> None:
+        consumed_time = int(1000 * (stop_time - start_time))
+
+        queue.put((process_id, result, consumed_time))
+
+    def _spawn_process(self, command: str, *args: str, **kwargs: str | None) -> str:
         """
         spawn external ahriman process with supplied arguments
 
@@ -85,6 +105,9 @@ class Spawn(Thread, LazyLogging):
             command(str): subcommand to run
             *args(str): positional command arguments
             **kwargs(str): named command arguments
+
+        Returns:
+            str: spawned process id
         """
         # default arguments
         arguments = self.command_arguments[:]
@@ -111,19 +134,36 @@ class Spawn(Thread, LazyLogging):
 
         with self.lock:
             self.active[process_id] = process
+        return process_id
 
-    def key_import(self, key: str, server: str | None) -> None:
+    def has_process(self, process_id: str) -> bool:
+        """
+        check if given process is alive
+
+        Args:
+            process_id(str): process id to be checked as returned by ``Spawn._spawn_process``
+
+        Returns:
+            bool: True in case if process still counts as active and False otherwise
+        """
+        with self.lock:
+            return process_id in self.active
+
+    def key_import(self, key: str, server: str | None) -> str:
         """
         import key to service cache
 
         Args:
             key(str): key to import
             server(str | None): PGP key server
+
+        Returns:
+            str: spawned process id
         """
         kwargs = {} if server is None else {"key-server": server}
-        self._spawn_process("service-key-import", key, **kwargs)
+        return self._spawn_process("service-key-import", key, **kwargs)
 
-    def packages_add(self, packages: Iterable[str], username: str | None, *, now: bool) -> None:
+    def packages_add(self, packages: Iterable[str], username: str | None, *, now: bool) -> str:
         """
         add packages
 
@@ -131,48 +171,69 @@ class Spawn(Thread, LazyLogging):
             packages(Iterable[str]): packages list to add
             username(str | None): optional override of username for build process
             now(bool): build packages now
+
+        Returns:
+            str: spawned process id
         """
         kwargs = {"username": username}
         if now:
             kwargs["now"] = ""
-        self._spawn_process("package-add", *packages, **kwargs)
+        return self._spawn_process("package-add", *packages, **kwargs)
 
-    def packages_rebuild(self, depends_on: str, username: str | None) -> None:
+    def packages_rebuild(self, depends_on: str, username: str | None) -> str:
         """
         rebuild packages which depend on the specified package
 
         Args:
             depends_on(str): packages dependency
             username(str | None): optional override of username for build process
+
+        Returns:
+            str: spawned process id
         """
         kwargs = {"depends-on": depends_on, "username": username}
-        self._spawn_process("repo-rebuild", **kwargs)
+        return self._spawn_process("repo-rebuild", **kwargs)
 
-    def packages_remove(self, packages: Iterable[str]) -> None:
+    def packages_remove(self, packages: Iterable[str]) -> str:
         """
         remove packages
 
         Args:
             packages(Iterable[str]): packages list to remove
-        """
-        self._spawn_process("package-remove", *packages)
 
-    def packages_update(self, username: str | None) -> None:
+        Returns:
+            str: spawned process id
+        """
+        return self._spawn_process("package-remove", *packages)
+
+    def packages_update(self, username: str | None, *, aur: bool, local: bool, manual: bool) -> str:
         """
         run full repository update
 
         Args:
             username(str | None): optional override of username for build process
+            aur(bool): check for aur updates
+            local(bool): check for local packages updates
+            manual(bool): check for manual packages
+
+        Returns:
+            str: spawned process id
         """
-        kwargs = {"username": username}
-        self._spawn_process("repo-update", **kwargs)
+        kwargs = {
+            "username": username,
+            self.boolean_action_argument("aur", aur): "",
+            self.boolean_action_argument("local", local): "",
+            self.boolean_action_argument("manual", manual): "",
+        }
+        return self._spawn_process("repo-update", **kwargs)
 
     def run(self) -> None:
         """
         thread run method
         """
-        for process_id, status in iter(self.queue.get, None):
-            self.logger.info("process %s has been terminated with status %s", process_id, status)
+        for process_id, status, consumed_time in iter(self.queue.get, None):
+            self.logger.info("process %s has been terminated with status %s, consumed time %s",
+                             process_id, status, consumed_time / 1000)
 
             with self.lock:
                 process = self.active.pop(process_id, None)

@@ -154,12 +154,49 @@ def test_create_unsafe(lock: Lock) -> None:
     lock.path.unlink()
 
 
+def test_watch(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check if lock file exists in cycle
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    lock.watch()
+
+
+def test_watch_wait(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must wait until file will disappear
+    """
+    mocker.patch("pathlib.Path.is_file", side_effect=[True, False])
+    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.wait_timeout = 1
+
+    lock.watch(1)
+
+
+def test_watch_empty_timeout(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip watch on empty timeout
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.watch()
+
+
+def test_watch_skip(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip watch on empty path
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    lock.watch()
+
+
 def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     """
     must process with context manager
     """
     check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
     check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
+    watch_mock = mocker.patch("ahriman.application.lock.Lock.watch")
     clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     create_mock = mocker.patch("ahriman.application.lock.Lock.create")
     update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
@@ -170,6 +207,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     clear_mock.assert_called_once_with()
     create_mock.assert_called_once_with()
     check_version_mock.assert_called_once_with()
+    watch_mock.assert_called_once_with()
     update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
 
 

@@ -268,6 +268,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "username": {
                 "type": "string",
             },
+            "wait_timeout": {
+                "type": "integer",
+                "coerce": "integer",
+            }
         },
     },
 }

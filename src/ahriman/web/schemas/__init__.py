@@ -33,6 +33,9 @@ from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.package_status_schema import PackageStatusSimplifiedSchema, PackageStatusSchema
 from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
 from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
+from ahriman.web.schemas.process_id_schema import ProcessIdSchema
+from ahriman.web.schemas.process_schema import ProcessSchema
 from ahriman.web.schemas.remote_schema import RemoteSchema
 from ahriman.web.schemas.search_schema import SearchSchema
 from ahriman.web.schemas.status_schema import StatusSchema
+from ahriman.web.schemas.update_flags_schema import UpdateFlagsSchema
