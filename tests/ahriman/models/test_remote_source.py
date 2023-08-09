@@ -1,7 +1,8 @@
-from pathlib import Path
-from pytest_mock import MockerFixture
+import pytest
 
-from ahriman.models.package import Package
+from pathlib import Path
+
+from ahriman.core.exceptions import InitializeError
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 
@@ -20,6 +21,14 @@ def test_post_init(remote_source: RemoteSource) -> None:
     assert remote == remote_source
 
 
+def test_is_remote() -> None:
+    """
+    must correctly define if source is remote or not
+    """
+    for source in PackageSource:
+        assert RemoteSource(source=source).is_remote or source not in (PackageSource.AUR, PackageSource.Repository)
+
+
 def test_pkgbuild_dir(remote_source: RemoteSource) -> None:
     """
     must return path as is in `path` property
@@ -35,48 +44,16 @@ def test_from_json(remote_source: RemoteSource) -> None:
     assert RemoteSource.from_json(remote_source.view()) == remote_source
 
 
-def test_from_json_empty() -> None:
+def test_git_source(remote_source: RemoteSource) -> None:
     """
-    must return None in case of empty dictionary, which is required by the database wrapper
+    must correctly return git source
     """
-    assert RemoteSource.from_json({}) is None
+    assert remote_source.git_source() == (remote_source.git_url, remote_source.branch)
 
 
-def test_from_source_aur(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_git_source_empty() -> None:
     """
-    must construct remote from AUR source
+    must raise exception if path is none
     """
-    remote_git_url_mock = mocker.patch("ahriman.core.alpm.remote.AUR.remote_git_url")
-    remote_web_url_mock = mocker.patch("ahriman.core.alpm.remote.AUR.remote_web_url")
-
-    remote = RemoteSource.from_source(PackageSource.AUR, package_ahriman.base, "aur")
-    remote_git_url_mock.assert_called_once_with(package_ahriman.base, "aur")
-    remote_web_url_mock.assert_called_once_with(package_ahriman.base)
-    assert remote.pkgbuild_dir == Path(".")
-    assert remote.branch == "master"
-    assert remote.source == PackageSource.AUR
-
-
-def test_from_source_official(package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must construct remote from official repository source
-    """
-    remote_git_url_mock = mocker.patch("ahriman.core.alpm.remote.Official.remote_git_url")
-    remote_web_url_mock = mocker.patch("ahriman.core.alpm.remote.Official.remote_web_url")
-
-    remote = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
-    remote_git_url_mock.assert_called_once_with(package_ahriman.base, "community")
-    remote_web_url_mock.assert_called_once_with(package_ahriman.base)
-    assert remote.pkgbuild_dir == Path(".")
-    assert remote.branch == "main"
-    assert remote.source == PackageSource.Repository
-
-
-def test_from_source_other() -> None:
-    """
-    must return None in case if source is not one of AUR or Repository
-    """
-    assert RemoteSource.from_source(PackageSource.Archive, "package", "repository") is None
-    assert RemoteSource.from_source(PackageSource.Directory, "package", "repository") is None
-    assert RemoteSource.from_source(PackageSource.Local, "package", "repository") is None
-    assert RemoteSource.from_source(PackageSource.Remote, "package", "repository") is None
+    with pytest.raises(InitializeError):
+        RemoteSource(source=PackageSource.Remote).git_source()

@@ -36,9 +36,11 @@ class Sources(LazyLogging):
     Attributes:
         DEFAULT_BRANCH(str): (class attribute) default branch to process git repositories.
             Must be used only for local stored repositories, use RemoteSource descriptor instead for real packages
+        DEFAULT_COMMIT_AUTHOR(tuple[str, str]): (class attribute) default commit author to be used if none set
     """
 
     DEFAULT_BRANCH = "master"  # default fallback branch
+    DEFAULT_COMMIT_AUTHOR = ("ahriman", "ahriman@localhost")
 
     _check_output = check_output
 
@@ -61,13 +63,13 @@ class Sources(LazyLogging):
         return [PkgbuildPatch("arch", list(architectures))]
 
     @staticmethod
-    def fetch(sources_dir: Path, remote: RemoteSource | None) -> None:
+    def fetch(sources_dir: Path, remote: RemoteSource) -> None:
         """
         either clone repository or update it to origin/``remote.branch``
 
         Args:
             sources_dir(Path): local path to fetch
-            remote(RemoteSource | None): remote target (from where to fetch)
+            remote(RemoteSource): remote target (from where to fetch)
         """
         instance = Sources()
         # local directory exists and there is .git directory
@@ -77,11 +79,11 @@ class Sources(LazyLogging):
             instance.logger.info("skip update at %s because there are no branches configured", sources_dir)
             return
 
-        branch = remote.branch if remote is not None else instance.DEFAULT_BRANCH
+        branch = remote.branch or instance.DEFAULT_BRANCH
         if is_initialized_git:
             instance.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
             Sources._check_output("git", "fetch", "origin", branch, cwd=sources_dir, logger=instance.logger)
-        elif remote is not None:
+        elif remote.git_url is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
             Sources._check_output("git", "clone", "--branch", branch, "--single-branch",
                                   remote.git_url, str(sources_dir), cwd=sources_dir.parent, logger=instance.logger)
@@ -95,7 +97,7 @@ class Sources(LazyLogging):
 
         # move content if required
         # we are using full path to source directory in order to make append possible
-        pkgbuild_dir = remote.pkgbuild_dir if remote is not None else sources_dir.resolve()
+        pkgbuild_dir = remote.pkgbuild_dir or sources_dir.resolve()
         instance.move((sources_dir / pkgbuild_dir).resolve(), sources_dir)
 
     @staticmethod
@@ -122,14 +124,16 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to sources
         """
         instance = Sources()
-        Sources._check_output("git", "init", "--initial-branch", instance.DEFAULT_BRANCH,
-                              cwd=sources_dir, logger=instance.logger)
+        if not (sources_dir / ".git").is_dir():
+            # skip initializing in case if it was already
+            Sources._check_output("git", "init", "--initial-branch", instance.DEFAULT_BRANCH,
+                                  cwd=sources_dir, logger=instance.logger)
 
         # extract local files...
         files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Package.local_files(sources_dir)]
         instance.add(sources_dir, *files)
         # ...and commit them
-        instance.commit(sources_dir, commit_author=("ahriman", "ahriman@localhost"))
+        instance.commit(sources_dir)
 
     @staticmethod
     def load(sources_dir: Path, package: Package, patches: list[PkgbuildPatch], paths: RepositoryPaths) -> None:
@@ -179,13 +183,15 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to git repository
             remote(RemoteSource): remote target, branch and url
             *pattern(str): glob patterns
-            commit_author(tuple[str, str] | None, optional): commit author in form of git config (i.e. ``user <user@host>``)
-                (Default value = None)
+            commit_author(tuple[str, str] | None, optional): commit author if any (Default value = None)
         """
         instance = Sources()
         instance.add(sources_dir, *pattern)
-        instance.commit(sources_dir, commit_author=commit_author)
-        Sources._check_output("git", "push", remote.git_url, remote.branch, cwd=sources_dir, logger=instance.logger)
+        if not instance.commit(sources_dir, commit_author=commit_author):
+            return  # no changes to push, just skip action
+
+        git_url, branch = remote.git_source()
+        Sources._check_output("git", "push", git_url, branch, cwd=sources_dir, logger=instance.logger)
 
     def add(self, sources_dir: Path, *pattern: str, intent_to_add: bool = False) -> None:
         """
@@ -210,7 +216,7 @@ class Sources(LazyLogging):
                               cwd=sources_dir, logger=self.logger)
 
     def commit(self, sources_dir: Path, message: str | None = None,
-               commit_author: tuple[str, str] | None = None) -> None:
+               commit_author: tuple[str, str] | None = None) -> bool:
         """
         commit changes
 
@@ -219,18 +225,27 @@ class Sources(LazyLogging):
             message(str | None, optional): optional commit message if any. If none set, message will be generated
                 according to the current timestamp (Default value = None)
             commit_author(tuple[str, str] | None, optional): optional commit author if any (Default value = None)
+
+        Returns:
+            bool: True in case if changes have been committed and False otherwise
         """
+        if not self.has_changes(sources_dir):
+            return False  # nothing to commit
+
         if message is None:
             message = f"Autogenerated commit at {utcnow()}"
-        args = ["--allow-empty", "--message", message]
-
+        args = ["--message", message]
         environment: dict[str, str] = {}
-        if commit_author is not None:
-            user, email = commit_author
-            environment["GIT_AUTHOR_NAME"] = environment["GIT_COMMITTER_NAME"] = user
-            environment["GIT_AUTHOR_EMAIL"] = environment["GIT_COMMITTER_EMAIL"] = email
+
+        if commit_author is None:
+            commit_author = self.DEFAULT_COMMIT_AUTHOR
+        user, email = commit_author
+        environment["GIT_AUTHOR_NAME"] = environment["GIT_COMMITTER_NAME"] = user
+        environment["GIT_AUTHOR_EMAIL"] = environment["GIT_COMMITTER_EMAIL"] = email
 
         Sources._check_output("git", "commit", *args, cwd=sources_dir, logger=self.logger, environment=environment)
+
+        return True
 
     def diff(self, sources_dir: Path) -> str:
         """
@@ -243,6 +258,20 @@ class Sources(LazyLogging):
             str: patch as plain string
         """
         return Sources._check_output("git", "diff", cwd=sources_dir, logger=self.logger)
+
+    def has_changes(self, sources_dir: Path) -> bool:
+        """
+        check if there are changes in current git tree
+
+        Args:
+            sources_dir(Path): local path to git repository
+
+        Returns:
+            bool: True if there are uncommitted changes and False otherwise
+        """
+        # there is --exit-code argument to diff, however, there might be other process errors
+        changes = Sources._check_output("git", "diff", "--cached", "--name-only", cwd=sources_dir, logger=self.logger)
+        return bool(changes)
 
     def move(self, pkgbuild_dir: Path, sources_dir: Path) -> None:
         """

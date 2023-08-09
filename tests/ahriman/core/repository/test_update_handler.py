@@ -42,7 +42,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     """
     must provide updates based on repository data
     """
-    package_ahriman.remote = RemoteSource.from_source(PackageSource.Repository, package_ahriman.base, "community")
+    package_ahriman.remote = RemoteSource(source=PackageSource.Repository)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
@@ -63,6 +63,19 @@ def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Pack
 
     update_handler.updates_aur([], vcs=True)
     status_client_mock.assert_called_once_with(package_ahriman.base)
+
+
+def test_updates_aur_local(update_handler: UpdateHandler, package_ahriman: Package,
+                           mocker: MockerFixture) -> None:
+    """
+    must skip packages with local sources
+    """
+    package_ahriman.remote = RemoteSource(source=PackageSource.Local)
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur")
+
+    assert not update_handler.updates_aur([], vcs=True)
+    package_load_mock.assert_not_called()
 
 
 def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Package, package_python_schedule: Package,
@@ -150,7 +163,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
     assert update_handler.updates_local(vcs=True) == [package_ahriman]
-    fetch_mock.assert_called_once_with(Path(package_ahriman.base), remote=None)
+    fetch_mock.assert_called_once_with(Path(package_ahriman.base), pytest.helpers.anyvar(int))
     package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64", None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
     package_is_outdated_mock.assert_called_once_with(

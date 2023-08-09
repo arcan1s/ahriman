@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -23,7 +24,7 @@ def test_init_with_local_cache(configuration: Configuration, mocker: MockerFixtu
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman("x86_64", configuration, refresh_database=1)
+        pacman = Pacman("x86_64", configuration, refresh_database=PacmanSynchronization.Enabled)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=False)
 
@@ -40,7 +41,7 @@ def test_init_with_local_cache_forced(configuration: Configuration, mocker: Mock
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman("x86_64", configuration, refresh_database=2)
+        pacman = Pacman("x86_64", configuration, refresh_database=PacmanSynchronization.Force)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=True)
 
@@ -54,7 +55,7 @@ def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker
     dst_path = Path("/var/lib/pacman/sync/core.db")
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     # root database exists, local database does not
-    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: True if p.is_relative_to(path) else False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
     copy_mock = mocker.patch("shutil.copy")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
@@ -71,7 +72,7 @@ def test_database_copy_skip(pacman: Pacman, repository_paths: RepositoryPaths, m
     path = Path("randomname")
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     # root database exists, local database does not
-    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: True if p.is_relative_to(path) else False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
     copy_mock = mocker.patch("shutil.copy")
 
     pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=False)
@@ -86,7 +87,7 @@ def test_database_copy_no_directory(pacman: Pacman, repository_paths: Repository
     path = Path("randomname")
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     # root database exists, local database does not
-    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: True if p.is_relative_to(path) else False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
     copy_mock = mocker.patch("shutil.copy")
 
     pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)

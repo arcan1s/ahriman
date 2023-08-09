@@ -117,8 +117,9 @@ class Repository(Executor, UpdateHandler):
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
-                local = Package.from_archive(full_path, self.pacman, None)
-                local.remote = sources.get(local.base)
+                local = Package.from_archive(full_path, self.pacman)
+                if (source := sources.get(local.base)) is not None:
+                    local.remote = source
 
                 current = result.setdefault(local.base, local)
                 if current.version != local.version:

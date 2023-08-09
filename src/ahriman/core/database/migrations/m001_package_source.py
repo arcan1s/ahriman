@@ -70,6 +70,7 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
         connection(Connection): database connection
         paths(RepositoryPaths): repository paths instance
     """
+    from ahriman.core.alpm.remote import AUR
     from ahriman.core.database.operations import PackageOperations
 
     def insert_remote(base: str, remote: RemoteSource) -> None:
@@ -92,7 +93,11 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
         local_cache = paths.cache_for(package_base)
         if local_cache.exists() and not package.is_vcs:
             continue  # skip packages which are not VCS and with local cache
-        remote_source = RemoteSource.from_source(PackageSource.AUR, package_base, "aur")
-        if remote_source is None:
-            continue  # should never happen
+        remote_source = RemoteSource(
+            source=PackageSource.AUR,
+            git_url=AUR.remote_git_url(package_base, "aur"),
+            web_url=AUR.remote_web_url(package_base),
+            path=".",
+            branch="master",
+        )
         insert_remote(package_base, remote_source)

@@ -158,7 +158,10 @@ def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     """
     mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
                  return_value=package_ahriman.packages[package_ahriman.base])
-    assert Package.from_archive(Path("path"), pyalpm_handle, package_ahriman.remote) == package_ahriman
+    generated = Package.from_archive(Path("path"), pyalpm_handle)
+    generated.remote = package_ahriman.remote
+
+    assert generated == package_ahriman
 
 
 def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
