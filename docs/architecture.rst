@@ -231,7 +231,7 @@ The package provides several authorization methods: disabled, based on configura
 
 Disabled (default) authorization provider just allows everything for everyone and does not have any specific configuration (it uses some default configuration parameters though). It also provides generic interface for derived classes.
 
-Mapping (aka configuration) provider uses hashed passwords with salt from the database in order to authenticate users. This provider also enables user permission checking (read/write) (authorization). Thus, it defines the following methods:
+Mapping (aka configuration) provider uses hashed passwords with optional salt from the database in order to authenticate users. This provider also enables user permission checking (read/write) (authorization). Thus, it defines the following methods:
 
 * ``check_credentials`` - user password validation (authentication).
 * ``verify_access`` - user permission validation (authorization).
