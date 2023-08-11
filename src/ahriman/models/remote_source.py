@@ -21,6 +21,7 @@ from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Self
 
+from ahriman.core.exceptions import InitializeError
 from ahriman.core.util import dataclass_view, filter_json
 from ahriman.models.package_source import PackageSource
 
@@ -31,18 +32,18 @@ class RemoteSource:
     remote package source properties
 
     Attributes:
-        branch(str): branch of the git repository
-        git_url(str): url of the git repository
-        path(str): path to directory with PKGBUILD inside the git repository
+        branch(str | None): branch of the git repository
+        git_url(str | None): url of the git repository
+        path(str | None): path to directory with PKGBUILD inside the git repository
         source(PackageSource): package source pointer used by some parsers
-        web_url(str): url of the package in the web interface
+        web_url(str | None): url of the package in the web interface
     """
 
-    git_url: str
-    web_url: str
-    path: str
-    branch: str
     source: PackageSource
+    git_url: str | None = None
+    web_url: str | None = None
+    path: str | None = None
+    branch: str | None = None
 
     def __post_init__(self) -> None:
         """
@@ -51,17 +52,27 @@ class RemoteSource:
         object.__setattr__(self, "source", PackageSource(self.source))
 
     @property
-    def pkgbuild_dir(self) -> Path:
+    def is_remote(self) -> bool:
+        """
+        check if source is remote
+
+        Returns:
+            bool: True in case if package is well-known remote source (e.g. AUR) and False otherwise
+        """
+        return self.source in (PackageSource.AUR, PackageSource.Repository)
+
+    @property
+    def pkgbuild_dir(self) -> Path | None:
         """
         get path to directory with package sources (PKGBUILD etc)
 
         Returns:
-            Path: path to directory with package sources based on settings
+            Path | None: path to directory with package sources based on settings if available
         """
-        return Path(self.path)
+        return Path(self.path) if self.path is not None else None
 
     @classmethod
-    def from_json(cls, dump: dict[str, Any]) -> Self | None:
+    def from_json(cls, dump: dict[str, Any]) -> Self:
         """
         construct remote source from the json dump (or database row)
 
@@ -69,47 +80,25 @@ class RemoteSource:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            Self | None: remote source
+            Self: remote source
         """
         # filter to only known fields
         known_fields = [pair.name for pair in fields(cls)]
-        dump = filter_json(dump, known_fields)
-        if dump:
-            return cls(**dump)
-        return None
+        return cls(**filter_json(dump, known_fields))
 
-    @classmethod
-    def from_source(cls, source: PackageSource, package_base: str, repository: str) -> Self | None:
+    def git_source(self) -> tuple[str, str]:
         """
-        generate remote source from the package base
-
-        Args:
-            source(PackageSource): source of the package
-            package_base(str): package base
-            repository(str): repository name
+        get git source if available
 
         Returns:
-            Self | None: generated remote source if any, None otherwise
+            tuple[str, str]: git url and branch
+
+        Raises:
+            InitializeError: in case if git url and/or branch are not set
         """
-        if source == PackageSource.AUR:
-            from ahriman.core.alpm.remote import AUR
-            return cls(
-                git_url=AUR.remote_git_url(package_base, repository),
-                web_url=AUR.remote_web_url(package_base),
-                path=".",
-                branch="master",
-                source=source,
-            )
-        if source == PackageSource.Repository:
-            from ahriman.core.alpm.remote import Official
-            return cls(
-                git_url=Official.remote_git_url(package_base, repository),
-                web_url=Official.remote_web_url(package_base),
-                path=".",
-                branch="main",
-                source=source,
-            )
-        return None
+        if self.git_url is None or self.branch is None:
+            raise InitializeError("Remote source is empty")
+        return self.git_url, self.branch
 
     def view(self) -> dict[str, Any]:
         """

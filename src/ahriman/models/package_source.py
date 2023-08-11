@@ -24,6 +24,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from ahriman.core.util import package_like
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 class PackageSource(str, Enum):
@@ -42,7 +43,7 @@ class PackageSource(str, Enum):
     Examples:
         In case if source is unknown the ``resolve()`` and the source descriptor is available method must be used::
 
-            >>> real_source = PackageSource.Auto.resolve("ahriman")
+            >>> real_source = PackageSource.Auto.resolve("ahriman", configuration.repository_paths)
 
         the code above will ensure that the presudo-source ``PackageSource.Auto`` will not be processed later.
     """
@@ -55,12 +56,13 @@ class PackageSource(str, Enum):
     Remote = "remote"
     Repository = "repository"
 
-    def resolve(self, source: str) -> PackageSource:
+    def resolve(self, source: str, paths: RepositoryPaths) -> PackageSource:
         """
         resolve auto into the correct type
 
         Args:
             source(str): source of the package
+            paths(RepositoryPaths): repository paths instance
 
         Returns:
             PackageSource: non-auto type of the package source
@@ -74,7 +76,7 @@ class PackageSource(str, Enum):
         if maybe_url.scheme and maybe_url.scheme not in ("data", "file") and package_like(maybe_path):
             return PackageSource.Remote
         try:
-            if (maybe_path / "PKGBUILD").is_file():
+            if (maybe_path / "PKGBUILD").is_file() or paths.cache_for(source).is_dir():
                 return PackageSource.Local
             if maybe_path.is_dir():
                 return PackageSource.Directory

@@ -304,7 +304,7 @@ def parse_version(version: str) -> tuple[str | None, str, str]:
 
 def partition(source: list[T], predicate: Callable[[T], bool]) -> tuple[list[T], list[T]]:
     """
-    partition list into two based on predicate, based on # https://docs.python.org/dev/library/itertools.html#itertools-recipes
+    partition list into two based on predicate, based on https://docs.python.org/dev/library/itertools.html#itertools-recipes
 
     Args:
         source(list[T]): source list to be partitioned

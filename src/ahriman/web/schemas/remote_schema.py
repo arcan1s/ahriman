@@ -27,22 +27,22 @@ class RemoteSchema(Schema):
     request and response package remote schema
     """
 
-    branch = fields.String(required=True, metadata={
+    branch = fields.String(metadata={
         "description": "Repository branch",
         "example": "master",
     })
-    git_url = fields.String(required=True, metadata={
+    git_url = fields.String(metadata={
         "description": "Package git url",
         "example": "https://aur.archlinux.org/ahriman.git",
     })
-    path = fields.String(required=True, metadata={
+    path = fields.String(metadata={
         "description": "Path to package sources in git repository",
         "example": ".",
     })
     source = fields.Enum(PackageSource, by_value=True, required=True, metadata={
         "description": "Pacakge source",
     })
-    web_url = fields.String(required=True, metadata={
+    web_url = fields.String(metadata={
         "description": "Package repository page",
         "example": "https://aur.archlinux.org/packages/ahriman",
     })

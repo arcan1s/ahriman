@@ -27,7 +27,6 @@ from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
-from ahriman.models.package_source import PackageSource
 
 
 class Spawn(Thread, LazyLogging):
@@ -133,8 +132,7 @@ class Spawn(Thread, LazyLogging):
             username(str | None): optional override of username for build process
             now(bool): build packages now
         """
-        # avoid abusing by building non-aur packages
-        kwargs = {"source": PackageSource.AUR.value, "username": username}
+        kwargs = {"username": username}
         if now:
             kwargs["now"] = ""
         self._spawn_process("package-add", *packages, **kwargs)

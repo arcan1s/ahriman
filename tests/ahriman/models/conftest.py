@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import MagicMock, PropertyMock
 
 from ahriman import __version__
+from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
@@ -70,7 +71,13 @@ def package_tpacpi_bat_git() -> Package:
     return Package(
         base="tpacpi-bat-git",
         version="3.1.r12.g4959b52-1",
-        remote=RemoteSource.from_source(PackageSource.AUR, "tpacpi-bat-git", "aur"),
+        remote=RemoteSource(
+            source=PackageSource.AUR,
+            git_url=AUR.remote_git_url("tpacpi-bat-git", "aur"),
+            web_url=AUR.remote_web_url("tpacpi-bat-git"),
+            path=".",
+            branch="master",
+        ),
         packages={"tpacpi-bat-git": PackageDescription()})
 
 

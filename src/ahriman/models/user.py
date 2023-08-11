@@ -41,7 +41,7 @@ class User:
         Simply create user from database data and perform required validation::
 
             >>> password = User.generate_password(24)
-            >>> user = User(username="ahriman", password=password, access=UserAccess.Full, packager_id=None, key=None)
+            >>> user = User(username="ahriman", password=password, access=UserAccess.Full)
 
         Since the password supplied may be plain text, the ``hash_password`` method can be used to hash the password::
 
@@ -63,8 +63,8 @@ class User:
     username: str
     password: str
     access: UserAccess
-    packager_id: str | None
-    key: str | None
+    packager_id: str | None = None
+    key: str | None = None
 
     _HASHER = sha512_crypt
 

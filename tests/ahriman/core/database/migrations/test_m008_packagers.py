@@ -35,7 +35,7 @@ def test_migrate_package_base_packager(connection: Connection, configuration: Co
 
     migrate_package_base_packager(connection, configuration)
     package_mock.assert_called_once_with(
-        package_ahriman.packages[package_ahriman.base].filepath, pytest.helpers.anyvar(int), remote=None)
+        package_ahriman.packages[package_ahriman.base].filepath, pytest.helpers.anyvar(int))
     connection.executemany.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), [{
         "package_base": package_ahriman.base,
         "packager": package_ahriman.packager,

@@ -86,7 +86,9 @@ def test_add_local(application_packages: ApplicationPackages, package_ahriman: P
     application_packages._add_local(package_ahriman.base, "packager")
     is_dir_mock.assert_called_once_with()
     copytree_mock.assert_called_once_with(
-        Path(package_ahriman.base), application_packages.repository.paths.cache_for(package_ahriman.base))
+        Path(package_ahriman.base),
+        application_packages.repository.paths.cache_for(package_ahriman.base),
+        dirs_exist_ok=True)
     init_mock.assert_called_once_with(application_packages.repository.paths.cache_for(package_ahriman.base))
     build_queue_mock.assert_called_once_with(package_ahriman)
 

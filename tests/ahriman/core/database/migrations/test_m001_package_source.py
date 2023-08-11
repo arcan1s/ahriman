@@ -66,18 +66,3 @@ def test_migrate_package_remotes_vcs(package_ahriman: Package, connection: Conne
 
     migrate_package_remotes(connection, repository_paths)
     connection.execute.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
-
-
-def test_migrate_package_remotes_no_remotes(package_ahriman: Package, connection: Connection,
-                                            repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
-    """
-    must skip processing in case if no remotes generated (should never happen)
-    """
-    mocker.patch(
-        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
-        return_value={package_ahriman.base: package_ahriman})
-    mocker.patch("pathlib.Path.exists", return_value=False)
-    mocker.patch("ahriman.models.remote_source.RemoteSource.from_source", return_value=None)
-
-    migrate_package_remotes(connection, repository_paths)
-    connection.execute.assert_not_called()
