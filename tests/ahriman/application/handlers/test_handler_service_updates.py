@@ -2,7 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.application.handlers import ServiceUpdates
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
@@ -46,7 +46,7 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, reposi
     """
     must do not perform any actions if package is up-to-date
     """
-    package_ahriman.version = f"{version.__version__}-1"
+    package_ahriman.version = f"{__version__}-1"
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)

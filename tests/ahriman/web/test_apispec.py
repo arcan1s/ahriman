@@ -3,7 +3,7 @@ import pytest
 from aiohttp.web import Application
 from pytest_mock import MockerFixture
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.web.apispec import _info, _security, _servers, setup_apispec
 
 
@@ -13,7 +13,7 @@ def test_info() -> None:
     """
     info = _info()
     assert info["title"] == "ahriman"
-    assert info["version"] == version.__version__
+    assert info["version"] == __version__
 
 
 def test_security() -> None:

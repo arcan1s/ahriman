@@ -21,7 +21,7 @@ import aiohttp_apispec  # type: ignore[import]
 
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
@@ -68,7 +68,8 @@ class StatusView(BaseView):
             architecture=self.service.architecture,
             packages=counters,
             repository=self.service.repository.name,
-            version=version.__version__)
+            version=__version__,
+        )
 
         return json_response(status.view())
 

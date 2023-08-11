@@ -29,7 +29,7 @@ COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
 ## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
 RUN pacman -Sy --noconfirm --asdeps devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo && \
-    pacman -Sy --noconfirm --asdeps python-build python-installer python-wheel && \
+    pacman -Sy --noconfirm --asdeps python-build python-flit python-installer python-wheel && \
     pacman -Sy --noconfirm --asdeps breezy mercurial python-aiohttp python-aiohttp-cors python-boto3 python-cryptography python-jinja python-requests-unixsocket python-systemd rsync subversion && \
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-apispec-git python-aiohttp-jinja2  \
                                             python-aiohttp-debugtoolbar python-aiohttp-session python-aiohttp-security
@@ -39,7 +39,7 @@ RUN pacman -Sy --noconfirm --asdeps devtools git pyalpm python-cerberus python-i
 COPY --chown=build . "/home/build/ahriman"
 ## create package archive and install it
 RUN cd "/home/build/ahriman" && \
-    make VERSION=$(python -c "from src.ahriman.version import __version__; print(__version__)") archlinux && \
+    make VERSION=$(python -c "from src.ahriman import __version__; print(__version__)") archlinux && \
     cp ./*-src.tar.xz "package/archlinux" && \
     cd "package/archlinux" && \
     runuser -u build -- makepkg --noconfirm --install --skipchecksums && \

@@ -24,7 +24,7 @@ import sys
 from collections.abc import Generator
 from importlib import metadata
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import VersionPrinter
@@ -52,7 +52,7 @@ class Versions(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        VersionPrinter(f"Module version {version.__version__}",
+        VersionPrinter(f"Module version {__version__}",
                        {"Python": sys.version}).print(verbose=False, separator=" ")
         packages = Versions.package_dependencies("ahriman")
         VersionPrinter("Installed packages", dict(packages)).print(verbose=False, separator=" ")

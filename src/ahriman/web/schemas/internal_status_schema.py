@@ -19,7 +19,7 @@
 #
 from marshmallow import Schema, fields
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.status_schema import StatusSchema
 
@@ -45,5 +45,5 @@ class InternalStatusSchema(Schema):
     })
     version = fields.String(required=True, metadata={
         "description": "Repository version",
-        "example": version.__version__,
+        "example": __version__,
     })

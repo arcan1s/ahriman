@@ -19,13 +19,12 @@
 #
 # pylint: disable=too-many-lines
 import argparse
-import sys
 import tempfile
 
 from pathlib import Path
 from typing import TypeVar
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.application import handlers
 from ahriman.core.util import enum_values, extract_user
 from ahriman.models.action import Action
@@ -85,7 +84,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
-    parser.add_argument("-V", "--version", action="version", version=version.__version__)
+    parser.add_argument("-V", "--version", action="version", version=__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
 
@@ -1000,18 +999,15 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def run() -> None:
+def run() -> int:
     """
     run application instance
+
+    Returns:
+        int: application status code
     """
-    if __name__ == "__main__":
-        args_parser = _parser()
-        args = args_parser.parse_args()
+    args_parser = _parser()
+    args = args_parser.parse_args()
 
-        handler: handlers.Handler = args.handler
-        status = handler.execute(args)
-
-        sys.exit(status)
-
-
-run()
+    handler: handlers.Handler = args.handler
+    return handler.execute(args)

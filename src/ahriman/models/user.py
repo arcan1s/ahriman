@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from secrets import token_urlsafe as generate_password
 from dataclasses import dataclass, replace
 from passlib.hash import sha512_crypt
-from passlib.pwd import genword as generate_password
 from typing import Self
 
 from ahriman.models.user_access import UserAccess
@@ -104,8 +104,7 @@ class User:
         Returns:
             str: random string which contains letters and numbers
         """
-        password: str = generate_password(length=length)
-        return password
+        return generate_password(length)[:length]
 
     def check_credentials(self, password: str, salt: str) -> bool:
         """

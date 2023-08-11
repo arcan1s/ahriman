@@ -1,0 +1,84 @@
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ahriman"
+
+description = "ArcH linux ReposItory MANager"
+readme = "README.md"
+
+requires-python = ">=3.11"
+
+license = {file = "COPYING"}
+authors = [
+    {name = "ahriman team"},
+]
+
+dependencies = [
+    "cerberus",
+    "inflection",
+    "passlib",
+    "requests",
+    "srcinfo",
+]
+
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://ahriman.readthedocs.io/"
+Repository = "https://github.com/arcan1s/ahriman"
+Changelog = "https://github.com/arcan1s/ahriman/releases"
+
+[project.scripts]
+ahriman = "ahriman.application.ahriman:run"
+
+[project.optional-dependencies]
+check = [
+    "autopep8",
+    "bandit",
+    "mypy",
+    "pylint",
+]
+ docs = [
+     "Sphinx",
+     "argparse-manpage",
+     "pydeps",
+     "shtab",
+     "sphinx-argparse",
+     "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
+ ]
+journald = [
+    "systemd-python",
+]
+# FIXME technically this dependency is required, but in some cases we do not have access to
+# the libalpm which is required in order to install the package. Thus in case if we do not
+# really need to run the application we can move it to "optional" dependencies
+pacman = [
+    "pyalpm",
+]
+s3 = [
+    "boto3",
+]
+tests = [
+    "pytest",
+    "pytest-aiohttp",
+    "pytest-cov",
+    "pytest-helpers-namespace",
+    "pytest-mock",
+    "pytest-resource-path",
+    "pytest-spec",
+]
+web = [
+    "Jinja2",
+    "aioauth-client",
+    "aiohttp",
+    "aiohttp-apispec",
+    "aiohttp_cors",
+    "aiohttp_jinja2",
+    "aiohttp_debugtoolbar",
+    "aiohttp_session",
+    "aiohttp_security",
+    "cryptography",
+    "requests-unixsocket",  # required by unix socket support
+]

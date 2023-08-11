@@ -58,9 +58,11 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     args = _default_args(args)
     args.verbose = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
+    read_mock = mocker.patch("pathlib.Path.read_text", return_value="")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("code.interact")
 
     Shell.run(args, "x86_64", configuration, report=False)
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
+    read_mock.assert_called_once_with(encoding="utf8")
     print_mock.assert_called_once_with(verbose=False)

@@ -8,7 +8,7 @@ arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
 depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-cerberus' 'python-inflection' 'python-passlib' 'python-requests' 'python-srcinfo')
-makedepends=('python-build' 'python-installer' 'python-wheel')
+makedepends=('python-build' 'python-flit' 'python-installer' 'python-wheel')
 optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
             'mercurial: -hg packages support'
@@ -45,8 +45,10 @@ package() {
 
   python -m installer --destdir="$pkgdir" "dist/$pkgname-$pkgver-py3-none-any.whl"
 
-  # python-installer actually thinks that you cannot just copy files to root
-  # thus we need to copy them manually
+  # thanks too PEP517, which we all wanted, you need to install data files manually nowadays
+  pushd package && find . -type f -exec install -Dm644 "{}" "$pkgdir/usr/{}" \; && popd
+
+  # keep usr/share configs as reference and copy them to /etc
   install -Dm644 "$pkgdir/usr/share/$pkgname/settings/ahriman.ini" "$pkgdir/etc/ahriman.ini"
   install -Dm644 "$pkgdir/usr/share/$pkgname/settings/ahriman.ini.d/logging.ini" "$pkgdir/etc/ahriman.ini.d/logging.ini"
 

@@ -22,7 +22,7 @@ import argparse
 from types import TracebackType
 from typing import Literal, Self
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError
 from ahriman.core.log import LazyLogging
@@ -77,9 +77,9 @@ class Lock(LazyLogging):
         check web server version
         """
         status = self.reporter.get_internal()
-        if status.version is not None and status.version != version.__version__:
+        if status.version is not None and status.version != __version__:
             self.logger.warning("status watcher version mismatch, our %s, their %s",
-                                version.__version__, status.version)
+                                __version__, status.version)
 
     def check_user(self) -> None:
         """

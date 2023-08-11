@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from pytest_mock import MockerFixture
 
+from ahriman.application import ahriman
 from ahriman.application.handlers import Handler
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
@@ -822,10 +823,6 @@ def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:
     args.architecture = "x86_64"
     args.handler = Handler
 
-    from ahriman.application import ahriman
-    mocker.patch.object(ahriman, "__name__", "__main__")
     mocker.patch("argparse.ArgumentParser.parse_args", return_value=args)
-    exit_mock = mocker.patch("sys.exit")
 
-    ahriman.run()
-    exit_mock.assert_called_once_with(1)
+    assert ahriman.run() == 1

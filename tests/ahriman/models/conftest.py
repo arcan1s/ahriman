@@ -3,7 +3,7 @@ import pytest
 
 from unittest.mock import MagicMock, PropertyMock
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
@@ -55,7 +55,7 @@ def internal_status(counters: Counters) -> InternalStatus:
     return InternalStatus(status=BuildStatus(),
                           architecture="x86_64",
                           packages=counters,
-                          version=version.__version__,
+                          version=__version__,
                           repository="aur-clone")
 
 

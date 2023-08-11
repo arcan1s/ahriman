@@ -12,7 +12,7 @@ pacman --noconfirm -Syu
 # main dependencies
 pacman --noconfirm -Sy base-devel devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo python-systemd sudo
 # make dependencies
-pacman --noconfirm -Sy python-build python-installer python-wheel
+pacman --noconfirm -Sy python-build python-flit python-installer python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # VCS support
