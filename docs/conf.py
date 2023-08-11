@@ -15,7 +15,7 @@ import sys
 
 from pathlib import Path
 
-from ahriman.version import __version__
+from ahriman import __version__
 
 
 basedir = Path(__file__).resolve().parent.parent / "src"

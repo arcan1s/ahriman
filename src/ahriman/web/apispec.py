@@ -22,7 +22,7 @@ import aiohttp_apispec  # type: ignore[import]
 from aiohttp.web import Application
 from typing import Any
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.core.configuration import Configuration
 
 
@@ -59,7 +59,7 @@ def _info() -> dict[str, Any]:
             "name": "GPL3",
             "url": "https://raw.githubusercontent.com/arcan1s/ahriman/master/COPYING",
         },
-        "version": version.__version__,
+        "version": __version__,
     }
 
 

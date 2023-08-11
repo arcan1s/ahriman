@@ -3,7 +3,7 @@
 
 PROJECT := ahriman
 
-FILES := AUTHORS CONTRIBUTING.md COPYING Makefile README.md SECURITY.md docs package src setup.py tox.ini web.png
+FILES := AUTHORS CONTRIBUTING.md COPYING Makefile README.md SECURITY.md docs package pyproject.toml src tox.ini web.png
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
@@ -38,7 +38,7 @@ html: specification
 	tox -e docs-html
 
 push: specification archlinux
-	git add package/archlinux/PKGBUILD src/ahriman/version.py docs/ahriman-architecture.svg docs/ahriman.1 docs/completions/
+	git add package/archlinux/PKGBUILD src/ahriman/__init__.py docs/ahriman-architecture.svg package/share/man/man1/ahriman.1 package/share/bash-completion/completions/_ahriman package/share/zsh/site-functions/_ahriman
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
 	git push
@@ -56,4 +56,4 @@ version:
 ifndef VERSION
 	$(error VERSION is required, but not set)
 endif
-	sed -i 's/^__version__ = .*/__version__ = "$(VERSION)"/' src/ahriman/version.py
+	sed -i 's/^__version__ = .*/__version__ = "$(VERSION)"/' src/ahriman/__init__.py

@@ -12,17 +12,6 @@ Subpackages
    ahriman.models
    ahriman.web
 
-Submodules
-----------
-
-ahriman.version module
-----------------------
-
-.. automodule:: ahriman.version
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

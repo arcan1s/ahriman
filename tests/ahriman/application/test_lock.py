@@ -6,7 +6,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError, UnsafeRunError
@@ -33,7 +33,7 @@ def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
     must check version correctly
     """
     mocker.patch("ahriman.core.status.client.Client.get_internal",
-                 return_value=InternalStatus(status=BuildStatus(), version=version.__version__))
+                 return_value=InternalStatus(status=BuildStatus(), version=__version__))
     logging_mock = mocker.patch("logging.Logger.warning")
 
     lock.check_version()

@@ -19,7 +19,7 @@
 #
 from marshmallow import Schema, fields
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchema
 from ahriman.web.schemas.remote_schema import RemoteSchema
 
@@ -35,7 +35,7 @@ class PackageSchema(Schema):
     })
     version = fields.String(required=True, metadata={
         "description": "Package version",
-        "example": version.__version__,
+        "example": __version__,
     })
     remote = fields.Nested(RemoteSchema(), required=True, metadata={
         "description": "Package remote properties",

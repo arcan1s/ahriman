@@ -3,8 +3,7 @@ import pytest
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
-import ahriman.version as version
-
+from ahriman import __version__
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
@@ -37,7 +36,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     json = await response.json()
     assert not response_schema.validate(json)
 
-    assert json["version"] == version.__version__
+    assert json["version"] == __version__
     assert json["packages"]
     assert json["packages"]["total"] == 1
 

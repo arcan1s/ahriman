@@ -24,7 +24,7 @@ import requests
 from collections.abc import Generator
 from urllib.parse import quote_plus as urlencode
 
-from ahriman import version
+from ahriman import __version__
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
@@ -141,11 +141,11 @@ class WebClient(Client, LazyLogging):
         if use_unix_socket:
             import requests_unixsocket  # type: ignore[import]
             session: requests.Session = requests_unixsocket.Session()
-            session.headers["User-Agent"] = f"ahriman/{version.__version__}"
+            session.headers["User-Agent"] = f"ahriman/{__version__}"
             return session
 
         session = requests.Session()
-        session.headers["User-Agent"] = f"ahriman/{version.__version__}"
+        session.headers["User-Agent"] = f"ahriman/{__version__}"
         self._login(session)
 
         return session

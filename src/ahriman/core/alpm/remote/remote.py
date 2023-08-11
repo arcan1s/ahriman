@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman import version
+from ahriman import __version__
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.log import LazyLogging
 from ahriman.models.aur_package import AURPackage
@@ -43,7 +43,7 @@ class Remote(LazyLogging):
         directly, whereas ``multisearch`` splits search one by one and finds intersection between search results.
     """
 
-    DEFAULT_USER_AGENT = f"ahriman/{version.__version__}"
+    DEFAULT_USER_AGENT = f"ahriman/{__version__}"
 
     @classmethod
     def info(cls, package_name: str, *, pacman: Pacman) -> AURPackage:
