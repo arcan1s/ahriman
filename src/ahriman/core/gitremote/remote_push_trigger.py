@@ -49,7 +49,10 @@ class RemotePushTrigger(Trigger):
         "gitremote": {
             "type": "dict",
             "schema": {
-                "commit_author": {
+                "commit_email": {
+                    "type": "string",
+                },
+                "commit_user": {
                     "type": "string",
                 },
                 "push_url": {

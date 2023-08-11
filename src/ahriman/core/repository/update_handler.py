@@ -24,6 +24,7 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 
 
 class UpdateHandler(Cleaner):
@@ -55,12 +56,10 @@ class UpdateHandler(Cleaner):
             list[Package]: list of packages which are out-of-dated
         """
         def load_remote(package: Package) -> Package:
-            source = package.remote.source if package.remote is not None else None
-
             # try to load package from base and if none found try to load by separated packages
             for probe in [package.base] + sorted(package.packages.keys()):
                 try:
-                    if source == PackageSource.Repository:
+                    if package.remote.source == PackageSource.Repository:
                         return Package.from_official(probe, self.pacman, None)
                     return Package.from_aur(probe, self.pacman, None)
                 except UnknownPackageError:
@@ -71,6 +70,8 @@ class UpdateHandler(Cleaner):
 
         for local in self.packages():
             with self.in_package_context(local.base):
+                if not local.remote.is_remote:
+                    continue  # avoid checking local packages
                 if local.base in self.ignore_list:
                     continue
                 if filter_packages and local.base not in filter_packages:
@@ -107,7 +108,15 @@ class UpdateHandler(Cleaner):
         for cache_dir in self.paths.cache.iterdir():
             with self.in_package_context(cache_dir.name):
                 try:
-                    Sources.fetch(cache_dir, remote=None)
+                    source = RemoteSource(
+                        source=PackageSource.Local,
+                        git_url=cache_dir.absolute().as_uri(),
+                        web_url="",
+                        path=".",
+                        branch="master",
+                    )
+
+                    Sources.fetch(cache_dir, source)
                     remote = Package.from_build(cache_dir, self.architecture, None)
 
                     local = packages.get(remote.base)

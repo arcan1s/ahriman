@@ -7,6 +7,7 @@ from typing import Any, TypeVar
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.remote import AUR
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -314,7 +315,13 @@ def package_python_schedule(
     return Package(
         base="python-schedule",
         version="1.0.0-2",
-        remote=RemoteSource.from_source(PackageSource.AUR, "python-schedule", "aur"),
+        remote=RemoteSource(
+            source=PackageSource.AUR,
+            git_url=AUR.remote_git_url("python-schedule", "aur"),
+            web_url=AUR.remote_web_url("python-schedule"),
+            path=".",
+            branch="master",
+        ),
         packages=packages)
 
 
@@ -451,7 +458,13 @@ def remote_source() -> RemoteSource:
     Returns:
         RemoteSource: remote source test instance
     """
-    return RemoteSource.from_source(PackageSource.AUR, "ahriman", "aur")
+    return RemoteSource(
+        source=PackageSource.AUR,
+        git_url=AUR.remote_git_url("ahriman", "aur"),
+        web_url=AUR.remote_web_url("ahriman"),
+        path=".",
+        branch="master",
+    )
 
 
 @pytest.fixture

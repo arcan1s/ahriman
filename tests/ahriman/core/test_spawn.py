@@ -75,7 +75,7 @@ def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_add(["ahriman", "linux"], None, now=False)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username=None)
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username=None)
 
 
 def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -84,7 +84,7 @@ def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_add(["ahriman", "linux"], None, now=True)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username=None, now="")
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username=None, now="")
 
 
 def test_packages_add_with_username(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -93,7 +93,7 @@ def test_packages_add_with_username(spawner: Spawn, mocker: MockerFixture) -> No
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     spawner.packages_add(["ahriman", "linux"], "username", now=False)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", source="aur", username="username")
+    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username="username")
 
 
 def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:

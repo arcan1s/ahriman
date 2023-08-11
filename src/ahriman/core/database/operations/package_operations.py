@@ -86,11 +86,11 @@ class PackageOperations(Operations):
             {
                 "package_base": package.base,
                 "version": package.version,
-                "branch": package.remote.branch if package.remote is not None else None,
-                "git_url": package.remote.git_url if package.remote is not None else None,
-                "path": package.remote.path if package.remote is not None else None,
-                "web_url": package.remote.web_url if package.remote is not None else None,
-                "source": package.remote.source.value if package.remote is not None else None,
+                "branch": package.remote.branch,
+                "git_url": package.remote.git_url,
+                "path": package.remote.path,
+                "web_url": package.remote.web_url,
+                "source": package.remote.source.value,
                 "packager": package.packager,
             }
         )
@@ -270,5 +270,4 @@ class PackageOperations(Operations):
         return {
             package_base: package.remote
             for package_base, package in packages.items()
-            if package.remote is not None
         }

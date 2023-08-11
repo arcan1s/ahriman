@@ -66,7 +66,7 @@ def migrate_package_depends(connection: Connection, configuration: Configuration
 
     package_list = []
     for full_path in filter(package_like, configuration.repository_paths.repository.iterdir()):
-        base = Package.from_archive(full_path, pacman, remote=None)
+        base = Package.from_archive(full_path, pacman)
         for package, description in base.packages.items():
             package_list.append({
                 "make_depends": description.make_depends,

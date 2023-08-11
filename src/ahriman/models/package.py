@@ -51,7 +51,7 @@ class Package(LazyLogging):
         packager(str | None): package packager if available
         packages(dict[str, PackageDescription): map of package names to their properties.
             Filled only on load from archive
-        remote(RemoteSource | None): package remote source if applicable
+        remote(RemoteSource): package remote source if applicable
         version(str): package full version
 
     Examples:
@@ -61,7 +61,7 @@ class Package(LazyLogging):
 
         it will contain every data available in the json body. Otherwise, if generate package from local archive::
 
-            >>> package = Package.from_archive(local_path, pacman, remote=None)
+            >>> package = Package.from_archive(local_path, pacman)
 
         it will probably miss file descriptions (in case if there are multiple packages which belong to the base).
 
@@ -76,7 +76,7 @@ class Package(LazyLogging):
 
     base: str
     version: str
-    remote: RemoteSource | None
+    remote: RemoteSource
     packages: dict[str, PackageDescription]
     packager: str | None = None
 
@@ -192,22 +192,26 @@ class Package(LazyLogging):
         return sorted(packages)
 
     @classmethod
-    def from_archive(cls, path: Path, pacman: Pacman, remote: RemoteSource | None) -> Self:
+    def from_archive(cls, path: Path, pacman: Pacman) -> Self:
         """
         construct package properties from package archive
 
         Args:
             path(Path): path to package archive
             pacman(Pacman): alpm wrapper instance
-            remote(RemoteSource): package remote source if applicable
 
         Returns:
             Self: package properties
         """
         package = pacman.handle.load_pkg(str(path))
         description = PackageDescription.from_package(package, path)
-        return cls(base=package.base, version=package.version, remote=remote, packages={package.name: description},
-                   packager=package.packager)
+        return cls(
+            base=package.base,
+            version=package.version,
+            remote=RemoteSource(source=PackageSource.Archive),
+            packages={package.name: description},
+            packager=package.packager,
+        )
 
     @classmethod
     def from_aur(cls, name: str, pacman: Pacman, packager: str | None = None) -> Self:
@@ -223,7 +227,15 @@ class Package(LazyLogging):
             Self: package properties
         """
         package = AUR.info(name, pacman=pacman)
-        remote = RemoteSource.from_source(PackageSource.AUR, package.package_base, package.repository)
+
+        remote = RemoteSource(
+            source=PackageSource.AUR,
+            git_url=AUR.remote_git_url(package.package_base, package.repository),
+            web_url=AUR.remote_web_url(package.package_base),
+            path=".",
+            branch="master",
+        )
+
         return cls(
             base=package.package_base,
             version=package.version,
@@ -265,14 +277,20 @@ class Package(LazyLogging):
         version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
 
         remote = RemoteSource(
+            source=PackageSource.Local,
             git_url=path.absolute().as_uri(),
-            web_url="",
+            web_url=None,
             path=".",
             branch="master",
-            source=PackageSource.Local,
         )
 
-        return cls(base=srcinfo["pkgbase"], version=version, remote=remote, packages=packages, packager=packager)
+        return cls(
+            base=srcinfo["pkgbase"],
+            version=version,
+            remote=remote,
+            packages=packages,
+            packager=packager,
+        )
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -291,8 +309,13 @@ class Package(LazyLogging):
             for key, value in packages_json.items()
         }
         remote = dump.get("remote") or {}
-        return cls(base=dump["base"], version=dump["version"], remote=RemoteSource.from_json(remote), packages=packages,
-                   packager=dump.get("packager"))
+        return cls(
+            base=dump["base"],
+            version=dump["version"],
+            remote=RemoteSource.from_json(remote),
+            packages=packages,
+            packager=dump.get("packager"),
+        )
 
     @classmethod
     def from_official(cls, name: str, pacman: Pacman, packager: str | None = None, *, use_syncdb: bool = True) -> Self:
@@ -309,7 +332,15 @@ class Package(LazyLogging):
             Self: package properties
         """
         package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
-        remote = RemoteSource.from_source(PackageSource.Repository, package.package_base, package.repository)
+
+        remote = RemoteSource(
+            source=PackageSource.Repository,
+            git_url=Official.remote_git_url(package.package_base, package.repository),
+            web_url=Official.remote_web_url(package.package_base),
+            path=".",
+            branch="main",
+        )
+
         return cls(
             base=package.package_base,
             version=package.version,

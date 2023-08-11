@@ -69,7 +69,7 @@ def migrate_package_base_packager(connection: Connection, configuration: Configu
 
     package_list = []
     for full_path in filter(package_like, configuration.repository_paths.repository.iterdir()):
-        package = Package.from_archive(full_path, pacman, remote=None)
+        package = Package.from_archive(full_path, pacman)
         package_list.append({
             "package_base": package.base,
             "packager": package.packager,

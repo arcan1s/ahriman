@@ -11,6 +11,8 @@ from ahriman.core.repository import Repository
 from ahriman.core.sign.gpg import GPG
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 
 
 def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
@@ -51,6 +53,9 @@ def test_load_archives(package_ahriman: Package, package_python_schedule: Packag
         for package, props in package_python_schedule.packages.items()
     ] + [package_ahriman]
     mocker.patch("ahriman.models.package.Package.from_archive", side_effect=single_packages)
+    mocker.patch("ahriman.core.database.SQLite.remotes_get", return_value={
+        package_ahriman.base: package_ahriman.base
+    })
 
     packages = repository.load_archives([Path("a.pkg.tar.xz"), Path("b.pkg.tar.xz"), Path("c.pkg.tar.xz")])
     assert len(packages) == 2

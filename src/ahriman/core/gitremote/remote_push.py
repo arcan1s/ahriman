@@ -39,7 +39,7 @@ class RemotePush(LazyLogging):
     sync PKGBUILDs to remote repository after actions
 
     Attributes:
-        commit_author(str | None): optional commit author in form of git config (i.e. ``user <user@host>``)
+        commit_author(tuple[str, str] | None): optional commit author in form of git config
         database(SQLite): database instance
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
     """
@@ -54,7 +54,11 @@ class RemotePush(LazyLogging):
             section(str): settings section name
         """
         self.database = database
-        self.commit_author = configuration.get(section, "commit_author", fallback=None)
+
+        commit_email = configuration.get(section, "commit_email", fallback="ahriman@localhost")
+        commit_user = configuration.get(section, "commit_user", fallback="ahriman")
+        self.commit_author = (commit_user, commit_email)
+
         self.remote_source = RemoteSource(
             git_url=configuration.get(section, "push_url"),
             web_url="",

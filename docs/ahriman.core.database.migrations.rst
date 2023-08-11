@@ -76,6 +76,14 @@ ahriman.core.database.migrations.m008\_packagers module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m009\_local\_source module
+-----------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m009_local_source
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

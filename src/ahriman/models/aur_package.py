@@ -66,13 +66,12 @@ class AURPackage:
             >>> package = AURPackage.from_repo(metadata)  # load package from official repository RPC
             >>> # properties of the class are built based on ones from AUR RPC, thus additional method is required
             >>>
-            >>>
             >>> from ahriman.core.alpm.pacman import Pacman
             >>> from ahriman.core.configuration import Configuration
             >>>
             >>> configuration = Configuration()
             >>> pacman = Pacman("x86_64", configuration)
-            >>> metadata = pacman.get("pacman")
+            >>> metadata = pacman.package_get("pacman")
             >>> package = AURPackage.from_pacman(next(metadata))  # load package from pyalpm wrapper
     """
 

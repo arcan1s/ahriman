@@ -95,7 +95,7 @@ class ApplicationPackages(ApplicationProperties):
         if (source_dir := Path(source)).is_dir():
             package = Package.from_build(source_dir, self.architecture, username)
             cache_dir = self.repository.paths.cache_for(package.base)
-            shutil.copytree(source_dir, cache_dir)  # copy package to store in caches
+            shutil.copytree(source_dir, cache_dir, dirs_exist_ok=True)  # copy package to store in caches
             Sources.init(cache_dir)  # we need to run init command in directory where we do have permissions
         elif (source_dir := self.repository.paths.cache_for(source)).is_dir():
             package = Package.from_build(source_dir, self.architecture, username)
@@ -145,7 +145,7 @@ class ApplicationPackages(ApplicationProperties):
             username(str | None, optional): optional override of username for build process (Default value = None)
         """
         for name in names:
-            resolved_source = source.resolve(name)
+            resolved_source = source.resolve(name, self.repository.paths)
             fn = getattr(self, f"_add_{resolved_source.value}")
             fn(name, username)
 
