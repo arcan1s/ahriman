@@ -52,7 +52,7 @@ class Users(Handler):
         if args.action == Action.Update:
             user = Users.user_create(args)
             # if password is left blank we are not going to require salt to be set
-            salt = configuration.get("auth", "salt") if user.password else ""
+            salt = configuration.get("auth", "salt", fallback="") if user.password else ""
             database.user_update(user.hash_password(salt))
         elif args.action == Action.List:
             users = database.user_list(args.username, args.role)

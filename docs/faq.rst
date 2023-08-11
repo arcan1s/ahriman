@@ -870,6 +870,8 @@ How to enable basic authorization
       target = configuration
       salt = somerandomstring
 
+   The ``salt`` parameter is optional, but recommended.
+
 #.
    In order to provide access for reporting from application instances you can (recommended way) use unix sockets by configuring the following (note, that it requires ``python-requests-unixsocket`` package to be installed):
 
@@ -934,7 +936,7 @@ How to enable OAuth authorization
    Configure ``oauth_provider`` and ``oauth_scopes`` in case if you would like to use different from Google provider. Scope must grant access to user email. ``web.address`` is required to make callback URL available from internet.
 
 #. 
-   If you are not going to use unix socket, you also need to create service user (remember to set ``auth.salt`` option before):
+   If you are not going to use unix socket, you also need to create service user (remember to set ``auth.salt`` option before if required):
 
    .. code-block:: shell
 

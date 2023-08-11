@@ -93,9 +93,12 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "type": "string",
                 "oneof": [
                     {"allowed": ["disabled"]},
-                    {"allowed": ["configuration", "mapping"], "dependencies": ["salt"]},
+                    {"allowed": ["configuration", "mapping"]},
                     {"allowed": ["oauth"], "dependencies": [
-                        "client_id", "client_secret", "oauth_provider", "oauth_scopes", "salt"
+                        "client_id",
+                        "client_secret",
+                        "oauth_provider",
+                        "oauth_scopes",
                     ]},
                 ],
             },

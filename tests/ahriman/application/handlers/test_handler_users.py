@@ -54,16 +54,19 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
 
 def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
-    must raise exception if salt is required, but not set
+    must process users with empty password salt
     """
     configuration.remove_option("auth", "salt")
     args = _default_args(args)
     user = User(username=args.username, password=args.password, access=args.role,
                 packager_id=args.packager, key=args.key)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
+    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
-    with pytest.raises(configparser.NoOptionError):
-        Users.run(args, "x86_64", configuration, report=False)
+    Users.run(args, "x86_64", configuration, report=False)
+    create_user_mock.assert_called_once_with(args)
+    update_mock.assert_called_once_with(user)
 
 
 def test_run_empty_salt_without_password(args: argparse.Namespace, configuration: Configuration, database: SQLite,

@@ -46,7 +46,7 @@ class Mapping(Auth):
         """
         Auth.__init__(self, configuration, provider)
         self.database = database
-        self.salt = configuration.get("auth", "salt")
+        self.salt = configuration.get("auth", "salt", fallback="")
 
     async def check_credentials(self, username: str | None, password: str | None) -> bool:
         """
