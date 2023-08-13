@@ -59,8 +59,8 @@ class MirrorlistTrigger(Trigger):
                     "type": "string",
                 },
                 "path": {
-                    "type": "string",
-                    "path_is_absolute": True,
+                    "type": "path",
+                    "coerce": "absolute_path",
                 },
                 "servers": {
                     "type": "list",
