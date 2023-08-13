@@ -142,8 +142,13 @@ class Application(ApplicationPackages, ApplicationRepository):
 
         while missing := missing_dependencies(with_dependencies.values()):
             for package_name, username in missing.items():
-                package = Package.from_aur(package_name, self.repository.pacman, username)
+                if (source_dir := self.repository.paths.cache_for(package_name)).is_dir():
+                    # there is local cache, load package from it
+                    package = Package.from_build(source_dir, self.repository.architecture, username)
+                else:
+                    package = Package.from_aur(package_name, self.repository.pacman, username)
                 with_dependencies[package.base] = package
+
                 # register package in local database
                 self.database.remote_update(package)
                 self.repository.reporter.set_unknown(package)
