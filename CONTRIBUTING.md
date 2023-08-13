@@ -158,7 +158,7 @@ Again, the most checks can be performed by `make check` command, though some add
 * One file should define only one class, exception is class satellites in case if file length remains less than 400 lines.
 * It is possible to create file which contains some functions (e.g. `ahriman.core.util`), but in this case you would need to define `__all__` attribute.
 * The file size mentioned above must be applicable in general. In case of big classes consider splitting them into traits. Note, however, that `pylint` includes comments and docstrings into counter, thus you need to check file size by other tools.
-* No global variable is allowed outside of `ahriman.version` module. `ahriman.core.context` is also special case.
+* No global variable is allowed outside of `ahriman` module. `ahriman.core.context` is also special case.
 * Single quotes are not allowed. The reason behind this restriction is the fact that docstrings must be written by using double quotes only, and we would like to make style consistent.
 * If your class writes anything to log, the `ahriman.core.log.LazyLogging` trait must be used.
 * Web API methods must be documented by using `aiohttp_apispec` library. Schema testing mostly should be implemented in related view class tests. Recommended example for documentation (excluding comments):
