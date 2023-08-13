@@ -59,7 +59,7 @@ systemd-machine-id-setup &> /dev/null
 if [ -n "$AHRIMAN_FORCE_ROOT" ]; then
     AHRIMAN_EXECUTABLE=("ahriman")
 elif ahriman help-commands-unsafe -- "$@" &> /dev/null; then
-    AHRIMAN_EXECUTABLE=("sudo" "-u" "$AHRIMAN_USER" "--" "ahriman")
+    AHRIMAN_EXECUTABLE=("sudo" "-E" "-u" "$AHRIMAN_USER" "--" "ahriman")
 else
     AHRIMAN_EXECUTABLE=("ahriman")
 fi

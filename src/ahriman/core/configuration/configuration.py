@@ -25,6 +25,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self
 
+from ahriman.core.configuration.shell_interpolator import ShellInterpolator
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -73,10 +74,16 @@ class Configuration(configparser.RawConfigParser):
             allow_no_value(bool, optional): copies ``configparser.RawConfigParser`` behaviour. In case if it is set
                 to ``True``, the keys without values will be allowed (Default value = False)
         """
-        configparser.RawConfigParser.__init__(self, allow_no_value=allow_no_value, converters={
-            "list": shlex.split,
-            "path": self._convert_path,
-        })
+        configparser.RawConfigParser.__init__(
+            self,
+            allow_no_value=allow_no_value,
+            interpolation=ShellInterpolator(),
+            converters={
+                "list": shlex.split,
+                "path": self._convert_path,
+            }
+        )
+
         self.architecture: str | None = None
         self.path: Path | None = None
         self.includes: list[Path] = []

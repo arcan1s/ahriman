@@ -12,6 +12,15 @@ There are two variable types which have been added to default ones, they are pat
 
 Path values, except for casting to ``pathlib.Path`` type, will be also expanded to absolute paths relative to the configuration path. E.g. if path is set to ``ahriman.ini.d/logging.ini`` and root configuration path is ``/etc/ahriman.ini``, the value will be expanded to ``/etc/ahriman.ini.d/logging.ini``. In order to disable path expand, use the full path, e.g. ``/etc/ahriman.ini.d/logging.ini``.
 
+Configuration allows string interpolation from environment variables, e.g.:
+
+.. code-block:: ini
+
+   [section]
+   key = $SECRET
+
+will try to read value from ``SECRET`` environment variable. In case if the required environment variable wasn't found, it will keep original value (i.e. ``$SECRET`` in the example). Dollar sign can be set as ``$$``.
+
 There is also additional subcommand which will allow to validate configuration and print found errors. In order to do so, run ``service-config-validate`` subcommand, e.g.:
 
 .. code-block:: shell
