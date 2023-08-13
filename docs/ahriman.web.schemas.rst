@@ -132,6 +132,22 @@ ahriman.web.schemas.pgp\_key\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.process\_id\_schema module
+----------------------------------------------
+
+.. automodule:: ahriman.web.schemas.process_id_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.process\_schema module
+------------------------------------------
+
+.. automodule:: ahriman.web.schemas.process_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.remote\_schema module
 -----------------------------------------
 
@@ -152,6 +168,14 @@ ahriman.web.schemas.status\_schema module
 -----------------------------------------
 
 .. automodule:: ahriman.web.schemas.status_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.update\_flags\_schema module
+------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.update_flags_schema
    :members:
    :no-undoc-members:
    :show-inheritance:

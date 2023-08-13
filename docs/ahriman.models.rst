@@ -220,6 +220,14 @@ ahriman.models.user\_access module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.waiter module
+----------------------------
+
+.. automodule:: ahriman.models.waiter
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

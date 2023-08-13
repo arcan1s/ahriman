@@ -247,6 +247,17 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``path`` - path to html report file, string, required.
 * ``template_path`` - path to Jinja2 template, string, required.
 
+``remote-call`` type
+^^^^^^^^^^^^^^^^^^^^
+
+Section name must be either ``remote-call`` (plus optional architecture name, e.g. ``remote-call:x86_64``) or random name with ``type`` set.
+
+* ``type`` - type of the report, string, optional, must be set to ``remote-call`` if exists.
+* ``aur`` - check for AUR packages updates, boolean, optional, default ``no``.
+* ``local`` - check for local packages updates, boolean, optional, default ``no``.
+* ``manual`` - update manually built packages, boolean, optional, default ``no``.
+* ``wait_timeout`` - maximum amount of time in seconds to be waited before remote process will be terminated, int, optional, default ``-1``.
+
 ``telegram`` type
 ^^^^^^^^^^^^^^^^^
 

@@ -36,6 +36,14 @@ ahriman.core.report.jinja\_template module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.report.remote\_call module
+---------------------------------------
+
+.. automodule:: ahriman.core.report.remote_call
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.report.report module
 ---------------------------------
 
