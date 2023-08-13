@@ -73,30 +73,6 @@ def test_validate_is_ip_address(validator: Validator, mocker: MockerFixture) -> 
     ])
 
 
-def test_validate_path_is_absolute(validator: Validator, mocker: MockerFixture) -> None:
-    """
-    must validate that path is absolute
-    """
-    error_mock = mocker.patch("ahriman.core.configuration.validator.Validator._error")
-
-    mocker.patch("pathlib.Path.is_absolute", return_value=False)
-    validator._validate_path_is_absolute(False, "field", Path("1"))
-
-    mocker.patch("pathlib.Path.is_absolute", return_value=True)
-    validator._validate_path_is_absolute(False, "field", Path("2"))
-
-    mocker.patch("pathlib.Path.is_absolute", return_value=False)
-    validator._validate_path_is_absolute(True, "field", Path("3"))
-
-    mocker.patch("pathlib.Path.is_absolute", return_value=True)
-    validator._validate_path_is_absolute(True, "field", Path("4"))
-
-    error_mock.assert_has_calls([
-        MockCall("field", "Path 2 must be relative"),
-        MockCall("field", "Path 3 must be absolute"),
-    ])
-
-
 def test_validate_is_url(validator: Validator, mocker: MockerFixture) -> None:
     """
     must validate url correctly

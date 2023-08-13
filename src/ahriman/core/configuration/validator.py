@@ -144,24 +144,6 @@ class Validator(RootValidator):
         if constraint and url.scheme not in constraint:
             self._error(field, f"Url {value} scheme must be one of {constraint}")
 
-    def _validate_path_is_absolute(self, constraint: bool, field: str, value: Path) -> None:
-        """
-        check if path is absolute or not
-
-        Args:
-            constraint(bool): True in case if path must be absolute and False if it must be relative
-            field(str): field name to be checked
-            value(Path): value to be checked
-
-        Examples:
-            The rule's arguments are validated against this schema:
-            {"type": "boolean"}
-        """
-        if constraint and not value.is_absolute():
-            self._error(field, f"Path {value} must be absolute")
-        if not constraint and value.is_absolute():
-            self._error(field, f"Path {value} must be relative")
-
     def _validate_path_exists(self, constraint: bool, field: str, value: Path) -> None:
         """
         check if paths exists
