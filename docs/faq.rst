@@ -722,8 +722,7 @@ How to post build report to telegram
 #. 
    Optionally (if you want to post message in chat):
 
-
-   #. Create telegram channel. 
+   #. Create telegram channel.
    #. Invite your bot into the channel.
    #. Make your channel public
 
@@ -752,6 +751,134 @@ If you did everything fine you should receive the message with the next update. 
    curl 'https://api.telegram.org/bot${CHAT_ID}/sendMessage?chat_id=${API_KEY}&text=hello'
 
 (replace ``${CHAT_ID}`` and ``${API_KEY}`` with the values from configuration).
+
+Distributed builds
+------------------
+
+The service allows to run build on multiple machines and collect packages on main node. There are multiple ways to achieve it, this section describes officially supported methods.
+
+Remote synchronization and remote server call
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This setup requires at least two instances of the service:
+
+#. Web service (with opt-in authorization enabled), later will be referenced as ``master`` node.
+#. Application instances responsible for build, later will be referenced as ``worker`` nodes.
+
+In this example the following settings are assumed:
+
+* Repository architecture is ``x86_64``.
+* Master node address is ``master.example.com``.
+
+Master node configuration
+"""""""""""""""""""""""""
+
+The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc).
+
+#.
+   Create ssh key for ``ahriman`` user, e.g.:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ssh-keygen
+
+#.
+   Copy private key as it will be used later for workers configuration.
+
+#.
+   Allow login via ssh with the generated key, e.g.:
+
+   .. code-block:: shell
+
+      sudo -u ahriman ln -s id_rsa.pub /var/lib/ahriman/.ssh/authorized_keys
+
+#.
+   Make sure that ssh server is enabled and run. Optionally check possibility to login as ``ahriman`` user (note, however, that system user is not allowed to login into shell).
+
+In addition, the following settings are recommended:
+
+*
+  As it has been mentioned above, it is recommended to enable authentication (see `How to enable basic authorization`_) and create system user which will be used later. Later this user (if any) will be referenced as ``worker-user``.
+
+*
+  In order to be able to spawn multiple processes at the same time, wait timeout must be configured:
+
+  .. code-block:: ini
+
+     [web]
+     wait_timeout = -1
+
+Worker nodes configuration
+""""""""""""""""""""""""""
+
+#.
+   First of all, in this setup you need to split your repository into chunks manually, e.g. if you have repository on master node with packages ``A``, ``B`` and ``C``, you need to split them between all available workers, as example:
+
+   * Worker #1: ``A``.
+   * Worker #2: ``B`` and ``C``.
+
+#.
+   Copy private key generated before to ``/var/lib/ahriman/.ssh/id_rsa``. Make sure that file owner is ``ahriman`` and file permissions are ``600``.
+
+#.
+   Each worker must be configured to upload files to master node:
+
+   .. code-block:: ini
+
+      [upload]
+      target = rsync
+
+      [rsync]
+      remote = master.example.com:/var/lib/ahriman/packages/x86_64
+      command = rsync --archive --compress --partial
+
+   ``/var/lib/ahriman/packages/x86_64`` must refer to built packages directory inside repository tree (change to ``/var/lib/ahriman/ahriman/packages/x86_64`` in case if master node is run inside container). Unlike default settings ``rsync.command`` option must not include ``--delete`` flag.
+
+#.
+   Worker must be configured to report package logs and build status to master node:
+
+   .. code-block:: ini
+
+      [web]
+      address = master.example.com
+      username = worker-user
+      password = very-secure-password
+
+   As it has been mentioned above, ``web.address`` must be available for workers. In case if unix socket is used, it can be passed as ``web.unix_socket`` variable as usual. Optional ``web.username``/``web.password`` can be supplied in case if authentication was enabled on master node.
+
+#.
+   Each worker must call master node on success:
+
+   .. code-block:: ini
+
+      [report]
+      target = remote-call
+
+      [remote-call]
+      manual = yes
+
+   After success synchronization (see above), the built packages will be put into directory, from which they will be read during manual update, thus ``remote-call.manual`` flag is required.
+
+#.
+   Change order of trigger runs. This step is required, because by default the report trigger is called before the upload trigger and we would like to achieve the opposite:
+
+   .. code-block:: ini
+
+      [build]
+      triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
+
+Addition of new package and repository update
+"""""""""""""""""""""""""""""""""""""""""""""
+
+Just run on worker command as usual, the built packages will be automatically uploaded to master node. Note that automatic update process must be disabled on master node.
+
+Package removal
+"""""""""""""""
+
+This action must be done in two steps:
+
+#. Remove package on worker.
+#. Remove package on master node.
 
 Maintenance packages
 --------------------
