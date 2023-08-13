@@ -49,10 +49,10 @@ class StatusUpdate(Handler):
         if args.action == Action.Update and args.package:
             # update packages statuses
             for package in args.package:
-                client.update(package, args.status)
+                client.package_update(package, args.status)
         elif args.action == Action.Update:
             # update service status
-            client.update_self(args.status)
+            client.status_update(args.status)
         elif args.action == Action.Remove:
             for package in args.package:
-                client.remove(package)
+                client.package_remove(package)

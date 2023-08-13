@@ -85,7 +85,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
-    status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove([package_ahriman.base])
     # must remove via alpm wrapper
@@ -106,7 +106,7 @@ def test_process_remove_base_multiple(executor: Executor, package_python_schedul
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove([package_python_schedule.base])
     # must remove via alpm wrapper
@@ -125,7 +125,7 @@ def test_process_remove_base_single(executor: Executor, package_python_schedule:
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove(["python2-schedule"])
     # must remove via alpm wrapper
@@ -171,7 +171,7 @@ def test_process_remove_unknown(executor: Executor, package_ahriman: Package, mo
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[])
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+    status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove([package_ahriman.base])
     repo_remove_mock.assert_not_called()

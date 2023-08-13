@@ -31,17 +31,15 @@ class HttpLogHandler(logging.Handler):
 
     Attributes:
         reporter(Client): build status reporter instance
-        suppress_errors(bool): suppress logging errors (e.g. if no web server available)
     """
 
-    def __init__(self, configuration: Configuration, *, report: bool, suppress_errors: bool) -> None:
+    def __init__(self, configuration: Configuration, *, report: bool) -> None:
         """
         default constructor
 
         Args:
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
-            suppress_errors(bool): suppress logging errors (e.g. if no web server available)
         """
         # we don't really care about those parameters because they will be handled by the reporter
         logging.Handler.__init__(self)
@@ -49,7 +47,6 @@ class HttpLogHandler(logging.Handler):
         # client has to be imported here because of circular imports
         from ahriman.core.status.client import Client
         self.reporter = Client.load(configuration, report=report)
-        self.suppress_errors = suppress_errors
 
     @classmethod
     def load(cls, configuration: Configuration, *, report: bool) -> Self:
@@ -68,8 +65,7 @@ class HttpLogHandler(logging.Handler):
         if (handler := next((handler for handler in root.handlers if isinstance(handler, cls)), None)) is not None:
             return handler  # there is already registered instance
 
-        suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
-        handler = cls(configuration, report=report, suppress_errors=suppress_errors)
+        handler = cls(configuration, report=report)
         root.addHandler(handler)
 
         return handler
@@ -85,9 +81,4 @@ class HttpLogHandler(logging.Handler):
         if package_base is None:
             return  # in case if no package base supplied we need just skip log message
 
-        try:
-            self.reporter.logs(package_base, record)
-        except Exception:
-            if self.suppress_errors:
-                return
-            self.handleError(record)
+        self.reporter.package_logs(package_base, record)

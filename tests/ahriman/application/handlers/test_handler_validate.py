@@ -67,6 +67,7 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("keyring-generator")
     assert schema.pop("mirrorlist")
     assert schema.pop("mirrorlist-generator")
+    assert schema.pop("remote-call")
     assert schema.pop("remote-pull")
     assert schema.pop("remote-push")
     assert schema.pop("report")

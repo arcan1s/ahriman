@@ -22,6 +22,7 @@ import logging
 import requests
 
 from collections.abc import Generator
+from typing import Any, Literal
 from urllib.parse import quote_plus as urlencode
 
 from ahriman import __version__
@@ -164,10 +165,7 @@ class WebClient(Client, LazyLogging):
             "username": self.user.username,
             "password": self.user.password
         }
-
-        with self.__get_session(session):
-            response = session.post(self._login_url, json=payload)
-            response.raise_for_status()
+        self.make_request("POST", self._login_url, json=payload, session=session)
 
     def _logs_url(self, package_base: str) -> str:
         """
@@ -195,7 +193,31 @@ class WebClient(Client, LazyLogging):
         suffix = f"/{package_base}" if package_base else ""
         return f"{self.address}/api/v1/packages{suffix}"
 
-    def add(self, package: Package, status: BuildStatusEnum) -> None:
+    def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str,
+                     params: list[tuple[str, str]] | None = None, json: dict[str, Any] | None = None,
+                     session: requests.Session | None = None) -> requests.Response | None:
+        """
+        perform request with specified parameters
+
+        Args:
+            method(Literal["DELETE", "GET", "POST"]): HTTP method to call
+            url(str): remote url to call
+            params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
+            json(dict[str, Any] | None, optional): request json parameters (Default value = None)
+            session(requests.Session | None, optional): session object if any (Default value = None)
+
+        Returns:
+            requests.Response | None: response object or None in case of errors
+        """
+        with self.__get_session(session) as _session:
+            response = _session.request(method, url, params=params, json=json)
+            response.raise_for_status()
+            return response
+
+        # noinspection PyUnreachableCode
+        return None
+
+    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
 
@@ -207,12 +229,9 @@ class WebClient(Client, LazyLogging):
             "status": status.value,
             "package": package.view()
         }
+        self.make_request("POST", self._package_url(package.base), json=payload)
 
-        with self.__get_session() as session:
-            response = session.post(self._package_url(package.base), json=payload)
-            response.raise_for_status()
-
-    def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
+    def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
         get package status
 
@@ -222,37 +241,17 @@ class WebClient(Client, LazyLogging):
         Returns:
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
-        with self.__get_session() as session:
-            response = session.get(self._package_url(package_base or ""))
-            response.raise_for_status()
+        response = self.make_request("GET", self._package_url(package_base or ""))
+        if response is None:
+            return []
 
-            status_json = response.json()
-            return [
-                (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
-                for package in status_json
-            ]
+        response_json = response.json()
+        return [
+            (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
+            for package in response_json
+        ]
 
-        # noinspection PyUnreachableCode
-        return []
-
-    def get_internal(self) -> InternalStatus:
-        """
-        get internal service status
-
-        Returns:
-            InternalStatus: current internal (web) service status
-        """
-        with self.__get_session() as session:
-            response = session.get(self._status_url)
-            response.raise_for_status()
-
-            status_json = response.json()
-            return InternalStatus.from_json(status_json)
-
-        # noinspection PyUnreachableCode
-        return InternalStatus(status=BuildStatus())
-
-    def logs(self, package_base: str, record: logging.LogRecord) -> None:
+    def package_logs(self, package_base: str, record: logging.LogRecord) -> None:
         """
         post log record
 
@@ -265,23 +264,18 @@ class WebClient(Client, LazyLogging):
             "message": record.getMessage(),
             "process_id": record.process,
         }
+        self.make_request("POST", self._logs_url(package_base), json=payload)
 
-        # in this method exception has to be handled outside in logger handler
-        response = self.__session.post(self._logs_url(package_base), json=payload)
-        response.raise_for_status()
-
-    def remove(self, package_base: str) -> None:
+    def package_remove(self, package_base: str) -> None:
         """
         remove packages from watcher
 
         Args:
             package_base(str): basename to remove
         """
-        with self.__get_session() as session:
-            response = session.delete(self._package_url(package_base))
-            response.raise_for_status()
+        self.make_request("DELETE", self._package_url(package_base))
 
-    def update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike ``add`` it does not update package properties
 
@@ -290,12 +284,23 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current package build status
         """
         payload = {"status": status.value}
+        self.make_request("POST", self._package_url(package_base), json=payload)
 
-        with self.__get_session() as session:
-            response = session.post(self._package_url(package_base), json=payload)
-            response.raise_for_status()
+    def status_get(self) -> InternalStatus:
+        """
+        get internal service status
 
-    def update_self(self, status: BuildStatusEnum) -> None:
+        Returns:
+            InternalStatus: current internal (web) service status
+        """
+        response = self.make_request("GET", self._status_url)
+        if response is None:
+            return InternalStatus(status=BuildStatus())
+
+        response_json = response.json()
+        return InternalStatus.from_json(response_json)
+
+    def status_update(self, status: BuildStatusEnum) -> None:
         """
         update ahriman status itself
 
@@ -303,7 +308,4 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current ahriman status
         """
         payload = {"status": status.value}
-
-        with self.__get_session() as session:
-            response = session.post(self._status_url, json=payload)
-            response.raise_for_status()
+        self.make_request("POST", self._status_url, json=payload)

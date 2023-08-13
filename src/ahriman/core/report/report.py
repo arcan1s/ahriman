@@ -93,6 +93,9 @@ class Report(LazyLogging):
         if provider == ReportSettings.Telegram:
             from ahriman.core.report.telegram import Telegram
             return Telegram(architecture, configuration, section)
+        if provider == ReportSettings.RemoteCall:
+            from ahriman.core.report.remote_call import RemoteCall
+            return RemoteCall(architecture, configuration, section)
         return Report(architecture, configuration)  # should never happen
 
     def generate(self, packages: list[Package], result: Result) -> None:

@@ -121,7 +121,7 @@ class Executor(Cleaner):
                 self.database.build_queue_clear(package_base)
                 self.database.patches_remove(package_base, [])
                 self.database.logs_remove(package_base, None)
-                self.reporter.remove(package_base)  # we only update status page in case of base removal
+                self.reporter.package_remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)
 

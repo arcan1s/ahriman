@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import time
 
 from pathlib import Path
 from types import TracebackType
@@ -31,6 +30,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.waiter import Waiter
 
 
 class Lock(LazyLogging):
@@ -81,7 +81,7 @@ class Lock(LazyLogging):
         """
         check web server version
         """
-        status = self.reporter.get_internal()
+        status = self.reporter.status_get()
         if status.version is not None and status.version != __version__:
             self.logger.warning("status watcher version mismatch, our %s, their %s",
                                 __version__, status.version)
@@ -115,26 +115,18 @@ class Lock(LazyLogging):
         except FileExistsError:
             raise DuplicateRunError()
 
-    def watch(self, interval: int = 10) -> None:
+    def watch(self) -> None:
         """
         watch until lock disappear
-
-        Args:
-            interval(int, optional): interval to check in seconds (Default value = 10)
         """
-        def is_timed_out(start: float) -> bool:
-            since_start: float = time.monotonic() - start
-            return self.wait_timeout != 0 and since_start > self.wait_timeout
-
         # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
         # race conditions because multiple processes will be notified in the same time. Secondly, it is good library,
         # but platform-specific, and we only need to check if file exists
         if self.path is None:
             return
 
-        start_time = time.monotonic()
-        while not is_timed_out(start_time) and self.path.is_file():
-            time.sleep(interval)
+        waiter = Waiter(self.wait_timeout)
+        waiter.wait(self.path.is_file)
 
     def __enter__(self) -> Self:
         """
@@ -154,7 +146,7 @@ class Lock(LazyLogging):
         self.check_version()
         self.watch()
         self.create()
-        self.reporter.update_self(BuildStatusEnum.Building)
+        self.reporter.status_update(BuildStatusEnum.Building)
         return self
 
     def __exit__(self, exc_type: type[Exception] | None, exc_val: Exception | None,
@@ -172,5 +164,5 @@ class Lock(LazyLogging):
         """
         self.clear()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
-        self.reporter.update_self(status)
+        self.reporter.status_update(status)
         return False

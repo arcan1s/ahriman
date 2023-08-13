@@ -32,6 +32,7 @@ class ReportSettings(str, Enum):
         Email(ReportSettings): (class attribute) email report generation
         Console(ReportSettings): (class attribute) print result to console
         Telegram(ReportSettings): (class attribute) markdown report to telegram channel
+        RemoteCall(ReportSettings): (class attribute) remote server call
     """
 
     Disabled = "disabled"  # for testing purpose
@@ -39,6 +40,7 @@ class ReportSettings(str, Enum):
     Email = "email"
     Console = "console"
     Telegram = "telegram"
+    RemoteCall = "remote-call"
 
     @staticmethod
     def from_option(value: str) -> ReportSettings:
@@ -59,4 +61,6 @@ class ReportSettings(str, Enum):
             return ReportSettings.Console
         if value.lower() in ("telegram",):
             return ReportSettings.Telegram
+        if value.lower() in ("remote-call",):
+            return ReportSettings.RemoteCall
         return ReportSettings.Disabled
