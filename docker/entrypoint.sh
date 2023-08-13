@@ -16,6 +16,34 @@ host = $AHRIMAN_HOST
 
 EOF
 
+# oauth configuration
+[ -n "$AHRIMAN_OAUTH_ENABLE" ] && cat <<EOF >"/etc/ahriman.ini.d/00-auth.ini"
+[auth]
+target = oath
+
+[oath]
+client_id = $AHRIMAN_OAUTH_CLIENT_ID
+client_secret = $AHRIMAN_OAUTH_CLIENT_SECRET
+oauth_provider = $AHRIMAN_OAUTH_PROVIDER
+oauth_scopes = $AHRIMAN_OAUTH_SCOPE
+
+EOF
+
+# telegram report configuration
+[ -n "$AHRIMAN_REPORT_TELEGRAM" ] && cat <<EOF >"/etc/ahriman.ini.d/00-telegram.ini"
+[report]
+target = console telegram
+
+[console]
+use_utf = yes
+
+[telegram]
+api_key = $AHRIMAN_TELEGRAM_API_KEY
+chat_id = $AHRIMAN_TELEGRAM_CHAT_ID
+template_path = /usr/share/ahriman/templates/telegram-index.jinja2
+
+EOF
+
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
 if [ -n "$AHRIMAN_OUTPUT" ]; then
     AHRIMAN_DEFAULT_ARGS+=("--log-handler" "$AHRIMAN_OUTPUT")

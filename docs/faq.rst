@@ -391,15 +391,23 @@ The following environment variables are supported:
 * ``AHRIMAN_FORCE_ROOT`` - force run ahriman as root instead of guessing by subcommand.
 * ``AHRIMAN_HOST`` - host for the web interface, default is ``0.0.0.0``.
 * ``AHRIMAN_MULTILIB`` - if set (default) multilib repository will be used, disabled otherwise.
+* ``AHRIMAN_OAUTH_CLIENT_ID`` - OAUTH client ID.
+* ``AHRIMAN_OAUTH_CLIENT_SECRET`` - OAUTH client secret.
+* ``AHRIMAN_OAUTH_ENABLE`` - enable configuration of OAUTH, needs all other ``_OAUTH_`` variables to be set as well.
+* ``AHRIMAN_OAUTH_PROVIDER`` - OAUTH provider, defaults to ``GithubClient``.
+* ``AHRIMAN_OAUTH_SCOPE`` - Scope to be used by OAUTH provider.
 * ``AHRIMAN_OUTPUT`` - controls logging handler, e.g. ``syslog``, ``console``. The name must be found in logging configuration. Note that if ``syslog`` handler is used you will need to mount ``/dev/log`` inside container because it is not available there.
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
-* ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
+* ``AHRIMAN_REPORT_TELEGRAM`` - posts update notifications to Telegram channels if enabled. Needs to be supplied with secrets as well.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
+* ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
+* ``AHRIMAN_TELEGRAM_API_KEY`` - sets Telegram API key obtained by botfather.
+* ``AHRIMAN_TELEGRAM_CHAT_ID`` - where to post notifications in Telegram.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
-* ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set validate service configuration
+* ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set validate service configuration.
 
 You can pass any of these variables by using ``-e`` argument, e.g.:
 
