@@ -31,13 +31,14 @@ def test_asset_upload(github: Github, github_release: dict[str, Any], mocker: Mo
     """
     must upload asset to the repository
     """
-    mocker.patch("pathlib.Path.open", return_value=b"")
+    mocker.patch("pathlib.Path.open")
     request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
     request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
-                                         data=b"", headers={"Content-Type": "application/x-tar"})
+                                         data=pytest.helpers.anyvar(int),
+                                         headers={"Content-Type": "application/x-tar"})
     remove_mock.assert_not_called()
 
 
@@ -45,7 +46,7 @@ def test_asset_upload_with_removal(github: Github, github_release: dict[str, Any
     """
     must remove existing file before upload
     """
-    mocker.patch("pathlib.Path.open", return_value=b"")
+    mocker.patch("pathlib.Path.open")
     mocker.patch("ahriman.core.upload.github.Github._request")
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
@@ -61,14 +62,15 @@ def test_asset_upload_empty_mimetype(github: Github, github_release: dict[str, A
     """
     must upload asset to the repository with empty mime type if the library cannot guess it
     """
-    mocker.patch("pathlib.Path.open", return_value=b"")
+    mocker.patch("pathlib.Path.open")
     mocker.patch("ahriman.core.upload.github.Github.asset_remove")
     mocker.patch("mimetypes.guess_type", return_value=(None, None))
     request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
     request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
-                                         data=b"", headers={"Content-Type": "application/octet-stream"})
+                                         data=pytest.helpers.anyvar(int),
+                                         headers={"Content-Type": "application/octet-stream"})
 
 
 def test_get_local_files(github: Github, resource_path_root: Path, mocker: MockerFixture) -> None:

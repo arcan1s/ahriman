@@ -79,7 +79,9 @@ class Github(HttpUpload):
         (url, _) = release["upload_url"].split("{")  # it is parametrized url
         (mime, _) = mimetypes.guess_type(path)
         headers = {"Content-Type": mime} if mime is not None else {"Content-Type": "application/octet-stream"}
-        self._request("POST", url, params={"name": path.name}, data=path.open("rb"), headers=headers)
+
+        with path.open("rb") as archive:
+            self._request("POST", url, params={"name": path.name}, data=archive, headers=headers)
 
     def get_local_files(self, path: Path) -> dict[Path, str]:
         """
