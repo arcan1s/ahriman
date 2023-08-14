@@ -43,7 +43,7 @@ class SwaggerView(BaseView):
             Response: 200 with json api specification
         """
         spec = self.request.app["swagger_dict"]
-        is_body_parameter: Callable[[dict[str, str]], bool] = lambda p: p["in"] == "body"
+        is_body_parameter: Callable[[dict[str, str]], bool] = lambda p: p["in"] == "body" or p["in"] == "formData"
 
         # special workaround because it writes request body to parameters section
         paths = spec["paths"]
@@ -56,11 +56,14 @@ class SwaggerView(BaseView):
                 if not body:
                     continue  # there were no ``body`` parameters found
 
+                schema = next(iter(body))
+                content_type = "multipart/form-data" if schema["in"] == "formData" else "application/json"
+
                 # there should be only one body parameters
                 method["requestBody"] = {
                     "content": {
-                        "application/json": {
-                            "schema": next(iter(body))["schema"]
+                        content_type: {
+                            "schema": schema["schema"]
                         }
                     }
                 }

@@ -33,7 +33,7 @@ async def test_get(client: TestClient, mocker: MockerFixture) -> None:
     assert not response_schema.validate(json)
 
 
-async def test_post_empty(client: TestClient, mocker: MockerFixture) -> None:
+async def test_get_empty(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call raise 404 on unknown process
     """

@@ -21,6 +21,7 @@ from ahriman.web.schemas.aur_package_schema import AURPackageSchema
 from ahriman.web.schemas.auth_schema import AuthSchema
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.file_schema import FileSchema
 from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
 from ahriman.web.schemas.log_schema import LogSchema
 from ahriman.web.schemas.login_schema import LoginSchema

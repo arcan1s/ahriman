@@ -77,7 +77,7 @@ class RemoteCall(Report):
         Returns:
             bool: True in case if remote process is alive and False otherwise
         """
-        response = self.client.make_request("GET", f"{self.client.address}/api/v1/service/process/{process_id}")
+        response = self.client.make_request("GET", f"/api/v1/service/process/{process_id}")
         if response is None:
             return False
 
@@ -93,15 +93,11 @@ class RemoteCall(Report):
         Returns:
             str | None: remote process id on success and ``None`` otherwise
         """
-        response = self.client.make_request(
-            "POST",
-            f"{self.client.address}/api/v1/service/update",
-            json={
-                "aur": self.update_aur,
-                "local": self.update_local,
-                "manual": self.update_manual,
-            }
-        )
+        response = self.client.make_request("POST", "/api/v1/service/update", json={
+            "aur": self.update_aur,
+            "local": self.update_local,
+            "manual": self.update_manual,
+        })
         if response is None:
             return None  # request terminated with error
 

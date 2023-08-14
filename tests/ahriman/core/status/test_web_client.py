@@ -19,7 +19,6 @@ def test_login_url(web_client: WebClient) -> None:
     """
     must generate login url correctly
     """
-    assert web_client._login_url.startswith(web_client.address)
     assert web_client._login_url.endswith("/api/v1/login")
 
 
@@ -27,8 +26,22 @@ def test_status_url(web_client: WebClient) -> None:
     """
     must generate package status url correctly
     """
-    assert web_client._status_url.startswith(web_client.address)
     assert web_client._status_url.endswith("/api/v1/status")
+
+
+def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
+    """
+    must generate logs url correctly
+    """
+    assert web_client._logs_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/logs")
+
+
+def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
+    """
+    must generate package status url correctly
+    """
+    assert web_client._package_url("").endswith("/api/v1/packages")
+    assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
 
 
 def test_parse_address(configuration: Configuration) -> None:
@@ -81,7 +94,8 @@ def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None
     }
 
     web_client._login(requests.Session())
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), params=None, json=payload)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=None, json=payload, files=None)
 
 
 def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
@@ -111,49 +125,34 @@ def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock.assert_not_called()
 
 
-def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
-    """
-    must generate logs url correctly
-    """
-    assert web_client._logs_url(package_ahriman.base).startswith(web_client.address)
-    assert web_client._logs_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/logs")
-
-
-def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
-    """
-    must generate package status url correctly
-    """
-    assert web_client._package_url("").startswith(web_client.address)
-    assert web_client._package_url("").endswith(f"/api/v1/packages")
-
-    assert web_client._package_url(package_ahriman.base).startswith(web_client.address)
-    assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
-
-
 def test_make_request(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must make HTTP request
     """
     request_mock = mocker.patch("requests.Session.request")
 
-    assert web_client.make_request("GET", "url") is not None
-    assert web_client.make_request("GET", "url", params=[("param", "value")]) is not None
+    assert web_client.make_request("GET", "/url1") is not None
+    assert web_client.make_request("GET", "/url2", params=[("param", "value")]) is not None
 
-    assert web_client.make_request("POST", "url") is not None
-    assert web_client.make_request("POST", "url", json={"param": "value"}) is not None
+    assert web_client.make_request("POST", "/url3") is not None
+    assert web_client.make_request("POST", "/url4", json={"param": "value"}) is not None
+    # we don't want to put full descriptor here
+    assert web_client.make_request("POST", "/url5", files={"file": "tuple"}) is not None
 
-    assert web_client.make_request("DELETE", "url") is not None
+    assert web_client.make_request("DELETE", "/url6") is not None
 
     request_mock.assert_has_calls([
-        MockCall("GET", "url", params=None, json=None),
+        MockCall("GET", f"{web_client.address}/url1", params=None, json=None, files=None),
         MockCall().raise_for_status(),
-        MockCall("GET", "url", params=[("param", "value")], json=None),
+        MockCall("GET", f"{web_client.address}/url2", params=[("param", "value")], json=None, files=None),
         MockCall().raise_for_status(),
-        MockCall("POST", "url", params=None, json=None),
+        MockCall("POST", f"{web_client.address}/url3", params=None, json=None, files=None),
         MockCall().raise_for_status(),
-        MockCall("POST", "url", params=None, json={"param": "value"}),
+        MockCall("POST", f"{web_client.address}/url4", params=None, json={"param": "value"}, files=None),
         MockCall().raise_for_status(),
-        MockCall("DELETE", "url", params=None, json=None),
+        MockCall("POST", f"{web_client.address}/url5", params=None, json=None, files={"file": "tuple"}),
+        MockCall().raise_for_status(),
+        MockCall("DELETE", f"{web_client.address}/url6", params=None, json=None, files=None),
         MockCall().raise_for_status(),
     ])
 
@@ -174,7 +173,8 @@ def test_package_add(web_client: WebClient, package_ahriman: Package, mocker: Mo
     payload = pytest.helpers.get_package_status(package_ahriman)
 
     web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), params=None, json=payload)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=None, json=payload, files=None)
 
 
 def test_package_add_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -230,7 +230,8 @@ def test_package_get_all(web_client: WebClient, package_ahriman: Package, mocker
     requests_mock = mocker.patch("requests.Session.request", return_value=response_obj)
 
     result = web_client.package_get(None)
-    requests_mock.assert_called_once_with("GET", web_client._package_url(), params=None, json=None)
+    requests_mock.assert_called_once_with("GET", f"{web_client.address}{web_client._package_url()}",
+                                          params=None, json=None, files=None)
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -263,8 +264,9 @@ def test_package_get_single(web_client: WebClient, package_ahriman: Package, moc
     requests_mock = mocker.patch("requests.Session.request", return_value=response_obj)
 
     result = web_client.package_get(package_ahriman.base)
-    requests_mock.assert_called_once_with("GET", web_client._package_url(package_ahriman.base),
-                                          params=None, json=None)
+    requests_mock.assert_called_once_with("GET",
+                                          f"{web_client.address}{web_client._package_url(package_ahriman.base)}",
+                                          params=None, json=None, files=None)
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -282,7 +284,8 @@ def test_package_logs(web_client: WebClient, log_record: logging.LogRecord, pack
     }
 
     web_client.package_logs(package_ahriman.base, log_record)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), params=None, json=payload)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=None, json=payload, files=None)
 
 
 def test_package_logs_failed(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
@@ -312,7 +315,8 @@ def test_package_remove(web_client: WebClient, package_ahriman: Package, mocker:
     requests_mock = mocker.patch("requests.Session.request")
 
     web_client.package_remove(package_ahriman.base)
-    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True), params=None, json=None)
+    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True),
+                                          params=None, json=None, files=None)
 
 
 def test_package_remove_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -341,7 +345,7 @@ def test_package_update(web_client: WebClient, package_ahriman: Package, mocker:
     web_client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), params=None, json={
         "status": BuildStatusEnum.Unknown.value
-    })
+    }, files=None)
 
 
 def test_package_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -373,7 +377,8 @@ def test_status_get(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("requests.Session.request", return_value=response_obj)
 
     result = web_client.status_get()
-    requests_mock.assert_called_once_with("GET", web_client._status_url, params=None, json=None)
+    requests_mock.assert_called_once_with("GET", f"{web_client.address}{web_client._status_url}",
+                                          params=None, json=None, files=None)
     assert result.architecture == "x86_64"
 
 
@@ -402,7 +407,7 @@ def test_status_update(web_client: WebClient, mocker: MockerFixture) -> None:
     web_client.status_update(BuildStatusEnum.Unknown)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), params=None, json={
         "status": BuildStatusEnum.Unknown.value
-    })
+    }, files=None)
 
 
 def test_status_update_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:

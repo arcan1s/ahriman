@@ -17,7 +17,7 @@ async def test_get_permission() -> None:
         assert await UpdateView.get_permission(request) == UserAccess.Full
 
 
-async def test_post_update(client: TestClient, mocker: MockerFixture) -> None:
+async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly for alias
     """

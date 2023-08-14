@@ -22,7 +22,7 @@ import logging
 import requests
 
 from collections.abc import Generator
-from typing import Any, Literal
+from typing import Any, IO, Literal
 from urllib.parse import quote_plus as urlencode
 
 from ahriman import __version__
@@ -46,6 +46,9 @@ class WebClient(Client, LazyLogging):
         user(User | None): web service user descriptor
     """
 
+    _login_url = "/api/v1/login"
+    _status_url = "/api/v1/status"
+
     def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
@@ -61,25 +64,33 @@ class WebClient(Client, LazyLogging):
 
         self.__session = self._create_session(use_unix_socket=use_unix_socket)
 
-    @property
-    def _login_url(self) -> str:
+    @staticmethod
+    def _logs_url(package_base: str) -> str:
         """
-        get url for the login api
+        get url for the logs api
+
+        Args:
+            package_base(str): package base
 
         Returns:
-            str: full url for web service to log in
+            str: full url for web service for logs
         """
-        return f"{self.address}/api/v1/login"
+        return f"/api/v1/packages/{package_base}/logs"
 
-    @property
-    def _status_url(self) -> str:
+    @staticmethod
+    def _package_url(package_base: str = "") -> str:
         """
-        get url for the status api
+        url generator
+
+        Args:
+            package_base(str, optional): package base to generate url (Default value = "")
 
         Returns:
-            str: full url for web service for status
+            str: full url of web service for specific package base
         """
-        return f"{self.address}/api/v1/status"
+        # in case if unix socket is used we need to normalize url
+        suffix = f"/{package_base}" if package_base else ""
+        return f"/api/v1/packages{suffix}"
 
     @staticmethod
     def parse_address(configuration: Configuration) -> tuple[str, bool]:
@@ -167,34 +178,9 @@ class WebClient(Client, LazyLogging):
         }
         self.make_request("POST", self._login_url, json=payload, session=session)
 
-    def _logs_url(self, package_base: str) -> str:
-        """
-        get url for the logs api
-
-        Args:
-            package_base(str): package base
-
-        Returns:
-            str: full url for web service for logs
-        """
-        return f"{self.address}/api/v1/packages/{package_base}/logs"
-
-    def _package_url(self, package_base: str = "") -> str:
-        """
-        url generator
-
-        Args:
-            package_base(str, optional): package base to generate url (Default value = "")
-
-        Returns:
-            str: full url of web service for specific package base
-        """
-        # in case if unix socket is used we need to normalize url
-        suffix = f"/{package_base}" if package_base else ""
-        return f"{self.address}/api/v1/packages{suffix}"
-
     def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str,
                      params: list[tuple[str, str]] | None = None, json: dict[str, Any] | None = None,
+                     files: dict[str, tuple[str, IO[bytes], str, dict[str, str]]] | None = None,
                      session: requests.Session | None = None) -> requests.Response | None:
         """
         perform request with specified parameters
@@ -204,13 +190,15 @@ class WebClient(Client, LazyLogging):
             url(str): remote url to call
             params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
             json(dict[str, Any] | None, optional): request json parameters (Default value = None)
+            files(dict[str, tuple[str, IO, str, dict[str, str]]] | None, optional): multipart upload
+                (Default value = None)
             session(requests.Session | None, optional): session object if any (Default value = None)
 
         Returns:
             requests.Response | None: response object or None in case of errors
         """
         with self.__get_session(session) as _session:
-            response = _session.request(method, url, params=params, json=json)
+            response = _session.request(method, f"{self.address}{url}", params=params, json=json, files=files)
             response.raise_for_status()
             return response
 

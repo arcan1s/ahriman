@@ -773,29 +773,7 @@ In this example the following settings are assumed:
 Master node configuration
 """""""""""""""""""""""""
 
-The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc).
-
-#.
-   Create ssh key for ``ahriman`` user, e.g.:
-
-   .. code-block:: shell
-
-      sudo -u ahriman ssh-keygen
-
-#.
-   Copy private key as it will be used later for workers configuration.
-
-#.
-   Allow login via ssh with the generated key, e.g.:
-
-   .. code-block:: shell
-
-      sudo -u ahriman ln -s id_rsa.pub /var/lib/ahriman/.ssh/authorized_keys
-
-#.
-   Make sure that ssh server is enabled and run. Optionally check possibility to login as ``ahriman`` user (note, however, that system user is not allowed to login into shell).
-
-In addition, the following settings are recommended:
+The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc). In addition, the following settings are recommended:
 
 *
   As it has been mentioned above, it is recommended to enable authentication (see `How to enable basic authorization`_) and create system user which will be used later. Later this user (if any) will be referenced as ``worker-user``.
@@ -818,24 +796,17 @@ Worker nodes configuration
    * Worker #2: ``B`` and ``C``.
 
 #.
-   Copy private key generated before to ``/var/lib/ahriman/.ssh/id_rsa``. Make sure that file owner is ``ahriman`` and file permissions are ``600``.
-
-#.
    Each worker must be configured to upload files to master node:
 
    .. code-block:: ini
 
       [upload]
-      target = rsync
+      target = remote-service
 
-      [rsync]
-      remote = master.example.com:/var/lib/ahriman/packages/x86_64
-      command = rsync --archive --compress --partial
-
-   ``/var/lib/ahriman/packages/x86_64`` must refer to built packages directory inside repository tree (change to ``/var/lib/ahriman/ahriman/packages/x86_64`` in case if master node is run inside container). Unlike default settings ``rsync.command`` option must not include ``--delete`` flag.
+      [remote-service]
 
 #.
-   Worker must be configured to report package logs and build status to master node:
+   Worker must be configured to access web on master node:
 
    .. code-block:: ini
 
@@ -866,6 +837,55 @@ Worker nodes configuration
 
       [build]
       triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
+
+Double node docker example
+""""""""""""""""""""""""""
+
+Master node config (``master.ini``) as:
+
+.. code-block:: ini
+
+   [auth]
+   target = mapping
+
+Command to run master node:
+
+.. code-block:: shell
+
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -v master.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
+
+Worker node config (``worker.ini``) as:
+
+.. code-block:: ini
+
+   [web]
+   address = http://172.17.0.1:8080
+   username = test
+   password = test
+
+   [upload]
+   target = remote-service
+
+   [remote-service]
+
+   [report]
+   target = remote-call
+
+   [remote-call]
+   manual = yes
+
+   [build]
+   triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
+
+The address above (``http://172.17.0.1:8080``) is something available for worker container.
+
+Command to run worker node:
+
+.. code-block:: shell
+
+   docker run --privileged -v worker.ini:/etc/ahriman.ini.d/overrides.ini -it arcan1s/ahriman:latest package-add arhiman --now
+
+The command above will successfully build ``ahriman`` package, upload it on master node and, finally, will update master node repository.
 
 Addition of new package and repository update
 """""""""""""""""""""""""""""""""""""""""""""

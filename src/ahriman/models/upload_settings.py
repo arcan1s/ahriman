@@ -31,12 +31,14 @@ class UploadSettings(str, Enum):
         Rsync(UploadSettings): (class attribute) sync via rsync
         S3(UploadSettings): (class attribute) sync to Amazon S3
         Github(UploadSettings): (class attribute) sync to github releases page
+        RemoteService(UploadSettings): (class attribute) sync to another ahriman instance
     """
 
     Disabled = "disabled"  # for testing purpose
     Rsync = "rsync"
     S3 = "s3"
     Github = "github"
+    RemoteService = "remote-service"
 
     @staticmethod
     def from_option(value: str) -> UploadSettings:
@@ -55,4 +57,6 @@ class UploadSettings(str, Enum):
             return UploadSettings.S3
         if value.lower() in ("github",):
             return UploadSettings.Github
+        if value.lower() in ("ahriman", "remote-service",):
+            return UploadSettings.RemoteService
         return UploadSettings.Disabled

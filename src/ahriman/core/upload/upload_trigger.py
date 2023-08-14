@@ -92,6 +92,11 @@ class UploadTrigger(Trigger):
                 },
             },
         },
+        "remote-service": {
+            "type": "dict",
+            "schema": {
+            },
+        },
         "s3": {
             "type": "dict",
             "schema": {

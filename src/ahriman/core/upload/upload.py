@@ -90,6 +90,9 @@ class Upload(LazyLogging):
         if provider == UploadSettings.Github:
             from ahriman.core.upload.github import Github
             return Github(architecture, configuration, section)
+        if provider == UploadSettings.RemoteService:
+            from ahriman.core.upload.remote_service import RemoteService
+            return RemoteService(architecture, configuration, section)
         return Upload(architecture, configuration)  # should never happen
 
     def run(self, path: Path, built_packages: list[Package]) -> None:

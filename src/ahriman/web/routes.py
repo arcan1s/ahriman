@@ -31,6 +31,7 @@ from ahriman.web.views.service.remove import RemoveView
 from ahriman.web.views.service.request import RequestView
 from ahriman.web.views.service.search import SearchView
 from ahriman.web.views.service.update import UpdateView
+from ahriman.web.views.service.upload import UploadView
 from ahriman.web.views.status.logs import LogsView
 from ahriman.web.views.status.package import PackageView
 from ahriman.web.views.status.packages import PackagesView
@@ -66,6 +67,7 @@ def setup_routes(application: Application, static_path: Path) -> None:
     application.router.add_view("/api/v1/service/request", RequestView)
     application.router.add_view("/api/v1/service/search", SearchView)
     application.router.add_view("/api/v1/service/update", UpdateView)
+    application.router.add_view("/api/v1/service/upload", UploadView)
 
     application.router.add_view("/api/v1/packages", PackagesView)
     application.router.add_view("/api/v1/packages/{package}", PackageView)
