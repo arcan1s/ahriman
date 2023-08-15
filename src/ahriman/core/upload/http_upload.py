@@ -20,6 +20,7 @@
 import hashlib
 import requests
 
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +52,16 @@ class HttpUpload(Upload):
         username = configuration.get(section, "username", fallback=None)
         self.auth = (password, username) if password and username else None
         self.timeout = configuration.getint(section, "timeout", fallback=30)
+
+    @cached_property
+    def session(self) -> requests.Session:
+        """
+        get or create session
+
+        Returns:
+            request.Session: created session object
+        """
+        return requests.Session()
 
     @staticmethod
     def calculate_hash(path: Path) -> str:
@@ -110,7 +121,7 @@ class HttpUpload(Upload):
             requests.Response: request response object
         """
         try:
-            response = requests.request(method, url, auth=self.auth, timeout=self.timeout, **kwargs)
+            response = self.session.request(method, url, auth=self.auth, timeout=self.timeout, **kwargs)
             response.raise_for_status()
         except requests.HTTPError as e:
             self.logger.exception("could not perform %s request to %s: %s", method, url, exception_response_text(e))

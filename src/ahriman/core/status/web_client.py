@@ -22,6 +22,7 @@ import logging
 import requests
 
 from collections.abc import Generator
+from functools import cached_property
 from typing import Any, IO, Literal
 from urllib.parse import quote_plus as urlencode
 
@@ -44,6 +45,7 @@ class WebClient(Client, LazyLogging):
         address(str): address of the web service
         suppress_errors(bool): suppress logging errors (e.g. if no web server available)
         user(User | None): web service user descriptor
+        use_unix_socket(bool): use websocket or not
     """
 
     _login_url = "/api/v1/login"
@@ -56,13 +58,21 @@ class WebClient(Client, LazyLogging):
         Args:
             configuration(Configuration): configuration instance
         """
-        self.address, use_unix_socket = self.parse_address(configuration)
+        self.address, self.use_unix_socket = self.parse_address(configuration)
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),
             configuration.get("web", "password", fallback=None))
         self.suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
 
-        self.__session = self._create_session(use_unix_socket=use_unix_socket)
+    @cached_property
+    def session(self) -> requests.Session:
+        """
+        get or create session
+
+        Returns:
+            request.Session: created session object
+        """
+        return self._create_session(use_unix_socket=self.use_unix_socket)
 
     @staticmethod
     def _logs_url(package_base: str) -> str:
@@ -130,7 +140,7 @@ class WebClient(Client, LazyLogging):
             if session is not None:
                 yield session  # use session from arguments
             else:
-                yield self.__session  # use instance generated session
+                yield self.session  # use instance generated session
         except requests.RequestException as e:
             if self.suppress_errors:
                 return

@@ -106,8 +106,10 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``debug`` - enable debug toolbar, boolean, optional, default ``no``.
 * ``debug_check_host`` - check hosts to access debug toolbar, boolean, optional, default ``no``.
 * ``debug_allowed_hosts`` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
+* ``enable_archive_upload`` - allow to upload packages via HTTP (i.e. call of ``/api/v1/service/upload`` uri), boolean, optional, default ``no``.
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full url of the repository index page, string, optional.
+* ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
 * ``port`` - port to bind, int, optional.
 * ``static_path`` - path to directory with static files, string, required.

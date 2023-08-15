@@ -18,9 +18,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import aiohttp_apispec  # type: ignore[import]
+import shutil
+import tempfile
 
 from aiohttp import BodyPartReader
-from aiohttp.web import HTTPBadRequest, HTTPCreated
+from aiohttp.web import HTTPBadRequest, HTTPCreated, HTTPNotFound
 from pathlib import Path
 
 from ahriman.models.user_access import UserAccess
@@ -47,6 +49,7 @@ class UploadView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Not found", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],
@@ -61,6 +64,9 @@ class UploadView(BaseView):
             HTTPBadRequest: if bad data is supplied
             HTTPCreated: on success response
         """
+        if not self.configuration.getboolean("web", "enable_archive_upload", fallback=False):
+            raise HTTPNotFound()
+
         try:
             reader = await self.request.multipart()
         except Exception as e:
@@ -81,12 +87,27 @@ class UploadView(BaseView):
         if Path(archive_name).resolve().name != archive_name:
             raise HTTPBadRequest(reason="Filename must be valid archive name")
 
-        output = self.configuration.repository_paths.packages / archive_name
-        with output.open("wb") as archive:
+        max_body_size = self.configuration.getint("web", "max_body_size", fallback=None)
+        current_size = 0
+
+        # in order to handle errors automatically we create temporary file for long operation (transfer) and then copy
+        # it to valid location
+        with tempfile.NamedTemporaryFile() as cache:
             while True:
                 chunk = await part.read_chunk()
                 if not chunk:
                     break
-                archive.write(chunk)
+
+                current_size += len(chunk)
+                if max_body_size is not None and current_size > max_body_size:
+                    raise HTTPBadRequest(reason="Body part is too large")
+
+                cache.write(chunk)
+
+            # and now copy temporary file to correct location
+            cache.seek(0)  # reset file position
+            output = self.configuration.repository_paths.packages / archive_name
+            with output.open("wb") as archive:
+                shutil.copyfileobj(cache, archive)
 
         raise HTTPCreated()

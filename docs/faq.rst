@@ -773,7 +773,14 @@ In this example the following settings are assumed:
 Master node configuration
 """""""""""""""""""""""""
 
-The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc). In addition, the following settings are recommended:
+The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc) and file upload must be enabled:
+
+.. code-block:: ini
+
+   [web]
+   enable_archive_upload = yes
+
+In addition, the following settings are recommended for the master node:
 
 *
   As it has been mentioned above, it is recommended to enable authentication (see `How to enable basic authorization`_) and create system user which will be used later. Later this user (if any) will be referenced as ``worker-user``.
@@ -784,7 +791,7 @@ The only requirements for the master node is that API must be available for work
   .. code-block:: ini
 
      [web]
-     wait_timeout = -1
+     wait_timeout = 0
 
 Worker nodes configuration
 """"""""""""""""""""""""""
@@ -838,8 +845,18 @@ Worker nodes configuration
       [build]
       triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
 
-Double node docker example
-""""""""""""""""""""""""""
+In addition, the following settings are recommended for workers:
+
+*
+  You might want to wait until report trigger will be completed; in this case the following option must be set:
+
+  .. code-block:: ini
+
+     [remote-call]
+     wait_timeout = 0
+
+Double node minimal docker example
+""""""""""""""""""""""""""""""""""
 
 Master node config (``master.ini``) as:
 
@@ -847,6 +864,11 @@ Master node config (``master.ini``) as:
 
    [auth]
    target = mapping
+
+   [web]
+   enable_archive_upload = yes
+   wait_timeout = 0
+
 
 Command to run master node:
 
@@ -873,6 +895,7 @@ The user ``worker-user`` has been created additionally. Worker node config (``wo
 
    [remote-call]
    manual = yes
+   wait_timeout = 0
 
    [build]
    triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger

@@ -17,16 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import requests
+
+from functools import cached_property
 from pathlib import Path
 from typing import IO
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.web_client import WebClient
-from ahriman.core.upload.upload import Upload
+from ahriman.core.upload.http_upload import HttpUpload
 from ahriman.models.package import Package
 
 
-class RemoteService(Upload):
+class RemoteService(HttpUpload):
     """
     upload files to another server instance
 
@@ -43,10 +46,18 @@ class RemoteService(Upload):
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Upload.__init__(self, architecture, configuration)
-        del section
-
+        HttpUpload.__init__(self, architecture, configuration, section)
         self.client = WebClient(configuration)
+
+    @cached_property
+    def session(self) -> requests.Session:
+        """
+        get or create session
+
+        Returns:
+            request.Session: created session object
+        """
+        return self.client.session
 
     def package_upload(self, path: Path, package: Package) -> None:
         """
@@ -66,7 +77,7 @@ class RemoteService(Upload):
                 part: tuple[str, IO[bytes], str, dict[str, str]] = (
                     descriptor.filename, archive, "application/octet-stream", {}
                 )
-                self.client.make_request("POST", "/api/v1/service/upload", files={"archive": part})
+                self._request("POST", f"{self.client.address}/api/v1/service/upload", files={"archive": part})
 
     def sync(self, path: Path, built_packages: list[Package]) -> None:
         """
