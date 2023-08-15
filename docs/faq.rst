@@ -854,14 +854,14 @@ Command to run master node:
 
    docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -v master.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
 
-Worker node config (``worker.ini``) as:
+The user ``worker-user`` has been created additionally. Worker node config (``worker.ini``) as:
 
 .. code-block:: ini
 
    [web]
    address = http://172.17.0.1:8080
-   username = test
-   password = test
+   username = worker-user
+   password = very-secure-password
 
    [upload]
    target = remote-service
