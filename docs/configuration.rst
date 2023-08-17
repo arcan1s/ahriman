@@ -126,6 +126,7 @@ Keyring package generator plugin.
 Keyring generator plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* ``type`` - type of the generator, string, optional, must be set to ``keyring-generator`` if exists.
 * ``description`` - keyring package description, string, optional, default is ``repo PGP keyring``, where ``repo`` is the repository name.
 * ``homepage`` - url to homepage location if any, string, optional.
 * ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
@@ -144,6 +145,7 @@ Mirrorlist package generator plugin.
 Mirrorlist generator plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* ``type`` - type of the generator, string, optional, must be set to ``mirrorlist-generator`` if exists.
 * ``description`` - mirrorlist package description, string, optional, default is ``repo mirror list for use by pacman``, where ``repo`` is the repository name.
 * ``homepage`` - url to homepage location if any, string, optional.
 * ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.

@@ -46,9 +46,13 @@ class KeyringTrigger(Trigger):
                 },
             },
         },
-        "keyring_generator": {
+        "keyring-generator": {
             "type": "dict",
             "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["keyring-generator"],
+                },
                 "description": {
                     "type": "string",
                 },

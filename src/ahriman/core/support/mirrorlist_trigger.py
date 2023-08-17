@@ -42,9 +42,13 @@ class MirrorlistTrigger(Trigger):
                 },
             },
         },
-        "mirrorlist_generator": {
+        "mirrorlist-generator": {
             "type": "dict",
             "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["mirrorlist-generator"],
+                },
                 "description": {
                     "type": "string",
                 },
