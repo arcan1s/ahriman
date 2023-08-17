@@ -34,8 +34,6 @@ pacman --noconfirm -U ahriman-1.0.0-1-any.pkg.tar.zst
 # create machine-id which is required by build tools
 systemd-machine-id-setup
 
-# special thing for the container, because /dev/log interface is not available there
-sed -i "s/handlers = syslog_handler/handlers = console_handler/g" /etc/ahriman.ini.d/logging.ini
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
@@ -48,10 +46,8 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     # run web service (detached)
     sudo -u ahriman -- ahriman -a x86_64 web &
     WEB_PID=$!
-    sleep 15s  # wait for the web service activation
 fi
 # add the first package
-# the build itself does not really work in the container
 sudo -u ahriman -- ahriman package-add --now yay
 # check if package was actually installed
 test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
