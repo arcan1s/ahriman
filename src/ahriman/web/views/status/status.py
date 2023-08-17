@@ -102,6 +102,6 @@ class StatusView(BaseView):
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.service.update_self(status)
+        self.service.status_update(status)
 
         raise HTTPNoContent()

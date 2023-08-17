@@ -71,7 +71,60 @@ class Watcher(LazyLogging):
         """
         return list(self.known.values())
 
-    def get(self, package_base: str) -> tuple[Package, BuildStatus]:
+    def load(self) -> None:
+        """
+        load packages from local repository. In case if last status is known, it will use it
+        """
+        for package in self.repository.packages():
+            # get status of build or assign unknown
+            if (current := self.known.get(package.base)) is not None:
+                _, status = current
+            else:
+                status = BuildStatus()
+            self.known[package.base] = (package, status)
+
+        for package, status in self.database.packages_get():
+            if package.base in self.known:
+                self.known[package.base] = (package, status)
+
+    def logs_get(self, package_base: str) -> str:
+        """
+        extract logs for the package base
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            str: package logs
+        """
+        return self.database.logs_get(package_base)
+
+    def logs_remove(self, package_base: str, current_process_id: int | None) -> None:
+        """
+        remove package related logs
+
+        Args:
+            package_base(str): package base
+            current_process_id(int | None): current process id
+        """
+        self.database.logs_remove(package_base, current_process_id)
+
+    def logs_update(self, log_record_id: LogRecordId, created: float, record: str) -> None:
+        """
+        make new log record into database
+
+        Args:
+            log_record_id(LogRecordId): log record id
+            created(float): log created record
+            record(str): log record
+        """
+        if self._last_log_record_id != log_record_id:
+            # there is new log record, so we remove old ones
+            self.logs_remove(log_record_id.package_base, log_record_id.process_id)
+        self._last_log_record_id = log_record_id
+        self.database.logs_insert(log_record_id, created, record)
+
+    def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
         get current package base build status
 
@@ -89,35 +142,7 @@ class Watcher(LazyLogging):
         except KeyError:
             raise UnknownPackageError(package_base)
 
-    def get_logs(self, package_base: str) -> str:
-        """
-        extract logs for the package base
-
-        Args:
-            package_base(str): package base
-
-        Returns:
-            str: package logs
-        """
-        return self.database.logs_get(package_base)
-
-    def load(self) -> None:
-        """
-        load packages from local repository. In case if last status is known, it will use it
-        """
-        for package in self.repository.packages():
-            # get status of build or assign unknown
-            if (current := self.known.get(package.base)) is not None:
-                _, status = current
-            else:
-                status = BuildStatus()
-            self.known[package.base] = (package, status)
-
-        for package, status in self.database.packages_get():
-            if package.base in self.known:
-                self.known[package.base] = (package, status)
-
-    def remove(self, package_base: str) -> None:
+    def package_remove(self, package_base: str) -> None:
         """
         remove package base from known list if any
 
@@ -126,19 +151,9 @@ class Watcher(LazyLogging):
         """
         self.known.pop(package_base, None)
         self.database.package_remove(package_base)
-        self.remove_logs(package_base, None)
+        self.logs_remove(package_base, None)
 
-    def remove_logs(self, package_base: str, current_process_id: int | None) -> None:
-        """
-        remove package related logs
-
-        Args:
-            package_base(str): package base
-            current_process_id(int | None): current process id
-        """
-        self.database.logs_remove(package_base, current_process_id)
-
-    def update(self, package_base: str, status: BuildStatusEnum, package: Package | None) -> None:
+    def package_update(self, package_base: str, status: BuildStatusEnum, package: Package | None) -> None:
         """
         update package status and description
 
@@ -159,22 +174,7 @@ class Watcher(LazyLogging):
         self.known[package_base] = (package, full_status)
         self.database.package_update(package, full_status)
 
-    def update_logs(self, log_record_id: LogRecordId, created: float, record: str) -> None:
-        """
-        make new log record into database
-
-        Args:
-            log_record_id(LogRecordId): log record id
-            created(float): log created record
-            record(str): log record
-        """
-        if self._last_log_record_id != log_record_id:
-            # there is new log record, so we remove old ones
-            self.remove_logs(log_record_id.package_base, log_record_id.process_id)
-        self._last_log_record_id = log_record_id
-        self.database.logs_insert(log_record_id, created, record)
-
-    def update_self(self, status: BuildStatusEnum) -> None:
+    def status_update(self, status: BuildStatusEnum) -> None:
         """
         update service status
 

@@ -75,7 +75,7 @@ async def test_post_exception_inside(client: TestClient, mocker: MockerFixture) 
     exception handler must handle 500 errors
     """
     payload = {"status": BuildStatusEnum.Success.value}
-    mocker.patch("ahriman.core.status.watcher.Watcher.update_self", side_effect=Exception())
+    mocker.patch("ahriman.core.status.watcher.Watcher.status_update", side_effect=Exception())
     response_schema = pytest.helpers.schema_response(StatusView.post, code=500)
 
     response = await client.post("/api/v1/status", json=payload)
