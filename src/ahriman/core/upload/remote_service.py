@@ -21,10 +21,10 @@ import requests
 
 from functools import cached_property
 from pathlib import Path
-from typing import IO
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.status.web_client import WebClient
+from ahriman.core.sign.gpg import GPG
+from ahriman.core.status.web_client import MultipartType, WebClient
 from ahriman.core.upload.http_upload import HttpUpload
 from ahriman.models.package import Package
 
@@ -67,17 +67,31 @@ class RemoteService(HttpUpload):
             path(Path): local path to sync
             package(Package): package to upload
         """
+        def upload(package_path: Path, signature_path: Path | None) -> None:
+            files: dict[str, MultipartType] = {}
+
+            try:
+                # package part always persists
+                files["package"] = package_path.name, package_path.open("rb"), "application/octet-stream", {}
+                # signature part is optional
+                if signature_path is not None:
+                    files["signature"] = signature_path.name, signature_path.open("rb"), "application/octet-stream", {}
+
+                self._request("POST", f"{self.client.address}/api/v1/service/upload", files=files)
+            finally:
+                for _, fd, _, _ in files.values():
+                    fd.close()
+
         for key, descriptor in package.packages.items():
             if descriptor.filename is None:
                 self.logger.warning("package %s of %s doesn't have filename set", key, package.base)
                 continue
 
-            with (path / descriptor.filename).open("rb") as archive:
-                # filename, file, content-type, headers
-                part: tuple[str, IO[bytes], str, dict[str, str]] = (
-                    descriptor.filename, archive, "application/octet-stream", {}
-                )
-                self._request("POST", f"{self.client.address}/api/v1/service/upload", files={"archive": part})
+            archive = path / descriptor.filename
+            maybe_signature_path = GPG.signature(archive)
+            signature = maybe_signature_path if maybe_signature_path.is_file() else None
+
+            upload(archive, signature)
 
     def sync(self, path: Path, built_packages: list[Package]) -> None:
         """

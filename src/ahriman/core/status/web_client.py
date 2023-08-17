@@ -37,6 +37,10 @@ from ahriman.models.package import Package
 from ahriman.models.user import User
 
 
+# filename, file, content-type, headers
+MultipartType = tuple[str, IO[bytes], str, dict[str, str]]
+
+
 class WebClient(Client, LazyLogging):
     """
     build status reporter web client
@@ -188,9 +192,10 @@ class WebClient(Client, LazyLogging):
         }
         self.make_request("POST", self._login_url, json=payload, session=session)
 
-    def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str,
-                     params: list[tuple[str, str]] | None = None, json: dict[str, Any] | None = None,
-                     files: dict[str, tuple[str, IO[bytes], str, dict[str, str]]] | None = None,
+    def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str, *,
+                     params: list[tuple[str, str]] | None = None,
+                     json: dict[str, Any] | None = None,
+                     files: dict[str, MultipartType] | None = None,
                      session: requests.Session | None = None) -> requests.Response | None:
         """
         perform request with specified parameters
@@ -200,8 +205,7 @@ class WebClient(Client, LazyLogging):
             url(str): remote url to call
             params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
             json(dict[str, Any] | None, optional): request json parameters (Default value = None)
-            files(dict[str, tuple[str, IO, str, dict[str, str]]] | None, optional): multipart upload
-                (Default value = None)
+            files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
             session(requests.Session | None, optional): session object if any (Default value = None)
 
         Returns:

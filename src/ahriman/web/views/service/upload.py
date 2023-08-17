@@ -40,6 +40,56 @@ class UploadView(BaseView):
 
     POST_PERMISSION = UserAccess.Full
 
+    @staticmethod
+    async def save_file(part: BodyPartReader, target: Path, *, max_body_size: int | None = None) -> tuple[str, Path]:
+        """
+        save file to local cache
+
+        Args:
+            part(BodyPartReader): multipart part to be saved
+            target(Path): path to directory to which file should be saved
+            max_body_size(int | None, optional): max body size in bytes (Default value = None)
+
+        Returns:
+            tuple[str, Path]: map of received filename to its local path
+
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+        """
+        archive_name = part.filename
+        if archive_name is None:
+            raise HTTPBadRequest(reason="Filename must be set")
+        # some magic inside. We would like to make sure that passed filename is filename
+        # without slashes, dots, etc
+        if Path(archive_name).resolve().name != archive_name:
+            raise HTTPBadRequest(reason="Filename must be valid archive name")
+
+        current_size = 0
+
+        # in order to handle errors automatically we create temporary file for long operation (transfer)
+        # and then copy it to valid location
+        with tempfile.NamedTemporaryFile() as cache:
+            while True:
+                chunk = await part.read_chunk()
+                if not chunk:
+                    break
+
+                current_size += len(chunk)
+                if max_body_size is not None and current_size > max_body_size:
+                    raise HTTPBadRequest(reason="Body part is too large")
+
+                cache.write(chunk)
+
+            cache.seek(0)  # reset file position
+
+            # and now copy temporary file to target location as hidden file
+            # we put it as hidden in order to make sure that it will not be handled during some random process
+            temporary_output = target / f".{archive_name}"
+            with temporary_output.open("wb") as archive:
+                shutil.copyfileobj(cache, archive)
+
+            return archive_name, temporary_output
+
     @aiohttp_apispec.docs(
         tags=["Actions"],
         summary="Upload package",
@@ -72,42 +122,23 @@ class UploadView(BaseView):
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        part = await reader.next()
-        if not isinstance(part, BodyPartReader):
-            raise HTTPBadRequest(reason="Invalid multipart message received")
-
-        if part.name != "archive":
-            raise HTTPBadRequest(reason="Multipart field isn't archive")
-
-        archive_name = part.filename
-        if archive_name is None:
-            raise HTTPBadRequest(reason="Filename must be set")  # pragma: no cover
-        # some magic inside. We would like to make sure that passed filename is filename
-        # without slashes, dots, etc
-        if Path(archive_name).resolve().name != archive_name:
-            raise HTTPBadRequest(reason="Filename must be valid archive name")
-
         max_body_size = self.configuration.getint("web", "max_body_size", fallback=None)
-        current_size = 0
+        target = self.configuration.repository_paths.packages
 
-        # in order to handle errors automatically we create temporary file for long operation (transfer) and then copy
-        # it to valid location
-        with tempfile.NamedTemporaryFile() as cache:
-            while True:
-                chunk = await part.read_chunk()
-                if not chunk:
-                    break
+        files = []
+        while (part := await reader.next()) is not None:
+            if not isinstance(part, BodyPartReader):
+                raise HTTPBadRequest(reason="Invalid multipart message received")
 
-                current_size += len(chunk)
-                if max_body_size is not None and current_size > max_body_size:
-                    raise HTTPBadRequest(reason="Body part is too large")
+            if part.name not in ("package", "signature"):
+                raise HTTPBadRequest(reason="Multipart field isn't package or signature")
 
-                cache.write(chunk)
+            files.append(await self.save_file(part, target, max_body_size=max_body_size))
 
-            # and now copy temporary file to correct location
-            cache.seek(0)  # reset file position
-            output = self.configuration.repository_paths.packages / archive_name
-            with output.open("wb") as archive:
-                shutil.copyfileobj(cache, archive)
+        # and now we can rename files, which is relatively fast operation
+        # it is probably good way to call lock here, however
+        for filename, current_location in files:
+            target_location = current_location.parent / filename
+            current_location.rename(target_location)
 
         raise HTTPCreated()

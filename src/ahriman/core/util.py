@@ -279,7 +279,7 @@ def package_like(filename: Path) -> bool:
         bool: True in case if name contains ``.pkg.`` and not signature, False otherwise
     """
     name = filename.name
-    return ".pkg." in name and not name.endswith(".sig")
+    return not name.startswith(".") and ".pkg." in name and not name.endswith(".sig")
 
 
 def parse_version(version: str) -> tuple[str | None, str, str]:

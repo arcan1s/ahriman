@@ -855,6 +855,27 @@ In addition, the following settings are recommended for workers:
      [remote-call]
      wait_timeout = 0
 
+Repository and packages signing
+"""""""""""""""""""""""""""""""
+
+You can sign packages on worker nodes and then signatures will be synced to master node. In order to do so, you need to configure worker node as following, e.g.:
+
+.. code-block:: ini
+
+   [sign]
+   target = package
+   key = 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
+Note, however, that in this case, signatures will not be validated on master node and just will be copied to repository tree.
+
+If you would like to sign only database files (aka repository sign), it has to be configured on master node only as usual, e.g.:
+
+.. code-block:: ini
+
+   [sign]
+   target = repository
+   key = 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
 Double node minimal docker example
 """"""""""""""""""""""""""""""""""
 

@@ -36,6 +36,14 @@ ahriman.web.schemas.error\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.file\_schema module
+---------------------------------------
+
+.. automodule:: ahriman.web.schemas.file_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.internal\_status\_schema module
 ---------------------------------------------------
 

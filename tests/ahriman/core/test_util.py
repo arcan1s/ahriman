@@ -273,6 +273,15 @@ def test_package_like(package_ahriman: Package) -> None:
     assert package_like(package_ahriman.packages[package_ahriman.base].filepath)
 
 
+def test_package_like_hidden(package_ahriman: Package) -> None:
+    """
+    package_like must return false for hidden files
+    """
+    package_file = package_ahriman.packages[package_ahriman.base].filepath
+    hidden_file = package_file.parent / f".{package_file.name}"
+    assert not package_like(hidden_file)
+
+
 def test_package_like_sig(package_ahriman: Package) -> None:
     """
     package_like must return false for signature files

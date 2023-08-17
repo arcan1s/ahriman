@@ -68,6 +68,14 @@ ahriman.web.views.service.update module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.service.upload module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.service.upload
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
