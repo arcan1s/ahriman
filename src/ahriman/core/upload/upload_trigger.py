@@ -95,6 +95,10 @@ class UploadTrigger(Trigger):
         "remote-service": {
             "type": "dict",
             "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["ahriman", "remote-service"],
+                },
             },
         },
         "s3": {

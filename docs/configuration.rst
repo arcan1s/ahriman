@@ -305,6 +305,13 @@ This feature requires Github key creation (see below). Section name must be eith
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 * ``username`` - Github authorization user, string, required. Basically the same as ``owner``.
 
+``remote-service`` type
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Section name must be either ``remote-service`` (plus optional architecture name, e.g. ``remote-service:x86_64``) or random name with ``type`` set.
+
+* ``type`` - type of the report, string, optional, must be set to ``remote-service`` if exists.
+
 ``rsync`` type
 ^^^^^^^^^^^^^^
 

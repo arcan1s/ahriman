@@ -196,7 +196,7 @@ class ReportTrigger(Trigger):
             "schema": {
                 "type": {
                     "type": "string",
-                    "allowed": ["remote-call"],
+                    "allowed": ["ahriman", "remote-call"],
                 },
                 "aur": {
                     "type": "boolean",
