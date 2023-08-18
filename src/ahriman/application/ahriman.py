@@ -893,6 +893,7 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--packager", help="packager name and email", required=True)
     parser.add_argument("--repository", help="repository name", required=True)
+    parser.add_argument("--server", help="server to be used for devtools. If none set, local files will be used")
     parser.add_argument("--sign-key", help="sign key id")
     parser.add_argument("--sign-target", help="sign options", action="append",
                         type=SignSettings.from_option, choices=enum_values(SignSettings))

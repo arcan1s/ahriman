@@ -396,6 +396,7 @@ The following environment variables are supported:
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
+* ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository url. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
@@ -854,6 +855,11 @@ In addition, the following settings are recommended for workers:
 
      [remote-call]
      wait_timeout = 0
+
+Dependency management
+"""""""""""""""""""""
+
+By default worker nodes don't know anything about master nodes packages, thus it will try to build each dependency by its own. However, using ``AHRIMAN_REPOSITORY_SERVER`` docker variable (or ``--server`` flag for setup command), it is possible to specify address of the master node for devtools configuration.
 
 Repository and packages signing
 """""""""""""""""""""""""""""""
