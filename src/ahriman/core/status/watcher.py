@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
-
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
@@ -59,7 +57,7 @@ class Watcher(LazyLogging):
         self.status = BuildStatus()
 
         # special variables for updating logs
-        self._last_log_record_id = LogRecordId("", os.getpid())
+        self._last_log_record_id = LogRecordId("", "")
 
     @property
     def packages(self) -> list[tuple[Package, BuildStatus]]:
@@ -99,15 +97,15 @@ class Watcher(LazyLogging):
         """
         return self.database.logs_get(package_base)
 
-    def logs_remove(self, package_base: str, current_process_id: int | None) -> None:
+    def logs_remove(self, package_base: str, version: str | None) -> None:
         """
         remove package related logs
 
         Args:
             package_base(str): package base
-            current_process_id(int | None): current process id
+            version(str): package versio
         """
-        self.database.logs_remove(package_base, current_process_id)
+        self.database.logs_remove(package_base, version)
 
     def logs_update(self, log_record_id: LogRecordId, created: float, record: str) -> None:
         """
@@ -120,7 +118,7 @@ class Watcher(LazyLogging):
         """
         if self._last_log_record_id != log_record_id:
             # there is new log record, so we remove old ones
-            self.logs_remove(log_record_id.package_base, log_record_id.process_id)
+            self.logs_remove(log_record_id.package_base, log_record_id.version)
         self._last_log_record_id = log_record_id
         self.database.logs_insert(log_record_id, created, record)
 

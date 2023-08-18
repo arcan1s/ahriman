@@ -19,11 +19,11 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 import shutil
-import tempfile
 
 from aiohttp import BodyPartReader
 from aiohttp.web import HTTPBadRequest, HTTPCreated, HTTPNotFound
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, FileSchema
@@ -68,7 +68,7 @@ class UploadView(BaseView):
 
         # in order to handle errors automatically we create temporary file for long operation (transfer)
         # and then copy it to valid location
-        with tempfile.NamedTemporaryFile() as cache:
+        with NamedTemporaryFile() as cache:
             while True:
                 chunk = await part.read_chunk()
                 if not chunk:

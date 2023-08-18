@@ -7,6 +7,7 @@ from ahriman.core.status.client import Client
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -66,11 +67,11 @@ def test_package_get(client: Client, package_ahriman: Package) -> None:
     assert client.package_get(None) == []
 
 
-def test_package_log(client: Client, package_ahriman: Package, log_record: logging.LogRecord) -> None:
+def test_package_logs(client: Client, package_ahriman: Package, log_record: logging.LogRecord) -> None:
     """
     must process log record without errors
     """
-    client.package_logs(package_ahriman.base, log_record)
+    client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
 
 
 def test_package_remove(client: Client, package_ahriman: Package) -> None:

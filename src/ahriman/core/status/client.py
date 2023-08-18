@@ -24,6 +24,7 @@ import logging
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -82,12 +83,12 @@ class Client:
         del package_base
         return []
 
-    def package_logs(self, package_base: str, record: logging.LogRecord) -> None:
+    def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
-            package_base(str) package base
+            log_record_id(LogRecordId): log record id
             record(logging.LogRecord): log record to post to api
         """
 

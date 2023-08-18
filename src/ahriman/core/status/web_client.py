@@ -33,6 +33,7 @@ from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.user import User
 
@@ -253,20 +254,20 @@ class WebClient(Client, LazyLogging):
             for package in response_json
         ]
 
-    def package_logs(self, package_base: str, record: logging.LogRecord) -> None:
+    def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
-            package_base(str) package base
+            log_record_id(LogRecordId): log record id
             record(logging.LogRecord): log record to post to api
         """
         payload = {
             "created": record.created,
             "message": record.getMessage(),
-            "process_id": record.process,
+            "version": log_record_id.version,
         }
-        self.make_request("POST", self._logs_url(package_base), json=payload)
+        self.make_request("POST", self._logs_url(log_record_id.package_base), json=payload)
 
     def package_remove(self, package_base: str) -> None:
         """

@@ -137,10 +137,10 @@ class LogsView(BaseView):
         try:
             created = data["created"]
             record = data["message"]
-            process_id = data["process_id"]
+            version = data["version"]
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.service.logs_update(LogRecordId(package_base, process_id), created, record)
+        self.service.logs_update(LogRecordId(package_base, version), created, record)
 
         raise HTTPNoContent()

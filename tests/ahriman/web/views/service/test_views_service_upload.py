@@ -30,7 +30,7 @@ async def test_save_file(mocker: MockerFixture) -> None:
     part_mock.filename = "filename"
     part_mock.read_chunk = AsyncMock(side_effect=[b"content", None])
 
-    tempfile_mock = mocker.patch("tempfile.NamedTemporaryFile")
+    tempfile_mock = mocker.patch("ahriman.web.views.service.upload.NamedTemporaryFile")
     file_mock = MagicMock()
     tempfile_mock.return_value.__enter__.return_value = file_mock
 

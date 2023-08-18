@@ -11,6 +11,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.user import User
 
@@ -280,10 +281,10 @@ def test_package_logs(web_client: WebClient, log_record: logging.LogRecord, pack
     payload = {
         "created": log_record.created,
         "message": log_record.getMessage(),
-        "process_id": log_record.process,
+        "version": package_ahriman.version,
     }
 
-    web_client.package_logs(package_ahriman.base, log_record)
+    web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                           params=None, json=payload, files=None)
 
@@ -295,7 +296,7 @@ def test_package_logs_failed(web_client: WebClient, log_record: logging.LogRecor
     """
     mocker.patch("requests.Session.request", side_effect=Exception())
     log_record.package_base = package_ahriman.base
-    web_client.package_logs(package_ahriman.base, log_record)
+    web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
 
 
 def test_package_logs_failed_http_error(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
@@ -305,7 +306,7 @@ def test_package_logs_failed_http_error(web_client: WebClient, log_record: loggi
     """
     mocker.patch("requests.Session.request", side_effect=requests.exceptions.HTTPError())
     log_record.package_base = package_ahriman.base
-    web_client.package_logs(package_ahriman.base, log_record)
+    web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
 
 
 def test_package_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

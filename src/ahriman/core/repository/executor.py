@@ -93,7 +93,8 @@ class Executor(Cleaner):
 
         result = Result()
         for single in updates:
-            with self.in_package_context(single.base), TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
+            with self.in_package_context(single.base, local_versions.get(single.base)), \
+                    TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
                     packager = self.packager(packagers, single.base)
                     build_single(single, Path(dir_name), packager.packager_id)
@@ -201,14 +202,16 @@ class Executor(Cleaner):
             package_path = self.paths.repository / safe_filename(name)
             self.repo.add(package_path)
 
-        current_packages = self.packages()
+        current_packages = {package.base: package for package in self.packages()}
+        local_versions = {package_base: package.version for package_base, package in current_packages.items()}
+
         removed_packages: list[str] = []  # list of packages which have been removed from the base
         updates = self.load_archives(packages)
         packagers = packagers or Packagers()
 
         result = Result()
         for local in updates:
-            with self.in_package_context(local.base):
+            with self.in_package_context(local.base, local_versions.get(local.base)):
                 try:
                     packager = self.packager(packagers, local.base)
 
@@ -218,12 +221,9 @@ class Executor(Cleaner):
                     self.reporter.set_success(local)
                     result.add_success(local)
 
-                    current_package_archives = {
-                        package
-                        for current in current_packages
-                        if current.base == local.base
-                        for package in current.packages
-                    }
+                    current_package_archives: set[str] = set()
+                    if local.base in current_packages:
+                        current_package_archives = set(current_packages[local.base].packages.keys())
                     removed_packages.extend(current_package_archives.difference(local.packages))
                 except Exception:
                     self.reporter.set_failed(local.base)

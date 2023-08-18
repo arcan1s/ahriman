@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.database import SQLite
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -20,16 +21,16 @@ def test_package_logger_set_reset(database: SQLite) -> None:
     """
     must set and reset package base attribute
     """
-    package_base = "package base"
+    log_record_id = LogRecordId("base", "version")
 
-    database._package_logger_set(package_base)
+    database._package_logger_set(log_record_id.package_base, log_record_id.version)
     record = logging.makeLogRecord({})
-    assert record.package_base == package_base
+    assert record.package_id == log_record_id
 
     database._package_logger_reset()
     record = logging.makeLogRecord({})
     with pytest.raises(AttributeError):
-        record.package_base
+        record.package_id
 
 
 def test_in_package_context(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -39,10 +40,24 @@ def test_in_package_context(database: SQLite, package_ahriman: Package, mocker: 
     set_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_set")
     reset_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_reset")
 
-    with database.in_package_context(package_ahriman.base):
+    with database.in_package_context(package_ahriman.base, package_ahriman.version):
         pass
 
-    set_mock.assert_called_once_with(package_ahriman.base)
+    set_mock.assert_called_once_with(package_ahriman.base, package_ahriman.version)
+    reset_mock.assert_called_once_with()
+
+
+def test_in_package_context_empty_version(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must set package log context
+    """
+    set_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_set")
+    reset_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_reset")
+
+    with database.in_package_context(package_ahriman.base, None):
+        pass
+
+    set_mock.assert_called_once_with(package_ahriman.base, None)
     reset_mock.assert_called_once_with()
 
 
@@ -54,7 +69,7 @@ def test_in_package_context_failed(database: SQLite, package_ahriman: Package, m
     reset_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_reset")
 
     with pytest.raises(Exception):
-        with database.in_package_context(package_ahriman.base):
+        with database.in_package_context(package_ahriman.base, ""):
             raise Exception()
 
     reset_mock.assert_called_once_with()

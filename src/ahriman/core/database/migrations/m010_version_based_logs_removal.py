@@ -17,18 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass
+__all__ = ["steps"]
 
 
-@dataclass(frozen=True)
-class LogRecordId:
+steps = [
     """
-    log record process identifier
-
-    Attributes:
-        package_base(str): package base for which log record belongs
-        version(str): package version for which log record belongs
+    drop index logs_package_base_process_id
+    """,
     """
-
-    package_base: str
-    version: str
+    alter table logs drop column process_id
+    """,
+    """
+    alter table logs add column version text not null default ''
+    """,
+    """
+    create index logs_package_base_version on logs (package_base, version)
+    """,
+]
