@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-08\-13" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-08\-19" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -689,7 +689,7 @@ key server for key import
 usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
                              [\-\-from\-configuration FROM_CONFIGURATION] [\-\-generate\-salt | \-\-no\-generate\-salt]
                              [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs] [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib]
-                             \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-sign\-key SIGN_KEY]
+                             \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-server SERVER] [\-\-sign\-key SIGN_KEY]
                              [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
                              [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
@@ -731,6 +731,10 @@ packager name and email
 .TP
 \fB\-\-repository\fR \fI\,REPOSITORY\/\fR
 repository name
+
+.TP
+\fB\-\-server\fR \fI\,SERVER\/\fR
+server to be used for devtools. If none set, local files will be used
 
 .TP
 \fB\-\-sign\-key\fR \fI\,SIGN_KEY\/\fR

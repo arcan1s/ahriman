@@ -37,8 +37,35 @@ def test_is_process_alive_unknown(remote_call: RemoteCall, mocker: MockerFixture
     """
     must correctly define if process is unknown
     """
-    mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=None)
+    response = requests.Response()
+    response.status_code = 404
+    mocker.patch("ahriman.core.status.web_client.WebClient.make_request",
+                 side_effect=requests.RequestException(response=response))
+
     assert not remote_call.is_process_alive("id")
+
+
+def test_is_process_alive_error(remote_call: RemoteCall, mocker: MockerFixture) -> None:
+    """
+    must reraise exception on process request
+    """
+    mocker.patch("ahriman.core.status.web_client.WebClient.make_request", side_effect=Exception)
+
+    with pytest.raises(Exception):
+        remote_call.is_process_alive("id")
+
+
+def test_is_process_alive_http_error(remote_call: RemoteCall, mocker: MockerFixture) -> None:
+    """
+    must reraise http exception on process request
+    """
+    response = requests.Response()
+    response.status_code = 500
+    mocker.patch("ahriman.core.status.web_client.WebClient.make_request",
+                 side_effect=requests.RequestException(response=response))
+
+    with pytest.raises(requests.RequestException):
+        remote_call.is_process_alive("id")
 
 
 def test_remote_update(remote_call: RemoteCall, mocker: MockerFixture) -> None:
@@ -59,14 +86,6 @@ def test_remote_update(remote_call: RemoteCall, mocker: MockerFixture) -> None:
     })
 
 
-def test_remote_update_failed(remote_call: RemoteCall, mocker: MockerFixture) -> None:
-    """
-    must return empty process id in case of errors
-    """
-    mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=None)
-    assert remote_call.generate([], Result()) is None
-
-
 def test_remote_wait(remote_call: RemoteCall, mocker: MockerFixture) -> None:
     """
     must wait for remote process to success
@@ -74,12 +93,3 @@ def test_remote_wait(remote_call: RemoteCall, mocker: MockerFixture) -> None:
     wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
     remote_call.remote_wait("id")
     wait_mock.assert_called_once_with(pytest.helpers.anyvar(int), "id")
-
-
-def test_remote_wait_skip(remote_call: RemoteCall, mocker: MockerFixture) -> None:
-    """
-    must skip wait if process id is unknown
-    """
-    wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
-    remote_call.remote_wait(None)
-    wait_mock.assert_not_called()

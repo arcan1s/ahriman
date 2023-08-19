@@ -66,9 +66,9 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, created, version, record)
+                (package_base, version, created, record)
                 values
-                (:package_base, :created, :version, :record)
+                (:package_base, :version, :created, :record)
                 """,
                 {
                     "package_base": log_record_id.package_base,

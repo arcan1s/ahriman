@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import requests
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
 from ahriman.core.status.web_client import WebClient
@@ -77,43 +79,41 @@ class RemoteCall(Report):
         Returns:
             bool: True in case if remote process is alive and False otherwise
         """
-        response = self.client.make_request("GET", f"/api/v1/service/process/{process_id}")
-        if response is None:
-            return False
+        try:
+            response = self.client.make_request("GET", f"/api/v1/service/process/{process_id}")
+        except requests.RequestException as e:
+            if e.response is not None and e.response.status_code == 404:
+                return False
+            raise
 
         response_json = response.json()
         is_alive: bool = response_json["is_alive"]
 
         return is_alive
 
-    def remote_update(self) -> str | None:
+    def remote_update(self) -> str:
         """
         call remote server for update
 
         Returns:
-            str | None: remote process id on success and ``None`` otherwise
+            str: remote process id
         """
         response = self.client.make_request("POST", "/api/v1/service/update", json={
             "aur": self.update_aur,
             "local": self.update_local,
             "manual": self.update_manual,
         })
-        if response is None:
-            return None  # request terminated with error
-
         response_json = response.json()
+
         process_id: str = response_json["process_id"]
         return process_id
 
-    def remote_wait(self, process_id: str | None) -> None:
+    def remote_wait(self, process_id: str) -> None:
         """
         wait for remote process termination
 
         Args:
-            process_id(str | None): remote process id
+            process_id(str): remote process id
         """
-        if process_id is None:
-            return  # nothing to track
-
         waiter = Waiter(self.wait_timeout)
         waiter.wait(self.is_process_alive, process_id)

@@ -21,7 +21,6 @@ import contextlib
 import logging
 import requests
 
-from collections.abc import Generator
 from functools import cached_property
 from typing import Any, IO, Literal
 from urllib.parse import quote_plus as urlencode
@@ -129,32 +128,6 @@ class WebClient(Client, LazyLogging):
             address = f"http://{host}:{port}"
         return address, False
 
-    @contextlib.contextmanager
-    def __get_session(self, session: requests.Session | None = None) -> Generator[requests.Session, None, None]:
-        """
-        execute request and handle exceptions
-
-        Args:
-            session(requests.Session | None, optional): session to be used or stored instance property otherwise
-                (Default value = None)
-
-        Yields:
-            requests.Session: session for requests
-        """
-        try:
-            if session is not None:
-                yield session  # use session from arguments
-            else:
-                yield self.session  # use instance generated session
-        except requests.RequestException as e:
-            if self.suppress_errors:
-                return
-            self.logger.exception("could not perform http request: %s", exception_response_text(e))
-        except Exception:
-            if self.suppress_errors:
-                return
-            self.logger.exception("could not perform http request")
-
     def _create_session(self, *, use_unix_socket: bool) -> requests.Session:
         """
         generate new request session
@@ -191,13 +164,15 @@ class WebClient(Client, LazyLogging):
             "username": self.user.username,
             "password": self.user.password
         }
-        self.make_request("POST", self._login_url, json=payload, session=session)
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._login_url, json=payload, session=session)
 
     def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str, *,
                      params: list[tuple[str, str]] | None = None,
                      json: dict[str, Any] | None = None,
                      files: dict[str, MultipartType] | None = None,
-                     session: requests.Session | None = None) -> requests.Response | None:
+                     session: requests.Session | None = None,
+                     suppress_errors: bool | None = None) -> requests.Response:
         """
         perform request with specified parameters
 
@@ -208,17 +183,30 @@ class WebClient(Client, LazyLogging):
             json(dict[str, Any] | None, optional): request json parameters (Default value = None)
             files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
             session(requests.Session | None, optional): session object if any (Default value = None)
+            suppress_errors(bool | None, optional): suppress logging errors (e.g. if no web server available). If none
+                set, the instance-wide value will be used (Default value = None)
 
         Returns:
-            requests.Response | None: response object or None in case of errors
+            requests.Response: response object
         """
-        with self.__get_session(session) as _session:
-            response = _session.request(method, f"{self.address}{url}", params=params, json=json, files=files)
+        # defaults
+        if suppress_errors is None:
+            suppress_errors = self.suppress_errors
+        if session is None:
+            session = self.session
+
+        try:
+            response = session.request(method, f"{self.address}{url}", params=params, json=json, files=files)
             response.raise_for_status()
             return response
-
-        # noinspection PyUnreachableCode
-        return None
+        except requests.RequestException as e:
+            if not suppress_errors:
+                self.logger.exception("could not perform http request: %s", exception_response_text(e))
+            raise
+        except Exception:
+            if not suppress_errors:
+                self.logger.exception("could not perform http request")
+            raise
 
     def package_add(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -232,7 +220,8 @@ class WebClient(Client, LazyLogging):
             "status": status.value,
             "package": package.view()
         }
-        self.make_request("POST", self._package_url(package.base), json=payload)
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package.base), json=payload)
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
@@ -244,15 +233,16 @@ class WebClient(Client, LazyLogging):
         Returns:
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
-        response = self.make_request("GET", self._package_url(package_base or ""))
-        if response is None:
-            return []
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._package_url(package_base or ""))
+            response_json = response.json()
 
-        response_json = response.json()
-        return [
-            (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
-            for package in response_json
-        ]
+            return [
+                (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
+                for package in response_json
+            ]
+
+        return []
 
     def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
         """
@@ -267,7 +257,11 @@ class WebClient(Client, LazyLogging):
             "message": record.getMessage(),
             "version": log_record_id.version,
         }
-        self.make_request("POST", self._logs_url(log_record_id.package_base), json=payload)
+
+        # this is special case, because we would like to do not suppress exception here
+        # in case of exception raised it will be handled by upstream HttpLogHandler
+        # In the other hand, we force to suppress all http logs here to avoid cyclic reporting
+        self.make_request("POST", self._logs_url(log_record_id.package_base), json=payload, suppress_errors=True)
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -276,7 +270,8 @@ class WebClient(Client, LazyLogging):
         Args:
             package_base(str): basename to remove
         """
-        self.make_request("DELETE", self._package_url(package_base))
+        with contextlib.suppress(Exception):
+            self.make_request("DELETE", self._package_url(package_base))
 
     def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
@@ -287,7 +282,8 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current package build status
         """
         payload = {"status": status.value}
-        self.make_request("POST", self._package_url(package_base), json=payload)
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package_base), json=payload)
 
     def status_get(self) -> InternalStatus:
         """
@@ -296,12 +292,13 @@ class WebClient(Client, LazyLogging):
         Returns:
             InternalStatus: current internal (web) service status
         """
-        response = self.make_request("GET", self._status_url)
-        if response is None:
-            return InternalStatus(status=BuildStatus())
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._status_url)
+            response_json = response.json()
 
-        response_json = response.json()
-        return InternalStatus.from_json(response_json)
+            return InternalStatus.from_json(response_json)
+
+        return InternalStatus(status=BuildStatus())
 
     def status_update(self, status: BuildStatusEnum) -> None:
         """
@@ -311,4 +308,5 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current ahriman status
         """
         payload = {"status": status.value}
-        self.make_request("POST", self._status_url, json=payload)
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._status_url, json=payload)

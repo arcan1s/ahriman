@@ -163,7 +163,8 @@ def test_make_request_failed(web_client: WebClient, mocker: MockerFixture) -> No
     must make HTTP request
     """
     mocker.patch("requests.Session.request", side_effect=Exception())
-    assert web_client.make_request("GET", "url") is None
+    with pytest.raises(Exception):
+        web_client.make_request("GET", "url")
 
 
 def test_package_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -296,7 +297,8 @@ def test_package_logs_failed(web_client: WebClient, log_record: logging.LogRecor
     """
     mocker.patch("requests.Session.request", side_effect=Exception())
     log_record.package_base = package_ahriman.base
-    web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
+    with pytest.raises(Exception):
+        web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
 
 
 def test_package_logs_failed_http_error(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
@@ -306,7 +308,8 @@ def test_package_logs_failed_http_error(web_client: WebClient, log_record: loggi
     """
     mocker.patch("requests.Session.request", side_effect=requests.exceptions.HTTPError())
     log_record.package_base = package_ahriman.base
-    web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
+    with pytest.raises(Exception):
+        web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
 
 
 def test_package_remove(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
