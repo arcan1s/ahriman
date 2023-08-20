@@ -36,8 +36,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    application_mock = mocker.patch("ahriman.core.status.client.Client.get_internal")
-    packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
+    application_mock = mocker.patch("ahriman.core.status.client.Client.status_get")
+    packages_mock = mocker.patch("ahriman.core.status.client.Client.package_get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
@@ -58,8 +58,8 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.core.status.client.Client.get_internal")
-    mocker.patch("ahriman.core.status.client.Client.get", return_value=[])
+    mocker.patch("ahriman.core.status.client.Client.status_get")
+    mocker.patch("ahriman.core.status.client.Client.package_get", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Status.run(args, "x86_64", configuration, report=False)
@@ -74,7 +74,7 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     args = _default_args(args)
     args.info = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.core.status.client.Client.get",
+    mocker.patch("ahriman.core.status.client.Client.package_get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
@@ -90,7 +90,7 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     args = _default_args(args)
     args.package = [package_ahriman.base]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    packages_mock = mocker.patch("ahriman.core.status.client.Client.get",
+    packages_mock = mocker.patch("ahriman.core.status.client.Client.package_get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
     Status.run(args, "x86_64", configuration, report=False)
@@ -104,7 +104,7 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, r
     """
     args = _default_args(args)
     args.status = BuildStatusEnum.Failed
-    mocker.patch("ahriman.core.status.client.Client.get",
+    mocker.patch("ahriman.core.status.client.Client.package_get",
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
                                (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)

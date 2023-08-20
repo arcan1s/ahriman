@@ -43,6 +43,33 @@ def test_is_logs_post() -> None:
     assert not FilteredAccessLogger.is_logs_post(request)
 
 
+def test_is_process_get() -> None:
+    """
+    must correctly define if request belongs to process get
+    """
+    request = MagicMock()
+
+    request.method = "GET"
+    request.path = "/api/v1/service/process/e7d67119-264a-48f4-b7e4-07bc96a7de00"
+    assert FilteredAccessLogger.is_process_get(request)
+
+    request.method = "POST"
+    request.path = "/api/v1/service/process/e7d67119-264a-48f4-b7e4-07bc96a7de00"
+    assert not FilteredAccessLogger.is_process_get(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/service/process/e7d67119-264a-48f4-b7e4-07bc96a7de00/some/random/path"
+    assert not FilteredAccessLogger.is_process_get(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/service/process"
+    assert not FilteredAccessLogger.is_process_get(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/service/process/"
+    assert not FilteredAccessLogger.is_process_get(request)
+
+
 def test_log(filtered_access_logger: FilteredAccessLogger, mocker: MockerFixture) -> None:
     """
     must emit log record

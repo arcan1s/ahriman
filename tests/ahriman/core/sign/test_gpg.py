@@ -76,6 +76,13 @@ def test_sign_options(configuration: Configuration) -> None:
     assert default_key == "default-key"
 
 
+def test_signature() -> None:
+    """
+    must correctly generate the signature path
+    """
+    assert GPG.signature(Path("path") / "to" / "package.tar.xz") == Path("path") / "to" / "package.tar.xz.sig"
+
+
 def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:
     """
     must download the key from public server
@@ -219,6 +226,18 @@ def test_process_sign_package_skip_4(gpg: GPG, mocker: MockerFixture) -> None:
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg.targets = {SignSettings.Packages, SignSettings.Repository}
     gpg.process_sign_package(Path("a"), None)
+    process_mock.assert_not_called()
+
+
+def test_process_sign_package_skip_already_signed(gpg_with_key: GPG, mocker: MockerFixture) -> None:
+    """
+    must not sign package if it was already signed
+    """
+    result = [Path("a"), Path("a.sig")]
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
+
+    assert gpg_with_key.process_sign_package(Path("a"), gpg_with_key.default_key) == result
     process_mock.assert_not_called()
 
 

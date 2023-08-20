@@ -24,6 +24,8 @@ from collections.abc import Generator
 from functools import cached_property
 from typing import Any
 
+from ahriman.models.log_record_id import LogRecordId
+
 
 class LazyLogging:
     """
@@ -60,38 +62,40 @@ class LazyLogging:
         logging.setLogRecordFactory(logging.LogRecord)
 
     @staticmethod
-    def _package_logger_set(package_base: str) -> None:
+    def _package_logger_set(package_base: str, version: str | None) -> None:
         """
         set package base as extra info to the logger
 
         Args:
             package_base(str): package base
+            version(str | None): package version if available
         """
         current_factory = logging.getLogRecordFactory()
 
         def package_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
             record = current_factory(*args, **kwargs)
-            record.package_base = package_base
+            record.package_id = LogRecordId(package_base, version or "")
             return record
 
         logging.setLogRecordFactory(package_record_factory)
 
     @contextlib.contextmanager
-    def in_package_context(self, package_base: str) -> Generator[None, None, None]:
+    def in_package_context(self, package_base: str, version: str | None) -> Generator[None, None, None]:
         """
         execute function while setting package context
 
         Args:
             package_base(str): package base to set context in
+            version(str | None): package version if available
 
         Examples:
             This function is designed to be called as context manager with ``package_base`` argument, e.g.:
 
-                >>> with self.in_package_context(package.base):
+                >>> with self.in_package_context(package.base, package.version):
                 >>>     build_package(package)
         """
         try:
-            self._package_logger_set(package_base)
+            self._package_logger_set(package_base, version)
             yield
         finally:
             self._package_logger_reset()

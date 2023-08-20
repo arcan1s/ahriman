@@ -101,6 +101,19 @@ class GPG(LazyLogging):
         default_key = configuration.get("sign", "key") if targets else None
         return targets, default_key
 
+    @staticmethod
+    def signature(filepath: Path) -> Path:
+        """
+        generate signature name for the file
+
+        Args:
+            filepath(Path): path to the file which will be signed
+
+        Returns:
+            str: path to signature file
+        """
+        return filepath.parent / f"{filepath.name}.sig"
+
     def key_download(self, server: str, key: str) -> str:
         """
         download key from public PGP server
@@ -179,11 +192,11 @@ class GPG(LazyLogging):
             *GPG.sign_command(path, key),
             exception=BuildError(path.name),
             logger=self.logger)
-        return [path, path.parent / f"{path.name}.sig"]
+        return [path, self.signature(path)]
 
     def process_sign_package(self, path: Path, packager_key: str | None) -> list[Path]:
         """
-        sign package if required by configuration
+        sign package if required by configuration and signature doesn't exist
 
         Args:
             path(Path): path to file to sign
@@ -192,6 +205,10 @@ class GPG(LazyLogging):
         Returns:
             list[Path]: list of generated files including original file
         """
+        if (signature := self.signature(path)).is_file():
+            # the file was already signed before, just use its signature
+            return [path, signature]
+
         if SignSettings.Packages not in self.targets:
             return [path]
 

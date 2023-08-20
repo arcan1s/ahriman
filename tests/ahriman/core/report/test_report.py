@@ -24,6 +24,7 @@ def test_report_dummy(configuration: Configuration, result: Result, mocker: Mock
     """
     mocker.patch("ahriman.models.report_settings.ReportSettings.from_option", return_value=ReportSettings.Disabled)
     report_mock = mocker.patch("ahriman.core.report.report.Report.generate")
+
     Report.load("x86_64", configuration, "disabled").run(result, [])
     report_mock.assert_called_once_with([], result)
 
@@ -52,6 +53,18 @@ def test_report_html(configuration: Configuration, result: Result, mocker: Mocke
     """
     report_mock = mocker.patch("ahriman.core.report.html.HTML.generate")
     Report.load("x86_64", configuration, "html").run(result, [])
+    report_mock.assert_called_once_with([], result)
+
+
+def test_report_remote_call(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
+    """
+    must instantiate remote call trigger
+    """
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
+    report_mock = mocker.patch("ahriman.core.report.remote_call.RemoteCall.generate")
+
+    Report.load("x86_64", configuration, "remote-call").run(result, [])
     report_mock.assert_called_once_with([], result)
 
 

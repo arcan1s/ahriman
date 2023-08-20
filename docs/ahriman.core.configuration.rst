@@ -20,6 +20,14 @@ ahriman.core.configuration.schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.configuration.shell\_interpolator module
+-----------------------------------------------------
+
+.. automodule:: ahriman.core.configuration.shell_interpolator
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.configuration.validator module
 -------------------------------------------
 

@@ -50,14 +50,14 @@ class Status(Handler):
         # we are using reporter here
         client = Application(architecture, configuration, report=True).repository.reporter
         if args.ahriman:
-            service_status = client.get_internal()
+            service_status = client.status_get()
             StatusPrinter(service_status.status).print(verbose=args.info)
         if args.package:
             packages: list[tuple[Package, BuildStatus]] = sum(
-                (client.get(base) for base in args.package),
+                (client.package_get(base) for base in args.package),
                 start=[])
         else:
-            packages = client.get(None)
+            packages = client.package_get(None)
 
         Status.check_if_empty(args.exit_code, not packages)
 

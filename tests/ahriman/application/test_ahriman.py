@@ -47,6 +47,16 @@ def test_parser_option_log_handler(parser: argparse.ArgumentParser) -> None:
     assert isinstance(args.log_handler, LogHandler)
 
 
+def test_parser_option_wait_timeout(parser: argparse.ArgumentParser) -> None:
+    """
+    must convert wait-timeout option to int instance
+    """
+    args = parser.parse_args(["service-config"])
+    assert isinstance(args.wait_timeout, int)
+    args = parser.parse_args(["--wait-timeout", "60", "service-config"])
+    assert isinstance(args.wait_timeout, int)
+
+
 def test_multiple_architectures(parser: argparse.ArgumentParser) -> None:
     """
     must accept multiple architectures

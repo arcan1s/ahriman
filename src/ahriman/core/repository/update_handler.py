@@ -66,10 +66,11 @@ class UpdateHandler(Cleaner):
                     continue
             raise UnknownPackageError(package.base)
 
-        result: list[Package] = []
+        local_versions = {package.base: package.version for package in self.packages()}
 
+        result: list[Package] = []
         for local in self.packages():
-            with self.in_package_context(local.base):
+            with self.in_package_context(local.base, local_versions.get(local.base)):
                 if not local.remote.is_remote:
                     continue  # avoid checking local packages
                 if local.base in self.ignore_list:
@@ -102,11 +103,12 @@ class UpdateHandler(Cleaner):
         Returns:
             list[Package]: list of local packages which are out-of-dated
         """
-        result: list[Package] = []
         packages = {local.base: local for local in self.packages()}
+        local_versions = {package_base: package.version for package_base, package in packages.items()}
 
+        result: list[Package] = []
         for cache_dir in self.paths.cache.iterdir():
-            with self.in_package_context(cache_dir.name):
+            with self.in_package_context(cache_dir.name, local_versions.get(cache_dir.name)):
                 try:
                     source = RemoteSource(
                         source=PackageSource.Local,

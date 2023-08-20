@@ -66,13 +66,13 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, process_id, created, record)
+                (package_base, version, created, record)
                 values
-                (:package_base, :process_id, :created, :record)
+                (:package_base, :version, :created, :record)
                 """,
                 {
                     "package_base": log_record_id.package_base,
-                    "process_id": log_record_id.process_id,
+                    "version": log_record_id.version,
                     "created": created,
                     "record": record,
                 }
@@ -80,22 +80,22 @@ class LogsOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def logs_remove(self, package_base: str, current_process_id: int | None) -> None:
+    def logs_remove(self, package_base: str, version: str | None) -> None:
         """
         remove log records for the specified package
 
         Args:
             package_base(str): package base to remove logs
-            current_process_id(int | None): current process id. If set it will remove only logs belonging to another
-                process
+            version(str): package version. If set it will remove only logs belonging to another
+                version
         """
         def run(connection: Connection) -> None:
             connection.execute(
                 """
                 delete from logs
-                where package_base = :package_base and (:process_id is null or process_id <> :process_id)
+                where package_base = :package_base and (:version is null or version <> :version)
                 """,
-                {"package_base": package_base, "process_id": current_process_id}
+                {"package_base": package_base, "version": version}
             )
 
         return self.with_connection(run, commit=True)

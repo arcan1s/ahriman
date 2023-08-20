@@ -19,6 +19,8 @@
 #
 from marshmallow import Schema, fields
 
+from ahriman import __version__
+
 
 class LogSchema(Schema):
     """
@@ -29,9 +31,9 @@ class LogSchema(Schema):
         "description": "Log record timestamp",
         "example": 1680537091.233495,
     })
-    process_id = fields.Integer(required=True, metadata={
-        "description": "Current process id",
-        "example": 42,
+    version = fields.Integer(required=True, metadata={
+        "description": "Package version to tag",
+        "example": __version__,
     })
     message = fields.String(required=True, metadata={
         "description": "Log message",

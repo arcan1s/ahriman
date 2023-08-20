@@ -19,10 +19,10 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 
-from aiohttp.web import HTTPBadRequest, HTTPNoContent
+from aiohttp.web import HTTPBadRequest, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNamesSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNamesSchema, ProcessIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -41,7 +41,7 @@ class AddView(BaseView):
         summary="Add new package",
         description="Add new package(s) from AUR",
         responses={
-            204: {"description": "Success response"},
+            200: {"description": "Success response", "schema": ProcessIdSchema},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
@@ -51,13 +51,15 @@ class AddView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.json_schema(PackageNamesSchema)
-    async def post(self) -> None:
+    async def post(self) -> Response:
         """
         add new package
 
+        Returns:
+            Response: 200 with spawned process id
+
         Raises:
             HTTPBadRequest: if bad data is supplied
-            HTTPNoContent: in case of success response
         """
         try:
             data = await self.extract_data(["packages"])
@@ -66,6 +68,6 @@ class AddView(BaseView):
             raise HTTPBadRequest(reason=str(e))
 
         username = await self.username()
-        self.spawner.packages_add(packages, username, now=True)
+        process_id = self.spawner.packages_add(packages, username, now=True)
 
-        raise HTTPNoContent()
+        return json_response({"process_id": process_id})

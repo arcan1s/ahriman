@@ -20,14 +20,19 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
-    remove_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_remove")
+    remove_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_remove", return_value="abc")
     request_schema = pytest.helpers.schema_request(RemoveView.post)
+    response_schema = pytest.helpers.schema_response(RemoveView.post)
 
     payload = {"packages": ["ahriman"]}
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/remove", json=payload)
     assert response.ok
     remove_mock.assert_called_once_with(["ahriman"])
+
+    json = await response.json()
+    assert json["process_id"] == "abc"
+    assert not response_schema.validate(json)
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

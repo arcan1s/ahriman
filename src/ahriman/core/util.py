@@ -142,7 +142,6 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         while selector.get_map():  # while there are unread selectors, keep reading
             result.extend(poll(selector))
 
-        process.terminate()  # make sure that process is terminated
         status_code = process.wait()
         if status_code != 0:
             if exception is not None:
@@ -280,7 +279,7 @@ def package_like(filename: Path) -> bool:
         bool: True in case if name contains ``.pkg.`` and not signature, False otherwise
     """
     name = filename.name
-    return ".pkg." in name and not name.endswith(".sig")
+    return not name.startswith(".") and ".pkg." in name and not name.endswith(".sig")
 
 
 def parse_version(version: str) -> tuple[str | None, str, str]:

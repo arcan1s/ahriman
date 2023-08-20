@@ -30,9 +30,9 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
                       json={"status": BuildStatusEnum.Success.value, "package": package_python_schedule.view()})
 
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                      json={"created": 42.0, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "version": "42"})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}/logs",
-                      json={"created": 42.0, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "version": "42"})
 
     response = await client.delete(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 204
@@ -53,7 +53,7 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
-                      json={"created": 42.0, "message": "message", "process_id": 42})
+                      json={"created": 42.0, "message": "message", "version": "42"})
     response_schema = pytest.helpers.schema_response(LogsView.get)
 
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
@@ -83,7 +83,7 @@ async def test_post(client: TestClient, package_ahriman: Package) -> None:
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
     request_schema = pytest.helpers.schema_request(LogsView.post)
 
-    payload = {"created": 42.0, "message": "message", "process_id": 42}
+    payload = {"created": 42.0, "message": "message", "version": "42"}
     assert not request_schema.validate(payload)
     response = await client.post(f"/api/v1/packages/{package_ahriman.base}/logs", json=payload)
     assert response.status == 204

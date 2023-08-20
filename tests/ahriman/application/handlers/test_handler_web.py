@@ -77,6 +77,10 @@ def test_extract_arguments(args: argparse.Namespace, configuration: Configuratio
     expected.extend(["--unsafe"])
     assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
 
+    configuration.set_option("web", "wait_timeout", "60")
+    expected.extend(["--wait-timeout", "60"])
+    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+
 
 def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: Configuration):
     """
@@ -91,6 +95,7 @@ def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: 
         value = action.const or \
             next(iter(action.choices or []), None) or \
             (not action.default if isinstance(action.default, bool) else None) or \
+            (42 if action.type == int else None) or \
             "random string"
         if action.type is not None:
             value = action.type(value)

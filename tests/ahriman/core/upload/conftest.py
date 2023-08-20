@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.github import Github
+from ahriman.core.upload.remote_service import RemoteService
 from ahriman.core.upload.rsync import Rsync
 from ahriman.core.upload.s3 import S3
 
@@ -43,6 +44,22 @@ def github_release() -> dict[str, Any]:
         }],
         "body": None,
     }
+
+
+@pytest.fixture
+def remote_service(configuration: Configuration) -> RemoteService:
+    """
+    fixture for remote service synchronization
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        RemoteService: remote service test instance
+    """
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
+    return RemoteService("x86_64", configuration, "remote-service")
 
 
 @pytest.fixture

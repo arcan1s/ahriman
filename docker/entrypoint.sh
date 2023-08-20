@@ -43,6 +43,9 @@ fi
 if [ -n "$AHRIMAN_PORT" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
 fi
+if [ -n "$AHRIMAN_REPOSITORY_SERVER" ]; then
+    AHRIMAN_SETUP_ARGS+=("--server" "$AHRIMAN_REPOSITORY_SERVER")
+fi
 if [ -n "$AHRIMAN_UNIX_SOCKET" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-unix-socket" "$AHRIMAN_UNIX_SOCKET")
 fi

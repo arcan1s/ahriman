@@ -20,6 +20,14 @@ ahriman.web.views.service.pgp module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.service.process module
+----------------------------------------
+
+.. automodule:: ahriman.web.views.service.process
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.service.rebuild module
 ----------------------------------------
 
@@ -56,6 +64,14 @@ ahriman.web.views.service.update module
 ---------------------------------------
 
 .. automodule:: ahriman.web.views.service.update
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.views.service.upload module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.service.upload
    :members:
    :no-undoc-members:
    :show-inheritance:

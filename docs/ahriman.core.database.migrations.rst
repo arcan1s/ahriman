@@ -84,6 +84,14 @@ ahriman.core.database.migrations.m009\_local\_source module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m010\_version\_based\_logs\_removal module
+---------------------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m010_version_based_logs_removal
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

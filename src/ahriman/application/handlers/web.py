@@ -33,7 +33,6 @@ class Web(Handler):
 
     ALLOW_AUTO_ARCHITECTURE_RUN = False
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
-    COMMAND_ARGS_WHITELIST = ["force", "log_handler", ""]
 
     @classmethod
     def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
@@ -89,3 +88,7 @@ class Web(Handler):
             yield "--quiet"
         if args.unsafe:
             yield "--unsafe"
+
+        # arguments from configuration
+        if (wait_timeout := configuration.getint("web", "wait_timeout", fallback=None)) is not None:
+            yield from ["--wait-timeout", str(wait_timeout)]

@@ -63,7 +63,7 @@ class LogsView(BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service.remove_logs(package_base, None)
+        self.service.logs_remove(package_base, None)
 
         raise HTTPNoContent()
 
@@ -95,10 +95,10 @@ class LogsView(BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            _, status = self.service.get(package_base)
+            _, status = self.service.package_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound()
-        logs = self.service.get_logs(package_base)
+        logs = self.service.logs_get(package_base)
 
         response = {
             "package_base": package_base,
@@ -137,10 +137,10 @@ class LogsView(BaseView):
         try:
             created = data["created"]
             record = data["message"]
-            process_id = data["process_id"]
+            version = data["version"]
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.service.update_logs(LogRecordId(package_base, process_id), created, record)
+        self.service.logs_update(LogRecordId(package_base, version), created, record)
 
         raise HTTPNoContent()

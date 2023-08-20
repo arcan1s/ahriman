@@ -228,6 +228,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "list",
                 "schema": {"type": "string"},
             },
+            "enable_archive_upload": {
+                "type": "boolean",
+                "coerce": "boolean",
+            },
             "host": {
                 "type": "string",
                 "is_ip_address": ["localhost"],
@@ -235,6 +239,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "index_url": {
                 "type": "string",
                 "is_url": ["http", "https"],
+            },
+            "max_body_size": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
             },
             "password": {
                 "type": "string",
@@ -268,6 +277,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "username": {
                 "type": "string",
             },
+            "wait_timeout": {
+                "type": "integer",
+                "coerce": "integer",
+            }
         },
     },
 }

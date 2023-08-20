@@ -21,17 +21,22 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
-    add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add")
+    add_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_add", return_value="abc")
     user_mock = AsyncMock()
     user_mock.return_value = "username"
     mocker.patch("ahriman.web.views.base.BaseView.username", side_effect=user_mock)
     request_schema = pytest.helpers.schema_request(AddView.post)
+    response_schema = pytest.helpers.schema_response(AddView.post)
 
     payload = {"packages": ["ahriman"]}
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/add", json=payload)
     assert response.ok
     add_mock.assert_called_once_with(["ahriman"], "username", now=True)
+
+    json = await response.json()
+    assert json["process_id"] == "abc"
+    assert not response_schema.validate(json)
 
 
 async def test_post_empty(client: TestClient, mocker: MockerFixture) -> None:

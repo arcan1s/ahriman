@@ -191,6 +191,31 @@ class ReportTrigger(Trigger):
                 },
             },
         },
+        "remote-call": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["ahriman", "remote-call"],
+                },
+                "aur": {
+                    "type": "boolean",
+                    "coerce": "boolean",
+                },
+                "local": {
+                    "type": "boolean",
+                    "coerce": "boolean",
+                },
+                "manual": {
+                    "type": "boolean",
+                    "coerce": "boolean",
+                },
+                "wait_timeout": {
+                    "type": "integer",
+                    "coerce": "integer",
+                },
+            },
+        }
     }
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

@@ -64,7 +64,7 @@ class PackageView(BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service.remove(package_base)
+        self.service.package_remove(package_base)
 
         raise HTTPNoContent()
 
@@ -96,7 +96,7 @@ class PackageView(BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            package, status = self.service.get(package_base)
+            package, status = self.service.package_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound()
 
@@ -142,7 +142,7 @@ class PackageView(BaseView):
             raise HTTPBadRequest(reason=str(e))
 
         try:
-            self.service.update(package_base, status, package)
+            self.service.package_update(package_base, status, package)
         except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 
