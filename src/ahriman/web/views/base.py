@@ -121,7 +121,7 @@ class BaseView(View, CorsViewMixin):
             if not value:
                 raise KeyError(key)
         except Exception:
-            raise KeyError(f"Key {key} is missing or empty")
+            raise KeyError(f"Key {key} is missing or empty") from None
         return value
 
     async def data_as_json(self, list_keys: list[str]) -> dict[str, Any]:

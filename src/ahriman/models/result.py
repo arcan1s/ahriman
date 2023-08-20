@@ -104,7 +104,7 @@ class Result:
             Result: updated instance
 
         Raises:
-            SuccessFailed: if there is previously failed package which is masked as success
+            UnprocessedPackageStatusError: if there is previously failed package which is masked as success
         """
         for base, package in other._failed.items():
             if base in self._success:

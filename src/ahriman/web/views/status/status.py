@@ -104,4 +104,4 @@ class StatusView(BaseView):
 
         self.service.status_update(status)
 
-        raise HTTPNoContent()
+        raise HTTPNoContent

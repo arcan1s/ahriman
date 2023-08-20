@@ -48,8 +48,11 @@ class OfficialSyncdb(Official):
 
         Returns:
             AURPackage: package which match the package name
+
+        Raises:
+            UnknownPackageError: package doesn't exist
         """
         try:
             return next(AURPackage.from_pacman(package) for package in pacman.package_get(package_name))
         except StopIteration:
-            raise UnknownPackageError(package_name)
+            raise UnknownPackageError(package_name) from None

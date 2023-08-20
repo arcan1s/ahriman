@@ -158,13 +158,13 @@ class TriggerLoader(LazyLogging):
             ModuleType: module loaded from the imported module
 
         Raises:
-            InvalidExtension: in case if module cannot be loaded from specified package
+            ExtensionError: in case if module cannot be loaded from specified package
         """
         self.logger.info("load module from package %s", package)
         try:
             return import_module(package)
         except ModuleNotFoundError:
-            raise ExtensionError(f"Module {package} not found")
+            raise ExtensionError(f"Module {package} not found") from None
 
     def load_trigger(self, module_path: str, architecture: str, configuration: Configuration) -> Trigger:
         """
@@ -179,7 +179,7 @@ class TriggerLoader(LazyLogging):
             Trigger: loaded trigger based on settings
 
         Raises:
-            InvalidExtension: in case if trigger could not be instantiated
+            ExtensionError: in case if trigger could not be instantiated
         """
         trigger_type = self.load_trigger_class(module_path)
         try:
@@ -200,7 +200,7 @@ class TriggerLoader(LazyLogging):
             type[Trigger]: loaded trigger type by module path
 
         Raises:
-            InvalidExtension: in case if module cannot be loaded from the specified module path or is not a trigger
+            ExtensionError: in case if module cannot be loaded from the specified module path or is not a trigger
         """
         *package_path_parts, class_name = module_path.split(".")
         package_or_path = ".".join(package_path_parts)

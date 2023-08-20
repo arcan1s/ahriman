@@ -116,10 +116,10 @@ class Report(LazyLogging):
             packages(list[Package]): list of packages to generate report
 
         Raises:
-            ReportFailed: in case of any report unmatched exception
+            ReportError: in case of any report unmatched exception
         """
         try:
             self.generate(packages, result)
         except Exception:
             self.logger.exception("report generation failed")
-            raise ReportError()
+            raise ReportError

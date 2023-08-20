@@ -73,6 +73,9 @@ class ApplicationPackages(ApplicationProperties):
 
         Args:
             source(str): path to local directory
+
+        Raises:
+            UnknownPackageError: if specified package is unknown or doesn't exist
         """
         local_dir = Path(source)
         if not local_dir.is_dir():
@@ -110,6 +113,9 @@ class ApplicationPackages(ApplicationProperties):
 
         Args:
             source(str): remote URL of the package archive
+
+        Raises:
+            UnknownPackageError: if specified package is unknown or doesn't exist
         """
         dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         # timeout=None to suppress pylint warns. Also suppress bandit warnings

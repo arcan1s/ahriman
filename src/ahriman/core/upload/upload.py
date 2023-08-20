@@ -104,13 +104,13 @@ class Upload(LazyLogging):
             built_packages(list[Package]): list of packages which has just been built
 
         Raises:
-            SyncFailed: in case of any synchronization unmatched exception
+            SynchronizationError: in case of any synchronization unmatched exception
         """
         try:
             self.sync(path, built_packages)
         except Exception:
             self.logger.exception("remote sync failed")
-            raise SynchronizationError()
+            raise SynchronizationError
 
     def sync(self, path: Path, built_packages: list[Package]) -> None:
         """

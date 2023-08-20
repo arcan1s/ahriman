@@ -118,6 +118,9 @@ class RemotePush(LazyLogging):
 
         Args:
             result(Result): build result
+
+        Raises:
+            GitRemoteError: push processing error
         """
         try:
             with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
@@ -127,4 +130,4 @@ class RemotePush(LazyLogging):
                              commit_author=self.commit_author)
         except Exception:
             self.logger.exception("git push failed")
-            raise GitRemoteError()
+            raise GitRemoteError

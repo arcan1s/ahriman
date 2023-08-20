@@ -166,7 +166,7 @@ class RepositoryPaths:
             path(Path): path to be chown
 
         Raises:
-            InvalidPath: if path does not belong to root
+            PathError: if path does not belong to root
         """
         def set_owner(current: Path) -> None:
             uid, gid = self.owner(current)

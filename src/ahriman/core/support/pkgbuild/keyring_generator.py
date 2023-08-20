@@ -140,6 +140,9 @@ class KeyringGenerator(PkgbuildGenerator):
 
         Args:
             source_path(Path): destination of the file content
+
+        Raises:
+            PkgbuildGeneratorError: no trusted keys available
         """
         if not self.trusted:
             raise PkgbuildGeneratorError

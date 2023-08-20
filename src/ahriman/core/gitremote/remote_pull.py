@@ -104,9 +104,12 @@ class RemotePull(LazyLogging):
     def run(self) -> None:
         """
         run git pull action
+
+        Raises:
+            GitRemoteError: pull processing error
         """
         try:
             self.repo_clone()
         except Exception:
             self.logger.exception("git pull failed")
-            raise GitRemoteError()
+            raise GitRemoteError

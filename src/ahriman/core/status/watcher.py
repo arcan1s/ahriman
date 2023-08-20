@@ -133,12 +133,12 @@ class Watcher(LazyLogging):
             tuple[Package, BuildStatus]: package and its status
 
         Raises:
-            UnknownPackage: if no package found
+            UnknownPackageError: if no package found
         """
         try:
             return self.known[package_base]
         except KeyError:
-            raise UnknownPackageError(package_base)
+            raise UnknownPackageError(package_base) from None
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -161,13 +161,13 @@ class Watcher(LazyLogging):
             package(Package | None): optional package description. In case if not set current properties will be used
 
         Raises:
-            UnknownPackage: if no package found
+            UnknownPackageError: if no package found
         """
         if package is None:
             try:
                 package, _ = self.known[package_base]
             except KeyError:
-                raise UnknownPackageError(package_base)
+                raise UnknownPackageError(package_base) from None
         full_status = BuildStatus(status)
         self.known[package_base] = (package, full_status)
         self.database.package_update(package, full_status)

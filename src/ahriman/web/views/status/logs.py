@@ -65,7 +65,7 @@ class LogsView(BaseView):
         package_base = self.request.match_info["package"]
         self.service.logs_remove(package_base, None)
 
-        raise HTTPNoContent()
+        raise HTTPNoContent
 
     @aiohttp_apispec.docs(
         tags=["Packages"],
@@ -97,7 +97,7 @@ class LogsView(BaseView):
         try:
             _, status = self.service.package_get(package_base)
         except UnknownPackageError:
-            raise HTTPNotFound()
+            raise HTTPNotFound
         logs = self.service.logs_get(package_base)
 
         response = {
@@ -143,4 +143,4 @@ class LogsView(BaseView):
 
         self.service.logs_update(LogRecordId(package_base, version), created, record)
 
-        raise HTTPNoContent()
+        raise HTTPNoContent
