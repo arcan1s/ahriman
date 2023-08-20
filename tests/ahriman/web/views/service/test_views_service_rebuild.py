@@ -21,17 +21,22 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
-    rebuild_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_rebuild")
+    rebuild_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_rebuild", return_value="abc")
     user_mock = AsyncMock()
     user_mock.return_value = "username"
     mocker.patch("ahriman.web.views.base.BaseView.username", side_effect=user_mock)
     request_schema = pytest.helpers.schema_request(RebuildView.post)
+    response_schema = pytest.helpers.schema_response(RebuildView.post)
 
     payload = {"packages": ["python", "ahriman"]}
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/rebuild", json=payload)
     assert response.ok
     rebuild_mock.assert_called_once_with("python", "username")
+
+    json = await response.json()
+    assert json["process_id"] == "abc"
+    assert not response_schema.validate(json)
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

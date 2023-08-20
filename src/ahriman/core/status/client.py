@@ -24,6 +24,7 @@ import logging
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -60,7 +61,7 @@ class Client:
             return WebClient(configuration)
         return Client()
 
-    def add(self, package: Package, status: BuildStatusEnum) -> None:
+    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
 
@@ -69,7 +70,7 @@ class Client:
             status(BuildStatusEnum): current package build status
         """
 
-    def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
+    def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
         get package status
 
@@ -82,25 +83,16 @@ class Client:
         del package_base
         return []
 
-    def get_internal(self) -> InternalStatus:
-        """
-        get internal service status
-
-        Returns:
-            InternalStatus: current internal (web) service status
-        """
-        return InternalStatus(status=BuildStatus())
-
-    def logs(self, package_base: str, record: logging.LogRecord) -> None:
+    def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
-            package_base(str) package base
+            log_record_id(LogRecordId): log record id
             record(logging.LogRecord): log record to post to api
         """
 
-    def remove(self, package_base: str) -> None:
+    def package_remove(self, package_base: str) -> None:
         """
         remove packages from watcher
 
@@ -108,21 +100,13 @@ class Client:
             package_base(str): package base to remove
         """
 
-    def update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike ``add`` it does not update package properties
 
         Args:
             package_base(str): package base to update
             status(BuildStatusEnum): current package build status
-        """
-
-    def update_self(self, status: BuildStatusEnum) -> None:
-        """
-        update ahriman status itself
-
-        Args:
-            status(BuildStatusEnum): current ahriman status
         """
 
     def set_building(self, package_base: str) -> None:
@@ -132,7 +116,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.update(package_base, BuildStatusEnum.Building)
+        return self.package_update(package_base, BuildStatusEnum.Building)
 
     def set_failed(self, package_base: str) -> None:
         """
@@ -141,7 +125,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.update(package_base, BuildStatusEnum.Failed)
+        return self.package_update(package_base, BuildStatusEnum.Failed)
 
     def set_pending(self, package_base: str) -> None:
         """
@@ -150,7 +134,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.update(package_base, BuildStatusEnum.Pending)
+        return self.package_update(package_base, BuildStatusEnum.Pending)
 
     def set_success(self, package: Package) -> None:
         """
@@ -159,7 +143,7 @@ class Client:
         Args:
             package(Package): current package properties
         """
-        return self.add(package, BuildStatusEnum.Success)
+        return self.package_add(package, BuildStatusEnum.Success)
 
     def set_unknown(self, package: Package) -> None:
         """
@@ -168,4 +152,21 @@ class Client:
         Args:
             package(Package): current package properties
         """
-        return self.add(package, BuildStatusEnum.Unknown)
+        return self.package_add(package, BuildStatusEnum.Unknown)
+
+    def status_get(self) -> InternalStatus:
+        """
+        get internal service status
+
+        Returns:
+            InternalStatus: current internal (web) service status
+        """
+        return InternalStatus(status=BuildStatus())
+
+    def status_update(self, status: BuildStatusEnum) -> None:
+        """
+        update ahriman status itself
+
+        Args:
+            status(BuildStatusEnum): current ahriman status
+        """

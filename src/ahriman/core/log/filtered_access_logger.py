@@ -30,13 +30,14 @@ class FilteredAccessLogger(AccessLogger):
         LOG_PATH_REGEX(re.Pattern): (class attribute) regex for logs uri
     """
 
-    # official packages have only ``[A-Za-z0-9_.+-]`` regex
-    LOG_PATH_REGEX = re.compile(r"^/api/v1/packages/[A-Za-z0-9_.+%-]+/logs$")
+    LOG_PATH_REGEX = re.compile(r"^/api/v1/packages/[^/]+/logs$")
+    # technically process id is uuid, but we might change it later
+    PROCESS_PATH_REGEX = re.compile(r"^/api/v1/service/process/[^/]+$")
 
     @staticmethod
     def is_logs_post(request: BaseRequest) -> bool:
         """
-        check if request looks lie logs posting
+        check if request looks like logs posting
 
         Args:
             request(BaseRequest): http reqeust descriptor
@@ -45,6 +46,19 @@ class FilteredAccessLogger(AccessLogger):
             bool: True in case if request looks like logs positing and False otherwise
         """
         return request.method == "POST" and FilteredAccessLogger.LOG_PATH_REGEX.match(request.path) is not None
+
+    @staticmethod
+    def is_process_get(request: BaseRequest) -> bool:
+        """
+        check if request looks like process status request
+
+        Args:
+            request(BaseRequest): http reqeust descriptor
+
+        Returns:
+            bool: True in case if request looks like process status request and False otherwise
+        """
+        return request.method == "GET" and FilteredAccessLogger.PROCESS_PATH_REGEX.match(request.path) is not None
 
     def log(self, request: BaseRequest, response: StreamResponse, time: float) -> None:
         """
@@ -55,6 +69,7 @@ class FilteredAccessLogger(AccessLogger):
             response(StreamResponse): streaming response object
             time(float):
         """
-        if self.is_logs_post(request):
+        if self.is_logs_post(request) \
+                or self.is_process_get(request):
             return
         AccessLogger.log(self, request, response, time)

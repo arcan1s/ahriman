@@ -32,6 +32,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.multilib = True
     args.packager = "John Doe <john@doe.com>"
     args.repository = "aur-clone"
+    args.server = None
     args.sign_key = "key"
     args.sign_target = [SignSettings.Packages]
     args.web_port = 8080
@@ -57,11 +58,32 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     ahriman_configuration_mock.assert_called_once_with(args, "x86_64", args.repository, configuration)
     devtools_configuration_mock.assert_called_once_with(
         args.build_command, "x86_64", args.from_configuration, args.mirror, args.multilib, args.repository,
-        repository_paths)
+        f"file://{repository_paths.repository}")
     makepkg_configuration_mock.assert_called_once_with(args.packager, args.makeflags_jobs, repository_paths)
     sudo_configuration_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
     executable_mock.assert_called_once_with(repository_paths, args.build_command, "x86_64")
     init_mock.assert_called_once_with()
+
+
+def test_run_with_server(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                         mocker: MockerFixture) -> None:
+    """
+    must run command with server specified
+    """
+    args = _default_args(args)
+    args.server = "server"
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
+    mocker.patch("ahriman.application.handlers.Setup.configuration_create_ahriman")
+    mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")
+    mocker.patch("ahriman.application.handlers.Setup.configuration_create_sudo")
+    mocker.patch("ahriman.application.handlers.Setup.executable_create")
+    mocker.patch("ahriman.core.alpm.repo.Repo.init")
+    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
+
+    Setup.run(args, "x86_64", configuration, report=False)
+    devtools_configuration_mock.assert_called_once_with(
+        args.build_command, "x86_64", args.from_configuration, args.mirror, args.multilib, args.repository,
+        "server")
 
 
 def test_build_command(args: argparse.Namespace) -> None:
@@ -120,8 +142,7 @@ def test_configuration_create_ahriman_no_multilib(args: argparse.Namespace, conf
     ])  # non-strict check called intentionally
 
 
-def test_configuration_create_devtools(args: argparse.Namespace, repository_paths: RepositoryPaths,
-                                       mocker: MockerFixture) -> None:
+def test_configuration_create_devtools(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must create configuration for the devtools
     """
@@ -132,13 +153,12 @@ def test_configuration_create_devtools(args: argparse.Namespace, repository_path
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        None, args.multilib, args.repository, repository_paths)
+                                        None, args.multilib, args.repository, "server")
     add_section_mock.assert_has_calls([MockCall("multilib"), MockCall(args.repository)])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
-def test_configuration_create_devtools_mirror(args: argparse.Namespace, repository_paths: RepositoryPaths,
-                                              mocker: MockerFixture) -> None:
+def test_configuration_create_devtools_mirror(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must create configuration for the devtools with mirror set explicitly
     """
@@ -157,14 +177,13 @@ def test_configuration_create_devtools_mirror(args: argparse.Namespace, reposito
     set_option_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        args.mirror, False, args.repository, repository_paths)
+                                        args.mirror, False, args.repository, "server")
     get_mock.assert_has_calls([MockCall("core", "Include", fallback=None), MockCall("extra", "Include", fallback=None)])
     remove_option_mock.assert_called_once_with("core", "Include")
     set_option_mock.assert_has_calls([MockCall("core", "Server", args.mirror)])  # non-strict check called intentionally
 
 
-def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, repository_paths: RepositoryPaths,
-                                                   mocker: MockerFixture) -> None:
+def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, mocker: MockerFixture) -> None:
     """
     must create configuration for the devtools without multilib
     """
@@ -174,7 +193,7 @@ def test_configuration_create_devtools_no_multilib(args: argparse.Namespace, rep
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
 
     Setup.configuration_create_devtools(args.build_command, "x86_64", args.from_configuration,
-                                        None, False, args.repository, repository_paths)
+                                        None, False, args.repository, "server")
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 

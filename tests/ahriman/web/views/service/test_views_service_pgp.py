@@ -66,14 +66,19 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
-    import_mock = mocker.patch("ahriman.core.spawn.Spawn.key_import")
+    import_mock = mocker.patch("ahriman.core.spawn.Spawn.key_import", return_value="abc")
     request_schema = pytest.helpers.schema_request(PGPView.post)
+    response_schema = pytest.helpers.schema_response(PGPView.post)
 
     payload = {"key": "0xdeadbeaf", "server": "keyserver.ubuntu.com"}
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/pgp", json=payload)
     assert response.ok
     import_mock.assert_called_once_with("0xdeadbeaf", "keyserver.ubuntu.com")
+
+    json = await response.json()
+    assert json["process_id"] == "abc"
+    assert not response_schema.validate(json)
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

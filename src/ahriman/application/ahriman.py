@@ -84,6 +84,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
+    parser.add_argument("--wait-timeout", help="wait for lock to be free. Negative value will lead to "
+                                               "immediate application run even if there is lock file. "
+                                               "In case of zero value, tthe application will wait infinitely",
+                        type=int, default=-1)
     parser.add_argument("-V", "--version", action="version", version=__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
@@ -889,6 +893,7 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--packager", help="packager name and email", required=True)
     parser.add_argument("--repository", help="repository name", required=True)
+    parser.add_argument("--server", help="server to be used for devtools. If none set, local files will be used")
     parser.add_argument("--sign-key", help="sign key id")
     parser.add_argument("--sign-target", help="sign options", action="append",
                         type=SignSettings.from_option, choices=enum_values(SignSettings))

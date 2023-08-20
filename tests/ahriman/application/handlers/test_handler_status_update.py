@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    update_self_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
+    update_self_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
 
     StatusUpdate.run(args, "x86_64", configuration, report=False)
     update_self_mock.assert_called_once_with(args.status)
@@ -48,7 +48,7 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, re
     args = _default_args(args)
     args.package = [package_ahriman.base]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    update_mock = mocker.patch("ahriman.core.status.client.Client.update")
+    update_mock = mocker.patch("ahriman.core.status.client.Client.package_update")
 
     StatusUpdate.run(args, "x86_64", configuration, report=False)
     update_mock.assert_called_once_with(package_ahriman.base, args.status)
@@ -63,7 +63,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     args.package = [package_ahriman.base]
     args.action = Action.Remove
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    update_mock = mocker.patch("ahriman.core.status.client.Client.remove")
+    update_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     StatusUpdate.run(args, "x86_64", configuration, report=False)
     update_mock.assert_called_once_with(package_ahriman.base)

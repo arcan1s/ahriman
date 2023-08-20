@@ -19,10 +19,10 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PGPKeyIdSchema, PGPKeySchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PGPKeyIdSchema, PGPKeySchema, ProcessIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -83,7 +83,7 @@ class PGPView(BaseView):
         summary="Fetch PGP key",
         description="Fetch PGP key from the key server",
         responses={
-            204: {"description": "Success response"},
+            200: {"description": "Success response", "schema": ProcessIdSchema},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
@@ -93,13 +93,15 @@ class PGPView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.json_schema(PGPKeyIdSchema)
-    async def post(self) -> None:
+    async def post(self) -> Response:
         """
         store key to the local service environment
 
+        Returns:
+            Response: 200 with spawned process id
+
         Raises:
             HTTPBadRequest: if bad data is supplied
-            HTTPNoContent: in case of success response
         """
         data = await self.extract_data()
 
@@ -108,6 +110,6 @@ class PGPView(BaseView):
         except Exception as e:
             raise HTTPBadRequest(reason=str(e))
 
-        self.spawner.key_import(key, data.get("server"))
+        process_id = self.spawner.key_import(key, data.get("server"))
 
-        raise HTTPNoContent()
+        return json_response({"process_id": process_id})

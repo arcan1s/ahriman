@@ -19,6 +19,7 @@
 #
 import argparse
 
+from pathlib import Path
 from types import TracebackType
 from typing import Literal, Self
 
@@ -29,6 +30,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.waiter import Waiter
 
 
 class Lock(LazyLogging):
@@ -41,6 +43,7 @@ class Lock(LazyLogging):
         reporter(Client): build status reporter instance
         paths(RepositoryPaths): repository paths instance
         unsafe(bool): skip user check
+        wait_timeout(int): wait in seconds until lock will free
 
     Examples:
         Instance of this class except for controlling file-based lock is also required for basic applications checks.
@@ -65,9 +68,11 @@ class Lock(LazyLogging):
             architecture(str): repository architecture
             configuration(Configuration): configuration instance
         """
-        self.path = args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
-        self.force = args.force
-        self.unsafe = args.unsafe
+        self.path: Path | None = \
+            args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
+        self.force: bool = args.force
+        self.unsafe: bool = args.unsafe
+        self.wait_timeout: int = args.wait_timeout
 
         self.paths = configuration.repository_paths
         self.reporter = Client.load(configuration, report=args.report)
@@ -76,7 +81,7 @@ class Lock(LazyLogging):
         """
         check web server version
         """
-        status = self.reporter.get_internal()
+        status = self.reporter.status_get()
         if status.version is not None and status.version != __version__:
             self.logger.warning("status watcher version mismatch, our %s, their %s",
                                 __version__, status.version)
@@ -110,6 +115,19 @@ class Lock(LazyLogging):
         except FileExistsError:
             raise DuplicateRunError()
 
+    def watch(self) -> None:
+        """
+        watch until lock disappear
+        """
+        # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
+        # race conditions because multiple processes will be notified in the same time. Secondly, it is good library,
+        # but platform-specific, and we only need to check if file exists
+        if self.path is None:
+            return
+
+        waiter = Waiter(self.wait_timeout)
+        waiter.wait(self.path.is_file)
+
     def __enter__(self) -> Self:
         """
         default workflow is the following:
@@ -117,16 +135,18 @@ class Lock(LazyLogging):
             1. Check user UID
             2. Check if there is lock file
             3. Check web status watcher status
-            4. Create lock file and directory tree
-            5. Report to status page if enabled
+            4. Wait for lock file to be free
+            5. Create lock file and directory tree
+            6. Report to status page if enabled
 
         Returns:
             Self: always instance of self
         """
         self.check_user()
         self.check_version()
+        self.watch()
         self.create()
-        self.reporter.update_self(BuildStatusEnum.Building)
+        self.reporter.status_update(BuildStatusEnum.Building)
         return self
 
     def __exit__(self, exc_type: type[Exception] | None, exc_val: Exception | None,
@@ -144,5 +164,5 @@ class Lock(LazyLogging):
         """
         self.clear()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed
-        self.reporter.update_self(status)
+        self.reporter.status_update(status)
         return False

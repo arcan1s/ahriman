@@ -106,8 +106,10 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``debug`` - enable debug toolbar, boolean, optional, default ``no``.
 * ``debug_check_host`` - check hosts to access debug toolbar, boolean, optional, default ``no``.
 * ``debug_allowed_hosts`` - allowed hosts to get access to debug toolbar, space separated list of string, optional.
+* ``enable_archive_upload`` - allow to upload packages via HTTP (i.e. call of ``/api/v1/service/upload`` uri), boolean, optional, default ``no``.
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full url of the repository index page, string, optional.
+* ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
 * ``port`` - port to bind, int, optional.
 * ``static_path`` - path to directory with static files, string, required.
@@ -115,6 +117,7 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
+* ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, int, optional.
 
 ``keyring`` group
 --------------------
@@ -246,6 +249,17 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``path`` - path to html report file, string, required.
 * ``template_path`` - path to Jinja2 template, string, required.
 
+``remote-call`` type
+^^^^^^^^^^^^^^^^^^^^
+
+Section name must be either ``remote-call`` (plus optional architecture name, e.g. ``remote-call:x86_64``) or random name with ``type`` set.
+
+* ``type`` - type of the report, string, optional, must be set to ``remote-call`` if exists.
+* ``aur`` - check for AUR packages updates, boolean, optional, default ``no``.
+* ``local`` - check for local packages updates, boolean, optional, default ``no``.
+* ``manual`` - update manually built packages, boolean, optional, default ``no``.
+* ``wait_timeout`` - maximum amount of time in seconds to be waited before remote process will be terminated, int, optional, default ``-1``.
+
 ``telegram`` type
 ^^^^^^^^^^^^^^^^^
 
@@ -290,6 +304,13 @@ This feature requires Github key creation (see below). Section name must be eith
 * ``repository`` - Github repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 * ``username`` - Github authorization user, string, required. Basically the same as ``owner``.
+
+``remote-service`` type
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Section name must be either ``remote-service`` (plus optional architecture name, e.g. ``remote-service:x86_64``) or random name with ``type`` set.
+
+* ``type`` - type of the report, string, optional, must be set to ``remote-service`` if exists.
 
 ``rsync`` type
 ^^^^^^^^^^^^^^

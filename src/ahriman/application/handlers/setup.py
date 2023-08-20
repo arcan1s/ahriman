@@ -63,8 +63,9 @@ class Setup(Handler):
 
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         Setup.executable_create(application.repository.paths, args.build_command, architecture)
+        repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
         Setup.configuration_create_devtools(args.build_command, architecture, args.from_configuration, args.mirror,
-                                            args.multilib, args.repository, application.repository.paths)
+                                            args.multilib, args.repository, repository_server)
         Setup.configuration_create_sudo(application.repository.paths, args.build_command, architecture)
 
         application.repository.repo.init()
@@ -134,7 +135,7 @@ class Setup(Handler):
 
     @staticmethod
     def configuration_create_devtools(prefix: str, architecture: str, source: Path, mirror: str | None,
-                                      multilib: bool, repository: str, paths: RepositoryPaths) -> None:
+                                      multilib: bool, repository: str, repository_server: str) -> None:
         """
         create configuration for devtools based on ``source`` configuration
 
@@ -148,7 +149,7 @@ class Setup(Handler):
             mirror(str | None): link to package server mirror
             multilib(bool): add or do not multilib repository to the configuration
             repository(str): repository name
-            paths(RepositoryPaths): repository paths instance
+            repository_server(str): url of the repository
         """
         # allow_no_value=True is required because pacman uses boolean configuration in which just keys present
         # (e.g. NoProgressBar) which will lead to exception
@@ -178,7 +179,7 @@ class Setup(Handler):
 
         # add repository itself
         configuration.set_option(repository, "SigLevel", "Never")  # we don't care
-        configuration.set_option(repository, "Server", f"file://{paths.repository}")
+        configuration.set_option(repository, "Server", repository_server)
 
         target = source.parent / f"{prefix}-{architecture}.conf"
         with target.open("w") as devtools_configuration:

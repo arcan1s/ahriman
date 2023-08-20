@@ -27,8 +27,8 @@ class LogRecordId:
 
     Attributes:
         package_base(str): package base for which log record belongs
-        process_id(int): process id from which log record was emitted
+        version(str): package version for which log record belongs
     """
 
     package_base: str
-    process_id: int
+    version: str

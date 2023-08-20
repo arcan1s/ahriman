@@ -21,7 +21,8 @@ import contextlib
 import logging
 import requests
 
-from collections.abc import Generator
+from functools import cached_property
+from typing import Any, IO, Literal
 from urllib.parse import quote_plus as urlencode
 
 from ahriman import __version__
@@ -31,8 +32,13 @@ from ahriman.core.status.client import Client
 from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.user import User
+
+
+# filename, file, content-type, headers
+MultipartType = tuple[str, IO[bytes], str, dict[str, str]]
 
 
 class WebClient(Client, LazyLogging):
@@ -43,7 +49,11 @@ class WebClient(Client, LazyLogging):
         address(str): address of the web service
         suppress_errors(bool): suppress logging errors (e.g. if no web server available)
         user(User | None): web service user descriptor
+        use_unix_socket(bool): use websocket or not
     """
+
+    _login_url = "/api/v1/login"
+    _status_url = "/api/v1/status"
 
     def __init__(self, configuration: Configuration) -> None:
         """
@@ -52,33 +62,49 @@ class WebClient(Client, LazyLogging):
         Args:
             configuration(Configuration): configuration instance
         """
-        self.address, use_unix_socket = self.parse_address(configuration)
+        self.address, self.use_unix_socket = self.parse_address(configuration)
         self.user = User.from_option(
             configuration.get("web", "username", fallback=None),
             configuration.get("web", "password", fallback=None))
         self.suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
 
-        self.__session = self._create_session(use_unix_socket=use_unix_socket)
-
-    @property
-    def _login_url(self) -> str:
+    @cached_property
+    def session(self) -> requests.Session:
         """
-        get url for the login api
+        get or create session
 
         Returns:
-            str: full url for web service to log in
+            request.Session: created session object
         """
-        return f"{self.address}/api/v1/login"
+        return self._create_session(use_unix_socket=self.use_unix_socket)
 
-    @property
-    def _status_url(self) -> str:
+    @staticmethod
+    def _logs_url(package_base: str) -> str:
         """
-        get url for the status api
+        get url for the logs api
+
+        Args:
+            package_base(str): package base
 
         Returns:
-            str: full url for web service for status
+            str: full url for web service for logs
         """
-        return f"{self.address}/api/v1/status"
+        return f"/api/v1/packages/{package_base}/logs"
+
+    @staticmethod
+    def _package_url(package_base: str = "") -> str:
+        """
+        url generator
+
+        Args:
+            package_base(str, optional): package base to generate url (Default value = "")
+
+        Returns:
+            str: full url of web service for specific package base
+        """
+        # in case if unix socket is used we need to normalize url
+        suffix = f"/{package_base}" if package_base else ""
+        return f"/api/v1/packages{suffix}"
 
     @staticmethod
     def parse_address(configuration: Configuration) -> tuple[str, bool]:
@@ -101,32 +127,6 @@ class WebClient(Client, LazyLogging):
             port = configuration.getint("web", "port")
             address = f"http://{host}:{port}"
         return address, False
-
-    @contextlib.contextmanager
-    def __get_session(self, session: requests.Session | None = None) -> Generator[requests.Session, None, None]:
-        """
-        execute request and handle exceptions
-
-        Args:
-            session(requests.Session | None, optional): session to be used or stored instance property otherwise
-                (Default value = None)
-
-        Yields:
-            requests.Session: session for requests
-        """
-        try:
-            if session is not None:
-                yield session  # use session from arguments
-            else:
-                yield self.__session  # use instance generated session
-        except requests.RequestException as e:
-            if self.suppress_errors:
-                return
-            self.logger.exception("could not perform http request: %s", exception_response_text(e))
-        except Exception:
-            if self.suppress_errors:
-                return
-            self.logger.exception("could not perform http request")
 
     def _create_session(self, *, use_unix_socket: bool) -> requests.Session:
         """
@@ -164,38 +164,51 @@ class WebClient(Client, LazyLogging):
             "username": self.user.username,
             "password": self.user.password
         }
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._login_url, json=payload, session=session)
 
-        with self.__get_session(session):
-            response = session.post(self._login_url, json=payload)
+    def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str, *,
+                     params: list[tuple[str, str]] | None = None,
+                     json: dict[str, Any] | None = None,
+                     files: dict[str, MultipartType] | None = None,
+                     session: requests.Session | None = None,
+                     suppress_errors: bool | None = None) -> requests.Response:
+        """
+        perform request with specified parameters
+
+        Args:
+            method(Literal["DELETE", "GET", "POST"]): HTTP method to call
+            url(str): remote url to call
+            params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
+            json(dict[str, Any] | None, optional): request json parameters (Default value = None)
+            files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
+            session(requests.Session | None, optional): session object if any (Default value = None)
+            suppress_errors(bool | None, optional): suppress logging errors (e.g. if no web server available). If none
+                set, the instance-wide value will be used (Default value = None)
+
+        Returns:
+            requests.Response: response object
+        """
+        # defaults
+        if suppress_errors is None:
+            suppress_errors = self.suppress_errors
+        if session is None:
+            session = self.session
+
+        try:
+            response = session.request(method, f"{self.address}{url}", params=params, json=json, files=files)
             response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            if not suppress_errors:
+                self.logger.exception("could not perform http request: %s", exception_response_text(e))
+            raise
+        except Exception:
+            if not suppress_errors:
+                self.logger.exception("could not perform http request")
+            raise
 
-    def _logs_url(self, package_base: str) -> str:
-        """
-        get url for the logs api
-
-        Args:
-            package_base(str): package base
-
-        Returns:
-            str: full url for web service for logs
-        """
-        return f"{self.address}/api/v1/packages/{package_base}/logs"
-
-    def _package_url(self, package_base: str = "") -> str:
-        """
-        url generator
-
-        Args:
-            package_base(str, optional): package base to generate url (Default value = "")
-
-        Returns:
-            str: full url of web service for specific package base
-        """
-        # in case if unix socket is used we need to normalize url
-        suffix = f"/{package_base}" if package_base else ""
-        return f"{self.address}/api/v1/packages{suffix}"
-
-    def add(self, package: Package, status: BuildStatusEnum) -> None:
+    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
         """
         add new package with status
 
@@ -207,12 +220,10 @@ class WebClient(Client, LazyLogging):
             "status": status.value,
             "package": package.view()
         }
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package.base), json=payload)
 
-        with self.__get_session() as session:
-            response = session.post(self._package_url(package.base), json=payload)
-            response.raise_for_status()
-
-    def get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
+    def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
         get package status
 
@@ -222,66 +233,47 @@ class WebClient(Client, LazyLogging):
         Returns:
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
-        with self.__get_session() as session:
-            response = session.get(self._package_url(package_base or ""))
-            response.raise_for_status()
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._package_url(package_base or ""))
+            response_json = response.json()
 
-            status_json = response.json()
             return [
                 (Package.from_json(package["package"]), BuildStatus.from_json(package["status"]))
-                for package in status_json
+                for package in response_json
             ]
 
-        # noinspection PyUnreachableCode
         return []
 
-    def get_internal(self) -> InternalStatus:
-        """
-        get internal service status
-
-        Returns:
-            InternalStatus: current internal (web) service status
-        """
-        with self.__get_session() as session:
-            response = session.get(self._status_url)
-            response.raise_for_status()
-
-            status_json = response.json()
-            return InternalStatus.from_json(status_json)
-
-        # noinspection PyUnreachableCode
-        return InternalStatus(status=BuildStatus())
-
-    def logs(self, package_base: str, record: logging.LogRecord) -> None:
+    def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
         """
         post log record
 
         Args:
-            package_base(str) package base
+            log_record_id(LogRecordId): log record id
             record(logging.LogRecord): log record to post to api
         """
         payload = {
             "created": record.created,
             "message": record.getMessage(),
-            "process_id": record.process,
+            "version": log_record_id.version,
         }
 
-        # in this method exception has to be handled outside in logger handler
-        response = self.__session.post(self._logs_url(package_base), json=payload)
-        response.raise_for_status()
+        # this is special case, because we would like to do not suppress exception here
+        # in case of exception raised it will be handled by upstream HttpLogHandler
+        # In the other hand, we force to suppress all http logs here to avoid cyclic reporting
+        self.make_request("POST", self._logs_url(log_record_id.package_base), json=payload, suppress_errors=True)
 
-    def remove(self, package_base: str) -> None:
+    def package_remove(self, package_base: str) -> None:
         """
         remove packages from watcher
 
         Args:
             package_base(str): basename to remove
         """
-        with self.__get_session() as session:
-            response = session.delete(self._package_url(package_base))
-            response.raise_for_status()
+        with contextlib.suppress(Exception):
+            self.make_request("DELETE", self._package_url(package_base))
 
-    def update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package build status. Unlike ``add`` it does not update package properties
 
@@ -290,12 +282,25 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current package build status
         """
         payload = {"status": status.value}
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package_base), json=payload)
 
-        with self.__get_session() as session:
-            response = session.post(self._package_url(package_base), json=payload)
-            response.raise_for_status()
+    def status_get(self) -> InternalStatus:
+        """
+        get internal service status
 
-    def update_self(self, status: BuildStatusEnum) -> None:
+        Returns:
+            InternalStatus: current internal (web) service status
+        """
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._status_url)
+            response_json = response.json()
+
+            return InternalStatus.from_json(response_json)
+
+        return InternalStatus(status=BuildStatus())
+
+    def status_update(self, status: BuildStatusEnum) -> None:
         """
         update ahriman status itself
 
@@ -303,7 +308,5 @@ class WebClient(Client, LazyLogging):
             status(BuildStatusEnum): current ahriman status
         """
         payload = {"status": status.value}
-
-        with self.__get_session() as session:
-            response = session.post(self._status_url, json=payload)
-            response.raise_for_status()
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._status_url, json=payload)

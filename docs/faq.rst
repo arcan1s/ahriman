@@ -396,6 +396,7 @@ The following environment variables are supported:
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
+* ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository url. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
@@ -722,8 +723,7 @@ How to post build report to telegram
 #. 
    Optionally (if you want to post message in chat):
 
-
-   #. Create telegram channel. 
+   #. Create telegram channel.
    #. Invite your bot into the channel.
    #. Make your channel public
 
@@ -752,6 +752,203 @@ If you did everything fine you should receive the message with the next update. 
    curl 'https://api.telegram.org/bot${CHAT_ID}/sendMessage?chat_id=${API_KEY}&text=hello'
 
 (replace ``${CHAT_ID}`` and ``${API_KEY}`` with the values from configuration).
+
+Distributed builds
+------------------
+
+The service allows to run build on multiple machines and collect packages on main node. There are multiple ways to achieve it, this section describes officially supported methods.
+
+Remote synchronization and remote server call
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This setup requires at least two instances of the service:
+
+#. Web service (with opt-in authorization enabled), later will be referenced as ``master`` node.
+#. Application instances responsible for build, later will be referenced as ``worker`` nodes.
+
+In this example the following settings are assumed:
+
+* Repository architecture is ``x86_64``.
+* Master node address is ``master.example.com``.
+
+Master node configuration
+"""""""""""""""""""""""""
+
+The only requirements for the master node is that API must be available for worker nodes to call (e.g. port must be exposed to internet, or local network in case of VPN, etc) and file upload must be enabled:
+
+.. code-block:: ini
+
+   [web]
+   enable_archive_upload = yes
+
+In addition, the following settings are recommended for the master node:
+
+*
+  As it has been mentioned above, it is recommended to enable authentication (see `How to enable basic authorization`_) and create system user which will be used later. Later this user (if any) will be referenced as ``worker-user``.
+
+*
+  In order to be able to spawn multiple processes at the same time, wait timeout must be configured:
+
+  .. code-block:: ini
+
+     [web]
+     wait_timeout = 0
+
+Worker nodes configuration
+""""""""""""""""""""""""""
+
+#.
+   First of all, in this setup you need to split your repository into chunks manually, e.g. if you have repository on master node with packages ``A``, ``B`` and ``C``, you need to split them between all available workers, as example:
+
+   * Worker #1: ``A``.
+   * Worker #2: ``B`` and ``C``.
+
+#.
+   Each worker must be configured to upload files to master node:
+
+   .. code-block:: ini
+
+      [upload]
+      target = remote-service
+
+      [remote-service]
+
+#.
+   Worker must be configured to access web on master node:
+
+   .. code-block:: ini
+
+      [web]
+      address = master.example.com
+      username = worker-user
+      password = very-secure-password
+
+   As it has been mentioned above, ``web.address`` must be available for workers. In case if unix socket is used, it can be passed as ``web.unix_socket`` variable as usual. Optional ``web.username``/``web.password`` can be supplied in case if authentication was enabled on master node.
+
+#.
+   Each worker must call master node on success:
+
+   .. code-block:: ini
+
+      [report]
+      target = remote-call
+
+      [remote-call]
+      manual = yes
+
+   After success synchronization (see above), the built packages will be put into directory, from which they will be read during manual update, thus ``remote-call.manual`` flag is required.
+
+#.
+   Change order of trigger runs. This step is required, because by default the report trigger is called before the upload trigger and we would like to achieve the opposite:
+
+   .. code-block:: ini
+
+      [build]
+      triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
+
+In addition, the following settings are recommended for workers:
+
+*
+  You might want to wait until report trigger will be completed; in this case the following option must be set:
+
+  .. code-block:: ini
+
+     [remote-call]
+     wait_timeout = 0
+
+Dependency management
+"""""""""""""""""""""
+
+By default worker nodes don't know anything about master nodes packages, thus it will try to build each dependency by its own. However, using ``AHRIMAN_REPOSITORY_SERVER`` docker variable (or ``--server`` flag for setup command), it is possible to specify address of the master node for devtools configuration.
+
+Repository and packages signing
+"""""""""""""""""""""""""""""""
+
+You can sign packages on worker nodes and then signatures will be synced to master node. In order to do so, you need to configure worker node as following, e.g.:
+
+.. code-block:: ini
+
+   [sign]
+   target = package
+   key = 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
+Note, however, that in this case, signatures will not be validated on master node and just will be copied to repository tree.
+
+If you would like to sign only database files (aka repository sign), it has to be configured on master node only as usual, e.g.:
+
+.. code-block:: ini
+
+   [sign]
+   target = repository
+   key = 8BE91E5A773FB48AC05CC1EDBED105AED6246B39
+
+Double node minimal docker example
+""""""""""""""""""""""""""""""""""
+
+Master node config (``master.ini``) as:
+
+.. code-block:: ini
+
+   [auth]
+   target = mapping
+
+   [web]
+   enable_archive_upload = yes
+   wait_timeout = 0
+
+
+Command to run master node:
+
+.. code-block:: shell
+
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -v master.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
+
+The user ``worker-user`` has been created additionally. Worker node config (``worker.ini``) as:
+
+.. code-block:: ini
+
+   [web]
+   address = http://172.17.0.1:8080
+   username = worker-user
+   password = very-secure-password
+
+   [upload]
+   target = remote-service
+
+   [remote-service]
+
+   [report]
+   target = remote-call
+
+   [remote-call]
+   manual = yes
+   wait_timeout = 0
+
+   [build]
+   triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
+
+The address above (``http://172.17.0.1:8080``) is something available for worker container.
+
+Command to run worker node:
+
+.. code-block:: shell
+
+   docker run --privileged -v worker.ini:/etc/ahriman.ini.d/overrides.ini -it arcan1s/ahriman:latest package-add arhiman --now
+
+The command above will successfully build ``ahriman`` package, upload it on master node and, finally, will update master node repository.
+
+Addition of new package and repository update
+"""""""""""""""""""""""""""""""""""""""""""""
+
+Just run on worker command as usual, the built packages will be automatically uploaded to master node. Note that automatic update process must be disabled on master node.
+
+Package removal
+"""""""""""""""
+
+This action must be done in two steps:
+
+#. Remove package on worker.
+#. Remove package on master node.
 
 Maintenance packages
 --------------------

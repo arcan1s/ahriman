@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -39,13 +40,13 @@ def test_emit(configuration: Configuration, log_record: logging.LogRecord, packa
     """
     must emit log record to reporter
     """
-    log_record.package_base = package_ahriman.base
-    log_mock = mocker.patch("ahriman.core.status.client.Client.logs")
+    log_record_id = log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
+    log_mock = mocker.patch("ahriman.core.status.client.Client.package_logs")
 
     handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
-    log_mock.assert_called_once_with(package_ahriman.base, log_record)
+    log_mock.assert_called_once_with(log_record_id, log_record)
 
 
 def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord, package_ahriman: Package,
@@ -53,8 +54,8 @@ def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord
     """
     must call handle error on exception
     """
-    log_record.package_base = package_ahriman.base
-    mocker.patch("ahriman.core.status.client.Client.logs", side_effect=Exception())
+    log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
+    mocker.patch("ahriman.core.status.client.Client.package_logs", side_effect=Exception())
     handle_error_mock = mocker.patch("logging.Handler.handleError")
     handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
@@ -67,8 +68,8 @@ def test_emit_suppress_failed(configuration: Configuration, log_record: logging.
     """
     must not call handle error on exception if suppress flag is set
     """
-    log_record.package_base = package_ahriman.base
-    mocker.patch("ahriman.core.status.client.Client.logs", side_effect=Exception())
+    log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
+    mocker.patch("ahriman.core.status.client.Client.package_logs", side_effect=Exception())
     handle_error_mock = mocker.patch("logging.Handler.handleError")
     handler = HttpLogHandler(configuration, report=False, suppress_errors=True)
 
@@ -80,7 +81,7 @@ def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, 
     """
     must skip log record posting if no package base set
     """
-    log_mock = mocker.patch("ahriman.core.status.client.Client.logs")
+    log_mock = mocker.patch("ahriman.core.status.client.Client.package_logs")
     handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)

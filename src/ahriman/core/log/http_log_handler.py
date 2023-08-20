@@ -81,12 +81,12 @@ class HttpLogHandler(logging.Handler):
         Args:
             record(logging.LogRecord): log record to log
         """
-        package_base = getattr(record, "package_base", None)
-        if package_base is None:
+        log_record_id = getattr(record, "package_id", None)
+        if log_record_id is None:
             return  # in case if no package base supplied we need just skip log message
 
         try:
-            self.reporter.logs(package_base, record)
+            self.reporter.package_logs(log_record_id, record)
         except Exception:
             if self.suppress_errors:
                 return

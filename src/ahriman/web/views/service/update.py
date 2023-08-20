@@ -19,10 +19,10 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 
-from aiohttp.web import HTTPNoContent
+from aiohttp.web import HTTPBadRequest, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, UpdateFlagsSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -41,7 +41,8 @@ class UpdateView(BaseView):
         summary="Update packages",
         description="Run repository update process",
         responses={
-            204: {"description": "Success response"},
+            200: {"description": "Success response", "schema": ProcessIdSchema},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
@@ -49,14 +50,28 @@ class UpdateView(BaseView):
         security=[{"token": [POST_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
-    async def post(self) -> None:
+    @aiohttp_apispec.json_schema(UpdateFlagsSchema)
+    async def post(self) -> Response:
         """
         run repository update. No parameters supported here
 
-        Raises:
-            HTTPNoContent: in case of success response
-        """
-        username = await self.username()
-        self.spawner.packages_update(username)
+        Returns:
+            Response: 200 with spawned process id
 
-        raise HTTPNoContent()
+        Raises:
+            HTTPBadRequest: if bad data is supplied
+        """
+        try:
+            data = await self.extract_data()
+        except Exception as e:
+            raise HTTPBadRequest(reason=str(e))
+
+        username = await self.username()
+        process_id = self.spawner.packages_update(
+            username,
+            aur=data.get("aur", True),
+            local=data.get("local", True),
+            manual=data.get("manual", True),
+        )
+
+        return json_response({"process_id": process_id})

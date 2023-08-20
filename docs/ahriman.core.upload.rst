@@ -20,6 +20,14 @@ ahriman.core.upload.http\_upload module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.upload.remote\_service module
+------------------------------------------
+
+.. automodule:: ahriman.core.upload.remote_service
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.upload.rsync module
 --------------------------------
 

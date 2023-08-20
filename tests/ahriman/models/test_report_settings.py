@@ -23,3 +23,8 @@ def test_from_option_valid() -> None:
 
     assert ReportSettings.from_option("telegram") == ReportSettings.Telegram
     assert ReportSettings.from_option("TElegraM") == ReportSettings.Telegram
+
+    assert ReportSettings.from_option("remote-call") == ReportSettings.RemoteCall
+    assert ReportSettings.from_option("reMOte-cALL") == ReportSettings.RemoteCall
+    assert ReportSettings.from_option("ahriman") == ReportSettings.RemoteCall
+    assert ReportSettings.from_option("AhRiMAN") == ReportSettings.RemoteCall

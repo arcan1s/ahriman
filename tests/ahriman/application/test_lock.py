@@ -32,7 +32,7 @@ def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check version correctly
     """
-    mocker.patch("ahriman.core.status.client.Client.get_internal",
+    mocker.patch("ahriman.core.status.client.Client.status_get",
                  return_value=InternalStatus(status=BuildStatus(), version=__version__))
     logging_mock = mocker.patch("logging.Logger.warning")
 
@@ -44,7 +44,7 @@ def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check mismatched version correctly
     """
-    mocker.patch("ahriman.core.status.client.Client.get_internal",
+    mocker.patch("ahriman.core.status.client.Client.status_get",
                  return_value=InternalStatus(status=BuildStatus(), version="version"))
     logging_mock = mocker.patch("logging.Logger.warning")
 
@@ -154,15 +154,35 @@ def test_create_unsafe(lock: Lock) -> None:
     lock.path.unlink()
 
 
+def test_watch(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check if lock file exists
+    """
+    wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
+    lock.path = Path(tempfile.mktemp())  # nosec
+
+    lock.watch()
+    wait_mock.assert_called_once_with(lock.path.is_file)
+
+
+def test_watch_skip(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip watch on empty path
+    """
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    lock.watch()
+
+
 def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     """
     must process with context manager
     """
     check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
     check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
+    watch_mock = mocker.patch("ahriman.application.lock.Lock.watch")
     clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     create_mock = mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
+    update_status_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
 
     with lock:
         pass
@@ -170,6 +190,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     clear_mock.assert_called_once_with()
     create_mock.assert_called_once_with()
     check_version_mock.assert_called_once_with()
+    watch_mock.assert_called_once_with()
     update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
 
 
@@ -180,7 +201,7 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.application.lock.Lock.check_user")
     mocker.patch("ahriman.application.lock.Lock.clear")
     mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.update_self")
+    update_status_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
 
     with pytest.raises(Exception):
         with lock:

@@ -47,7 +47,7 @@ def test_request(github: Github, mocker: MockerFixture) -> None:
     must call request method
     """
     response_mock = MagicMock()
-    request_mock = mocker.patch("requests.request", return_value=response_mock)
+    request_mock = mocker.patch("requests.Session.request", return_value=response_mock)
 
     github._request("GET", "url", arg="arg")
     request_mock.assert_called_once_with("GET", "url", auth=github.auth, timeout=github.timeout, arg="arg")
@@ -58,6 +58,6 @@ def test_request_exception(github: Github, mocker: MockerFixture) -> None:
     """
     must call request method and log HTTPError exception
     """
-    mocker.patch("requests.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
     with pytest.raises(requests.HTTPError):
         github._request("GET", "url", arg="arg")

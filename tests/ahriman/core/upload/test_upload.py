@@ -53,3 +53,15 @@ def test_upload_github(configuration: Configuration, mocker: MockerFixture) -> N
     upload_mock = mocker.patch("ahriman.core.upload.github.Github.sync")
     Upload.load("x86_64", configuration, "github").run(Path("path"), [])
     upload_mock.assert_called_once_with(Path("path"), [])
+
+
+def test_upload_ahriman(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must upload via ahriman
+    """
+    upload_mock = mocker.patch("ahriman.core.upload.remote_service.RemoteService.sync")
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
+
+    Upload.load("x86_64", configuration, "remote-service").run(Path("path"), [])
+    upload_mock.assert_called_once_with(Path("path"), [])
