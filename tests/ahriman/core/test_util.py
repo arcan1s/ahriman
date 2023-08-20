@@ -3,14 +3,13 @@ import logging
 import os
 import pytest
 import requests
-import subprocess
 
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
-from ahriman.core.exceptions import BuildError, OptionError, UnsafeRunError
+from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text, \
     extract_user, filter_json, full_version, package_like, parse_version, partition, pretty_datetime, pretty_size, \
     safe_filename, srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
@@ -107,10 +106,10 @@ def test_check_output_failure(mocker: MockerFixture) -> None:
     """
     mocker.patch("subprocess.Popen.wait", return_value=1)
 
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(CalledProcessError):
         check_output("echo", "hello")
 
-    with pytest.raises(subprocess.CalledProcessError):
+    with pytest.raises(CalledProcessError):
         check_output("echo", "hello", logger=logging.getLogger(""))
 
 
@@ -120,6 +119,20 @@ def test_check_output_failure_exception(mocker: MockerFixture) -> None:
     """
     mocker.patch("subprocess.Popen.wait", return_value=1)
     exception = BuildError("")
+
+    with pytest.raises(BuildError):
+        check_output("echo", "hello", exception=exception)
+
+    with pytest.raises(BuildError):
+        check_output("echo", "hello", exception=exception, logger=logging.getLogger(""))
+
+
+def test_check_output_failure_exception_callable(mocker: MockerFixture) -> None:
+    """
+    must raise exception from callable provided instead of default
+    """
+    mocker.patch("subprocess.Popen.wait", return_value=1)
+    exception = BuildError.from_process("")
 
     with pytest.raises(BuildError):
         check_output("echo", "hello", exception=exception)

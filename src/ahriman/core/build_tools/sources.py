@@ -82,10 +82,11 @@ class Sources(LazyLogging):
         branch = remote.branch or instance.DEFAULT_BRANCH
         if is_initialized_git:
             instance.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
-            Sources._check_output("git", "fetch", "origin", branch, cwd=sources_dir, logger=instance.logger)
+            Sources._check_output("git", "fetch", "--quiet", "origin", branch,
+                                  cwd=sources_dir, logger=instance.logger)
         elif remote.git_url is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
-            Sources._check_output("git", "clone", "--branch", branch, "--single-branch",
+            Sources._check_output("git", "clone", "--quiet", "--branch", branch, "--single-branch",
                                   remote.git_url, str(sources_dir), cwd=sources_dir.parent, logger=instance.logger)
         else:
             # it will cause an exception later
@@ -93,7 +94,8 @@ class Sources(LazyLogging):
 
         # and now force reset to our branch
         Sources._check_output("git", "checkout", "--force", branch, cwd=sources_dir, logger=instance.logger)
-        Sources._check_output("git", "reset", "--hard", f"origin/{branch}", cwd=sources_dir, logger=instance.logger)
+        Sources._check_output("git", "reset", "--quiet", "--hard", f"origin/{branch}",
+                              cwd=sources_dir, logger=instance.logger)
 
         # move content if required
         # we are using full path to source directory in order to make append possible
@@ -126,7 +128,7 @@ class Sources(LazyLogging):
         instance = Sources()
         if not (sources_dir / ".git").is_dir():
             # skip initializing in case if it was already
-            Sources._check_output("git", "init", "--initial-branch", instance.DEFAULT_BRANCH,
+            Sources._check_output("git", "init", "--quiet", "--initial-branch", instance.DEFAULT_BRANCH,
                                   cwd=sources_dir, logger=instance.logger)
 
         # extract local files...
@@ -191,7 +193,7 @@ class Sources(LazyLogging):
             return  # no changes to push, just skip action
 
         git_url, branch = remote.git_source()
-        Sources._check_output("git", "push", git_url, branch, cwd=sources_dir, logger=instance.logger)
+        Sources._check_output("git", "push", "--quiet", git_url, branch, cwd=sources_dir, logger=instance.logger)
 
     def add(self, sources_dir: Path, *pattern: str, intent_to_add: bool = False) -> None:
         """
@@ -243,7 +245,8 @@ class Sources(LazyLogging):
         environment["GIT_AUTHOR_NAME"] = environment["GIT_COMMITTER_NAME"] = user
         environment["GIT_AUTHOR_EMAIL"] = environment["GIT_COMMITTER_EMAIL"] = email
 
-        Sources._check_output("git", "commit", *args, cwd=sources_dir, logger=self.logger, environment=environment)
+        Sources._check_output("git", "commit", "--quiet", *args,
+                              cwd=sources_dir, logger=self.logger, environment=environment)
 
         return True
 

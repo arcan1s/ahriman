@@ -35,7 +35,7 @@ from pathlib import Path
 from pwd import getpwuid
 from typing import Any, IO, TypeVar
 
-from ahriman.core.exceptions import OptionError, UnsafeRunError
+from ahriman.core.exceptions import CalledProcessError, OptionError, UnsafeRunError
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -65,7 +65,9 @@ __all__ = [
 T = TypeVar("T")
 
 
-def check_output(*args: str, exception: Exception | None = None, cwd: Path | None = None, input_data: str | None = None,
+# pylint: disable=too-many-locals
+def check_output(*args: str, exception: Exception | Callable[[int, list[str], str, str], Exception] | None = None,
+                 cwd: Path | None = None, input_data: str | None = None,
                  logger: logging.Logger | None = None, user: int | None = None,
                  environment: dict[str, str] | None = None) -> str:
     """
@@ -73,8 +75,9 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
 
     Args:
         *args(str): command line arguments
-        exception(Exception | None, optional): exception which has to be reraised instead of default subprocess
-            exception (Default value = None)
+        exception(Exception | Callable[[int, list[str], str, str]] | None, optional): exception which has to be raised
+            instead of default subprocess exception. If callable us is supplied, the ``subprocess.CalledProcessError``
+            arguments will be passed (Default value = None)
         cwd(Path | None, optional): current working directory (Default value = None)
         input_data(str | None, optional): data which will be written to command stdin (Default value = None)
         logger(logging.Logger | None, optional): logger to log command result if required (Default value = None)
@@ -85,7 +88,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         str: command output
 
     Raises:
-        subprocess.CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
+        CalledProcessError: if subprocess ended with status code different from 0 and no exception supplied
 
     Examples:
         Simply call the function::
@@ -110,7 +113,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         return channel if channel is not None else io.StringIO()
 
     # wrapper around selectors polling
-    def poll(sel: selectors.BaseSelector) -> Generator[str, None, None]:
+    def poll(sel: selectors.BaseSelector) -> Generator[tuple[str, str], None, None]:
         for key, _ in sel.select():  # we don't need to check mask here because we have only subscribed on reading
             line = key.fileobj.readline()  # type: ignore[union-attr]
             if not line:  # in case of empty line we remove selector as there is no data here anymore
@@ -121,8 +124,7 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
             if logger is not None:
                 logger.debug(line)
 
-            if key.data == "stdout":
-                yield line  # yield only stdout data
+            yield key.data, line
 
     environment = environment or {}
     if user is not None:
@@ -138,17 +140,26 @@ def check_output(*args: str, exception: Exception | None = None, cwd: Path | Non
         selector.register(get_io(process, "stdout"), selectors.EVENT_READ, data="stdout")
         selector.register(get_io(process, "stderr"), selectors.EVENT_READ, data="stderr")
 
-        result: list[str] = []
+        result: dict[str, list[str]] = {
+            "stdout": [],
+            "stderr": [],
+        }
         while selector.get_map():  # while there are unread selectors, keep reading
-            result.extend(poll(selector))
+            for key_data, output in poll(selector):
+                result[key_data].append(output)
+
+        stdout = "\n".join(result["stdout"]).rstrip("\n")  # remove newline at the end of any
+        stderr = "\n".join(result["stderr"]).rstrip("\n")
 
         status_code = process.wait()
         if status_code != 0:
-            if exception is not None:
+            if isinstance(exception, Exception):
                 raise exception
-            raise subprocess.CalledProcessError(status_code, process.args)
+            if callable(exception):
+                raise exception(status_code, list(args), stdout, stderr)
+            raise CalledProcessError(status_code, list(args), stderr)
 
-        return "\n".join(result).rstrip("\n")  # remove newline at the end of any
+        return stdout
 
 
 def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:

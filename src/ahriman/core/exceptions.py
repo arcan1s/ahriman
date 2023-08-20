@@ -17,8 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import subprocess
+
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 
 class BuildError(RuntimeError):
@@ -26,14 +29,61 @@ class BuildError(RuntimeError):
     base exception for failed builds
     """
 
-    def __init__(self, package_base: str) -> None:
+    def __init__(self, package_base: str, stderr: str | None = None) -> None:
         """
         default constructor
 
         Args:
             package_base(str): package base raised exception
+            stderr(str | None, optional): stderr of the process if available (Default value = None)
         """
-        RuntimeError.__init__(self, f"Package {package_base} build failed, check logs for details")
+        message = f"Package {package_base} build failed,\n"
+        if stderr is not None:
+            message += f"process stderr:\n{stderr}\n"
+        message += "check logs for details"
+
+        RuntimeError.__init__(self, message)
+
+    @classmethod
+    def from_process(cls, package_base: str) -> Callable[[int, list[str], str, str], Self]:
+        """
+        generate exception callable from process error
+
+        Args:
+            package_base(str): package base raised exception
+
+        Returns:
+            Callable[[int, list[str], str, str], Self]: exception generator to be passed to subprocess utils
+        """
+        return lambda code, process, stdout, stderr: cls(package_base, stderr)
+
+
+class CalledProcessError(subprocess.CalledProcessError):
+    """
+    like ``subprocess.CalledProcessError``, but better
+    """
+
+    def __init__(self, status_code: int, process: list[str], stderr: str) -> None:
+        """
+        default constructor
+
+        Args:
+            status_code(int): process return code
+            process(list[str]): process argument list
+            stderr(str): stderr of the process
+        """
+        subprocess.CalledProcessError.__init__(self, status_code, process, stderr=stderr)
+
+    def __str__(self) -> str:
+        """
+        string representation of the exception
+
+        Returns:
+            str: string view of the exception
+        """
+        return f"""{subprocess.CalledProcessError.__str__(self)}
+Process stderr:
+{self.stderr}"""
 
 
 class DuplicateRunError(RuntimeError):
