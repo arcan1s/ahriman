@@ -52,6 +52,9 @@ def exception_handler(logger: logging.Logger) -> MiddlewareType:
 
     Returns:
         MiddlewareType: built middleware
+
+    Raises:
+        HTTPNoContent: OPTIONS method response
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:

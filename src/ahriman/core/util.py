@@ -160,7 +160,7 @@ def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
         unsafe(bool): if set no user check will be performed before path creation
 
     Raises:
-        UnsafeRun: if root uid differs from current uid and check is enabled
+        UnsafeRunError: if root uid differs from current uid and check is enabled
 
     Examples:
         Simply run function with arguments::
@@ -345,7 +345,7 @@ def pretty_size(size: float | None, level: int = 0) -> str:
         str: pretty printable size as string
 
     Raises:
-        InvalidOption: if size is more than 1TiB
+        OptionError: if size is more than 1TiB
     """
     def str_level() -> str:
         if level == 0:

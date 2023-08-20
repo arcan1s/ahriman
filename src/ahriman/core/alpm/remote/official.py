@@ -85,7 +85,7 @@ class Official(Remote):
             list[AURPackage]: list of parsed packages
 
         Raises:
-            InvalidPackageInfo: for error API response
+            PackageInfoError: for error API response
         """
         if not response["valid"]:
             raise PackageInfoError("API validation error")
@@ -127,12 +127,15 @@ class Official(Remote):
 
         Returns:
             AURPackage: package which match the package name
+
+        Raises:
+            UnknownPackageError: package doesn't exist
         """
         packages = self.make_request(package_name, by="name")
         try:
             return next(package for package in packages if package.name == package_name)
         except StopIteration:
-            raise UnknownPackageError(package_name)
+            raise UnknownPackageError(package_name) from None
 
     def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
         """

@@ -81,7 +81,7 @@ class Search(Handler):
             list[AURPackage]: sorted list for packages
 
         Raises:
-            InvalidOption: if search fields is not in list of allowed ones
+            OptionError: if search fields is not in list of allowed ones
         """
         if sort_by not in Search.SORT_FIELDS:
             raise OptionError(sort_by)

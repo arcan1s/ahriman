@@ -113,9 +113,10 @@ class UploadView(BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
             HTTPCreated: on success response
+            HTTPNotFound: method is disabled by configuration
         """
         if not self.configuration.getboolean("web", "enable_archive_upload", fallback=False):
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         try:
             reader = await self.request.multipart()
@@ -141,4 +142,4 @@ class UploadView(BaseView):
             target_location = current_location.parent / filename
             current_location.rename(target_location)
 
-        raise HTTPCreated()
+        raise HTTPCreated

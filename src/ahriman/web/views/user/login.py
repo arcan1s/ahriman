@@ -84,7 +84,7 @@ class LoginView(BaseView):
             await remember(self.request, response, identity)
             raise response
 
-        raise HTTPUnauthorized()
+        raise HTTPUnauthorized
 
     @aiohttp_apispec.docs(
         tags=["Login"],
@@ -114,4 +114,4 @@ class LoginView(BaseView):
             await remember(self.request, response, identity)
             raise response
 
-        raise HTTPUnauthorized()
+        raise HTTPUnauthorized

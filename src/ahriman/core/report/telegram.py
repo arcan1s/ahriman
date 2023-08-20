@@ -89,6 +89,9 @@ class Telegram(Report, JinjaTemplate):
         Args:
             packages(list[Package]): list of packages to generate report
             result(Result): build result
+
+        Raises:
+            ValueError: impossible to split message by chunks
         """
         if not result.success:
             return

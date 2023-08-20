@@ -46,7 +46,7 @@ Again, the most checks can be performed by `make check` command, though some add
             int: result
   
         Raises:
-            RuntimeException: a local function error occurs
+            RuntimeError: a local function error occurs
   
         Examples:
             Very informative example how to use this function, e.g.::
@@ -130,6 +130,12 @@ Again, the most checks can be performed by `make check` command, though some add
 * Configuration interactions must go through `ahriman.core.configuration.Configuration` class instance.
 * In case if class load requires some actions, it is recommended to create class method which can be used for class instantiating.
 * The code must follow the exception safety, unless it is explicitly asked by end user. It means that most exceptions must be handled and printed to log, no other actions must be done (e.g. raising another exception).
+* Exceptions without parameters should be raised without parentheses, e.g.:
+
+    ```python
+    raise RuntimeError
+    ```
+
 * For the external command `ahriman.core.util.check_output` function must be used.
 * Every temporary file/directory must be removed at the end of processing, no matter what. The `tempfile` module provides good ways to do it.
 * Import order must be the following:

@@ -74,7 +74,7 @@ class PGPView(BaseView):
         try:
             key = self.service.repository.sign.key_download(server, key)
         except Exception:
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         return json_response({"key": key})
 

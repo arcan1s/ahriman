@@ -72,6 +72,9 @@ class Users(Handler):
 
         Returns:
             User: built user descriptor
+
+        Raises:
+            PasswordError: password input is invalid
         """
         def read_password() -> str:
             first_password = getpass.getpass()

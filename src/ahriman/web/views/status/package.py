@@ -66,7 +66,7 @@ class PackageView(BaseView):
         package_base = self.request.match_info["package"]
         self.service.package_remove(package_base)
 
-        raise HTTPNoContent()
+        raise HTTPNoContent
 
     @aiohttp_apispec.docs(
         tags=["Packages"],
@@ -98,7 +98,7 @@ class PackageView(BaseView):
         try:
             package, status = self.service.package_get(package_base)
         except UnknownPackageError:
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         response = [
             {
@@ -146,4 +146,4 @@ class PackageView(BaseView):
         except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 
-        raise HTTPNoContent()
+        raise HTTPNoContent

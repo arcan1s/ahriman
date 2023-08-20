@@ -57,6 +57,7 @@ class LogoutView(BaseView):
 
         Raises:
             HTTPFound: on success response
+            HTTPUnauthorized: no authorization cookie available
         """
         try:
             await check_authorized(self.request)

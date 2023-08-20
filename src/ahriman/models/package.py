@@ -258,7 +258,7 @@ class Package(LazyLogging):
             Self: package properties
 
         Raises:
-            InvalidPackageInfo: if there are parsing errors
+            PackageInfoError: if there are parsing errors
         """
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
@@ -360,6 +360,9 @@ class Package(LazyLogging):
         Returns:
             Generator[Path, None, None]: list of paths of files which belong to the package and distributed together
                 with this tarball. All paths are relative to the ``path``
+
+        Raises:
+            PackageInfoError: if there are parsing errors
         """
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
@@ -396,7 +399,7 @@ class Package(LazyLogging):
             set[str]: list of package supported architectures
 
         Raises:
-            InvalidPackageInfo: if there are parsing errors
+            PackageInfoError: if there are parsing errors
         """
         srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
@@ -435,7 +438,7 @@ class Package(LazyLogging):
             str: package version if package is not VCS and current version according to VCS otherwise
 
         Raises:
-            InvalidPackageInfo: if there are parsing errors
+            PackageInfoError: if there are parsing errors
         """
         if not self.is_vcs:
             return self.version

@@ -106,14 +106,14 @@ class Lock(LazyLogging):
         create lock file
 
         Raises:
-            DuplicateRun: if lock exists and no force flag supplied
+            DuplicateRunError: if lock exists and no force flag supplied
         """
         if self.path is None:
             return
         try:
             self.path.touch(exist_ok=self.force)
         except FileExistsError:
-            raise DuplicateRunError()
+            raise DuplicateRunError from None
 
     def watch(self) -> None:
         """
