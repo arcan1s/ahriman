@@ -92,7 +92,7 @@ class Task(LazyLogging):
 
         Task._check_output(
             *command,
-            exception=BuildError(self.package.base),
+            exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
             logger=self.logger,
             user=self.uid,
@@ -101,7 +101,7 @@ class Task(LazyLogging):
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output(
             "makepkg", "--packagelist",
-            exception=BuildError(self.package.base),
+            exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
             logger=self.logger
         ).splitlines()

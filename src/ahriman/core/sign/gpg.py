@@ -190,7 +190,7 @@ class GPG(LazyLogging):
         """
         GPG._check_output(
             *GPG.sign_command(path, key),
-            exception=BuildError(path.name),
+            exception=BuildError.from_process(path.name),
             logger=self.logger)
         return [path, self.signature(path)]
 

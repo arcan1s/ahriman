@@ -71,7 +71,7 @@ class Repo(LazyLogging):
         """
         Repo._check_output(
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
-            exception=BuildError(path.name),
+            exception=BuildError.from_process(path.name),
             cwd=self.paths.repository,
             logger=self.logger,
             user=self.uid)
@@ -98,7 +98,7 @@ class Repo(LazyLogging):
         # remove package from registry
         Repo._check_output(
             "repo-remove", *self.sign_args, str(self.repo_path), package,
-            exception=BuildError(package),
+            exception=BuildError.from_process(package),
             cwd=self.paths.repository,
             logger=self.logger,
             user=self.uid)
