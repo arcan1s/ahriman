@@ -99,8 +99,8 @@ class StatusView(BaseView):
         try:
             data = await self.extract_data()
             status = BuildStatusEnum(data["status"])
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         self.service.status_update(status)
 

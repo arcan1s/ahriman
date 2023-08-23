@@ -17,30 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import requests
-
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildError
-from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, exception_response_text
+from ahriman.core.http import SyncHttpClient
+from ahriman.core.util import check_output
 from ahriman.models.sign_settings import SignSettings
 
 
-class GPG(LazyLogging):
+class GPG(SyncHttpClient):
     """
     gnupg wrapper
 
     Attributes:
-        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
         configuration(Configuration): configuration instance
         default_key(str | None): default PGP key ID to use
         targets(set[SignSettings]): list of targets to sign (repository, package etc)
     """
 
     _check_output = check_output
-    DEFAULT_TIMEOUT = 30
 
     def __init__(self, configuration: Configuration) -> None:
         """
@@ -49,6 +45,7 @@ class GPG(LazyLogging):
         Args:
             configuration(Configuration): configuration instance
         """
+        SyncHttpClient.__init__(self)
         self.configuration = configuration
         self.targets, self.default_key = self.sign_options(configuration)
 
@@ -126,16 +123,11 @@ class GPG(LazyLogging):
             str: key as plain text
         """
         key = key if key.startswith("0x") else f"0x{key}"
-        try:
-            response = requests.get(f"https://{server}/pks/lookup", params={
-                "op": "get",
-                "options": "mr",
-                "search": key
-            }, timeout=self.DEFAULT_TIMEOUT)
-            response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            self.logger.exception("could not download key %s from %s: %s", key, server, exception_response_text(e))
-            raise
+        response = self.make_request("GET", f"https://{server}/pks/lookup", params=[
+            ("op", "get"),
+            ("options", "mr"),
+            ("search", key),
+        ])
         return response.text
 
     def key_export(self, key: str) -> str:

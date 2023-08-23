@@ -63,8 +63,8 @@ class UpdateView(BaseView):
         """
         try:
             data = await self.extract_data()
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         username = await self.username()
         process_id = self.spawner.packages_update(

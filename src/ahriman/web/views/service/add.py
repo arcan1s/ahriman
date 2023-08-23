@@ -64,8 +64,8 @@ class AddView(BaseView):
         try:
             data = await self.extract_data(["packages"])
             packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         username = await self.username()
         process_id = self.spawner.packages_add(packages, username, now=True)

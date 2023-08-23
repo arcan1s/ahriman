@@ -40,7 +40,7 @@ def test_is_process_alive_unknown(remote_call: RemoteCall, mocker: MockerFixture
     response = requests.Response()
     response.status_code = 404
     mocker.patch("ahriman.core.status.web_client.WebClient.make_request",
-                 side_effect=requests.RequestException(response=response))
+                 side_effect=requests.HTTPError(response=response))
 
     assert not remote_call.is_process_alive("id")
 
@@ -62,9 +62,9 @@ def test_is_process_alive_http_error(remote_call: RemoteCall, mocker: MockerFixt
     response = requests.Response()
     response.status_code = 500
     mocker.patch("ahriman.core.status.web_client.WebClient.make_request",
-                 side_effect=requests.RequestException(response=response))
+                 side_effect=requests.HTTPError(response=response))
 
-    with pytest.raises(requests.RequestException):
+    with pytest.raises(requests.HTTPError):
         remote_call.is_process_alive("id")
 
 

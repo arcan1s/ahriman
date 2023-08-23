@@ -4,27 +4,6 @@ from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
-def test_from_option(user: User) -> None:
-    """
-    must generate user from options
-    """
-    user = replace(user, access=UserAccess.Read, packager_id=None, key=None)
-    assert User.from_option(user.username, user.password) == user
-    # default is read access
-    user = replace(user, access=UserAccess.Full)
-    assert User.from_option(user.username, user.password) != user
-    assert User.from_option(user.username, user.password, user.access) == user
-
-
-def test_from_option_empty() -> None:
-    """
-    must return nothing if settings are missed
-    """
-    assert User.from_option(None, "") is None
-    assert User.from_option("", None) is None
-    assert User.from_option(None, None) is None
-
-
 def test_check_credentials_hash_password(user: User) -> None:
     """
     must generate and validate user password

@@ -18,24 +18,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import hashlib
-import requests
 
-from functools import cached_property
 from pathlib import Path
-from typing import Any
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.http import SyncHttpClient
 from ahriman.core.upload.upload import Upload
-from ahriman.core.util import exception_response_text
 
 
-class HttpUpload(Upload):
+class HttpUpload(Upload, SyncHttpClient):
     """
     helper for the http based uploads
-
-    Attributes:
-        auth(tuple[str, str] | None): HTTP auth object if set
-        timeout(int): HTTP request timeout in seconds
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -48,20 +41,7 @@ class HttpUpload(Upload):
             section(str): configuration section name
         """
         Upload.__init__(self, architecture, configuration)
-        password = configuration.get(section, "password", fallback=None)
-        username = configuration.get(section, "username", fallback=None)
-        self.auth = (password, username) if password and username else None
-        self.timeout = configuration.getint(section, "timeout", fallback=30)
-
-    @cached_property
-    def session(self) -> requests.Session:
-        """
-        get or create session
-
-        Returns:
-            request.Session: created session object
-        """
-        return requests.Session()
+        SyncHttpClient.__init__(self, section, configuration)
 
     @staticmethod
     def calculate_hash(path: Path) -> str:
@@ -107,23 +87,3 @@ class HttpUpload(Upload):
             file, md5 = line.split()
             files[file] = md5
         return files
-
-    def _request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
-        """
-        request wrapper
-
-        Args:
-            method(str): request method
-            url(str): request url
-            **kwargs(Any): request parameters to be passed as is
-
-        Returns:
-            requests.Response: request response object
-        """
-        try:
-            response = self.session.request(method, url, auth=self.auth, timeout=self.timeout, **kwargs)
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            self.logger.exception("could not perform %s request to %s: %s", method, url, exception_response_text(e))
-            raise
-        return response

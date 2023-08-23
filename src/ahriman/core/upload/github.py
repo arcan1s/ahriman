@@ -61,7 +61,7 @@ class Github(HttpUpload):
         """
         try:
             asset = next(asset for asset in release["assets"] if asset["name"] == name)
-            self._request("DELETE", asset["url"])
+            self.make_request("DELETE", asset["url"])
         except StopIteration:
             self.logger.info("no asset %s found in release %s", name, release["name"])
 
@@ -81,7 +81,7 @@ class Github(HttpUpload):
         headers = {"Content-Type": mime} if mime is not None else {"Content-Type": "application/octet-stream"}
 
         with path.open("rb") as archive:
-            self._request("POST", url, params={"name": path.name}, data=archive, headers=headers)
+            self.make_request("POST", url, params=[("name", path.name)], data=archive, headers=headers)
 
     def get_local_files(self, path: Path) -> dict[Path, str]:
         """
@@ -136,7 +136,7 @@ class Github(HttpUpload):
             dict[str, Any]: github API release object for the new release
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases"
-        response = self._request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
+        response = self.make_request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
         release: dict[str, Any] = response.json()
         return release
 
@@ -149,11 +149,11 @@ class Github(HttpUpload):
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.architecture}"
         try:
-            response = self._request("GET", url)
+            response = self.make_request("GET", url)
             release: dict[str, Any] = response.json()
             return release
-        except requests.HTTPError as e:
-            status_code = e.response.status_code if e.response is not None else None
+        except requests.HTTPError as ex:
+            status_code = ex.response.status_code if ex.response is not None else None
             if status_code == 404:
                 return None
             raise
@@ -166,7 +166,7 @@ class Github(HttpUpload):
             release(dict[str, Any]): release object
             body(str): new release body
         """
-        self._request("POST", release["url"], json={"body": body})
+        self.make_request("POST", release["url"], json={"body": body})
 
     def sync(self, path: Path, built_packages: list[Package]) -> None:
         """

@@ -13,7 +13,7 @@ def test_asset_remove(github: Github, github_release: dict[str, Any], mocker: Mo
     """
     must remove asset from the release
     """
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     github.asset_remove(github_release, "asset_name")
     request_mock.assert_called_once_with("DELETE", "asset_url")
 
@@ -22,7 +22,7 @@ def test_asset_remove_unknown(github: Github, github_release: dict[str, Any], mo
     """
     must not fail if no asset found
     """
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     github.asset_remove(github_release, "unknown_asset_name")
     request_mock.assert_not_called()
 
@@ -32,11 +32,11 @@ def test_asset_upload(github: Github, github_release: dict[str, Any], mocker: Mo
     must upload asset to the repository
     """
     mocker.patch("pathlib.Path.open")
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
-    request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
+    request_mock.assert_called_once_with("POST", "upload_url", params=[("name", "new.tar.xz")],
                                          data=pytest.helpers.anyvar(int),
                                          headers={"Content-Type": "application/x-tar"})
     remove_mock.assert_not_called()
@@ -47,7 +47,7 @@ def test_asset_upload_with_removal(github: Github, github_release: dict[str, Any
     must remove existing file before upload
     """
     mocker.patch("pathlib.Path.open")
-    mocker.patch("ahriman.core.upload.github.Github._request")
+    mocker.patch("ahriman.core.upload.github.Github.make_request")
     remove_mock = mocker.patch("ahriman.core.upload.github.Github.asset_remove")
 
     github.asset_upload(github_release, Path("asset_name"))
@@ -65,10 +65,10 @@ def test_asset_upload_empty_mimetype(github: Github, github_release: dict[str, A
     mocker.patch("pathlib.Path.open")
     mocker.patch("ahriman.core.upload.github.Github.asset_remove")
     mocker.patch("mimetypes.guess_type", return_value=(None, None))
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
 
     github.asset_upload(github_release, Path("/root/new.tar.xz"))
-    request_mock.assert_called_once_with("POST", "upload_url", params={"name": "new.tar.xz"},
+    request_mock.assert_called_once_with("POST", "upload_url", params=[("name", "new.tar.xz")],
                                          data=pytest.helpers.anyvar(int),
                                          headers={"Content-Type": "application/octet-stream"})
 
@@ -125,7 +125,7 @@ def test_release_create(github: Github, mocker: MockerFixture) -> None:
     """
     must create release
     """
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     github.release_create()
     request_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                          json={"tag_name": github.architecture, "name": github.architecture})
@@ -135,7 +135,7 @@ def test_release_get(github: Github, mocker: MockerFixture) -> None:
     """
     must get release
     """
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     github.release_get()
     request_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True))
 
@@ -146,7 +146,8 @@ def test_release_get_empty(github: Github, mocker: MockerFixture) -> None:
     """
     response = requests.Response()
     response.status_code = 404
-    mocker.patch("ahriman.core.upload.github.Github._request", side_effect=requests.HTTPError(response=response))
+    mocker.patch("ahriman.core.upload.github.Github.make_request",
+                 side_effect=requests.HTTPError(response=response))
     assert github.release_get() is None
 
 
@@ -154,7 +155,7 @@ def test_release_get_exception(github: Github, mocker: MockerFixture) -> None:
     """
     must re-raise non HTTPError exception
     """
-    mocker.patch("ahriman.core.upload.github.Github._request", side_effect=Exception())
+    mocker.patch("ahriman.core.upload.github.Github.make_request", side_effect=Exception())
     with pytest.raises(Exception):
         github.release_get()
 
@@ -164,7 +165,7 @@ def test_release_get_exception_http_error(github: Github, mocker: MockerFixture)
     must re-raise HTTPError exception with code differs from 404
     """
     exception = requests.HTTPError(response=requests.Response())
-    mocker.patch("ahriman.core.upload.github.Github._request", side_effect=exception)
+    mocker.patch("ahriman.core.upload.github.Github.make_request", side_effect=exception)
     with pytest.raises(requests.HTTPError):
         github.release_get()
 
@@ -173,7 +174,7 @@ def test_release_update(github: Github, github_release: dict[str, Any], mocker: 
     """
     must update release
     """
-    request_mock = mocker.patch("ahriman.core.upload.github.Github._request")
+    request_mock = mocker.patch("ahriman.core.upload.github.Github.make_request")
     github.release_update(github_release, "body")
     request_mock.assert_called_once_with("POST", "release_url", json={"body": "body"})
 

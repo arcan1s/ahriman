@@ -87,20 +87,19 @@ def test_key_download(gpg: GPG, mocker: MockerFixture) -> None:
     """
     must download the key from public server
     """
-    requests_mock = mocker.patch("requests.get")
+    requests_mock = mocker.patch("ahriman.core.sign.gpg.GPG.make_request")
     gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
     requests_mock.assert_called_once_with(
-        "https://keyserver.ubuntu.com/pks/lookup",
-        params={"op": "get", "options": "mr", "search": "0xE989490C"},
-        timeout=gpg.DEFAULT_TIMEOUT)
+        "GET", "https://keyserver.ubuntu.com/pks/lookup",
+        params=[("op", "get"), ("options", "mr"), ("search", "0xE989490C")])
 
 
 def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:
     """
     must download the key from public server and log error if any (and raise it again)
     """
-    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
-    with pytest.raises(requests.exceptions.HTTPError):
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    with pytest.raises(requests.HTTPError):
         gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
 
 

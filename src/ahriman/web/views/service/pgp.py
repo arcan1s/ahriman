@@ -68,8 +68,8 @@ class PGPView(BaseView):
         try:
             key = self.get_non_empty(self.request.query.getone, "key")
             server = self.get_non_empty(self.request.query.getone, "server")
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         try:
             key = self.service.repository.sign.key_download(server, key)
@@ -107,8 +107,8 @@ class PGPView(BaseView):
 
         try:
             key = self.get_non_empty(data.get, "key")
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         process_id = self.spawner.key_import(key, data.get("server"))
 
