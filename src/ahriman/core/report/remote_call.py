@@ -81,8 +81,9 @@ class RemoteCall(Report):
         """
         try:
             response = self.client.make_request("GET", f"/api/v1/service/process/{process_id}")
-        except requests.RequestException as e:
-            if e.response is not None and e.response.status_code == 404:
+        except requests.HTTPError as ex:
+            status_code = ex.response.status_code if ex.response is not None else None
+            if status_code == 404:
                 return False
             raise
 

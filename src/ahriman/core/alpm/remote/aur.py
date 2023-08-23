@@ -17,14 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import requests
-
 from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
 from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
-from ahriman.core.util import exception_response_text
 from ahriman.models.aur_package import AURPackage
 
 
@@ -36,13 +33,11 @@ class AUR(Remote):
         DEFAULT_AUR_URL(str): (class attribute) default AUR url
         DEFAULT_RPC_URL(str): (class attribute) default AUR RPC url
         DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
-        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
 
     DEFAULT_AUR_URL = "https://aur.archlinux.org"
     DEFAULT_RPC_URL = f"{DEFAULT_AUR_URL}/rpc"
     DEFAULT_RPC_VERSION = "5"
-    DEFAULT_TIMEOUT = 30
 
     @classmethod
     def remote_git_url(cls, package_base: str, repository: str) -> str:
@@ -91,7 +86,7 @@ class AUR(Remote):
             raise PackageInfoError(error_details)
         return [AURPackage.from_json(package) for package in response["results"]]
 
-    def make_request(self, request_type: str, *args: str, **kwargs: str) -> list[AURPackage]:
+    def aur_request(self, request_type: str, *args: str, **kwargs: str) -> list[AURPackage]:
         """
         perform request to AUR RPC
 
@@ -103,34 +98,20 @@ class AUR(Remote):
         Returns:
             list[AURPackage]: response parsed to package list
         """
-        query: dict[str, Any] = {
-            "type": request_type,
-            "v": self.DEFAULT_RPC_VERSION
-        }
+        query: list[tuple[str, str]] = [
+            ("type", request_type),
+            ("v", self.DEFAULT_RPC_VERSION),
+        ]
 
         arg_query = "arg[]" if len(args) > 1 else "arg"
-        query[arg_query] = list(args)
+        for arg in args:
+            query.append((arg_query, arg))
 
         for key, value in kwargs.items():
-            query[key] = value
+            query.append((key, value))
 
-        try:
-            response = requests.get(
-                self.DEFAULT_RPC_URL,
-                params=query,
-                headers={"User-Agent": self.DEFAULT_USER_AGENT},
-                timeout=self.DEFAULT_TIMEOUT)
-            response.raise_for_status()
-            return self.parse_response(response.json())
-        except requests.HTTPError as e:
-            self.logger.exception(
-                "could not perform request by using type %s: %s",
-                request_type,
-                exception_response_text(e))
-            raise
-        except Exception:
-            self.logger.exception("could not perform request by using type %s", request_type)
-            raise
+        response = self.make_request("GET", self.DEFAULT_RPC_URL, params=query)
+        return self.parse_response(response.json())
 
     def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
         """
@@ -146,7 +127,7 @@ class AUR(Remote):
         Raises:
             UnknownPackageError: package doesn't exist
         """
-        packages = self.make_request("info", package_name)
+        packages = self.aur_request("info", package_name)
         try:
             return next(package for package in packages if package.name == package_name)
         except StopIteration:
@@ -163,4 +144,4 @@ class AUR(Remote):
         Returns:
             list[AURPackage]: list of packages which match the criteria
         """
-        return self.make_request("search", *keywords, by="name-desc")
+        return self.aur_request("search", *keywords, by="name-desc")

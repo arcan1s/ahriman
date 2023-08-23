@@ -138,8 +138,8 @@ class LogsView(BaseView):
             created = data["created"]
             record = data["message"]
             version = data["version"]
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         self.service.logs_update(LogRecordId(package_base, version), created, record)
 

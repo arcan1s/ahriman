@@ -75,24 +75,6 @@ class User:
         object.__setattr__(self, "packager_id", self.packager_id or None)
         object.__setattr__(self, "key", self.key or None)
 
-    @classmethod
-    def from_option(cls, username: str | None, password: str | None,
-                    access: UserAccess = UserAccess.Read) -> Self | None:
-        """
-        build user descriptor from configuration options
-
-        Args:
-            username(str | None): username
-            password(str | None): password as string
-            access(UserAccess, optional): optional user access (Default value = UserAccess.Read)
-
-        Returns:
-            Self | None: generated user descriptor if all options are supplied and None otherwise
-        """
-        if username is None or password is None:
-            return None
-        return cls(username=username, password=password, access=access, packager_id=None, key=None)
-
     @staticmethod
     def generate_password(length: int) -> str:
         """

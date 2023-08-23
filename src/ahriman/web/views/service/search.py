@@ -69,8 +69,8 @@ class SearchView(BaseView):
         try:
             search: list[str] = self.get_non_empty(lambda key: self.request.query.getall(key, default=[]), "for")
             packages = AUR.multisearch(*search, pacman=self.service.repository.pacman)
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")

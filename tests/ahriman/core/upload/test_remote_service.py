@@ -24,7 +24,7 @@ def test_package_upload(remote_service: RemoteService, package_ahriman: Package,
     mocker.patch("pathlib.Path.is_file", return_value=False)
     file_mock = MagicMock()
     open_mock = mocker.patch("pathlib.Path.open", return_value=file_mock)
-    upload_mock = mocker.patch("ahriman.core.upload.http_upload.HttpUpload._request")
+    upload_mock = mocker.patch("ahriman.core.upload.http_upload.HttpUpload.make_request")
     filename = package_ahriman.packages[package_ahriman.base].filename
 
     remote_service.sync(Path("local"), [package_ahriman])
@@ -43,7 +43,7 @@ def test_package_upload_with_signature(remote_service: RemoteService, package_ah
     mocker.patch("pathlib.Path.is_file", return_value=True)
     file_mock = MagicMock()
     open_mock = mocker.patch("pathlib.Path.open", return_value=file_mock)
-    upload_mock = mocker.patch("ahriman.core.upload.http_upload.HttpUpload._request")
+    upload_mock = mocker.patch("ahriman.core.upload.http_upload.HttpUpload.make_request")
     filename = package_ahriman.packages[package_ahriman.base].filename
 
     remote_service.sync(Path("local"), [package_ahriman])

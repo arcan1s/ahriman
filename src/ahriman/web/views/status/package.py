@@ -138,8 +138,8 @@ class PackageView(BaseView):
         try:
             package = Package.from_json(data["package"]) if "package" in data else None
             status = BuildStatusEnum(data["status"])
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         try:
             self.service.package_update(package_base, status, package)

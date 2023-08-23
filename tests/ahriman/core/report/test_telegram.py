@@ -14,35 +14,35 @@ def test_send(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must send a message
     """
-    request_mock = mocker.patch("requests.post")
+    request_mock = mocker.patch("ahriman.core.report.telegram.Telegram.make_request")
     report = Telegram("x86_64", configuration, "telegram")
 
     report._send("a text")
     request_mock.assert_called_once_with(
+        "POST",
         pytest.helpers.anyvar(str, strict=True),
-        data={"chat_id": pytest.helpers.anyvar(str, strict=True), "text": "a text", "parse_mode": "HTML"},
-        timeout=report.timeout)
+        data={"chat_id": pytest.helpers.anyvar(str, strict=True), "text": "a text", "parse_mode": "HTML"})
 
 
 def test_send_failed(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must reraise generic exception
     """
-    mocker.patch("requests.post", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception())
     report = Telegram("x86_64", configuration, "telegram")
 
     with pytest.raises(Exception):
         report._send("a text")
 
 
-def test_make_request_failed_http_error(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_send_failed_http_error(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must reraise http exception
     """
-    mocker.patch("requests.post", side_effect=requests.exceptions.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
     report = Telegram("x86_64", configuration, "telegram")
 
-    with pytest.raises(requests.exceptions.HTTPError):
+    with pytest.raises(requests.HTTPError):
         report._send("a text")
 
 

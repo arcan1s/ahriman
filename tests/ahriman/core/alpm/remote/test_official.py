@@ -62,39 +62,37 @@ def test_remote_web_url(aur_package_akonadi: AURPackage) -> None:
     assert web_url.startswith(Official.DEFAULT_ARCHLINUX_URL)
 
 
-def test_make_request(official: Official, aur_package_akonadi: AURPackage,
+def test_arch_request(official: Official, aur_package_akonadi: AURPackage,
                       mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must perform request to official repositories
     """
     response_mock = MagicMock()
     response_mock.json.return_value = json.loads(_get_response(resource_path_root))
-    request_mock = mocker.patch("requests.get", return_value=response_mock)
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.make_request", return_value=response_mock)
 
-    assert official.make_request("akonadi", by="q") == [aur_package_akonadi]
+    assert official.arch_request("akonadi", by="q") == [aur_package_akonadi]
     request_mock.assert_called_once_with(
-        "https://archlinux.org/packages/search/json",
-        params={"q": ("akonadi",), "repo": Official.DEFAULT_SEARCH_REPOSITORIES},
-        headers={"User-Agent": Official.DEFAULT_USER_AGENT},
-        timeout=official.DEFAULT_TIMEOUT)
+        "GET", "https://archlinux.org/packages/search/json",
+        params=[("repo", repository) for repository in Official.DEFAULT_SEARCH_REPOSITORIES] + [("q", "akonadi")])
 
 
-def test_make_request_failed(official: Official, mocker: MockerFixture) -> None:
+def test_arch_request_failed(official: Official, mocker: MockerFixture) -> None:
     """
     must reraise generic exception
     """
-    mocker.patch("requests.get", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception())
     with pytest.raises(Exception):
-        official.make_request("akonadi", by="q")
+        official.arch_request("akonadi", by="q")
 
 
-def test_make_request_failed_http_error(official: Official, mocker: MockerFixture) -> None:
+def test_arch_request_failed_http_error(official: Official, mocker: MockerFixture) -> None:
     """
     must reraise http exception
     """
-    mocker.patch("requests.get", side_effect=requests.exceptions.HTTPError())
-    with pytest.raises(requests.exceptions.HTTPError):
-        official.make_request("akonadi", by="q")
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    with pytest.raises(requests.HTTPError):
+        official.arch_request("akonadi", by="q")
 
 
 def test_package_info(official: Official, aur_package_akonadi: AURPackage, pacman: Pacman,
@@ -102,7 +100,7 @@ def test_package_info(official: Official, aur_package_akonadi: AURPackage, pacma
     """
     must make request for info
     """
-    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.make_request",
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request",
                                 return_value=[aur_package_akonadi])
     assert official.package_info(aur_package_akonadi.name, pacman=pacman) == aur_package_akonadi
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="name")
@@ -113,7 +111,7 @@ def test_package_info_not_found(official: Official, aur_package_ahriman: AURPack
     """
     must raise UnknownPackage exception in case if no package was found
     """
-    mocker.patch("ahriman.core.alpm.remote.Official.make_request", return_value=[])
+    mocker.patch("ahriman.core.alpm.remote.Official.arch_request", return_value=[])
     with pytest.raises(UnknownPackageError, match=aur_package_ahriman.name):
         assert official.package_info(aur_package_ahriman.name, pacman=pacman)
 
@@ -123,7 +121,7 @@ def test_package_search(official: Official, aur_package_akonadi: AURPackage, pac
     """
     must make request for search
     """
-    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.make_request",
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request",
                                 return_value=[aur_package_akonadi])
     assert official.package_search(aur_package_akonadi.name, pacman=pacman) == [aur_package_akonadi]
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="q")

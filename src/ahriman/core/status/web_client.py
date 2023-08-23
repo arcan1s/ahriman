@@ -22,38 +22,26 @@ import logging
 import requests
 
 from functools import cached_property
-from typing import Any, IO, Literal
 from urllib.parse import quote_plus as urlencode
 
 from ahriman import __version__
 from ahriman.core.configuration import Configuration
-from ahriman.core.log import LazyLogging
+from ahriman.core.http import SyncHttpClient
 from ahriman.core.status.client import Client
-from ahriman.core.util import exception_response_text
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
-from ahriman.models.user import User
 
 
-# filename, file, content-type, headers
-MultipartType = tuple[str, IO[bytes], str, dict[str, str]]
-
-
-class WebClient(Client, LazyLogging):
+class WebClient(Client, SyncHttpClient):
     """
     build status reporter web client
 
     Attributes:
         address(str): address of the web service
-        suppress_errors(bool): suppress logging errors (e.g. if no web server available)
-        user(User | None): web service user descriptor
         use_unix_socket(bool): use websocket or not
     """
-
-    _login_url = "/api/v1/login"
-    _status_url = "/api/v1/status"
 
     def __init__(self, configuration: Configuration) -> None:
         """
@@ -62,11 +50,10 @@ class WebClient(Client, LazyLogging):
         Args:
             configuration(Configuration): configuration instance
         """
+        suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
+        SyncHttpClient.__init__(self, "web", configuration, suppress_errors=suppress_errors)
+
         self.address, self.use_unix_socket = self.parse_address(configuration)
-        self.user = User.from_option(
-            configuration.get("web", "username", fallback=None),
-            configuration.get("web", "password", fallback=None))
-        self.suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
 
     @cached_property
     def session(self) -> requests.Session:
@@ -77,34 +64,6 @@ class WebClient(Client, LazyLogging):
             request.Session: created session object
         """
         return self._create_session(use_unix_socket=self.use_unix_socket)
-
-    @staticmethod
-    def _logs_url(package_base: str) -> str:
-        """
-        get url for the logs api
-
-        Args:
-            package_base(str): package base
-
-        Returns:
-            str: full url for web service for logs
-        """
-        return f"/api/v1/packages/{package_base}/logs"
-
-    @staticmethod
-    def _package_url(package_base: str = "") -> str:
-        """
-        url generator
-
-        Args:
-            package_base(str, optional): package base to generate url (Default value = "")
-
-        Returns:
-            str: full url of web service for specific package base
-        """
-        # in case if unix socket is used we need to normalize url
-        suffix = f"/{package_base}" if package_base else ""
-        return f"/api/v1/packages{suffix}"
 
     @staticmethod
     def parse_address(configuration: Configuration) -> tuple[str, bool]:
@@ -157,56 +116,60 @@ class WebClient(Client, LazyLogging):
         Args:
             session(requests.Session): request session to login
         """
-        if self.user is None:
+        if self.auth is None:
             return  # no auth configured
 
+        username, password = self.auth
         payload = {
-            "username": self.user.username,
-            "password": self.user.password
+            "username": username,
+            "password": password,
         }
         with contextlib.suppress(Exception):
-            self.make_request("POST", self._login_url, json=payload, session=session)
+            self.make_request("POST", self._login_url(), json=payload, session=session)
 
-    def make_request(self, method: Literal["DELETE", "GET", "POST"], url: str, *,
-                     params: list[tuple[str, str]] | None = None,
-                     json: dict[str, Any] | None = None,
-                     files: dict[str, MultipartType] | None = None,
-                     session: requests.Session | None = None,
-                     suppress_errors: bool | None = None) -> requests.Response:
+    def _login_url(self) -> str:
         """
-        perform request with specified parameters
-
-        Args:
-            method(Literal["DELETE", "GET", "POST"]): HTTP method to call
-            url(str): remote url to call
-            params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
-            json(dict[str, Any] | None, optional): request json parameters (Default value = None)
-            files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
-            session(requests.Session | None, optional): session object if any (Default value = None)
-            suppress_errors(bool | None, optional): suppress logging errors (e.g. if no web server available). If none
-                set, the instance-wide value will be used (Default value = None)
+        get url for the login api
 
         Returns:
-            requests.Response: response object
+            str: full url for web service to log in
         """
-        # defaults
-        if suppress_errors is None:
-            suppress_errors = self.suppress_errors
-        if session is None:
-            session = self.session
+        return f"{self.address}/api/v1/login"
 
-        try:
-            response = session.request(method, f"{self.address}{url}", params=params, json=json, files=files)
-            response.raise_for_status()
-            return response
-        except requests.RequestException as e:
-            if not suppress_errors:
-                self.logger.exception("could not perform http request: %s", exception_response_text(e))
-            raise
-        except Exception:
-            if not suppress_errors:
-                self.logger.exception("could not perform http request")
-            raise
+    def _logs_url(self, package_base: str) -> str:
+        """
+        get url for the logs api
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            str: full url for web service for logs
+        """
+        return f"{self.address}/api/v1/packages/{package_base}/logs"
+
+    def _package_url(self, package_base: str = "") -> str:
+        """
+        url generator
+
+        Args:
+            package_base(str, optional): package base to generate url (Default value = "")
+
+        Returns:
+            str: full url of web service for specific package base
+        """
+        # in case if unix socket is used we need to normalize url
+        suffix = f"/{package_base}" if package_base else ""
+        return f"{self.address}/api/v1/packages{suffix}"
+
+    def _status_url(self) -> str:
+        """
+        get url for the status api
+
+        Returns:
+            str: full url for web service for status
+        """
+        return f"{self.address}/api/v1/status"
 
     def package_add(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -293,7 +256,7 @@ class WebClient(Client, LazyLogging):
             InternalStatus: current internal (web) service status
         """
         with contextlib.suppress(Exception):
-            response = self.make_request("GET", self._status_url)
+            response = self.make_request("GET", self._status_url())
             response_json = response.json()
 
             return InternalStatus.from_json(response_json)
@@ -309,4 +272,4 @@ class WebClient(Client, LazyLogging):
         """
         payload = {"status": status.value}
         with contextlib.suppress(Exception):
-            self.make_request("POST", self._status_url, json=payload)
+            self.make_request("POST", self._status_url(), json=payload)

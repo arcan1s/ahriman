@@ -17,18 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman import __version__
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.log import LazyLogging
+from ahriman.core.http import SyncHttpClient
 from ahriman.models.aur_package import AURPackage
 
 
-class Remote(LazyLogging):
+class Remote(SyncHttpClient):
     """
     base class for remote package search
-
-    Attributes:
-        DEFAULT_USER_AGENT(str): (class attribute) default user agent
 
     Examples:
         These classes are designed to be used without instancing. In order to achieve it several class methods are
@@ -42,8 +38,6 @@ class Remote(LazyLogging):
         Differnece between ``search`` and ``multisearch`` is that ``search`` passes all arguments to underlying wrapper
         directly, whereas ``multisearch`` splits search one by one and finds intersection between search results.
     """
-
-    DEFAULT_USER_AGENT = f"ahriman/{__version__}"
 
     @classmethod
     def info(cls, package_name: str, *, pacman: Pacman) -> AURPackage:

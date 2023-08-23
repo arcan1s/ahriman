@@ -24,7 +24,6 @@ import itertools
 import logging
 import os
 import re
-import requests
 import selectors
 import subprocess
 
@@ -44,7 +43,6 @@ __all__ = [
     "check_user",
     "dataclass_view",
     "enum_values",
-    "exception_response_text",
     "extract_user",
     "filter_json",
     "full_version",
@@ -212,20 +210,6 @@ def enum_values(enum: type[Enum]) -> list[str]:
         list[str]: available enumeration values as string
     """
     return [str(key.value) for key in enum]  # explicit str conversion for typing
-
-
-def exception_response_text(exception: requests.exceptions.RequestException) -> str:
-    """
-    safe response exception text generation
-
-    Args:
-        exception(requests.exceptions.RequestException): exception raised
-
-    Returns:
-        str: text of the response if it is not None and empty string otherwise
-    """
-    result: str = exception.response.text if exception.response is not None else ""
-    return result
 
 
 def extract_user() -> str | None:

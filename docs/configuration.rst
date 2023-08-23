@@ -114,6 +114,7 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``port`` - port to bind, int, optional.
 * ``static_path`` - path to directory with static files, string, required.
 * ``templates`` - path to templates directory, string, required.
+* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
@@ -311,6 +312,7 @@ This feature requires Github key creation (see below). Section name must be eith
 Section name must be either ``remote-service`` (plus optional architecture name, e.g. ``remote-service:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the report, string, optional, must be set to ``remote-service`` if exists.
+* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 
 ``rsync`` type
 ^^^^^^^^^^^^^^

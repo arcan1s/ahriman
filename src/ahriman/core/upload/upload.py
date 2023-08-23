@@ -51,8 +51,8 @@ class Upload(LazyLogging):
 
             >>> try:
             >>>     upload.sync(configuration.repository_paths.repository, [])
-            >>> except Exception as exception:
-            >>>     handle_exceptions(exception)
+            >>> except Exception as ex:
+            >>>     handle_exceptions(ex)
     """
 
     def __init__(self, architecture: str, configuration: Configuration) -> None:

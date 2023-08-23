@@ -10,9 +10,9 @@ from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
-from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, exception_response_text, \
-    extract_user, filter_json, full_version, package_like, parse_version, partition, pretty_datetime, pretty_size, \
-    safe_filename, srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
+from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, extract_user, filter_json, \
+    full_version, package_like, parse_version, partition, pretty_datetime, pretty_size, safe_filename, \
+    srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -202,25 +202,6 @@ def test_dataclass_view_without_none(package_ahriman: Package) -> None:
     result = dataclass_view(package_ahriman)
     assert "packager" not in result
     assert Package.from_json(result) == package_ahriman
-
-
-def test_exception_response_text() -> None:
-    """
-    must parse HTTP response to string
-    """
-    response_mock = MagicMock()
-    response_mock.text = "hello"
-    exception = requests.exceptions.HTTPError(response=response_mock)
-
-    assert exception_response_text(exception) == "hello"
-
-
-def test_exception_response_text_empty() -> None:
-    """
-    must parse HTTP exception with empty response to empty string
-    """
-    exception = requests.exceptions.HTTPError(response=None)
-    assert exception_response_text(exception) == ""
 
 
 def test_extract_user() -> None:

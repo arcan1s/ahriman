@@ -23,8 +23,9 @@ from functools import cached_property
 from pathlib import Path
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.http import MultipartType
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.status.web_client import MultipartType, WebClient
+from ahriman.core.status.web_client import WebClient
 from ahriman.core.upload.http_upload import HttpUpload
 from ahriman.models.package import Package
 
@@ -77,7 +78,7 @@ class RemoteService(HttpUpload):
                 if signature_path is not None:
                     files["signature"] = signature_path.name, signature_path.open("rb"), "application/octet-stream", {}
 
-                self._request("POST", f"{self.client.address}/api/v1/service/upload", files=files)
+                self.make_request("POST", f"{self.client.address}/api/v1/service/upload", files=files)
             finally:
                 for _, fd, _, _ in files.values():
                     fd.close()

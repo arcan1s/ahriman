@@ -17,14 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import requests
-
 from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Remote
 from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
-from ahriman.core.util import exception_response_text
 from ahriman.models.aur_package import AURPackage
 
 
@@ -37,14 +34,12 @@ class Official(Remote):
         DEFAULT_ARCHLINUX_GIT_URL(str): (class attribute) default url for git packages
         DEFAULT_SEARCH_REPOSITORIES(list[str]): (class attribute) default list of repositories to search
         DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
-        DEFAULT_TIMEOUT(int): (class attribute) HTTP request timeout in seconds
     """
 
     DEFAULT_ARCHLINUX_GIT_URL = "https://gitlab.archlinux.org"
     DEFAULT_ARCHLINUX_URL = "https://archlinux.org"
     DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib"]
     DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
-    DEFAULT_TIMEOUT = 30
 
     @classmethod
     def remote_git_url(cls, package_base: str, repository: str) -> str:
@@ -91,7 +86,7 @@ class Official(Remote):
             raise PackageInfoError("API validation error")
         return [AURPackage.from_repo(package) for package in response["results"]]
 
-    def make_request(self, *args: str, by: str) -> list[AURPackage]:
+    def arch_request(self, *args: str, by: str) -> list[AURPackage]:
         """
         perform request to official repositories RPC
 
@@ -102,20 +97,15 @@ class Official(Remote):
         Returns:
             list[AURPackage]: response parsed to package list
         """
-        try:
-            response = requests.get(
-                self.DEFAULT_RPC_URL,
-                params={by: args, "repo": self.DEFAULT_SEARCH_REPOSITORIES},
-                headers={"User-Agent": self.DEFAULT_USER_AGENT},
-                timeout=self.DEFAULT_TIMEOUT)
-            response.raise_for_status()
-            return self.parse_response(response.json())
-        except requests.HTTPError as e:
-            self.logger.exception("could not perform request: %s", exception_response_text(e))
-            raise
-        except Exception:
-            self.logger.exception("could not perform request")
-            raise
+        query: list[tuple[str, str]] = [
+            ("repo", repository)
+            for repository in self.DEFAULT_SEARCH_REPOSITORIES
+        ]
+        for arg in args:
+            query.append((by, arg))
+
+        response = self.make_request("GET", self.DEFAULT_RPC_URL, params=query)
+        return self.parse_response(response.json())
 
     def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
         """
@@ -131,7 +121,7 @@ class Official(Remote):
         Raises:
             UnknownPackageError: package doesn't exist
         """
-        packages = self.make_request(package_name, by="name")
+        packages = self.arch_request(package_name, by="name")
         try:
             return next(package for package in packages if package.name == package_name)
         except StopIteration:
@@ -148,4 +138,4 @@ class Official(Remote):
         Returns:
             list[AURPackage]: list of packages which match the criteria
         """
-        return self.make_request(*keywords, by="q")
+        return self.arch_request(*keywords, by="q")

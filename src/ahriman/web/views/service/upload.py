@@ -120,8 +120,8 @@ class UploadView(BaseView):
 
         try:
             reader = await self.request.multipart()
-        except Exception as e:
-            raise HTTPBadRequest(reason=str(e))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         max_body_size = self.configuration.getint("web", "max_body_size", fallback=None)
         target = self.configuration.repository_paths.packages
