@@ -47,8 +47,10 @@ class SmtpSSLSettings(str, Enum):
         Returns:
             SmtpSSLSettings: parsed value
         """
-        if value.lower() in ("ssl", "ssl/tls"):
-            return SmtpSSLSettings.SSL
-        if value.lower() in ("starttls",):
-            return SmtpSSLSettings.STARTTLS
-        return SmtpSSLSettings.Disabled
+        match value.lower():
+            case "ssl" | "ssl/tls":
+                return SmtpSSLSettings.SSL
+            case "starttls":
+                return SmtpSSLSettings.STARTTLS
+            case _:
+                return SmtpSSLSettings.Disabled

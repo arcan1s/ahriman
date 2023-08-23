@@ -99,6 +99,11 @@ class UploadTrigger(Trigger):
                     "type": "string",
                     "allowed": ["ahriman", "remote-service"],
                 },
+                "timeout": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
             },
         },
         "s3": {

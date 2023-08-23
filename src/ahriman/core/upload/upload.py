@@ -80,20 +80,21 @@ class Upload(LazyLogging):
             Upload: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
-        provider = UploadSettings.from_option(provider_name)
-        if provider == UploadSettings.Rsync:
-            from ahriman.core.upload.rsync import Rsync
-            return Rsync(architecture, configuration, section)
-        if provider == UploadSettings.S3:
-            from ahriman.core.upload.s3 import S3
-            return S3(architecture, configuration, section)
-        if provider == UploadSettings.Github:
-            from ahriman.core.upload.github import Github
-            return Github(architecture, configuration, section)
-        if provider == UploadSettings.RemoteService:
-            from ahriman.core.upload.remote_service import RemoteService
-            return RemoteService(architecture, configuration, section)
-        return Upload(architecture, configuration)  # should never happen
+        match UploadSettings.from_option(provider_name):
+            case UploadSettings.Rsync:
+                from ahriman.core.upload.rsync import Rsync
+                return Rsync(architecture, configuration, section)
+            case UploadSettings.S3:
+                from ahriman.core.upload.s3 import S3
+                return S3(architecture, configuration, section)
+            case UploadSettings.GitHub:
+                from ahriman.core.upload.github import Github
+                return Github(architecture, configuration, section)
+            case UploadSettings.RemoteService:
+                from ahriman.core.upload.remote_service import RemoteService
+                return RemoteService(architecture, configuration, section)
+            case _:
+                return Upload(architecture, configuration)  # should never happen
 
     def run(self, path: Path, built_packages: list[Package]) -> None:
         """

@@ -92,7 +92,7 @@ class Tree:
     dependency tree implementation
 
     Attributes:
-        leaves[list[Leaf]): list of tree leaves
+        leaves(list[Leaf]): list of tree leaves
 
     Examples:
         The most important feature here is to generate tree levels one by one which can be achieved by using class

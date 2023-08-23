@@ -47,8 +47,10 @@ class SignSettings(str, Enum):
         Returns:
             SignSettings: parsed value
         """
-        if value.lower() in ("package", "packages", "sign-package"):
-            return SignSettings.Packages
-        if value.lower() in ("repository", "sign-repository"):
-            return SignSettings.Repository
-        return SignSettings.Disabled
+        match value.lower():
+            case "package" | "packages" | "sign-package":
+                return SignSettings.Packages
+            case "repository" | "sign-repository":
+                return SignSettings.Repository
+            case _:
+                return SignSettings.Disabled

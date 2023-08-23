@@ -49,18 +49,19 @@ class Users(Handler):
         """
         database = SQLite.load(configuration)
 
-        if args.action == Action.Update:
-            user = Users.user_create(args)
-            # if password is left blank we are not going to require salt to be set
-            salt = configuration.get("auth", "salt", fallback="") if user.password else ""
-            database.user_update(user.hash_password(salt))
-        elif args.action == Action.List:
-            users = database.user_list(args.username, args.role)
-            Users.check_if_empty(args.exit_code, not users)
-            for user in users:
-                UserPrinter(user).print(verbose=True)
-        elif args.action == Action.Remove:
-            database.user_remove(args.username)
+        match args.action:
+            case Action.Update:
+                user = Users.user_create(args)
+                # if password is left blank we are not going to require salt to be set
+                salt = configuration.get("auth", "salt", fallback="") if user.password else ""
+                database.user_update(user.hash_password(salt))
+            case Action.List:
+                users = database.user_list(args.username, args.role)
+                Users.check_if_empty(args.exit_code, not users)
+                for user in users:
+                    UserPrinter(user).print(verbose=True)
+            case Action.Remove:
+                database.user_remove(args.username)
 
     @staticmethod
     def user_create(args: argparse.Namespace) -> User:

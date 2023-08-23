@@ -80,23 +80,24 @@ class Report(LazyLogging):
             Report: client according to current settings
         """
         section, provider_name = configuration.gettype(target, architecture)
-        provider = ReportSettings.from_option(provider_name)
-        if provider == ReportSettings.HTML:
-            from ahriman.core.report.html import HTML
-            return HTML(architecture, configuration, section)
-        if provider == ReportSettings.Email:
-            from ahriman.core.report.email import Email
-            return Email(architecture, configuration, section)
-        if provider == ReportSettings.Console:
-            from ahriman.core.report.console import Console
-            return Console(architecture, configuration, section)
-        if provider == ReportSettings.Telegram:
-            from ahriman.core.report.telegram import Telegram
-            return Telegram(architecture, configuration, section)
-        if provider == ReportSettings.RemoteCall:
-            from ahriman.core.report.remote_call import RemoteCall
-            return RemoteCall(architecture, configuration, section)
-        return Report(architecture, configuration)  # should never happen
+        match ReportSettings.from_option(provider_name):
+            case ReportSettings.HTML:
+                from ahriman.core.report.html import HTML
+                return HTML(architecture, configuration, section)
+            case ReportSettings.Email:
+                from ahriman.core.report.email import Email
+                return Email(architecture, configuration, section)
+            case ReportSettings.Console:
+                from ahriman.core.report.console import Console
+                return Console(architecture, configuration, section)
+            case ReportSettings.Telegram:
+                from ahriman.core.report.telegram import Telegram
+                return Telegram(architecture, configuration, section)
+            case ReportSettings.RemoteCall:
+                from ahriman.core.report.remote_call import RemoteCall
+                return RemoteCall(architecture, configuration, section)
+            case _:
+                return Report(architecture, configuration)  # should never happen
 
     def generate(self, packages: list[Package], result: Result) -> None:
         """

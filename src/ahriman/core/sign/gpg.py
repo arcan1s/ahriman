@@ -33,7 +33,7 @@ class GPG(SyncHttpClient):
     Attributes:
         configuration(Configuration): configuration instance
         default_key(str | None): default PGP key ID to use
-        targets(set[SignSettings]): list of targets to sign (repository, package etc)
+        targets(set[SignSettings]): list of targets to sign (repository, package etc.)
     """
 
     _check_output = check_output
@@ -116,7 +116,7 @@ class GPG(SyncHttpClient):
         download key from public PGP server
 
         Args:
-            server(str): public PGP server which will be used to download the key
+            server(str): public PGP server which will be used to download data
             key(str): key ID to download
 
         Returns:
@@ -163,7 +163,7 @@ class GPG(SyncHttpClient):
         import key to current user and sign it locally
 
         Args:
-            server(str): public PGP server which will be used to download the key
+            server(str): public PGP server which will be used to download data
             key(str): key ID to import
         """
         key_body = self.key_download(server, key)

@@ -102,6 +102,7 @@ def _auth_handler(allow_read_only: bool) -> MiddlewareType:
             permission = UserAccess.Unauthorized if isinstance(handler_instance, StaticResource) else UserAccess.Full
         else:
             permission = UserAccess.Full
+
         if permission == UserAccess.Unauthorized:  # explicit if elif else for better code coverage
             pass
         elif allow_read_only and UserAccess.Read.permits(permission):

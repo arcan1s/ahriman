@@ -32,8 +32,8 @@ class RepositoryPaths:
     repository paths holder. For the most operations with paths you want to use this object
 
     Attributes:
-        root(Path): repository root (i.e. ahriman home)
         architecture(str): repository architecture
+        root(Path): repository root (i.e. ahriman home)
 
     Examples:
         This class can be used in order to access the repository tree structure::

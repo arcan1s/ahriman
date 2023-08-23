@@ -334,7 +334,7 @@ def pretty_size(size: float | None, level: int = 0) -> str:
 
     Args:
         size(float | None): size to convert
-        level(int, optional): represents current units, 0 is B, 1 is KiB, etc (Default value = 0)
+        level(int, optional): represents current units, 0 is B, 1 is KiB, etc. (Default value = 0)
 
     Returns:
         str: pretty printable size as string
@@ -343,15 +343,17 @@ def pretty_size(size: float | None, level: int = 0) -> str:
         OptionError: if size is more than 1TiB
     """
     def str_level() -> str:
-        if level == 0:
-            return "B"
-        if level == 1:
-            return "KiB"
-        if level == 2:
-            return "MiB"
-        if level == 3:
-            return "GiB"
-        raise OptionError(level)  # must never happen actually
+        match level:
+            case 0:
+                return "B"
+            case 1:
+                return "KiB"
+            case 2:
+                return "MiB"
+            case 3:
+                return "GiB"
+            case _:
+                raise OptionError(level)  # must never happen actually
 
     if size is None:
         return ""
@@ -389,7 +391,7 @@ def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[st
     returned
 
     Args:
-        key(str): key to extract from srcinfo
+        key(str): key to extract
         srcinfo(dict[str, Any]): root structure of SRCINFO
         package_srcinfo(dict[str, Any]): package specific SRCINFO
         default(Any, optional): the default value for the specified key (Default value = None)
@@ -408,7 +410,7 @@ def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: di
     append it at the end of result
 
     Args:
-        key(str): key to extract from srcinfo
+        key(str): key to extract
         srcinfo(dict[str, Any]): root structure of SRCINFO
         package_srcinfo(dict[str, Any]): package specific SRCINFO
         architecture(str | None, optional): package architecture if set (Default value = None)
@@ -424,9 +426,9 @@ def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: di
 
 def trim_package(package_name: str) -> str:
     """
-    remove version bound and description from package name. Pacman allows to specify version bound (=, <=, >= etc) for
-    packages in dependencies and also allows to specify description (via :); this function removes trailing parts and
-    return exact package name
+    remove version bound and description from package name. Pacman allows to specify version bound (=, <=, >= etc.) for
+    packages in dependencies and also allows to specify description (via ``:``); this function removes trailing parts
+    and return exact package name
 
     Args:
         package_name(str): source package name

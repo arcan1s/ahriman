@@ -49,6 +49,16 @@ class Pacman(LazyLogging):
         self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
             architecture, configuration, refresh_database=refresh_database)
 
+    @cached_property
+    def handle(self) -> Handle:
+        """
+        pyalpm handle
+
+        Returns:
+            Handle: generated pyalpm handle instance
+        """
+        return self.__create_handle_fn()
+
     def __create_handle(self, architecture: str, configuration: Configuration, *,
                         refresh_database: PacmanSynchronization) -> Handle:
         """
@@ -79,16 +89,6 @@ class Pacman(LazyLogging):
 
         return handle
 
-    @cached_property
-    def handle(self) -> Handle:
-        """
-        pyalpm handle
-
-        Returns:
-            Handle: generated pyalpm handle instance
-        """
-        return self.__create_handle_fn()
-
     def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
                       use_ahriman_cache: bool) -> None:
         """
@@ -116,7 +116,7 @@ class Pacman(LazyLogging):
         src = repository_database(pacman_root)
         if not src.is_file():
             self.logger.warning("repository %s is set to be used, however, no working copy was found", database.name)
-            return  # database for some reasons deos not exist
+            return  # database for some reason deos not exist
         self.logger.info("copy pacman database from operating system root to ahriman's home")
         shutil.copy(src, dst)
         paths.chown(dst)

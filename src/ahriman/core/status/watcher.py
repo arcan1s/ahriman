@@ -113,7 +113,7 @@ class Watcher(LazyLogging):
 
         Args:
             log_record_id(LogRecordId): log record id
-            created(float): log created record
+            created(float): log created timestamp
             record(str): log record
         """
         if self._last_log_record_id != log_record_id:

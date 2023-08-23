@@ -266,6 +266,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "required": True,
                 "path_exists": True,
             },
+            "timeout": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
             "unix_socket": {
                 "type": "path",
                 "coerce": "absolute_path",

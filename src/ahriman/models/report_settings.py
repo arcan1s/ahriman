@@ -53,14 +53,16 @@ class ReportSettings(str, Enum):
         Returns:
             ReportSettings: parsed value
         """
-        if value.lower() in ("html",):
-            return ReportSettings.HTML
-        if value.lower() in ("email",):
-            return ReportSettings.Email
-        if value.lower() in ("console",):
-            return ReportSettings.Console
-        if value.lower() in ("telegram",):
-            return ReportSettings.Telegram
-        if value.lower() in ("ahriman", "remote-call",):
-            return ReportSettings.RemoteCall
-        return ReportSettings.Disabled
+        match value.lower():
+            case "html":
+                return ReportSettings.HTML
+            case "email":
+                return ReportSettings.Email
+            case "console":
+                return ReportSettings.Console
+            case "telegram":
+                return ReportSettings.Telegram
+            case "ahriman" | "remote-call":
+                return ReportSettings.RemoteCall
+            case _:
+                return ReportSettings.Disabled
