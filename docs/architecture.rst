@@ -37,6 +37,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.database`` is everything including data and schema migrations for database.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
+* ``ahriman.core.http`` package provides HTTP clients which can be later used by other classes.
 * ``ahriman.core.log`` is a log utils package. It includes logger loader class, custom HTTP based logger and access logger for HTTP services with additional filters.
 * ``ahriman.core.report`` is a package with reporting triggers. Should not be called directly.
 * ``ahriman.core.repository`` contains several traits and base repository (``ahriman.core.repository.Repository`` class) implementation.
