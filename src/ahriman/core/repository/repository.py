@@ -40,7 +40,7 @@ class Repository(Executor, UpdateHandler):
 
     Examples:
         This class along with traits provides access to local repository actions, e.g. remove packages, update packages,
-        sync local repository to remote, generate report, etc::
+        sync local repository to remote, generate report, etc.::
 
             >>> from ahriman.core.configuration import Configuration
             >>> from ahriman.core.database import SQLite

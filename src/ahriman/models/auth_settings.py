@@ -44,9 +44,7 @@ class AuthSettings(str, Enum):
         Returns:
             bool: False in case if authorization is disabled and True otherwise
         """
-        if self == AuthSettings.Disabled:
-            return False
-        return True
+        return self != AuthSettings.Disabled
 
     @staticmethod
     def from_option(value: str) -> AuthSettings:
@@ -59,8 +57,10 @@ class AuthSettings(str, Enum):
         Returns:
             AuthSettings: parsed value
         """
-        if value.lower() in ("configuration", "mapping"):
-            return AuthSettings.Configuration
-        if value.lower() in ("oauth", "oauth2"):
-            return AuthSettings.OAuth
-        return AuthSettings.Disabled
+        match value.lower():
+            case "configuration" | "mapping":
+                return AuthSettings.Configuration
+            case "oauth" | "oauth2":
+                return AuthSettings.OAuth
+            case _:
+                return AuthSettings.Disabled

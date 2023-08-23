@@ -51,16 +51,17 @@ class Patch(Handler):
         application = Application(architecture, configuration, report=report)
         application.on_start()
 
-        if args.action == Action.Update and args.variable is not None:
-            patch = Patch.patch_create_from_function(args.variable, args.patch)
-            Patch.patch_set_create(application, args.package, patch)
-        elif args.action == Action.Update and args.variable is None:
-            package_base, patch = Patch.patch_create_from_diff(args.package, architecture, args.track)
-            Patch.patch_set_create(application, package_base, patch)
-        elif args.action == Action.List:
-            Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
-        elif args.action == Action.Remove:
-            Patch.patch_set_remove(application, args.package, args.variable)
+        match args.action:
+            case Action.Update if args.variable is not None:
+                patch = Patch.patch_create_from_function(args.variable, args.patch)
+                Patch.patch_set_create(application, args.package, patch)
+            case Action.Update:
+                package_base, patch = Patch.patch_create_from_diff(args.package, architecture, args.track)
+                Patch.patch_set_create(application, package_base, patch)
+            case Action.List:
+                Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
+            case Action.Remove:
+                Patch.patch_set_remove(application, args.package, args.variable)
 
     @staticmethod
     def patch_create_from_diff(sources_dir: Path, architecture: str, track: list[str]) -> tuple[str, PkgbuildPatch]:

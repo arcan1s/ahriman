@@ -46,13 +46,14 @@ class StatusUpdate(Handler):
         # we are using reporter here
         client = Application(architecture, configuration, report=True).repository.reporter
 
-        if args.action == Action.Update and args.package:
-            # update packages statuses
-            for package in args.package:
-                client.package_update(package, args.status)
-        elif args.action == Action.Update:
-            # update service status
-            client.status_update(args.status)
-        elif args.action == Action.Remove:
-            for package in args.package:
-                client.package_remove(package)
+        match args.action:
+            case Action.Update if args.package:
+                # update packages statuses
+                for package in args.package:
+                    client.package_update(package, args.status)
+            case Action.Update:
+                # update service status
+                client.status_update(args.status)
+            case Action.Remove:
+                for package in args.package:
+                    client.package_remove(package)

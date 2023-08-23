@@ -28,7 +28,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     must run command
     """
-    package_ahriman.version = "0.0.0"
+    package_ahriman.version = "0.0.0-1"
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     package_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)

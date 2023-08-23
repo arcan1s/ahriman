@@ -107,7 +107,7 @@ class BaseView(View, CorsViewMixin):
         get non-empty value from request parameters
 
         Args:
-            extractor(Callable[[str], T | None]): function to get value by the specified key
+            extractor(Callable[[str], T | None]): function to get value
             key(str): key to extract value
 
         Returns:

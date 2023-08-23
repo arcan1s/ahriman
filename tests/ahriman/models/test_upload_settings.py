@@ -18,8 +18,8 @@ def test_from_option_valid() -> None:
     assert UploadSettings.from_option("s3") == UploadSettings.S3
     assert UploadSettings.from_option("S3") == UploadSettings.S3
 
-    assert UploadSettings.from_option("github") == UploadSettings.Github
-    assert UploadSettings.from_option("GitHub") == UploadSettings.Github
+    assert UploadSettings.from_option("github") == UploadSettings.GitHub
+    assert UploadSettings.from_option("GitHub") == UploadSettings.GitHub
 
     assert UploadSettings.from_option("remote-service") == UploadSettings.RemoteService
     assert UploadSettings.from_option("Remote-Service") == UploadSettings.RemoteService

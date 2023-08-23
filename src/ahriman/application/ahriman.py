@@ -86,7 +86,7 @@ def _parser() -> argparse.ArgumentParser:
                         action="store_true")
     parser.add_argument("--wait-timeout", help="wait for lock to be free. Negative value will lead to "
                                                "immediate application run even if there is lock file. "
-                                               "In case of zero value, tthe application will wait infinitely",
+                                               "In case of zero value, the application will wait infinitely",
                         type=int, default=-1)
     parser.add_argument("-V", "--version", action="version", version=__version__)
 

@@ -28,8 +28,8 @@ from ahriman.models.auth_settings import AuthSettings
 
 class OAuth(Mapping):
     """
-    OAuth's user authorization.
-    It is required to create application first and put application credentials.
+    User authorization implementation via OAuth. It is required to create application first and put application
+    credentials.
 
     Attributes:
         client_id(str): application client id

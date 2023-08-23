@@ -136,13 +136,13 @@ class Validator(RootValidator):
             The rule's arguments are validated against this schema:
             {"type": "list", "schema": {"type": "string"}}
         """
-        url = urlparse(value)  # it probably will never rise exceptions on parse
-        if not url.scheme:
-            self._error(field, f"Url scheme is not set for {value}")
-        if not url.netloc and url.scheme not in ("file",):
-            self._error(field, f"Location must be set for url {value} of scheme {url.scheme}")
-        if constraint and url.scheme not in constraint:
-            self._error(field, f"Url {value} scheme must be one of {constraint}")
+        match urlparse(value):  # it probably will never rise exceptions on parse
+            case url if not url.scheme:
+                self._error(field, f"Url scheme is not set for {value}")
+            case url if not url.netloc and url.scheme not in ("file",):
+                self._error(field, f"Location must be set for url {value} of scheme {url.scheme}")
+            case url if constraint and url.scheme not in constraint:
+                self._error(field, f"Url {value} scheme must be one of {constraint}")
 
     def _validate_path_exists(self, constraint: bool, field: str, value: Path) -> None:
         """
@@ -157,7 +157,8 @@ class Validator(RootValidator):
             The rule's arguments are validated against this schema:
             {"type": "boolean"}
         """
-        if constraint and not value.exists():
-            self._error(field, f"Path {value} must exist")
-        if not constraint and value.exists():
-            self._error(field, f"Path {value} must not exist")
+        match value.exists():
+            case True if not constraint:
+                self._error(field, f"Path {value} must not exist")
+            case False if constraint:
+                self._error(field, f"Path {value} must exist")

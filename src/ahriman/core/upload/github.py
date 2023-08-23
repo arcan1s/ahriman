@@ -31,11 +31,11 @@ from ahriman.models.package import Package
 
 class Github(HttpUpload):
     """
-    upload files to github releases
+    upload files to GitHub releases
 
     Attributes:
-        github_owner(str): github repository owner
-        github_repository(str): github repository name
+        github_owner(str): GitHub repository owner
+        github_repository(str): GitHub repository name
     """
 
     def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
@@ -100,7 +100,7 @@ class Github(HttpUpload):
 
     def files_remove(self, release: dict[str, Any], local_files: dict[Path, str], remote_files: dict[str, str]) -> None:
         """
-        remove files from github
+        remove files from GitHub
 
         Args:
             release(dict[str, Any]): release object
@@ -115,7 +115,7 @@ class Github(HttpUpload):
 
     def files_upload(self, release: dict[str, Any], local_files: dict[Path, str], remote_files: dict[str, str]) -> None:
         """
-        upload files to github
+        upload files to GitHub
 
         Args:
             release(dict[str, Any]): release object
@@ -133,7 +133,7 @@ class Github(HttpUpload):
         create empty release
 
         Returns:
-            dict[str, Any]: github API release object for the new release
+            dict[str, Any]: GitHub API release object for the new release
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases"
         response = self.make_request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
@@ -145,7 +145,7 @@ class Github(HttpUpload):
         get release object if any
 
         Returns:
-            dict[str, Any] | None: github API release object if release found and None otherwise
+            dict[str, Any] | None: GitHub API release object if release found and None otherwise
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.architecture}"
         try:

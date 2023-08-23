@@ -74,14 +74,15 @@ class Auth(LazyLogging):
         Returns:
             Auth: authorization module according to current settings
         """
-        provider = AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled"))
-        if provider == AuthSettings.Configuration:
-            from ahriman.core.auth.mapping import Mapping
-            return Mapping(configuration, database)
-        if provider == AuthSettings.OAuth:
-            from ahriman.core.auth.oauth import OAuth
-            return OAuth(configuration, database)
-        return Auth(configuration)
+        match AuthSettings.from_option(configuration.get("auth", "target", fallback="disabled")):
+            case AuthSettings.Configuration:
+                from ahriman.core.auth.mapping import Mapping
+                return Mapping(configuration, database)
+            case AuthSettings.OAuth:
+                from ahriman.core.auth.oauth import OAuth
+                return OAuth(configuration, database)
+            case _:
+                return Auth(configuration)
 
     async def check_credentials(self, username: str | None, password: str | None) -> bool:
         """

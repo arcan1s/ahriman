@@ -117,7 +117,6 @@ class ApplicationPackages(ApplicationProperties):
         Raises:
             UnknownPackageError: if specified package is unknown or doesn't exist
         """
-        dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         # timeout=None to suppress pylint warns. Also suppress bandit warnings
         try:
             response = requests.get(source, stream=True, timeout=None)  # nosec
@@ -125,6 +124,7 @@ class ApplicationPackages(ApplicationProperties):
         except Exception:
             raise UnknownPackageError(source)
 
+        dst = self.repository.paths.packages / Path(source).name  # URL is path, is not it?
         with dst.open("wb") as local_file:
             for chunk in response.iter_content(chunk_size=1024):
                 local_file.write(chunk)

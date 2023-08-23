@@ -64,7 +64,7 @@ class RemoteSource:
     @property
     def pkgbuild_dir(self) -> Path | None:
         """
-        get path to directory with package sources (PKGBUILD etc)
+        get path to directory with package sources (PKGBUILD etc.)
 
         Returns:
             Path | None: path to directory with package sources based on settings if available

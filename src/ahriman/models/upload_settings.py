@@ -30,14 +30,14 @@ class UploadSettings(str, Enum):
         Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
         Rsync(UploadSettings): (class attribute) sync via rsync
         S3(UploadSettings): (class attribute) sync to Amazon S3
-        Github(UploadSettings): (class attribute) sync to github releases page
+        GitHub(UploadSettings): (class attribute) sync to GitHub releases page
         RemoteService(UploadSettings): (class attribute) sync to another ahriman instance
     """
 
     Disabled = "disabled"  # for testing purpose
     Rsync = "rsync"
     S3 = "s3"
-    Github = "github"
+    GitHub = "github"
     RemoteService = "remote-service"
 
     @staticmethod
@@ -51,12 +51,14 @@ class UploadSettings(str, Enum):
         Returns:
             UploadSettings: parsed value
         """
-        if value.lower() in ("rsync",):
-            return UploadSettings.Rsync
-        if value.lower() in ("s3",):
-            return UploadSettings.S3
-        if value.lower() in ("github",):
-            return UploadSettings.Github
-        if value.lower() in ("ahriman", "remote-service",):
-            return UploadSettings.RemoteService
-        return UploadSettings.Disabled
+        match value.lower():
+            case "rsync":
+                return UploadSettings.Rsync
+            case "s3":
+                return UploadSettings.S3
+            case "github":
+                return UploadSettings.GitHub
+            case "ahriman" | "remote-service":
+                return UploadSettings.RemoteService
+            case _:
+                return UploadSettings.Disabled

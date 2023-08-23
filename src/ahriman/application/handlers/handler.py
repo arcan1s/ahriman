@@ -94,10 +94,13 @@ class Handler:
         """
         try:
             configuration = Configuration.from_path(args.configuration, architecture)
+
             log_handler = Log.handler(args.log_handler)
             Log.load(configuration, log_handler, quiet=args.quiet, report=args.report)
+
             with Lock(args, architecture, configuration):
                 cls.run(args, architecture, configuration, report=args.report)
+
             return True
         except ExitCode:
             return False
@@ -128,8 +131,7 @@ class Handler:
                 raise MultipleArchitecturesError(args.command)
 
             with Pool(len(architectures)) as pool:
-                result = pool.starmap(
-                    cls.call, [(args, architecture) for architecture in architectures])
+                result = pool.starmap(cls.call, [(args, architecture) for architecture in architectures])
         else:
             result = [cls.call(args, architectures.pop())]
 
