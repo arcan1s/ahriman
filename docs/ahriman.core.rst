@@ -14,6 +14,7 @@ Subpackages
    ahriman.core.database
    ahriman.core.formatters
    ahriman.core.gitremote
+   ahriman.core.http
    ahriman.core.log
    ahriman.core.report
    ahriman.core.repository
