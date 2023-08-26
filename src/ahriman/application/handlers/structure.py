@@ -22,7 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import TreePrinter
+from ahriman.core.formatters import StringPrinter, TreePrinter
 from ahriman.core.tree import Tree
 
 
@@ -45,8 +45,14 @@ class Structure(Handler):
             report(bool): force enable or disable reporting
         """
         application = Application(architecture, configuration, report=report)
-        packages = application.repository.packages()
+        partitions = Tree.partition(application.repository.packages(), count=args.partitions)
 
-        tree = Tree.resolve(packages)
-        for num, level in enumerate(tree):
-            TreePrinter(num, level).print(verbose=True, separator=" ")
+        for partition_id, partition in enumerate(partitions):
+            StringPrinter(f"partition #{partition_id}").print(verbose=False)
+
+            tree = Tree.resolve(partition)
+            for num, level in enumerate(tree):
+                TreePrinter(num, level).print(verbose=True, separator=" ")
+
+            # empty line
+            StringPrinter("").print(verbose=False)

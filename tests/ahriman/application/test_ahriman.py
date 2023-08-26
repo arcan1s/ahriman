@@ -600,6 +600,16 @@ def test_subparsers_repo_tree_architecture(parser: argparse.ArgumentParser) -> N
     assert args.architecture == ["x86_64"]
 
 
+def test_subparsers_repo_tree_option_partitions(parser: argparse.ArgumentParser) -> None:
+    """
+    must convert partitions option to int instance
+    """
+    args = parser.parse_args(["repo-tree"])
+    assert isinstance(args.partitions, int)
+    args = parser.parse_args(["repo-tree", "--partitions", "42"])
+    assert isinstance(args.partitions, int)
+
+
 def test_subparsers_repo_triggers_architecture(parser: argparse.ArgumentParser) -> None:
     """
     repo-triggers command must correctly parse architecture list

@@ -715,6 +715,8 @@ def _set_repo_tree_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-tree", help="dump repository tree",
                              description="dump repository tree based on packages dependencies",
                              formatter_class=_formatter)
+    parser.add_argument("-p", "--partitions", help="also divide packages by independent partitions",
+                        type=int, default=1)
     parser.set_defaults(handler=handlers.Structure, lock=None, report=False, quiet=True, unsafe=True)
     return parser
 

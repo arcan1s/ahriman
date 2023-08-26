@@ -2,16 +2,15 @@ import datetime
 import logging
 import os
 import pytest
-import requests
 
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest.mock import MagicMock, call as MockCall
+from unittest.mock import call as MockCall
 
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, extract_user, filter_json, \
-    full_version, package_like, parse_version, partition, pretty_datetime, pretty_size, safe_filename, \
+    full_version, minmax, package_like, parse_version, partition, pretty_datetime, pretty_size, safe_filename, \
     srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -204,6 +203,15 @@ def test_dataclass_view_without_none(package_ahriman: Package) -> None:
     assert Package.from_json(result) == package_ahriman
 
 
+def test_enum_values() -> None:
+    """
+    must correctly generate choices from enumeration classes
+    """
+    values = enum_values(PackageSource)
+    for value in values:
+        assert PackageSource(value).value == value
+
+
 def test_extract_user() -> None:
     """
     must extract user from system environment
@@ -241,15 +249,6 @@ def test_filter_json_empty_value(package_ahriman: Package) -> None:
     assert "base" not in filter_json(probe, probe.keys())
 
 
-def test_enum_values() -> None:
-    """
-    must correctly generate choices from enumeration classes
-    """
-    values = enum_values(PackageSource)
-    for value in values:
-        assert PackageSource(value).value == value
-
-
 def test_full_version() -> None:
     """
     must construct full version
@@ -258,6 +257,14 @@ def test_full_version() -> None:
     assert full_version(None, "0.12.1", "1") == "0.12.1-1"
     assert full_version(0, "0.12.1", "1") == "0.12.1-1"
     assert full_version(1, "0.12.1", "1") == "1:0.12.1-1"
+
+
+def test_minmax() -> None:
+    """
+    must correctly define minimal and maximal value
+    """
+    assert minmax([1, 4, 3, 2]) == (1, 4)
+    assert minmax([[1, 2, 3], [4, 5], [6, 7, 8, 9]], key=len) == ([4, 5], [6, 7, 8, 9])
 
 
 def test_package_like(package_ahriman: Package) -> None:

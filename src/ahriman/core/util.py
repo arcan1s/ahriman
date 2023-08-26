@@ -46,6 +46,7 @@ __all__ = [
     "extract_user",
     "filter_json",
     "full_version",
+    "minmax",
     "package_like",
     "parse_version",
     "partition",
@@ -263,6 +264,22 @@ def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:
     return f"{prefix}{pkgver}-{pkgrel}"
 
 
+def minmax(source: Iterable[T], *, key: Callable[[T], Any] | None = None) -> tuple[T, T]:
+    """
+    get min and max value from iterable
+
+    Args:
+        source(Iterable[T]): source list to find min and max values
+        key(Callable[[T], Any] | None, optional): key to sort (Default value = None)
+
+    Returns:
+        tuple[T, T]: min and max values for sequence
+    """
+    first_iter, second_iter = itertools.tee(source)
+    # typing doesn't expose SupportLessThan, so we just ignore this in typecheck
+    return min(first_iter, key=key), max(second_iter, key=key)  # type: ignore
+
+
 def package_like(filename: Path) -> bool:
     """
     check if file looks like package
@@ -296,12 +313,12 @@ def parse_version(version: str) -> tuple[str | None, str, str]:
     return epoch, pkgver, pkgrel
 
 
-def partition(source: list[T], predicate: Callable[[T], bool]) -> tuple[list[T], list[T]]:
+def partition(source: Iterable[T], predicate: Callable[[T], bool]) -> tuple[list[T], list[T]]:
     """
     partition list into two based on predicate, based on https://docs.python.org/dev/library/itertools.html#itertools-recipes
 
     Args:
-        source(list[T]): source list to be partitioned
+        source(Iterable[T]): source list to be partitioned
         predicate(Callable[[T], bool]): filter function
 
     Returns:
