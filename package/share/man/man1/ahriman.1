@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-08\-19" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-08\-26" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -43,7 +43,7 @@ allow to run ahriman as non\-ahriman user. Some actions might be unavailable
 .TP
 \fB\-\-wait\-timeout\fR \fI\,WAIT_TIMEOUT\/\fR
 wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of
-zero value, tthe application will wait infinitely
+zero value, the application will wait infinitely
 
 .TP
 \fB\-V\fR, \fB\-\-version\fR
@@ -558,9 +558,14 @@ usage: ahriman repo\-sync [\-h]
 sync repository files to remote server according to current settings
 
 .SH COMMAND \fI\,'ahriman repo\-tree'\/\fR
-usage: ahriman repo\-tree [\-h]
+usage: ahriman repo\-tree [\-h] [\-p PARTITIONS]
 
 dump repository tree based on packages dependencies
+
+.SH OPTIONS \fI\,'ahriman repo\-tree'\/\fR
+.TP
+\fB\-p\fR \fI\,PARTITIONS\/\fR, \fB\-\-partitions\fR \fI\,PARTITIONS\/\fR
+also divide packages by independent partitions
 
 .SH COMMAND \fI\,'ahriman repo\-triggers'\/\fR
 usage: ahriman repo\-triggers [\-h] [trigger ...]

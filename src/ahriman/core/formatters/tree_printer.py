@@ -38,7 +38,7 @@ class TreePrinter(StringPrinter):
             level(int): dependencies tree level
             packages(list[Package]): packages which belong to this level
         """
-        StringPrinter.__init__(self, f"level {level}")
+        StringPrinter.__init__(self, f"level #{level}")
         self.packages = packages
 
     def properties(self) -> list[Property]:

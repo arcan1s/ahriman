@@ -244,6 +244,21 @@ class PasswordError(ValueError):
         ValueError.__init__(self, f"Password error: {details}")
 
 
+class PartitionError(RuntimeError):
+    """
+    exception raised during packages partition actions
+    """
+
+    def __init__(self, count: int) -> None:
+        """
+        default constructor
+
+        Args:
+            count(int): count of partitions
+        """
+        RuntimeError.__init__(self, f"Could not divide packages into {count} partitions")
+
+
 class PkgbuildGeneratorError(RuntimeError):
     """
     exception class for support type triggers
