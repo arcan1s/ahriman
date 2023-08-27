@@ -1,4 +1,4 @@
-name: setup
+name: Setup
 
 on:
   push:
@@ -18,9 +18,9 @@ jobs:
       options: --privileged -w /build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: setup the minimal service in arch linux container
+      - name: Setup the minimal service in arch linux container
         run: .github/workflows/setup.sh minimal
 
   run-setup:
@@ -34,7 +34,7 @@ jobs:
       options: --privileged -w /build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: setup the service in arch linux container
+      - name: Setup the service in arch linux container
         run: .github/workflows/setup.sh

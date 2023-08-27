@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -11,25 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: extract version
+      - name: Extract version
         id: version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
-      - name: create changelog
+      - name: Create changelog
         id: changelog
         uses: jaywcjlove/changelog-generator@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filter: 'Release \d+\.\d+\.\d+'
 
-      - name: create archive
+      - name: Create archive
         run: make archive
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
-      - name: release
+      - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
           body: |
