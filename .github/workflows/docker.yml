@@ -1,0 +1,51 @@
+name: Docker image
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+      - '*'
+      - '!*rc*'
+
+jobs:
+  docker-image:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+      - uses: docker/setup-qemu-action@v2
+
+      - uses: docker/setup-buildx-action@v2
+
+      - name: Login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to github container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            arcan1s/ahriman
+            ghcr.io/arcan1s/ahriman
+          tags: |
+            type=semver,pattern={{raw}}
+            type=edge
+
+      - name: Build an image and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}

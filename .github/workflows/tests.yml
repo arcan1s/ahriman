@@ -1,4 +1,4 @@
-name: tests
+name: Tests
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       options: -w /build
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: run check and tests in arch linux container
+      - name: Run check and tests in arch linux container
         run: .github/workflows/tests.sh
