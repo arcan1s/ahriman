@@ -24,6 +24,7 @@ from ahriman.core.gitremote.remote_push import RemotePush
 from ahriman.core.triggers import Trigger
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -67,15 +68,15 @@ class RemotePushTrigger(Trigger):
     }
     CONFIGURATION_SCHEMA_FALLBACK = "gitremote"
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        Trigger.__init__(self, architecture, configuration)
+        Trigger.__init__(self, repository_id, configuration)
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
@@ -107,6 +108,6 @@ class RemotePushTrigger(Trigger):
 
         for target in self.targets:
             section, _ = self.configuration.gettype(
-                target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
+                target, self.repository_id, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
             runner = RemotePush(database, self.configuration, section)
             runner.run(result)

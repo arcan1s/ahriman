@@ -19,7 +19,9 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.result import Result
 from ahriman.models.user import User
@@ -243,18 +245,19 @@ def auth(configuration: Configuration) -> Auth:
 
 
 @pytest.fixture
-def configuration(resource_path_root: Path) -> Configuration:
+def configuration(repository_id: RepositoryId, resource_path_root: Path) -> Configuration:
     """
     configuration fixture
 
     Args:
+        repository_id(RepositoryId): repository identifier fixture
         resource_path_root(Path): resource path root directory
 
     Returns:
         Configuration: configuration test instance
     """
     path = resource_path_root / "core" / "ahriman.ini"
-    return Configuration.from_path(path=path, architecture="x86_64")
+    return Configuration.from_path(path, repository_id)
 
 
 @pytest.fixture
@@ -434,7 +437,8 @@ def pacman(configuration: Configuration) -> Pacman:
     Returns:
         Pacman: pacman wrapper test instance
     """
-    return Pacman("x86_64", configuration, refresh_database=0)
+    _, repository_id = configuration.check_loaded()
+    return Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
 
 
 @pytest.fixture
@@ -481,7 +485,19 @@ def repository(configuration: Configuration, database: SQLite, mocker: MockerFix
         Repository: repository test instance
     """
     mocker.patch("ahriman.core.repository.Repository._set_context")
-    return Repository.load("x86_64", configuration, database, report=False)
+    _, repository_id = configuration.check_loaded()
+    return Repository.load(repository_id, configuration, database, report=False)
+
+
+@pytest.fixture
+def repository_id() -> RepositoryId:
+    """
+    fixture for repository identifier
+
+    Returns:
+        RepositoryId: repository identifier test instance
+    """
+    return RepositoryId("x86_64", "aur-clone")
 
 
 @pytest.fixture
@@ -525,7 +541,12 @@ def spawner(configuration: Configuration) -> Spawn:
     Returns:
         Spawn: spawner fixture
     """
-    return Spawn(MagicMock(), "x86_64", ["--architecture", "x86_64", "--configuration", str(configuration.path)])
+    _, repository_id = configuration.check_loaded()
+    return Spawn(MagicMock(), repository_id, [
+        "--architecture", "x86_64",
+        "--repository", repository_id.name,
+        "--configuration", str(configuration.path),
+    ])
 
 
 @pytest.fixture
@@ -554,4 +575,5 @@ def watcher(configuration: Configuration, database: SQLite, repository: Reposito
         Watcher: package status watcher test instance
     """
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    return Watcher("x86_64", configuration, database)
+    _, repository_id = configuration.check_loaded()
+    return Watcher(repository_id, configuration, database)

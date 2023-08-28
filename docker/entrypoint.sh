@@ -17,6 +17,7 @@ host = $AHRIMAN_HOST
 EOF
 
 AHRIMAN_DEFAULT_ARGS=("--architecture" "$AHRIMAN_ARCHITECTURE")
+AHRIMAN_DEFAULT_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
 if [ -n "$AHRIMAN_OUTPUT" ]; then
     AHRIMAN_DEFAULT_ARGS+=("--log-handler" "$AHRIMAN_OUTPUT")
 fi
@@ -33,18 +34,17 @@ chown "$AHRIMAN_USER":"$AHRIMAN_USER" "$AHRIMAN_GNUPG_HOME"
 # run built-in setup command
 AHRIMAN_SETUP_ARGS=("--build-as-user" "$AHRIMAN_USER")
 AHRIMAN_SETUP_ARGS+=("--packager" "$AHRIMAN_PACKAGER")
-AHRIMAN_SETUP_ARGS+=("--repository" "$AHRIMAN_REPOSITORY")
 if [ -z "$AHRIMAN_MULTILIB" ]; then
     AHRIMAN_SETUP_ARGS+=("--no-multilib")
 fi
 if [ -n "$AHRIMAN_PACMAN_MIRROR" ]; then
     AHRIMAN_SETUP_ARGS+=("--mirror" "$AHRIMAN_PACMAN_MIRROR")
 fi
-if [ -n "$AHRIMAN_PORT" ]; then
-    AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
-fi
 if [ -n "$AHRIMAN_REPOSITORY_SERVER" ]; then
     AHRIMAN_SETUP_ARGS+=("--server" "$AHRIMAN_REPOSITORY_SERVER")
+fi
+if [ -n "$AHRIMAN_PORT" ]; then
+    AHRIMAN_SETUP_ARGS+=("--web-port" "$AHRIMAN_PORT")
 fi
 if [ -n "$AHRIMAN_UNIX_SOCKET" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-unix-socket" "$AHRIMAN_UNIX_SOCKET")

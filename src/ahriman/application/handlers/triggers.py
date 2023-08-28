@@ -22,6 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -31,19 +32,20 @@ class Triggers(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
         if args.trigger:
             loader = application.repository.triggers
-            loader.triggers = [loader.load_trigger(trigger, architecture, configuration) for trigger in args.trigger]
+            loader.triggers = [loader.load_trigger(trigger, repository_id, configuration) for trigger in args.trigger]
         application.on_start()
         application.on_result(Result())

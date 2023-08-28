@@ -187,7 +187,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
         "schema": {
             "name": {
                 "type": "string",
-                "required": True,
             },
             "root": {
                 "type": "string",

@@ -81,6 +81,8 @@ def _parser() -> argparse.ArgumentParser:
                         type=LogHandler, choices=enum_values(LogHandler))
     parser.add_argument("--report", help="force enable or disable reporting to web service",
                         action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("-r", "--repository", help="target repository. For several subcommands it can be used "
+                                                   "multiple times", action="append")
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
@@ -883,7 +885,6 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              epilog="Create _minimal_ configuration for the service according to provided options.",
                              formatter_class=_formatter)
     parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
-    parser.add_argument("--build-command", help="build command prefix", default="ahriman")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         type=Path, default=Path("/usr") / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
     parser.add_argument("--generate-salt", help="generate salt for user passwords",
@@ -894,7 +895,6 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--multilib", help="add or do not multilib repository",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--packager", help="packager name and email", required=True)
-    parser.add_argument("--repository", help="repository name", required=True)
     parser.add_argument("--server", help="server to be used for devtools. If none set, local files will be used")
     parser.add_argument("--sign-key", help="sign key id")
     parser.add_argument("--sign-target", help="sign options", action="append",
@@ -943,7 +943,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                            "`Name Surname <mail@example.com>`")
     parser.add_argument("-p", "--password", help="user password. Blank password will be treated as empty password, "
                                                  "which is in particular must be used for OAuth2 authorization type.")
-    parser.add_argument("-r", "--role", help="user access level",
+    parser.add_argument("-R", "--role", help="user access level",
                         type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
     parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, report=False,
                         quiet=True)
@@ -965,7 +965,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
-    parser.add_argument("-r", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
+    parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
     parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, report=False,
                         quiet=True, unsafe=True)
     return parser

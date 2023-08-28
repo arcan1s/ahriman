@@ -102,10 +102,11 @@ class Tree:
             >>> from ahriman.core.configuration import Configuration
             >>> from ahriman.core.database import SQLite
             >>> from ahriman.core.repository import Repository
+            >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository.load("x86_64", configuration, database, report=True)
+            >>> repository = Repository.load(RepositoryId("x86_64", "aur-clone"), configuration, database, report=True)
             >>> packages = repository.packages()
             >>>
             >>> tree = Tree.resolve(packages)

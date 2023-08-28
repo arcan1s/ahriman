@@ -6,10 +6,10 @@ from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import call as MockCall
 
-from ahriman.core.upload.github import Github
+from ahriman.core.upload.github import GitHub
 
 
-def test_asset_remove(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_remove(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove asset from the release
     """
@@ -18,7 +18,7 @@ def test_asset_remove(github: Github, github_release: dict[str, Any], mocker: Mo
     request_mock.assert_called_once_with("DELETE", "asset_url")
 
 
-def test_asset_remove_unknown(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_remove_unknown(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must not fail if no asset found
     """
@@ -27,7 +27,7 @@ def test_asset_remove_unknown(github: Github, github_release: dict[str, Any], mo
     request_mock.assert_not_called()
 
 
-def test_asset_upload(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload asset to the repository
     """
@@ -42,7 +42,7 @@ def test_asset_upload(github: Github, github_release: dict[str, Any], mocker: Mo
     remove_mock.assert_not_called()
 
 
-def test_asset_upload_with_removal(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload_with_removal(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove existing file before upload
     """
@@ -58,7 +58,7 @@ def test_asset_upload_with_removal(github: Github, github_release: dict[str, Any
     ])
 
 
-def test_asset_upload_empty_mimetype(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_asset_upload_empty_mimetype(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload asset to the repository with empty mime type if the library cannot guess it
     """
@@ -73,7 +73,7 @@ def test_asset_upload_empty_mimetype(github: Github, github_release: dict[str, A
                                          headers={"Content-Type": "application/octet-stream"})
 
 
-def test_get_local_files(github: Github, resource_path_root: Path, mocker: MockerFixture) -> None:
+def test_get_local_files(github: GitHub, resource_path_root: Path, mocker: MockerFixture) -> None:
     """
     must get all local files recursively
     """
@@ -82,7 +82,7 @@ def test_get_local_files(github: Github, resource_path_root: Path, mocker: Mocke
     walk_mock.assert_called()
 
 
-def test_files_remove(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_remove(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove files from the remote
     """
@@ -91,7 +91,7 @@ def test_files_remove(github: Github, github_release: dict[str, Any], mocker: Mo
     remove_mock.assert_called_once_with(github_release, "b")
 
 
-def test_files_remove_empty(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_remove_empty(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove nothing if nothing changed
     """
@@ -100,7 +100,7 @@ def test_files_remove_empty(github: Github, github_release: dict[str, Any], mock
     remove_mock.assert_not_called()
 
 
-def test_files_upload(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_upload(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload files to the remote
     """
@@ -112,7 +112,7 @@ def test_files_upload(github: Github, github_release: dict[str, Any], mocker: Mo
     ])
 
 
-def test_files_upload_empty(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_files_upload_empty(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must upload nothing if nothing changed
     """
@@ -121,7 +121,7 @@ def test_files_upload_empty(github: Github, github_release: dict[str, Any], mock
     upload_mock.assert_not_called()
 
 
-def test_release_create(github: Github, mocker: MockerFixture) -> None:
+def test_release_create(github: GitHub, mocker: MockerFixture) -> None:
     """
     must create release
     """
@@ -131,7 +131,7 @@ def test_release_create(github: Github, mocker: MockerFixture) -> None:
                                          json={"tag_name": github.architecture, "name": github.architecture})
 
 
-def test_release_get(github: Github, mocker: MockerFixture) -> None:
+def test_release_get(github: GitHub, mocker: MockerFixture) -> None:
     """
     must get release
     """
@@ -140,7 +140,7 @@ def test_release_get(github: Github, mocker: MockerFixture) -> None:
     request_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True))
 
 
-def test_release_get_empty(github: Github, mocker: MockerFixture) -> None:
+def test_release_get_empty(github: GitHub, mocker: MockerFixture) -> None:
     """
     must return nothing in case of 404 status code
     """
@@ -151,7 +151,7 @@ def test_release_get_empty(github: Github, mocker: MockerFixture) -> None:
     assert github.release_get() is None
 
 
-def test_release_get_exception(github: Github, mocker: MockerFixture) -> None:
+def test_release_get_exception(github: GitHub, mocker: MockerFixture) -> None:
     """
     must re-raise non HTTPError exception
     """
@@ -160,7 +160,7 @@ def test_release_get_exception(github: Github, mocker: MockerFixture) -> None:
         github.release_get()
 
 
-def test_release_get_exception_http_error(github: Github, mocker: MockerFixture) -> None:
+def test_release_get_exception_http_error(github: GitHub, mocker: MockerFixture) -> None:
     """
     must re-raise HTTPError exception with code differs from 404
     """
@@ -170,7 +170,7 @@ def test_release_get_exception_http_error(github: Github, mocker: MockerFixture)
         github.release_get()
 
 
-def test_release_update(github: Github, github_release: dict[str, Any], mocker: MockerFixture) -> None:
+def test_release_update(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must update release
     """
@@ -179,7 +179,7 @@ def test_release_update(github: Github, github_release: dict[str, Any], mocker: 
     request_mock.assert_called_once_with("POST", "release_url", json={"body": "body"})
 
 
-def test_release_sync(github: Github, mocker: MockerFixture) -> None:
+def test_release_sync(github: GitHub, mocker: MockerFixture) -> None:
     """
     must run sync command
     """
@@ -199,7 +199,7 @@ def test_release_sync(github: Github, mocker: MockerFixture) -> None:
     release_update_mock.assert_called_once_with({}, pytest.helpers.anyvar(int))
 
 
-def test_release_sync_create_release(github: Github, mocker: MockerFixture) -> None:
+def test_release_sync_create_release(github: GitHub, mocker: MockerFixture) -> None:
     """
     must create release in case if it does not exist
     """

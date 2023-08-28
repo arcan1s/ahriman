@@ -27,6 +27,7 @@ from typing import Any, Self
 
 from ahriman.core.configuration.shell_interpolator import ShellInterpolator
 from ahriman.core.exceptions import InitializeError
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -38,9 +39,9 @@ class Configuration(configparser.RawConfigParser):
         ARCHITECTURE_SPECIFIC_SECTIONS(list[str]): (class attribute) known sections which can be architecture specific.
             Required by dump and merging functions
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
-        architecture(str | None): repository architecture
         includes(list[Path]): list of includes which were read
         path(Path | None): path to root configuration file
+        repository_id(RepositoryId | None): repository unique identifier
 
     Examples:
         Configuration class provides additional method in order to handle application configuration. Since this class is
@@ -49,7 +50,7 @@ class Configuration(configparser.RawConfigParser):
 
             >>> from pathlib import Path
             >>>
-            >>> configuration = Configuration.from_path(Path("/etc/ahriman.ini"), "x86_64")
+            >>> configuration = Configuration.from_path(Path("/etc/ahriman.ini"), RepositoryId("x86_64", "aur-clone"))
             >>> repository_name = configuration.get("repository", "name")
             >>> makepkg_flags = configuration.getlist("build", "makepkg_flags")
 
@@ -59,7 +60,7 @@ class Configuration(configparser.RawConfigParser):
         In order to get current settings, the ``check_loaded`` method can be used. This method will raise an
         ``InitializeError`` in case if configuration was not yet loaded::
 
-            >>> path, architecture = configuration.check_loaded()
+            >>> path, repository_id = configuration.check_loaded()
     """
 
     ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign", "web"]
@@ -84,7 +85,7 @@ class Configuration(configparser.RawConfigParser):
             }
         )
 
-        self.architecture: str | None = None
+        self.repository_id: RepositoryId | None = None
         self.path: Path | None = None
         self.includes: list[Path] = []
 
@@ -111,12 +112,13 @@ class Configuration(configparser.RawConfigParser):
     @property
     def repository_name(self) -> str:
         """
-        repository name as defined by configuration
+        repository name for backward compatibility
 
         Returns:
-            str: repository name from configuration
+            str: repository name
         """
-        return self.get("repository", "name")
+        _, repository_id = self.check_loaded()
+        return repository_id.name
 
     @property
     def repository_paths(self) -> RepositoryPaths:
@@ -126,39 +128,60 @@ class Configuration(configparser.RawConfigParser):
         Returns:
             RepositoryPaths: repository paths instance
         """
-        _, architecture = self.check_loaded()
-        return RepositoryPaths(self.getpath("repository", "root"), architecture)
+        _, repository_id = self.check_loaded()
+        return RepositoryPaths(self.getpath("repository", "root"), repository_id)
 
     @classmethod
-    def from_path(cls, path: Path, architecture: str) -> Self:
+    def from_path(cls, path: Path, repository_id: RepositoryId) -> Self:
         """
         constructor with full object initialization
 
         Args:
             path(Path): path to root configuration file
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
 
         Returns:
             Self: configuration instance
         """
         configuration = cls()
         configuration.load(path)
-        configuration.merge_sections(architecture)
+        configuration.merge_sections(repository_id)
         return configuration
 
     @staticmethod
-    def section_name(section: str, suffix: str) -> str:
+    def override_sections(section: str, repository_id: RepositoryId) -> list[str]:
+        """
+        extract override sections
+
+        Args:
+            section(str): section name
+            repository_id(RepositoryId): repository unique identifier
+
+        Returns:
+            list[str]: architecture and repository specific sections in correct order
+        """
+        # the valid order is global < per architecture < per repository < per repository and architecture
+        return [
+            Configuration.section_name(section, repository_id.architecture),  # architecture specific override
+            Configuration.section_name(section, repository_id.name),
+            Configuration.section_name(section, repository_id.name, repository_id.architecture),
+        ]
+
+    @staticmethod
+    def section_name(section: str, *suffixes: str) -> str:
         """
         generate section name for sections which depends on context
 
         Args:
             section(str): section name
-            suffix(str): session suffix, e.g. repository architecture
+            *suffixes(str): session suffix, e.g. repository architecture
 
         Returns:
             str: correct section name for repository specific section
         """
-        return f"{section}:{suffix}"
+        for suffix in suffixes:
+            section = f"{section}:{suffix}"
+        return section
 
     def _convert_path(self, value: str) -> Path:
         """
@@ -175,19 +198,19 @@ class Configuration(configparser.RawConfigParser):
             return path
         return self.path.parent / path
 
-    def check_loaded(self) -> tuple[Path, str]:
+    def check_loaded(self) -> tuple[Path, RepositoryId]:
         """
         check if service was actually loaded
 
         Returns:
-            tuple[Path, str]: configuration root path and architecture if loaded
+            tuple[Path, RepositoryId]: configuration root path and architecture if loaded
 
         Raises:
             InitializeError: in case if architecture and/or path are not set
         """
-        if self.path is None or self.architecture is None:
-            raise InitializeError("Configuration path and/or architecture are not set")
-        return self.path, self.architecture
+        if self.path is None or self.repository_id is None:
+            raise InitializeError("Configuration path and/or repository id are not set")
+        return self.path, self.repository_id
 
     def dump(self) -> dict[str, dict[str, str]]:
         """
@@ -207,14 +230,14 @@ class Configuration(configparser.RawConfigParser):
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore[empty-body]
 
-    def gettype(self, section: str, architecture: str, *, fallback: str | None = None) -> tuple[str, str]:
+    def gettype(self, section: str, repository_id: RepositoryId, *, fallback: str | None = None) -> tuple[str, str]:
         """
         get type variable with fallback to old logic. Despite the fact that it has same semantics as other get* methods,
         but it has different argument list
 
         Args:
             section(str): section name
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             fallback(str | None, optional): optional fallback type if any. If set, second element of the tuple will
                 be always set to this value (Default value = None)
 
@@ -227,9 +250,9 @@ class Configuration(configparser.RawConfigParser):
         if (group_type := self.get(section, "type", fallback=fallback)) is not None:
             return section, group_type  # new-style logic
         # okay lets check for the section with architecture name
-        full_section = self.section_name(section, architecture)
-        if self.has_section(full_section):
-            return full_section, section
+        for specific in self.override_sections(section, repository_id):
+            if self.has_section(specific):
+                return specific, section
         # okay lets just use section as type
         if self.has_section(section):
             return section, section
@@ -262,23 +285,24 @@ class Configuration(configparser.RawConfigParser):
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 
-    def merge_sections(self, architecture: str) -> None:
+    def merge_sections(self, repository_id: RepositoryId) -> None:
         """
-        merge architecture specific sections into main configuration
+        merge architecture and repository specific sections into main configuration
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
         """
-        self.architecture = architecture
+        self.repository_id = repository_id
+
         for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
-            # get overrides
-            specific = self.section_name(section, architecture)
-            if self.has_section(specific):
-                # if there is no such section it means that there is no overrides for this arch,
-                # but we anyway will have to delete sections for others architectures
-                for key, value in self[specific].items():
-                    self.set_option(section, key, value)
-            # remove any arch specific section
+            for specific in self.override_sections(section, repository_id):
+                if self.has_section(specific):
+                    # if there is no such section it means that there is no overrides for this arch,
+                    # but we anyway will have to delete sections for others architectures
+                    for key, value in self[specific].items():
+                        self.set_option(section, key, value)
+
+            # remove any arch/repo specific section
             for foreign in self.sections():
                 # we would like to use lambda filter here, but pylint is too dumb
                 if not foreign.startswith(f"{section}:"):
@@ -289,11 +313,11 @@ class Configuration(configparser.RawConfigParser):
         """
         reload configuration if possible or raise exception otherwise
         """
-        path, architecture = self.check_loaded()
+        path, repository_id = self.check_loaded()
         for section in self.sections():  # clear current content
             self.remove_section(section)
         self.load(path)
-        self.merge_sections(architecture)
+        self.merge_sections(repository_id)
 
     def set_option(self, section: str, option: str, value: str) -> None:
         """

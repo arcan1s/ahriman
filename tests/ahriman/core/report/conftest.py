@@ -17,4 +17,5 @@ def remote_call(configuration: Configuration) -> RemoteCall:
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    return RemoteCall("x86_64", configuration, "remote-call")
+    _, repository_id = configuration.check_loaded()
+    return RemoteCall(repository_id, configuration, "remote-call")

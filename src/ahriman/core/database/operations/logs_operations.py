@@ -45,14 +45,11 @@ class LogsOperations(Operations):
                 (row["created"], row["record"])
                 for row in connection.execute(
                     """
-                    select created, record from logs where package_base = :package_base
+                    select created, record from logs
+                    where package_base = :package_base and repository = :repository
                     order by created limit :limit offset :offset
                     """,
-                    {
-                        "package_base": package_base,
-                        "limit": limit,
-                        "offset": offset,
-                    })
+                    {"package_base": package_base, "repository": self.repository_id.name, "limit": limit, "offset": offset})
             ]
 
         return self.with_connection(run)
@@ -70,15 +67,16 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, version, created, record)
+                (package_base, version, created, record, repository)
                 values
-                (:package_base, :version, :created, :record)
+                (:package_base, :version, :created, :record, :repository)
                 """,
                 {
                     "package_base": log_record_id.package_base,
                     "version": log_record_id.version,
                     "created": created,
                     "record": record,
+                    "repository": self.repository_id.name,
                 }
             )
 
@@ -97,9 +95,10 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 delete from logs
-                where package_base = :package_base and (:version is null or version <> :version)
+                where package_base = :package_base and repository = :repository
+                  and (:version is null or version <> :version)
                 """,
-                {"package_base": package_base, "version": version}
+                {"package_base": package_base, "version": version, "repository": self.repository_id.name}
             )
 
         return self.with_connection(run, commit=True)

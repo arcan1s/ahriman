@@ -20,25 +20,29 @@
 import os
 import shutil
 
+from collections.abc import Generator
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 
 from ahriman.core.exceptions import PathError
+from ahriman.core.log import LazyLogging
+from ahriman.models.repository_id import RepositoryId
 
 
 @dataclass(frozen=True)
-class RepositoryPaths:
+class RepositoryPaths(LazyLogging):
     """
     repository paths holder. For the most operations with paths you want to use this object
 
     Attributes:
-        architecture(str): repository architecture
+        repository_id(RepositoryId): repository unique identifier
         root(Path): repository root (i.e. ahriman home)
 
     Examples:
         This class can be used in order to access the repository tree structure::
 
-            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), "x86_64")
+            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), RepositoryId("x86_64", "aur-clone"))
 
         Additional methods can be used in order to ensure that tree is created::
 
@@ -51,7 +55,21 @@ class RepositoryPaths:
     """
 
     root: Path
-    architecture: str
+    repository_id: RepositoryId
+
+    @cached_property
+    def _suffix(self) -> Path:
+        """
+        suffix of the paths as defined by repository structure
+
+        Returns:
+            Path: relative path which contains only architecture segment in case if legacy tree is used and repository
+        name and architecture otherwise
+        """
+        if (self.root / "repository" / self.repository_id.architecture).is_dir():
+            self.logger.warning("legacy single repository tree has been found")
+            return Path(self.repository_id.architecture)
+        return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
     def cache(self) -> Path:
@@ -72,7 +90,7 @@ class RepositoryPaths:
             Path: full patch to devtools chroot directory
         """
         # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
-        return self.root / "chroot"
+        return self.root / "chroot" / self.repository_id.name
 
     @property
     def packages(self) -> Path:
@@ -82,7 +100,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to built packages directory
         """
-        return self.root / "packages" / self.architecture
+        return self.root / "packages" / self._suffix
 
     @property
     def pacman(self) -> Path:
@@ -92,7 +110,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to pacman local database cache
         """
-        return self.root / "pacman" / self.architecture
+        return self.root / "pacman" / self._suffix
 
     @property
     def repository(self) -> Path:
@@ -102,7 +120,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to the repository directory
         """
-        return self.root / "repository" / self.architecture
+        return self.root / "repository" / self._suffix
 
     @property
     def root_owner(self) -> tuple[int, int]:
@@ -115,22 +133,28 @@ class RepositoryPaths:
         return self.owner(self.root)
 
     @classmethod
-    def known_architectures(cls, root: Path) -> set[str]:
+    def known_architectures(cls, root: Path, name: str) -> set[RepositoryId]:
         """
         get known architectures
 
         Args:
             root(Path): repository root
+            name(str): repository name from configuration
 
         Returns:
-            set[str]: list of architectures for which tree is created
+            set[RepositoryId]: list of tuple of repository name and architectures for which tree is created
         """
-        paths = cls(root, "")
-        return {
-            path.name
-            for path in paths.repository.iterdir()
-            if path.is_dir()
-        }
+        def walk(repository_path: Path, repository_name: str) -> Generator[RepositoryId, None, None]:
+            for architecture in filter(lambda path: path.is_dir(), repository_path.iterdir()):
+                yield RepositoryId(architecture.name, repository_name)
+
+        def walk_with_name(paths: RepositoryPaths) -> Generator[RepositoryId, None, None]:
+            for repository in filter(lambda path: path.is_dir(), paths.repository.iterdir()):
+                yield from walk(repository, repository.name)
+
+        instance = cls(root, RepositoryId("", ""))
+        # try to get list per repository first and then fallback to old schema if nothing found
+        return set(walk_with_name(instance)) or set(walk(instance.repository, name))
 
     @staticmethod
     def owner(path: Path) -> tuple[int, int]:

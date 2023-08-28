@@ -22,6 +22,7 @@ from ahriman.core.http import SyncHttpClient
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -41,18 +42,18 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
     TELEGRAM_API_URL = "https://api.telegram.org"
     TELEGRAM_MAX_CONTENT_LENGTH = 4096
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Report.__init__(self, architecture, configuration)
-        JinjaTemplate.__init__(self, section, configuration)
-        SyncHttpClient.__init__(self, section, configuration)
+        Report.__init__(self, repository_id, configuration)
+        JinjaTemplate.__init__(self, repository_id, configuration, section)
+        SyncHttpClient.__init__(self, configuration, section)
 
         self.api_key = configuration.get(section, "api_key")
         self.chat_id = configuration.get(section, "chat_id")

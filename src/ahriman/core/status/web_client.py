@@ -51,7 +51,7 @@ class WebClient(Client, SyncHttpClient):
             configuration(Configuration): configuration instance
         """
         suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
-        SyncHttpClient.__init__(self, "web", configuration, suppress_errors=suppress_errors)
+        SyncHttpClient.__init__(self, configuration, "web", suppress_errors=suppress_errors)
 
         self.address, self.use_unix_socket = self.parse_address(configuration)
 

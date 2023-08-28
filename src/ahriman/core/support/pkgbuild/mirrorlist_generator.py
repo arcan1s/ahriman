@@ -23,6 +23,7 @@ from pathlib import Path
 from ahriman.core.configuration import Configuration
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_id import RepositoryId
 
 
 class MirrorlistGenerator(PkgbuildGenerator):
@@ -38,24 +39,24 @@ class MirrorlistGenerator(PkgbuildGenerator):
         servers(list[str]): list of mirror servers
     """
 
-    def __init__(self, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        name = configuration.repository_name
-
         # configuration fields
         self.servers = configuration.getlist(section, "servers")
-        self.path = configuration.getpath(section, "path", fallback=Path("/etc") / "pacman.d" / f"{name}-mirrorlist")
+        self.path = configuration.getpath(
+            section, "path", fallback=Path("/etc") / "pacman.d" / f"{repository_id.name}-mirrorlist")
         self.path = self.path.relative_to("/")  # in pkgbuild we are always operating with relative to / path
         # pkgbuild description fields
-        self.pkgbuild_pkgname = configuration.get(section, "package", fallback=f"{name}-mirrorlist")
+        self.pkgbuild_pkgname = configuration.get(section, "package", fallback=f"{repository_id.name}-mirrorlist")
         self.pkgbuild_pkgdesc = configuration.get(
-            section, "description", fallback=f"{name} mirror list for use by pacman")
+            section, "description", fallback=f"{repository_id.name} mirror list for use by pacman")
         self.pkgbuild_license = configuration.getlist(section, "license", fallback=["Unlicense"])
         self.pkgbuild_url = configuration.get(section, "homepage", fallback="")
 

@@ -28,7 +28,8 @@ def application(configuration: Configuration, repository: Repository, database: 
     """
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    return Application("x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    return Application(repository_id, configuration, report=False)
 
 
 @pytest.fixture
@@ -54,7 +55,8 @@ def lock(args: argparse.Namespace, configuration: Configuration) -> Lock:
     Returns:
         Lock: file lock test instance
     """
-    return Lock(args, "x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    return Lock(args, repository_id, configuration)
 
 
 @pytest.fixture

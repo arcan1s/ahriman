@@ -58,8 +58,8 @@ def migrate_package_check_depends(connection: Connection, configuration: Configu
     if not configuration.repository_paths.repository.is_dir():
         return
 
-    _, architecture = configuration.check_loaded()
-    pacman = Pacman(architecture, configuration, refresh_database=PacmanSynchronization.Disabled)
+    _, repository_id = configuration.check_loaded()
+    pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Disabled)
 
     package_list = []
     for full_path in filter(package_like, configuration.repository_paths.repository.iterdir()):

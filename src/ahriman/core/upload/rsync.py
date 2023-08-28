@@ -23,6 +23,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
 from ahriman.core.util import check_output
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class Rsync(Upload):
@@ -36,16 +37,16 @@ class Rsync(Upload):
 
     _check_output = check_output
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Upload.__init__(self, architecture, configuration)
+        Upload.__init__(self, repository_id, configuration)
         self.command = configuration.getlist(section, "command")
         self.remote = configuration.get(section, "remote")
 

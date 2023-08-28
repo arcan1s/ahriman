@@ -30,6 +30,7 @@ from ahriman.core.formatters import PatchPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_id import RepositoryId
 
 
 class Patch(Handler):
@@ -38,17 +39,18 @@ class Patch(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
         application.on_start()
 
         match args.action:
@@ -56,7 +58,7 @@ class Patch(Handler):
                 patch = Patch.patch_create_from_function(args.variable, args.patch)
                 Patch.patch_set_create(application, args.package, patch)
             case Action.Update:
-                package_base, patch = Patch.patch_create_from_diff(args.package, architecture, args.track)
+                package_base, patch = Patch.patch_create_from_diff(args.package, repository_id.architecture, args.track)
                 Patch.patch_set_create(application, package_base, patch)
             case Action.List:
                 Patch.patch_set_list(application, args.package, args.variable, args.exit_code)

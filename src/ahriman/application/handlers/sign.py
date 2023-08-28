@@ -22,6 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.repository_id import RepositoryId
 
 
 class Sign(Handler):
@@ -30,14 +31,15 @@ class Sign(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        Application(architecture, configuration, report=report).sign(args.package)
+        Application(repository_id, configuration, report=report).sign(args.package)

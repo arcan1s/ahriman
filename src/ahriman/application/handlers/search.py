@@ -29,6 +29,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError
 from ahriman.core.formatters import AurPrinter
 from ahriman.models.aur_package import AURPackage
+from ahriman.models.repository_id import RepositoryId
 
 
 class Search(Handler):
@@ -47,17 +48,18 @@ class Search(Handler):
     }
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
 
         official_packages_list = Official.multisearch(*args.search, pacman=application.repository.pacman)
         aur_packages_list = AUR.multisearch(*args.search, pacman=application.repository.pacman)

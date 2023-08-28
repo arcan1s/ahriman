@@ -22,7 +22,8 @@ def cleaner(configuration: Configuration, database: SQLite) -> Cleaner:
     Returns:
         Cleaner: cleaner test instance
     """
-    return Cleaner("x86_64", configuration, database, report=False,
+    _, repository_id = configuration.check_loaded()
+    return Cleaner(repository_id, configuration, database, report=False,
                    refresh_pacman_database=PacmanSynchronization.Disabled)
 
 
@@ -43,7 +44,8 @@ def executor(configuration: Configuration, database: SQLite, mocker: MockerFixtu
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
-    return Executor("x86_64", configuration, database, report=False,
+    _, repository_id = configuration.check_loaded()
+    return Executor(repository_id, configuration, database, report=False,
                     refresh_pacman_database=PacmanSynchronization.Disabled)
 
 
@@ -64,5 +66,6 @@ def update_handler(configuration: Configuration, database: SQLite, mocker: Mocke
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
     mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
-    return UpdateHandler("x86_64", configuration, database, report=False,
+    _, repository_id = configuration.check_loaded()
+    return UpdateHandler(repository_id, configuration, database, report=False,
                          refresh_pacman_database=PacmanSynchronization.Disabled)

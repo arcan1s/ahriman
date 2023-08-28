@@ -17,7 +17,7 @@ TL;DR
 .. code-block:: shell
 
    yay -S ahriman
-   ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "repository"
+   ahriman -a x86_64 -r aur-clone service-setup --packager "ahriman bot <ahriman@example.com>"
    systemctl enable --now ahriman@x86_64.timer
 
 Long answer
@@ -32,7 +32,7 @@ There is special command which can be used in order to validate current configur
 
 .. code-block:: shell
 
-   ahriman -a x86_64 service-config-validate --exit-code
+   ahriman -a x86_64 -r aur-clone service-config-validate --exit-code
 
 This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`_, e.g.:
 
@@ -317,7 +317,7 @@ Add the following lines to your ``pacman.conf``:
 .. code-block:: ini
 
    [repository]
-   Server = file:///var/lib/ahriman/repository/x86_64
+   Server = file:///var/lib/ahriman/repository/$repo/$arch
 
 (You might need to add ``SigLevel`` option according to the pacman documentation.)
 
@@ -554,8 +554,8 @@ There are several choices:
    .. code-block::
 
        server {
-           location /x86_64 {
-               root /var/lib/ahriman/repository/x86_64;
+           location /aur-clone/x86_64 {
+               root /var/lib/ahriman/repository/aur-clone/x86_64;
                autoindex on;
            }
        }
@@ -571,7 +571,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/x86_64``) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/x86_64``).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
 
 How to sync to S3
 ^^^^^^^^^^^^^^^^^
@@ -676,7 +676,7 @@ How to report by email
 
       [email]
       host = smtp.example.com
-      link_path = http://example.com/x86_64
+      link_path = http://example.com/aur-clone/x86_64
       password = ...
       port = 465
       receivers = me@example.com
@@ -702,8 +702,8 @@ How to generate index page for S3
       target = html
 
       [html]
-      path = /var/lib/ahriman/repository/x86_64/index.html
-      link_path = http://example.com/x86_64
+      path = /var/lib/ahriman/repository/aur-clone/x86_64/index.html
+      link_path = http://example.com/aur-clone/x86_64
 
 After these steps ``index.html`` file will be automatically synced to S3
 
@@ -741,7 +741,7 @@ How to post build report to telegram
       [telegram]
       api_key = aaAAbbBBccCC
       chat_id = @ahriman
-      link_path = http://example.com/x86_64
+      link_path = http://example.com/aur-clone/x86_64
 
    ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`_, ``chat_id`` is the value retrieved from previous step.
 

@@ -23,11 +23,13 @@ from collections.abc import Callable, Generator
 from functools import cached_property
 from pathlib import Path
 from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import]
+from string import Template
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import trim_package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -36,18 +38,18 @@ class Pacman(LazyLogging):
     alpm wrapper
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, *,
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
                  refresh_database: PacmanSynchronization) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             refresh_database(PacmanSynchronization): synchronize local cache to remote
         """
         self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
-            architecture, configuration, refresh_database=refresh_database)
+            repository_id, configuration, refresh_database=refresh_database)
 
     @cached_property
     def handle(self) -> Handle:
@@ -59,13 +61,13 @@ class Pacman(LazyLogging):
         """
         return self.__create_handle_fn()
 
-    def __create_handle(self, architecture: str, configuration: Configuration, *,
+    def __create_handle(self, repository_id: RepositoryId, configuration: Configuration, *,
                         refresh_database: PacmanSynchronization) -> Handle:
         """
         create lazy handle function
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             refresh_database(PacmanSynchronization): synchronize local cache to remote
 
@@ -81,7 +83,7 @@ class Pacman(LazyLogging):
 
         handle = Handle(str(root), str(database_path))
         for repository in configuration.getlist("alpm", "repositories"):
-            database = self.database_init(handle, repository, mirror, architecture)
+            database = self.database_init(handle, repository, mirror, repository_id.architecture)
             self.database_copy(handle, database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
 
         if use_ahriman_cache and refresh_database:
@@ -136,8 +138,14 @@ class Pacman(LazyLogging):
         """
         self.logger.info("loading pacman database %s", repository)
         database: DB = handle.register_syncdb(repository, SIG_PACKAGE)
+
         # replace variables in mirror address
-        database.servers = [mirror.replace("$repo", repository).replace("$arch", architecture)]
+        variables = {
+            "arch": architecture,
+            "repo": repository,
+        }
+        database.servers = [Template(mirror).safe_substitute(variables)]
+
         return database
 
     def database_sync(self, handle: Handle, *, force: bool) -> None:

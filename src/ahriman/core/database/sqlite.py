@@ -56,8 +56,11 @@ class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations,
             Self: fully initialized instance of the database
         """
         path = cls.database_path(configuration)
-        database = cls(path)
+        _, repository_id = configuration.check_loaded()
+
+        database = cls(path, repository_id)
         database.init(configuration)
+
         return database
 
     @staticmethod

@@ -30,6 +30,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.status.client import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.waiter import Waiter
 
 
@@ -50,26 +51,29 @@ class Lock(LazyLogging):
         The common flow is to create instance in ``with`` block and handle exceptions after all::
 
             >>> from ahriman.core.configuration import Configuration
+            >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
             >>> try:
-            >>>     with Lock(args, "x86_64", configuration):
+            >>>     with Lock(args, RepositoryId("x86_64", "aur-clone"), configuration):
             >>>         perform_actions()
             >>> except Exception as exception:
             >>>     handle_exceptions(exception)
     """
 
-    def __init__(self, args: argparse.Namespace, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
+        lock_suffix = f"{repository_id.name}_{repository_id.architecture}" if repository_id.name is not None else repository_id.architecture
         self.path: Path | None = \
-            args.lock.with_stem(f"{args.lock.stem}_{architecture}") if args.lock is not None else None
+            args.lock.with_stem(f"{args.lock.stem}_{lock_suffix}") if args.lock is not None else None
+
         self.force: bool = args.force
         self.unsafe: bool = args.unsafe
         self.wait_timeout: int = args.wait_timeout

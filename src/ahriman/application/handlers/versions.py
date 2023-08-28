@@ -28,6 +28,7 @@ from ahriman import __version__
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import VersionPrinter
+from ahriman.models.repository_id import RepositoryId
 
 
 class Versions(Handler):
@@ -42,13 +43,14 @@ class Versions(Handler):
     PEP423_PACKAGE_NAME = re.compile(r"^[A-Za-z0-9._-]+")
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """

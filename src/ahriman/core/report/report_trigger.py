@@ -21,6 +21,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.triggers import Trigger
 from ahriman.core.report.report import Report
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -218,15 +219,15 @@ class ReportTrigger(Trigger):
         }
     }
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        Trigger.__init__(self, architecture, configuration)
+        Trigger.__init__(self, repository_id, configuration)
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
@@ -251,5 +252,5 @@ class ReportTrigger(Trigger):
             packages(list[Package]): list of all available packages
         """
         for target in self.targets:
-            runner = Report.load(self.architecture, self.configuration, target)
+            runner = Report.load(self.repository_id, self.configuration, target)
             runner.run(result, packages)

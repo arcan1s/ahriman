@@ -25,6 +25,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.exceptions import PkgbuildGeneratorError
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
+from ahriman.models.repository_id import RepositoryId
 
 
 class KeyringGenerator(PkgbuildGenerator):
@@ -43,18 +44,20 @@ class KeyringGenerator(PkgbuildGenerator):
         trusted(list[str]): lif of trusted PGP keys
     """
 
-    def __init__(self, database: SQLite, sign: GPG, configuration: Configuration, section: str) -> None:
+    def __init__(self, database: SQLite, sign: GPG, repository_id: RepositoryId,
+                 configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
             database(SQLite): database instance
             sign(GPG): GPG wrapper instance
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
         self.sign = sign
-        self.name = configuration.repository_name
+        self.name = repository_id.name
 
         # configuration fields
         packager_keys = [packager.key for packager in database.user_list(None, None) if packager.key is not None]

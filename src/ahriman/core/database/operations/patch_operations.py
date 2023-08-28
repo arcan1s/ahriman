@@ -54,13 +54,19 @@ class PatchOperations(Operations):
             connection.execute(
                 """
                 insert into patches
-                (package_base, variable, patch)
+                (package_base, variable, patch, repository)
                 values
-                (:package_base, :variable, :patch)
-                on conflict (package_base, coalesce(variable, '')) do update set
+                (:package_base, :variable, :patch, :repository)
+                on conflict (package_base, coalesce(variable, ''), repository) do update set
                 patch = :patch
                 """,
-                {"package_base": package_base, "variable": patch.key, "patch": patch.value})
+                {
+                    "package_base": package_base,
+                    "variable": patch.key,
+                    "patch": patch.value,
+                    "repository": self.repository_id.name,
+                }
+            )
 
         return self.with_connection(run, commit=True)
 
@@ -79,8 +85,10 @@ class PatchOperations(Operations):
             return [
                 (row["package_base"], PkgbuildPatch(row["variable"], row["patch"]))
                 for row in connection.execute(
-                    """select * from patches where :package_base is null or package_base = :package_base""",
-                    {"package_base": package_base})
+                    """
+                    select * from patches
+                    where (:package_base is null or package_base = :package_base) and repository = :repository""",
+                    {"package_base": package_base, "repository": self.repository_id.name})
             ]
 
         # we could use itertools & operator but why?
@@ -101,13 +109,23 @@ class PatchOperations(Operations):
         """
         def run_many(connection: Connection) -> None:
             connection.executemany(
-                """delete from patches where package_base = :package_base and variable = :variable""",
-                [{"package_base": package_base, "variable": variable} for variable in variables])
+                """
+                delete from patches
+                where package_base = :package_base and variable = :variable and repository = :repository
+                """,
+                [
+                    {
+                        "package_base": package_base,
+                        "variable": variable,
+                        "repository": self.repository_id.name,
+                    } for variable in variables
+                ]
+            )
 
         def run(connection: Connection) -> None:
             connection.execute(
-                """delete from patches where package_base = :package_base""",
-                {"package_base": package_base})
+                """delete from patches where package_base = :package_base and repository = :repository""",
+                {"package_base": package_base, "repository": self.repository_id.name})
 
         if variables:
             return self.with_connection(run_many, commit=True)
