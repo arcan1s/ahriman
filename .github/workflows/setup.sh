@@ -36,9 +36,9 @@ systemd-machine-id-setup
 
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
-ahriman -a x86_64 service-setup --packager "ahriman bot <ahriman@example.com>" --repository "github" "${WEB_ARGS[@]}"
+ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
 # validate configuration
-ahriman -a x86_64 service-config-validate --exit-code
+ahriman -a x86_64 -r "github" service-config-validate --exit-code
 # enable services
 systemctl enable ahriman-web@x86_64
 systemctl enable ahriman@x86_64.timer
@@ -48,9 +48,9 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     WEB_PID=$!
 fi
 # add the first package
-sudo -u ahriman -- ahriman package-add --now yay
+sudo -u ahriman -- ahriman package-add --now ahriman
 # check if package was actually installed
-test -n "$(find "/var/lib/ahriman/repository/x86_64" -name "yay*pkg*")"
+test -n "$(find "/var/lib/ahriman/repository/github/x86_64" -name "ahriman*pkg*")"
 # run package check
 sudo -u ahriman -- ahriman repo-update
 # stop web service lol

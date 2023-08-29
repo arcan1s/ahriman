@@ -41,8 +41,9 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")
     join_mock = mocker.patch("ahriman.core.spawn.Spawn.join")
 
-    Web.run(args, "x86_64", configuration, report=False)
-    setup_mock.assert_called_once_with("x86_64", configuration, pytest.helpers.anyvar(int))
+    _, repository_id = configuration.check_loaded()
+    Web.run(args, repository_id, configuration, report=False)
+    setup_mock.assert_called_once_with(repository_id, configuration, pytest.helpers.anyvar(int))
     run_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     start_mock.assert_called_once_with()
     stop_mock.assert_called_once_with()
@@ -53,33 +54,35 @@ def test_extract_arguments(args: argparse.Namespace, configuration: Configuratio
     """
     must extract correct args
     """
+    _, repository_id = configuration.check_loaded()
     expected = [
-        "--architecture", "x86_64",
+        "--architecture", repository_id.architecture,
+        "--repository", repository_id.name,
         "--configuration", str(configuration.path),
     ]
 
     probe = _default_args(args)
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
     probe.force = True
     expected.extend(["--force"])
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
     probe.log_handler = LogHandler.Console
     expected.extend(["--log-handler", probe.log_handler.value])
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
     probe.quiet = True
     expected.extend(["--quiet"])
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
     probe.unsafe = True
     expected.extend(["--unsafe"])
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
     configuration.set_option("web", "wait_timeout", "60")
     expected.extend(["--wait-timeout", "60"])
-    assert list(Web.extract_arguments(probe, "x86_64", configuration)) == expected
+    assert list(Web.extract_arguments(probe, repository_id, configuration)) == expected
 
 
 def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: Configuration):
@@ -101,8 +104,10 @@ def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: 
             value = action.type(value)
         setattr(args, action.dest, value)
 
-    assert list(Web.extract_arguments(args, "x86_64", configuration)) == [
-        "--architecture", "x86_64",
+    _, repository_id = configuration.check_loaded()
+    assert list(Web.extract_arguments(args, repository_id, configuration)) == [
+        "--architecture", repository_id.architecture,
+        "--repository", repository_id.name,
         "--configuration", str(configuration.path),
         "--force",
         "--log-handler", "console",

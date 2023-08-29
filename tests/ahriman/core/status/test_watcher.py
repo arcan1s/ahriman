@@ -17,9 +17,10 @@ def test_force_no_report(configuration: Configuration, database: SQLite, mocker:
     """
     configuration.set_option("web", "port", "8080")
     load_mock = mocker.patch("ahriman.core.repository.Repository.load")
+    _, repository_id = configuration.check_loaded()
 
-    Watcher("x86_64", configuration, database)
-    load_mock.assert_called_once_with("x86_64", configuration, database, report=False)
+    Watcher(repository_id, configuration, database)
+    load_mock.assert_called_once_with(repository_id, configuration, database, report=False)
 
 
 def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:

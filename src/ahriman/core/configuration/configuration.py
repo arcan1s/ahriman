@@ -90,6 +90,17 @@ class Configuration(configparser.RawConfigParser):
         self.includes: list[Path] = []
 
     @property
+    def architecture(self) -> str:
+        """
+        repository architecture for backward compatibility
+
+        Returns:
+            str: repository architecture
+        """
+        _, repository_id = self.check_loaded()
+        return repository_id.architecture
+
+    @property
     def include(self) -> Path:
         """
         get full path to include directory
@@ -163,23 +174,23 @@ class Configuration(configparser.RawConfigParser):
         # the valid order is global < per architecture < per repository < per repository and architecture
         return [
             Configuration.section_name(section, repository_id.architecture),  # architecture specific override
-            Configuration.section_name(section, repository_id.name),
-            Configuration.section_name(section, repository_id.name, repository_id.architecture),
+            Configuration.section_name(section, repository_id.name),  # override with repository name
+            Configuration.section_name(section, repository_id.name, repository_id.architecture),  # both
         ]
 
     @staticmethod
-    def section_name(section: str, *suffixes: str) -> str:
+    def section_name(section: str, *suffixes: str | None) -> str:
         """
         generate section name for sections which depends on context
 
         Args:
             section(str): section name
-            *suffixes(str): session suffix, e.g. repository architecture
+            *suffixes(str | None): session suffix, e.g. repository architecture
 
         Returns:
             str: correct section name for repository specific section
         """
-        for suffix in suffixes:
+        for suffix in filter(bool, suffixes):
             section = f"{section}:{suffix}"
         return section
 

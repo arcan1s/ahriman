@@ -48,8 +48,10 @@ def test_load_trigger_package_error_on_creation(trigger_loader: TriggerLoader, c
     must raise InvalidException on trigger initialization if any exception is thrown
     """
     mocker.patch("ahriman.core.triggers.trigger.Trigger.__init__", side_effect=Exception())
+    _, repository_id = configuration.check_loaded()
+
     with pytest.raises(ExtensionError):
-        trigger_loader.load_trigger("ahriman.core.report.ReportTrigger", "x86_64", configuration)
+        trigger_loader.load_trigger("ahriman.core.report.ReportTrigger", repository_id, configuration)
 
 
 def test_load_trigger_class_package(trigger_loader: TriggerLoader) -> None:
@@ -155,8 +157,9 @@ def test_on_stop_with_on_start(configuration: Configuration, mocker: MockerFixtu
     mocker.patch("ahriman.core.upload.UploadTrigger.on_start")
     mocker.patch("ahriman.core.report.ReportTrigger.on_start")
     on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
+    _, repository_id = configuration.check_loaded()
 
-    trigger_loader = TriggerLoader.load("x86_64", configuration)
+    trigger_loader = TriggerLoader.load(repository_id, configuration)
     trigger_loader.on_start()
     del trigger_loader
     on_stop_mock.assert_called_once_with()
@@ -167,8 +170,9 @@ def test_on_stop_without_on_start(configuration: Configuration, mocker: MockerFi
     must call not on_stop on exit if on_start wasn't called
     """
     on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
+    _, repository_id = configuration.check_loaded()
 
-    trigger_loader = TriggerLoader.load("x86_64", configuration)
+    trigger_loader = TriggerLoader.load(repository_id, configuration)
     del trigger_loader
     on_stop_mock.assert_not_called()
 

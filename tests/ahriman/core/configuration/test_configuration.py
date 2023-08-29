@@ -7,7 +7,15 @@ from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeError
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
+
+
+def test_architecture(configuration: Configuration) -> None:
+    """
+    must return valid repository architecture
+    """
+    assert configuration.architecture == "x86_64"
 
 
 def test_repository_name(configuration: Configuration) -> None:
@@ -24,7 +32,7 @@ def test_repository_paths(configuration: Configuration, repository_paths: Reposi
     assert configuration.repository_paths == repository_paths
 
 
-def test_from_path(mocker: MockerFixture) -> None:
+def test_from_path(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must load configuration
     """
@@ -33,13 +41,13 @@ def test_from_path(mocker: MockerFixture) -> None:
     load_includes_mock = mocker.patch("ahriman.core.configuration.Configuration.load_includes")
     path = Path("path")
 
-    configuration = Configuration.from_path(path, "x86_64")
+    configuration = Configuration.from_path(path, repository_id)
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
     load_includes_mock.assert_called_once_with()
 
 
-def test_from_path_file_missing(mocker: MockerFixture) -> None:
+def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must load configuration based on package files
     """
@@ -47,17 +55,40 @@ def test_from_path_file_missing(mocker: MockerFixture) -> None:
     mocker.patch("ahriman.core.configuration.Configuration.load_includes")
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
-    configuration = Configuration.from_path(Path("path"), "x86_64")
+    configuration = Configuration.from_path(Path("path"), repository_id)
     read_mock.assert_called_once_with(configuration.SYSTEM_CONFIGURATION_PATH)
+
+
+def test_override_sections(repository_id: RepositoryId) -> None:
+    """
+    must correctly generate override section names
+    """
+    assert Configuration.override_sections("build", repository_id) == [
+        "build:x86_64",
+        "build:aur-clone",
+        "build:aur-clone:x86_64",
+    ]
+
+
+def test_section_name(configuration: Configuration) -> None:
+    """
+    must return architecture specific group
+    """
+    assert configuration.section_name("build") == "build"
+    assert configuration.section_name("build", None) == "build"
+    assert configuration.section_name("build", "x86_64") == "build:x86_64"
+    assert configuration.section_name("build", "aur-clone", "x86_64") == "build:aur-clone:x86_64"
+    assert configuration.section_name("build", "aur-clone", None) == "build:aur-clone"
+    assert configuration.section_name("build", None, "x86_64") == "build:x86_64"
 
 
 def test_check_loaded(configuration: Configuration) -> None:
     """
     must return valid path and architecture
     """
-    path, architecture = configuration.check_loaded()
+    path, repository_id = configuration.check_loaded()
     assert path == configuration.path
-    assert architecture == configuration.architecture
+    assert repository_id == configuration.repository_id
 
 
 def test_check_loaded_path(configuration: Configuration) -> None:
@@ -73,7 +104,7 @@ def test_check_loaded_architecture(configuration: Configuration) -> None:
     """
     must raise exception if architecture is none
     """
-    configuration.architecture = None
+    configuration.repository_id = None
     with pytest.raises(InitializeError):
         configuration.check_loaded()
 
@@ -89,22 +120,15 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     """
     dump must contain architecture specific settings
     """
-    section = configuration.section_name("build", "x86_64")
+    section = configuration.section_name("build", configuration.architecture)
     configuration.set_option(section, "archbuild_flags", "hello flag")
-    configuration.merge_sections("x86_64")
+    configuration.merge_sections(configuration.repository_id)
 
     dump = configuration.dump()
     assert dump
     assert "build" in dump
     assert section not in dump
     assert dump["build"]["archbuild_flags"] == "hello flag"
-
-
-def test_section_name(configuration: Configuration) -> None:
-    """
-    must return architecture specific group
-    """
-    assert configuration.section_name("build", "x86_64") == "build:x86_64"
 
 
 def test_getlist(configuration: Configuration) -> None:
@@ -209,7 +233,7 @@ def test_gettype(configuration: Configuration) -> None:
     """
     must extract type from variable
     """
-    section, provider = configuration.gettype("customs3", "x86_64")
+    section, provider = configuration.gettype("customs3", configuration.repository_id)
     assert section == "customs3"
     assert provider == "s3"
 
@@ -218,7 +242,7 @@ def test_gettype_with_fallback(configuration: Configuration) -> None:
     """
     must return same provider name as in fallback
     """
-    section, provider = configuration.gettype("rsync", "x86_64", fallback="abracadabra")
+    section, provider = configuration.gettype("rsync", configuration.repository_id, fallback="abracadabra")
     assert section == "rsync"
     assert provider == "abracadabra"
 
@@ -227,7 +251,7 @@ def test_gettype_from_section(configuration: Configuration) -> None:
     """
     must extract type from section name
     """
-    section, provider = configuration.gettype("rsync", "x86_64")
+    section, provider = configuration.gettype("rsync", configuration.repository_id)
     assert section == "rsync"
     assert provider == "rsync"
 
@@ -236,7 +260,7 @@ def test_gettype_from_section_with_architecture(configuration: Configuration) ->
     """
     must extract type from section name with architecture
     """
-    section, provider = configuration.gettype("github", "x86_64")
+    section, provider = configuration.gettype("github", configuration.repository_id)
     assert section == "github:x86_64"
     assert provider == "github"
 
@@ -248,7 +272,7 @@ def test_gettype_from_section_no_section(configuration: Configuration) -> None:
     # technically rsync:x86_64 is valid section
     # but in current configuration it must be considered as missing section
     with pytest.raises(configparser.NoSectionError):
-        configuration.gettype("rsync:x86_64", "x86_64")
+        configuration.gettype("rsync:x86_64", configuration.repository_id)
 
 
 def test_load_includes_missing(configuration: Configuration) -> None:
@@ -279,12 +303,42 @@ def test_merge_sections_missing(configuration: Configuration) -> None:
     """
     must merge create section if not exists
     """
-    section = configuration.section_name("build", "x86_64")
+    section = configuration.section_name("build", configuration.architecture)
     configuration.remove_section("build")
     configuration.set_option(section, "key", "value")
 
-    configuration.merge_sections("x86_64")
+    configuration.merge_sections(configuration.repository_id)
     assert configuration.get("build", "key") == "value"
+
+
+def test_merge_sections_priority(configuration: Configuration) -> None:
+    """
+    must merge sections in valid order
+    """
+    empty = "build"
+    arch = configuration.section_name(empty, configuration.architecture)
+    repo = configuration.section_name(empty, configuration.repository_name)
+    repo_arch = configuration.section_name(empty, configuration.repository_name, configuration.architecture)
+
+    configuration.set_option(empty, "key1", "key1_value1")
+    configuration.set_option(arch, "key1", "key1_value2")
+    configuration.set_option(repo, "key1", "key1_value3")
+    configuration.set_option(repo_arch, "key1", "key1_value4")
+
+    configuration.set_option(empty, "key2", "key2_value1")
+    configuration.set_option(arch, "key2", "key2_value2")
+    configuration.set_option(repo, "key2", "key2_value3")
+
+    configuration.set_option(empty, "key3", "key3_value1")
+    configuration.set_option(arch, "key3", "key3_value2")
+
+    configuration.set_option(empty, "key4", "key4_value1")
+
+    configuration.merge_sections(configuration.repository_id)
+    assert configuration.get("build", "key1") == "key1_value4"
+    assert configuration.get("build", "key2") == "key2_value3"
+    assert configuration.get("build", "key3") == "key3_value2"
+    assert configuration.get("build", "key4") == "key4_value1"
 
 
 def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -296,7 +350,7 @@ def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
 
     configuration.reload()
     load_mock.assert_called_once_with(configuration.path)
-    merge_mock.assert_called_once_with(configuration.architecture)
+    merge_mock.assert_called_once_with(configuration.repository_id)
 
 
 def test_reload_clear(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -314,7 +368,7 @@ def test_reload_no_architecture(configuration: Configuration) -> None:
     """
     must raise exception on reload if no architecture set
     """
-    configuration.architecture = None
+    configuration.repository_id = None
     with pytest.raises(InitializeError):
         configuration.reload()
 

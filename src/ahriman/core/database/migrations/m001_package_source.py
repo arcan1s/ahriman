@@ -80,7 +80,7 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
                 version=row["version"],
                 remote=RemoteSource.from_json(row),
                 packages={},
-                packager=row["packager"] or None,
+                packager=row.get("packager") or None,
             ) for row in connection.execute("""select * from package_bases""")
         }
 

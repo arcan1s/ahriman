@@ -38,12 +38,12 @@ def test_files_remove(s3_remote_objects: list[Any]) -> None:
     must remove remote objects
     """
     local_files = {
-        Path(item.key): item.e_tag for item in s3_remote_objects if item.key != "x86_64/a"
+        Path(item.key): item.e_tag for item in s3_remote_objects if item.key != "aur-clone/x86_64/a"
     }
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
     S3.files_remove(local_files, remote_objects)
-    remote_objects[Path("x86_64/a")].delete.assert_called_once_with()
+    remote_objects[Path("aur-clone/x86_64/a")].delete.assert_called_once_with()
 
 
 def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixture) -> None:
@@ -55,9 +55,10 @@ def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixtur
 
     root = Path("path")
     local_files = {
-        Path(item.key.replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
+        Path(item.key[:-1] + item.key[-1].replace("a", "d")): item.e_tag.replace("b", "d").replace("\"", "")
         for item in s3_remote_objects
     }
+    print(local_files)
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
     mocker.patch("mimetypes.guess_type", side_effect=mimetype)
@@ -67,12 +68,12 @@ def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixtur
     upload_mock.upload_file.assert_has_calls(
         [
             MockCall(
-                Filename=str(root / s3.architecture / "b"),
-                Key=f"{s3.architecture}/{s3.architecture}/b",
+                Filename=str(root / s3.remote_root / "b"),
+                Key=f"{s3.remote_root}/b",
                 ExtraArgs={"ContentType": "text/html"}),
             MockCall(
-                Filename=str(root / s3.architecture / "d"),
-                Key=f"{s3.architecture}/{s3.architecture}/d",
+                Filename=str(root / s3.remote_root / "d"),
+                Key=f"{s3.remote_root}/d",
                 ExtraArgs=None),
         ],
         any_order=True)
@@ -91,7 +92,7 @@ def test_get_remote_objects(s3: S3, s3_remote_objects: list[Any]) -> None:
     """
     must generate list of remote objects by calling boto3 function
     """
-    expected = {Path(item.key).relative_to(s3.architecture): item for item in s3_remote_objects}
+    expected = {Path(item.key).relative_to(s3.remote_root): item for item in s3_remote_objects}
 
     s3.bucket = MagicMock()
     s3.bucket.objects.filter.return_value = s3_remote_objects

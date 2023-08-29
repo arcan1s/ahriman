@@ -1,12 +1,13 @@
 from ahriman.core.database import SQLite
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
-def test_logs_insert_remove_process(database: SQLite, package_ahriman: Package,
+def test_logs_insert_remove_version(database: SQLite, package_ahriman: Package,
                                     package_python_schedule: Package) -> None:
     """
-    must clear process specific package logs
+    must clear version specific package logs
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
     database.logs_insert(LogRecordId(package_ahriman.base, "2"), 43.0, "message 2")
@@ -15,6 +16,20 @@ def test_logs_insert_remove_process(database: SQLite, package_ahriman: Package,
     database.logs_remove(package_ahriman.base, "1")
     assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
     assert database.logs_get(package_python_schedule.base) == [(42.0, "message 3")]
+
+
+def test_logs_insert_remove_multi(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must clear logs for specified repository
+    """
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
+    database.repository_id = RepositoryId("i686", database.repository_id.name)
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
+
+    database.logs_remove(package_ahriman.base, None)
+    assert not database.logs_get(package_ahriman.base)
+    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    assert database.logs_get(package_ahriman.base) == "[1970-01-01 00:00:42] message 1"
 
 
 def test_logs_insert_remove_full(database: SQLite, package_ahriman: Package, package_python_schedule: Package) -> None:
@@ -46,3 +61,16 @@ def test_logs_insert_get_pagination(database: SQLite, package_ahriman: Package) 
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
     assert database.logs_get(package_ahriman.base, 1, 1) == [(43.0, "message 2")]
+
+
+def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert and get package logs for multiple repositories
+    """
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
+    database.repository_id = RepositoryId("i686", database.repository_id.name)
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
+
+    assert database.logs_get(package_ahriman.base) == [(43.0, "message 2")]
+    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]

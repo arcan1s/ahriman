@@ -31,7 +31,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_import")
 
-    KeyImport.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    KeyImport.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(args.key_server, args.key)
 
 

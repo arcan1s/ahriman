@@ -49,7 +49,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
     application_packages_mock.assert_called_once_with([package_ahriman], None)
     application_mock.assert_called_once_with([package_ahriman], args.username, bump_pkgrel=args.increment)
@@ -70,7 +71,8 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     mocker.patch("ahriman.application.application.Application.print_updates")
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
 
 
@@ -87,7 +89,8 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     application_mock.assert_not_called()
     check_mock.assert_called_once_with(False, False)
     print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
@@ -105,7 +108,8 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, repo
     mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     application_packages_mock.assert_called_once_with([], ["python-aur"])
 
 
@@ -120,7 +124,8 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     application_packages_mock.assert_called_once_with([], None)
 
 
@@ -138,7 +143,8 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     mocker.patch("ahriman.application.application.Application.print_updates")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -155,7 +161,8 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Rebuild.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Rebuild.run(args, repository_id, configuration, report=False)
     check_mock.assert_has_calls([MockCall(True, False), MockCall(True, True)])
 
 

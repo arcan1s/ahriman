@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.exceptions import PathError
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -26,6 +27,18 @@ def _get_owner(root: Path, same: bool) -> Callable[[Path], tuple[int, int]]:
     return lambda path: root_owner if path == root else non_root_owner
 
 
+def test_suffix(repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must correctly define suffix
+    """
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
+    assert RepositoryPaths(Path("root"), repository_id)._suffix == Path(repository_id.architecture)
+    is_dir_mock.assert_called_once_with(Path("root") / "repository" / repository_id.architecture)
+
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    assert RepositoryPaths(Path("root"), repository_id)._suffix == Path(repository_id.name) / repository_id.architecture
+
+
 def test_root_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must correctly define root directory owner
@@ -36,11 +49,63 @@ def test_root_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) ->
 
 def test_known_architectures(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
-    must list available directory paths
+    must list available directory paths /repository/repo/arch
     """
-    iterdir_mock = mocker.patch("pathlib.Path.iterdir")
-    repository_paths.known_architectures(repository_paths.root)
-    iterdir_mock.assert_called_once_with()
+    def iterdir(root: Path) -> list[Path]:
+        if root == repository_paths._repository_root:
+            return [Path("repo1"), Path("repo2")]
+        if root == Path("repo1"):
+            return [Path("i686"), Path("x86_64")]
+        return [Path("x86_64")]
+
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, side_effect=iterdir)
+
+    assert repository_paths.known_architectures(repository_paths.root, "") == {
+        RepositoryId("i686", "repo1"),
+        RepositoryId("x86_64", "repo1"),
+        RepositoryId("x86_64", "repo2"),
+    }
+    iterdir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root),
+        MockCall(Path("repo1")),
+        MockCall(Path("repo2")),
+    ])
+    is_dir_mock.assert_has_calls([
+        MockCall(Path("repo1")),
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+        MockCall(Path("repo2")),
+        MockCall(Path("x86_64")),
+    ])
+
+
+def test_known_architectures_legacy(repository_id: RepositoryId, repository_paths: RepositoryPaths,
+                                    mocker: MockerFixture) -> None:
+    """
+    must correctly define legacy tree /repository/arch
+    """
+    def iterdir(root: Path) -> list[Path]:
+        if root == repository_paths._repository_root:
+            return [Path("i686"), Path("x86_64")]
+        return []
+
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, side_effect=iterdir)
+
+    assert repository_paths.known_architectures(repository_paths.root, repository_id.name) == {
+        RepositoryId("i686", repository_id.name),
+        RepositoryId("x86_64", repository_id.name),
+    }
+    iterdir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root),
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+    ])
+    is_dir_mock.assert_has_calls([
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+    ])
 
 
 def test_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -140,10 +205,10 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         for prop in dir(repository_paths)
         if not prop.startswith("_")
         and not prop.endswith("_for")
-        and prop not in ("architecture",
-                         "chown",
+        and prop not in ("chown",
                          "known_architectures",
                          "owner",
+                         "repository_id",
                          "root",
                          "root_owner",
                          "tree_clear",

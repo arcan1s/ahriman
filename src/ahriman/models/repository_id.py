@@ -62,4 +62,4 @@ class RepositoryId:
         if not isinstance(other, RepositoryId):
             raise ValueError(f"'<' not supported between instances of '{type(self)}' and '{type(other)}'")
 
-        return self.name <= other.name and self.architecture < other.architecture
+        return (self.name, self.architecture) < (other.name, other.architecture)

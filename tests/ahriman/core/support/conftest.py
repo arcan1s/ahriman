@@ -16,7 +16,8 @@ def mirrorlist_generator(configuration: Configuration) -> MirrorlistGenerator:
     Returns:
         MirrorlistGenerator: mirrorlist pkgbuild generator test instance
     """
-    return MirrorlistGenerator(configuration, "mirrorlist")
+    _, repository_id = configuration.check_loaded()
+    return MirrorlistGenerator(repository_id, configuration, "mirrorlist")
 
 
 @pytest.fixture

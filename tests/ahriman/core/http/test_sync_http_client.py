@@ -22,7 +22,7 @@ def test_init_auth(configuration: Configuration) -> None:
     configuration.set_option("web", "username", "username")
     configuration.set_option("web", "password", "password")
 
-    assert SyncHttpClient("web", configuration).auth == ("username", "password")
+    assert SyncHttpClient(configuration, "web").auth == ("username", "password")
     assert SyncHttpClient(configuration=configuration).auth is None
 
 

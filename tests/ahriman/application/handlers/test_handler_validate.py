@@ -33,8 +33,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     application_mock = mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=False)
 
-    Validate.run(args, "x86_64", configuration, report=False)
-
+    _, repository_id = configuration.check_loaded()
+    Validate.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(configuration.dump())
     print_mock.assert_called_once_with(verbose=True)
 
@@ -47,7 +47,8 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, mocker
     mocker.patch("ahriman.core.configuration.validator.Validator.validate", return_value=True)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Validate.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Validate.run(args, repository_id, configuration, report=False)
     print_mock.assert_not_called()
 
 
@@ -55,7 +56,8 @@ def test_schema(configuration: Configuration) -> None:
     """
     must generate full schema correctly
     """
-    schema = Validate.schema("x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    schema = Validate.schema(repository_id, configuration)
 
     # defaults
     assert schema.pop("console")
@@ -86,7 +88,9 @@ def test_schema_invalid_trigger(configuration: Configuration) -> None:
     """
     configuration.set_option("build", "triggers", "some.invalid.trigger.path.Trigger")
     configuration.remove_option("build", "triggers_known")
-    assert Validate.schema("x86_64", configuration) == CONFIGURATION_SCHEMA
+    _, repository_id = configuration.check_loaded()
+
+    assert Validate.schema(repository_id, configuration) == CONFIGURATION_SCHEMA
 
 
 def test_schema_erase_required() -> None:

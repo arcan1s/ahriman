@@ -132,7 +132,7 @@ class S3(Upload):
                 continue
 
             local_path = path / local_file
-            remote_path = self.remote_root / local_file
+            remote_path = self.remote_root / local_file.name
             (mime, _) = mimetypes.guess_type(local_path)
             extra_args = {"ContentType": mime} if mime is not None else None
 

@@ -77,8 +77,7 @@ class Web(Handler):
         """
         # read architecture from the same argument list
         yield from ["--architecture", repository_id.architecture]
-        if repository_id.name is not None:
-            yield from ["--repository", repository_id.name]
+        yield from ["--repository", repository_id.name]
         # read configuration path from current settings
         if (configuration_path := configuration.path) is not None:
             yield from ["--configuration", str(configuration_path)]

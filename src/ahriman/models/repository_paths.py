@@ -26,12 +26,11 @@ from functools import cached_property
 from pathlib import Path
 
 from ahriman.core.exceptions import PathError
-from ahriman.core.log import LazyLogging
 from ahriman.models.repository_id import RepositoryId
 
 
 @dataclass(frozen=True)
-class RepositoryPaths(LazyLogging):
+class RepositoryPaths:
     """
     repository paths holder. For the most operations with paths you want to use this object
 
@@ -57,6 +56,16 @@ class RepositoryPaths(LazyLogging):
     root: Path
     repository_id: RepositoryId
 
+    @property
+    def _repository_root(self) -> Path:
+        """
+        repository root which can be used for invalid (not fully loaded instances)
+
+        Returns:
+            Path: root path to repositories
+        """
+        return self.root / "repository"
+
     @cached_property
     def _suffix(self) -> Path:
         """
@@ -66,8 +75,7 @@ class RepositoryPaths(LazyLogging):
             Path: relative path which contains only architecture segment in case if legacy tree is used and repository
         name and architecture otherwise
         """
-        if (self.root / "repository" / self.repository_id.architecture).is_dir():
-            self.logger.warning("legacy single repository tree has been found")
+        if (self._repository_root / self.repository_id.architecture).is_dir():
             return Path(self.repository_id.architecture)
         return Path(self.repository_id.name) / self.repository_id.architecture
 
@@ -120,7 +128,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: full path to the repository directory
         """
-        return self.root / "repository" / self._suffix
+        return self._repository_root / self._suffix
 
     @property
     def root_owner(self) -> tuple[int, int]:
@@ -148,13 +156,15 @@ class RepositoryPaths(LazyLogging):
             for architecture in filter(lambda path: path.is_dir(), repository_path.iterdir()):
                 yield RepositoryId(architecture.name, repository_name)
 
-        def walk_with_name(paths: RepositoryPaths) -> Generator[RepositoryId, None, None]:
-            for repository in filter(lambda path: path.is_dir(), paths.repository.iterdir()):
+        def walk_root(paths: RepositoryPaths) -> Generator[RepositoryId, None, None]:
+            # pylint: disable=protected-access
+            for repository in filter(lambda path: path.is_dir(), paths._repository_root.iterdir()):
+                print(repository)
                 yield from walk(repository, repository.name)
 
-        instance = cls(root, RepositoryId("", ""))
+        instance = cls(root, RepositoryId("", root.name))  # suppress initialization error
         # try to get list per repository first and then fallback to old schema if nothing found
-        return set(walk_with_name(instance)) or set(walk(instance.repository, name))
+        return set(walk_root(instance)) or set(walk(instance._repository_root, name))
 
     @staticmethod
     def owner(path: Path) -> tuple[int, int]:

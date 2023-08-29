@@ -95,19 +95,20 @@ def s3(configuration: Configuration) -> S3:
 
 
 @pytest.fixture
-def s3_remote_objects() -> list[MagicMock]:
+def s3_remote_objects(configuration: Configuration) -> list[MagicMock]:
     """
     fixture for boto3 like S3 objects
 
     Returns:
         list[MagicMock]: boto3 like S3 objects test instance
     """
+    _, repository_id = configuration.check_loaded()
     delete_mock = MagicMock()
 
     result = []
     for item in ["a", "b", "c"]:
         s3_object = MagicMock()
-        s3_object.key = f"x86_64/{item}"
+        s3_object.key = f"{repository_id.name}/{repository_id.architecture}/{item}"
         s3_object.e_tag = f"\"{item}\""
         s3_object.delete = delete_mock
 

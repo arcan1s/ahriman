@@ -46,10 +46,16 @@ class LogsOperations(Operations):
                 for row in connection.execute(
                     """
                     select created, record from logs
-                    where package_base = :package_base and repository = :repository
+                    where package_base = :package_base and repository = :repository and architecture = :architecture
                     order by created limit :limit offset :offset
                     """,
-                    {"package_base": package_base, "repository": self.repository_id.name, "limit": limit, "offset": offset})
+                    {
+                        "package_base": package_base,
+                        "repository": self.repository_id.name,
+                        "architecture": self.repository_id.architecture,
+                        "limit": limit,
+                        "offset": offset,
+                    })
             ]
 
         return self.with_connection(run)
@@ -67,9 +73,9 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, version, created, record, repository)
+                (package_base, version, created, record, repository, architecture)
                 values
-                (:package_base, :version, :created, :record, :repository)
+                (:package_base, :version, :created, :record, :repository, :architecture)
                 """,
                 {
                     "package_base": log_record_id.package_base,
@@ -77,6 +83,7 @@ class LogsOperations(Operations):
                     "created": created,
                     "record": record,
                     "repository": self.repository_id.name,
+                    "architecture": self.repository_id.architecture,
                 }
             )
 
@@ -95,10 +102,15 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 delete from logs
-                where package_base = :package_base and repository = :repository
+                where package_base = :package_base and repository = :repository and architecture = :architecture
                   and (:version is null or version <> :version)
                 """,
-                {"package_base": package_base, "version": version, "repository": self.repository_id.name}
+                {
+                    "package_base": package_base,
+                    "version": version,
+                    "repository": self.repository_id.name,
+                    "architecture": self.repository_id.architecture,
+                }
             )
 
         return self.with_connection(run, commit=True)

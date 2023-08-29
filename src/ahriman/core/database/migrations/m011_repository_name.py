@@ -51,6 +51,9 @@ steps = [
     alter table build_queue add column repository text not null default ''
     """,
     """
+    alter table build_queue add column architecture text not null default ''
+    """,
+    """
     alter table build_queue rename to build_queue_
     """,
     """
@@ -58,7 +61,8 @@ steps = [
         package_base text not null,
         properties json not null,
         repository text not null,
-        primary key (package_base, repository)
+        architecture text not null,
+        unique (package_base, architecture, repository)
     )
     """,
     """
@@ -70,6 +74,9 @@ steps = [
     # package_bases
     """
     alter table package_bases add column repository text not null default ''
+    """,
+    """
+    alter table package_bases add column architecture text not null default ''
     """,
     """
     alter table package_bases rename to package_bases_
@@ -85,7 +92,8 @@ steps = [
         source text,
         packager text,
         repository text not null,
-        primary key (package_base, repository)
+        architecture text not null,
+        unique (package_base, architecture, repository)
     )
     """,
     """
@@ -99,6 +107,9 @@ steps = [
     alter table package_statuses add column repository text not null default ''
     """,
     """
+    alter table package_statuses add column architecture text not null default ''
+    """,
+    """
     alter table package_statuses rename to package_statuses_
     """,
     """
@@ -107,7 +118,8 @@ steps = [
         status text not null,
         last_updated integer,
         repository text not null,
-        primary key (package_base, repository)
+        architecture text not null,
+        unique (package_base, architecture, repository)
     )
     """,
     """
@@ -142,7 +154,7 @@ steps = [
         opt_depends json,
         check_depends json,
         repository text not null,
-        primary key (package, architecture, repository)
+        unique (package, architecture, repository)
     )
     """,
     """
@@ -151,37 +163,12 @@ steps = [
     """
     drop table packages_
     """,
-    # patches
-    """
-    alter table patches add column repository text not null default ''
-    """,
-    """
-    drop index patches_package_base_variable
-    """,
-    """
-    alter table patches rename to patches_
-    """,
-    """
-    create table patches (
-        package_base text not null,
-        variable text,
-        patch blob not null,
-        repository text not null
-    )
-    """,
-    """
-    create unique index patches_package_base_variable_repository
-    on patches (package_base, coalesce(variable, ''), repository)
-    """,
-    """
-    insert into patches select * from patches_
-    """,
-    """
-    drop table patches_
-    """,
     # logs
     """
     alter table logs add column repository text not null default ''
+    """,
+    """
+    alter table logs add column architecture text not null default ''
     """,
     """
     drop index logs_package_base_version
@@ -195,14 +182,16 @@ steps = [
         created real not null,
         record text,
         version text not null,
-        repository text not null
+        repository text not null,
+        architecture text not null
     )
     """,
     """
     insert into logs select * from logs_
     """,
     """
-    create index logs_package_base_version on logs (package_base, version)
+    create index logs_package_base_version_architecture_repository
+    on logs (package_base, version, architecture, repository)
     """,
     """
     drop table logs_
@@ -231,15 +220,13 @@ def migrate_package_repository(connection: Connection, configuration: Configurat
     """
     _, repository_id = configuration.check_loaded()
 
-    connection.execute("""update build_queue set repository = :repository""",
-                       {"repository": repository_id.name, })
-    connection.execute("""update package_bases set repository = :repository""",
-                       {"repository": repository_id.name, })
-    connection.execute("""update package_statuses set repository = :repository""",
-                       {"repository": repository_id.name, })
+    connection.execute("""update build_queue set repository = :repository, architecture = :architecture""",
+                       {"repository": repository_id.name, "architecture": repository_id.architecture})
+    connection.execute("""update package_bases set repository = :repository, architecture = :architecture""",
+                       {"repository": repository_id.name, "architecture": repository_id.architecture})
+    connection.execute("""update package_statuses set repository = :repository, architecture = :architecture""",
+                       {"repository": repository_id.name, "architecture": repository_id.architecture})
     connection.execute("""update packages set repository = :repository""",
-                       {"repository": repository_id.name, })
-    connection.execute("""update patches set repository = :repository""",
-                       {"repository": repository_id.name, })
-    connection.execute("""update logs set repository = :repository""",
-                       {"repository": repository_id.name, })
+                       {"repository": repository_id.name})
+    connection.execute("""update logs set repository = :repository, architecture = :architecture""",
+                       {"repository": repository_id.name, "architecture": repository_id.architecture})

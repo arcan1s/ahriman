@@ -19,12 +19,13 @@ def test_init_with_local_cache(configuration: Configuration, mocker: MockerFixtu
     mocker.patch("ahriman.core.alpm.pacman.Pacman.database_copy")
     sync_mock = mocker.patch("ahriman.core.alpm.pacman.Pacman.database_sync")
     configuration.set_option("alpm", "use_ahriman_cache", "yes")
+    _, repository_id = configuration.check_loaded()
 
     # pyalpm.Handle is trying to reach the directory we've asked, thus we need to patch it a bit
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman("x86_64", configuration, refresh_database=PacmanSynchronization.Enabled)
+        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Enabled)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=False)
 
@@ -36,12 +37,13 @@ def test_init_with_local_cache_forced(configuration: Configuration, mocker: Mock
     mocker.patch("ahriman.core.alpm.pacman.Pacman.database_copy")
     sync_mock = mocker.patch("ahriman.core.alpm.pacman.Pacman.database_sync")
     configuration.set_option("alpm", "use_ahriman_cache", "yes")
+    _, repository_id = configuration.check_loaded()
 
     # pyalpm.Handle is trying to reach the directory we've asked, thus we need to patch it a bit
     with TemporaryDirectory(ignore_cleanup_errors=True) as pacman_root:
         mocker.patch.object(RepositoryPaths, "pacman", Path(pacman_root))
         # during the creation pyalpm.Handle will create also version file which we would like to remove later
-        pacman = Pacman("x86_64", configuration, refresh_database=PacmanSynchronization.Force)
+        pacman = Pacman(repository_id, configuration, refresh_database=PacmanSynchronization.Force)
         assert pacman.handle
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=True)
 
@@ -128,8 +130,8 @@ def test_database_init(pacman: Pacman, configuration: Configuration) -> None:
     must init database with settings
     """
     mirror = configuration.get("alpm", "mirror")
-    database = pacman.database_init(pacman.handle, "test", mirror, "x86_64")
-    assert len(database.servers) == 1
+    database = pacman.database_init(pacman.handle, "testing", mirror, "x86_64")
+    assert database.servers == ["https://geo.mirror.pkgbuild.com/testing/os/x86_64"]
 
 
 def test_database_sync(pacman: Pacman) -> None:

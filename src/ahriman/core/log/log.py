@@ -27,7 +27,7 @@ from ahriman.core.log.http_log_handler import HttpLogHandler
 from ahriman.models.log_handler import LogHandler
 
 
-class LogLoader:
+class Log:
     """
     simple static method class which setups application loggers
 
@@ -63,7 +63,7 @@ class LogLoader:
             del JournalHandler
             return LogHandler.Journald  # journald import was found
         except ImportError:
-            if LogLoader.DEFAULT_SYSLOG_DEVICE.exists():
+            if Log.DEFAULT_SYSLOG_DEVICE.exists():
                 return LogHandler.Syslog
             return LogHandler.Console
 
@@ -94,7 +94,7 @@ class LogLoader:
             fileConfig(log_configuration, disable_existing_loggers=True)
             logging.debug("using %s logger", default_handler)
         except Exception:
-            logging.basicConfig(filename=None, format=LogLoader.DEFAULT_LOG_FORMAT, level=LogLoader.DEFAULT_LOG_LEVEL)
+            logging.basicConfig(filename=None, format=Log.DEFAULT_LOG_FORMAT, level=Log.DEFAULT_LOG_LEVEL)
             logging.exception("could not load logging from configuration, fallback to stderr")
 
         HttpLogHandler.load(configuration, report=report)

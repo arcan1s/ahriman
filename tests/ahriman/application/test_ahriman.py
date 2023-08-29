@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application import ahriman
 from ahriman.application.handlers import Handler
+from ahriman.core.configuration import Configuration
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.log_handler import LogHandler
@@ -64,6 +65,14 @@ def test_multiple_architectures(parser: argparse.ArgumentParser) -> None:
     """
     args = parser.parse_args(["-a", "x86_64", "-a", "i686", "service-config"])
     assert args.architecture == ["x86_64", "i686"]
+
+
+def test_multiple_repositories(parser: argparse.ArgumentParser) -> None:
+    """
+    must accept multiple architectures
+    """
+    args = parser.parse_args(["-r", "repo1", "-r", "repo2", "service-config"])
+    assert args.repository == ["repo1", "repo2"]
 
 
 def test_subparsers_aur_search(parser: argparse.ArgumentParser) -> None:
@@ -708,8 +717,7 @@ def test_subparsers_service_setup(parser: argparse.ArgumentParser) -> None:
     """
     service-setup command must imply lock, report, quiet and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--repository", "aur-clone"])
+    args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>"])
     assert args.architecture == ["x86_64"]
     assert args.lock is None
     assert not args.report
@@ -721,11 +729,10 @@ def test_subparsers_service_setup_option_from_configuration(parser: argparse.Arg
     """
     service-setup command must convert from-configuration option to path instance
     """
-    args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--repository", "aur-clone"])
+    args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>"])
     assert isinstance(args.from_configuration, Path)
     args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--repository", "aur-clone", "--from-configuration", "path"])
+                              "--from-configuration", "path"])
     assert isinstance(args.from_configuration, Path)
 
 
@@ -734,7 +741,7 @@ def test_subparsers_service_setup_option_sign_target(parser: argparse.ArgumentPa
     service-setup command must convert sign-target option to SignSettings instance
     """
     args = parser.parse_args(["-a", "x86_64", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--repository", "aur-clone", "--sign-target", "packages"])
+                              "--sign-target", "packages"])
     assert args.sign_target
     assert all(isinstance(target, SignSettings) for target in args.sign_target)
 
@@ -837,11 +844,15 @@ def test_subparsers_web(parser: argparse.ArgumentParser) -> None:
     assert args.parser is not None and args.parser()
 
 
-def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:
+def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     application must be run
     """
-    args.architecture = "x86_64"
+    path, repository_id = configuration.check_loaded()
+
+    args.architecture = repository_id.architecture
+    args.repository = repository_id.name
+    args.configuration = path
     args.command = ""
     args.handler = Handler
 

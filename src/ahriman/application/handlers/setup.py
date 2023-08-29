@@ -66,8 +66,8 @@ class Setup(Handler):
         Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
         Setup.executable_create(application.repository.paths, repository_id)
         repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
-        Setup.configuration_create_devtools(repository_id, args.from_configuration, args.mirror, args.multilib,
-                                            repository_server)
+        Setup.configuration_create_devtools(
+            repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
         Setup.configuration_create_sudo(application.repository.paths, repository_id)
 
         application.repository.repo.init()

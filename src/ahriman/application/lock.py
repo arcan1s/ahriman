@@ -70,7 +70,7 @@ class Lock(LazyLogging):
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        lock_suffix = f"{repository_id.name}_{repository_id.architecture}" if repository_id.name is not None else repository_id.architecture
+        lock_suffix = f"{repository_id.name}_{repository_id.architecture}"
         self.path: Path | None = \
             args.lock.with_stem(f"{args.lock.stem}_{lock_suffix}") if args.lock is not None else None
 

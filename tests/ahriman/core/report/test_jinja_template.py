@@ -9,5 +9,6 @@ def test_generate(configuration: Configuration, package_ahriman: Package) -> Non
     must generate html report
     """
     path = configuration.getpath("html", "template_path")
-    report = JinjaTemplate("html", configuration)
+    _, repository_id = configuration.check_loaded()
+    report = JinjaTemplate(repository_id, configuration, "html")
     assert report.make_html(Result(success=[package_ahriman]), path)

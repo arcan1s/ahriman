@@ -25,8 +25,9 @@ def test_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     context_mock = mocker.patch("ahriman.core._Context.get")
     run_mock = mocker.patch("ahriman.core.support.package_creator.PackageCreator.run")
+    _, repository_id = configuration.check_loaded()
 
-    trigger = KeyringTrigger("x86_64", configuration)
+    trigger = KeyringTrigger(repository_id, configuration)
     trigger.on_start()
     context_mock.assert_has_calls([MockCall(ContextKey("sign", GPG)), MockCall(ContextKey("database", SQLite))])
     run_mock.assert_called_once_with()

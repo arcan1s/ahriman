@@ -35,7 +35,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock = mocker.patch("ahriman.core.tree.Tree.resolve", return_value=[[package_ahriman]])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Structure.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Structure.run(args, repository_id, configuration, report=False)
     packages_mock.assert_called_once_with([package_ahriman], count=args.partitions)
     application_mock.assert_called_once_with([package_ahriman])
     print_mock.assert_has_calls([

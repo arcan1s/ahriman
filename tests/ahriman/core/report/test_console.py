@@ -14,7 +14,8 @@ def test_generate(configuration: Configuration, result: Result, package_python_s
     """
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     result.add_failed(package_python_schedule)
-    report = Console("x86_64", configuration, "console")
+    _, repository_id = configuration.check_loaded()
+    report = Console(repository_id, configuration, "console")
 
     report.generate([], result)
     print_mock.assert_has_calls([MockCall(verbose=True), MockCall(verbose=True)])

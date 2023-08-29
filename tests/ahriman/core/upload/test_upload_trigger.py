@@ -22,7 +22,8 @@ def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     configuration.set_option("upload", "target", "rsync")
     run_mock = mocker.patch("ahriman.core.upload.upload.Upload.run")
+    _, repository_id = configuration.check_loaded()
 
-    trigger = UploadTrigger("x86_64", configuration)
+    trigger = UploadTrigger(repository_id, configuration)
     trigger.on_result(Result(), [])
     run_mock.assert_called_once_with(configuration.repository_paths.repository, [])

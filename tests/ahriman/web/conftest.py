@@ -16,7 +16,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
-from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user import User
 from ahriman.web.web import setup_service
 
