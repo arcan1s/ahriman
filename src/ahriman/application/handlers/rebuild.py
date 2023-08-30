@@ -48,7 +48,7 @@ class Rebuild(Handler):
         application.on_start()
 
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
-        updates = application.repository.packages_depend_on(packages, args.depends_on or None)
+        updates = application.repository.packages_depend_on(packages, args.depends_on)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:

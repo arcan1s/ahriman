@@ -23,7 +23,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.depends_on = []
+    args.depends_on = None
     args.dry_run = False
     args.from_database = False
     args.exit_code = False

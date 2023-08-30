@@ -117,7 +117,8 @@ class Setup(Handler):
 
         section = Configuration.section_name("sign", repository_id.name, repository_id.architecture)
         if args.sign_key is not None:
-            configuration.set_option(section, "target", " ".join([target.name.lower() for target in args.sign_target]))
+            sign_targets = args.sign_target or []
+            configuration.set_option(section, "target", " ".join([target.name.lower() for target in sign_targets]))
             configuration.set_option(section, "key", args.sign_key)
 
         section = Configuration.section_name("web", repository_id.name, repository_id.architecture)

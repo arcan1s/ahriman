@@ -116,7 +116,7 @@ class Patch(Handler):
         application.database.patches_insert(package_base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: str | None, variables: list[str],
+    def patch_set_list(application: Application, package_base: str | None, variables: list[str] | None,
                        exit_code: bool) -> None:
         """
         list patches available for the package base
@@ -124,7 +124,7 @@ class Patch(Handler):
         Args:
             application(Application): application instance
             package_base(str | None): package base
-            variables(list[str]): extract patches only for specified PKGBUILD variables
+            variables(list[str] | None): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base, variables)
@@ -134,13 +134,13 @@ class Patch(Handler):
             PatchPrinter(base, patch).print(verbose=True, separator=" = ")
 
     @staticmethod
-    def patch_set_remove(application: Application, package_base: str, variables: list[str]) -> None:
+    def patch_set_remove(application: Application, package_base: str, variables: list[str] | None) -> None:
         """
         remove patch set for the package base
 
         Args:
             application(Application): application instance
             package_base(str): package base
-            variables(list[str]): remove patches only for specified PKGBUILD variables
+            variables(list[str] | None): remove patches only for specified PKGBUILD variables
         """
         application.database.patches_remove(package_base, variables)
