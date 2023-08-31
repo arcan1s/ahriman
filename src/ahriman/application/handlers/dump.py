@@ -30,7 +30,7 @@ class Dump(Handler):
     dump configuration handler
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

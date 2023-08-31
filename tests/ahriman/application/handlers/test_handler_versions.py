@@ -37,3 +37,10 @@ def test_package_dependencies_missing() -> None:
     assert packages
     assert packages.get("pyalpm") is not None
     assert packages.get("Sphinx") is None
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Versions.ALLOW_MULTI_ARCHITECTURE_RUN

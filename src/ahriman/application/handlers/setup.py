@@ -25,6 +25,7 @@ from pwd import getpwuid
 from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user import User
@@ -40,7 +41,7 @@ class Setup(Handler):
         SUDOERS_DIR_PATH(Path): (class attribute) path to sudoers.d includes directory
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     ARCHBUILD_COMMAND_PATH = Path("/usr") / "bin" / "archbuild"
     MIRRORLIST_PATH = Path("/etc") / "pacman.d" / "mirrorlist"
@@ -58,6 +59,10 @@ class Setup(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
+        # special check for args to avoid auto definition for setup command
+        if args.architecture is None or args.repository is None:
+            raise MissingArchitectureError(args.command)
+
         Setup.configuration_create_ahriman(args, repository_id, configuration)
         configuration.reload()
 

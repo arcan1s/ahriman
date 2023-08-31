@@ -83,8 +83,8 @@ def test_get_unsafe_commands() -> None:
         assert subparser.choices[command].get_default("unsafe")
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not UnsafeCommands.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not UnsafeCommands.ALLOW_MULTI_ARCHITECTURE_RUN

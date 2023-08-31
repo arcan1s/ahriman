@@ -115,8 +115,8 @@ def test_schema_merge() -> None:
         assert key in merged["gitremote"]["schema"]
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Validate.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Validate.ALLOW_MULTI_ARCHITECTURE_RUN

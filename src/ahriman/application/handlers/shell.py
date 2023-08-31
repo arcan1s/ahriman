@@ -34,7 +34,7 @@ class Shell(Handler):
     python shell handler
     """
 
-    ALLOW_MULTI_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

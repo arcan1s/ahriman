@@ -140,31 +140,57 @@ class RepositoryPaths:
         """
         return self.owner(self.root)
 
+    # TODO see https://github.com/python/mypy/issues/12534, remove type: ignore after release
+    # pylint: disable=protected-access
     @classmethod
-    def known_architectures(cls, root: Path, name: str) -> set[RepositoryId]:
+    def known_architectures(cls, root: Path, name: str = "") -> set[str]:  # type: ignore[return]
         """
-        get known architectures
+        get known architecture names
 
         Args:
             root(Path): repository root
-            name(str): repository name from configuration
+            name(str, optional): repository name (Default value = "")
 
         Returns:
-            set[RepositoryId]: list of tuple of repository name and architectures for which tree is created
+            set[str]: list of repository architectures for which there is created tree
         """
-        def walk(repository_path: Path, repository_name: str) -> Generator[RepositoryId, None, None]:
-            for architecture in filter(lambda path: path.is_dir(), repository_path.iterdir()):
-                yield RepositoryId(architecture.name, repository_name)
+        def walk(repository_dir: Path) -> Generator[str, None, None]:
+            for architecture in filter(lambda path: path.is_dir(), repository_dir.iterdir()):
+                yield architecture.name
 
-        def walk_root(paths: RepositoryPaths) -> Generator[RepositoryId, None, None]:
-            # pylint: disable=protected-access
+        instance = cls(root, RepositoryId("", ""))
+        match (instance._repository_root / name):
+            case full_tree if full_tree.is_dir():
+                return set(walk(full_tree))  # actually works for legacy too in case if name is set to empty string
+            case _ if instance._repository_root.is_dir():
+                return set(walk(instance._repository_root))  # legacy only tree
+            case _:
+                return set()  # no tree detected at all
+
+    # pylint: disable=protected-access
+    @classmethod
+    def known_repositories(cls, root: Path) -> set[str]:
+        """
+        get known repository names
+
+        Args:
+            root(Path): repository root
+
+        Returns:
+            set[str]: list of repository names for which there is created tree. Returns empty set in case if repository
+        is loaded in legacy mode
+        """
+        # simply walk through the root. In case if there are subdirectories, emit the name
+        def walk(paths: RepositoryPaths) -> Generator[str, None, None]:
             for repository in filter(lambda path: path.is_dir(), paths._repository_root.iterdir()):
-                print(repository)
-                yield from walk(repository, repository.name)
+                if any(path.is_dir() for path in repository.iterdir()):
+                    yield repository.name
 
-        instance = cls(root, RepositoryId("", root.name))  # suppress initialization error
-        # try to get list per repository first and then fallback to old schema if nothing found
-        return set(walk_root(instance)) or set(walk(instance._repository_root, name))
+        instance = cls(root, RepositoryId("", ""))
+        if not instance._repository_root.is_dir():
+            return set()  # no tree created
+
+        return set(walk(instance))
 
     @staticmethod
     def owner(path: Path) -> tuple[int, int]:

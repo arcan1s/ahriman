@@ -190,3 +190,10 @@ def test_patch_set_remove(application: Application, package_ahriman: Package, mo
     remove_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
     Patch.patch_set_remove(application, package_ahriman.base, ["version"])
     remove_mock.assert_called_once_with(package_ahriman.base, ["version"])
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Patch.ALLOW_MULTI_ARCHITECTURE_RUN

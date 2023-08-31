@@ -116,13 +116,6 @@ def test_extract_arguments_full(parser: argparse.ArgumentParser, configuration: 
     ]
 
 
-def test_disallow_auto_architecture_run() -> None:
-    """
-    must not allow auto architecture run
-    """
-    assert not Web.ALLOW_AUTO_ARCHITECTURE_RUN
-
-
 def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run

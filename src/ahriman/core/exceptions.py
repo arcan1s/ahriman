@@ -165,7 +165,7 @@ class MissingArchitectureError(ValueError):
         Args:
             command(str): command name which throws exception
         """
-        ValueError.__init__(self, f"Architecture required for subcommand {command}, but missing")
+        ValueError.__init__(self, f"Architecture/repository required for subcommand {command}, but missing")
 
 
 class MultipleArchitecturesError(ValueError):
@@ -180,7 +180,7 @@ class MultipleArchitecturesError(ValueError):
         Args:
             command(str): command name which throws exception
         """
-        ValueError.__init__(self, f"Multiple architectures are not supported by subcommand {command}")
+        ValueError.__init__(self, f"Multiple architectures/repositories are not supported by subcommand {command}")
 
 
 class OptionError(ValueError):

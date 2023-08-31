@@ -38,6 +38,8 @@ class Patch(Handler):
     patch control handler
     """
 
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
+
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
             report: bool) -> None:

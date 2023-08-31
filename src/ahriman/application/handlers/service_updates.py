@@ -33,7 +33,7 @@ class ServiceUpdates(Handler):
     service updates handler
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

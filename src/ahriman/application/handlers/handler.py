@@ -35,7 +35,6 @@ class Handler:
     base handler class for command callbacks
 
     Attributes:
-        ALLOW_AUTO_ARCHITECTURE_RUN(bool): (class attribute) allow defining architecture from existing repositories
         ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
 
     Examples:
@@ -47,7 +46,6 @@ class Handler:
             >>> Add.execute(args)
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = True
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
@@ -121,32 +119,35 @@ class Handler:
         Raises:
             MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
         """
-        if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
-            # for some parsers (e.g. config) we need to run with specific architecture
-            # for those cases architecture must be set explicitly
-            raise MissingArchitectureError(args.command)
-
         configuration = Configuration()
         configuration.load(args.configuration)
-        name = configuration.get("repository", "name", fallback="")  # will only be used for legacy mode
+        # pylint, wtf???
+        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
 
-        if args.architecture:  # architecture is specified explicitly
-            repositories = args.repository or [name]  # fallback for legacy mode
-            return sorted(
-                set(
-                    RepositoryId(architecture, repository)
-                    for architecture in args.architecture
-                    for repository in repositories
-                )
+        # extract repository names first
+        names = args.repository
+        if names is None:  # try to read file system first
+            names = RepositoryPaths.known_repositories(root)
+        if not names:  # try to read configuration now
+            names = [configuration.get("repository", "name")]
+
+        # extract architecture names
+        if (architectures := args.architecture) is not None:
+            repositories = set(
+                RepositoryId(architecture, name)
+                for name in names
+                for architecture in architectures
+            )
+        else:  # try to read from file system
+            repositories = set(
+                RepositoryId(architecture, name)
+                for name in names
+                for architecture in RepositoryPaths.known_architectures(root, name)
             )
 
-        # wtf???
-        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
-        architectures = RepositoryPaths.known_architectures(root, name)
-
-        if not architectures:  # well we did not find anything
+        if not repositories:
             raise MissingArchitectureError(args.command)
-        return sorted(architectures)
+        return sorted(repositories)
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

@@ -40,7 +40,7 @@ class Search(Handler):
         SORT_FIELDS(set[str]): (class attribute) allowed fields to sort the package list
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
     SORT_FIELDS = {
         field.name
         for field in fields(AURPackage)

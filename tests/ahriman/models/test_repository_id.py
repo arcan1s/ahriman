@@ -1,17 +1,6 @@
 import pytest
 
-from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_id import RepositoryId
-
-
-def test_post_init() -> None:
-    """
-    must raise InitializeError if name is empty
-    """
-    RepositoryId("x86_64", "aur-clone")
-
-    with pytest.raises(InitializeError):
-        RepositoryId("x86_64", "")
 
 
 def test_lt() -> None:

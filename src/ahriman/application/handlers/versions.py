@@ -39,7 +39,7 @@ class Versions(Handler):
         PEP423_PACKAGE_NAME(str): (class attribute) special regex for valid PEP423 package name
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False  # it should be called only as "no-architecture"
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
     PEP423_PACKAGE_NAME = re.compile(r"^[A-Za-z0-9._-]+")
 
     @classmethod

@@ -86,8 +86,8 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     load_mock.assert_called_once_with(repository_id, configuration, database, report=True, refresh_pacman_database=0)
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not StatusUpdate.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not StatusUpdate.ALLOW_MULTI_ARCHITECTURE_RUN

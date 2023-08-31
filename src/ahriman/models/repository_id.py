@@ -20,8 +20,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from ahriman.core.exceptions import InitializeError
-
 
 @dataclass(frozen=True)
 class RepositoryId:
@@ -35,16 +33,6 @@ class RepositoryId:
 
     architecture: str
     name: str
-
-    def __post_init__(self) -> None:
-        """
-        check that name is set
-
-        Raises:
-            InitializeError: in case if name is not set
-        """
-        if not self.name:
-            raise InitializeError("Repository name is not set")
 
     def __lt__(self, other: Any) -> bool:
         """

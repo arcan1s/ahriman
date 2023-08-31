@@ -37,8 +37,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     extract_mock.extractall.assert_called_once_with(path=args.output)
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Restore.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Restore.ALLOW_MULTI_ARCHITECTURE_RUN

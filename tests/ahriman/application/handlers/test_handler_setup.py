@@ -8,6 +8,7 @@ from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Setup
 from ahriman.core.configuration import Configuration
+from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.core.repository import Repository
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
@@ -24,6 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
+    args.architecture = ["x86_64"]
     args.build_as_user = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman.conf.d/extra.conf")
     args.generate_salt = True
@@ -31,6 +33,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.mirror = "mirror"
     args.multilib = True
     args.packager = "John Doe <john@doe.com>"
+    args.repository = ["aur-clone"]
     args.server = None
     args.sign_key = "key"
     args.sign_target = [SignSettings.Packages]
@@ -62,6 +65,25 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     sudo_configuration_mock.assert_called_once_with(repository_paths, repository_id)
     executable_mock.assert_called_once_with(repository_paths, repository_id)
     init_mock.assert_called_once_with()
+
+
+def test_run_no_architecture_or_repository(configuration: Configuration) -> None:
+    """
+    must raise MissingArchitectureError if either architecture or repository are not supplied
+    """
+    _, repository_id = configuration.check_loaded()
+
+    args = argparse.Namespace(architecture=None, command="service-setup", repository=None)
+    with pytest.raises(MissingArchitectureError):
+        Setup.run(args, repository_id, configuration, report=False)
+
+    args = argparse.Namespace(architecture=[repository_id.architecture], command="service-setup", repository=None)
+    with pytest.raises(MissingArchitectureError):
+        Setup.run(args, repository_id, configuration, report=False)
+
+    args = argparse.Namespace(architecture=None, command="service-setup", repository=[repository_id.name])
+    with pytest.raises(MissingArchitectureError):
+        Setup.run(args, repository_id, configuration, report=False)
 
 
 def test_run_with_server(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -251,8 +273,8 @@ def test_executable_create(configuration: Configuration, repository_paths: Repos
     unlink_mock.assert_called_once_with(missing_ok=True)
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Setup.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Setup.ALLOW_MULTI_ARCHITECTURE_RUN

@@ -58,3 +58,10 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, reposi
     ServiceUpdates.run(args, repository_id, configuration, report=False)
     application_mock.assert_not_called()
     check_mock.assert_not_called()
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not ServiceUpdates.ALLOW_MULTI_ARCHITECTURE_RUN

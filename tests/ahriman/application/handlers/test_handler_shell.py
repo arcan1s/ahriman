@@ -69,3 +69,10 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
     read_mock.assert_called_once_with(encoding="utf8")
     print_mock.assert_called_once_with(verbose=False)
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Shell.ALLOW_MULTI_ARCHITECTURE_RUN

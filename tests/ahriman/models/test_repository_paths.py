@@ -51,61 +51,127 @@ def test_known_architectures(repository_paths: RepositoryPaths, mocker: MockerFi
     """
     must list available directory paths /repository/repo/arch
     """
-    def iterdir(root: Path) -> list[Path]:
-        if root == repository_paths._repository_root:
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, return_value=[Path("i686"), Path("x86_64")])
+
+    assert repository_paths.known_architectures(repository_paths.root, repository_paths.repository_id.name) == {
+        "i686",
+        "x86_64",
+    }
+    iterdir_mock.assert_called_once_with(repository_paths._repository_root / repository_paths.repository_id.name)
+    is_dir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root / repository_paths.repository_id.name),
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+    ])
+
+
+def test_known_architectures_legacy(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must list available directory paths /repository/arch
+    """
+    def is_dir(path: Path) -> bool:
+        return path.name != repository_paths.repository_id.name
+
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=is_dir)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, return_value=[Path("i686"), Path("x86_64")])
+
+    assert repository_paths.known_architectures(repository_paths.root, repository_paths.repository_id.name) == {
+        "i686",
+        "x86_64",
+    }
+    iterdir_mock.assert_called_once_with(repository_paths._repository_root)
+    is_dir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root / repository_paths.repository_id.name),
+        MockCall(repository_paths._repository_root),
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+    ])
+
+
+def test_known_architectures_legacy_backward(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must list available directory paths /repository/arch in backward compatibility mode
+    """
+    def is_dir(path: Path) -> bool:
+        return path.name != repository_paths.repository_id.name
+
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=is_dir)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, return_value=[Path("i686"), Path("x86_64")])
+
+    assert repository_paths.known_architectures(repository_paths.root) == {"i686", "x86_64"}
+    iterdir_mock.assert_called_once_with(repository_paths._repository_root)
+    is_dir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root),
+        MockCall(Path("i686")),
+        MockCall(Path("x86_64")),
+    ])
+
+
+def test_known_architectures_empty(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must return empty architectures if tree is not available
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir")
+
+    # new style
+    assert not repository_paths.known_architectures(repository_paths.root, repository_paths.repository_id.name)
+    # legacy mode
+    assert not repository_paths.known_architectures(repository_paths.root)
+    iterdir_mock.assert_not_called()
+
+
+def test_known_repositories(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must list available directory paths /repository/repo
+    """
+    def iterdir(path: Path) -> list[Path]:
+        if path == repository_paths._repository_root:
             return [Path("repo1"), Path("repo2")]
-        if root == Path("repo1"):
-            return [Path("i686"), Path("x86_64")]
         return [Path("x86_64")]
 
     is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
     iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, side_effect=iterdir)
 
-    assert repository_paths.known_architectures(repository_paths.root, "") == {
-        RepositoryId("i686", "repo1"),
-        RepositoryId("x86_64", "repo1"),
-        RepositoryId("x86_64", "repo2"),
-    }
+    assert repository_paths.known_repositories(repository_paths.root) == {"repo1", "repo2"}
     iterdir_mock.assert_has_calls([
         MockCall(repository_paths._repository_root),
         MockCall(Path("repo1")),
         MockCall(Path("repo2")),
     ])
     is_dir_mock.assert_has_calls([
+        MockCall(repository_paths._repository_root),
         MockCall(Path("repo1")),
-        MockCall(Path("i686")),
         MockCall(Path("x86_64")),
         MockCall(Path("repo2")),
         MockCall(Path("x86_64")),
     ])
 
 
-def test_known_architectures_legacy(repository_id: RepositoryId, repository_paths: RepositoryPaths,
-                                    mocker: MockerFixture) -> None:
+def test_known_repositories_legacy(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
-    must correctly define legacy tree /repository/arch
+    must return empty repository list for legacy tree
     """
-    def iterdir(root: Path) -> list[Path]:
-        if root == repository_paths._repository_root:
-            return [Path("i686"), Path("x86_64")]
-        return []
+    def is_dir(path: Path) -> bool:
+        return path == repository_paths._repository_root
 
-    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
-    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, side_effect=iterdir)
+    mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=is_dir)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", autospec=True, return_value=[Path("i686"), Path("x86_64")])
 
-    assert repository_paths.known_architectures(repository_paths.root, repository_id.name) == {
-        RepositoryId("i686", repository_id.name),
-        RepositoryId("x86_64", repository_id.name),
-    }
-    iterdir_mock.assert_has_calls([
-        MockCall(repository_paths._repository_root),
-        MockCall(Path("i686")),
-        MockCall(Path("x86_64")),
-    ])
-    is_dir_mock.assert_has_calls([
-        MockCall(Path("i686")),
-        MockCall(Path("x86_64")),
-    ])
+    assert not repository_paths.known_repositories(repository_paths.root)
+    iterdir_mock.assert_called_once_with(repository_paths._repository_root)
+
+
+def test_known_repositories_empty(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must return empty repositories if tree is not available
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir")
+
+    assert not repository_paths.known_repositories(repository_paths.root)
+    iterdir_mock.assert_not_called()
 
 
 def test_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -207,6 +273,7 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         and not prop.endswith("_for")
         and prop not in ("chown",
                          "known_architectures",
+                         "known_repositories",
                          "owner",
                          "repository_id",
                          "root",

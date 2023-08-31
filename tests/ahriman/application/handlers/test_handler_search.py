@@ -128,11 +128,11 @@ def test_sort_exception(aur_package_ahriman: AURPackage) -> None:
         Search.sort([aur_package_ahriman], "random_field")
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Search.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Search.ALLOW_MULTI_ARCHITECTURE_RUN
 
 
 def test_sort_fields(aur_package_ahriman: AURPackage) -> None:
