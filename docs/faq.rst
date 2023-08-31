@@ -32,7 +32,7 @@ There is special command which can be used in order to validate current configur
 
 .. code-block:: shell
 
-   ahriman -a x86_64 -r aur-clone service-config-validate --exit-code
+   ahriman service-config-validate --exit-code
 
 This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`_, e.g.:
 

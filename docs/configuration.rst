@@ -30,7 +30,7 @@ There is also additional subcommand which will allow to validate configuration a
 
 .. code-block:: shell
 
-   ahriman -a x86_64 service-config-validate
+   ahriman service-config-validate
 
 It will check current settings on common errors and compare configuration with known schema.
 
