@@ -21,16 +21,17 @@ import os
 import shutil
 
 from collections.abc import Generator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 
 from ahriman.core.exceptions import PathError
+from ahriman.core.log import LazyLogging
 from ahriman.models.repository_id import RepositoryId
 
 
 @dataclass(frozen=True)
-class RepositoryPaths:
+class RepositoryPaths(LazyLogging):
     """
     repository paths holder. For the most operations with paths you want to use this object
 
@@ -55,6 +56,7 @@ class RepositoryPaths:
 
     root: Path
     repository_id: RepositoryId
+    _force_current_tree: bool = field(default=False, kw_only=True)
 
     @property
     def _repository_root(self) -> Path:
@@ -75,8 +77,10 @@ class RepositoryPaths:
             Path: relative path which contains only architecture segment in case if legacy tree is used and repository
         name and architecture otherwise
         """
-        if (self._repository_root / self.repository_id.architecture).is_dir():
-            return Path(self.repository_id.architecture)
+        if not self._force_current_tree:
+            if (self._repository_root / self.repository_id.architecture).is_dir():
+                self.logger.warning("using legacy per architecture tree")
+                return Path(self.repository_id.architecture)  # legacy tree suffix
         return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
@@ -257,11 +261,13 @@ class RepositoryPaths:
         """
         create ahriman working tree
         """
+        if self.repository_id.is_empty:
+            return  # do not even try to create tree in case if no repository id set
         for directory in (
                 self.cache,
                 self.chroot,
                 self.packages,
-                self.pacman / "sync",  # we need sync directory in order to be able to copy databases
+                self.pacman,
                 self.repository,
         ):
             directory.mkdir(mode=0o755, parents=True, exist_ok=True)

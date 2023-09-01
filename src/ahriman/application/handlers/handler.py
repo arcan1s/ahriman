@@ -25,7 +25,7 @@ from multiprocessing import Pool
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
-from ahriman.core.log import Log
+from ahriman.core.log.log_loader import LogLoader
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -63,8 +63,8 @@ class Handler:
         try:
             configuration = Configuration.from_path(args.configuration, repository_id)
 
-            log_handler = Log.handler(args.log_handler)
-            Log.load(configuration, log_handler, quiet=args.quiet, report=args.report)
+            log_handler = LogLoader.handler(args.log_handler)
+            LogLoader.load(configuration, log_handler, quiet=args.quiet, report=args.report)
 
             with Lock(args, repository_id, configuration):
                 cls.run(args, repository_id, configuration, report=args.report)

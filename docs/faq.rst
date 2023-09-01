@@ -71,7 +71,7 @@ states that default build command is ``extra-x86_64-build``. But if there is sec
    [build:i686]
    build_command = extra-i686-build
 
-the ``extra-i686-build`` command will be used for ``i686`` architecture.
+the ``extra-i686-build`` command will be used for ``i686`` architecture. You can also override settings for different repositories and architectures; in this case section names will be ``build:aur-clone`` (repository name only) and ``build:aur-clone:i686`` (both repository name and architecture).
 
 How to generate build reports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,7 +121,7 @@ How do I add new package
 
    sudo -u ahriman ahriman package-add ahriman --now
 
-``--now`` flag is totally optional and just run ``repo-update`` subcommand after the registering the new package, Thus the extended flow is the following:
+``--now`` flag is totally optional and just run ``repo-update`` subcommand after the registering the new package. Thus the extended flow is the following:
 
 .. code-block:: shell
 
@@ -209,7 +209,7 @@ So it is the same as adding any other package, but due to restrictions you must 
 
    sudo -u ahriman ahriman package-add pacman -s repository
 
-This feature is heavily depends on local pacman cache. In order to use this feature it is recommended to either run ``pacman -Sy`` before the interaction or configure timer for this.
+This feature is heavily depends on local pacman cache. In order to use this feature it is recommended to either run ``pacman -Sy`` before the interaction or use internal application cache with ``--refresh`` flag.
 
 Package build fails because it cannot validate PGP signature of source files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -359,7 +359,14 @@ Example of the status page configuration is the following (status service is usi
 Docker image
 ------------
 
-We provide official images which can be found under ``arcan1s/ahriman`` repository. Docker image is being updated on each commit to master as well as on each version. If you would like to use last (probably unstable) build you can use ``edge`` tag or ``latest`` for any tagged versions; otherwise you can use any version tag available.
+We provide official images which can be found under:
+
+* docker registry ``arcan1s/ahriman``;
+* ghcr.io registry ``ghcr.io/arcan1s/ahriman``;
+
+These images are totally identical.
+
+Docker image is being updated on each commit to master as well as on each version. If you would like to use last (probably unstable) build you can use ``edge`` tag or ``latest`` for any tagged versions; otherwise you can use any version tag available.
 
 The default action (in case if no arguments provided) is ``repo-update``. Basically the idea is to run container, e.g.:
 
@@ -456,22 +463,22 @@ Physical server setup
 In this example we are going to use files and packages which are provided by official repositories of the used architecture. Note, that versions might be different, thus you need to find correct versions on the distribution web site, e.g. `archlinux32 packages <https://www.archlinux32.org/packages/>`_.
 
 #.
-   First, considering having base Arch Linux system, we need to install keyring for the specified repositories:
+   First, considering having base Arch Linux system, we need to install keyring for the specified repositories, e.g.:
 
    .. code-block:: shell
 
-      wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
-      pacman -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+      wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
+      pacman -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
-   In order to run ``devtools`` scripts for custom architecture they also need specific ``makepkg`` configuration, it can be retrieved by installing the ``devtools`` package of the distribution:
+   In order to run ``devtools`` scripts for custom architecture they also need specific ``makepkg`` configuration, it can be retrieved by installing the ``devtools`` package of the distribution, e.g.:
 
    .. code-block:: shell
 
-      wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst
-      pacman -U devtools-20221208-1.0-any.pkg.tar.zst
+      wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst
+      pacman -U devtools-20221208-1.2-any.pkg.tar.zst
 
-   Alternatively, you can create your own ``makepkg`` configuration and save it as ``/usr/share/devtools/makepkg-i686.conf``.
+   Alternatively, you can create your own ``makepkg`` configuration and save it as ``/usr/share/devtools/makepkg.conf.d/i686.conf``.
 
 #.
    Setup repository as usual:
@@ -484,6 +491,9 @@ In this example we are going to use files and packages which are provided by off
 
    * ``--mirror`` - link to the mirrors which will be used instead of official repositories.
    * ``--no-multilib`` - in the example we are using i686 architecture for which multilib repository doesn't exist.
+
+#.
+   That's all Folks!
 
 Docker container setup
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -510,8 +520,8 @@ There are two possible ways to achieve same setup, by using docker container. Th
    .. code-block:: dockerfile
 
       RUN pacman --noconfirm -Sy wget
-      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.0-any.pkg.tar.zst
-      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
    At that point you should have full ``Dockerfile`` like:
@@ -523,8 +533,8 @@ There are two possible ways to achieve same setup, by using docker container. Th
       RUN pacman-key --init
 
       RUN pacman --noconfirm -Sy wget
-      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.0-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.0-any.pkg.tar.zst
-      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20220927-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20220927-1.0-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
+      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
    After that you can build you own container, e.g.:
@@ -554,8 +564,8 @@ There are several choices:
    .. code-block::
 
        server {
-           location /aur-clone/x86_64 {
-               root /var/lib/ahriman/repository/aur-clone/x86_64;
+           location / {
+               root /var/lib/ahriman/repository/;
                autoindex on;
            }
        }
@@ -571,7 +581,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (e.g. ``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to Github (e.g. ``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to Github (``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
 
 How to sync to S3
 ^^^^^^^^^^^^^^^^^
@@ -705,7 +715,7 @@ How to generate index page for S3
       path = /var/lib/ahriman/repository/aur-clone/x86_64/index.html
       link_path = http://example.com/aur-clone/x86_64
 
-After these steps ``index.html`` file will be automatically synced to S3
+After these steps ``index.html`` file will be automatically synced to S3.
 
 How to post build report to telegram
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -756,7 +766,7 @@ If you did everything fine you should receive the message with the next update. 
 Distributed builds
 ------------------
 
-The service allows to run build on multiple machines and collect packages on main node. There are multiple ways to achieve it, this section describes officially supported methods.
+The service allows to run build on multiple machines and collect packages on main node. There are several ways to achieve it, this section describes officially supported methods.
 
 Remote synchronization and remote server call
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -933,7 +943,7 @@ Command to run worker node:
 
 .. code-block:: shell
 
-   docker run --privileged -v worker.ini:/etc/ahriman.ini.d/overrides.ini -it arcan1s/ahriman:latest package-add arhiman --now
+   docker run --privileged -v worker.ini:/etc/ahriman.ini.d/overrides.ini -it arcan1s/ahriman:latest package-add ahriman --now
 
 The command above will successfully build ``ahriman`` package, upload it on master node and, finally, will update master node repository.
 
@@ -1059,7 +1069,7 @@ How to enable basic authorization
       yay -S --asdeps python-aiohttp-security python-aiohttp-session python-cryptography
 
 #. 
-   Configure the service to enable authorization (``salt`` can be generated as any random string):
+   Configure the service to enable authorization (``salt`` can be generated as any random string and optional):
 
    .. code-block:: ini
 
@@ -1087,7 +1097,7 @@ How to enable basic authorization
 
       sudo -u ahriman ahriman user-add -r full api
 
-   This command will ask for the password, just type it in stdin; *do not* leave the field blank, user will not be able to authorize, and finally configure the application:
+   This command will ask for the password, just type it in stdin; **do not** leave the field blank, user will not be able to authorize, and finally configure the application:
 
    .. code-block:: ini
 
@@ -1265,7 +1275,9 @@ You can also ask to forward logs to ``stderr``, just set ``--log-handler`` flag,
 
    ahriman --log-handler console ...
 
-You can even configure logging as you wish, but kindly refer to python ``logging`` module `configuration <https://docs.python.org/3/library/logging.config.html>`_. The application uses java concept to log messages, e.g. class ``Application`` imported from ``ahriman.application.application`` package will have logger called ``ahriman.application.application.Application``. In order to e.g. change logger name for whole application package it is possible to change values for ``ahriman.application`` package; thus editing ``ahriman`` logger configuration will change logging for whole application (unless there are overrides for another logger).
+You can even configure logging as you wish, but kindly refer to python ``logging`` module `configuration <https://docs.python.org/3/library/logging.config.html>`_.
+
+The application uses java concept to log messages, e.g. class ``Application`` imported from ``ahriman.application.application`` package will have logger called ``ahriman.application.application.Application``. In order to e.g. change logger name for whole application package it is possible to change values for ``ahriman.application`` package; thus editing ``ahriman`` logger configuration will change logging for whole application (unless there are overrides for another logger).
 
 Html customization
 ^^^^^^^^^^^^^^^^^^

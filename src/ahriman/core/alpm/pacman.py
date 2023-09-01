@@ -115,6 +115,7 @@ class Pacman(LazyLogging):
         dst = repository_database(pacman_db_path)
         if dst.is_file():
             return  # file already exists, do not copy
+        dst.parent.mkdir(mode=0o755, exist_ok=True)  # create sync directory if it doesn't exist
         src = repository_database(pacman_root)
         if not src.is_file():
             self.logger.warning("repository %s is set to be used, however, no working copy was found", database.name)

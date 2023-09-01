@@ -102,6 +102,53 @@ All subcommands are divided into several groups depending on the role they are d
 
 For historical reasons and in order to keep backward compatibility some subcommands have aliases to their shorter forms or even other groups, but the service doesn't guarantee that they will remain unchanged.
 
+Filesystem tree
+---------------
+
+The application supports two types of trees, one is for legacy configuration (when there were no repository name explicit configuration available) and another one is for new-style tree. This document describes only new-style tree in order to avoid deprecated structure.
+
+Having default root as ``/var/lib/ahriman`` (differs from container though), the directory structure is the following:
+
+.. code-block::
+
+   /var/lib/ahriman/
+   ├── ahriman.db
+   ├── cache
+   ├── chroot
+   │   └── aur-clone
+   ├── packages
+   │   └── aur-clone
+   │       └── x86_64
+   ├── pacman
+   │   └── aur-clone
+   │       └── x86_64
+   │           ├── local
+   │           │   └── ALPM_DB_VERSION
+   │           └── sync
+   │               ├── core.db
+   │               ├── extra.db
+   │               └── multilib.db
+   │
+   └── repository
+       └── aur-clone
+           └── x86_64
+               ├── aur-clone.db -> aur-clone.db.tar.gz
+               ├── aur-clone.db.tar.gz
+               ├── aur-clone.files -> aur-clone.files.tar.gz
+               └── aur-clone.files.tar.gz
+
+There are multiple subdirectories, some of them are commons for any repository, but some of them are not.
+
+* ``cache`` is a directory with locally stored PKGBUILD's and VCS packages. It is common for all repositories and architectures.
+* ``chroot/{repository}`` is a chroot directory for ``devtools``. It is specific for each repository, but shared for different architectures inside (the ``devtools`` handles architectures automatically).
+* ``packages/{repository}/{architecture}`` is a directory with prebuilt packages. When package is built, first it will be uploaded to this directory and later will be handled by update process. It is architecture and repository specific.
+* ``pacman/{repository}/{architecture}`` is repository and architecture specific caches for pacman's databases.
+* ``repository/{repository}/{architecture}`` is a repository packages directory.
+
+Normally you should avoid direct interaction with the application tree.
+
+For tree migration process refer to the :doc:`migration notes <migration>`.
+
 Database
 --------
 

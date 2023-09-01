@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-09\-01" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-09\-02" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [--report | --no-report] [-r REPOSITORY] [-q] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -29,16 +29,16 @@ lock file
 explicit log handler specification. If none set, the handler will be guessed from environment
 
 .TP
+\fB\-q\fR, \fB\-\-quiet\fR
+force disable any logging
+
+.TP
 \fB\-\-report\fR, \fB\-\-no\-report\fR
 force enable or disable reporting to web service
 
 .TP
 \fB\-r\fR \fI\,REPOSITORY\/\fR, \fB\-\-repository\fR \fI\,REPOSITORY\/\fR
 target repository. For several subcommands it can be used multiple times
-
-.TP
-\fB\-q\fR, \fB\-\-quiet\fR
-force disable any logging
 
 .TP
 \fB\-\-unsafe\fR
@@ -160,6 +160,9 @@ initial service configuration
 .TP
 \fBahriman\fR \fI\,service\-shell\/\fR
 invoke python shell
+.TP
+\fBahriman\fR \fI\,service\-tree\-migrate\/\fR
+migrate repository tree
 .TP
 \fBahriman\fR \fI\,user\-add\/\fR
 create or update user
@@ -760,6 +763,11 @@ drop into python shell
 .TP
 \fBcode\fR
 instead of dropping into shell, just execute the specified code
+
+.SH COMMAND \fI\,'ahriman service\-tree\-migrate'\/\fR
+usage: ahriman service\-tree\-migrate [\-h]
+
+migrate repository tree between versions
 
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
 usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-R {unauthorized,read,reporter,full}]

@@ -31,12 +31,24 @@ def test_suffix(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must correctly define suffix
     """
-    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True, return_value=True)
-    assert RepositoryPaths(Path("root"), repository_id)._suffix == Path(repository_id.architecture)
-    is_dir_mock.assert_called_once_with(Path("root") / "repository" / repository_id.architecture)
+    is_dir_mock = mocker.patch("pathlib.Path.is_dir", autospec=True)
 
-    mocker.patch("pathlib.Path.is_dir", return_value=False)
-    assert RepositoryPaths(Path("root"), repository_id)._suffix == Path(repository_id.name) / repository_id.architecture
+    is_dir_mock.return_value = True
+    instance = RepositoryPaths(Path("root"), repository_id)
+    assert instance._suffix == Path(repository_id.architecture)
+
+    is_dir_mock.return_value = False
+    instance = RepositoryPaths(Path("root"), repository_id)
+    assert instance._suffix == Path(repository_id.name) / repository_id.architecture
+
+    is_dir_mock.return_value = True
+    instance = RepositoryPaths(Path("root"), repository_id, _force_current_tree=True)
+    assert instance._suffix == Path(repository_id.name) / repository_id.architecture
+
+    is_dir_mock.assert_has_calls([
+        MockCall(Path("root") / "repository" / repository_id.architecture),
+        MockCall(Path("root") / "repository" / repository_id.architecture),
+    ])
 
 
 def test_root_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -270,20 +282,29 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         prop
         for prop in dir(repository_paths)
         if not prop.startswith("_")
-        and not prop.endswith("_for")
-        and prop not in ("chown",
-                         "known_architectures",
-                         "known_repositories",
-                         "owner",
+        and not callable(getattr(repository_paths, prop))
+        and prop not in ("logger_name",
+                         "logger",
                          "repository_id",
                          "root",
-                         "root_owner",
-                         "tree_clear",
-                         "tree_create")
+                         "root_owner")
     }
     mkdir_mock = mocker.patch("pathlib.Path.mkdir")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
+    print(paths)
+
     repository_paths.tree_create()
     mkdir_mock.assert_has_calls([MockCall(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)
     chown_mock.assert_has_calls([MockCall(pytest.helpers.anyvar(int)) for _ in paths], any_order=True)
+
+
+def test_tree_create_skip(mocker: MockerFixture) -> None:
+    """
+    must skip tree creation if repository id is not set
+    """
+    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
+    repository_paths = RepositoryPaths(Path("local"), RepositoryId("", ""))
+
+    repository_paths.tree_create()
+    mkdir_mock.assert_not_called()

@@ -34,6 +34,16 @@ class RepositoryId:
     architecture: str
     name: str
 
+    @property
+    def is_empty(self) -> bool:
+        """
+        check if all data is supplied for the loading
+
+        Returns:
+            bool: True in case if architecture or name are not set and False otherwise
+        """
+        return not self.architecture or not self.name
+
     def __lt__(self, other: Any) -> bool:
         """
         comparison operator for sorting

@@ -58,10 +58,12 @@ def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     # root database exists, local database does not
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
+    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
     copy_mock = mocker.patch("shutil.copy")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
     pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
+    mkdir_mock.assert_called_once_with(mode=0o755, exist_ok=True)
     copy_mock.assert_called_once_with(path / "sync" / "core.db", dst_path)
     chown_mock.assert_called_once_with(dst_path)
 

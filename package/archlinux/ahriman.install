@@ -1,6 +1,7 @@
 post_upgrade() {
     local breakpoints=(
         2.9.0-1
+        2.12.0-1
     )
 
     for v in "${breakpoints[@]}"; do
@@ -20,6 +21,20 @@ It was found that you were upgrading from old-devtools package to the new one, w
 * remove build chroot: sudo rm -r /var/lib/ahriman/chroot/ahriman-x86_64/;
 * update local databases: sudo -u ahriman ahriman update --no-aur --no-local --no-manual -yy;
 
-For more information kindly refer to changelog https://github.com/arcan1s/ahriman/releases/tag/2.9.0
+For more information kindly refer to migration notes https://ahriman.readthedocs.io/en/stable/migration.html
+EOF
+}
+
+_2_12_0_1_changes() {
+    cat << EOF
+Whereas old tree is still supported it is highly recommended to migrate to the new one:
+
+* stop and disable all services;
+* run service-tree-migrate as ahriman user;
+* edit configuration to avoid pointing to the old paths;
+* enable web and timer services again by using x86_64-aur-clone suffix, where x86_64 is your architecture and
+  aur-clone is repository name;
+
+For more information kindly refer to migration notes https://ahriman.readthedocs.io/en/stable/migration.html
 EOF
 }

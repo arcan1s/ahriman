@@ -3,6 +3,16 @@ import pytest
 from ahriman.models.repository_id import RepositoryId
 
 
+def test_is_empty() -> None:
+    """
+    must check if repository id is empty or not
+    """
+    assert RepositoryId("", "").is_empty
+    assert RepositoryId("arch", "").is_empty
+    assert RepositoryId("", "repo").is_empty
+    assert not RepositoryId("arch", "repo").is_empty
+
+
 def test_lt() -> None:
     """
     must correctly compare instances

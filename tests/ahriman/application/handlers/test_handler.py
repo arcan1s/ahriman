@@ -21,8 +21,8 @@ def test_call(args: argparse.Namespace, configuration: Configuration, mocker: Mo
     args.report = False
     mocker.patch("ahriman.application.handlers.Handler.run")
     configuration_mock = mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
-    log_handler_mock = mocker.patch("ahriman.core.log.Log.handler", return_value=args.log_handler)
-    log_load_mock = mocker.patch("ahriman.core.log.Log.load")
+    log_handler_mock = mocker.patch("ahriman.core.log.log_loader.LogLoader.handler", return_value=args.log_handler)
+    log_load_mock = mocker.patch("ahriman.core.log.log_loader.LogLoader.load")
     enter_mock = mocker.patch("ahriman.application.lock.Lock.__enter__")
     exit_mock = mocker.patch("ahriman.application.lock.Lock.__exit__")
 
