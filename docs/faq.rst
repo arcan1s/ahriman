@@ -18,7 +18,7 @@ TL;DR
 
    yay -S ahriman
    ahriman -a x86_64 -r aur-clone service-setup --packager "ahriman bot <ahriman@example.com>"
-   systemctl enable --now ahriman@x86_64.timer
+   systemctl enable --now ahriman@x86_64-aur-clone.timer
 
 Long answer
 """""""""""
@@ -1046,7 +1046,7 @@ How to setup web service
       port = 8080
 
 #. 
-   Start the web service ``systemctl enable --now ahriman-web@x86_64``.
+   Start the web service ``systemctl enable --now ahriman-web@x86_64-aur-clone``.
 
 How to enable basic authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1103,7 +1103,7 @@ How to enable basic authorization
       sudo -u ahriman ahriman user-add -r full my-first-user
 
 #.
-   Restart web service ``systemctl restart ahriman-web@x86_64``.
+   Restart web service ``systemctl restart ahriman-web@x86_64-aur-clone``.
 
 How to enable OAuth authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1149,7 +1149,7 @@ How to enable OAuth authorization
    When it will ask for the password leave it blank.
 
 #.
-   Restart web service ``systemctl restart ahriman-web@x86_64``.
+   Restart web service ``systemctl restart ahriman-web@x86_64-aur-clone``.
 
 How to implement own interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -74,14 +74,14 @@ Initial setup
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman@x86_64.timer
+       systemctl enable --now ahriman@x86_64-aur-clone.timer
 
 #. 
    Start and enable status page:
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman-web@x86_64
+       systemctl enable --now ahriman-web@x86_64-aur-clone
 
 #. 
    Add packages by using ``ahriman package-add {package}`` command:

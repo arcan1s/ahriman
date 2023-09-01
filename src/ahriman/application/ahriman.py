@@ -83,6 +83,9 @@ def _parser() -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-r", "--repository", help="target repository. For several subcommands it can be used "
                                                    "multiple times", action="append")
+    # special secret argument for systemd unit. The issue is that systemd doesn't allow multiple arguments to template
+    # name. This parameter accepts [[arch]-repo] in order to keep backward compatibility
+    parser.add_argument("--repository-id", help=argparse.SUPPRESS)
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")

@@ -1,7 +1,7 @@
 [Unit]
-Description=ArcH linux ReposItory MANager (%I architecture)
+Description=ArcH linux ReposItory MANager (%i)
 
 [Service]
-ExecStart=/usr/bin/ahriman --architecture %i repo-update --refresh
+ExecStart=/usr/bin/ahriman --repository-id "%I" repo-update --refresh
 User=ahriman
 Group=ahriman

@@ -137,7 +137,6 @@ def test_repositories_extract_repository(args: argparse.Namespace, configuration
     """
     args.architecture = ["arch"]
     args.configuration = configuration.path
-    args.repository = None
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value={"repo"})
@@ -154,12 +153,11 @@ def test_repositories_extract_repository_legacy(args: argparse.Namespace, config
     """
     args.architecture = ["arch"]
     args.configuration = configuration.path
-    args.repository = None
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
-                                           return_value={"repo"})
+                                           return_value=set())
 
-    assert Handler.repositories_extract(args) == [RepositoryId("arch", "repo")]
+    assert Handler.repositories_extract(args) == [RepositoryId("arch", "aur-clone")]
     known_architectures_mock.assert_not_called()
     known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
 
@@ -169,7 +167,6 @@ def test_repositories_extract_architecture(args: argparse.Namespace, configurati
     """
     must read repository name from config
     """
-    args.architecture = None
     args.configuration = configuration.path
     args.repository = ["repo"]
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures",
@@ -187,14 +184,43 @@ def test_repositories_extract_empty(args: argparse.Namespace, configuration: Con
     must raise exception if no available architectures found
     """
     args.command = "config"
-    args.architecture = None
     args.configuration = configuration.path
-    args.repository = None
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories", return_value=set())
 
     with pytest.raises(MissingArchitectureError):
         Handler.repositories_extract(args)
+
+
+def test_repositories_extract_systemd(args: argparse.Namespace, configuration: Configuration,
+                                      mocker: MockerFixture) -> None:
+    """
+    must extract repository list for systemd units
+    """
+    args.configuration = configuration.path
+    args.repository_id = "i686/some/repo/name"
+    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
+    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
+
+    assert Handler.repositories_extract(args) == [RepositoryId("i686", "some-repo-name")]
+    known_architectures_mock.assert_not_called()
+    known_repositories_mock.assert_not_called()
+
+
+def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configuration: Configuration,
+                                             mocker: MockerFixture) -> None:
+    """
+    must extract repository list for systemd units in legacy format
+    """
+    args.configuration = configuration.path
+    args.repository_id = "i686"
+    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
+    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
+                                           return_value=set())
+
+    assert Handler.repositories_extract(args) == [RepositoryId("i686", "aur-clone")]
+    known_architectures_mock.assert_not_called()
+    known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
 
 
 def test_check_if_empty() -> None:

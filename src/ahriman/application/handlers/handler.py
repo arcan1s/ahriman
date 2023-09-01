@@ -124,6 +124,15 @@ class Handler:
         # pylint, wtf???
         root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
 
+        # preparse systemd repository-id argument
+        # we are using unescaped values, so / is not allowed here, because it is impossible to separate if from dashes
+        if args.repository_id is not None:
+            # repository parts is optional for backward compatibility
+            architecture, *repository_parts = args.repository_id.split("/")
+            args.architecture = [architecture]
+            if repository_parts:
+                args.repository = ["-".join(repository_parts)]  # replace slash with dash
+
         # extract repository names first
         names = args.repository
         if names is None:  # try to read file system first
