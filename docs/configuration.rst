@@ -34,8 +34,9 @@ It will check current settings on common errors and compare configuration with k
 
 Base configuration settings.
 
-* ``include`` - path to directory with configuration files overrides, string, required.
+* ``apply_migrations`` - perform migrations on application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations automatically.
 * ``database`` - path to SQLite database, string, required.
+* ``include`` - path to directory with configuration files overrides, string, required.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 * ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
 

@@ -30,16 +30,20 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
     "settings": {
         "type": "dict",
         "schema": {
-            "include": {
-                "type": "path",
-                "coerce": "absolute_path",
-                "required": True,
-                "path_exists": True,
+            "apply_migrations": {
+                "type": "boolean",
+                "coerce": "boolean",
             },
             "database": {
                 "type": "path",
                 "coerce": "absolute_path",
                 "required": True,
+            },
+            "include": {
+                "type": "path",
+                "coerce": "absolute_path",
+                "required": True,
+                "path_exists": True,
             },
             "logging": {
                 "type": "path",
