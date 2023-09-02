@@ -22,3 +22,14 @@ def test_init(database: SQLite, configuration: Configuration, mocker: MockerFixt
     migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
     database.init(configuration)
     migrate_schema_mock.assert_called_once_with(pytest.helpers.anyvar(int), configuration)
+
+
+def test_init_skip_migration(database: SQLite, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must skip migrations if option is set
+    """
+    configuration.set_option("settings", "apply_migrations", "no")
+    migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
+
+    database.init(configuration)
+    migrate_schema_mock.assert_not_called()
