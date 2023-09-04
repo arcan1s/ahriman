@@ -31,13 +31,9 @@ def test_migrate_package_repository(connection: Connection, configuration: Confi
     migrate_package_repository(connection, configuration)
 
     connection.execute.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(str, strict=True),
-                 {"repository": configuration.repository_name, "architecture": configuration.architecture}),
-        MockCall(pytest.helpers.anyvar(str, strict=True),
-                 {"repository": configuration.repository_name, "architecture": configuration.architecture}),
-        MockCall(pytest.helpers.anyvar(str, strict=True),
-                 {"repository": configuration.repository_name, "architecture": configuration.architecture}),
-        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_name}),
-        MockCall(pytest.helpers.anyvar(str, strict=True),
-                 {"repository": configuration.repository_name, "architecture": configuration.architecture}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_id.id}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_id.id}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_id.id}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_id.id}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), {"repository": configuration.repository_id.id}),
     ])

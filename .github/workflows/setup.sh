@@ -38,13 +38,13 @@ systemd-machine-id-setup
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
 # validate configuration
-ahriman -a x86_64 -r "github" service-config-validate --exit-code
+ahriman service-config-validate --exit-code
 # enable services
-systemctl enable ahriman-web@x86_64
-systemctl enable ahriman@x86_64.timer
+systemctl enable ahriman-web@x86_64-github
+systemctl enable ahriman@x86_64-github.timer
 if [[ -z $MINIMAL_INSTALL ]]; then
     # run web service (detached)
-    sudo -u ahriman -- ahriman -a x86_64 web &
+    sudo -u ahriman -- ahriman web &
     WEB_PID=$!
 fi
 # add the first package

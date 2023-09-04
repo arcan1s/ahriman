@@ -44,6 +44,16 @@ class RepositoryId:
         """
         return not self.architecture or not self.name
 
+    @property
+    def id(self) -> str:
+        """
+        get repository id to be used for databases
+
+        Returns:
+            str: unique id for this repository
+        """
+        return f"{self.architecture}-{self.name}"  # basically the same as used for command line
+
     def __lt__(self, other: Any) -> bool:
         """
         comparison operator for sorting

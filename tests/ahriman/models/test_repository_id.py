@@ -13,6 +13,14 @@ def test_is_empty() -> None:
     assert not RepositoryId("arch", "repo").is_empty
 
 
+def test_id() -> None:
+    """
+    must correctly generate id
+    """
+    assert RepositoryId("", "").id == "-"
+    assert RepositoryId("arch", "repo").id == "arch-repo"
+
+
 def test_lt() -> None:
     """
     must correctly compare instances

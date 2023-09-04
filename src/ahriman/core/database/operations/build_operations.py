@@ -39,13 +39,11 @@ class BuildOperations(Operations):
             connection.execute(
                 """
                 delete from build_queue
-                where (:package_base is null or package_base = :package_base)
-                  and repository = :repository and architecture = :architecture
+                where (:package_base is null or package_base = :package_base) and repository = :repository
                 """,
                 {
                     "package_base": package_base,
-                    "repository": self.repository_id.name,
-                    "architecture": self.repository_id.architecture,
+                    "repository": self.repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)
@@ -61,11 +59,8 @@ class BuildOperations(Operations):
             return [
                 Package.from_json(row["properties"])
                 for row in connection.execute(
-                    """
-                    select properties from build_queue
-                    where repository = :repository and architecture = :architecture
-                    """,
-                    {"repository": self.repository_id.name, "architecture": self.repository_id.architecture}
+                    """select properties from build_queue where repository = :repository""",
+                    {"repository": self.repository_id.id}
                 )
             ]
 
@@ -82,17 +77,16 @@ class BuildOperations(Operations):
             connection.execute(
                 """
                 insert into build_queue
-                (package_base, properties, repository, architecture)
+                (package_base, properties, repository)
                 values
-                (:package_base, :properties, :repository, :architecture)
-                on conflict (package_base, architecture, repository) do update set
+                (:package_base, :properties, :repository)
+                on conflict (package_base, repository) do update set
                 properties = :properties
                 """,
                 {
                     "package_base": package.base,
                     "properties": package.view(),
-                    "repository": self.repository_id.name,
-                    "architecture": self.repository_id.architecture,
+                    "repository": self.repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)

@@ -36,10 +36,10 @@ ahriman.core.log.lazy\_logging module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.core.log.log module
----------------------------
+ahriman.core.log.log\_loader module
+-----------------------------------
 
-.. automodule:: ahriman.core.log.log
+.. automodule:: ahriman.core.log.log_loader
    :members:
    :no-undoc-members:
    :show-inheritance:

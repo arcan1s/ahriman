@@ -41,25 +41,11 @@ class PackageOperations(Operations):
             package_base(str): package base name
         """
         connection.execute(
-            """
-            delete from package_statuses
-            where package_base = :package_base and repository = :repository and architecture = :architecture
-            """,
-            {
-                "package_base": package_base,
-                "repository": self.repository_id.name,
-                "architecture": self.repository_id.architecture,
-            })
+            """delete from package_statuses where package_base = :package_base and repository = :repository""",
+            {"package_base": package_base, "repository": self.repository_id.id})
         connection.execute(
-            """
-            delete from package_bases
-            where package_base = :package_base and repository = :repository  and architecture = :architecture
-            """,
-            {
-                "package_base": package_base,
-                "repository": self.repository_id.name,
-                "architecture": self.repository_id.architecture,
-            })
+            """delete from package_bases where package_base = :package_base and repository = :repository""",
+            {"package_base": package_base, "repository": self.repository_id.id})
 
     def _package_remove_packages(self, connection: Connection, package_base: str,
                                  current_packages: Iterable[str]) -> None:
@@ -75,20 +61,13 @@ class PackageOperations(Operations):
             package
             for package in connection.execute(
                 """
-                select package, repository, architecture from packages
-                where package_base = :package_base and repository = :repository and architecture = :architecture""",
-                {
-                    "package_base": package_base,
-                    "repository": self.repository_id.name,
-                    "architecture": self.repository_id.architecture,
-                })
+                select package, repository from packages
+                where package_base = :package_base and repository = :repository""",
+                {"package_base": package_base, "repository": self.repository_id.id})
             if package["package"] not in current_packages
         ]
         connection.executemany(
-            """
-            delete from packages
-            where package = :package and repository = :repository and architecture = :architecture
-            """,
+            """delete from packages where package = :package and repository = :repository""",
             packages)
 
     def _package_update_insert_base(self, connection: Connection, package: Package) -> None:
@@ -102,12 +81,10 @@ class PackageOperations(Operations):
         connection.execute(
             """
             insert into package_bases
-            (package_base, version, source, branch, git_url, path, web_url, packager,
-            repository, architecture)
+            (package_base, version, source, branch, git_url, path, web_url, packager, repository)
             values
-            (:package_base, :version, :source, :branch, :git_url, :path, :web_url, :packager,
-            :repository, :architecture)
-            on conflict (package_base, architecture, repository) do update set
+            (:package_base, :version, :source, :branch, :git_url, :path, :web_url, :packager, :repository)
+            on conflict (package_base, repository) do update set
             version = :version, branch = :branch, git_url = :git_url, path = :path, web_url = :web_url,
             source = :source, packager = :packager
             """,
@@ -120,8 +97,7 @@ class PackageOperations(Operations):
                 "web_url": package.remote.web_url,
                 "source": package.remote.source.value,
                 "packager": package.packager,
-                "repository": self.repository_id.name,
-                "architecture": self.repository_id.architecture,
+                "repository": self.repository_id.id,
             }
         )
 
@@ -140,7 +116,7 @@ class PackageOperations(Operations):
             package_list.append({
                 "package": name,
                 "package_base": package.base,
-                "repository": self.repository_id.name,
+                "repository": self.repository_id.id,
                 **description.view(),
             })
         connection.executemany(
@@ -177,18 +153,17 @@ class PackageOperations(Operations):
         connection.execute(
             """
             insert into package_statuses
-            (package_base, status, last_updated, repository, architecture)
+            (package_base, status, last_updated, repository)
             values
-            (:package_base, :status, :last_updated, :repository, :architecture)
-            on conflict (package_base, architecture, repository) do update set
+            (:package_base, :status, :last_updated, :repository)
+            on conflict (package_base, repository) do update set
             status = :status, last_updated = :last_updated
             """,
             {
                 "package_base": package_base,
                 "status": status.status.value,
                 "last_updated": status.timestamp,
-                "repository": self.repository_id.name,
-                "architecture": self.repository_id.architecture,
+                "repository": self.repository_id.id,
             })
 
     def _packages_get_select_package_bases(self, connection: Connection) -> dict[str, Package]:
@@ -209,8 +184,8 @@ class PackageOperations(Operations):
                 packages={},
                 packager=row["packager"] or None,
             ) for row in connection.execute(
-                """select * from package_bases where repository = :repository and architecture = :architecture""",
-                {"repository": self.repository_id.name, "architecture": self.repository_id.architecture}
+                """select * from package_bases where repository = :repository""",
+                {"repository": self.repository_id.id}
             )
         }
 
@@ -226,8 +201,8 @@ class PackageOperations(Operations):
             dict[str, Package]: map of the package base to its descriptor including individual packages
         """
         for row in connection.execute(
-                """select * from packages where repository = :repository and architecture = :architecture""",
-                {"repository": self.repository_id.name, "architecture": self.repository_id.architecture}
+                """select * from packages where repository = :repository""",
+                {"repository": self.repository_id.id}
         ):
             if row["package_base"] not in packages:
                 continue  # normally must never happen though
@@ -247,8 +222,8 @@ class PackageOperations(Operations):
         return {
             row["package_base"]: BuildStatus.from_json({"status": row["status"], "timestamp": row["last_updated"]})
             for row in connection.execute(
-                """select * from package_statuses where repository = :repository and architecture = :architecture""",
-                {"repository": self.repository_id.name, "architecture": self.repository_id.architecture}
+                """select * from package_statuses where repository = :repository""",
+                {"repository": self.repository_id.id}
             )
         }
 
