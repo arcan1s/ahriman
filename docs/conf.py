@@ -85,7 +85,7 @@ autoclass_content = "both"
 
 autodoc_member_order = "groupwise"
 
-autodoc_mock_imports = ["pyalpm"]
+autodoc_mock_imports = ["cryptography", "pyalpm"]
 
 autodoc_default_options = {
     "no-undoc-members": True,
