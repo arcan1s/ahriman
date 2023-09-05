@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
@@ -841,8 +842,20 @@ def test_run(args: argparse.Namespace, mocker: MockerFixture) -> None:
     application must be run
     """
     args.architecture = "x86_64"
+    args.command = ""
     args.handler = Handler
 
     mocker.patch("argparse.ArgumentParser.parse_args", return_value=args)
 
     assert ahriman.run() == 1
+
+
+def test_run_without_command(args: argparse.Namespace, mocker: MockerFixture) -> None:
+    """
+    must show help message if run without commands
+    """
+    args.command = None
+    mocker.patch("argparse.ArgumentParser.parse_args", return_value=args)
+
+    with pytest.raises(SystemExit):
+        ahriman.run()

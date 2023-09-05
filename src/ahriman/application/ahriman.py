@@ -90,7 +90,7 @@ def _parser() -> argparse.ArgumentParser:
                         type=int, default=-1)
     parser.add_argument("-V", "--version", action="version", version=__version__)
 
-    subparsers = parser.add_subparsers(title="command", help="command to run", dest="command", required=True)
+    subparsers = parser.add_subparsers(title="command", help="command to run", dest="command")
 
     _set_aur_search_parser(subparsers)
     _set_help_parser(subparsers)
@@ -1015,6 +1015,9 @@ def run() -> int:
     """
     args_parser = _parser()
     args = args_parser.parse_args()
+
+    if args.command is None:  # in case of empty command we would like to print help message
+        args_parser.exit(status=2, message=args_parser.format_help())
 
     handler: handlers.Handler = args.handler
     return handler.execute(args)
