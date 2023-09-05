@@ -23,6 +23,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self
 
+from ahriman.models.repository_id import RepositoryId
+
 
 class BuildError(RuntimeError):
     """
@@ -173,14 +175,18 @@ class MultipleArchitecturesError(ValueError):
     exception which will be raised if multiple architectures are not supported by the handler
     """
 
-    def __init__(self, command: str) -> None:
+    def __init__(self, command: str, repositories: list[RepositoryId] | None = None) -> None:
         """
         default constructor
 
         Args:
             command(str): command name which throws exception
+            repositories(list[RepositoryId] | None, optional): found repository list (Default value = None)
         """
-        ValueError.__init__(self, f"Multiple architectures/repositories are not supported by subcommand {command}")
+        message = f"Multiple architectures/repositories are not supported by subcommand {command}"
+        if repositories is not None:
+            message += f", got {repositories}"
+        ValueError.__init__(self, message)
 
 
 class OptionError(ValueError):

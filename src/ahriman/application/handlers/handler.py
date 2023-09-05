@@ -96,7 +96,7 @@ class Handler:
         # actually we do not have to spawn another process if it is single-process application, do we?
         if len(repositories) > 1:
             if not cls.ALLOW_MULTI_ARCHITECTURE_RUN:
-                raise MultipleArchitecturesError(args.command)
+                raise MultipleArchitecturesError(args.command, repositories)
 
             with Pool(len(repositories)) as pool:
                 result = pool.starmap(cls.call, [(args, repository_id) for repository_id in repositories])
