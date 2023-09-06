@@ -55,4 +55,4 @@ class Console(Report):
         for package in result.success:
             BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)
         for package in result.failed:
-            BuildPrinter(package, is_success=True, use_utf=self.use_utf).print(verbose=True)
+            BuildPrinter(package, is_success=False, use_utf=self.use_utf).print(verbose=True)
