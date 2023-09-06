@@ -309,7 +309,7 @@ This feature requires GitHub key creation (see below). Section name must be eith
 
 * ``repository`` - GitHub repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
-* ``use_full_release_name`` - if set to ``yes``, the release will contain both repository name and architecture, and only architecture otherwise, boolean, optional, default ``no``.
+* ``use_full_release_name`` - if set to ``yes``, the release will contain both repository name and architecture, and only architecture otherwise, boolean, optional, default ``no`` (legacy behavior).
 * ``username`` - GitHub authorization user, string, required. Basically the same as ``owner``.
 
 ``remote-service`` type
@@ -338,5 +338,6 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 * ``access_key`` - AWS access key ID, string, required.
 * ``bucket`` - bucket name (e.g. ``bucket``), string, required.
 * ``chunk_size`` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
+* ``object_path`` - path prefix for stored objects, string, optional. If none set, the prefix as in repository tree will be used.
 * ``region`` - bucket region (e.g. ``eu-central-1``), string, required.
 * ``secret_key`` - AWS secret access key, string, required.

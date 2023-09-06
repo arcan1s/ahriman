@@ -44,6 +44,9 @@ In order to migrate to new filesystem tree the following actions are required:
    Edit configuration in case if anything is pointing to the old path, e.g. HTML report generation, in the way in which it will be pointed to directory inside repository specific one, e.g. ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur-clone/x86_64``.
 
 #.
+   Make sure to update remote synchronization services if any. Almost all of them rely on current repository tree by default, so you need to setup either redirects or configure to synchronize to the old locations (e.g. ``object_path`` option for S3 synchronization).
+
+#.
    Enable and start services again. Unit template parameter should include both repository architecture and name, dash separated, e.g. ``x86_64-aur-clone``:
 
    .. code-block:: shell

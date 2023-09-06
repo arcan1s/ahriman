@@ -642,6 +642,23 @@ How to sync to S3
        region = eu-central-1
        secret_key = ...
 
+S3 with SSL
+"""""""""""
+
+In order to configure S3 on custom domain with SSL (and some other features, like redirects), the CloudFront should be used.
+
+#. Configure S3 as described above.
+#. In bucket properties, enable static website hosting with hosting type "Host a static website".
+#. Go to AWS Certificate Manager and create public ceritificate on your domain. Validate domain as suggested.
+#. Go to CloudFront and create distribution. The following settings are required:
+
+   * Origin domain choose S3 bucket.
+   * Tick use website endpoint.
+   * Disable caching.
+   * Select issued certificate.
+
+#. Point DNS record to CloudFront address.
+
 How to sync to Github releases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

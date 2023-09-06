@@ -3,10 +3,30 @@ from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.upload.s3 import S3
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 _chunk_size = 8 * 1024 * 1024
+
+
+def test_object_path(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must correctly read object path
+    """
+    _, repository_id = configuration.check_loaded()
+
+    # new-style tree
+    assert S3(repository_id, configuration, "customs3").object_path == Path("aur-clone/x86_64")
+
+    # legacy tree
+    mocker.patch.object(RepositoryPaths, "_suffix", Path("x86_64"))
+    assert S3(repository_id, configuration, "customs3").object_path == Path("x86_64")
+
+    # user defined prefix
+    configuration.set_option("customs3", "object_path", "local")
+    assert S3(repository_id, configuration, "customs3").object_path == Path("local")
 
 
 def test_calculate_etag_big(resource_path_root: Path) -> None:
@@ -68,12 +88,12 @@ def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixtur
     upload_mock.upload_file.assert_has_calls(
         [
             MockCall(
-                Filename=str(root / s3.remote_root / "b"),
-                Key=f"{s3.remote_root}/b",
+                Filename=str(root / s3.object_path / "b"),
+                Key=f"{s3.object_path}/b",
                 ExtraArgs={"ContentType": "text/html"}),
             MockCall(
-                Filename=str(root / s3.remote_root / "d"),
-                Key=f"{s3.remote_root}/d",
+                Filename=str(root / s3.object_path / "d"),
+                Key=f"{s3.object_path}/d",
                 ExtraArgs=None),
         ],
         any_order=True)
@@ -92,7 +112,7 @@ def test_get_remote_objects(s3: S3, s3_remote_objects: list[Any]) -> None:
     """
     must generate list of remote objects by calling boto3 function
     """
-    expected = {Path(item.key).relative_to(s3.remote_root): item for item in s3_remote_objects}
+    expected = {Path(item.key).relative_to(s3.object_path): item for item in s3_remote_objects}
 
     s3.bucket = MagicMock()
     s3.bucket.objects.filter.return_value = s3_remote_objects

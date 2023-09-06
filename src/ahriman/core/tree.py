@@ -19,9 +19,8 @@
 #
 from __future__ import annotations
 
-import functools
-
 from collections.abc import Iterable
+from functools import partial
 
 from ahriman.core.exceptions import PartitionError
 from ahriman.core.util import minmax, partition
@@ -243,7 +242,7 @@ class Tree:
         unprocessed = self.leaves[:]
         while unprocessed:
             # additional workaround with partial in order to hide cell-var-from-loop pylint warning
-            predicate = functools.partial(Leaf.is_root, packages=unprocessed)
+            predicate = partial(Leaf.is_root, packages=unprocessed)
             new_level, unprocessed = partition(unprocessed, predicate)
             unsorted.append(new_level)
 
@@ -253,7 +252,7 @@ class Tree:
             next_level = unsorted[next_num]
 
             # change lists inside the collection
-            predicate = functools.partial(Leaf.is_dependency, packages=next_level)
+            predicate = partial(Leaf.is_dependency, packages=next_level)
             unsorted[current_num], to_be_moved = partition(current_level, predicate)
             unsorted[next_num].extend(to_be_moved)
 
@@ -280,12 +279,12 @@ class Tree:
 
             while True:  # python doesn't allow to use walrus operator to unpack tuples
                 # get packages which depend on packages in chunk
-                predicate = functools.partial(Leaf.is_root, packages=chunk)
+                predicate = partial(Leaf.is_root, packages=chunk)
                 unprocessed, new_dependent = partition(unprocessed, predicate)
                 chunk.extend(new_dependent)
 
                 # get packages which are dependency of packages in chunk
-                predicate = functools.partial(Leaf.is_dependency, packages=chunk)
+                predicate = partial(Leaf.is_dependency, packages=chunk)
                 new_dependencies, unprocessed = partition(unprocessed, predicate)
                 chunk.extend(new_dependencies)
 

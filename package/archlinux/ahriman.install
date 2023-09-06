@@ -32,6 +32,7 @@ Whereas old tree is still supported it is highly recommended to migrate to the n
 * stop and disable all services;
 * run service-tree-migrate as ahriman user;
 * edit configuration to avoid pointing to the old paths;
+* update synchronization services in order to support new paths (or setup redirects);
 * enable web and timer services again by using x86_64-aur-clone suffix, where x86_64 is your architecture and
   aur-clone is repository name;
 

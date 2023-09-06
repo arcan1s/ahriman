@@ -57,7 +57,6 @@ class UploadTrigger(Trigger):
                 },
                 "password": {
                     "type": "string",
-                    "required": True,
                 },
                 "repository": {
                     "type": "string",
@@ -130,6 +129,9 @@ class UploadTrigger(Trigger):
                     "type": "integer",
                     "coerce": "integer",
                     "min": 0,
+                },
+                "object_path": {
+                    "type": "string",
                 },
                 "region": {
                     "type": "string",
