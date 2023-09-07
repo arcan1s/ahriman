@@ -22,6 +22,7 @@ import aiohttp_apispec  # type: ignore[import]
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
+from ahriman.core.util import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, LogsSchema, PackageNameSchema
@@ -103,7 +104,7 @@ class LogsView(BaseView):
         response = {
             "package_base": package_base,
             "status": status.view(),
-            "logs": logs
+            "logs": "\n".join(f"[{pretty_datetime(created)}] {message}" for created, message in logs)
         }
         return json_response(response)
 

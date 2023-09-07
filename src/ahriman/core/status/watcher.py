@@ -85,17 +85,19 @@ class Watcher(LazyLogging):
             if package.base in self.known:
                 self.known[package.base] = (package, status)
 
-    def logs_get(self, package_base: str) -> str:
+    def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
         """
         extract logs for the package base
 
         Args:
             package_base(str): package base
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            str: package logs
+            list[tuple[float, str]]: package logs
         """
-        return self.database.logs_get(package_base)
+        return self.database.logs_get(package_base, limit, offset)
 
     def logs_remove(self, package_base: str, version: str | None) -> None:
         """

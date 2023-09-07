@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.service.update import UpdateView
+from ahriman.web.views.v1 import UpdateView
 
 
 async def test_get_permission() -> None:

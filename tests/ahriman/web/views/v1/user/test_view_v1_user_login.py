@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.user.login import LoginView
+from ahriman.web.views.v1 import LoginView
 
 
 async def test_get_permission() -> None:

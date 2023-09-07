@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.status.packages import PackagesView
+from ahriman.web.views.v1 import PackagesView
 
 
 async def test_get_permission() -> None:

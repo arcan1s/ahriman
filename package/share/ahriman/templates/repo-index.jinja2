@@ -73,9 +73,9 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
                         <td>{{ package.architecture }}</td>
                         <td>{{ package.description }}</td>
                         <td><a href="{{ package.url }}" title="{{ package.name }} upstream url">{{ package.url }}</a></td>
-                        <td>{{ package.licenses|join("<br>"|safe) }}</td>
-                        <td>{{ package.groups|join("<br>"|safe) }}</td>
-                        <td>{{ package.depends|join("<br>"|safe) }}</td>
+                        <td>{{ package.licenses | join("<br>" | safe) }}</td>
+                        <td>{{ package.groups | join("<br>" | safe) }}</td>
+                        <td>{{ package.depends | join("<br>" | safe) }}</td>
                         <td>{{ package.archive_size }}</td>
                         <td>{{ package.installed_size }}</td>
                         <td>{{ package.build_date }}</td>

@@ -55,8 +55,8 @@ def test_logs_get(watcher: Watcher, package_ahriman: Package, mocker: MockerFixt
     must return package logs
     """
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_get")
-    watcher.logs_get(package_ahriman.base)
-    logs_mock.assert_called_once_with(package_ahriman.base)
+    watcher.logs_get(package_ahriman.base, 1, 2)
+    logs_mock.assert_called_once_with(package_ahriman.base, 1, 2)
 
 
 def test_logs_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:

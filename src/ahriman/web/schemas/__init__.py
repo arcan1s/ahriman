@@ -25,13 +25,14 @@ from ahriman.web.schemas.file_schema import FileSchema
 from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
 from ahriman.web.schemas.log_schema import LogSchema
 from ahriman.web.schemas.login_schema import LoginSchema
-from ahriman.web.schemas.logs_schema import LogsSchema
+from ahriman.web.schemas.logs_schema import LogsSchema, LogsSchemaV2
 from ahriman.web.schemas.oauth2_schema import OAuth2Schema
 from ahriman.web.schemas.package_name_schema import PackageNameSchema
 from ahriman.web.schemas.package_names_schema import PackageNamesSchema
 from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchema
 from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.package_status_schema import PackageStatusSimplifiedSchema, PackageStatusSchema
+from ahriman.web.schemas.pagination_schema import PaginationSchema
 from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
 from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
 from ahriman.web.schemas.process_id_schema import ProcessIdSchema

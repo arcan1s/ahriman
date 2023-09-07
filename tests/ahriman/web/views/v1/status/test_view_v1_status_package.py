@@ -5,7 +5,7 @@ from aiohttp.test_utils import TestClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.status.package import PackageView
+from ahriman.web.views.v1 import PackageView
 
 
 async def test_get_permission() -> None:

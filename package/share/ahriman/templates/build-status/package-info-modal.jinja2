@@ -45,12 +45,16 @@
         };
 
         $.ajax({
-            url: `/api/v1/packages/${packageBase}/logs`,
+            url: `/api/v2/packages/${packageBase}/logs`,
             type: "GET",
             dataType: "json",
             success: response => {
                 packageInfo.text(`${response.package_base} ${response.status.status} at ${new Date(1000 * response.status.timestamp).toISOString()}`);
-                packageInfoLogsInput.text(response.logs);
+                const logs = response.logs.map(log_record => {
+                    const [timestamp, record] = log_record;
+                    return `[${new Date(1000 * timestamp).toISOString()}] ${record}`;
+                });
+                packageInfoLogsInput.text(logs.join("\n"));
 
                 packageInfoModalHeader.removeClass();
                 packageInfoModalHeader.addClass("modal-header");

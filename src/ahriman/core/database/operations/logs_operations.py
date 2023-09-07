@@ -20,7 +20,6 @@
 from sqlite3 import Connection
 
 from ahriman.core.database.operations import Operations
-from ahriman.core.util import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 
 
@@ -29,29 +28,34 @@ class LogsOperations(Operations):
     logs operations
     """
 
-    def logs_get(self, package_base: str) -> str:
+    def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
         """
         extract logs for specified package base
 
         Args:
             package_base(str): package base to extract logs
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
 
         Return:
-            str: full package log
+            list[tuple[float, str]]: sorted package log records and their timestamps
         """
-        def run(connection: Connection) -> list[str]:
+        def run(connection: Connection) -> list[tuple[float, str]]:
             return [
-                f"""[{pretty_datetime(row["created"])}] {row["record"]}"""
+                (row["created"], row["record"])
                 for row in connection.execute(
                     """
                     select created, record from logs where package_base = :package_base
-                    order by created
+                    order by created limit :limit offset :offset
                     """,
-                    {"package_base": package_base})
+                    {
+                        "package_base": package_base,
+                        "limit": limit,
+                        "offset": offset,
+                    })
             ]
 
-        records = self.with_connection(run)
-        return "\n".join(records)
+        return self.with_connection(run)
 
     def logs_insert(self, log_record_id: LogRecordId, created: float, record: str) -> None:
         """
