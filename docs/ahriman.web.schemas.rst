@@ -124,6 +124,14 @@ ahriman.web.schemas.package\_status\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.pagination\_schema module
+---------------------------------------------
+
+.. automodule:: ahriman.web.schemas.pagination_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.pgp\_key\_id\_schema module
 -----------------------------------------------
 

@@ -5,7 +5,7 @@ from aiohttp.web import HTTPUnauthorized
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.user.logout import LogoutView
+from ahriman.web.views.v1 import LogoutView
 
 
 async def test_get_permission() -> None:

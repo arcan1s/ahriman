@@ -8,7 +8,7 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.status.status import StatusView
+from ahriman.web.views.v1 import StatusView
 
 
 async def test_get_permission() -> None:

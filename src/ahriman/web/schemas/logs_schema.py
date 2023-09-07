@@ -37,3 +37,21 @@ class LogsSchema(Schema):
     logs = fields.String(required=True, metadata={
         "description": "Full package log from the last build",
     })
+
+
+class LogsSchemaV2(Schema):
+    """
+    response package logs api v2 schema
+    """
+
+    package_base = fields.String(required=True, metadata={
+        "description": "Package base name",
+        "example": "ahriman",
+    })
+    status = fields.Nested(StatusSchema(), required=True, metadata={
+        "description": "Last package status",
+    })
+    logs = fields.List(fields.Tuple([fields.Float(), fields.String()]), required=True, metadata={  # type: ignore[no-untyped-call]
+        "description": "Package log records timestamp and message",
+        "example": [(1680537091.233495, "log record")]
+    })

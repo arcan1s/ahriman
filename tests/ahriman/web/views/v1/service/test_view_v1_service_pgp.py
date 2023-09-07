@@ -4,7 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.service.pgp import PGPView
+from ahriman.web.views.v1 import PGPView
 
 
 async def test_get_permission() -> None:

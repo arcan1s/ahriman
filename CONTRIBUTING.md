@@ -174,9 +174,7 @@ Again, the most checks can be performed by `make check` command, though some add
 
     from marshmallow import Schema, fields  
 
-    from ahriman.web.schemas.auth_schema import AuthSchema
-    from ahriman.web.schemas.error_schema import ErrorSchema
-    from ahriman.web.schemas.package_name_schema import PackageNameSchema
+    from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PaginationSchema
     from ahriman.web.views.base import BaseView
 
 
@@ -210,9 +208,13 @@ Again, the most checks can be performed by `make check` command, though some add
         )
         @aiohttp_apispec.cookies_schema(AuthSchema)  # should be always presented
         @aiohttp_apispec.match_info_schema(PackageNameSchema)
+        @aiohttp_apispec.querystring_schema(PaginationSchema)
         @aiohttp_apispec.json_schema(RequestSchema(many=True))
         async def post(self) -> None: ...
     ```
+
+* It is allowed to change web API to add new fields or remove optional ones. However, in case of model changes, new API version must be introduced.
+* On the other hand, it is allowed to change method signatures, however, it is recommended to add new parameters as optional if possible. Deprecated API can be dropped during major release.
 
 ### Other checks
 
