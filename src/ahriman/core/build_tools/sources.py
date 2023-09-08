@@ -82,11 +82,11 @@ class Sources(LazyLogging):
         branch = remote.branch or instance.DEFAULT_BRANCH
         if is_initialized_git:
             instance.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
-            Sources._check_output("git", "fetch", "--quiet", "origin", branch,
+            Sources._check_output("git", "fetch", "--quiet", "--depth", "1", "origin", branch,
                                   cwd=sources_dir, logger=instance.logger)
         elif remote.git_url is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
-            Sources._check_output("git", "clone", "--quiet", "--branch", branch, "--single-branch",
+            Sources._check_output("git", "clone", "--quiet", "--depth", "1", "--branch", branch, "--single-branch",
                                   remote.git_url, str(sources_dir), cwd=sources_dir.parent, logger=instance.logger)
         else:
             # it will cause an exception later
