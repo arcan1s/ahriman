@@ -8,7 +8,17 @@ def test_generate(configuration: Configuration, package_ahriman: Package) -> Non
     """
     must generate html report
     """
-    path = configuration.getpath("html", "template_path")
+    name = configuration.getpath("html", "template")
+    _, repository_id = configuration.check_loaded()
+    report = JinjaTemplate(repository_id, configuration, "html")
+    assert report.make_html(Result(success=[package_ahriman]), name)
+
+
+def test_generate_from_path(configuration: Configuration, package_ahriman: Package) -> None:
+    """
+    must generate html report from path
+    """
+    path = configuration.getpath("html", "templates") / configuration.get("html", "template")
     _, repository_id = configuration.check_loaded()
     report = JinjaTemplate(repository_id, configuration, "html")
     assert report.make_html(Result(success=[package_ahriman]), path)

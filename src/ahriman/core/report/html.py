@@ -31,7 +31,7 @@ class HTML(Report, JinjaTemplate):
 
     Attributes:
         report_path(Path): output path to html report
-        template_path(Path): path to template for full package list
+        template(Path | str): name or path to template for full package list
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
@@ -47,7 +47,8 @@ class HTML(Report, JinjaTemplate):
         JinjaTemplate.__init__(self, repository_id, configuration, section)
 
         self.report_path = configuration.getpath(section, "path")
-        self.template_path = configuration.getpath(section, "template_path")
+        self.template = configuration.get(section, "template", fallback=None) or \
+            configuration.getpath(section, "template_path")
 
     def generate(self, packages: list[Package], result: Result) -> None:
         """
@@ -57,5 +58,5 @@ class HTML(Report, JinjaTemplate):
             packages(list[Package]): list of packages to generate report
             result(Result): build result
         """
-        html = self.make_html(Result(success=packages), self.template_path)
+        html = self.make_html(Result(success=packages), self.template)
         self.report_path.write_text(html, encoding="utf8")

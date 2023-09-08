@@ -43,7 +43,10 @@ class RemotePushTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -52,16 +55,20 @@ class RemotePushTrigger(Trigger):
             "schema": {
                 "commit_email": {
                     "type": "string",
+                    "empty": False,
                 },
                 "commit_user": {
                     "type": "string",
+                    "empty": False,
                 },
                 "push_url": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "push_branch": {
                     "type": "string",
+                    "empty": False,
                 },
             },
         },

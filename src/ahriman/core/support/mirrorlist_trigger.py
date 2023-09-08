@@ -39,7 +39,10 @@ class MirrorlistTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -52,16 +55,23 @@ class MirrorlistTrigger(Trigger):
                 },
                 "description": {
                     "type": "string",
+                    "empty": False,
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                 },
                 "license": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
                 "package": {
                     "type": "string",
+                    "empty": False,
                 },
                 "path": {
                     "type": "path",
@@ -70,7 +80,12 @@ class MirrorlistTrigger(Trigger):
                 "servers": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                     "required": True,
+                    "empty": False,
                 },
             },
         },

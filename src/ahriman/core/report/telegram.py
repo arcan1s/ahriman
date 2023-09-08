@@ -35,7 +35,7 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
         TELEGRAM_MAX_CONTENT_LENGTH(int): (class attribute) max content length of the message
         api_key(str): bot api key
         chat_id(str): chat id to post message, either string with @ or integer
-        template_path(Path): path to template for built packages
+        template(Path | str): name or path to template for built packages
         template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
     """
 
@@ -57,7 +57,8 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
 
         self.api_key = configuration.get(section, "api_key")
         self.chat_id = configuration.get(section, "chat_id")
-        self.template_path = configuration.getpath(section, "template_path")
+        self.template = configuration.get(section, "template", fallback=None) or \
+            configuration.getpath(section, "template_path")
         self.template_type = configuration.get(section, "template_type", fallback="HTML")
 
     def _send(self, text: str) -> None:
@@ -83,7 +84,7 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
         """
         if not result.success:
             return
-        text = self.make_html(result, self.template_path)
+        text = self.make_html(result, self.template)
         # telegram content is limited by 4096 symbols, so we are going to split the message by new lines
         # to fit into this restriction
         while len(text) > self.TELEGRAM_MAX_CONTENT_LENGTH:

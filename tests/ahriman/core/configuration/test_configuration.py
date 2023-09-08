@@ -229,6 +229,19 @@ def test_getpath_without_fallback(configuration: Configuration) -> None:
         assert configuration.getpath("build", "option")
 
 
+def test_getpathlist(configuration: Configuration) -> None:
+    """
+    must extract path list
+    """
+    path = Path("/a/b/c")
+    configuration.set_option("build", "path", f"""{path} {path.relative_to("/")}""")
+
+    result = configuration.getpathlist("build", "path")
+    assert all(element.is_absolute() for element in result)
+    assert path in result
+    assert all(element.is_relative_to("/") for element in result)
+
+
 def test_gettype(configuration: Configuration) -> None:
     """
     must extract type from variable

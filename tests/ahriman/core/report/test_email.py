@@ -8,6 +8,35 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_template(configuration: Configuration) -> None:
+    """
+    must correctly parse template name and path
+    """
+    template = configuration.get("email", "template")
+    root, repository_id = configuration.check_loaded()
+
+    assert Email(repository_id, configuration, "email").template == template
+
+    configuration.remove_option("email", "template")
+    configuration.set_option("email", "template_path", template)
+    assert Email(repository_id, configuration, "email").template == root.parent / template
+
+
+def test_template_full(configuration: Configuration) -> None:
+    """
+    must correctly parse template name and path
+    """
+    template = "template"
+    root, repository_id = configuration.check_loaded()
+
+    configuration.set_option("email", "template_full", template)
+    assert Email(repository_id, configuration, "email").template_full == template
+
+    configuration.remove_option("email", "template_full")
+    configuration.set_option("email", "full_template_path", template)
+    assert Email(repository_id, configuration, "email").template_full == root.parent / template
+
+
 def test_send(email: Email, mocker: MockerFixture) -> None:
     """
     must send an email with attachment
@@ -115,7 +144,7 @@ def test_generate_with_built_and_full_path(email: Email, package_ahriman: Packag
     """
     send_mock = mocker.patch("ahriman.core.report.email.Email._send")
 
-    email.full_template_path = email.template_path
+    email.template_full = email.template
     email.generate([package_ahriman], result)
     send_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))
 

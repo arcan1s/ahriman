@@ -118,3 +118,27 @@ def test_validate_path_exists(validator: Validator, mocker: MockerFixture) -> No
         MockCall("field", "Path 2 must not exist"),
         MockCall("field", "Path 3 must exist"),
     ])
+
+
+def test_validate_path_type(validator: Validator, mocker: MockerFixture) -> None:
+    """
+    must correctly validate path type
+    """
+    error_mock = mocker.patch("ahriman.core.configuration.validator.Validator._error")
+
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    validator._validate_path_type("file", "field", Path("1"))
+
+    mocker.patch("pathlib.Path.is_file", return_value=False)
+    validator._validate_path_type("file", "field", Path("2"))
+
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    validator._validate_path_type("dir", "field", Path("3"))
+
+    mocker.patch("pathlib.Path.is_dir", return_value=False)
+    validator._validate_path_type("dir", "field", Path("4"))
+
+    error_mock.assert_has_calls([
+        MockCall("field", "Path 2 must be type of file"),
+        MockCall("field", "Path 4 must be type of dir"),
+    ])

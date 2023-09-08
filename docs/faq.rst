@@ -1299,7 +1299,9 @@ The application uses java concept to log messages, e.g. class ``Application`` im
 Html customization
 ^^^^^^^^^^^^^^^^^^
 
-It is possible to customize html templates. In order to do so, create files somewhere (refer to Jinja2 documentation and the service source code for available parameters) and put ``template_path`` to configuration pointing to this directory.
+It is possible to customize html templates. In order to do so, create files somewhere (refer to Jinja2 documentation and the service source code for available parameters) and prepend ``templates`` with value pointing to this directory.
+
+In addition, default html templates supports style customization out-of-box. In order to customize style, just put file named ``user-style.jinja2`` to the templates directory.
 
 I did not find my question
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
