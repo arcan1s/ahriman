@@ -32,7 +32,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
                                  return_value=["command"])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    UnsafeCommands.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    UnsafeCommands.run(args, repository_id, configuration, report=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     print_mock.assert_called_once_with(verbose=True)
 
@@ -47,7 +48,8 @@ def test_run_check(args: argparse.Namespace, configuration: Configuration, mocke
                                  return_value=["command"])
     check_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.check_unsafe")
 
-    UnsafeCommands.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    UnsafeCommands.run(args, repository_id, configuration, report=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with(["clean"], ["command"], pytest.helpers.anyvar(int))
 
@@ -81,8 +83,8 @@ def test_get_unsafe_commands() -> None:
         assert subparser.choices[command].get_default("unsafe")
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not UnsafeCommands.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not UnsafeCommands.ALLOW_MULTI_ARCHITECTURE_RUN

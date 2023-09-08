@@ -32,6 +32,7 @@ from ahriman.core.util import package_like
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
+from ahriman.models.repository_id import RepositoryId
 
 
 class Repository(Executor, UpdateHandler):
@@ -47,7 +48,7 @@ class Repository(Executor, UpdateHandler):
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository.load("x86_64", configuration, database, report=True)
+            >>> repository = Repository.load(RepositoryId("x86_64", "x86_64"), configuration, database, report=True)
             >>> known_packages = repository.packages()
             >>>
             >>> build_result = repository.process_build(known_packages)
@@ -58,13 +59,13 @@ class Repository(Executor, UpdateHandler):
     """
 
     @classmethod
-    def load(cls, architecture: str, configuration: Configuration, database: SQLite, *, report: bool,
+    def load(cls, repository_id: RepositoryId, configuration: Configuration, database: SQLite, *, report: bool,
              refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> Self:
         """
         load instance from argument list
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             database(SQLite): database instance
             report(bool): force enable or disable reporting
@@ -74,7 +75,7 @@ class Repository(Executor, UpdateHandler):
         Returns:
             Self: fully loaded repository class instance
         """
-        instance = cls(architecture, configuration, database,
+        instance = cls(repository_id, configuration, database,
                        report=report, refresh_pacman_database=refresh_pacman_database)
         instance._set_context()
         return instance

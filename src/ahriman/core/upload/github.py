@@ -25,31 +25,43 @@ from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.http_upload import HttpUpload
+from ahriman.core.upload.upload import Upload
 from ahriman.core.util import walk
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
-class Github(HttpUpload):
+class GitHub(Upload, HttpUpload):
     """
     upload files to GitHub releases
 
     Attributes:
         github_owner(str): GitHub repository owner
+        github_release_tag(str): GitHub release tag
+        github_release_tag_name(str): GitHub release tag name
         github_repository(str): GitHub repository name
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        HttpUpload.__init__(self, architecture, configuration, section)
+        Upload.__init__(self, repository_id, configuration)
+        HttpUpload.__init__(self, configuration, section)
+
         self.github_owner = configuration.get(section, "owner")
         self.github_repository = configuration.get(section, "repository")
+
+        if configuration.getboolean(section, "use_full_release_name", fallback=False):
+            self.github_release_tag = f"{repository_id.name}-{repository_id.architecture}"
+            self.github_release_tag_name = f"{repository_id.name} {repository_id.architecture}"
+        else:
+            self.github_release_tag_name = self.github_release_tag = repository_id.architecture
 
     def asset_remove(self, release: dict[str, Any], name: str) -> None:
         """
@@ -136,7 +148,10 @@ class Github(HttpUpload):
             dict[str, Any]: GitHub API release object for the new release
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases"
-        response = self.make_request("POST", url, json={"tag_name": self.architecture, "name": self.architecture})
+        response = self.make_request("POST", url, json={
+            "tag_name": self.github_release_tag,
+            "name": self.github_release_tag_name,
+        })
         release: dict[str, Any] = response.json()
         return release
 
@@ -147,7 +162,7 @@ class Github(HttpUpload):
         Returns:
             dict[str, Any] | None: GitHub API release object if release found and None otherwise
         """
-        url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.architecture}"
+        url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.github_release_tag}"
         try:
             response = self.make_request("GET", url)
             release: dict[str, Any] = response.json()

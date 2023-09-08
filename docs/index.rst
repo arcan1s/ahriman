@@ -34,6 +34,7 @@ Contents
    configuration
    command-line
    faq
+   migration
    architecture
    advanced-usage
    triggers

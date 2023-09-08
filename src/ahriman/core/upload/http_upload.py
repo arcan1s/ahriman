@@ -21,27 +21,13 @@ import hashlib
 
 from pathlib import Path
 
-from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncHttpClient
-from ahriman.core.upload.upload import Upload
 
 
-class HttpUpload(Upload, SyncHttpClient):
+class HttpUpload(SyncHttpClient):
     """
     helper for the http based uploads
     """
-
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
-        """
-        default constructor
-
-        Args:
-            architecture(str): repository architecture
-            configuration(Configuration): configuration instance
-            section(str): configuration section name
-        """
-        Upload.__init__(self, architecture, configuration)
-        SyncHttpClient.__init__(self, section, configuration)
 
     @staticmethod
     def calculate_hash(path: Path) -> str:

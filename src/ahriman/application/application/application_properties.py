@@ -22,6 +22,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
 from ahriman.core.repository import Repository
 from ahriman.models.pacman_synchronization import PacmanSynchronization
+from ahriman.models.repository_id import RepositoryId
 
 
 class ApplicationProperties(LazyLogging):
@@ -29,26 +30,36 @@ class ApplicationProperties(LazyLogging):
     application base properties class
 
     Attributes:
-        architecture(str): repository architecture
         configuration(Configuration): configuration instance
         database(SQLite): database instance
         repository(Repository): repository instance
+        repository_id(RepositoryId): repository unique identifier
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, *, report: bool,
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, *, report: bool,
                  refresh_pacman_database: PacmanSynchronization = PacmanSynchronization.Disabled) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
             refresh_pacman_database(PacmanSynchronization, optional): pacman database synchronization level
                 (Default value = PacmanSynchronization.Disabled)
         """
         self.configuration = configuration
-        self.architecture = architecture
+        self.repository_id = repository_id
         self.database = SQLite.load(configuration)
-        self.repository = Repository.load(architecture, configuration, self.database, report=report,
+        self.repository = Repository.load(repository_id, configuration, self.database, report=report,
                                           refresh_pacman_database=refresh_pacman_database)
+
+    @property
+    def architecture(self) -> str:
+        """
+        repository architecture for backward compatibility
+
+        Returns:
+            str: repository architecture
+        """
+        return self.repository_id.architecture

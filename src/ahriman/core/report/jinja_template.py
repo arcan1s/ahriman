@@ -25,6 +25,7 @@ from pathlib import Path
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.util import pretty_datetime, pretty_size
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 from ahriman.models.sign_settings import SignSettings
 
@@ -63,19 +64,20 @@ class JinjaTemplate:
         sign_targets(set[SignSettings]): targets to sign enabled in configuration
     """
 
-    def __init__(self, section: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            section(str): settings section name
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
+            section(str): settings section name
         """
         self.link_path = configuration.get(section, "link_path")
 
         # base template vars
         self.homepage = configuration.get(section, "homepage", fallback=None)
-        self.name = configuration.repository_name
+        self.name = repository_id.name
 
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 

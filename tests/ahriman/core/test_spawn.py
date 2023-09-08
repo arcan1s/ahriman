@@ -20,9 +20,9 @@ def test_process(spawner: Spawn) -> None:
     callback = MagicMock()
     callback.return_value = True
 
-    spawner.process(callback, args, spawner.architecture, "id", spawner.queue)
+    spawner.process(callback, args, spawner.repository_id, "id", spawner.queue)
 
-    callback.assert_called_once_with(args, spawner.architecture)
+    callback.assert_called_once_with(args, spawner.repository_id)
     (uuid, status, time) = spawner.queue.get()
     assert uuid == "id"
     assert status
@@ -37,7 +37,7 @@ def test_process_error(spawner: Spawn) -> None:
     callback = MagicMock()
     callback.return_value = False
 
-    spawner.process(callback, MagicMock(), spawner.architecture, "id", spawner.queue)
+    spawner.process(callback, MagicMock(), spawner.repository_id, "id", spawner.queue)
 
     (uuid, status, time) = spawner.queue.get()
     assert uuid == "id"

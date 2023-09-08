@@ -177,7 +177,7 @@ def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocke
     Sources.load(path, package_ahriman, [patch], repository_paths)
     fetch_mock.assert_called_once_with(path, package_ahriman.remote)
     patch_mock.assert_called_once_with(path, patch)
-    architectures_mock.assert_called_once_with(path, repository_paths.architecture)
+    architectures_mock.assert_called_once_with(path, repository_paths.repository_id.architecture)
 
 
 def test_load_no_patch(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:

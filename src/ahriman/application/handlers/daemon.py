@@ -22,6 +22,7 @@ import threading
 
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
+from ahriman.models.repository_id import RepositoryId
 
 
 class Daemon(Handler):
@@ -30,19 +31,20 @@ class Daemon(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
         from ahriman.application.handlers import Update
-        Update.run(args, architecture, configuration, report=report)
-        timer = threading.Timer(args.interval, Daemon.run, args=[args, architecture, configuration],
+        Update.run(args, repository_id, configuration, report=report)
+        timer = threading.Timer(args.interval, Daemon.run, args=[args, repository_id, configuration],
                                 kwargs={"report": report})
         timer.start()
         timer.join()

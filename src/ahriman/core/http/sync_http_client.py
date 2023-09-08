@@ -41,14 +41,14 @@ class SyncHttpClient(LazyLogging):
         timeout(int): HTTP request timeout in seconds
     """
 
-    def __init__(self, section: str | None = None, configuration: Configuration | None = None, *,
+    def __init__(self, configuration: Configuration | None = None, section: str | None = None, *,
                  suppress_errors: bool = False) -> None:
         """
         default constructor
 
         Args:
-            section(str, optional): settings section name (Default value = None)
             configuration(Configuration | None): configuration instance (Default value = None)
+            section(str, optional): settings section name (Default value = None)
             suppress_errors(bool, optional): suppress logging of request errors (Default value = False)
         """
         if configuration is None:

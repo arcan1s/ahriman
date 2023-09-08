@@ -20,7 +20,8 @@ def test_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
     must clone repo on start
     """
     run_mock = mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.run")
-    trigger = RemotePullTrigger("x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    trigger = RemotePullTrigger(repository_id, configuration)
 
     trigger.on_start()
     run_mock.assert_called_once_with()

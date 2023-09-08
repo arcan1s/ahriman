@@ -23,6 +23,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
 from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -34,8 +35,8 @@ class Trigger(LazyLogging):
         CONFIGURATION_SCHEMA(ConfigurationSchema): (class attribute) configuration schema template
         CONFIGURATION_SCHEMA_FALLBACK(str | None): (class attribute) optional fallback option for defining
             configuration schema type used
-        architecture(str): repository architecture
         configuration(Configuration): configuration instance
+        repository_id(RepositoryId): repository unique identifier
 
     Examples:
         This class must be used in order to create own extension. Basically idea is the following::
@@ -51,26 +52,37 @@ class Trigger(LazyLogging):
             >>> configuration = Configuration()
             >>> configuration.set_option("build", "triggers", "my.awesome.package.CustomTrigger")
             >>>
-            >>> loader = TriggerLoader.load("x86_64", configuration)
+            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur-clone"), configuration)
             >>> loader.on_result(Result(), [])
     """
 
     CONFIGURATION_SCHEMA: ConfigurationSchema = {}
     CONFIGURATION_SCHEMA_FALLBACK: str | None = None
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        self.architecture = architecture
+        self.repository_id = repository_id
         self.configuration = configuration
 
+    @property
+    def architecture(self) -> str:
+        """
+        repository architecture for backward compatibility
+
+        Returns:
+            str: repository architecture
+        """
+        return self.repository_id.architecture
+
     @classmethod
-    def configuration_schema(cls, architecture: str, configuration: Configuration | None) -> ConfigurationSchema:
+    def configuration_schema(cls, repository_id: RepositoryId,
+                             configuration: Configuration | None) -> ConfigurationSchema:
         """
         configuration schema based on supplied service configuration
 
@@ -78,7 +90,7 @@ class Trigger(LazyLogging):
             Schema must be in cerberus format, for details and examples you can check built-in triggers.
 
         Args:
-            architecture(str): repository architecture
+            repository_id(str): repository unique identifier
             configuration(Configuration | None): configuration instance. If set to None, the default schema
                 should be returned
 
@@ -93,7 +105,7 @@ class Trigger(LazyLogging):
             if not configuration.has_section(target):
                 continue
             section, schema_name = configuration.gettype(
-                target, architecture, fallback=cls.CONFIGURATION_SCHEMA_FALLBACK)
+                target, repository_id, fallback=cls.CONFIGURATION_SCHEMA_FALLBACK)
             if schema_name not in cls.CONFIGURATION_SCHEMA:
                 continue
             result[section] = cls.CONFIGURATION_SCHEMA[schema_name]

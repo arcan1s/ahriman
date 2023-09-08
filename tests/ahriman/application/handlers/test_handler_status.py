@@ -43,7 +43,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
     check_mock.assert_called_once_with(False, False)
@@ -62,7 +63,8 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.status.client.Client.package_get", return_value=[])
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Status.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -78,7 +80,8 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
     print_mock.assert_has_calls([MockCall(verbose=True) for _ in range(2)])
 
 
@@ -93,7 +96,8 @@ def test_run_with_package_filter(args: argparse.Namespace, configuration: Config
     packages_mock = mocker.patch("ahriman.core.status.client.Client.package_get",
                                  return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success))])
 
-    Status.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
     packages_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -110,7 +114,8 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, r
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Status.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
     print_mock.assert_has_calls([MockCall(verbose=False) for _ in range(2)])
 
 
@@ -123,12 +128,13 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     load_mock = mocker.patch("ahriman.core.repository.Repository.load")
 
-    Status.run(args, "x86_64", configuration, report=False)
-    load_mock.assert_called_once_with("x86_64", configuration, database, report=True, refresh_pacman_database=0)
+    _, repository_id = configuration.check_loaded()
+    Status.run(args, repository_id, configuration, report=False)
+    load_mock.assert_called_once_with(repository_id, configuration, database, report=True, refresh_pacman_database=0)
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Status.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Status.ALLOW_MULTI_ARCHITECTURE_RUN

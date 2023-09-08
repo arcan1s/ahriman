@@ -16,7 +16,8 @@ def test_repo_clone(configuration: Configuration, mocker: MockerFixture) -> None
     """
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     copy_mock = mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_copy")
-    runner = RemotePull(configuration, "x86_64", "gitremote")
+    _, repository_id = configuration.check_loaded()
+    runner = RemotePull(repository_id, configuration, "gitremote")
 
     runner.repo_clone()
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), runner.remote_source)
@@ -32,7 +33,8 @@ def test_package_copy(configuration: Configuration, package_ahriman: Package, mo
     ignore_patterns_mock = mocker.patch("shutil.ignore_patterns", return_value=patterns)
     copytree_mock = mocker.patch("shutil.copytree")
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
-    runner = RemotePull(configuration, "x86_64", "gitremote")
+    _, repository_id = configuration.check_loaded()
+    runner = RemotePull(repository_id, configuration, "gitremote")
     local = Path("local")
 
     runner.package_copy(local / "PKGBUILD")
@@ -57,7 +59,8 @@ def test_repo_copy(configuration: Configuration, mocker: MockerFixture) -> None:
         local / "package3" / ".SRCINFO",
     ])
     copy_mock = mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.package_copy")
-    runner = RemotePull(configuration, "x86_64", "gitremote")
+    _, repository_id = configuration.check_loaded()
+    runner = RemotePull(repository_id, configuration, "gitremote")
 
     runner.repo_copy(local)
     copy_mock.assert_has_calls([
@@ -71,7 +74,8 @@ def test_run(configuration: Configuration, mocker: MockerFixture) -> None:
     must clone repo on run
     """
     clone_mock = mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_clone")
-    runner = RemotePull(configuration, "x86_64", "gitremote")
+    _, repository_id = configuration.check_loaded()
+    runner = RemotePull(repository_id, configuration, "gitremote")
 
     runner.run()
     clone_mock.assert_called_once_with()
@@ -82,7 +86,8 @@ def test_run_failed(configuration: Configuration, mocker: MockerFixture) -> None
     must reraise exception on error occurred
     """
     mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_clone", side_effect=Exception())
-    runner = RemotePull(configuration, "x86_64", "gitremote")
+    _, repository_id = configuration.check_loaded()
+    runner = RemotePull(repository_id, configuration, "gitremote")
 
     with pytest.raises(GitRemoteError):
         runner.run()

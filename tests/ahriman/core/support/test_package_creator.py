@@ -7,6 +7,8 @@ from ahriman.core.support.package_creator import PackageCreator
 from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
+from ahriman.models.package_source import PackageSource
+from ahriman.models.remote_source import RemoteSource
 
 
 def test_run(package_creator: PackageCreator, database: SQLite, mocker: MockerFixture) -> None:
@@ -16,7 +18,7 @@ def test_run(package_creator: PackageCreator, database: SQLite, mocker: MockerFi
     package = Package(
         base=package_creator.generator.pkgname,
         version=package_creator.generator.pkgver,
-        remote=None,
+        remote=RemoteSource(source=PackageSource.Local),
         packages={package_creator.generator.pkgname: PackageDescription()},
     )
     local_path = package_creator.configuration.repository_paths.cache_for(package_creator.generator.pkgname)

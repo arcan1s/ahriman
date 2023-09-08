@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-08\-26" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-09\-02" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [--report | --no-report] [-q] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -29,12 +29,16 @@ lock file
 explicit log handler specification. If none set, the handler will be guessed from environment
 
 .TP
+\fB\-q\fR, \fB\-\-quiet\fR
+force disable any logging
+
+.TP
 \fB\-\-report\fR, \fB\-\-no\-report\fR
 force enable or disable reporting to web service
 
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
-force disable any logging
+\fB\-r\fR \fI\,REPOSITORY\/\fR, \fB\-\-repository\fR \fI\,REPOSITORY\/\fR
+target repository. For several subcommands it can be used multiple times
 
 .TP
 \fB\-\-unsafe\fR
@@ -156,6 +160,9 @@ initial service configuration
 .TP
 \fBahriman\fR \fI\,service\-shell\/\fR
 invoke python shell
+.TP
+\fBahriman\fR \fI\,service\-tree\-migrate\/\fR
+migrate repository tree
 .TP
 \fBahriman\fR \fI\,user\-add\/\fR
 create or update user
@@ -691,11 +698,10 @@ PGP key to import from public server
 key server for key import
 
 .SH COMMAND \fI\,'ahriman service\-setup'\/\fR
-usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-build\-command BUILD_COMMAND]
-                             [\-\-from\-configuration FROM_CONFIGURATION] [\-\-generate\-salt | \-\-no\-generate\-salt]
-                             [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs] [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib]
-                             \-\-packager PACKAGER \-\-repository REPOSITORY [\-\-server SERVER] [\-\-sign\-key SIGN_KEY]
-                             [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
+usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-from\-configuration FROM_CONFIGURATION]
+                             [\-\-generate\-salt | \-\-no\-generate\-salt] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
+                             [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER [\-\-server SERVER]
+                             [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
                              [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
 
 create initial service configuration, requires root
@@ -704,10 +710,6 @@ create initial service configuration, requires root
 .TP
 \fB\-\-build\-as\-user\fR \fI\,BUILD_AS_USER\/\fR
 force makepkg user to the specific one
-
-.TP
-\fB\-\-build\-command\fR \fI\,BUILD_COMMAND\/\fR
-build command prefix
 
 .TP
 \fB\-\-from\-configuration\fR \fI\,FROM_CONFIGURATION\/\fR
@@ -732,10 +734,6 @@ add or do not multilib repository
 .TP
 \fB\-\-packager\fR \fI\,PACKAGER\/\fR
 packager name and email
-
-.TP
-\fB\-\-repository\fR \fI\,REPOSITORY\/\fR
-repository name
 
 .TP
 \fB\-\-server\fR \fI\,SERVER\/\fR
@@ -766,8 +764,13 @@ drop into python shell
 \fBcode\fR
 instead of dropping into shell, just execute the specified code
 
+.SH COMMAND \fI\,'ahriman service\-tree\-migrate'\/\fR
+usage: ahriman service\-tree\-migrate [\-h]
+
+migrate repository tree between versions
+
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
-usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-r {unauthorized,read,reporter,full}]
+usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-R {unauthorized,read,reporter,full}]
                         username
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
@@ -791,11 +794,11 @@ user password. Blank password will be treated as empty password, which is in par
 authorization type.
 
 .TP
-\fB\-r\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
+\fB\-R\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
 user access level
 
 .SH COMMAND \fI\,'ahriman user\-list'\/\fR
-usage: ahriman user\-list [\-h] [\-e] [\-r {unauthorized,read,reporter,full}] [username]
+usage: ahriman user\-list [\-h] [\-e] [\-R {unauthorized,read,reporter,full}] [username]
 
 list users from the user mapping and their roles
 
@@ -809,7 +812,7 @@ filter users by username
 return non\-zero exit status if result is empty
 
 .TP
-\fB\-r\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
+\fB\-R\fR \fI\,{unauthorized,read,reporter,full}\/\fR, \fB\-\-role\fR \fI\,{unauthorized,read,reporter,full}\/\fR
 filter users by role
 
 .SH COMMAND \fI\,'ahriman user\-remove'\/\fR

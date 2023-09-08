@@ -59,6 +59,7 @@ _shtab_ahriman_commands() {
     "service-key-import:import PGP key from public sources to the repository user"
     "service-setup:create initial service configuration, requires root"
     "service-shell:drop into python shell"
+    "service-tree-migrate:migrate repository tree between versions"
     "setup:create initial service configuration, requires root"
     "shell:drop into python shell"
     "sign:(re-)sign packages and repository database according to current settings"
@@ -82,8 +83,9 @@ _shtab_ahriman_options=(
   "--force[force run, remove file lock (default\: False)]"
   {-l,--lock}"[lock file (default\: \/tmp\/ahriman.lock)]:lock:"
   "--log-handler[explicit log handler specification. If none set, the handler will be guessed from environment (default\: None)]:log_handler:(console syslog journald)"
-  {--report,--no-report}"[force enable or disable reporting to web service (default\: True)]:report:"
   {-q,--quiet}"[force disable any logging (default\: False)]"
+  {--report,--no-report}"[force enable or disable reporting to web service (default\: True)]:report:"
+  "*"{-r,--repository}"[target repository. For several subcommands it can be used multiple times (default\: None)]:repository:"
   "--unsafe[allow to run ahriman as non-ahriman user. Some actions might be unavailable (default\: False)]"
   "--wait-timeout[wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of zero value, the application will wait infinitely (default\: -1)]:wait_timeout:"
   "(- : *)"{-V,--version}"[show program\'s version number and exit]"
@@ -169,14 +171,12 @@ _shtab_ahriman_help_version_options=(
 _shtab_ahriman_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
-  "--build-command[build command prefix (default\: ahriman)]:build_command:"
   "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
   {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
   {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
   "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
   {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
   "--packager[packager name and email (default\: None)]:packager:"
-  "--repository[repository name (default\: None)]:repository:"
   "--server[server to be used for devtools. If none set, local files will be used (default\: None)]:server:"
   "--sign-key[sign key id (default\: None)]:sign_key:"
   "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
@@ -340,14 +340,12 @@ _shtab_ahriman_repo_daemon_options=(
 _shtab_ahriman_repo_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
-  "--build-command[build command prefix (default\: ahriman)]:build_command:"
   "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
   {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
   {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
   "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
   {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
   "--packager[packager name and email (default\: None)]:packager:"
-  "--repository[repository name (default\: None)]:repository:"
   "--server[server to be used for devtools. If none set, local files will be used (default\: None)]:server:"
   "--sign-key[sign key id (default\: None)]:sign_key:"
   "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
@@ -384,14 +382,12 @@ _shtab_ahriman_repo_restore_options=(
 _shtab_ahriman_repo_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
-  "--build-command[build command prefix (default\: ahriman)]:build_command:"
   "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
   {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
   {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
   "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
   {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
   "--packager[packager name and email (default\: None)]:packager:"
-  "--repository[repository name (default\: None)]:repository:"
   "--server[server to be used for devtools. If none set, local files will be used (default\: None)]:server:"
   "--sign-key[sign key id (default\: None)]:sign_key:"
   "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
@@ -478,14 +474,12 @@ _shtab_ahriman_service_key_import_options=(
 _shtab_ahriman_service_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
-  "--build-command[build command prefix (default\: ahriman)]:build_command:"
   "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
   {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
   {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
   "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
   {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
   "--packager[packager name and email (default\: None)]:packager:"
-  "--repository[repository name (default\: None)]:repository:"
   "--server[server to be used for devtools. If none set, local files will be used (default\: None)]:server:"
   "--sign-key[sign key id (default\: None)]:sign_key:"
   "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
@@ -498,17 +492,19 @@ _shtab_ahriman_service_shell_options=(
   ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
+_shtab_ahriman_service_tree_migrate_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
 _shtab_ahriman_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
-  "--build-command[build command prefix (default\: ahriman)]:build_command:"
   "--from-configuration[path to default devtools pacman configuration (default\: \/usr\/share\/devtools\/pacman.conf.d\/extra.conf)]:from_configuration:"
   {--generate-salt,--no-generate-salt}"[generate salt for user passwords (default\: False)]:generate_salt:"
   {--makeflags-jobs,--no-makeflags-jobs}"[append MAKEFLAGS variable with parallelism set to number of cores (default\: True)]:makeflags_jobs:"
   "--mirror[use the specified explicitly mirror instead of including mirrorlist (default\: None)]:mirror:"
   {--multilib,--no-multilib}"[add or do not multilib repository (default\: True)]:multilib:"
   "--packager[packager name and email (default\: None)]:packager:"
-  "--repository[repository name (default\: None)]:repository:"
   "--server[server to be used for devtools. If none set, local files will be used (default\: None)]:server:"
   "--sign-key[sign key id (default\: None)]:sign_key:"
   "*--sign-target[sign options (default\: None)]:sign_target:(disabled packages repository)"
@@ -565,14 +561,14 @@ _shtab_ahriman_user_add_options=(
   "--key[optional PGP key used by this user. The private key must be imported (default\: None)]:key:"
   "--packager[optional packager id used for build process in form of \`Name Surname \<mail\@example.com\>\` (default\: None)]:packager:"
   {-p,--password}"[user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2 authorization type. (default\: None)]:password:"
-  {-r,--role}"[user access level (default\: UserAccess.Read)]:role:(unauthorized read reporter full)"
+  {-R,--role}"[user access level (default\: UserAccess.Read)]:role:(unauthorized read reporter full)"
   ":username for web service:"
 )
 
 _shtab_ahriman_user_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
-  {-r,--role}"[filter users by role (default\: None)]:role:(unauthorized read reporter full)"
+  {-R,--role}"[filter users by role (default\: None)]:role:(unauthorized read reporter full)"
   ":filter users by username (default\: None):"
 )
 
@@ -658,6 +654,7 @@ _shtab_ahriman() {
         service-key-import) _arguments -C -s $_shtab_ahriman_service_key_import_options ;;
         service-setup) _arguments -C -s $_shtab_ahriman_service_setup_options ;;
         service-shell) _arguments -C -s $_shtab_ahriman_service_shell_options ;;
+        service-tree-migrate) _arguments -C -s $_shtab_ahriman_service_tree_migrate_options ;;
         setup) _arguments -C -s $_shtab_ahriman_setup_options ;;
         shell) _arguments -C -s $_shtab_ahriman_shell_options ;;
         sign) _arguments -C -s $_shtab_ahriman_sign_options ;;

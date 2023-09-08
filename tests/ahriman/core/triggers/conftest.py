@@ -15,7 +15,8 @@ def trigger(configuration: Configuration) -> Trigger:
     Returns:
         Trigger: trigger test instance
     """
-    return Trigger("x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    return Trigger(repository_id, configuration)
 
 
 @pytest.fixture
@@ -28,4 +29,5 @@ def trigger_loader(configuration: Configuration) -> TriggerLoader:
     Returns:
         TriggerLoader: trigger loader test instance
     """
-    return TriggerLoader.load("x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    return TriggerLoader.load(repository_id, configuration)

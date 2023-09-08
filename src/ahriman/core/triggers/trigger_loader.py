@@ -31,6 +31,7 @@ from ahriman.core.exceptions import ExtensionError
 from ahriman.core.log import LazyLogging
 from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -49,7 +50,7 @@ class TriggerLoader(LazyLogging):
 
         Having such configuration you can create instance of the loader::
 
-            >>> loader = TriggerLoader.load("x86_64", configuration)
+            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur-clone"), configuration)
             >>> print(loader.triggers)
 
         After that you are free to run triggers::
@@ -65,12 +66,12 @@ class TriggerLoader(LazyLogging):
         self.triggers: list[Trigger] = []
 
     @classmethod
-    def load(cls, architecture: str, configuration: Configuration) -> Self:
+    def load(cls, repository_id: RepositoryId, configuration: Configuration) -> Self:
         """
         create instance from configuration
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
@@ -78,7 +79,7 @@ class TriggerLoader(LazyLogging):
         """
         instance = cls()
         instance.triggers = [
-            instance.load_trigger(trigger, architecture, configuration)
+            instance.load_trigger(trigger, repository_id, configuration)
             for trigger in instance.selected_triggers(configuration)
         ]
 
@@ -166,13 +167,13 @@ class TriggerLoader(LazyLogging):
         except ModuleNotFoundError:
             raise ExtensionError(f"Module {package} not found") from None
 
-    def load_trigger(self, module_path: str, architecture: str, configuration: Configuration) -> Trigger:
+    def load_trigger(self, module_path: str, repository_id: RepositoryId, configuration: Configuration) -> Trigger:
         """
         load trigger by module path
 
         Args:
             module_path(str): module import path to load
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
@@ -183,7 +184,7 @@ class TriggerLoader(LazyLogging):
         """
         trigger_type = self.load_trigger_class(module_path)
         try:
-            trigger = trigger_type(architecture, configuration)
+            trigger = trigger_type(repository_id, configuration)
         except Exception:
             raise ExtensionError(f"Could not load instance of trigger from {trigger_type} loaded from {module_path}")
 

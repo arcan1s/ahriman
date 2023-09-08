@@ -37,9 +37,10 @@ class Application(ApplicationPackages, ApplicationRepository):
 
             >>> from ahriman.core.configuration import Configuration
             >>> from ahriman.models.package_source import PackageSource
+            >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
-            >>> application = Application("x86_64", configuration, report=True)
+            >>> application = Application(RepositoryId("x86_64", "x86_64"), configuration, report=True)
             >>> # add packages to build queue
             >>> application.add(["ahriman"], PackageSource.AUR)
             >>>

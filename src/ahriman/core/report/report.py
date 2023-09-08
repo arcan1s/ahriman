@@ -24,6 +24,7 @@ from ahriman.core.exceptions import ReportError
 from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
 from ahriman.models.report_settings import ReportSettings
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -32,17 +33,15 @@ class Report(LazyLogging):
     base report generator
 
     Attributes:
-        architecture(str): repository architecture
         configuration(Configuration): configuration instance
+        repository_id(RepositoryId): repository unique identifier
 
     Examples:
         ``Report`` classes provide several method in order to operate with the report generation and additional class
         method ``load`` which can be used in order to determine right report instance::
 
-            >>> from ahriman.core.configuration import Configuration
-            >>>
             >>> configuration = Configuration()
-            >>> report = Report.load("x86_64", configuration, "email")
+            >>> report = Report.load(RepositoryId("x86_64", "aur-clone"), configuration, "email")
 
         The ``generate`` method can be used in order to perform the report itself, whereas ``run`` method handles
         exception and raises ``ReportFailed`` instead::
@@ -55,49 +54,49 @@ class Report(LazyLogging):
             >>> report.run(Result(), [])
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        self.architecture = architecture
+        self.repository_id = repository_id
         self.configuration = configuration
 
     @staticmethod
-    def load(architecture: str, configuration: Configuration, target: str) -> Report:
+    def load(repository_id: RepositoryId, configuration: Configuration, target: str) -> Report:
         """
         load client from settings
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             target(str): target to generate report aka section name (e.g. html)
 
         Returns:
             Report: client according to current settings
         """
-        section, provider_name = configuration.gettype(target, architecture)
+        section, provider_name = configuration.gettype(target, repository_id)
         match ReportSettings.from_option(provider_name):
             case ReportSettings.HTML:
                 from ahriman.core.report.html import HTML
-                return HTML(architecture, configuration, section)
+                return HTML(repository_id, configuration, section)
             case ReportSettings.Email:
                 from ahriman.core.report.email import Email
-                return Email(architecture, configuration, section)
+                return Email(repository_id, configuration, section)
             case ReportSettings.Console:
                 from ahriman.core.report.console import Console
-                return Console(architecture, configuration, section)
+                return Console(repository_id, configuration, section)
             case ReportSettings.Telegram:
                 from ahriman.core.report.telegram import Telegram
-                return Telegram(architecture, configuration, section)
+                return Telegram(repository_id, configuration, section)
             case ReportSettings.RemoteCall:
                 from ahriman.core.report.remote_call import RemoteCall
-                return RemoteCall(architecture, configuration, section)
+                return RemoteCall(repository_id, configuration, section)
             case _:
-                return Report(architecture, configuration)  # should never happen
+                return Report(repository_id, configuration)  # should never happen
 
     def generate(self, packages: list[Package], result: Result) -> None:
         """

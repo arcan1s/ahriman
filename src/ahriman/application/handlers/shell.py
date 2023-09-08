@@ -26,6 +26,7 @@ from pathlib import Path
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
+from ahriman.models.repository_id import RepositoryId
 
 
 class Shell(Handler):
@@ -33,16 +34,17 @@ class Shell(Handler):
     python shell handler
     """
 
-    ALLOW_MULTI_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
@@ -50,7 +52,13 @@ class Shell(Handler):
             # licensed by https://creativecommons.org/licenses/by-sa/3.0
             path = Path(sys.prefix) / "share" / "ahriman" / "templates" / "shell"
             StringPrinter(path.read_text(encoding="utf8")).print(verbose=False)
-        local_variables = {"architecture": architecture, "configuration": configuration}
+
+        local_variables = {
+            "architecture": repository_id.architecture,
+            "configuration": configuration,
+            "repository_id": repository_id,
+        }
+
         if args.code is None:
             code.interact(local=local_variables)
         else:

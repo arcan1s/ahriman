@@ -18,74 +18,87 @@ def test_init_packagers(database: SQLite, gpg: GPG, configuration: Configuration
     must extract packagers keys
     """
     mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[user])
+    _, repository_id = configuration.check_loaded()
 
-    assert KeyringGenerator(database, gpg, configuration, "keyring").packagers == ["key"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").packagers == ["key"]
 
     configuration.set_option("keyring", "packagers", "key1")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").packagers == ["key1"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").packagers == ["key1"]
 
 
 def test_init_revoked(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must extract revoked keys
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").revoked == []
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").revoked == []
 
     configuration.set_option("keyring", "revoked", "key1")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").revoked == ["key1"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").revoked == ["key1"]
 
 
 def test_init_trusted(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must extract trusted keys
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").trusted == []
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").trusted == []
 
     gpg.default_key = "key"
-    assert KeyringGenerator(database, gpg, configuration, "keyring").trusted == ["key"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").trusted == ["key"]
 
     configuration.set_option("keyring", "trusted", "key1")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").trusted == ["key1"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").trusted == ["key1"]
 
 
 def test_license(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must generate correct licenses list
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").license == ["Unlicense"]
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").license == ["Unlicense"]
 
     configuration.set_option("keyring", "license", "GPL MPL")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").license == ["GPL", "MPL"]
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").license == ["GPL", "MPL"]
 
 
 def test_pkgdesc(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must generate correct pkgdesc property
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").pkgdesc == "aur-clone PGP keyring"
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgdesc == "aur-clone PGP keyring"
 
     configuration.set_option("keyring", "description", "description")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").pkgdesc == "description"
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgdesc == "description"
 
 
 def test_pkgname(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must generate correct pkgname property
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").pkgname == "aur-clone-keyring"
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgname == "aur-clone-keyring"
 
     configuration.set_option("keyring", "package", "keyring")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").pkgname == "keyring"
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgname == "keyring"
 
 
 def test_url(database: SQLite, gpg: GPG, configuration: Configuration) -> None:
     """
     must generate correct url property
     """
-    assert KeyringGenerator(database, gpg, configuration, "keyring").url == ""
+    _, repository_id = configuration.check_loaded()
+
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").url == ""
 
     configuration.set_option("keyring", "homepage", "homepage")
-    assert KeyringGenerator(database, gpg, configuration, "keyring").url == "homepage"
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").url == "homepage"
 
 
 def test_generate_gpg(keyring_generator: KeyringGenerator, mocker: MockerFixture) -> None:

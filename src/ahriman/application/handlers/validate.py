@@ -29,6 +29,7 @@ from ahriman.core.configuration.validator import Validator
 from ahriman.core.exceptions import ExtensionError
 from ahriman.core.formatters import ValidationPrinter
 from ahriman.core.triggers import TriggerLoader
+from ahriman.models.repository_id import RepositoryId
 
 
 class Validate(Handler):
@@ -36,20 +37,21 @@ class Validate(Handler):
     configuration validator handler
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        schema = Validate.schema(architecture, configuration)
+        schema = Validate.schema(repository_id, configuration)
         validator = Validator(configuration=configuration, schema=schema)
 
         if validator.validate(configuration.dump()):
@@ -61,12 +63,12 @@ class Validate(Handler):
         Validate.check_if_empty(args.exit_code, True)
 
     @staticmethod
-    def schema(architecture: str, configuration: Configuration) -> ConfigurationSchema:
+    def schema(repository_id: RepositoryId, configuration: Configuration) -> ConfigurationSchema:
         """
         get schema with triggers
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
@@ -85,12 +87,12 @@ class Validate(Handler):
                 continue
 
             # default settings if any
-            for schema_name, schema in trigger_class.configuration_schema(architecture, None).items():
+            for schema_name, schema in trigger_class.configuration_schema(repository_id, None).items():
                 erased = Validate.schema_erase_required(copy.deepcopy(schema))
                 root[schema_name] = Validate.schema_merge(root.get(schema_name, {}), erased)
 
             # settings according to enabled triggers
-            for schema_name, schema in trigger_class.configuration_schema(architecture, configuration).items():
+            for schema_name, schema in trigger_class.configuration_schema(repository_id, configuration).items():
                 root[schema_name] = Validate.schema_merge(root.get(schema_name, {}), copy.deepcopy(schema))
 
         return root

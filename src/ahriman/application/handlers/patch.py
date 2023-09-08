@@ -30,6 +30,7 @@ from ahriman.core.formatters import PatchPrinter
 from ahriman.models.action import Action
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_id import RepositoryId
 
 
 class Patch(Handler):
@@ -37,18 +38,21 @@ class Patch(Handler):
     patch control handler
     """
 
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
+
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
         application.on_start()
 
         match args.action:
@@ -56,7 +60,7 @@ class Patch(Handler):
                 patch = Patch.patch_create_from_function(args.variable, args.patch)
                 Patch.patch_set_create(application, args.package, patch)
             case Action.Update:
-                package_base, patch = Patch.patch_create_from_diff(args.package, architecture, args.track)
+                package_base, patch = Patch.patch_create_from_diff(args.package, repository_id.architecture, args.track)
                 Patch.patch_set_create(application, package_base, patch)
             case Action.List:
                 Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
@@ -114,7 +118,7 @@ class Patch(Handler):
         application.database.patches_insert(package_base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: str | None, variables: list[str],
+    def patch_set_list(application: Application, package_base: str | None, variables: list[str] | None,
                        exit_code: bool) -> None:
         """
         list patches available for the package base
@@ -122,7 +126,7 @@ class Patch(Handler):
         Args:
             application(Application): application instance
             package_base(str | None): package base
-            variables(list[str]): extract patches only for specified PKGBUILD variables
+            variables(list[str] | None): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
         """
         patches = application.database.patches_list(package_base, variables)
@@ -132,13 +136,13 @@ class Patch(Handler):
             PatchPrinter(base, patch).print(verbose=True, separator=" = ")
 
     @staticmethod
-    def patch_set_remove(application: Application, package_base: str, variables: list[str]) -> None:
+    def patch_set_remove(application: Application, package_base: str, variables: list[str] | None) -> None:
         """
         remove patch set for the package base
 
         Args:
             application(Application): application instance
             package_base(str): package base
-            variables(list[str]): remove patches only for specified PKGBUILD variables
+            variables(list[str] | None): remove patches only for specified PKGBUILD variables
         """
         application.database.patches_remove(package_base, variables)

@@ -71,7 +71,18 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
         paths(RepositoryPaths): repository paths instance
     """
     from ahriman.core.alpm.remote import AUR
-    from ahriman.core.database.operations import PackageOperations
+    from ahriman.models.package import Package
+
+    def get_packages() -> dict[str, Package]:
+        return {
+            row["package_base"]: Package(
+                base=row["package_base"],
+                version=row["version"],
+                remote=RemoteSource.from_json(row),
+                packages={},
+                packager=row.get("packager") or None,
+            ) for row in connection.execute("""select * from package_bases""")
+        }
 
     def insert_remote(base: str, remote: RemoteSource) -> None:
         connection.execute(
@@ -88,8 +99,7 @@ def migrate_package_remotes(connection: Connection, paths: RepositoryPaths) -> N
             }
         )
 
-    packages = PackageOperations._packages_get_select_package_bases(connection)
-    for package_base, package in packages.items():
+    for package_base, package in get_packages().items():
         local_cache = paths.cache_for(package_base)
         if local_cache.exists() and not package.is_vcs:
             continue  # skip packages which are not VCS and with local cache

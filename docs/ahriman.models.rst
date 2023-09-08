@@ -164,6 +164,14 @@ ahriman.models.report\_settings module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.repository\_id module
+------------------------------------
+
+.. automodule:: ahriman.models.repository_id
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.repository\_paths module
 ---------------------------------------
 

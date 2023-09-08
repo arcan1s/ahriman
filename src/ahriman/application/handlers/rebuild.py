@@ -24,6 +24,7 @@ from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class Rebuild(Handler):
@@ -32,21 +33,22 @@ class Rebuild(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
         application.on_start()
 
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
-        updates = application.repository.packages_depend_on(packages, args.depends_on or None)
+        updates = application.repository.packages_depend_on(packages, args.depends_on)
 
         Rebuild.check_if_empty(args.exit_code, not updates)
         if args.dry_run:

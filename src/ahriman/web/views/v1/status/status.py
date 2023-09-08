@@ -65,9 +65,9 @@ class StatusView(BaseView):
         counters = Counters.from_packages(self.service.packages)
         status = InternalStatus(
             status=self.service.status,
-            architecture=self.service.architecture,
+            architecture=self.service.repository_id.architecture,
             packages=counters,
-            repository=self.service.repository.name,
+            repository=self.service.repository_id.name,
             version=__version__,
         )
 

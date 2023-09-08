@@ -20,7 +20,8 @@ def keyring_generator(database: SQLite, gpg: GPG, configuration: Configuration) 
     Returns:
         KeyringGenerator: keyring generator test instance
     """
-    return KeyringGenerator(database, gpg, configuration, "keyring")
+    _, repository_id = configuration.check_loaded()
+    return KeyringGenerator(database, gpg, repository_id, configuration, "keyring")
 
 
 @pytest.fixture

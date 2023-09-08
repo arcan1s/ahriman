@@ -36,7 +36,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     update_self_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
 
-    StatusUpdate.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    StatusUpdate.run(args, repository_id, configuration, report=False)
     update_self_mock.assert_called_once_with(args.status)
 
 
@@ -50,7 +51,8 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, re
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     update_mock = mocker.patch("ahriman.core.status.client.Client.package_update")
 
-    StatusUpdate.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    StatusUpdate.run(args, repository_id, configuration, report=False)
     update_mock.assert_called_once_with(package_ahriman.base, args.status)
 
 
@@ -65,7 +67,8 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     update_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
-    StatusUpdate.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    StatusUpdate.run(args, repository_id, configuration, report=False)
     update_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -78,12 +81,13 @@ def test_imply_with_report(args: argparse.Namespace, configuration: Configuratio
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     load_mock = mocker.patch("ahriman.core.repository.Repository.load")
 
-    StatusUpdate.run(args, "x86_64", configuration, report=False)
-    load_mock.assert_called_once_with("x86_64", configuration, database, report=True, refresh_pacman_database=0)
+    _, repository_id = configuration.check_loaded()
+    StatusUpdate.run(args, repository_id, configuration, report=False)
+    load_mock.assert_called_once_with(repository_id, configuration, database, report=True, refresh_pacman_database=0)
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not StatusUpdate.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not StatusUpdate.ALLOW_MULTI_ARCHITECTURE_RUN

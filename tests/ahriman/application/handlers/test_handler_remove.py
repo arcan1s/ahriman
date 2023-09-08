@@ -31,6 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock = mocker.patch("ahriman.application.application.Application.remove")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
-    Remove.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Remove.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with([])
     on_start_mock.assert_called_once_with()

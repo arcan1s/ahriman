@@ -9,50 +9,62 @@ def test_init_path(configuration: Configuration) -> None:
     """
     must set relative path to mirrorlist
     """
-    assert MirrorlistGenerator(configuration, "mirrorlist").path == Path("etc") / "pacman.d" / "aur-clone-mirrorlist"
+    _, repository_id = configuration.check_loaded()
+
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").path == \
+        Path("etc") / "pacman.d" / "aur-clone-mirrorlist"
 
     configuration.set_option("mirrorlist", "path", "/etc")
-    assert MirrorlistGenerator(configuration, "mirrorlist").path == Path("etc")
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").path == Path("etc")
 
 
 def test_license(configuration: Configuration) -> None:
     """
     must generate correct licenses list
     """
-    assert MirrorlistGenerator(configuration, "mirrorlist").license == ["Unlicense"]
+    _, repository_id = configuration.check_loaded()
+
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").license == ["Unlicense"]
 
     configuration.set_option("mirrorlist", "license", "GPL MPL")
-    assert MirrorlistGenerator(configuration, "mirrorlist").license == ["GPL", "MPL"]
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").license == ["GPL", "MPL"]
 
 
 def test_pkgdesc(configuration: Configuration) -> None:
     """
     must generate correct pkgdesc property
     """
-    assert MirrorlistGenerator(configuration, "mirrorlist").pkgdesc == "aur-clone mirror list for use by pacman"
+    _, repository_id = configuration.check_loaded()
+
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgdesc == \
+        "aur-clone mirror list for use by pacman"
 
     configuration.set_option("mirrorlist", "description", "description")
-    assert MirrorlistGenerator(configuration, "mirrorlist").pkgdesc == "description"
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgdesc == "description"
 
 
 def test_pkgname(configuration: Configuration) -> None:
     """
     must generate correct pkgname property
     """
-    assert MirrorlistGenerator(configuration, "mirrorlist").pkgname == "aur-clone-mirrorlist"
+    _, repository_id = configuration.check_loaded()
+
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgname == "aur-clone-mirrorlist"
 
     configuration.set_option("mirrorlist", "package", "mirrorlist")
-    assert MirrorlistGenerator(configuration, "mirrorlist").pkgname == "mirrorlist"
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgname == "mirrorlist"
 
 
 def test_url(configuration: Configuration) -> None:
     """
     must generate correct url property
     """
-    assert MirrorlistGenerator(configuration, "mirrorlist").url == ""
+    _, repository_id = configuration.check_loaded()
+
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").url == ""
 
     configuration.set_option("mirrorlist", "homepage", "homepage")
-    assert MirrorlistGenerator(configuration, "mirrorlist").url == "homepage"
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").url == "homepage"
 
 
 def test_generate_mirrorlist(mirrorlist_generator: MirrorlistGenerator, mocker: MockerFixture) -> None:

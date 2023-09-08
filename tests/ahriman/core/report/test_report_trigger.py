@@ -22,7 +22,8 @@ def test_on_result(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     configuration.set_option("report", "target", "email")
     run_mock = mocker.patch("ahriman.core.report.report.Report.run")
+    _, repository_id = configuration.check_loaded()
 
-    trigger = ReportTrigger("x86_64", configuration)
+    trigger = ReportTrigger(repository_id, configuration)
     trigger.on_result(Result(), [])
     run_mock.assert_called_once_with(Result(), [])

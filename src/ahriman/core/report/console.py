@@ -21,6 +21,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import BuildPrinter
 from ahriman.core.report.report import Report
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -32,16 +33,16 @@ class Console(Report):
         use_utf(bool): print utf8 symbols instead of ASCII
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Report.__init__(self, architecture, configuration)
+        Report.__init__(self, repository_id, configuration)
         self.use_utf = configuration.getboolean(section, "use_utf", fallback=True)
 
     def generate(self, packages: list[Package], result: Result) -> None:

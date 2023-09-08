@@ -31,6 +31,7 @@ from ahriman.core.exceptions import InitializeError
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec import setup_apispec
 from ahriman.web.cors import setup_cors
 from ahriman.web.middlewares.exception_handler import exception_handler
@@ -120,12 +121,12 @@ def run_server(application: Application) -> None:
             access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 
-def setup_service(architecture: str, configuration: Configuration, spawner: Spawn) -> Application:
+def setup_service(repository_id: RepositoryId, configuration: Configuration, spawner: Spawn) -> Application:
     """
     create web application
 
     Args:
-        architecture(str): repository architecture
+        repository_id(RepositoryId): repository unique identifier
         configuration(Configuration): configuration instance
         spawner(Spawn): spawner thread
 
@@ -155,7 +156,7 @@ def setup_service(architecture: str, configuration: Configuration, spawner: Spaw
     database = application["database"] = SQLite.load(configuration)
 
     application.logger.info("setup watcher")
-    application["watcher"] = Watcher(architecture, configuration, database)
+    application["watcher"] = Watcher(repository_id, configuration, database)
 
     application.logger.info("setup process spawner")
     application["spawn"] = spawner

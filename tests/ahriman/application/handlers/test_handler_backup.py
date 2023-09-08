@@ -33,7 +33,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     add_mock = tarfile.__enter__.return_value = MagicMock()
     mocker.patch("tarfile.TarFile.__new__", return_value=tarfile)
 
-    Backup.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Backup.run(args, repository_id, configuration, report=False)
     add_mock.add.assert_called_once_with(Path("path"))
 
 
@@ -55,8 +56,8 @@ def test_get_paths(configuration: Configuration, mocker: MockerFixture) -> None:
     assert all(path.exists() for path in paths if path.name not in (".gnupg", "cache"))
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Backup.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Backup.ALLOW_MULTI_ARCHITECTURE_RUN

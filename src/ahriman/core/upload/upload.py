@@ -25,6 +25,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import SynchronizationError
 from ahriman.core.log import LazyLogging
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.upload_settings import UploadSettings
 
 
@@ -33,18 +34,16 @@ class Upload(LazyLogging):
     base remote sync class
 
     Attributes:
-        architecture(str): repository architecture
         configuration(Configuration): configuration instance
+        repository_id(RepositoryId): repository unique identifier
 
     Examples:
         These classes provide the way to upload packages to remote sources as it is described in their implementations.
         Basic flow includes class instantiating by using the ``load`` method and then calling the ``run`` method which
         wraps any internal exceptions into the ``SyncFailed`` exception::
 
-            >>> from ahriman.core.configuration import Configuration
-            >>>
             >>> configuration = Configuration()
-            >>> upload = Upload.load("x86_64", configuration, "s3")
+            >>> upload = Upload.load(RepositoryId("x86_64", "aur-clone"), configuration, "s3")
             >>> upload.run(configuration.repository_paths.repository, [])
 
         Or in case if direct access to exception is required, the ``sync`` method can be used::
@@ -55,46 +54,46 @@ class Upload(LazyLogging):
             >>>     handle_exceptions(ex)
     """
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        self.architecture = architecture
+        self.repository_id = repository_id
         self.configuration = configuration
 
     @staticmethod
-    def load(architecture: str, configuration: Configuration, target: str) -> Upload:
+    def load(repository_id: RepositoryId, configuration: Configuration, target: str) -> Upload:
         """
         load client from settings
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             target(str): target to run sync (e.g. s3)
 
         Returns:
             Upload: client according to current settings
         """
-        section, provider_name = configuration.gettype(target, architecture)
+        section, provider_name = configuration.gettype(target, repository_id)
         match UploadSettings.from_option(provider_name):
             case UploadSettings.Rsync:
                 from ahriman.core.upload.rsync import Rsync
-                return Rsync(architecture, configuration, section)
+                return Rsync(repository_id, configuration, section)
             case UploadSettings.S3:
                 from ahriman.core.upload.s3 import S3
-                return S3(architecture, configuration, section)
+                return S3(repository_id, configuration, section)
             case UploadSettings.GitHub:
-                from ahriman.core.upload.github import Github
-                return Github(architecture, configuration, section)
+                from ahriman.core.upload.github import GitHub
+                return GitHub(repository_id, configuration, section)
             case UploadSettings.RemoteService:
                 from ahriman.core.upload.remote_service import RemoteService
-                return RemoteService(architecture, configuration, section)
+                return RemoteService(repository_id, configuration, section)
             case _:
-                return Upload(architecture, configuration)  # should never happen
+                return Upload(repository_id, configuration)  # should never happen
 
     def run(self, path: Path, built_packages: list[Package]) -> None:
         """

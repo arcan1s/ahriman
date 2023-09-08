@@ -22,7 +22,7 @@ def test_patches_list(database: SQLite, package_ahriman: Package, package_python
     database.patches_insert(package_ahriman.base, PkgbuildPatch(None, "patch1"))
     database.patches_insert(package_ahriman.base, PkgbuildPatch("key", "patch3"))
     database.patches_insert(package_python_schedule.base, PkgbuildPatch(None, "patch2"))
-    assert database.patches_list(None, []) == {
+    assert database.patches_list(None, None) == {
         package_ahriman.base: [PkgbuildPatch(None, "patch1"), PkgbuildPatch("key", "patch3")],
         package_python_schedule.base: [PkgbuildPatch(None, "patch2")],
     }
@@ -35,8 +35,8 @@ def test_patches_list_filter(database: SQLite, package_ahriman: Package, package
     database.patches_insert(package_ahriman.base, PkgbuildPatch(None, "patch1"))
     database.patches_insert(package_python_schedule.base, PkgbuildPatch(None, "patch2"))
 
-    assert database.patches_list(package_ahriman.base, []) == {package_ahriman.base: [PkgbuildPatch(None, "patch1")]}
-    assert database.patches_list(package_python_schedule.base, []) == {
+    assert database.patches_list(package_ahriman.base, None) == {package_ahriman.base: [PkgbuildPatch(None, "patch1")]}
+    assert database.patches_list(package_python_schedule.base, None) == {
         package_python_schedule.base: [PkgbuildPatch(None, "patch2")],
     }
 
@@ -50,7 +50,7 @@ def test_patches_list_filter_by_variable(database: SQLite, package_ahriman: Pack
     database.patches_insert(package_ahriman.base, PkgbuildPatch("key", "patch2"))
     database.patches_insert(package_python_schedule.base, PkgbuildPatch(None, "patch3"))
 
-    assert database.patches_list(None, []) == {
+    assert database.patches_list(None, None) == {
         package_ahriman.base: [PkgbuildPatch(None, "patch1"), PkgbuildPatch("key", "patch2")],
         package_python_schedule.base: [PkgbuildPatch(None, "patch3")],
     }
@@ -65,7 +65,7 @@ def test_patches_insert_remove(database: SQLite, package_ahriman: Package, packa
     """
     database.patches_insert(package_ahriman.base, PkgbuildPatch(None, "patch1"))
     database.patches_insert(package_python_schedule.base, PkgbuildPatch(None, "patch2"))
-    database.patches_remove(package_ahriman.base, [])
+    database.patches_remove(package_ahriman.base, None)
 
     assert database.patches_get(package_ahriman.base) == []
     assert database.patches_get(package_python_schedule.base) == [PkgbuildPatch(None, "patch2")]
