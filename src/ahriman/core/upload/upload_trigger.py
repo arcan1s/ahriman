@@ -40,7 +40,10 @@ class UploadTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -54,13 +57,16 @@ class UploadTrigger(Trigger):
                 "owner": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "password": {
                     "type": "string",
+                    "empty": False,
                 },
                 "repository": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "timeout": {
                     "type": "integer",
@@ -73,6 +79,7 @@ class UploadTrigger(Trigger):
                 },
                 "username": {
                     "type": "string",
+                    "empty": False,
                 },
             },
         },
@@ -86,13 +93,17 @@ class UploadTrigger(Trigger):
                 "command": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                     "required": True,
                     "empty": False,
                 },
                 "remote": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
             },
         },
@@ -120,10 +131,12 @@ class UploadTrigger(Trigger):
                 "access_key": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "bucket": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "chunk_size": {
                     "type": "integer",
@@ -132,14 +145,17 @@ class UploadTrigger(Trigger):
                 },
                 "object_path": {
                     "type": "string",
+                    "empty": False,
                 },
                 "region": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "secret_key": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
             },
         },

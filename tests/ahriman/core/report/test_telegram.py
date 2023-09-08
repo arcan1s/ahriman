@@ -10,6 +10,20 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_template(configuration: Configuration) -> None:
+    """
+    must correctly parse template name and path
+    """
+    template = configuration.get("telegram", "template")
+    root, repository_id = configuration.check_loaded()
+
+    assert Telegram(repository_id, configuration, "telegram").template == template
+
+    configuration.remove_option("telegram", "template")
+    configuration.set_option("telegram", "template_path", template)
+    assert Telegram(repository_id, configuration, "telegram").template == root.parent / template
+
+
 def test_send(telegram: Telegram, mocker: MockerFixture) -> None:
     """
     must send a message

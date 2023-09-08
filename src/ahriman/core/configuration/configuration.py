@@ -82,6 +82,7 @@ class Configuration(configparser.RawConfigParser):
             converters={
                 "list": shlex.split,
                 "path": self._convert_path,
+                "pathlist": lambda value: [self._convert_path(element) for element in shlex.split(value)],
             }
         )
 
@@ -240,6 +241,8 @@ class Configuration(configparser.RawConfigParser):
     def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore[empty-body]
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore[empty-body]
+
+    def getpathlist(self, *args: Any, **kwargs: Any) -> list[Path]: ...  # type: ignore[empty-body]
 
     def gettype(self, section: str, repository_id: RepositoryId, *, fallback: str | None = None) -> tuple[str, str]:
         """

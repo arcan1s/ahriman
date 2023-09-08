@@ -57,11 +57,12 @@ class JinjaTemplate:
         * repository - repository name, string, required
 
     Attributes:
+        default_pgp_key(str | None): default PGP key
         homepage(str | None): homepage link if any (for footer)
         link_path(str): prefix fo packages to download
         name(str): repository name
-        default_pgp_key(str | None): default PGP key
         sign_targets(set[SignSettings]): targets to sign enabled in configuration
+        templates(list[Path]): list of directories with templates
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
@@ -73,26 +74,31 @@ class JinjaTemplate:
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        self.link_path = configuration.get(section, "link_path")
+        self.templates = configuration.getpathlist(section, "templates", fallback=[])
 
         # base template vars
         self.homepage = configuration.get(section, "homepage", fallback=None)
+        self.link_path = configuration.get(section, "link_path")
         self.name = repository_id.name
-
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 
-    def make_html(self, result: Result, template_path: Path) -> str:
+    def make_html(self, result: Result, template_name: Path | str) -> str:
         """
         generate report for the specified packages
 
         Args:
             result(Result): build result
-            template_path(Path): path to jinja template
+            template_name(Path | str): name of the template or path to it (legacy configuration)
         """
+        templates = self.templates[:]
+        if isinstance(template_name, Path):
+            templates.append(template_name.parent)
+            template_name = template_name.name
+
         # idea comes from https://stackoverflow.com/a/38642558
-        loader = jinja2.FileSystemLoader(searchpath=template_path.parent)
-        environment = jinja2.Environment(loader=loader, autoescape=True)
-        template = environment.get_template(template_path.name)
+        loader = jinja2.FileSystemLoader(searchpath=templates)
+        environment = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, autoescape=True, loader=loader)
+        template = environment.get_template(template_name)
 
         content = [
             {

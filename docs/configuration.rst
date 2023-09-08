@@ -118,7 +118,7 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
 * ``port`` - port to bind, int, optional.
 * ``static_path`` - path to directory with static files, string, required.
-* ``templates`` - path to templates directory, string, required.
+* ``templates`` - path to templates directories, space separated list of strings, required.
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
@@ -231,7 +231,6 @@ Section name must be either ``console`` (plus optional architecture name, e.g. `
 Section name must be either ``email`` (plus optional architecture name, e.g. ``email:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the report, string, optional, must be set to ``email`` if exists.
-* ``full_template_path`` - path to Jinja2 template for full package description index, string, optional.
 * ``homepage`` - link to homepage, string, optional.
 * ``host`` - SMTP host for sending emails, string, required.
 * ``link_path`` - prefix for HTML links, string, required.
@@ -241,7 +240,9 @@ Section name must be either ``email`` (plus optional architecture name, e.g. ``e
 * ``receivers`` - SMTP receiver addresses, space separated list of strings, required.
 * ``sender`` - SMTP sender address, string, required.
 * ``ssl`` - SSL mode for SMTP connection, one of ``ssl``, ``starttls``, ``disabled``, optional, default ``disabled``.
-* ``template_path`` - path to Jinja2 template, string, required.
+* ``template`` - Jinja2 template name, string, required.
+* ``template_full`` - Jinja2 template name for full package description index, string, optional.
+* ``templates`` - path to templates directories, space separated list of strings, required.
 * ``user`` - SMTP user to authenticate, string, optional.
 
 ``html`` type
@@ -253,7 +254,8 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``homepage`` - link to homepage, string, optional.
 * ``link_path`` - prefix for HTML links, string, required.
 * ``path`` - path to html report file, string, required.
-* ``template_path`` - path to Jinja2 template, string, required.
+* ``template`` - Jinja2 template name, string, required.
+* ``templates`` - path to templates directories, space separated list of strings, required.
 
 ``remote-call`` type
 ^^^^^^^^^^^^^^^^^^^^
@@ -276,8 +278,9 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``chat_id`` - telegram chat id, either string with ``@`` or integer value, required.
 * ``homepage`` - link to homepage, string, optional.
 * ``link_path`` - prefix for HTML links, string, required.
-* ``template_path`` - path to Jinja2 template, string, required.
+* ``template`` - Jinja2 template name, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
+* ``templates`` - path to templates directories, space separated list of strings, required.
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
 
 ``upload`` group

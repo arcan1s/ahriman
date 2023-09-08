@@ -40,7 +40,10 @@ class ReportTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -67,19 +70,25 @@ class ReportTrigger(Trigger):
                 "full_template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template_full"],
+                    "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "host": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
                 },
                 "no_empty_report": {
@@ -88,6 +97,7 @@ class ReportTrigger(Trigger):
                 },
                 "password": {
                     "type": "string",
+                    "empty": False,
                 },
                 "port": {
                     "type": "integer",
@@ -99,26 +109,58 @@ class ReportTrigger(Trigger):
                 "receivers": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                     "required": True,
                     "empty": False,
                 },
                 "sender": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "ssl": {
                     "type": "string",
                     "allowed": ["ssl", "starttls", "disabled"],
                 },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
+                "template_full": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                        "path_type": "dir",
+                    },
+                    "empty": False,
                 },
                 "user": {
                     "type": "string",
+                    "empty": False,
                 },
             },
         },
@@ -131,11 +173,13 @@ class ReportTrigger(Trigger):
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
                 },
                 "path": {
@@ -143,11 +187,31 @@ class ReportTrigger(Trigger):
                     "coerce": "absolute_path",
                     "required": True,
                 },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                        "path_type": "dir",
+                    },
+                    "empty": False,
                 },
             },
         },
@@ -161,29 +225,53 @@ class ReportTrigger(Trigger):
                 "api_key": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "chat_id": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
+                },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
                 },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "template_type": {
                     "type": "string",
                     "allowed": ["MarkdownV2", "HTML", "Markdown"],
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                        "path_type": "dir",
+                    },
+                    "empty": False,
                 },
                 "timeout": {
                     "type": "integer",

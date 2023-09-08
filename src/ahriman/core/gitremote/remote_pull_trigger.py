@@ -38,7 +38,10 @@ class RemotePullTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -48,9 +51,11 @@ class RemotePullTrigger(Trigger):
                 "pull_url": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "pull_branch": {
                     "type": "string",
+                    "empty": False,
                 },
             },
         },
