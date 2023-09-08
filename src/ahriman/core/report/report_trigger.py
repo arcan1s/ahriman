@@ -40,7 +40,10 @@ class ReportTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -70,18 +73,22 @@ class ReportTrigger(Trigger):
                     "excludes": ["template_full"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "host": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
                 },
                 "no_empty_report": {
@@ -90,6 +97,7 @@ class ReportTrigger(Trigger):
                 },
                 "password": {
                     "type": "string",
+                    "empty": False,
                 },
                 "port": {
                     "type": "integer",
@@ -101,13 +109,17 @@ class ReportTrigger(Trigger):
                 "receivers": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                     "required": True,
                     "empty": False,
                 },
                 "sender": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "ssl": {
                     "type": "string",
@@ -133,6 +145,7 @@ class ReportTrigger(Trigger):
                     "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "templates": {
                     "type": "list",
@@ -141,10 +154,13 @@ class ReportTrigger(Trigger):
                         "type": "path",
                         "coerce": "absolute_path",
                         "path_exists": True,
+                        "path_type": "dir",
                     },
+                    "empty": False,
                 },
                 "user": {
                     "type": "string",
+                    "empty": False,
                 },
             },
         },
@@ -157,11 +173,13 @@ class ReportTrigger(Trigger):
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
                 },
                 "path": {
@@ -182,6 +200,7 @@ class ReportTrigger(Trigger):
                     "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "templates": {
                     "type": "list",
@@ -190,7 +209,9 @@ class ReportTrigger(Trigger):
                         "type": "path",
                         "coerce": "absolute_path",
                         "path_exists": True,
+                        "path_type": "dir",
                     },
+                    "empty": False,
                 },
             },
         },
@@ -204,18 +225,22 @@ class ReportTrigger(Trigger):
                 "api_key": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "chat_id": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                     "is_url": ["http", "https"],
                 },
                 "link_path": {
                     "type": "string",
                     "required": True,
+                    "empty": False,
                     "is_url": [],
                 },
                 "template": {
@@ -231,6 +256,7 @@ class ReportTrigger(Trigger):
                     "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                    "path_type": "file",
                 },
                 "template_type": {
                     "type": "string",
@@ -243,7 +269,9 @@ class ReportTrigger(Trigger):
                         "type": "path",
                         "coerce": "absolute_path",
                         "path_exists": True,
+                        "path_type": "dir",
                     },
+                    "empty": False,
                 },
                 "timeout": {
                     "type": "integer",

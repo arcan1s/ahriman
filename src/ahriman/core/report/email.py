@@ -120,6 +120,6 @@ class Email(Report, JinjaTemplate):
         text = self.make_html(result, self.template)
         attachments = {}
         if self.template_full is not None:
-            attachments = {"index.html": self.make_html(Result(success=packages), self.template_full)}
+            attachments["index.html"] = self.make_html(Result(success=packages), self.template_full)
 
         self._send(text, attachments)

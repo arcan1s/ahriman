@@ -76,12 +76,10 @@ class JinjaTemplate:
         """
         self.templates = configuration.getpathlist(section, "templates", fallback=[])
 
-        self.link_path = configuration.get(section, "link_path")
-
         # base template vars
         self.homepage = configuration.get(section, "homepage", fallback=None)
+        self.link_path = configuration.get(section, "link_path")
         self.name = repository_id.name
-
         self.sign_targets, self.default_pgp_key = GPG.sign_options(configuration)
 
     def make_html(self, result: Result, template_name: Path | str) -> str:
@@ -99,7 +97,7 @@ class JinjaTemplate:
 
         # idea comes from https://stackoverflow.com/a/38642558
         loader = jinja2.FileSystemLoader(searchpath=templates)
-        environment = jinja2.Environment(loader=loader, autoescape=True)
+        environment = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, autoescape=True, loader=loader)
         template = environment.get_template(template_name)
 
         content = [

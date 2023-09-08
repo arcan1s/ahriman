@@ -44,12 +44,14 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "absolute_path",
                 "required": True,
                 "path_exists": True,
+                "path_type": "dir",
             },
             "logging": {
                 "type": "path",
                 "coerce": "absolute_path",
                 "required": True,
                 "path_exists": True,
+                "path_type": "file",
             },
             "suppress_http_log_errors": {
                 "type": "boolean",
@@ -68,12 +70,16 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "mirror": {
                 "type": "string",
                 "required": True,
+                "empty": False,
                 "is_url": [],
             },
             "repositories": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
                 "required": True,
                 "empty": False,
             },
@@ -82,6 +88,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "absolute_path",
                 "required": True,
                 "path_exists": True,
+                "path_type": "dir",
             },
             "use_ahriman_cache": {
                 "type": "boolean",
@@ -113,9 +120,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "client_id": {
                 "type": "string",
+                "empty": False,
             },
             "client_secret": {
                 "type": "string",
+                "empty": False,
             },
             "cookie_secret_key": {
                 "type": "string",
@@ -129,9 +138,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "oauth_provider": {
                 "type": "string",
+                "empty": False,
             },
             "oauth_scopes": {
                 "type": "string",
+                "empty": False,
             },
             "salt": {
                 "type": "string",
@@ -144,36 +155,55 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "archbuild_flags": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "build_command": {
                 "type": "string",
                 "required": True,
+                "empty": False,
             },
             "ignore_packages": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "makepkg_flags": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "makechrootpkg_flags": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "triggers": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "triggers_known": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "vcs_allowed_age": {
                 "type": "integer",
@@ -187,10 +217,14 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
         "schema": {
             "name": {
                 "type": "string",
+                "empty": False,
             },
             "root": {
-                "type": "string",
+                "type": "path",
+                "coerce": "absolute_path",
                 "required": True,
+                "path_exists": True,
+                "path_type": "dir",
             },
         },
     },
@@ -208,6 +242,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "key": {
                 "type": "string",
+                "empty": False,
             },
         },
     },
@@ -216,6 +251,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
         "schema": {
             "address": {
                 "type": "string",
+                "empty": False,
                 "is_url": ["http", "https"],
             },
             "debug": {
@@ -229,7 +265,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "debug_allowed_hosts": {
                 "type": "list",
                 "coerce": "list",
-                "schema": {"type": "string"},
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                },
             },
             "enable_archive_upload": {
                 "type": "boolean",
@@ -237,10 +276,12 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "host": {
                 "type": "string",
+                "empty": False,
                 "is_ip_address": ["localhost"],
             },
             "index_url": {
                 "type": "string",
+                "empty": False,
                 "is_url": ["http", "https"],
             },
             "max_body_size": {
@@ -250,6 +291,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "password": {
                 "type": "string",
+                "empty": False,
             },
             "port": {
                 "type": "integer",
@@ -262,6 +304,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "absolute_path",
                 "required": True,
                 "path_exists": True,
+                "path_type": "dir",
             },
             "templates": {
                 "type": "list",
@@ -270,6 +313,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                     "type": "path",
                     "coerce": "absolute_path",
                     "path_exists": True,
+                    "path_type": "dir",
                 },
                 "empty": False,
             },
@@ -288,6 +332,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
             "username": {
                 "type": "string",
+                "empty": False,
             },
             "wait_timeout": {
                 "type": "integer",

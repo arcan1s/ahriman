@@ -162,3 +162,21 @@ class Validator(RootValidator):
                 self._error(field, f"Path {value} must not exist")
             case False if constraint:
                 self._error(field, f"Path {value} must exist")
+
+    def _validate_path_type(self, constraint: str, field: str, value: Path) -> None:
+        """
+        check if paths is file, directory or whatever. The match will be performed as call of ``is_{constraint}``
+        method of the path object
+
+        Args:
+            constraint(str): path type to be matched
+            field(str): field name to be checked
+            value(Path): value to be checked
+
+        Examples:
+            The rule's arguments are validated against this schema:
+            {"type": "string"}
+        """
+        fn = getattr(value, f"is_{constraint}")
+        if not fn():
+            self._error(field, f"Path {value} must be type of {constraint}")

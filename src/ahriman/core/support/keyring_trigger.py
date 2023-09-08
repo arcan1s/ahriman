@@ -43,7 +43,10 @@ class KeyringTrigger(Trigger):
                 "target": {
                     "type": "list",
                     "coerce": "list",
-                    "schema": {"type": "string"},
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
@@ -56,28 +59,47 @@ class KeyringTrigger(Trigger):
                 },
                 "description": {
                     "type": "string",
+                    "empty": False,
                 },
                 "homepage": {
                     "type": "string",
+                    "empty": False,
                 },
                 "license": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
                 "package": {
                     "type": "string",
+                    "empty": False,
                 },
                 "packagers": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
                 "revoked": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
                 "trusted": {
                     "type": "list",
                     "coerce": "list",
+                    "schema": {
+                        "type": "string",
+                        "empty": False,
+                    },
                 },
             },
         },
