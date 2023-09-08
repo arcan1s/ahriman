@@ -29,7 +29,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args = _default_args(args)
     parse_mock = mocker.patch("argparse.ArgumentParser.parse_args")
 
-    Help.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Help.run(args, repository_id, configuration, report=False)
     parse_mock.assert_called_once_with(["--help"])
 
 
@@ -41,12 +42,13 @@ def test_run_command(args: argparse.Namespace, configuration: Configuration, moc
     args.command = "aur-search"
     parse_mock = mocker.patch("argparse.ArgumentParser.parse_args")
 
-    Help.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Help.run(args, repository_id, configuration, report=False)
     parse_mock.assert_called_once_with(["aur-search", "--help"])
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Help.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Help.ALLOW_MULTI_ARCHITECTURE_RUN

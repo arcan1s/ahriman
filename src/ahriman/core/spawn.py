@@ -28,6 +28,7 @@ from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
+from ahriman.models.repository_id import RepositoryId
 
 
 class Spawn(Thread, LazyLogging):
@@ -37,22 +38,23 @@ class Spawn(Thread, LazyLogging):
 
     Attributes:
         active(dict[str, Process]): map of active child processes required to avoid zombies
-        architecture(str): repository architecture
         command_arguments(list[str]): base command line arguments
         queue(Queue[tuple[str, bool, int]]): multiprocessing queue to read updates from processes
+        repository_id(RepositoryId): repository unique identifier
     """
 
-    def __init__(self, args_parser: argparse.ArgumentParser, architecture: str, command_arguments: list[str]) -> None:
+    def __init__(self, args_parser: argparse.ArgumentParser, repository_id: RepositoryId,
+                 command_arguments: list[str]) -> None:
         """
         default constructor
 
         Args:
             args_parser(argparse.ArgumentParser): command line parser for the application
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             command_arguments(list[str]): base command line arguments
         """
         Thread.__init__(self, name="spawn")
-        self.architecture = architecture
+        self.repository_id = repository_id
 
         self.args_parser = args_parser
         self.command_arguments = command_arguments
@@ -77,20 +79,20 @@ class Spawn(Thread, LazyLogging):
         return name if value else f"no-{name}"
 
     @staticmethod
-    def process(callback: Callable[[argparse.Namespace, str], bool], args: argparse.Namespace, architecture: str,
-                process_id: str, queue: Queue[tuple[str, bool, int]]) -> None:  # pylint: disable=unsubscriptable-object
+    def process(callback: Callable[[argparse.Namespace, RepositoryId], bool], args: argparse.Namespace,
+                repository_id: RepositoryId, process_id: str, queue: Queue[tuple[str, bool, int]]) -> None:  # pylint: disable=unsubscriptable-object
         """
         helper to run external process
 
         Args:
             callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. Handler.run method)
             args(argparse.Namespace): command line arguments
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             process_id(str): process unique identifier
             queue(Queue[tuple[str, bool, int]]): output queue
         """
         start_time = time.monotonic()
-        result = callback(args, architecture)
+        result = callback(args, repository_id)
         stop_time = time.monotonic()
 
         consumed_time = int(1000 * (stop_time - start_time))
@@ -128,7 +130,7 @@ class Spawn(Thread, LazyLogging):
 
         callback = parsed.handler.call
         process = Process(target=self.process,
-                          args=(callback, parsed, self.architecture, process_id, self.queue),
+                          args=(callback, parsed, self.repository_id, process_id, self.queue),
                           daemon=True)
         process.start()
 

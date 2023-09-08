@@ -18,4 +18,3 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.log.lazy_logging import LazyLogging
-from ahriman.core.log.log import Log

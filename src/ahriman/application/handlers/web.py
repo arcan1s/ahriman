@@ -24,6 +24,7 @@ from collections.abc import Generator
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
+from ahriman.models.repository_id import RepositoryId
 
 
 class Web(Handler):
@@ -31,28 +32,28 @@ class Web(Handler):
     web server handler
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
         # we are using local import for optional dependencies
         from ahriman.web.web import run_server, setup_service
 
-        spawner_args = Web.extract_arguments(args, architecture, configuration)
-        spawner = Spawn(args.parser(), architecture, list(spawner_args))
+        spawner_args = Web.extract_arguments(args, repository_id, configuration)
+        spawner = Spawn(args.parser(), repository_id, list(spawner_args))
         spawner.start()
 
-        application = setup_service(architecture, configuration, spawner)
+        application = setup_service(repository_id, configuration, spawner)
         run_server(application)
 
         # terminate spawn process at the last
@@ -60,21 +61,22 @@ class Web(Handler):
         spawner.join()
 
     @staticmethod
-    def extract_arguments(args: argparse.Namespace, architecture: str,
+    def extract_arguments(args: argparse.Namespace, repository_id: RepositoryId,
                           configuration: Configuration) -> Generator[str, None, None]:
         """
         extract list of arguments used for current command, except for command specific ones
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
             Generator[str, None, None]: command line arguments which were used for this specific command
         """
         # read architecture from the same argument list
-        yield from ["--architecture", architecture]
+        yield from ["--architecture", repository_id.architecture]
+        yield from ["--repository", repository_id.name]
         # read configuration path from current settings
         if (configuration_path := configuration.path) is not None:
             yield from ["--configuration", str(configuration_path)]

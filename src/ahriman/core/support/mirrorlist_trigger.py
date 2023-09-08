@@ -21,6 +21,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.support.package_creator import PackageCreator
 from ahriman.core.support.pkgbuild.mirrorlist_generator import MirrorlistGenerator
 from ahriman.core.triggers import Trigger
+from ahriman.models.repository_id import RepositoryId
 
 
 class MirrorlistTrigger(Trigger):
@@ -75,15 +76,15 @@ class MirrorlistTrigger(Trigger):
         },
     }
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        Trigger.__init__(self, architecture, configuration)
+        Trigger.__init__(self, repository_id, configuration)
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
@@ -104,6 +105,6 @@ class MirrorlistTrigger(Trigger):
         trigger action which will be called at the start of the application
         """
         for target in self.targets:
-            generator = MirrorlistGenerator(self.configuration, target)
+            generator = MirrorlistGenerator(self.repository_id, self.configuration, target)
             runner = PackageCreator(self.configuration, generator)
             runner.run()

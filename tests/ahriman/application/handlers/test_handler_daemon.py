@@ -33,7 +33,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     start_mock = mocker.patch("threading.Timer.start")
     join_mock = mocker.patch("threading.Timer.join")
 
-    Daemon.run(args, "x86_64", configuration, report=True)
-    run_mock.assert_called_once_with(args, "x86_64", configuration, report=True)
+    _, repository_id = configuration.check_loaded()
+    Daemon.run(args, repository_id, configuration, report=True)
+    run_mock.assert_called_once_with(args, repository_id, configuration, report=True)
     start_mock.assert_called_once_with()
     join_mock.assert_called_once_with()

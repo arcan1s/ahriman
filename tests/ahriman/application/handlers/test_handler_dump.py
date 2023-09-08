@@ -29,13 +29,14 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     application_mock = mocker.patch("ahriman.core.configuration.Configuration.dump",
                                     return_value=configuration.dump())
 
-    Dump.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Dump.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with()
     print_mock.assert_called()
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Dump.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Dump.ALLOW_MULTI_ARCHITECTURE_RUN

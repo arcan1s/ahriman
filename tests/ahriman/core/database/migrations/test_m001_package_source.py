@@ -2,10 +2,12 @@ import pytest
 
 from sqlite3 import Connection
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations.m001_package_source import migrate_data, migrate_package_remotes, steps
 from ahriman.models.package import Package
+from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -30,13 +32,18 @@ def test_migrate_package_remotes(package_ahriman: Package, connection: Connectio
     """
     must put package remotes to database
     """
-    mocker.patch(
-        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
-        return_value={package_ahriman.base: package_ahriman})
+    connection.execute.return_value = [{
+        "package_base": package_ahriman.base,
+        "version": package_ahriman.version,
+        "source": PackageSource.AUR,
+    }]
     mocker.patch("pathlib.Path.exists", return_value=False)
 
     migrate_package_remotes(connection, repository_paths)
-    connection.execute.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
+    connection.execute.assert_has_calls([
+        MockCall(pytest.helpers.anyvar(str, strict=True)),
+        MockCall(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
+    ])
 
 
 def test_migrate_package_remotes_has_local(package_ahriman: Package, connection: Connection,
@@ -44,13 +51,15 @@ def test_migrate_package_remotes_has_local(package_ahriman: Package, connection:
     """
     must skip processing for packages which have local cache
     """
-    mocker.patch(
-        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
-        return_value={package_ahriman.base: package_ahriman})
+    connection.execute.return_value = [{
+        "package_base": package_ahriman.base,
+        "version": package_ahriman.version,
+        "source": PackageSource.AUR,
+    }]
     mocker.patch("pathlib.Path.exists", return_value=True)
 
     migrate_package_remotes(connection, repository_paths)
-    connection.execute.assert_not_called()
+    connection.execute.assert_called_once_with(pytest.helpers.anyvar(str, strict=True))
 
 
 def test_migrate_package_remotes_vcs(package_ahriman: Package, connection: Connection,
@@ -58,11 +67,16 @@ def test_migrate_package_remotes_vcs(package_ahriman: Package, connection: Conne
     """
     must process VCS packages with local cache
     """
-    mocker.patch(
-        "ahriman.core.database.operations.PackageOperations._packages_get_select_package_bases",
-        return_value={package_ahriman.base: package_ahriman})
+    connection.execute.return_value = [{
+        "package_base": package_ahriman.base,
+        "version": package_ahriman.version,
+        "source": PackageSource.AUR,
+    }]
     mocker.patch("pathlib.Path.exists", return_value=True)
     mocker.patch.object(Package, "is_vcs", True)
 
     migrate_package_remotes(connection, repository_paths)
-    connection.execute.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
+    connection.execute.assert_has_calls([
+        MockCall(pytest.helpers.anyvar(str, strict=True)),
+        MockCall(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int)),
+    ])

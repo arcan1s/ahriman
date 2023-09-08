@@ -25,7 +25,8 @@ from multiprocessing import Pool
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
-from ahriman.core.log import Log
+from ahriman.core.log.log_loader import LogLoader
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -34,7 +35,6 @@ class Handler:
     base handler class for command callbacks
 
     Attributes:
-        ALLOW_AUTO_ARCHITECTURE_RUN(bool): (class attribute) allow defining architecture from existing repositories
         ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
 
     Examples:
@@ -46,60 +46,28 @@ class Handler:
             >>> Add.execute(args)
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = True
     ALLOW_MULTI_ARCHITECTURE_RUN = True
 
     @classmethod
-    def architectures_extract(cls, args: argparse.Namespace) -> list[str]:
-        """
-        get known architectures
-
-        Args:
-            args(argparse.Namespace): command line args
-
-        Returns:
-            list[str]: list of architectures for which tree is created
-
-        Raises:
-            MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
-        """
-        if not cls.ALLOW_AUTO_ARCHITECTURE_RUN and args.architecture is None:
-            # for some parsers (e.g. config) we need to run with specific architecture
-            # for those cases architecture must be set explicitly
-            raise MissingArchitectureError(args.command)
-        if args.architecture:  # architecture is specified explicitly
-            return sorted(set(args.architecture))
-
-        configuration = Configuration()
-        configuration.load(args.configuration)
-        # wtf???
-        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
-        architectures = RepositoryPaths.known_architectures(root)
-
-        if not architectures:  # well we did not find anything
-            raise MissingArchitectureError(args.command)
-        return sorted(architectures)
-
-    @classmethod
-    def call(cls, args: argparse.Namespace, architecture: str) -> bool:
+    def call(cls, args: argparse.Namespace, repository_id: RepositoryId) -> bool:
         """
         additional function to wrap all calls for multiprocessing library
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
 
         Returns:
             bool: True on success, False otherwise
         """
         try:
-            configuration = Configuration.from_path(args.configuration, architecture)
+            configuration = Configuration.from_path(args.configuration, repository_id)
 
-            log_handler = Log.handler(args.log_handler)
-            Log.load(configuration, log_handler, quiet=args.quiet, report=args.report)
+            log_handler = LogLoader.handler(args.log_handler)
+            LogLoader.load(configuration, log_handler, quiet=args.quiet, report=args.report)
 
-            with Lock(args, architecture, configuration):
-                cls.run(args, architecture, configuration, report=args.report)
+            with Lock(args, repository_id, configuration):
+                cls.run(args, repository_id, configuration, report=args.report)
 
             return True
         except ExitCode:
@@ -123,28 +91,82 @@ class Handler:
         Raises:
             MultipleArchitecturesError: if more than one architecture supplied and no multi architecture supported
         """
-        architectures = cls.architectures_extract(args)
+        repositories = cls.repositories_extract(args)
 
         # actually we do not have to spawn another process if it is single-process application, do we?
-        if len(architectures) > 1:
+        if len(repositories) > 1:
             if not cls.ALLOW_MULTI_ARCHITECTURE_RUN:
-                raise MultipleArchitecturesError(args.command)
+                raise MultipleArchitecturesError(args.command, repositories)
 
-            with Pool(len(architectures)) as pool:
-                result = pool.starmap(cls.call, [(args, architecture) for architecture in architectures])
+            with Pool(len(repositories)) as pool:
+                result = pool.starmap(cls.call, [(args, repository_id) for repository_id in repositories])
         else:
-            result = [cls.call(args, architectures.pop())]
+            result = [cls.call(args, repositories.pop())]
 
         return 0 if all(result) else 1
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def repositories_extract(cls, args: argparse.Namespace) -> list[RepositoryId]:
+        """
+        get known architectures
+
+        Args:
+            args(argparse.Namespace): command line args
+
+        Returns:
+            list[RepositoryId]: list of repository names and architectures for which tree is created
+
+        Raises:
+            MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
+        """
+        configuration = Configuration()
+        configuration.load(args.configuration)
+        # pylint, wtf???
+        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
+
+        # preparse systemd repository-id argument
+        # we are using unescaped values, so / is not allowed here, because it is impossible to separate if from dashes
+        if args.repository_id is not None:
+            # repository parts is optional for backward compatibility
+            architecture, *repository_parts = args.repository_id.split("/")
+            args.architecture = [architecture]
+            if repository_parts:
+                args.repository = ["-".join(repository_parts)]  # replace slash with dash
+
+        # extract repository names first
+        names = args.repository
+        if names is None:  # try to read file system first
+            names = RepositoryPaths.known_repositories(root)
+        if not names:  # try to read configuration now
+            names = [configuration.get("repository", "name")]
+
+        # extract architecture names
+        if (architectures := args.architecture) is not None:
+            repositories = set(
+                RepositoryId(architecture, name)
+                for name in names
+                for architecture in architectures
+            )
+        else:  # try to read from file system
+            repositories = set(
+                RepositoryId(architecture, name)
+                for name in names
+                for architecture in RepositoryPaths.known_architectures(root, name)
+            )
+
+        if not repositories:
+            raise MissingArchitectureError(args.command)
+        return sorted(repositories)
+
+    @classmethod
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
 

@@ -23,6 +23,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.report.report import Report
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 from ahriman.models.waiter import Waiter
 
@@ -39,16 +40,16 @@ class RemoteCall(Report):
         wait_timeout(int): timeout to wait external process
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Report.__init__(self, architecture, configuration)
+        Report.__init__(self, repository_id, configuration)
 
         self.client = WebClient(configuration)
 

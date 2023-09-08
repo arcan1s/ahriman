@@ -1,10 +1,10 @@
 [Unit]
-Description=ArcH linux ReposItory MANager web server (%I architecture)
+Description=ArcH linux ReposItory MANager web server (%i)
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/ahriman --architecture %i web
+ExecStart=/usr/bin/ahriman --repository-id "%I" web
 User=ahriman
 Group=ahriman
 

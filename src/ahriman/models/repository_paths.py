@@ -20,25 +20,29 @@
 import os
 import shutil
 
-from dataclasses import dataclass
+from collections.abc import Generator
+from dataclasses import dataclass, field
+from functools import cached_property
 from pathlib import Path
 
 from ahriman.core.exceptions import PathError
+from ahriman.core.log import LazyLogging
+from ahriman.models.repository_id import RepositoryId
 
 
 @dataclass(frozen=True)
-class RepositoryPaths:
+class RepositoryPaths(LazyLogging):
     """
     repository paths holder. For the most operations with paths you want to use this object
 
     Attributes:
-        architecture(str): repository architecture
+        repository_id(RepositoryId): repository unique identifier
         root(Path): repository root (i.e. ahriman home)
 
     Examples:
         This class can be used in order to access the repository tree structure::
 
-            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), "x86_64")
+            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), RepositoryId("x86_64", "aur-clone"))
 
         Additional methods can be used in order to ensure that tree is created::
 
@@ -51,7 +55,33 @@ class RepositoryPaths:
     """
 
     root: Path
-    architecture: str
+    repository_id: RepositoryId
+    _force_current_tree: bool = field(default=False, kw_only=True)
+
+    @property
+    def _repository_root(self) -> Path:
+        """
+        repository root which can be used for invalid (not fully loaded instances)
+
+        Returns:
+            Path: root path to repositories
+        """
+        return self.root / "repository"
+
+    @cached_property
+    def _suffix(self) -> Path:
+        """
+        suffix of the paths as defined by repository structure
+
+        Returns:
+            Path: relative path which contains only architecture segment in case if legacy tree is used and repository
+        name and architecture otherwise
+        """
+        if not self._force_current_tree:
+            if (self._repository_root / self.repository_id.architecture).is_dir():
+                self.logger.warning("using legacy per architecture tree")
+                return Path(self.repository_id.architecture)  # legacy tree suffix
+        return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
     def cache(self) -> Path:
@@ -72,7 +102,7 @@ class RepositoryPaths:
             Path: full patch to devtools chroot directory
         """
         # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
-        return self.root / "chroot"
+        return self.root / "chroot" / self.repository_id.name
 
     @property
     def packages(self) -> Path:
@@ -82,7 +112,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to built packages directory
         """
-        return self.root / "packages" / self.architecture
+        return self.root / "packages" / self._suffix
 
     @property
     def pacman(self) -> Path:
@@ -92,7 +122,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to pacman local database cache
         """
-        return self.root / "pacman" / self.architecture
+        return self.root / "pacman" / self._suffix
 
     @property
     def repository(self) -> Path:
@@ -102,7 +132,7 @@ class RepositoryPaths:
         Returns:
             Path: full path to the repository directory
         """
-        return self.root / "repository" / self.architecture
+        return self._repository_root / self._suffix
 
     @property
     def root_owner(self) -> tuple[int, int]:
@@ -114,23 +144,57 @@ class RepositoryPaths:
         """
         return self.owner(self.root)
 
+    # TODO see https://github.com/python/mypy/issues/12534, remove type: ignore after release
+    # pylint: disable=protected-access
     @classmethod
-    def known_architectures(cls, root: Path) -> set[str]:
+    def known_architectures(cls, root: Path, name: str = "") -> set[str]:  # type: ignore[return]
         """
-        get known architectures
+        get known architecture names
+
+        Args:
+            root(Path): repository root
+            name(str, optional): repository name (Default value = "")
+
+        Returns:
+            set[str]: list of repository architectures for which there is created tree
+        """
+        def walk(repository_dir: Path) -> Generator[str, None, None]:
+            for architecture in filter(lambda path: path.is_dir(), repository_dir.iterdir()):
+                yield architecture.name
+
+        instance = cls(root, RepositoryId("", ""))
+        match (instance._repository_root / name):
+            case full_tree if full_tree.is_dir():
+                return set(walk(full_tree))  # actually works for legacy too in case if name is set to empty string
+            case _ if instance._repository_root.is_dir():
+                return set(walk(instance._repository_root))  # legacy only tree
+            case _:
+                return set()  # no tree detected at all
+
+    # pylint: disable=protected-access
+    @classmethod
+    def known_repositories(cls, root: Path) -> set[str]:
+        """
+        get known repository names
 
         Args:
             root(Path): repository root
 
         Returns:
-            set[str]: list of architectures for which tree is created
+            set[str]: list of repository names for which there is created tree. Returns empty set in case if repository
+        is loaded in legacy mode
         """
-        paths = cls(root, "")
-        return {
-            path.name
-            for path in paths.repository.iterdir()
-            if path.is_dir()
-        }
+        # simply walk through the root. In case if there are subdirectories, emit the name
+        def walk(paths: RepositoryPaths) -> Generator[str, None, None]:
+            for repository in filter(lambda path: path.is_dir(), paths._repository_root.iterdir()):
+                if any(path.is_dir() for path in repository.iterdir()):
+                    yield repository.name
+
+        instance = cls(root, RepositoryId("", ""))
+        if not instance._repository_root.is_dir():
+            return set()  # no tree created
+
+        return set(walk(instance))
 
     @staticmethod
     def owner(path: Path) -> tuple[int, int]:
@@ -197,11 +261,13 @@ class RepositoryPaths:
         """
         create ahriman working tree
         """
+        if self.repository_id.is_empty:
+            return  # do not even try to create tree in case if no repository id set
         for directory in (
                 self.cache,
                 self.chroot,
                 self.packages,
-                self.pacman / "sync",  # we need sync directory in order to be able to copy databases
+                self.pacman,
                 self.repository,
         ):
             directory.mkdir(mode=0o755, parents=True, exist_ok=True)

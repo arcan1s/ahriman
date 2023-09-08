@@ -20,7 +20,8 @@ def test_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
     must run report for specified targets
     """
     run_mock = mocker.patch("ahriman.core.support.package_creator.PackageCreator.run")
+    _, repository_id = configuration.check_loaded()
 
-    trigger = MirrorlistTrigger("x86_64", configuration)
+    trigger = MirrorlistTrigger(repository_id, configuration)
     trigger.on_start()
     run_mock.assert_called_once_with()

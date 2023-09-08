@@ -154,7 +154,7 @@ class Sources(LazyLogging):
             shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
         instance.fetch(sources_dir, package.remote)
 
-        patches.extend(instance.extend_architectures(sources_dir, paths.architecture))
+        patches.extend(instance.extend_architectures(sources_dir, paths.repository_id.architecture))
         for patch in patches:
             instance.patch_apply(sources_dir, patch)
 

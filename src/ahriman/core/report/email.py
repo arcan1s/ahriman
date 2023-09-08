@@ -27,6 +27,7 @@ from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
 from ahriman.core.util import pretty_datetime, utcnow
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 from ahriman.models.smtp_ssl_settings import SmtpSSLSettings
 
@@ -48,17 +49,17 @@ class Email(Report, JinjaTemplate):
         user(str | None): username to authenticate via SMTP
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Report.__init__(self, architecture, configuration)
-        JinjaTemplate.__init__(self, section, configuration)
+        Report.__init__(self, repository_id, configuration)
+        JinjaTemplate.__init__(self, repository_id, configuration, section)
 
         self.full_template_path = configuration.getpath(section, "full_template_path", fallback=None)
         self.template_path = configuration.getpath(section, "template_path")

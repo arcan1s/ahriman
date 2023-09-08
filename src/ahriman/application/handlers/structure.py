@@ -24,6 +24,7 @@ from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter, TreePrinter
 from ahriman.core.tree import Tree
+from ahriman.models.repository_id import RepositoryId
 
 
 class Structure(Handler):
@@ -31,20 +32,21 @@ class Structure(Handler):
     dump repository structure handler
     """
 
-    ALLOW_AUTO_ARCHITECTURE_RUN = False
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report)
+        application = Application(repository_id, configuration, report=report)
         partitions = Tree.partition(application.repository.packages(), count=args.partitions)
 
         for partition_id, partition in enumerate(partitions):

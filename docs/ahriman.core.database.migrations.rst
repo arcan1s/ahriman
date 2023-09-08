@@ -92,6 +92,14 @@ ahriman.core.database.migrations.m010\_version\_based\_logs\_removal module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m011\_repository\_name module
+--------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m011_repository_name
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

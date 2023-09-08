@@ -45,9 +45,9 @@ steps = [
     )
     """,
     """
-    insert into packages select * from packages_ where architecture is not null;
+    insert into packages select * from packages_ where architecture is not null
     """,
     """
-    drop table packages_;
+    drop table packages_
     """,
 ]

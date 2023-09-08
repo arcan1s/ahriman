@@ -20,6 +20,7 @@
 from ahriman.core.configuration import Configuration
 from ahriman.core.gitremote.remote_pull import RemotePull
 from ahriman.core.triggers import Trigger
+from ahriman.models.repository_id import RepositoryId
 
 
 class RemotePullTrigger(Trigger):
@@ -56,15 +57,15 @@ class RemotePullTrigger(Trigger):
     }
     CONFIGURATION_SCHEMA_FALLBACK = "gitremote"
 
-    def __init__(self, architecture: str, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        Trigger.__init__(self, architecture, configuration)
+        Trigger.__init__(self, repository_id, configuration)
         self.targets = self.configuration_sections(configuration)
 
     @classmethod
@@ -86,6 +87,6 @@ class RemotePullTrigger(Trigger):
         """
         for target in self.targets:
             section, _ = self.configuration.gettype(
-                target, self.architecture, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
-            runner = RemotePull(self.configuration, self.architecture, section)
+                target, self.repository_id, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
+            runner = RemotePull(self.repository_id, self.configuration, section)
             runner.run()

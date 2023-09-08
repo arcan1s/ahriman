@@ -112,7 +112,9 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
-    return setup_service("x86_64", configuration, spawner)
+    _, repository_id = configuration.check_loaded()
+
+    return setup_service(repository_id, configuration, spawner)
 
 
 @pytest.fixture
@@ -138,7 +140,8 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
-    application = setup_service("x86_64", configuration, spawner)
+    _, repository_id = configuration.check_loaded()
+    application = setup_service(repository_id, configuration, spawner)
 
     generated = user.hash_password(application["validator"].salt)
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=generated)
@@ -169,7 +172,9 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
-    return setup_service("x86_64", configuration, spawner)
+    _, repository_id = configuration.check_loaded()
+
+    return setup_service(repository_id, configuration, spawner)
 
 
 @pytest.fixture

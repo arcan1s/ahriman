@@ -16,9 +16,13 @@ def test_package_remove_package_base(database: SQLite, connection: Connection) -
     must remove package base
     """
     database._package_remove_package_base(connection, "package")
+    args = {
+        "package_base": "package",
+        "repository": database.repository_id.id,
+    }
     connection.execute.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
-        MockCall(pytest.helpers.anyvar(str, strict=True), {"package_base": "package"}),
+        MockCall(pytest.helpers.anyvar(str, strict=True), args),
+        MockCall(pytest.helpers.anyvar(str, strict=True), args),
     ])
 
 
@@ -28,7 +32,10 @@ def test_package_remove_packages(database: SQLite, connection: Connection, packa
     """
     database._package_remove_packages(connection, package_ahriman.base, package_ahriman.packages.keys())
     connection.execute.assert_called_once_with(
-        pytest.helpers.anyvar(str, strict=True), {"package_base": package_ahriman.base})
+        pytest.helpers.anyvar(str, strict=True), {
+            "package_base": package_ahriman.base,
+            "repository": database.repository_id.id,
+        })
     connection.executemany.assert_called_once_with(pytest.helpers.anyvar(str, strict=True), [])
 
 

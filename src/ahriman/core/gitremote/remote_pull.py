@@ -30,6 +30,7 @@ from ahriman.core.util import walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_id import RepositoryId
 
 
 class RemotePull(LazyLogging):
@@ -42,13 +43,13 @@ class RemotePull(LazyLogging):
         repository_paths(RepositoryPaths): repository paths instance
     """
 
-    def __init__(self, configuration: Configuration, architecture: str, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
-            architecture(str): repository architecture
             section(str): settings section name
         """
         self.remote_source = RemoteSource(
@@ -58,7 +59,7 @@ class RemotePull(LazyLogging):
             branch=configuration.get(section, "pull_branch", fallback="master"),
             source=PackageSource.Local,
         )
-        self.architecture = architecture
+        self.architecture = repository_id.architecture
         self.repository_paths = configuration.repository_paths
 
     def package_copy(self, pkgbuild_path: Path) -> None:

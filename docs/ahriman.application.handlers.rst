@@ -172,6 +172,14 @@ ahriman.application.handlers.structure module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.tree\_migrate module
+-------------------------------------------------
+
+.. automodule:: ahriman.application.handlers.tree_migrate
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.triggers module
 --------------------------------------------
 

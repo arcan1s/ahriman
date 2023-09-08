@@ -39,9 +39,12 @@ class BuildOperations(Operations):
             connection.execute(
                 """
                 delete from build_queue
-                where :package_base is null or package_base = :package_base
+                where (:package_base is null or package_base = :package_base) and repository = :repository
                 """,
-                {"package_base": package_base})
+                {
+                    "package_base": package_base,
+                    "repository": self.repository_id.id,
+                })
 
         return self.with_connection(run, commit=True)
 
@@ -55,7 +58,10 @@ class BuildOperations(Operations):
         def run(connection: Connection) -> list[Package]:
             return [
                 Package.from_json(row["properties"])
-                for row in connection.execute("""select * from build_queue""")
+                for row in connection.execute(
+                    """select properties from build_queue where repository = :repository""",
+                    {"repository": self.repository_id.id}
+                )
             ]
 
         return self.with_connection(run)
@@ -71,12 +77,16 @@ class BuildOperations(Operations):
             connection.execute(
                 """
                 insert into build_queue
-                (package_base, properties)
+                (package_base, properties, repository)
                 values
-                (:package_base, :properties)
-                on conflict (package_base) do update set
+                (:package_base, :properties, :repository)
+                on conflict (package_base, repository) do update set
                 properties = :properties
                 """,
-                {"package_base": package.base, "properties": package.view()})
+                {
+                    "package_base": package.base,
+                    "properties": package.view(),
+                    "repository": self.repository_id.id,
+                })
 
         return self.with_connection(run, commit=True)

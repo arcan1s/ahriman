@@ -6,15 +6,23 @@ from ahriman.core.triggers import Trigger
 from ahriman.models.result import Result
 
 
+def test_architecture(trigger: Trigger) -> None:
+    """
+    must return repository architecture for backward compatibility
+    """
+    assert trigger.architecture == trigger.repository_id.architecture
+
+
 def test_configuration_schema(configuration: Configuration) -> None:
     """
     must return used configuration schema
     """
     section = "console"
     configuration.set_option("report", "target", section)
+    _, repository_id = configuration.check_loaded()
 
     expected = {section: ReportTrigger.CONFIGURATION_SCHEMA[section]}
-    assert ReportTrigger.configuration_schema("x86_64", configuration) == expected
+    assert ReportTrigger.configuration_schema(repository_id, configuration) == expected
 
 
 def test_configuration_schema_no_section(configuration: Configuration) -> None:
@@ -23,7 +31,9 @@ def test_configuration_schema_no_section(configuration: Configuration) -> None:
     """
     section = "abracadabra"
     configuration.set_option("report", "target", section)
-    assert ReportTrigger.configuration_schema("x86_64", configuration) == {}
+    _, repository_id = configuration.check_loaded()
+
+    assert ReportTrigger.configuration_schema(repository_id, configuration) == {}
 
 
 def test_configuration_schema_no_schema(configuration: Configuration) -> None:
@@ -33,15 +43,17 @@ def test_configuration_schema_no_schema(configuration: Configuration) -> None:
     section = "abracadabra"
     configuration.set_option("report", "target", section)
     configuration.set_option(section, "key", "value")
+    _, repository_id = configuration.check_loaded()
 
-    assert ReportTrigger.configuration_schema("x86_64", configuration) == {}
+    assert ReportTrigger.configuration_schema(repository_id, configuration) == {}
 
 
-def test_configuration_schema_empty() -> None:
+def test_configuration_schema_empty(configuration: Configuration) -> None:
     """
     must return default schema if no configuration set
     """
-    assert ReportTrigger.configuration_schema("x86_64", None) == ReportTrigger.CONFIGURATION_SCHEMA
+    _, repository_id = configuration.check_loaded()
+    assert ReportTrigger.configuration_schema(repository_id, None) == ReportTrigger.CONFIGURATION_SCHEMA
 
 
 def test_configuration_schema_variables(configuration: Configuration) -> None:

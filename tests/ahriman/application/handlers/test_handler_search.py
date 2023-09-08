@@ -42,7 +42,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
-    Search.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Search.run(args, repository_id, configuration, report=False)
     aur_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     official_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
     check_mock.assert_called_once_with(False, False)
@@ -62,7 +63,8 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
-    Search.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Search.run(args, repository_id, configuration, report=False)
     check_mock.assert_called_once_with(True, True)
 
 
@@ -77,7 +79,8 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
-    Search.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Search.run(args, repository_id, configuration, report=False)
     sort_mock.assert_has_calls([
         MockCall([], "name"), MockCall().__iter__(),
         MockCall([aur_package_ahriman], "name"), MockCall().__iter__()
@@ -96,7 +99,8 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, rep
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
 
-    Search.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Search.run(args, repository_id, configuration, report=False)
     sort_mock.assert_has_calls([
         MockCall([], "field"), MockCall().__iter__(),
         MockCall([aur_package_ahriman], "field"), MockCall().__iter__()
@@ -124,11 +128,11 @@ def test_sort_exception(aur_package_ahriman: AURPackage) -> None:
         Search.sort([aur_package_ahriman], "random_field")
 
 
-def test_disallow_auto_architecture_run() -> None:
+def test_disallow_multi_architecture_run() -> None:
     """
     must not allow multi architecture run
     """
-    assert not Search.ALLOW_AUTO_ARCHITECTURE_RUN
+    assert not Search.ALLOW_MULTI_ARCHITECTURE_RUN
 
 
 def test_sort_fields(aur_package_ahriman: AURPackage) -> None:

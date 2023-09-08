@@ -1,7 +1,12 @@
 Configuration
 =============
 
-Some groups can be specified for each architecture separately. E.g. if there are ``build`` and ``build:x86_64`` groups it will use an option from ``build:x86_64`` for the ``x86_64`` architecture and ``build`` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them.
+Some groups can be specified for each architecture and/or repository separately. E.g. if there are ``build`` and ``build:x86_64`` groups it will use an option from ``build:x86_64`` for the ``x86_64`` architecture and ``build`` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. The order which will be used for option resolution is the following:
+
+#. Repository and architecture specific, e.g. ``build:aur-clone:x86_64``.
+#. Repository specific, e.g. ``build:aur-clone``.
+#. Architecture specific, e.g. ``build:x86_64``.
+#. Default section, e.g. ``build``.
 
 There are two variable types which have been added to default ones, they are paths and lists. List values will be read in the same way as shell does:
 
@@ -25,7 +30,7 @@ There is also additional subcommand which will allow to validate configuration a
 
 .. code-block:: shell
 
-   ahriman -a x86_64 service-config-validate
+   ahriman service-config-validate
 
 It will check current settings on common errors and compare configuration with known schema.
 
@@ -87,7 +92,6 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 
 Base repository settings.
 
-* ``name`` - repository name, string, required.
 * ``root`` - root path for application, string, required.
 
 ``sign:*`` groups
@@ -292,20 +296,21 @@ Type will be read from several sources:
 ``github`` type
 ^^^^^^^^^^^^^^^
 
-This feature requires Github key creation (see below). Section name must be either ``github`` (plus optional architecture name, e.g. ``github:x86_64``) or random name with ``type`` set.
+This feature requires GitHub key creation (see below). Section name must be either ``github`` (plus optional architecture name, e.g. ``github:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the upload, string, optional, must be set to ``github`` if exists.
-* ``owner`` - Github repository owner, string, required.
-* ``password`` - created Github API key. In order to create it do the following:
+* ``owner`` - GitHub repository owner, string, required.
+* ``password`` - created GitHub API key. In order to create it do the following:
 
   #. Go to `settings page <https://github.com/settings/profile>`_.
   #. Switch to `developers settings <https://github.com/settings/apps>`_.
   #. Switch to `personal access tokens <https://github.com/settings/tokens>`_.
   #. Generate new token. Required scope is ``public_repo`` (or ``repo`` for private repository support).
 
-* ``repository`` - Github repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
+* ``repository`` - GitHub repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
 * ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
-* ``username`` - Github authorization user, string, required. Basically the same as ``owner``.
+* ``use_full_release_name`` - if set to ``yes``, the release will contain both repository name and architecture, and only architecture otherwise, boolean, optional, default ``no`` (legacy behavior).
+* ``username`` - GitHub authorization user, string, required. Basically the same as ``owner``.
 
 ``remote-service`` type
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -329,9 +334,10 @@ Requires ``rsync`` package to be installed. Do not forget to configure ssh for u
 
 Requires ``boto3`` library to be installed. Section name must be either ``s3`` (plus optional architecture name, e.g. ``s3:x86_64``) or random name with ``type`` set.
 
-* ``type`` - type of the upload, string, optional, must be set to ``github`` if exists.
+* ``type`` - type of the upload, string, optional, must be set to ``s3`` if exists.
 * ``access_key`` - AWS access key ID, string, required.
 * ``bucket`` - bucket name (e.g. ``bucket``), string, required.
 * ``chunk_size`` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
+* ``object_path`` - path prefix for stored objects, string, optional. If none set, the prefix as in repository tree will be used.
 * ``region`` - bucket region (e.g. ``eu-central-1``), string, required.
 * ``secret_key`` - AWS secret access key, string, required.

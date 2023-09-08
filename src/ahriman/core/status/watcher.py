@@ -25,6 +25,7 @@ from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class Watcher(LazyLogging):
@@ -32,26 +33,26 @@ class Watcher(LazyLogging):
     package status watcher
 
     Attributes:
-        architecture(str): repository architecture
         database(SQLite): database instance
         known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
             be used instead
         repository(Repository): repository object
+        repository_id(RepositoryId): repository unique identifier
         status(BuildStatus): daemon status
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, database: SQLite) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, database: SQLite) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             database(SQLite): database instance
         """
-        self.architecture = architecture
+        self.repository_id = repository_id
         self.database = database
-        self.repository = Repository.load(architecture, configuration, database, report=False)
+        self.repository = Repository.load(repository_id, configuration, database, report=False)
 
         self.known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()

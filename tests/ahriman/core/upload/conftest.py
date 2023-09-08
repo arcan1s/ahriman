@@ -4,33 +4,34 @@ from typing import Any
 from unittest.mock import MagicMock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.upload.github import Github
+from ahriman.core.upload.github import GitHub
 from ahriman.core.upload.remote_service import RemoteService
 from ahriman.core.upload.rsync import Rsync
 from ahriman.core.upload.s3 import S3
 
 
 @pytest.fixture
-def github(configuration: Configuration) -> Github:
+def github(configuration: Configuration) -> GitHub:
     """
-    fixture for github synchronization
+    fixture for GitHub synchronization
 
     Args:
         configuration(Configuration): configuration fixture
 
     Returns:
-        Github: github test instance
+        GitHub: GitHub test instance
     """
-    return Github("x86_64", configuration, "github:x86_64")
+    _, repository_id = configuration.check_loaded()
+    return GitHub(repository_id, configuration, "github:x86_64")
 
 
 @pytest.fixture
 def github_release() -> dict[str, Any]:
     """
-    fixture for the github release object
+    fixture for the GitHub release object
 
     Returns:
-        dict[str, Any]: github test release object
+        dict[str, Any]: GitHub test release object
     """
     return {
         "url": "release_url",
@@ -59,7 +60,8 @@ def remote_service(configuration: Configuration) -> RemoteService:
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    return RemoteService("x86_64", configuration, "remote-service")
+    _, repository_id = configuration.check_loaded()
+    return RemoteService(repository_id, configuration, "remote-service")
 
 
 @pytest.fixture
@@ -73,7 +75,8 @@ def rsync(configuration: Configuration) -> Rsync:
     Returns:
         Rsync: rsync test instance
     """
-    return Rsync("x86_64", configuration, "rsync")
+    _, repository_id = configuration.check_loaded()
+    return Rsync(repository_id, configuration, "rsync")
 
 
 @pytest.fixture
@@ -87,23 +90,25 @@ def s3(configuration: Configuration) -> S3:
     Returns:
         S3: S3 test instance
     """
-    return S3("x86_64", configuration, "customs3")
+    _, repository_id = configuration.check_loaded()
+    return S3(repository_id, configuration, "customs3")
 
 
 @pytest.fixture
-def s3_remote_objects() -> list[MagicMock]:
+def s3_remote_objects(configuration: Configuration) -> list[MagicMock]:
     """
     fixture for boto3 like S3 objects
 
     Returns:
         list[MagicMock]: boto3 like S3 objects test instance
     """
+    _, repository_id = configuration.check_loaded()
     delete_mock = MagicMock()
 
     result = []
     for item in ["a", "b", "c"]:
         s3_object = MagicMock()
-        s3_object.key = f"x86_64/{item}"
+        s3_object.key = f"{repository_id.name}/{repository_id.architecture}/{item}"
         s3_object.e_tag = f"\"{item}\""
         s3_object.delete = delete_mock
 

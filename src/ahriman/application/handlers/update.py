@@ -25,6 +25,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.packagers import Packagers
+from ahriman.models.repository_id import RepositoryId
 
 
 class Update(Handler):
@@ -33,17 +34,18 @@ class Update(Handler):
     """
 
     @classmethod
-    def run(cls, args: argparse.Namespace, architecture: str, configuration: Configuration, *, report: bool) -> None:
+    def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
+            report: bool) -> None:
         """
         callback for command line
 
         Args:
             args(argparse.Namespace): command line args
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(architecture, configuration, report=report, refresh_pacman_database=args.refresh)
+        application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
         packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
         Update.check_if_empty(args.exit_code, not packages)

@@ -40,7 +40,7 @@ class PatchOperations(Operations):
         Returns:
             list[PkgbuildPatch]: plain text patch for the package
         """
-        return self.patches_list(package_base, []).get(package_base, [])
+        return self.patches_list(package_base, None).get(package_base, [])
 
     def patches_insert(self, package_base: str, patch: PkgbuildPatch) -> None:
         """
@@ -64,13 +64,13 @@ class PatchOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def patches_list(self, package_base: str | None, variables: list[str]) -> dict[str, list[PkgbuildPatch]]:
+    def patches_list(self, package_base: str | None, variables: list[str] | None) -> dict[str, list[PkgbuildPatch]]:
         """
         extract all patches
 
         Args:
             package_base(str | None): optional filter by package base
-            variables(list[str]): extract patches only for specified PKGBUILD variables
+            variables(list[str] | None): extract patches only for specified PKGBUILD variables
 
         Returns:
             dict[str, list[PkgbuildPatch]]: map of package base to patch content
@@ -86,29 +86,30 @@ class PatchOperations(Operations):
         # we could use itertools & operator but why?
         patches: dict[str, list[PkgbuildPatch]] = defaultdict(list)
         for package, patch in self.with_connection(run):
-            if variables and patch.key not in variables:
+            if variables is not None and patch.key not in variables:
                 continue
             patches[package].append(patch)
         return dict(patches)
 
-    def patches_remove(self, package_base: str, variables: list[str]) -> None:
+    def patches_remove(self, package_base: str, variables: list[str] | None) -> None:
         """
         remove patch set
 
         Args:
             package_base(str): package base to clear patches
-            variables(list[str]): remove patches only for specified PKGBUILD variables
+            variables(list[str] | None): remove patches only for specified PKGBUILD variables
         """
         def run_many(connection: Connection) -> None:
+            patches = variables or []  # suppress mypy warning
             connection.executemany(
                 """delete from patches where package_base = :package_base and variable = :variable""",
-                [{"package_base": package_base, "variable": variable} for variable in variables])
+                [{"package_base": package_base, "variable": variable} for variable in patches])
 
         def run(connection: Connection) -> None:
             connection.execute(
                 """delete from patches where package_base = :package_base""",
                 {"package_base": package_base})
 
-        if variables:
+        if variables is not None:
             return self.with_connection(run_many, commit=True)
         return self.with_connection(run, commit=True)

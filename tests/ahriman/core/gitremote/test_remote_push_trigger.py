@@ -26,7 +26,8 @@ def test_on_result(configuration: Configuration, result: Result, package_ahriman
     """
     database_mock = mocker.patch("ahriman.core._Context.get", return_value=database)
     run_mock = mocker.patch("ahriman.core.gitremote.remote_push.RemotePush.run")
-    trigger = RemotePushTrigger("x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+    trigger = RemotePushTrigger(repository_id, configuration)
 
     trigger.on_result(result, [package_ahriman])
     database_mock.assert_called_once_with(ContextKey("database", SQLite))

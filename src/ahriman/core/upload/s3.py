@@ -28,6 +28,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
 from ahriman.core.util import walk
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class S3(Upload):
@@ -37,20 +38,28 @@ class S3(Upload):
     Attributes
         bucket(Any): boto3 S3 bucket object
         chunk_size(int): chunk size for calculating checksums
+        object_path(Path): relative path to which packages will be uploaded
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        Upload.__init__(self, architecture, configuration)
+        Upload.__init__(self, repository_id, configuration)
         self.bucket = self.get_bucket(configuration, section)
         self.chunk_size = configuration.getint(section, "chunk_size", fallback=8 * 1024 * 1024)
+
+        if (object_path := configuration.get(section, "object_path", fallback=None)) is not None:
+            # we need to avoid path conversion here, hence the string
+            self.object_path = Path(object_path)
+        else:
+            paths = configuration.repository_paths
+            self.object_path = paths.repository.relative_to(paths.root / "repository")
 
     @staticmethod
     def calculate_etag(path: Path, chunk_size: int) -> str:
@@ -127,7 +136,7 @@ class S3(Upload):
                 continue
 
             local_path = path / local_file
-            remote_path = Path(self.architecture) / local_file
+            remote_path = self.object_path / local_file.name
             (mime, _) = mimetypes.guess_type(local_path)
             extra_args = {"ContentType": mime} if mime is not None else None
 
@@ -155,8 +164,8 @@ class S3(Upload):
         Returns:
             dict[Path, Any]: map of path object to the remote s3 object
         """
-        objects = self.bucket.objects.filter(Prefix=self.architecture)
-        return {Path(item.key).relative_to(self.architecture): item for item in objects}
+        objects = self.bucket.objects.filter(Prefix=str(self.object_path))
+        return {Path(item.key).relative_to(self.object_path): item for item in objects}
 
     def sync(self, path: Path, built_packages: list[Package]) -> None:
         """

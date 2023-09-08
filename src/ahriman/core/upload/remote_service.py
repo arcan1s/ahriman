@@ -27,10 +27,12 @@ from ahriman.core.http import MultipartType
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status.web_client import WebClient
 from ahriman.core.upload.http_upload import HttpUpload
+from ahriman.core.upload.upload import Upload
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
-class RemoteService(HttpUpload):
+class RemoteService(Upload, HttpUpload):
     """
     upload files to another server instance
 
@@ -38,16 +40,17 @@ class RemoteService(HttpUpload):
         client(WebClient): web client instance
     """
 
-    def __init__(self, architecture: str, configuration: Configuration, section: str) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            architecture(str): repository architecture
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        HttpUpload.__init__(self, architecture, configuration, section)
+        Upload.__init__(self, repository_id, configuration)
+        HttpUpload.__init__(self, configuration, section)
         self.client = WebClient(configuration)
 
     @cached_property

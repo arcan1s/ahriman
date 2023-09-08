@@ -44,8 +44,9 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
                               return_value=(args.package, PkgbuildPatch(None, "patch")))
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
-    Patch.run(args, "x86_64", configuration, report=False)
-    patch_mock.assert_called_once_with(args.package, "x86_64", args.track)
+    _, repository_id = configuration.check_loaded()
+    Patch.run(args, repository_id, configuration, report=False)
+    patch_mock.assert_called_once_with(args.package, repository_id.architecture, args.track)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, PkgbuildPatch(None, "patch"))
 
 
@@ -63,7 +64,8 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, re
     patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_function", return_value=patch)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
 
-    Patch.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Patch.run(args, repository_id, configuration, report=False)
     patch_mock.assert_called_once_with(args.variable, args.patch)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, patch)
 
@@ -79,7 +81,8 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_list")
 
-    Patch.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Patch.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, ["version"], False)
 
 
@@ -94,11 +97,12 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_remove")
 
-    Patch.run(args, "x86_64", configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    Patch.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.package, ["version"])
 
 
-def test_patch_create_from_diff(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_patch_create_from_diff(package_ahriman: Package, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must create patch from directory tree diff
     """
@@ -108,8 +112,9 @@ def test_patch_create_from_diff(package_ahriman: Package, mocker: MockerFixture)
     package_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     sources_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_create", return_value=patch.value)
 
-    assert Patch.patch_create_from_diff(path, "x86_64", ["*.diff"]) == (package_ahriman.base, patch)
-    package_mock.assert_called_once_with(path, "x86_64", None)
+    _, repository_id = configuration.check_loaded()
+    assert Patch.patch_create_from_diff(path, repository_id.architecture, ["*.diff"]) == (package_ahriman.base, patch)
+    package_mock.assert_called_once_with(path, repository_id.architecture, None)
     sources_mock.assert_called_once_with(path, "*.diff")
 
 
@@ -185,3 +190,10 @@ def test_patch_set_remove(application: Application, package_ahriman: Package, mo
     remove_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
     Patch.patch_set_remove(application, package_ahriman.base, ["version"])
     remove_mock.assert_called_once_with(package_ahriman.base, ["version"])
+
+
+def test_disallow_multi_architecture_run() -> None:
+    """
+    must not allow multi architecture run
+    """
+    assert not Patch.ALLOW_MULTI_ARCHITECTURE_RUN

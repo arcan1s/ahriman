@@ -18,14 +18,16 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
     """
     must create path variable correctly
     """
-    assert Lock(args, "x86_64", configuration).path is None
+    _, repository_id = configuration.check_loaded()
+
+    assert Lock(args, repository_id, configuration).path is None
 
     args.lock = Path("/run/ahriman.lock")
-    assert Lock(args, "x86_64", configuration).path == Path("/run/ahriman_x86_64.lock")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_aur-clone_x86_64.lock")
 
     with pytest.raises(ValueError):
         args.lock = Path("/")
-        Lock(args, "x86_64", configuration).path  # special case
+        Lock(args, repository_id, configuration).path  # special case
 
 
 def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
