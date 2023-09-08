@@ -37,7 +37,6 @@ class Email(Report, JinjaTemplate):
     email report generator
 
     Attributes:
-        full_template_path(Path): path to template for full package list
         host(str): SMTP host to connect
         no_empty_report(bool): skip empty report generation
         password(str | None): password to authenticate via SMTP
@@ -45,7 +44,8 @@ class Email(Report, JinjaTemplate):
         receivers(list[str]): list of receivers emails
         sender(str): sender email address
         ssl(SmtpSSLSettings): SSL mode for SMTP connection
-        template_path(Path): path to template for built packages
+        template(Path | str): path or name to template for built packages
+        template_full(Path | str | None): path or name to template for full package list
         user(str | None): username to authenticate via SMTP
     """
 
@@ -61,8 +61,10 @@ class Email(Report, JinjaTemplate):
         Report.__init__(self, repository_id, configuration)
         JinjaTemplate.__init__(self, repository_id, configuration, section)
 
-        self.full_template_path = configuration.getpath(section, "full_template_path", fallback=None)
-        self.template_path = configuration.getpath(section, "template_path")
+        self.template = configuration.get(section, "template", fallback=None) or \
+            configuration.getpath(section, "template_path")
+        self.template_full = configuration.get(section, "template_full", fallback=None) or \
+            configuration.getpath(section, "full_template_path", fallback=None)
 
         # base smtp settings
         self.host = configuration.get(section, "host")
@@ -114,9 +116,10 @@ class Email(Report, JinjaTemplate):
         """
         if self.no_empty_report and not result.success:
             return
-        text = self.make_html(result, self.template_path)
-        if self.full_template_path is not None:
-            attachments = {"index.html": self.make_html(Result(success=packages), self.full_template_path)}
-        else:
-            attachments = {}
+
+        text = self.make_html(result, self.template)
+        attachments = {}
+        if self.template_full is not None:
+            attachments = {"index.html": self.make_html(Result(success=packages), self.template_full)}
+
         self._send(text, attachments)

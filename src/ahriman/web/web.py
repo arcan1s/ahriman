@@ -147,7 +147,8 @@ def setup_service(repository_id: RepositoryId, configuration: Configuration, spa
     setup_cors(application)
 
     application.logger.info("setup templates")
-    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(configuration.getpath("web", "templates")))
+    templates = configuration.getpathlist("web", "templates")
+    aiohttp_jinja2.setup(application, loader=jinja2.FileSystemLoader(searchpath=templates))
 
     application.logger.info("setup configuration")
     application["configuration"] = configuration

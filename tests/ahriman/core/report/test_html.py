@@ -8,6 +8,20 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_template(configuration: Configuration) -> None:
+    """
+    must correctly parse template name and path
+    """
+    template = configuration.get("html", "template")
+    root, repository_id = configuration.check_loaded()
+
+    assert HTML(repository_id, configuration, "html").template == template
+
+    configuration.remove_option("html", "template")
+    configuration.set_option("html", "template_path", template)
+    assert HTML(repository_id, configuration, "html").template == root.parent / template
+
+
 def test_generate(configuration: Configuration, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must generate report

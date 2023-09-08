@@ -264,10 +264,14 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "path_exists": True,
             },
             "templates": {
-                "type": "path",
-                "coerce": "absolute_path",
-                "required": True,
-                "path_exists": True,
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "path_exists": True,
+                },
+                "empty": False,
             },
             "timeout": {
                 "type": "integer",

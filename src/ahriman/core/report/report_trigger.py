@@ -67,6 +67,8 @@ class ReportTrigger(Trigger):
                 "full_template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template_full"],
+                    "required": True,
                     "path_exists": True,
                 },
                 "homepage": {
@@ -111,11 +113,35 @@ class ReportTrigger(Trigger):
                     "type": "string",
                     "allowed": ["ssl", "starttls", "disabled"],
                 },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
+                "template_full": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                    },
                 },
                 "user": {
                     "type": "string",
@@ -143,11 +169,28 @@ class ReportTrigger(Trigger):
                     "coerce": "absolute_path",
                     "required": True,
                 },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                    },
                 },
             },
         },
@@ -175,15 +218,32 @@ class ReportTrigger(Trigger):
                     "required": True,
                     "is_url": [],
                 },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
                 "template_path": {
                     "type": "path",
                     "coerce": "absolute_path",
+                    "excludes": ["template"],
                     "required": True,
                     "path_exists": True,
                 },
                 "template_type": {
                     "type": "string",
                     "allowed": ["MarkdownV2", "HTML", "Markdown"],
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                    },
                 },
                 "timeout": {
                     "type": "integer",
