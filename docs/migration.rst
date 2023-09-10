@@ -44,6 +44,17 @@ In order to migrate to new filesystem tree the following actions are required:
    Edit configuration in case if anything is pointing to the old path, e.g. HTML report generation, in the way in which it will be pointed to directory inside repository specific one, e.g. ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur-clone/x86_64``.
 
 #.
+   Edit devtools pacman configuration (``/usr/share/devtools/pacman.conf.d/ahriman-x86_64.conf`` by default) replacing ``Server`` with path to your repository, e.g.:
+
+   .. code-block:: ini
+
+      [aur-clone]
+      SigLevel = Optional TrustAll
+      Server = file:///var/lib/ahriman/repository/aur-clone/x86_64
+
+   Alternatively it can be done by running ``service-setup`` command again.
+
+#.
    Make sure to update remote synchronization services if any. Almost all of them rely on current repository tree by default, so you need to setup either redirects or configure to synchronize to the old locations (e.g. ``object_path`` option for S3 synchronization).
 
 #.
