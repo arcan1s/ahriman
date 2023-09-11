@@ -18,11 +18,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import aiohttp_apispec  # type: ignore[import]
+import itertools
 
+from collections.abc import Callable
 from aiohttp.web import HTTPNoContent, Response, json_response
 
+from ahriman.models.build_status import BuildStatus
+from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -41,9 +45,10 @@ class PackagesView(BaseView):
     @aiohttp_apispec.docs(
         tags=["Packages"],
         summary="Get packages list",
-        description="Retrieve all packages and their descriptors",
+        description="Retrieve packages and their descriptors",
         responses={
             200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
@@ -51,6 +56,7 @@ class PackagesView(BaseView):
         security=[{"token": [GET_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(PaginationSchema)
     async def get(self) -> Response:
         """
         get current packages status
@@ -58,12 +64,17 @@ class PackagesView(BaseView):
         Returns:
             Response: 200 with package description on success
         """
+        limit, offset = self.page()
+        stop = offset + limit if limit >= 0 else None
+
+        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda pair: pair[0].base
         response = [
             {
                 "package": package.view(),
                 "status": status.view()
-            } for package, status in self.service.packages
+            } for package, status in itertools.islice(sorted(self.service.packages, key=comparator), offset, stop)
         ]
+
         return json_response(response)
 
     @aiohttp_apispec.docs(

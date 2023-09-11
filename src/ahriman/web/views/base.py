@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp_cors import CorsViewMixin  # type: ignore[import]
-from aiohttp.web import Request, StreamResponse, View
+from aiohttp.web import HTTPBadRequest, Request, StreamResponse, View
 from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
 
@@ -183,6 +183,30 @@ class BaseView(View, CorsViewMixin):
             return response
 
         self._raise_allowed_methods()
+
+    def page(self) -> tuple[int, int]:
+        """
+        parse limit and offset and return values
+
+        Returns:
+            tuple[int, int]: limit and offset from request
+
+        Raises:
+            HTTPBadRequest: if supplied parameters are invalid
+        """
+        try:
+            limit = int(self.request.query.getone("limit", default=-1))
+            offset = int(self.request.query.getone("offset", default=0))
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
+
+        # some checks
+        if limit < -1:
+            raise HTTPBadRequest(reason=f"Limit must be -1 or non-negative, got {limit}")
+        if offset < 0:
+            raise HTTPBadRequest(reason=f"Offset must be non-negative, got {offset}")
+
+        return limit, offset
 
     async def username(self) -> str | None:
         """

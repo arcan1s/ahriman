@@ -2,6 +2,7 @@ import pytest
 
 from multidict import MultiDict
 from aiohttp.test_utils import TestClient
+from aiohttp.web import HTTPBadRequest
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
@@ -148,6 +149,41 @@ async def test_head_not_allowed(client: TestClient) -> None:
     """
     response = await client.head("/api/v1/service/add")
     assert response.status == 405
+
+
+def test_page(base: BaseView) -> None:
+    """
+    must extract page from query parameters
+    """
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(limit=2, offset=3))
+    assert base.page() == (2, 3)
+
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(offset=3))
+    assert base.page() == (-1, 3)
+
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(limit=2))
+    assert base.page() == (2, 0)
+
+
+def test_page_bad_request(base: BaseView) -> None:
+    """
+    must raise HTTPBadRequest in case if parameters are invalid
+    """
+    with pytest.raises(HTTPBadRequest):
+        base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(limit="string"))
+        base.page()
+
+    with pytest.raises(HTTPBadRequest):
+        base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(offset="string"))
+        base.page()
+
+    with pytest.raises(HTTPBadRequest):
+        base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(limit=-2))
+        base.page()
+
+    with pytest.raises(HTTPBadRequest):
+        base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(offset=-1))
+        base.page()
 
 
 async def test_username(base: BaseView, mocker: MockerFixture) -> None:
