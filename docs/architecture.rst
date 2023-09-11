@@ -19,7 +19,7 @@ Full dependency diagram:
 ``ahriman.application`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains application (aka executable) related classes and everything for that. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from base ``ahriman.application.handlers.Handler`` class.
+This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from base ``ahriman.application.handlers.Handler`` class.
 
 ``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
@@ -44,7 +44,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.sign`` package provides sign feature (only gpg calls are available).
 * ``ahriman.core.status`` contains helpers and watcher class which are required for web application. Reporter must be initialized by using ``ahriman.core.status.client.Client.load`` method.
 * ``ahriman.core.support`` provides plugins for support packages (mirrorlist and keyring) generation.
-* ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report`` and ``ahriman.core.upload`` use this package.
+* ``ahriman.core.triggers`` package contains base trigger classes. Classes from this package must be imported in order to implement user extensions. In fact, ``ahriman.core.report``, ``ahriman.core.upload`` and other built-in triggers use this package.
 * ``ahriman.core.upload`` package provides sync feature, should not be called directly.
 
 This package also provides some generic functions and classes which may be used by other packages:
@@ -56,7 +56,7 @@ This package also provides some generic functions and classes which may be used 
 ``ahriman.models`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It provides models for any other part of application. Unlike ``ahriman.core`` package classes from here provide only conversion methods (e.g. create class from another or convert to). Mostly case classes and enumerations.
+It provides models for any other part of application. Unlike ``ahriman.core`` package classes from here provide only conversion methods (e.g. create class from another or convert to). It is mostly presented by case classes and enumerations.
 
 ``ahriman.web`` package
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,9 +74,10 @@ Web application. It is important that this package is isolated from any other to
 Application run
 ---------------
 
-#. Parse command line arguments, find command and related handler which is set by parser.
+#. Parse command line arguments, find subcommand and related handler which is set by the parser.
 #. Call ``Handler.execute`` method.
-#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or process in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``) which should be able to spawn child process in daemon mode (it is impossible to do from daemonic processes).
+#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the
+application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``, which should be able to spawn child process in daemon mode; it is impossible to do from daemonic processes).
 #. In each child process call lock functions.
 #. After success checks pass control to ``Handler.run`` method defined by specific handler class.
 #. Return result (success or failure) of each subprocess and exit from application.
@@ -84,7 +85,7 @@ Application run
 
 In the most cases handlers spawn god class ``ahriman.application.application.Application`` class and call required methods.
 
-Application is designed to run from ``systemd`` services and provides parametrized by architecture timer and service file for that.
+The application is designed to run from ``systemd`` services and provides parametrized by repository identifier timer and service file for that.
 
 Subcommand design
 ^^^^^^^^^^^^^^^^^
@@ -100,12 +101,12 @@ All subcommands are divided into several groups depending on the role they are d
 * ``user`` subcommands (``user-add``) are intended for user management.
 * ``web`` subcommands are related to web service management.
 
-For historical reasons and in order to keep backward compatibility some subcommands have aliases to their shorter forms or even other groups, but the service doesn't guarantee that they will remain unchanged.
+For historical reasons and in order to keep backward compatibility some subcommands have aliases to their shorter forms or even other groups, but the application doesn't guarantee that they will remain unchanged.
 
 Filesystem tree
 ---------------
 
-The application supports two types of trees, one is for legacy configuration (when there were no repository name explicit configuration available) and another one is for new-style tree. This document describes only new-style tree in order to avoid deprecated structure.
+The application supports two types of trees, one is for the legacy configuration (when there were no repository name explicit configuration available) and another one is the new-style tree. This document describes only new-style tree in order to avoid deprecated structures.
 
 Having default root as ``/var/lib/ahriman`` (differs from container though), the directory structure is the following:
 
@@ -142,12 +143,10 @@ There are multiple subdirectories, some of them are commons for any repository, 
 * ``cache`` is a directory with locally stored PKGBUILD's and VCS packages. It is common for all repositories and architectures.
 * ``chroot/{repository}`` is a chroot directory for ``devtools``. It is specific for each repository, but shared for different architectures inside (the ``devtools`` handles architectures automatically).
 * ``packages/{repository}/{architecture}`` is a directory with prebuilt packages. When package is built, first it will be uploaded to this directory and later will be handled by update process. It is architecture and repository specific.
-* ``pacman/{repository}/{architecture}`` is repository and architecture specific caches for pacman's databases.
+* ``pacman/{repository}/{architecture}`` is the repository and architecture specific caches for pacman's databases.
 * ``repository/{repository}/{architecture}`` is a repository packages directory.
 
-Normally you should avoid direct interaction with the application tree.
-
-For tree migration process refer to the :doc:`migration notes <migration>`.
+Normally you should avoid direct interaction with the application tree. For tree migration process refer to the :doc:`migration notes <migration>`.
 
 Database
 --------
@@ -166,7 +165,7 @@ Schema and data migrations
 
 The schema migration are applied according to current ``pragma user_info`` values, located at ``ahriman.core.database.migrations`` package and named as ``m000_migration_name.py`` (the preceding ``m`` is required in order to import migration content for tests). Additional class ``ahriman.core.database.migrations.Migrations`` reads all migrations automatically and applies them in alphabetical order.
 
-These migrations can also contain data migrations. Though the recommended way is to migrate data directly from SQL requests, sometimes it is required to have external data (like packages list) in order to set correct data. To do so, special method `migrate_data` is used.
+These migrations can also contain data migrations. Though the recommended way is to migrate data directly from SQL requests, sometimes it is required to have external data (like packages list) in order to set correct data. To do so, special method ``migrate_data`` is used.
 
 Type conversions
 ^^^^^^^^^^^^^^^^
@@ -193,7 +192,7 @@ Idea is to copy package to the directory from which it will be handled at the ne
 * If supplied argument is directory and there is ``PKGBUILD`` file there it will be treated as local package. In this case it will queue this package to build and copy source files (``PKGBUILD`` and ``.SRCINFO``) to caches.
 * If supplied argument is not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
 
-This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR.
+This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR. Also official repositories calls are hidden behind explicit source definition.
 
 Rebuild packages
 ^^^^^^^^^^^^^^^^
@@ -244,12 +243,12 @@ Core functions reference
 Configuration
 ^^^^^^^^^^^^^
 
-``ahriman.core.configuration.Configuration`` class provides some additional methods (e.g. ``getpath`` and ``getlist``) and also combines multiple files into single configuration dictionary using architecture overrides. It is the recommended way to deal with settings.
+``ahriman.core.configuration.Configuration`` class provides some additional methods (e.g. ``getpath`` and ``getlist``) and also combines multiple files into single configuration dictionary using repository identifier overrides. It is the recommended way to deal with settings.
 
 Enumerations
 ^^^^^^^^^^^^
 
-All enumerations are derived from ``str`` and ``enum.Enum``. Integer enumerations are not allowed, because most of operations require conversions from string variable. Derivation from string class is required to make json conversions implicitly (e.g. during calling ``json.dumps`` methods).
+All enumerations are derived from ``str`` and ``enum.Enum``. Integer enumerations in general are not allowed, because most of operations require conversions from string variable. Derivation from string class is required to make json conversions implicitly (e.g. during calling ``json.dumps`` methods).
 
 In addition, some enumerations provide ``from_option`` class methods in order to allow some flexibility while reading configuration options.
 
@@ -263,7 +262,7 @@ Context variables
 
 Package provides implicit global variables which can be accessed from ``ahriman.core`` package as ``context`` variable, wrapped by ``contextvars.ContextVar`` class. The value of the variable is defaulting to private ``_Context`` class which is defined in the same module. The default values - such as ``database`` and ``sign`` - are being set on the service initialization.
 
-The ``_Context`` class itself mimics default collection interface (as is Mapping) and can be modified by ``_Context.set`` method. The stored variables can be achieved by ``_Context.get`` method, which is unlike default ``Mapping`` interface also performs type and presence checks.
+The ``_Context`` class itself mimics default collection interface (as is ``Mapping``) and can be modified by ``_Context.set`` method. The stored variables can be achieved by ``_Context.get`` method, which is unlike default ``Mapping`` interface also performs type and presence checks.
 
 In order to provide statically typed interface, the ``ahriman.models.context_key.ContextKey`` class is used for both ``_Content.get`` and ``_Content.set`` methods; the context instance itself, however, does not store information about types.
 
@@ -299,7 +298,7 @@ OAuth's implementation also allows authenticating users via username + password 
 
 In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any further checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration.
 
-In order to configure users there are special commands.
+In order to configure users there are special subcommands.
 
 Triggers
 ^^^^^^^^
@@ -310,7 +309,7 @@ The main idea is to load classes by their full path (e.g. ``ahriman.core.upload.
 
 The loaded triggers will be called with ``ahriman.models.result.Result`` and ``list[Packages]`` arguments, which describes the process result and current repository packages respectively. Any exception raised will be suppressed and will generate an exception message in logs.
 
-In addition triggers can implement ``on_start`` and ``on_stop`` actions which will be called on the application start and right before the application exit. The ``on_start`` action is usually being called from handlers directly in order to make sure that no trigger will be run when it is not required (e.g. on user management). As soon as ``on_start`` action is called, the additional flag will be set; ``ahriman.core.triggers.TriggerLoader`` class implements ``__del__`` method in which, if the flag is set, the ``on_stop`` actions will be called.
+In addition triggers can implement ``on_start`` and ``on_stop`` actions which will be called on the application start and right before the application exit respectively. The ``on_start`` action is usually being called from handlers directly in order to make sure that no trigger will be run when it is not required (e.g. on user management). As soon as ``on_start`` action is called, the additional flag will be set; ``ahriman.core.triggers.TriggerLoader`` class implements ``__del__`` method in which, if the flag is set, the ``on_stop`` actions will be called.
 
 For more details how to deal with the triggers, refer to :doc:`documentation <triggers>` and modules descriptions.
 
@@ -370,9 +369,11 @@ REST API supports both form and JSON data, but the last one is recommended.
 Different APIs are separated into different packages:
 
 * ``ahriman.web.views.api`` not a real API, but some views which provide OpenAPI support.
-* ``ahriman.web.views.service`` provides views for application controls.
-* ``ahriman.web.views.status`` package provides REST API for application reporting.
-* ``ahriman.web.views.user`` package provides login and logout methods which can be called without authorization.
+* ``ahriman.web.views.*.service`` provides views for application controls.
+* ``ahriman.web.views.*.status`` package provides REST API for application reporting.
+* ``ahriman.web.views.*.user`` package provides login and logout methods which can be called without authorization.
+
+The views are also divided by supporting API versions (e.g. ``v1``, ``v2``).
 
 Templating
 ^^^^^^^^^^

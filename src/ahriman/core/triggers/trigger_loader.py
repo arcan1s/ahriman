@@ -203,13 +203,17 @@ class TriggerLoader(LazyLogging):
         Raises:
             ExtensionError: in case if module cannot be loaded from the specified module path or is not a trigger
         """
-        *package_path_parts, class_name = module_path.split(".")
-        package_or_path = ".".join(package_path_parts)
+        def is_readable_file(path: Path) -> bool:
+            return os.access(path, os.R_OK) and path.is_file()
+
+        package_or_path, class_name = module_path.rsplit(".", maxsplit=1)
 
         # it works for both missing permission and file does not exist
         path_like = Path(package_or_path)
-        if os.access(path_like, os.R_OK) and path_like.is_file():
+        if is_readable_file(path_like):
             module = self._load_module_from_file(package_or_path, class_name)
+        elif is_readable_file(path_like.with_suffix(".py")):
+            module = self._load_module_from_file(f"{package_or_path}.py", class_name)
         else:
             module = self._load_module_from_package(package_or_path)
 

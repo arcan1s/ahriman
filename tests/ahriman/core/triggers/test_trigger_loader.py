@@ -94,6 +94,14 @@ def test_load_trigger_class_path(trigger_loader: TriggerLoader, resource_path_ro
     assert trigger_loader.load_trigger_class(f"{path}.ReportTrigger") == ReportTrigger
 
 
+def test_load_trigger_class_path_suffix(trigger_loader: TriggerLoader, resource_path_root: Path) -> None:
+    """
+    must load trigger class from path without py suffix
+    """
+    path = resource_path_root.parent.parent / "src" / "ahriman" / "core" / "report" / "__init__"
+    assert trigger_loader.load_trigger_class(f"{path}.ReportTrigger") == ReportTrigger
+
+
 def test_load_trigger_class_path_directory(trigger_loader: TriggerLoader, resource_path_root: Path) -> None:
     """
     must raise InvalidExtension if provided import path is directory

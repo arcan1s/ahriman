@@ -9,8 +9,9 @@ Depending on the goal the package can be used in different ways. Nevertheless, i
 
    from ahriman.core.configuration import Configuration
    from ahriman.core.database import SQLite
+   from ahriman.models.repository_id import RepositoryId
 
-   architecture = "x86_64"
+   repository_id = RepositoryId("x86_64", "aur-clone")
    configuration = Configuration.from_path(Path("/etc/ahriman.ini"), architecture)
    database = SQLite.load(configuration)
 
@@ -26,8 +27,10 @@ Almost all actions are wrapped by ``ahriman.core.repository.Repository`` class
 .. code-block:: python
 
    from ahriman.core.repository import Repository
+   from ahriman.models.pacman_synchronization import PacmanSynchronization
 
-   repository = Repository(architecture, configuration, database, report=True, unsafe=False)
+   repository = Repository(repository_id, configuration, database,
+                           report=True, refresh_pacman_database=PacmanSynchronization.Disabled)
 
 And the ``repository`` instance can be used to perform repository maintenance
 
