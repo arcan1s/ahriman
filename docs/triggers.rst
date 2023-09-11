@@ -95,8 +95,8 @@ As it has been mentioned, our trigger must derive from specific class:
 
    class SlackReporter(Trigger):
 
-       def __init__(self, architecture, configuration):
-           Trigger.__init__(self, architecture, configuration)
+       def __init__(self, repository_id, configuration):
+           Trigger.__init__(self, repository_id, configuration)
            self.slack_url = configuration.get("slack", "url")
            self.channel = configuration.get("slack", "channel")
            self.username = configuration.get("slack", "username")
@@ -120,8 +120,8 @@ Obviously you can implement the specified method in class, but for guide purpose
 
    class SlackReporter(Trigger):
 
-       def __init__(self, architecture, configuration):
-           Trigger.__init__(self, architecture, configuration)
+       def __init__(self, repository_id, configuration):
+           Trigger.__init__(self, repository_id, configuration)
            self.slack_url = configuration.get("slack", "url")
            self.channel = configuration.get("slack", "channel")
            self.username = configuration.get("slack", "username")
@@ -132,7 +132,7 @@ Obviously you can implement the specified method in class, but for guide purpose
 Setup the trigger
 ^^^^^^^^^^^^^^^^^
 
-First, put the trigger in any path it can be exported, e.g. by packing the resource into python package (which will lead to import path as ``package.slack_reporter.SlackReporter``) or just put file somewhere it can be accessed by application (e.g. ``/usr/local/lib/slack_reporter.py.SlackReporter``).
+First, put the trigger in any path it can be exported, e.g. by packing the resource into python package (which will lead to import path as ``package.slack_reporter.SlackReporter``) or just put file somewhere it can be accessed by application (e.g. ``/usr/local/lib/slack_reporter.SlackReporter``).
 
 After that run application as usual and receive notification in your slack channel.
 
