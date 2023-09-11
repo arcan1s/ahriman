@@ -19,7 +19,7 @@
 #
 import aiohttp_apispec  # type: ignore[import]
 
-from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
@@ -63,15 +63,10 @@ class LogsView(BaseView):
             Response: 200 with package logs on success
 
         Raises:
-            HTTPBadRequest: if supplied parameters are invalid
             HTTPNotFound: if package base is unknown
         """
         package_base = self.request.match_info["package"]
-        try:
-            limit = int(self.request.query.getone("limit", default=-1))
-            offset = int(self.request.query.getone("offset", default=0))
-        except Exception as ex:
-            raise HTTPBadRequest(reason=str(ex))
+        limit, offset = self.page()
 
         try:
             _, status = self.service.package_get(package_base)

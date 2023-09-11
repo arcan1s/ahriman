@@ -21,7 +21,7 @@ from ahriman.web.web import setup_service
 
 
 @pytest.helpers.register
-def request(application: Application, path: str, method: str, json: Any = None, data: Any = None,
+def request(application: Application, path: str, method: str, params: Any = None, json: Any = None, data: Any = None,
             extra: dict[str, Any] | None = None, resource: Resource | None = None) -> MagicMock:
     """
     request generator helper
@@ -30,6 +30,7 @@ def request(application: Application, path: str, method: str, json: Any = None, 
         application(Application): application fixture
         path(str): path for the request
         method(str): method for the request
+        params(Any, optional): query parameters (Default value = None)
         json(Any, optional): json payload of the request (Default value = None)
         data(Any, optional): form data payload of the request (Default value = None)
         extra(dict[str, Any] | None, optional): extra info which will be injected for ``get_extra_info`` command
@@ -42,6 +43,7 @@ def request(application: Application, path: str, method: str, json: Any = None, 
     request_mock.app = application
     request_mock.path = path
     request_mock.method = method
+    request_mock.query = params
     request_mock.json = json
     request_mock.post = data
 
