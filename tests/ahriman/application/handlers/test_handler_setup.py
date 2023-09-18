@@ -25,7 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.architecture = ["x86_64"]
+    args.architecture = "x86_64"
     args.build_as_user = "ahriman"
     args.from_configuration = Path("/usr/share/devtools/pacman.conf.d/extra.conf")
     args.generate_salt = True
@@ -33,7 +33,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.mirror = "mirror"
     args.multilib = True
     args.packager = "John Doe <john@doe.com>"
-    args.repository = ["aur-clone"]
+    args.repository = "aur-clone"
     args.server = None
     args.sign_key = "key"
     args.sign_target = [SignSettings.Packages]
@@ -127,6 +127,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
     mocker.patch("pathlib.Path.open")
     set_option_mock = mocker.patch("ahriman.core.configuration.Configuration.set_option")
     write_mock = mocker.patch("ahriman.core.configuration.Configuration.write")
+    remove_mock = mocker.patch("pathlib.Path.unlink", autospec=True)
     _, repository_id = configuration.check_loaded()
     command = Setup.build_command(repository_paths.root, repository_id)
 
@@ -143,13 +144,12 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
                  " ".join([target.name.lower() for target in args.sign_target])),
         MockCall(Configuration.section_name("sign", repository_id.name, repository_id.architecture), "key",
                  args.sign_key),
-        MockCall(Configuration.section_name("web", repository_id.name, repository_id.architecture), "port",
-                 str(args.web_port)),
-        MockCall(Configuration.section_name("web", repository_id.name, repository_id.architecture), "unix_socket",
-                 str(args.web_unix_socket)),
+        MockCall("web", "port", str(args.web_port)),
+        MockCall("web", "unix_socket", str(args.web_unix_socket)),
         MockCall("auth", "salt", pytest.helpers.anyvar(str, strict=True)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+    remove_mock.assert_called_once_with(configuration.include / "00-setup-overrides.ini", missing_ok=True)
 
 
 def test_configuration_create_ahriman_no_multilib(args: argparse.Namespace, configuration: Configuration,

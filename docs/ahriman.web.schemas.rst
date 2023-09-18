@@ -172,6 +172,14 @@ ahriman.web.schemas.remote\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.repository\_id\_schema module
+-------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.repository_id_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.search\_schema module
 -----------------------------------------
 

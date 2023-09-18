@@ -22,7 +22,6 @@ import argparse
 from dataclasses import fields
 from collections.abc import Callable, Iterable
 
-from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
@@ -59,10 +58,8 @@ class Search(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(repository_id, configuration, report=report)
-
-        official_packages_list = Official.multisearch(*args.search, pacman=application.repository.pacman)
-        aur_packages_list = AUR.multisearch(*args.search, pacman=application.repository.pacman)
+        official_packages_list = Official.multisearch(*args.search)
+        aur_packages_list = AUR.multisearch(*args.search)
         Search.check_if_empty(args.exit_code, not official_packages_list and not aur_packages_list)
 
         for packages_list in (official_packages_list, aur_packages_list):

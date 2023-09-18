@@ -51,7 +51,7 @@ class RemoteCall(Report):
         """
         Report.__init__(self, repository_id, configuration)
 
-        self.client = WebClient(configuration)
+        self.client = WebClient(repository_id, configuration)
 
         self.update_aur = configuration.getboolean(section, "aur", fallback=False)
         self.update_local = configuration.getboolean(section, "local", fallback=False)
@@ -100,11 +100,13 @@ class RemoteCall(Report):
         Returns:
             str: remote process id
         """
-        response = self.client.make_request("POST", "/api/v1/service/update", json={
-            "aur": self.update_aur,
-            "local": self.update_local,
-            "manual": self.update_manual,
-        })
+        response = self.client.make_request("POST", "/api/v1/service/update",
+                                            params=self.repository_id.query(),
+                                            json={
+                                                "aur": self.update_aur,
+                                                "local": self.update_local,
+                                                "manual": self.update_manual,
+                                            })
         response_json = response.json()
 
         process_id: str = response_json["process_id"]

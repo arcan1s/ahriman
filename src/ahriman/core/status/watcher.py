@@ -17,11 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
-from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -36,23 +34,20 @@ class Watcher(LazyLogging):
         database(SQLite): database instance
         known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
             be used instead
-        repository(Repository): repository object
         repository_id(RepositoryId): repository unique identifier
         status(BuildStatus): daemon status
     """
 
-    def __init__(self, repository_id: RepositoryId, configuration: Configuration, database: SQLite) -> None:
+    def __init__(self, repository_id: RepositoryId, database: SQLite) -> None:
         """
         default constructor
 
         Args:
             repository_id(RepositoryId): repository unique identifier
-            configuration(Configuration): configuration instance
             database(SQLite): database instance
         """
         self.repository_id = repository_id
         self.database = database
-        self.repository = Repository.load(repository_id, configuration, database, report=False)
 
         self.known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
@@ -72,19 +67,11 @@ class Watcher(LazyLogging):
 
     def load(self) -> None:
         """
-        load packages from local repository. In case if last status is known, it will use it
+        load packages from local database
         """
-        for package in self.repository.packages():
-            # get status of build or assign unknown
-            if (current := self.known.get(package.base)) is not None:
-                _, status = current
-            else:
-                status = BuildStatus()
+        self.known = {}  # reset state
+        for package, status in self.database.packages_get(self.repository_id):
             self.known[package.base] = (package, status)
-
-        for package, status in self.database.packages_get():
-            if package.base in self.known:
-                self.known[package.base] = (package, status)
 
     def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
         """
@@ -98,7 +85,7 @@ class Watcher(LazyLogging):
         Returns:
             list[tuple[float, str]]: package logs
         """
-        return self.database.logs_get(package_base, limit, offset)
+        return self.database.logs_get(package_base, limit, offset, self.repository_id)
 
     def logs_remove(self, package_base: str, version: str | None) -> None:
         """
@@ -108,7 +95,7 @@ class Watcher(LazyLogging):
             package_base(str): package base
             version(str): package versio
         """
-        self.database.logs_remove(package_base, version)
+        self.database.logs_remove(package_base, version, self.repository_id)
 
     def logs_update(self, log_record_id: LogRecordId, created: float, record: str) -> None:
         """
@@ -123,7 +110,7 @@ class Watcher(LazyLogging):
             # there is new log record, so we remove old ones
             self.logs_remove(log_record_id.package_base, log_record_id.version)
         self._last_log_record_id = log_record_id
-        self.database.logs_insert(log_record_id, created, record)
+        self.database.logs_insert(log_record_id, created, record, self.repository_id)
 
     def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
@@ -151,7 +138,7 @@ class Watcher(LazyLogging):
             package_base(str): package base
         """
         self.known.pop(package_base, None)
-        self.database.package_remove(package_base)
+        self.database.package_remove(package_base, self.repository_id)
         self.logs_remove(package_base, None)
 
     def package_update(self, package_base: str, status: BuildStatusEnum, package: Package | None) -> None:
@@ -173,7 +160,7 @@ class Watcher(LazyLogging):
                 raise UnknownPackageError(package_base) from None
         full_status = BuildStatus(status)
         self.known[package_base] = (package, full_status)
-        self.database.package_update(package, full_status)
+        self.database.package_update(package, full_status, self.repository_id)
 
     def status_update(self, status: BuildStatusEnum) -> None:
         """

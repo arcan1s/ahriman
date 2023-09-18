@@ -63,4 +63,4 @@ In order to migrate to new filesystem tree the following actions are required:
    .. code-block:: shell
 
       sudo systemctl enable --now ahriman@x86_64-aur-clone.timer
-      sudo systemctl enable --now ahriman-web@x86_64-aur-clone
+      sudo systemctl enable --now ahriman-web

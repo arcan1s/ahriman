@@ -67,13 +67,13 @@ class PGPView(BaseView):
             HTTPNotFound: if key wasn't found or service was unable to fetch it
         """
         try:
-            key = self.get_non_empty(self.request.query.getone, "key")
-            server = self.get_non_empty(self.request.query.getone, "server")
+            key = self.get_non_empty(self.request.query.get, "key")
+            server = self.get_non_empty(self.request.query.get, "server")
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            key = self.service.repository.sign.key_download(server, key)
+            key = self.sign.key_download(server, key)
         except Exception:
             raise HTTPNotFound
 

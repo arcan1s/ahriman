@@ -37,6 +37,7 @@ def test_from_path(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     must load configuration
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
+    mocker.patch("ahriman.core.configuration.Configuration.get", return_value="ahriman.ini.d")
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
     load_includes_mock = mocker.patch("ahriman.core.configuration.Configuration.load_includes")
     path = Path("path")
@@ -44,7 +45,10 @@ def test_from_path(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     configuration = Configuration.from_path(path, repository_id)
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
-    load_includes_mock.assert_called_once_with()
+    load_includes_mock.assert_has_calls([
+        MockCall(),
+        MockCall(configuration.repository_paths.root),
+    ])
 
 
 def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -53,6 +57,7 @@ def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixtu
     """
     mocker.patch("pathlib.Path.is_file", return_value=False)
     mocker.patch("ahriman.core.configuration.Configuration.load_includes")
+    mocker.patch("ahriman.core.configuration.Configuration.get", return_value="ahriman.ini.d")
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
 
     configuration = Configuration.from_path(Path("path"), repository_id)
@@ -288,28 +293,56 @@ def test_gettype_from_section_no_section(configuration: Configuration) -> None:
         configuration.gettype("rsync:x86_64", configuration.repository_id)
 
 
-def test_load_includes_missing(configuration: Configuration) -> None:
+def test_load_includes(mocker: MockerFixture) -> None:
+    """
+    must load includes
+    """
+    mocker.patch.object(Configuration, "logging_path", Path("logging"))
+    read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
+    glob_mock = mocker.patch("pathlib.Path.glob", autospec=True, return_value=[Path("include"), Path("logging")])
+    configuration = Configuration()
+
+    configuration.load_includes(Path("path"))
+    glob_mock.assert_called_once_with(Path("path"), "*.ini")
+    read_mock.assert_called_once_with(Path("include"))
+    assert configuration.includes == [Path("include")]
+
+
+def test_load_includes_missing() -> None:
     """
     must not fail if not include directory found
     """
+    configuration = Configuration()
     configuration.set_option("settings", "include", "path")
     configuration.load_includes()
 
 
-def test_load_includes_no_option(configuration: Configuration) -> None:
+def test_load_includes_no_option() -> None:
     """
     must not fail if no option set
     """
-    configuration.remove_option("settings", "include")
+    configuration = Configuration()
+    configuration.set_option("settings", "key", "value")
     configuration.load_includes()
 
 
-def test_load_includes_no_section(configuration: Configuration) -> None:
+def test_load_includes_no_section() -> None:
     """
     must not fail if no section set
     """
-    configuration.remove_section("settings")
+    configuration = Configuration()
     configuration.load_includes()
+
+
+def test_load_includes_default_path(mocker: MockerFixture) -> None:
+    """
+    must load includes from default path
+    """
+    mocker.patch.object(Configuration, "include", Path("path"))
+    glob_mock = mocker.patch("pathlib.Path.glob", autospec=True, return_value=[])
+
+    Configuration().load_includes()
+    glob_mock.assert_called_once_with(Path("path"), "*.ini")
 
 
 def test_merge_sections_missing(configuration: Configuration) -> None:

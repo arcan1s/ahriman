@@ -214,19 +214,18 @@ class Package(LazyLogging):
         )
 
     @classmethod
-    def from_aur(cls, name: str, pacman: Pacman, packager: str | None = None) -> Self:
+    def from_aur(cls, name: str, packager: str | None = None) -> Self:
         """
         construct package properties from AUR page
 
         Args:
             name(str): package name (either base or normal name)
-            pacman(Pacman): alpm wrapper instance
             packager(str | None, optional): packager to be used for this build (Default value = None)
 
         Returns:
             Self: package properties
         """
-        package = AUR.info(name, pacman=pacman)
+        package = AUR.info(name)
 
         remote = RemoteSource(
             source=PackageSource.AUR,
@@ -331,7 +330,7 @@ class Package(LazyLogging):
         Returns:
             Self: package properties
         """
-        package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name, pacman=pacman)
+        package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name)
 
         remote = RemoteSource(
             source=PackageSource.Repository,

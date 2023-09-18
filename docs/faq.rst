@@ -1073,7 +1073,7 @@ How to setup web service
       port = 8080
 
 #. 
-   Start the web service ``systemctl enable --now ahriman-web@x86_64-aur-clone``.
+   Start the web service ``systemctl enable --now ahriman-web``.
 
 How to enable basic authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1130,7 +1130,7 @@ How to enable basic authorization
       sudo -u ahriman ahriman user-add -r full my-first-user
 
 #.
-   Restart web service ``systemctl restart ahriman-web@x86_64-aur-clone``.
+   Restart web service ``systemctl restart ahriman-web``.
 
 How to enable OAuth authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1176,7 +1176,7 @@ How to enable OAuth authorization
    When it will ask for the password leave it blank.
 
 #.
-   Restart web service ``systemctl restart ahriman-web@x86_64-aur-clone``.
+   Restart web service ``systemctl restart ahriman-web``.
 
 How to implement own interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

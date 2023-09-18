@@ -23,8 +23,7 @@ from aiohttp.web import HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PaginationSchema
-from ahriman.web.schemas.logs_schema import LogsSchemaV2
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchemaV2, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -70,10 +69,10 @@ class LogsView(BaseView):
         limit, offset = self.page()
 
         try:
-            _, status = self.service.package_get(package_base)
+            _, status = self.service().package_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound
-        logs = self.service.logs_get(package_base, limit, offset)
+        logs = self.service().logs_get(package_base, limit, offset)
 
         response = {
             "package_base": package_base,

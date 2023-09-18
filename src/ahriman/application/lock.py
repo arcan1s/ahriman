@@ -79,7 +79,7 @@ class Lock(LazyLogging):
         self.wait_timeout: int = args.wait_timeout
 
         self.paths = configuration.repository_paths
-        self.reporter = Client.load(configuration, report=args.report)
+        self.reporter = Client.load(repository_id, configuration, report=args.report)
 
     def check_version(self) -> None:
         """

@@ -17,28 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
+from marshmallow import fields
 
 from ahriman import __version__
 from ahriman.web.schemas.counters_schema import CountersSchema
+from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.status_schema import StatusSchema
 
 
-class InternalStatusSchema(Schema):
+class InternalStatusSchema(RepositoryIdSchema):
     """
     response service status schema
     """
 
-    architecture = fields.String(required=True, metadata={
-        "description": "Repository architecture",
-        "example": "x86_64",
-    })
     packages = fields.Nested(CountersSchema(), required=True, metadata={
         "description": "Repository package counters",
-    })
-    repository = fields.String(required=True, metadata={
-        "description": "Repository name",
-        "example": "repo-clone",
     })
     status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Repository status as stored by web service",

@@ -51,7 +51,7 @@ class RemoteService(Upload, HttpUpload):
         """
         Upload.__init__(self, repository_id, configuration)
         HttpUpload.__init__(self, configuration, section)
-        self.client = WebClient(configuration)
+        self.client = WebClient(repository_id, configuration)
 
     @cached_property
     def session(self) -> requests.Session:
@@ -81,7 +81,8 @@ class RemoteService(Upload, HttpUpload):
                 if signature_path is not None:
                     files["signature"] = signature_path.name, signature_path.open("rb"), "application/octet-stream", {}
 
-                self.make_request("POST", f"{self.client.address}/api/v1/service/upload", files=files)
+                self.make_request("POST", f"{self.client.address}/api/v1/service/upload",
+                                  params=self.repository_id.query(), files=files)
             finally:
                 for _, fd, _, _ in files.values():
                     fd.close()

@@ -3,6 +3,7 @@ import pytest
 from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.v1.service.remove import RemoveView
 
@@ -23,7 +24,7 @@ def test_routes() -> None:
     assert RemoveView.ROUTES == ["/api/v1/service/remove"]
 
 
-async def test_post(client: TestClient, mocker: MockerFixture) -> None:
+async def test_post(client: TestClient, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
@@ -35,7 +36,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/remove", json=payload)
     assert response.ok
-    remove_mock.assert_called_once_with(["ahriman"])
+    remove_mock.assert_called_once_with(repository_id, ["ahriman"])
 
     json = await response.json()
     assert json["process_id"] == "abc"

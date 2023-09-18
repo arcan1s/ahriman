@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <title>{{ repository }}</title>
+        <title>ahriman</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -16,7 +16,22 @@
         {% include "utils/bootstrap-scripts.jinja2" %}
 
         <div class="container">
-            <h1 id="badge-repository">ahriman</h1>
+            <nav class="navbar navbar-expand-lg">
+                <a class="navbar-brand" href="#"><img src="/static/logo.svg" width="30" height="30" alt=""> ahriman</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-supported-content" aria-controls="navbar-supported-content" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div id="navbar-supported-content" class="collapse navbar-collapse">
+                    <ul id="repositories" class="nav nav-tabs">
+                        {% for repository in repositories %}
+                            <li class="nav-item">
+                                <a id="{{ repository.id }}-lnk" class="nav-link" href="#{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
         </div>
 
         <div id="alert-placeholder" class="toast-container p3 top-0 start-50 translate-middle-x"></div>
@@ -31,28 +46,33 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <button id="package-add-btn" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
+                            <button id="package-add-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
                                 <i class="bi bi-plus"></i> add
                             </button>
                         </li>
                         <li>
-                            <button id="package-update-btn" class="btn dropdown-item" onclick="updatePackages()" hidden>
+                            <button id="package-update-button" class="btn dropdown-item" onclick="updatePackages()" hidden>
                                 <i class="bi bi-play"></i> update
                             </button>
                         </li>
                         <li>
-                            <button id="package-rebuild-btn" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal" hidden>
+                            <button id="package-update-all-button" class="btn dropdown-item" onclick="updateAllPackages()" hidden>
+                                <i class="bi bi-play"></i> update all
+                            </button>
+                        </li>
+                        <li>
+                            <button id="package-rebuild-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal" hidden>
                                 <i class="bi bi-arrow-clockwise"></i> rebuild
                             </button>
                         </li>
                         <li>
-                            <button id="package-remove-btn" class="btn dropdown-item" onclick="removePackages()" disabled hidden>
+                            <button id="package-remove-button" class="btn dropdown-item" onclick="removePackages()" disabled hidden>
                                 <i class="bi bi-trash"></i> remove
                             </button>
                         </li>
                     </ul>
 
-                    <button id="key-import-btn" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
+                    <button id="key-import-button" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
                         <i class="bi bi-key"></i> import key
                     </button>
                 {% endif %}
@@ -117,7 +137,7 @@
                 {% if auth.enabled %}
                     <ul class="nav">
                         {% if auth.username is none %}
-                            <li>{{ auth.control|safe }}</li>
+                            <li>{{ auth.control | safe }}</li>
                         {% else %}
                             <li>
                                 <form action="/api/v1/logout" method="post">

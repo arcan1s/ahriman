@@ -1,0 +1,12 @@
+[Unit]
+Description=ArcH linux ReposItory MANager web server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ahriman web
+User=ahriman
+Group=ahriman
+
+[Install]
+WantedBy=multi-user.target

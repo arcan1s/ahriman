@@ -32,6 +32,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class WebClient(Client, SyncHttpClient):
@@ -40,19 +41,22 @@ class WebClient(Client, SyncHttpClient):
 
     Attributes:
         address(str): address of the web service
+        repository_id(RepositoryId): repository unique identifier
         use_unix_socket(bool): use websocket or not
     """
 
-    def __init__(self, configuration: Configuration) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         default constructor
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
         suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
         SyncHttpClient.__init__(self, configuration, "web", suppress_errors=suppress_errors)
 
+        self.repository_id = repository_id
         self.address, self.use_unix_socket = self.parse_address(configuration)
 
     @cached_property
@@ -184,7 +188,8 @@ class WebClient(Client, SyncHttpClient):
             "package": package.view()
         }
         with contextlib.suppress(Exception):
-            self.make_request("POST", self._package_url(package.base), json=payload)
+            self.make_request("POST", self._package_url(package.base),
+                              params=self.repository_id.query(), json=payload)
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
@@ -197,7 +202,8 @@ class WebClient(Client, SyncHttpClient):
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
         """
         with contextlib.suppress(Exception):
-            response = self.make_request("GET", self._package_url(package_base or ""))
+            response = self.make_request("GET", self._package_url(package_base or ""),
+                                         params=self.repository_id.query())
             response_json = response.json()
 
             return [
@@ -224,7 +230,8 @@ class WebClient(Client, SyncHttpClient):
         # this is special case, because we would like to do not suppress exception here
         # in case of exception raised it will be handled by upstream HttpLogHandler
         # In the other hand, we force to suppress all http logs here to avoid cyclic reporting
-        self.make_request("POST", self._logs_url(log_record_id.package_base), json=payload, suppress_errors=True)
+        self.make_request("POST", self._logs_url(log_record_id.package_base),
+                          params=self.repository_id.query(), json=payload, suppress_errors=True)
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -234,7 +241,7 @@ class WebClient(Client, SyncHttpClient):
             package_base(str): basename to remove
         """
         with contextlib.suppress(Exception):
-            self.make_request("DELETE", self._package_url(package_base))
+            self.make_request("DELETE", self._package_url(package_base), params=self.repository_id.query())
 
     def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
@@ -246,7 +253,8 @@ class WebClient(Client, SyncHttpClient):
         """
         payload = {"status": status.value}
         with contextlib.suppress(Exception):
-            self.make_request("POST", self._package_url(package_base), json=payload)
+            self.make_request("POST", self._package_url(package_base),
+                              params=self.repository_id.query(), json=payload)
 
     def status_get(self) -> InternalStatus:
         """
@@ -256,7 +264,7 @@ class WebClient(Client, SyncHttpClient):
             InternalStatus: current internal (web) service status
         """
         with contextlib.suppress(Exception):
-            response = self.make_request("GET", self._status_url())
+            response = self.make_request("GET", self._status_url(), params=self.repository_id.query())
             response_json = response.json()
 
             return InternalStatus.from_json(response_json)
@@ -272,4 +280,4 @@ class WebClient(Client, SyncHttpClient):
         """
         payload = {"status": status.value}
         with contextlib.suppress(Exception):
-            self.make_request("POST", self._status_url(), json=payload)
+            self.make_request("POST", self._status_url(), params=self.repository_id.query(), json=payload)

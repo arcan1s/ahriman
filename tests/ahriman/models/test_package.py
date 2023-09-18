@@ -164,14 +164,13 @@ def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     assert generated == package_ahriman
 
 
-def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
-                  mocker: MockerFixture) -> None:
+def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must construct package from aur
     """
     mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
 
-    package = Package.from_aur(package_ahriman.base, pacman, package_ahriman.packager)
+    package = Package.from_aur(package_ahriman.base, package_ahriman.packager)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()

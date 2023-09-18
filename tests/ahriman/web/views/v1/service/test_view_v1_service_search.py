@@ -77,4 +77,4 @@ async def test_get_join(client: TestClient, mocker: MockerFixture) -> None:
     assert not request_schema.validate(payload)
     response = await client.get("/api/v1/service/search", params=payload)
     assert response.ok
-    search_mock.assert_called_once_with("ahriman", "maybe", pacman=pytest.helpers.anyvar(int))
+    search_mock.assert_called_once_with("ahriman", "maybe")

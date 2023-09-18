@@ -25,7 +25,8 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PackageStatusSchema, PackageStatusSimplifiedSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PackageStatusSchema, \
+    PackageStatusSimplifiedSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -57,6 +58,7 @@ class PackageView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def delete(self) -> None:
         """
         delete package base from status page
@@ -65,7 +67,7 @@ class PackageView(BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service.package_remove(package_base)
+        self.service().package_remove(package_base)
 
         raise HTTPNoContent
 
@@ -84,6 +86,7 @@ class PackageView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
         get current package base status
@@ -95,16 +98,18 @@ class PackageView(BaseView):
             HTTPNotFound: if no package was found
         """
         package_base = self.request.match_info["package"]
+        repository_id = self.repository_id()
 
         try:
-            package, status = self.service.package_get(package_base)
+            package, status = self.service(repository_id).package_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound
 
         response = [
             {
                 "package": package.view(),
-                "status": status.view()
+                "status": status.view(),
+                "repository": repository_id.view(),
             }
         ]
         return json_response(response)
@@ -124,6 +129,7 @@ class PackageView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     @aiohttp_apispec.json_schema(PackageStatusSimplifiedSchema)
     async def post(self) -> None:
         """
@@ -143,7 +149,7 @@ class PackageView(BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            self.service.package_update(package_base, status, package)
+            self.service().package_update(package_base, status, package)
         except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 

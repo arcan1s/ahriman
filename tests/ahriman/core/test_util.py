@@ -478,6 +478,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "build-status" / "package-rebuild-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "table.jinja2",
         resource_path_root / "web" / "templates" / "static" / "favicon.ico",
+        resource_path_root / "web" / "templates" / "static" / "logo.svg",
         resource_path_root / "web" / "templates" / "utils" / "bootstrap-scripts.jinja2",
         resource_path_root / "web" / "templates" / "utils" / "style.jinja2",
         resource_path_root / "web" / "templates" / "api.jinja2",

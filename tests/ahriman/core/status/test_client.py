@@ -15,7 +15,8 @@ def test_load_dummy_client(configuration: Configuration) -> None:
     """
     must load dummy client if no settings set
     """
-    assert not isinstance(Client.load(configuration, report=True), WebClient)
+    _, repository_id = configuration.check_loaded()
+    assert not isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
 def test_load_dummy_client_disabled(configuration: Configuration) -> None:
@@ -24,7 +25,9 @@ def test_load_dummy_client_disabled(configuration: Configuration) -> None:
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    assert not isinstance(Client.load(configuration, report=False), WebClient)
+
+    _, repository_id = configuration.check_loaded()
+    assert not isinstance(Client.load(repository_id, configuration, report=False), WebClient)
 
 
 def test_load_full_client(configuration: Configuration) -> None:
@@ -33,7 +36,9 @@ def test_load_full_client(configuration: Configuration) -> None:
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    assert isinstance(Client.load(configuration, report=True), WebClient)
+
+    _, repository_id = configuration.check_loaded()
+    assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
 def test_load_full_client_from_address(configuration: Configuration) -> None:
@@ -41,7 +46,8 @@ def test_load_full_client_from_address(configuration: Configuration) -> None:
     must load full client by using address
     """
     configuration.set_option("web", "address", "http://localhost:8080")
-    assert isinstance(Client.load(configuration, report=True), WebClient)
+    _, repository_id = configuration.check_loaded()
+    assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
 def test_load_full_client_from_unix_socket(configuration: Configuration) -> None:
@@ -49,7 +55,8 @@ def test_load_full_client_from_unix_socket(configuration: Configuration) -> None
     must load full client by using unix socket
     """
     configuration.set_option("web", "unix_socket", "/var/lib/ahriman/ahriman-web.sock")
-    assert isinstance(Client.load(configuration, report=True), WebClient)
+    _, repository_id = configuration.check_loaded()
+    assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
 def test_package_add(client: Client, package_ahriman: Package) -> None:

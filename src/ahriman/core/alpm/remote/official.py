@@ -107,13 +107,13 @@ class Official(Remote):
         response = self.make_request("GET", self.DEFAULT_RPC_URL, params=query)
         return self.parse_response(response.json())
 
-    def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
+    def package_info(self, package_name: str, *, pacman: Pacman | None) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
 
         Returns:
             AURPackage: package which match the package name
@@ -127,13 +127,13 @@ class Official(Remote):
         except StopIteration:
             raise UnknownPackageError(package_name) from None
 
-    def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman | None) -> list[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
 
         Returns:
             list[AURPackage]: list of packages which match the criteria

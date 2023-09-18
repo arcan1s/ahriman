@@ -20,18 +20,20 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     add_mock = mocker.patch("logging.Logger.addHandler")
     load_mock = mocker.patch("ahriman.core.status.client.Client.load")
 
-    handler = HttpLogHandler.load(configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler.load(repository_id, configuration, report=False)
     assert handler
     add_mock.assert_called_once_with(handler)
-    load_mock.assert_called_once_with(configuration, report=False)
+    load_mock.assert_called_once_with(repository_id, configuration, report=False)
 
 
 def test_load_exist(configuration: Configuration) -> None:
     """
     must not load handler if already set
     """
-    handler = HttpLogHandler.load(configuration, report=False)
-    new_handler = HttpLogHandler.load(configuration, report=False)
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler.load(repository_id, configuration, report=False)
+    new_handler = HttpLogHandler.load(repository_id, configuration, report=False)
     assert handler is new_handler
 
 
@@ -43,7 +45,8 @@ def test_emit(configuration: Configuration, log_record: logging.LogRecord, packa
     log_record_id = log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
     log_mock = mocker.patch("ahriman.core.status.client.Client.package_logs")
 
-    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     log_mock.assert_called_once_with(log_record_id, log_record)
@@ -57,7 +60,8 @@ def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord
     log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
     mocker.patch("ahriman.core.status.client.Client.package_logs", side_effect=Exception())
     handle_error_mock = mocker.patch("logging.Handler.handleError")
-    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     handle_error_mock.assert_called_once_with(log_record)
@@ -71,7 +75,8 @@ def test_emit_suppress_failed(configuration: Configuration, log_record: logging.
     log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
     mocker.patch("ahriman.core.status.client.Client.package_logs", side_effect=Exception())
     handle_error_mock = mocker.patch("logging.Handler.handleError")
-    handler = HttpLogHandler(configuration, report=False, suppress_errors=True)
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=True)
 
     handler.emit(log_record)
     handle_error_mock.assert_not_called()
@@ -82,7 +87,9 @@ def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, 
     must skip log record posting if no package base set
     """
     log_mock = mocker.patch("ahriman.core.status.client.Client.package_logs")
-    handler = HttpLogHandler(configuration, report=False, suppress_errors=False)
+
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
     log_mock.assert_not_called()

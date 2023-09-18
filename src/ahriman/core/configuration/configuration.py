@@ -232,7 +232,7 @@ class Configuration(configparser.RawConfigParser):
             dict[str, dict[str, str]]: configuration dump for specific architecture
         """
         return {
-            section: dict(self[section])
+            section: dict(self.items(section))
             for section in self.sections()
         }
 
@@ -282,20 +282,27 @@ class Configuration(configparser.RawConfigParser):
         if not path.is_file():  # fallback to the system file
             path = self.SYSTEM_CONFIGURATION_PATH
         self.path = path
-        self.read(self.path)
-        self.load_includes()
 
-    def load_includes(self) -> None:
-        """
-        load configuration includes
-        """
+        self.read(self.path)
+
         self.includes = []  # reset state
+        self.load_includes()  # basic includes
+        self.load_includes(self.getpath("repository", "root"))  # home directory includes
+
+    def load_includes(self, path: Path | None = None) -> None:
+        """
+        load configuration includes from specified path
+
+        Args:
+            path(Path | None, optional): path to directory with include files (Default value = None)
+        """
         try:
-            for path in sorted(self.include.glob("*.ini")):
-                if path == self.logging_path:
+            path = path or self.include
+            for include in sorted(path.glob("*.ini")):
+                if include == self.logging_path:
                     continue  # we don't want to load logging explicitly
-                self.read(path)
-                self.includes.append(path)
+                self.read(include)
+                self.includes.append(include)
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 

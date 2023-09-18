@@ -42,7 +42,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "include": {
                 "type": "path",
                 "coerce": "absolute_path",
-                "required": True,
                 "path_exists": True,
                 "path_type": "dir",
             },

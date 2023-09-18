@@ -1,7 +1,11 @@
+import pytest
+
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock, call as MockCall
+from unittest.mock import MagicMock
 
 from ahriman.core.spawn import Spawn
+from ahriman.models.process_status import ProcessStatus
+from ahriman.models.repository_id import RepositoryId
 
 
 def test_boolean_action_argument() -> None:
@@ -12,7 +16,7 @@ def test_boolean_action_argument() -> None:
     assert Spawn.boolean_action_argument("option", False) == "no-option"
 
 
-def test_process(spawner: Spawn) -> None:
+def test_process(spawner: Spawn, repository_id: RepositoryId) -> None:
     """
     must process external process run correctly
     """
@@ -20,39 +24,39 @@ def test_process(spawner: Spawn) -> None:
     callback = MagicMock()
     callback.return_value = True
 
-    spawner.process(callback, args, spawner.repository_id, "id", spawner.queue)
+    spawner.process(callback, args, repository_id, "id", spawner.queue)
 
-    callback.assert_called_once_with(args, spawner.repository_id)
-    (uuid, status, time) = spawner.queue.get()
-    assert uuid == "id"
-    assert status
-    assert time >= 0
+    callback.assert_called_once_with(args, repository_id)
+    status = spawner.queue.get()
+    assert status.process_id == "id"
+    assert status.status
+    assert status.consumed_time >= 0
     assert spawner.queue.empty()
 
 
-def test_process_error(spawner: Spawn) -> None:
+def test_process_error(spawner: Spawn, repository_id: RepositoryId) -> None:
     """
     must process external run with error correctly
     """
     callback = MagicMock()
     callback.return_value = False
 
-    spawner.process(callback, MagicMock(), spawner.repository_id, "id", spawner.queue)
+    spawner.process(callback, MagicMock(), repository_id, "id", spawner.queue)
 
-    (uuid, status, time) = spawner.queue.get()
-    assert uuid == "id"
-    assert not status
-    assert time >= 0
+    status = spawner.queue.get()
+    assert status.process_id == "id"
+    assert not status.status
+    assert status.consumed_time >= 0
     assert spawner.queue.empty()
 
 
-def test_spawn_process(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_spawn_process(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must correctly spawn child process
     """
     start_mock = mocker.patch("multiprocessing.Process.start")
 
-    assert spawner._spawn_process("add", "ahriman", now="", maybe="?", none=None)
+    assert spawner._spawn_process(repository_id, "add", "ahriman", now="", maybe="?", none=None)
     start_mock.assert_called_once_with()
     spawner.args_parser.parse_args.assert_called_once_with(
         spawner.command_arguments + [
@@ -77,7 +81,7 @@ def test_key_import(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     assert spawner.key_import("0xdeadbeaf", None)
-    spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf")
+    spawn_mock.assert_called_once_with(pytest.helpers.anyvar(int), "service-key-import", "0xdeadbeaf")
 
 
 def test_key_import_with_server(spawner: Spawn, mocker: MockerFixture) -> None:
@@ -86,78 +90,80 @@ def test_key_import_with_server(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
     assert spawner.key_import("0xdeadbeaf", "keyserver.ubuntu.com")
-    spawn_mock.assert_called_once_with("service-key-import", "0xdeadbeaf", **{"key-server": "keyserver.ubuntu.com"})
+    spawn_mock.assert_called_once_with(pytest.helpers.anyvar(int), "service-key-import", "0xdeadbeaf",
+                                       **{"key-server": "keyserver.ubuntu.com"})
 
 
-def test_packages_add(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_add(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call package addition
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(["ahriman", "linux"], None, now=False)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username=None)
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, now=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None)
 
 
-def test_packages_add_with_build(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_add_with_build(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call package addition with update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(["ahriman", "linux"], None, now=True)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username=None, now="")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, now=True)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None, now="")
 
 
-def test_packages_add_with_username(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_add_with_username(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call package addition with username
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(["ahriman", "linux"], "username", now=False)
-    spawn_mock.assert_called_once_with("package-add", "ahriman", "linux", username="username")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], "username", now=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username="username")
 
 
-def test_packages_rebuild(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_rebuild(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call package rebuild
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_rebuild("python", "packager")
-    spawn_mock.assert_called_once_with("repo-rebuild", **{"depends-on": "python", "username": "packager"})
+    assert spawner.packages_rebuild(repository_id, "python", "packager")
+    spawn_mock.assert_called_once_with(repository_id, "repo-rebuild",
+                                       **{"depends-on": "python", "username": "packager"})
 
 
-def test_packages_remove(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_remove(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call package removal
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_remove(["ahriman", "linux"])
-    spawn_mock.assert_called_once_with("package-remove", "ahriman", "linux")
+    assert spawner.packages_remove(repository_id, ["ahriman", "linux"])
+    spawn_mock.assert_called_once_with(repository_id, "package-remove", "ahriman", "linux")
 
 
-def test_packages_update(spawner: Spawn, mocker: MockerFixture) -> None:
+def test_packages_update(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call repo update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
 
-    assert spawner.packages_update("packager", aur=True, local=True, manual=True)
+    assert spawner.packages_update(repository_id, "packager", aur=True, local=True, manual=True)
     args = {"username": "packager", "aur": "", "local": "", "manual": ""}
-    spawn_mock.assert_called_once_with("repo-update", **args)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update("packager", aur=False, local=True, manual=True)
+    assert spawner.packages_update(repository_id, "packager", aur=False, local=True, manual=True)
     args = {"username": "packager", "no-aur": "", "local": "", "manual": ""}
-    spawn_mock.assert_called_once_with("repo-update", **args)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update("packager", aur=True, local=False, manual=True)
+    assert spawner.packages_update(repository_id, "packager", aur=True, local=False, manual=True)
     args = {"username": "packager", "aur": "", "no-local": "", "manual": ""}
-    spawn_mock.assert_called_once_with("repo-update", **args)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update("packager", aur=True, local=True, manual=False)
+    assert spawner.packages_update(repository_id, "packager", aur=True, local=True, manual=False)
     args = {"username": "packager", "aur": "", "local": "", "no-manual": ""}
-    spawn_mock.assert_called_once_with("repo-update", **args)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
 
@@ -167,8 +173,8 @@ def test_run(spawner: Spawn, mocker: MockerFixture) -> None:
     """
     logging_mock = mocker.patch("logging.Logger.info")
 
-    spawner.queue.put(("1", False, 1))
-    spawner.queue.put(("2", True, 1))
+    spawner.queue.put(ProcessStatus("1", False, 1))
+    spawner.queue.put(ProcessStatus("2", True, 1))
     spawner.queue.put(None)  # terminate
 
     spawner.run()
@@ -182,8 +188,8 @@ def test_run_pop(spawner: Spawn) -> None:
     first = spawner.active["1"] = MagicMock()
     second = spawner.active["2"] = MagicMock()
 
-    spawner.queue.put(("1", False, 1))
-    spawner.queue.put(("2", True, 1))
+    spawner.queue.put(ProcessStatus("1", False, 1))
+    spawner.queue.put(ProcessStatus("2", True, 1))
     spawner.queue.put(None)  # terminate
 
     spawner.run()

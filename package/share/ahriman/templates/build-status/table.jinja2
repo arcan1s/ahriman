@@ -1,9 +1,22 @@
 <script>
-    const keyImportButton = $("#key-import-btn");
-    const packageAddButton = $("#package-add-btn");
-    const packageRebuildButton = $("#package-rebuild-btn");
-    const packageRemoveButton = $("#package-remove-btn");
-    const packageUpdateButton = $("#package-update-btn");
+    const keyImportButton = $("#key-import-button");
+    const packageAddButton = $("#package-add-button");
+    const packageRebuildButton = $("#package-rebuild-button");
+    const packageRemoveButton = $("#package-remove-button");
+    const packageUpdateButton = $("#package-update-button");
+    const packageUpdateAllButton = $("#package-update-all-button");
+
+    let repository = null;
+    $("#repositories a").on("click", (event) => {
+        const element = event.target;
+        repository = {
+            architecture: element.dataset.architecture,
+            repository: element.dataset.repository,
+        };
+        packageUpdateButton.html(`<i class="bi bi-play"></i> update ${safe(repository.repository)} (${safe(repository.architecture)})`);
+        $(`#${element.id}`).tab("show");
+        reload();
+    });
 
     const table = $("#packages");
     table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", () => {
@@ -35,13 +48,17 @@
         });
     });
 
-    const repositoryBadge = $("#badge-repository");
     const statusBadge = $("#badge-status");
     const versionBadge = $("#badge-version");
 
-    function doPackageAction(uri, packages, successText, failureText) {
+    function doPackageAction(uri, packages, repository, successText, failureText) {
+        const queryParams = $.param({
+            architecture: repository.architecture,
+            repository: repository.repository,
+        }); // it will never be empty btw
+
         $.ajax({
-            url: uri,
+            url: `${uri}?${queryParams}`,
             data: JSON.stringify({packages: packages}),
             type: "POST",
             contentType: "application/json",
@@ -62,16 +79,33 @@
     function removePackages() {
         const onSuccess = update => `Packages ${update} have been removed`;
         const onFailure = error => `Could not remove packages: ${error}`;
-        doPackageAction("/api/v1/service/remove", getSelection(), onSuccess, onFailure);
+        doPackageAction("/api/v1/service/remove", getSelection(), repository, onSuccess, onFailure);
+    }
+
+    function selectRepository() {
+        const fragment = window.location.hash.replace("#", "") || "{{ repositories[0].id }}";
+        const element = $(`#${fragment}-lnk`);
+        element.click();
     }
 
     function updatePackages() {
         const currentSelection = getSelection();
         const [url, onSuccess] = currentSelection.length === 0
-            ? ["/api/v1/service/update", _ => "Repository update has been run"]
+            ? ["/api/v1/service/update", _ => `Repository update has been run`]
             : ["/api/v1/service/add", update => `Run update for packages ${update}`];
         const onFailure = error => `Packages update failed: ${error}`;
-        doPackageAction(url, currentSelection, onSuccess, onFailure);
+        doPackageAction(url, currentSelection, repository, onSuccess, onFailure);
+    }
+
+    function updateAllPackages() {
+        const onSuccess = _ => "Repository update has been run";
+        const onFailure = error => `Packages update failed: ${error}`;
+        {% for repository in repositories %}
+            doPackageAction("/api/v1/service/update", [], {
+                architecture: "{{ repository.architecture }}",
+                repository: "{{ repository.repository }}",
+            }, onSuccess, onFailure);
+        {% endfor %}
     }
 
     function hideControls(hidden) {
@@ -80,6 +114,7 @@
         packageRebuildButton.attr("hidden", hidden);
         packageRemoveButton.attr("hidden", hidden);
         packageUpdateButton.attr("hidden", hidden);
+        packageUpdateAllButton.attr("hidden", hidden);
     }
 
     function reload() {
@@ -95,6 +130,10 @@
 
         $.ajax({
             url: "/api/v1/packages",
+            data: {
+                architecture: repository.architecture,
+                repository: repository.repository,
+            },
             type: "GET",
             dataType: "json",
             success: response => {
@@ -149,10 +188,13 @@
 
         $.ajax({
             url: "/api/v1/status",
+            data: {
+                architecture: repository.architecture,
+                repository: repository.repository,
+            },
             type: "GET",
             dataType: "json",
             success: response => {
-                repositoryBadge.text(`${response.repository} ${response.architecture}`);
                 versionBadge.html(`<i class="bi bi-github"></i> ahriman ${safe(response.version)}`);
 
                 statusBadge
@@ -189,9 +231,17 @@
         return extractDataList(table.bootstrapTable("getData"), "packager");
     }
 
+    function getRepositorySelector(selector) {
+        const selected = selector.find(":selected");
+        return {
+            architecture: selected.data("architecture"),
+            repository: selected.data("repository"),
+        };
+    }
+
     $(() => {
         table.bootstrapTable({});
         statusBadge.popover();
-        reload();
+        selectRepository();
     });
 </script>

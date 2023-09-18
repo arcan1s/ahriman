@@ -22,7 +22,7 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNamesSchema, ProcessIdSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNamesSchema, ProcessIdSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -51,6 +51,7 @@ class RequestView(BaseView):
         security=[{"token": [POST_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     @aiohttp_apispec.json_schema(PackageNamesSchema)
     async def post(self) -> Response:
         """
@@ -69,6 +70,7 @@ class RequestView(BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         username = await self.username()
-        process_id = self.spawner.packages_add(packages, username, now=False)
+        repository_id = self.repository_id()
+        process_id = self.spawner.packages_add(repository_id, packages, username, now=False)
 
         return json_response({"process_id": process_id})

@@ -26,6 +26,7 @@ from ahriman.core.formatters.configuration_paths_printer import ConfigurationPat
 from ahriman.core.formatters.configuration_printer import ConfigurationPrinter
 from ahriman.core.formatters.package_printer import PackagePrinter
 from ahriman.core.formatters.patch_printer import PatchPrinter
+from ahriman.core.formatters.repository_printer import RepositoryPrinter
 from ahriman.core.formatters.status_printer import StatusPrinter
 from ahriman.core.formatters.tree_printer import TreePrinter
 from ahriman.core.formatters.update_printer import UpdatePrinter

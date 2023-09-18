@@ -38,13 +38,13 @@ class OfficialSyncdb(Official):
     Still we leave search function based on the official repositories RPC.
     """
 
-    def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
+    def package_info(self, package_name: str, *, pacman: Pacman | None) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
 
         Returns:
             AURPackage: package which match the package name
@@ -52,6 +52,9 @@ class OfficialSyncdb(Official):
         Raises:
             UnknownPackageError: package doesn't exist
         """
+        if pacman is None:
+            raise UnknownPackageError(package_name)
+
         try:
             return next(AURPackage.from_pacman(package) for package in pacman.package_get(package_name))
         except StopIteration:
