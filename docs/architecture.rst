@@ -76,8 +76,7 @@ Application run
 
 #. Parse command line arguments, find subcommand and related handler which is set by the parser.
 #. Call ``Handler.execute`` method.
-#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the
-application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``, which should be able to spawn child process in daemon mode; it is impossible to do from daemonic processes).
+#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``, which should be able to spawn child process in daemon mode; it is impossible to do from daemonic processes).
 #. In each child process call lock functions.
 #. After success checks pass control to ``Handler.run`` method defined by specific handler class.
 #. Return result (success or failure) of each subprocess and exit from application.
