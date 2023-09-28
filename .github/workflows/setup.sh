@@ -22,6 +22,8 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     # additional features
     pacman --noconfirm -Sy gnupg python-boto3 rsync
 fi
+# FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
+cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 
 # create fresh tarball
 make VERSION=1.0.0 archlinux  # well, it does not really matter which version we will put here

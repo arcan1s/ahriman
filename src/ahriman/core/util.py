@@ -125,11 +125,14 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
 
             yield key.data, line
 
+    # build system environment based on args and current environment
     environment = environment or {}
     if user is not None:
         environment["HOME"] = getpwuid(user).pw_dir
+    full_environment = os.environ | environment
+
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          user=user, env=environment, text=True, encoding="utf8", bufsize=1) as process:
+                          user=user, env=full_environment, text=True, encoding="utf8", bufsize=1) as process:
         if input_data is not None:
             input_channel = get_io(process, "stdin")
             input_channel.write(input_data)
