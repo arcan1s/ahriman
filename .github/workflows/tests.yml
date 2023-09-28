@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: archlinux:latest
+      image: archlinux:base
       volumes:
         - ${{ github.workspace }}:/build
       options: -w /build

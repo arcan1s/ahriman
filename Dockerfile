@@ -35,6 +35,9 @@ RUN pacman -Sy --noconfirm --asdeps devtools git pyalpm python-cerberus python-i
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-apispec-git python-aiohttp-jinja2  \
                                             python-aiohttp-debugtoolbar python-aiohttp-session python-aiohttp-security
 
+## FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
+COPY "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
+
 # install ahriman
 ## copy tree
 COPY --chown=build . "/home/build/ahriman"
