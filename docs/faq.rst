@@ -1303,6 +1303,18 @@ It is possible to customize html templates. In order to do so, create files some
 
 In addition, default html templates supports style customization out-of-box. In order to customize style, just put file named ``user-style.jinja2`` to the templates directory.
 
+Web API extension
+^^^^^^^^^^^^^^^^^
+
+The application loads web views dynamically, so it is possible relatively easy extend its API. In order to do so:
+
+#. Create view class which is derived from ``ahriman.web.views.base.BaseView`` class.
+#. Create implementation for this class.
+#. Put file into ``ahriman.web.views`` package.
+#. Restart application.
+
+For more details about implementation and possibilities, kindly refer to module documentation and source code and `aiohttp documentation <https://docs.aiohttp.org/en/stable/>`_.
+
 I did not find my question
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 

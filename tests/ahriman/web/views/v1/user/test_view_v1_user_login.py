@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import LoginView
+from ahriman.web.views.v1.user.login import LoginView
 
 
 async def test_get_permission() -> None:
@@ -15,6 +15,13 @@ async def test_get_permission() -> None:
     for method in ("GET", "POST"):
         request = pytest.helpers.request("", "", method)
         assert await LoginView.get_permission(request) == UserAccess.Unauthorized
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert LoginView.ROUTES == ["/api/v1/login"]
 
 
 async def test_get_default_validator(client_with_auth: TestClient) -> None:

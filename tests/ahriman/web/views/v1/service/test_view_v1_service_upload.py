@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, call as MockCall
 
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import UploadView
+from ahriman.web.views.v1.service.upload import UploadView
 
 
 async def test_get_permission() -> None:
@@ -20,6 +20,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await UploadView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert UploadView.ROUTES == ["/api/v1/service/upload"]
 
 
 async def test_save_file(mocker: MockerFixture) -> None:
@@ -84,8 +91,8 @@ async def test_post(client: TestClient, repository_paths: RepositoryPaths, mocke
     must process file upload via http
     """
     local = Path("local")
-    save_mock = mocker.patch("ahriman.web.views.v1.UploadView.save_file",
-                             side_effect=AsyncMock(return_value=("filename", local / ".filename")))
+    save_mock = pytest.helpers.patch_view(client.app, "save_file",
+                                          AsyncMock(return_value=("filename", local / ".filename")))
     rename_mock = mocker.patch("pathlib.Path.rename")
     # no content validation here because it has invalid schema
 
@@ -103,11 +110,11 @@ async def test_post_with_sig(client: TestClient, repository_paths: RepositoryPat
     must process file upload with signature via http
     """
     local = Path("local")
-    save_mock = mocker.patch("ahriman.web.views.v1.UploadView.save_file",
-                             side_effect=AsyncMock(side_effect=[
-                                 ("filename", local / ".filename"),
-                                 ("filename.sig", local / ".filename.sig"),
-                             ]))
+    save_mock = pytest.helpers.patch_view(client.app, "save_file",
+                                          AsyncMock(side_effect=[
+                                              ("filename", local / ".filename"),
+                                              ("filename.sig", local / ".filename.sig"),
+                                          ]))
     rename_mock = mocker.patch("pathlib.Path.rename")
     # no content validation here because it has invalid schema
 

@@ -41,6 +41,7 @@ class LogsView(BaseView):
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = UserAccess.Reporter
+    ROUTES = ["/api/v1/packages/{package}/logs"]
 
     @aiohttp_apispec.docs(
         tags=["Packages"],

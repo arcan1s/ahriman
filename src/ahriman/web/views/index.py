@@ -44,6 +44,7 @@ class IndexView(BaseView):
     """
 
     GET_PERMISSION = UserAccess.Unauthorized
+    ROUTES = ["/", "/index.html"]
 
     @aiohttp_jinja2.template("build-status.jinja2")
     async def get(self) -> dict[str, Any]:

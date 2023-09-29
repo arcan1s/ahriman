@@ -4,7 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import RemoveView
+from ahriman.web.views.v1.service.remove import RemoveView
 
 
 async def test_get_permission() -> None:
@@ -14,6 +14,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await RemoveView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert RemoveView.ROUTES == ["/api/v1/service/remove"]
 
 
 async def test_post(client: TestClient, mocker: MockerFixture) -> None:

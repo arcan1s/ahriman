@@ -4,7 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import PGPView
+from ahriman.web.views.v1.service.pgp import PGPView
 
 
 async def test_get_permission() -> None:
@@ -17,6 +17,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await PGPView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert PGPView.ROUTES == ["/api/v1/service/pgp"]
 
 
 async def test_get(client: TestClient, mocker: MockerFixture) -> None:

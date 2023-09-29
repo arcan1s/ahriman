@@ -37,6 +37,7 @@ class LogsView(BaseView):
     """
 
     GET_PERMISSION = UserAccess.Reporter
+    ROUTES = ["/api/v2/packages/{package}/logs"]
 
     @aiohttp_apispec.docs(
         tags=["Packages"],

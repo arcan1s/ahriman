@@ -10,6 +10,13 @@ from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
 
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert BaseView.ROUTES == []
+
+
 def test_configuration(base: BaseView) -> None:
     """
     must return configuration

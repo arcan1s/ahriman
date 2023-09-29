@@ -35,6 +35,7 @@ class RemoveView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/remove"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],

@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import SearchView
+from ahriman.web.views.v1.service.search import SearchView
 
 
 async def test_get_permission() -> None:
@@ -15,6 +15,13 @@ async def test_get_permission() -> None:
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
         assert await SearchView.get_permission(request) == UserAccess.Reporter
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert SearchView.ROUTES == ["/api/v1/service/search"]
 
 
 async def test_get(client: TestClient, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:

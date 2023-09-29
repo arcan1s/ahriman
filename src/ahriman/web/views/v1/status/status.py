@@ -41,6 +41,7 @@ class StatusView(BaseView):
 
     GET_PERMISSION = UserAccess.Read
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/status"]
 
     @aiohttp_apispec.docs(
         tags=["Status"],
