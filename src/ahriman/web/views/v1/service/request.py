@@ -35,6 +35,7 @@ class RequestView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Reporter
+    ROUTES = ["/api/v1/service/request"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],

@@ -41,6 +41,7 @@ class PackageView(BaseView):
 
     DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = UserAccess.Read
+    ROUTES = ["/api/v1/packages/{package}"]
 
     @aiohttp_apispec.docs(
         tags=["Packages"],

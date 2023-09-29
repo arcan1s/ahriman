@@ -38,9 +38,11 @@ class BaseView(View, CorsViewMixin):
 
     Attributes:
         OPTIONS_PERMISSION(UserAccess): (class attribute) options permissions of self
+        ROUTES(list[str]): (class attribute) list of supported routes
     """
 
     OPTIONS_PERMISSION = UserAccess.Unauthorized
+    ROUTES: list[str] = []
 
     @property
     def configuration(self) -> Configuration:

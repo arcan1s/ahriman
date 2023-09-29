@@ -8,7 +8,7 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import StatusView
+from ahriman.web.views.v1.status.status import StatusView
 
 
 async def test_get_permission() -> None:
@@ -21,6 +21,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await StatusView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert StatusView.ROUTES == ["/api/v1/status"]
 
 
 async def test_get(client: TestClient, package_ahriman: Package) -> None:

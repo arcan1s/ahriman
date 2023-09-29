@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import PackagesView
+from ahriman.web.views.v1.status.packages import (PackagesView)
 
 
 async def test_get_permission() -> None:
@@ -19,6 +19,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await PackagesView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert PackagesView.ROUTES == ["/api/v1/packages"]
 
 
 async def test_get(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:

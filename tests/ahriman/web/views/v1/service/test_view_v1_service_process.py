@@ -4,7 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import ProcessView
+from ahriman.web.views.v1.service.process import ProcessView
 
 
 async def test_get_permission() -> None:
@@ -14,6 +14,13 @@ async def test_get_permission() -> None:
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
         assert await ProcessView.get_permission(request) == UserAccess.Reporter
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert ProcessView.ROUTES == ["/api/v1/service/process/{process_id}"]
 
 
 async def test_get(client: TestClient, mocker: MockerFixture) -> None:

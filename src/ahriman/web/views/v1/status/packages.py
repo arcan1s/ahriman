@@ -41,6 +41,7 @@ class PackagesView(BaseView):
 
     GET_PERMISSION = UserAccess.Read
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/packages"]
 
     @aiohttp_apispec.docs(
         tags=["Packages"],

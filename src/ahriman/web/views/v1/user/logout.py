@@ -36,6 +36,7 @@ class LogoutView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Unauthorized
+    ROUTES = ["/api/v1/logout"]
 
     @aiohttp_apispec.docs(
         tags=["Login"],

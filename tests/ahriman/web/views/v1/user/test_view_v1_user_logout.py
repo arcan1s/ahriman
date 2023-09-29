@@ -5,7 +5,7 @@ from aiohttp.web import HTTPUnauthorized
 from pytest_mock import MockerFixture
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import LogoutView
+from ahriman.web.views.v1.user.logout import LogoutView
 
 
 async def test_get_permission() -> None:
@@ -15,6 +15,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await LogoutView.get_permission(request) == UserAccess.Unauthorized
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert LogoutView.ROUTES == ["/api/v1/logout"]
 
 
 async def test_post(client_with_auth: TestClient, mocker: MockerFixture) -> None:

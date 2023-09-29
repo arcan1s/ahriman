@@ -34,6 +34,7 @@ class SwaggerView(BaseView):
     """
 
     GET_PERMISSION = UserAccess.Unauthorized
+    ROUTES = ["/api-docs/swagger.json"]
 
     async def get(self) -> Response:
         """

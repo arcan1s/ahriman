@@ -15,6 +15,13 @@ async def test_get_permission() -> None:
         assert await IndexView.get_permission(request) == UserAccess.Unauthorized
 
 
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert IndexView.ROUTES == ["/", "/index.html"]
+
+
 async def test_get(client_with_auth: TestClient) -> None:
     """
     must generate status page correctly (/)

@@ -37,6 +37,7 @@ class LoginView(BaseView):
     """
 
     GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized
+    ROUTES = ["/api/v1/login"]
 
     @aiohttp_apispec.docs(
         tags=["Login"],

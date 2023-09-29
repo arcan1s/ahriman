@@ -34,6 +34,7 @@ class DocsView(BaseView):
     """
 
     GET_PERMISSION = UserAccess.Unauthorized
+    ROUTES = ["/api-docs"]
 
     @aiohttp_jinja2.template("api.jinja2")
     async def get(self) -> dict[str, Any]:

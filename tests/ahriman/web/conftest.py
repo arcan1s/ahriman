@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Callable
 from marshmallow import Schema
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import ahriman.core.auth.helpers
 
@@ -18,6 +18,26 @@ from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.models.user import User
 from ahriman.web.web import setup_service
+
+
+@pytest.helpers.register
+def patch_view(application: Application, attribute: str, mock: Mock) -> Mock:
+    """
+    patch given attribute in views. This method is required because of dynamic load
+
+    Args:
+        application(Application): application fixture
+        attribute(str): attribute name to patch
+        mock(Mock): mock object
+
+    Returns:
+        Mock: mock set to object
+    """
+    for route in application.router.routes():
+        if hasattr(route.handler, attribute):
+            setattr(route.handler, attribute, mock)
+
+    return mock
 
 
 @pytest.helpers.register

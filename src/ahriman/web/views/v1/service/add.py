@@ -35,6 +35,7 @@ class AddView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/add"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],
