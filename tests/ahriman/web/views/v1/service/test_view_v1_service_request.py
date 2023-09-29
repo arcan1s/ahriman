@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import RequestView
+from ahriman.web.views.v1.service.request import RequestView
 
 
 async def test_get_permission() -> None:
@@ -15,6 +15,13 @@ async def test_get_permission() -> None:
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
         assert await RequestView.get_permission(request) == UserAccess.Reporter
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert RequestView.ROUTES == ["/api/v1/service/request"]
 
 
 async def test_post(client: TestClient, mocker: MockerFixture) -> None:

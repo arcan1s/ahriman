@@ -35,8 +35,9 @@ class PGPView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = UserAccess.Reporter
+    POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/pgp"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],

@@ -5,7 +5,7 @@ from aiohttp.test_utils import TestClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1 import PackageView
+from ahriman.web.views.v1.status.package import PackageView
 
 
 async def test_get_permission() -> None:
@@ -18,6 +18,13 @@ async def test_get_permission() -> None:
     for method in ("DELETE", "POST"):
         request = pytest.helpers.request("", "", method)
         assert await PackageView.get_permission(request) == UserAccess.Full
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert PackageView.ROUTES == ["/api/v1/packages/{package}"]
 
 
 async def test_delete(client: TestClient, package_ahriman: Package, package_python_schedule: Package) -> None:

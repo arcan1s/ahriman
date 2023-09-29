@@ -35,6 +35,7 @@ class UpdateView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/update"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],

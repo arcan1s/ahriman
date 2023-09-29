@@ -17,20 +17,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.web.views.v1.service.add import AddView
-from ahriman.web.views.v1.service.pgp import PGPView
-from ahriman.web.views.v1.service.process import ProcessView
-from ahriman.web.views.v1.service.rebuild import RebuildView
-from ahriman.web.views.v1.service.remove import RemoveView
-from ahriman.web.views.v1.service.request import RequestView
-from ahriman.web.views.v1.service.search import SearchView
-from ahriman.web.views.v1.service.update import UpdateView
-from ahriman.web.views.v1.service.upload import UploadView
-
-from ahriman.web.views.v1.status.logs import LogsView
-from ahriman.web.views.v1.status.package import PackageView
-from ahriman.web.views.v1.status.packages import PackagesView
-from ahriman.web.views.v1.status.status import StatusView
-
-from ahriman.web.views.v1.user.login import LoginView
-from ahriman.web.views.v1.user.logout import LogoutView

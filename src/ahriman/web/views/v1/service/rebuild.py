@@ -35,6 +35,7 @@ class RebuildView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/rebuild"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],

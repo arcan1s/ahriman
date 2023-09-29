@@ -17,16 +17,88 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import Application
+from aiohttp.web import Application, View
+from collections.abc import Generator
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
+from pkgutil import ModuleInfo, iter_modules
+from types import ModuleType
+from typing import Any, Type, TypeGuard
 
-from ahriman.web.views.api.docs import DocsView
-from ahriman.web.views.api.swagger import SwaggerView
-from ahriman.web.views.index import IndexView
-from ahriman.web.views import v1, v2
+from ahriman.web.views.base import BaseView
 
 
 __all__ = ["setup_routes"]
+
+
+def _dynamic_routes(module_root: Path) -> dict[str, Type[View]]:
+    """
+    extract dynamic routes based on views
+
+    Args:
+        module_root(Path): root module path with views
+
+    Returns:
+        dict[str, Type[View]]: map of the route to its view
+    """
+    def is_base_view(clz: Any) -> TypeGuard[Type[BaseView]]:
+        return isinstance(clz, type) and issubclass(clz, BaseView)
+
+    routes: dict[str, Type[View]] = {}
+    for module_info in _modules(module_root):
+        module = _module(module_info)
+
+        for attribute_name in dir(module):
+            view = getattr(module, attribute_name)
+            if not is_base_view(view):
+                continue
+            routes.update([(route, view) for route in view.ROUTES])
+
+    return routes
+
+
+def _module(module_info: ModuleInfo) -> ModuleType:
+    """
+    load module from its info
+
+    Args:
+        module_info(ModuleInfo): module info descriptor
+
+    Returns:
+        ModuleType: loaded module
+
+    Raises:
+        ValueError: if loader is not an instance of ``SourceFileLoader``
+    """
+    module_spec = module_info.module_finder.find_spec(module_info.name, None)
+    if module_spec is None:
+        raise ValueError(f"Module specification of {module_info.name} is empty")
+
+    loader = module_spec.loader
+    if not isinstance(loader, SourceFileLoader):
+        raise ValueError(f"Module {module_info.name} loader is not an instance of SourceFileLoader")
+
+    module = ModuleType(loader.name)
+    loader.exec_module(module)
+
+    return module
+
+
+def _modules(module_root: Path) -> Generator[ModuleInfo, None, None]:
+    """
+    extract available modules from package
+
+    Args:
+        module_root(Path): module root path
+
+    Yields:
+        ModuleInfo: module information each available module
+    """
+    for module_info in iter_modules([str(module_root)]):
+        if module_info.ispkg:
+            yield from _modules(module_root / module_info.name)
+        else:
+            yield module_info
 
 
 def setup_routes(application: Application, static_path: Path) -> None:
@@ -37,30 +109,8 @@ def setup_routes(application: Application, static_path: Path) -> None:
         application(Application): web application instance
         static_path(Path): path to static files directory
     """
-    application.router.add_view("/", IndexView)
-    application.router.add_view("/index.html", IndexView)
-
-    application.router.add_view("/api-docs", DocsView)
-    application.router.add_view("/api-docs/swagger.json", SwaggerView)
-
     application.router.add_static("/static", static_path, follow_symlinks=True)
 
-    application.router.add_view("/api/v1/service/add", v1.AddView)
-    application.router.add_view("/api/v1/service/pgp", v1.PGPView)
-    application.router.add_view("/api/v1/service/rebuild", v1.RebuildView)
-    application.router.add_view("/api/v1/service/process/{process_id}", v1.ProcessView)
-    application.router.add_view("/api/v1/service/remove", v1.RemoveView)
-    application.router.add_view("/api/v1/service/request", v1.RequestView)
-    application.router.add_view("/api/v1/service/search", v1.SearchView)
-    application.router.add_view("/api/v1/service/update", v1.UpdateView)
-    application.router.add_view("/api/v1/service/upload", v1.UploadView)
-
-    application.router.add_view("/api/v1/packages", v1.PackagesView)
-    application.router.add_view("/api/v1/packages/{package}", v1.PackageView)
-    application.router.add_view("/api/v1/packages/{package}/logs", v1.LogsView)
-    application.router.add_view("/api/v2/packages/{package}/logs", v2.LogsView)
-
-    application.router.add_view("/api/v1/status", v1.StatusView)
-
-    application.router.add_view("/api/v1/login", v1.LoginView)
-    application.router.add_view("/api/v1/logout", v1.LogoutView)
+    views = Path(__file__).parent / "views"
+    for route, view in _dynamic_routes(views).items():
+        application.router.add_view(route, view)

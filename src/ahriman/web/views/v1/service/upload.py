@@ -39,6 +39,7 @@ class UploadView(BaseView):
     """
 
     POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/service/upload"]
 
     @staticmethod
     async def save_file(part: BodyPartReader, target: Path, *, max_body_size: int | None = None) -> tuple[str, Path]:

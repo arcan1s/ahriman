@@ -92,6 +92,7 @@ class Migrations(LazyLogging):
             list[Migration]: list of found migrations
         """
         migrations: list[Migration] = []
+
         package_dir = Path(__file__).resolve().parent
         modules = [module_name for (_, module_name, _) in iter_modules([str(package_dir)])]
 

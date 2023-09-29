@@ -35,6 +35,7 @@ class ProcessView(BaseView):
     """
 
     GET_PERMISSION = UserAccess.Reporter
+    ROUTES = ["/api/v1/service/process/{process_id}"]
 
     @aiohttp_apispec.docs(
         tags=["Actions"],
