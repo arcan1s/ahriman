@@ -105,8 +105,7 @@ class Application(ApplicationPackages, ApplicationRepository):
         tree = Tree.resolve(packages)
         for level in tree:
             for package in level:
-                UpdatePrinter(package, local_versions.get(package.base)).print(
-                    verbose=True, log_fn=log_fn, separator=" -> ")
+                UpdatePrinter(package, local_versions.get(package.base))(verbose=True, log_fn=log_fn, separator=" -> ")
 
     def with_dependencies(self, packages: list[Package], *, process_dependencies: bool) -> list[Package]:
         """

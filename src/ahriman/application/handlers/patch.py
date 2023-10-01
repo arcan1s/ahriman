@@ -133,7 +133,7 @@ class Patch(Handler):
         Patch.check_if_empty(exit_code, not patches)
 
         for base, patch in patches.items():
-            PatchPrinter(base, patch).print(verbose=True, separator=" = ")
+            PatchPrinter(base, patch)(verbose=True, separator=" = ")
 
     @staticmethod
     def patch_set_remove(application: Application, package_base: str, variables: list[str] | None) -> None:

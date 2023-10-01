@@ -51,7 +51,7 @@ class Shell(Handler):
         if args.verbose:
             # licensed by https://creativecommons.org/licenses/by-sa/3.0
             path = Path(sys.prefix) / "share" / "ahriman" / "templates" / "shell"
-            StringPrinter(path.read_text(encoding="utf8")).print(verbose=False)
+            StringPrinter(path.read_text(encoding="utf8"))(verbose=False)
 
         local_variables = {
             "architecture": repository_id.architecture,

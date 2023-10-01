@@ -45,11 +45,11 @@ class Dump(Handler):
             report(bool): force enable or disable reporting
         """
         root, _ = configuration.check_loaded()
-        ConfigurationPathsPrinter(root, configuration.includes).print(verbose=True, separator=" = ")
+        ConfigurationPathsPrinter(root, configuration.includes)(verbose=True, separator=" = ")
 
         # empty line
-        StringPrinter("").print(verbose=False)
+        StringPrinter("")(verbose=False)
 
         dump = configuration.dump()
         for section, values in sorted(dump.items()):
-            ConfigurationPrinter(section, values).print(verbose=not args.secure, separator=" = ")
+            ConfigurationPrinter(section, values)(verbose=not args.secure, separator=" = ")

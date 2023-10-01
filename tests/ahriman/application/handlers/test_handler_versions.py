@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
@@ -17,7 +18,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     _, repository_id = configuration.check_loaded()
     Versions.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with("ahriman")
-    print_mock.assert_has_calls([MockCall(verbose=False, separator=" "), MockCall(verbose=False, separator=" ")])
+    print_mock.assert_has_calls([
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=" "),
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=" "),
+    ])
 
 
 def test_package_dependencies() -> None:

@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
@@ -40,9 +41,9 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     packages_mock.assert_called_once_with([package_ahriman], count=args.partitions)
     application_mock.assert_called_once_with([package_ahriman])
     print_mock.assert_has_calls([
-        MockCall(verbose=False),
-        MockCall(verbose=True, separator=" "),
-        MockCall(verbose=False),
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": "),
+        MockCall(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" "),
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": "),
     ])
 
 

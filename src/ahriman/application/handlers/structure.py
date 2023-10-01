@@ -50,11 +50,11 @@ class Structure(Handler):
         partitions = Tree.partition(application.repository.packages(), count=args.partitions)
 
         for partition_id, partition in enumerate(partitions):
-            StringPrinter(f"partition #{partition_id}").print(verbose=False)
+            StringPrinter(f"partition #{partition_id}")(verbose=False)
 
             tree = Tree.resolve(partition)
             for num, level in enumerate(tree):
-                TreePrinter(num, level).print(verbose=True, separator=" ")
+                TreePrinter(num, level)(verbose=True, separator=" ")
 
             # empty line
-            StringPrinter("").print(verbose=False)
+            StringPrinter("")(verbose=False)

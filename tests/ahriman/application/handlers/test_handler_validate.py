@@ -1,5 +1,6 @@
 import argparse
 import json
+import pytest
 
 from pytest_mock import MockerFixture
 
@@ -36,7 +37,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     _, repository_id = configuration.check_loaded()
     Validate.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(configuration.dump())
-    print_mock.assert_called_once_with(verbose=True)
+    print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=": ")
 
 
 def test_run_skip(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

@@ -159,7 +159,7 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
 
     Patch.patch_set_list(application, "ahriman", ["version"], False)
     get_mock.assert_called_once_with("ahriman", ["version"])
-    print_mock.assert_called_once_with(verbose=True, separator=" = ")
+    print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
     check_mock.assert_called_once_with(False, False)
 
 
