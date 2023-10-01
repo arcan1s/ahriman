@@ -1,3 +1,5 @@
+import pytest
+
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
@@ -18,4 +20,7 @@ def test_generate(configuration: Configuration, result: Result, package_python_s
     report = Console(repository_id, configuration, "console")
 
     report.generate([], result)
-    print_mock.assert_has_calls([MockCall(verbose=True), MockCall(verbose=True)])
+    print_mock.assert_has_calls([
+        MockCall(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=": "),
+        MockCall(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=": "),
+    ])

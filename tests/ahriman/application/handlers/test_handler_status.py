@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
@@ -48,7 +49,10 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
     check_mock.assert_called_once_with(False, False)
-    print_mock.assert_has_calls([MockCall(verbose=False) for _ in range(3)])
+    print_mock.assert_has_calls([
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")
+        for _ in range(3)
+    ])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -82,7 +86,10 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
 
     _, repository_id = configuration.check_loaded()
     Status.run(args, repository_id, configuration, report=False)
-    print_mock.assert_has_calls([MockCall(verbose=True) for _ in range(2)])
+    print_mock.assert_has_calls([
+        MockCall(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=": ")
+        for _ in range(2)
+    ])
 
 
 def test_run_with_package_filter(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -116,7 +123,10 @@ def test_run_by_status(args: argparse.Namespace, configuration: Configuration, r
 
     _, repository_id = configuration.check_loaded()
     Status.run(args, repository_id, configuration, report=False)
-    print_mock.assert_has_calls([MockCall(verbose=False) for _ in range(2)])
+    print_mock.assert_has_calls([
+        MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")
+        for _ in range(2)
+    ])
 
 
 def test_imply_with_report(args: argparse.Namespace, configuration: Configuration, database: SQLite,

@@ -45,7 +45,7 @@ class Validator(RootValidator):
         Args:
             configuration(Configuration): configuration instance used for extraction
             *args(Any): positional arguments to be passed to base validator
-            **kwargs(): keyword arguments to be passed to base validator
+            **kwargs(Any): keyword arguments to be passed to base validator
         """
         RootValidator.__init__(self, *args, **kwargs)
         self.configuration: Configuration = kwargs["configuration"]

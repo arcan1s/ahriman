@@ -57,7 +57,7 @@ class Validate(Handler):
         if validator.validate(configuration.dump()):
             return  # no errors found
         for node, errors in validator.errors.items():
-            ValidationPrinter(node, errors).print(verbose=True)
+            ValidationPrinter(node, errors)(verbose=True)
 
         # as we reach this part it means that we always have errors
         Validate.check_if_empty(args.exit_code, True)

@@ -1,3 +1,5 @@
+import pytest
+
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, call as MockCall
 
@@ -63,3 +65,12 @@ def test_title() -> None:
     must return empty title
     """
     assert Printer().title() is None
+
+
+def test_call(mocker: MockerFixture) -> None:
+    """
+    must perform print call
+    """
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
+    Printer()(verbose=False)
+    print_mock.assert_called_once_with(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")

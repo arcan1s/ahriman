@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import builtins
+
 from collections.abc import Callable
 
 from ahriman.models.property import Property
@@ -27,7 +29,9 @@ class Printer:
     base class for formatters
     """
 
-    def print(self, *, verbose: bool, log_fn: Callable[[str], None] = print, separator: str = ": ") -> None:
+    _print = builtins.print  # do not shadow with method
+
+    def print(self, *, verbose: bool, log_fn: Callable[[str], None] = _print, separator: str = ": ") -> None:
         """
         print content
 
@@ -60,3 +64,15 @@ class Printer:
         Returns:
             str | None: content title if it can be generated and None otherwise
         """
+        return None
+
+    def __call__(self, *, verbose: bool, log_fn: Callable[[str], None] = _print, separator: str = ": ") -> None:
+        """
+        print content. Shortcut for ``Printer.print``
+
+        Args:
+            verbose(bool): print all fields
+            log_fn(Callable[[str], None], optional): logger function to log data (Default value = print)
+            separator(str, optional): separator for property name and property value (Default value = ": ")
+        """
+        self.print(verbose=verbose, log_fn=log_fn, separator=separator)

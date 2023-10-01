@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 from pytest_mock import MockerFixture
 
@@ -58,4 +59,4 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     RemoveUnknown.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with()
     remove_mock.assert_not_called()
-    print_mock.assert_called_once_with(verbose=False)
+    print_mock.assert_called_once_with(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")

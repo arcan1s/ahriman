@@ -55,9 +55,9 @@ class Versions(Handler):
             report(bool): force enable or disable reporting
         """
         VersionPrinter(f"Module version {__version__}",
-                       {"Python": sys.version}).print(verbose=False, separator=" ")
+                       {"Python": sys.version})(verbose=False, separator=" ")
         packages = Versions.package_dependencies("ahriman")
-        VersionPrinter("Installed packages", dict(packages)).print(verbose=False, separator=" ")
+        VersionPrinter("Installed packages", dict(packages))(verbose=False, separator=" ")
 
     @staticmethod
     def package_dependencies(root: str) -> Generator[tuple[str, str], None, None]:

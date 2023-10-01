@@ -61,7 +61,7 @@ class Users(Handler):
                 users = database.user_list(args.username, args.role)
                 Users.check_if_empty(args.exit_code, not users)
                 for user in users:
-                    UserPrinter(user).print(verbose=True)
+                    UserPrinter(user)(verbose=True)
             case Action.Remove:
                 database.user_remove(args.username)
 

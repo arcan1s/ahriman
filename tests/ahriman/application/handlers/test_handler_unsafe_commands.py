@@ -35,7 +35,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     _, repository_id = configuration.check_loaded()
     UnsafeCommands.run(args, repository_id, configuration, report=False)
     commands_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-    print_mock.assert_called_once_with(verbose=True)
+    print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=": ")
 
 
 def test_run_check(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

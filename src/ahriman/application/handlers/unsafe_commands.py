@@ -50,7 +50,7 @@ class UnsafeCommands(Handler):
             UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
         else:
             for command in unsafe_commands:
-                StringPrinter(command).print(verbose=True)
+                StringPrinter(command)(verbose=True)
 
     @staticmethod
     def check_unsafe(command: list[str], unsafe_commands: list[str], parser: argparse.ArgumentParser) -> None:
