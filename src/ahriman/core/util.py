@@ -129,7 +129,11 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
     environment = environment or {}
     if user is not None:
         environment["HOME"] = getpwuid(user).pw_dir
-    full_environment = os.environ | environment
+    full_environment = {
+        key: value
+        for key, value in os.environ.items()
+        if key in ("PATH",)  # whitelisted variables only
+    } | environment
 
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           user=user, env=full_environment, text=True, encoding="utf8", bufsize=1) as process:
