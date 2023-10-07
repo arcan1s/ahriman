@@ -34,6 +34,7 @@ class OAuth(Mapping):
     Attributes:
         client_id(str): application client id
         client_secret(str): application client secret key
+        icon(str): icon to be used in login control
         provider(aioauth_client.OAuth2Client): provider class, should be one of aiohttp-client provided classes
         redirect_uri(str): redirect URI registered in provider
         scopes(str): list of scopes required by the application
@@ -58,6 +59,7 @@ class OAuth(Mapping):
         self.provider = self.get_provider(configuration.get("auth", "oauth_provider"))
         # it is list, but we will have to convert to string it anyway
         self.scopes = configuration.get("auth", "oauth_scopes")
+        self.icon = configuration.get("auth", "oauth_icon", fallback="google")
 
     @property
     def auth_control(self) -> str:
@@ -67,7 +69,7 @@ class OAuth(Mapping):
         Returns:
             str: login control as html code to insert
         """
-        return """<a class="nav-link" href="/api/v1/login" title="login via OAuth2"><i class="bi bi-google"></i> login</a>"""
+        return f"""<a class="nav-link" href="/api/v1/login" title="login via OAuth2"><i class="bi bi-{self.icon}"></i> login</a>"""
 
     @staticmethod
     def get_provider(name: str) -> type[aioauth_client.OAuth2Client]:
