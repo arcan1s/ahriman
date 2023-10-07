@@ -136,6 +136,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "integer",
                 "min": 0,
             },
+            "oauth_icon": {
+                "type": "string",
+                "empty": False,
+            },
             "oauth_provider": {
                 "type": "string",
                 "empty": False,
