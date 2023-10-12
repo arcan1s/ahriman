@@ -160,7 +160,7 @@ class Setup(Handler):
         configuration = Configuration(allow_no_value=True)
         # preserve case
         # stupid mypy thinks that it is impossible
-        configuration.optionxform = lambda key: key  # type: ignore[method-assign]
+        configuration.optionxform = lambda optionstr: optionstr  # type: ignore[method-assign]
 
         # load default configuration first
         # we cannot use Include here because it will be copied to new chroot, thus no includes there

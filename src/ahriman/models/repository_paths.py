@@ -144,10 +144,9 @@ class RepositoryPaths(LazyLogging):
         """
         return self.owner(self.root)
 
-    # TODO see https://github.com/python/mypy/issues/12534, remove type: ignore after release
     # pylint: disable=protected-access
     @classmethod
-    def known_architectures(cls, root: Path, name: str = "") -> set[str]:  # type: ignore[return]
+    def known_architectures(cls, root: Path, name: str = "") -> set[str]:
         """
         get known architecture names
 

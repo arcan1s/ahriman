@@ -98,7 +98,7 @@ class WebClient(Client, SyncHttpClient):
             requests.Session: generated session object
         """
         if use_unix_socket:
-            import requests_unixsocket  # type: ignore[import]
+            import requests_unixsocket  # type: ignore[import-untyped]
             session: requests.Session = requests_unixsocket.Session()
             session.headers["User-Agent"] = f"ahriman/{__version__}"
             return session

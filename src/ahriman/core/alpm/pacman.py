@@ -22,7 +22,7 @@ import shutil
 from collections.abc import Callable, Generator
 from functools import cached_property
 from pathlib import Path
-from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import]
+from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import-not-found]
 from string import Template
 
 from ahriman.core.configuration import Configuration
