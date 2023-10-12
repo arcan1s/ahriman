@@ -20,7 +20,7 @@
 from typing import Any
 
 try:
-    import aiohttp_security  # type: ignore[import]
+    import aiohttp_security  # type: ignore[import-untyped]
     _has_aiohttp_security = True
 except ImportError:
     _has_aiohttp_security = False

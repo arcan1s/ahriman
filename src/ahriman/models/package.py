@@ -25,8 +25,8 @@ import copy
 from collections.abc import Callable, Generator, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from pyalpm import vercmp  # type: ignore[import]
-from srcinfo.parse import parse_srcinfo  # type: ignore[import]
+from pyalpm import vercmp  # type: ignore[import-not-found]
+from srcinfo.parse import parse_srcinfo  # type: ignore[import-untyped]
 from typing import Any, Self
 from urllib.parse import urlparse
 

@@ -42,6 +42,6 @@ class _JournalHandler(NullHandler):
 
 
 try:
-    from systemd.journal import JournalHandler  # type: ignore[import]
+    from systemd.journal import JournalHandler  # type: ignore[import-untyped]
 except ImportError:
     JournalHandler = _JournalHandler

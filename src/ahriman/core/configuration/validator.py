@@ -19,7 +19,7 @@
 #
 import ipaddress
 
-from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore[import]
+from cerberus import TypeDefinition, Validator as RootValidator  # type: ignore[import-untyped]
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse

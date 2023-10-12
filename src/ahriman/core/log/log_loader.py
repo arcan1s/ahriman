@@ -59,7 +59,7 @@ class LogLoader:
             return selected
 
         try:
-            from systemd.journal import JournalHandler  # type: ignore[import]
+            from systemd.journal import JournalHandler  # type: ignore[import-untyped]
             del JournalHandler
             return LogHandler.Journald  # journald import was found
         except ImportError:

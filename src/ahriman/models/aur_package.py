@@ -22,7 +22,7 @@ import inflection
 
 from collections.abc import Callable
 from dataclasses import dataclass, field, fields
-from pyalpm import Package  # type: ignore[import]
+from pyalpm import Package  # type: ignore[import-not-found]
 from typing import Any, Self
 
 from ahriman.core.util import filter_json, full_version
