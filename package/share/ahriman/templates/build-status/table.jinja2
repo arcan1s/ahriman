@@ -4,7 +4,6 @@
     const packageRebuildButton = $("#package-rebuild-button");
     const packageRemoveButton = $("#package-remove-button");
     const packageUpdateButton = $("#package-update-button");
-    const packageUpdateAllButton = $("#package-update-all-button");
 
     let repository = null;
     $("#repositories a").on("click", (event) => {
@@ -97,24 +96,12 @@
         doPackageAction(url, currentSelection, repository, onSuccess, onFailure);
     }
 
-    function updateAllPackages() {
-        const onSuccess = _ => "Repository update has been run";
-        const onFailure = error => `Packages update failed: ${error}`;
-        {% for repository in repositories %}
-            doPackageAction("/api/v1/service/update", [], {
-                architecture: "{{ repository.architecture }}",
-                repository: "{{ repository.repository }}",
-            }, onSuccess, onFailure);
-        {% endfor %}
-    }
-
     function hideControls(hidden) {
         keyImportButton.attr("hidden", hidden);
         packageAddButton.attr("hidden", hidden);
         packageRebuildButton.attr("hidden", hidden);
         packageRemoveButton.attr("hidden", hidden);
         packageUpdateButton.attr("hidden", hidden);
-        packageUpdateAllButton.attr("hidden", hidden);
     }
 
     function reload() {

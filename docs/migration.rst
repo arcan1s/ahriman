@@ -54,6 +54,8 @@ In order to migrate to new filesystem tree the following actions are required:
 
    Alternatively it can be done by running ``service-setup`` command again.
 
+#. If you didn't run setup command on the previous step, make sure to remove architecture reference from ``web`` section (if any).
+
 #.
    Make sure to update remote synchronization services if any. Almost all of them rely on current repository tree by default, so you need to setup either redirects or configure to synchronize to the old locations (e.g. ``object_path`` option for S3 synchronization).
 
