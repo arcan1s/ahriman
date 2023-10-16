@@ -101,7 +101,7 @@ class UploadView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Not found", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown or endpoint is disabled", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],

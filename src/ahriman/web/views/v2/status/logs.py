@@ -47,7 +47,7 @@ class LogsView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base is unknown", "schema": ErrorSchema},
+            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -71,7 +71,7 @@ class LogsView(BaseView):
         try:
             _, status = self.service().package_get(package_base)
         except UnknownPackageError:
-            raise HTTPNotFound
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
         logs = self.service().logs_get(package_base, limit, offset)
 
         response = {

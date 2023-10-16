@@ -2,7 +2,7 @@ import pytest
 
 from multidict import MultiDict
 from aiohttp.test_utils import TestClient
-from aiohttp.web import HTTPBadRequest
+from aiohttp.web import HTTPBadRequest, HTTPNotFound
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
@@ -238,6 +238,14 @@ def test_service_auto(base: BaseView, repository_id: RepositoryId, mocker: Mocke
     """
     mocker.patch("ahriman.web.views.base.BaseView.repository_id", return_value=repository_id)
     assert base.service() == base.services[repository_id]
+
+
+def test_service_not_found(base: BaseView) -> None:
+    """
+    must raise HTTPNotFound if no repository found
+    """
+    with pytest.raises(HTTPNotFound):
+        base.service(RepositoryId("", ""))
 
 
 async def test_username(base: BaseView, mocker: MockerFixture) -> None:

@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
-from aiohttp.web import HTTPBadRequest, Request, StreamResponse, View
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
 from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
 
@@ -245,10 +245,16 @@ class BaseView(View, CorsViewMixin):
 
         Returns:
             Watcher: build status watcher instance. If no repository provided, it will return the first one
+
+        Raises:
+            HTTPNotFound: if no repository found
         """
         if repository_id is None:
             repository_id = self.repository_id()
-        return self.services[repository_id]
+        try:
+            return self.services[repository_id]
+        except KeyError:
+            raise HTTPNotFound(reason=f"Repository {repository_id.id} is unknown")
 
     async def username(self) -> str | None:
         """

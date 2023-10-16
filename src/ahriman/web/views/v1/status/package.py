@@ -52,6 +52,7 @@ class PackageView(BaseView):
             204: {"description": "Success response"},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [DELETE_PERMISSION]}],
@@ -79,7 +80,7 @@ class PackageView(BaseView):
             200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base is unknown", "schema": ErrorSchema},
+            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -103,7 +104,7 @@ class PackageView(BaseView):
         try:
             package, status = self.service(repository_id).package_get(package_base)
         except UnknownPackageError:
-            raise HTTPNotFound
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
         response = [
             {
@@ -123,6 +124,7 @@ class PackageView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],

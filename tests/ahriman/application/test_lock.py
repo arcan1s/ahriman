@@ -23,7 +23,7 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
     assert Lock(args, repository_id, configuration).path is None
 
     args.lock = Path("/run/ahriman.lock")
-    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_aur-clone_x86_64.lock")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_x86_64-aur-clone.lock")
 
     with pytest.raises(ValueError):
         args.lock = Path("/")
