@@ -402,6 +402,8 @@ The following environment variables are supported:
 * ``AHRIMAN_PACKAGER`` - packager name from which packages will be built, default is ``ahriman bot <ahriman@example.com>``.
 * ``AHRIMAN_PACMAN_MIRROR`` - override pacman mirror server if set.
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
+* ``AHRIMAN_POSTSETUP_COMMAND`` - if set, the command which will be called (as root) after the setup command, but before any other actions.
+* ``AHRIMAN_PRESETUP_COMMAND`` - if set, the command which will be called (as root) right before the setup command.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
 * ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository url. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
@@ -429,7 +431,7 @@ This command uses same rules as ``repo-update``, thus, e.g. requires ``--privile
 Web service setup
 ^^^^^^^^^^^^^^^^^
 
-Well for that you would need to have web container instance running forever; it can be achieved by the following command:
+For that you would need to have web container instance running forever; it can be achieved by the following command:
 
 .. code-block:: shell
 
@@ -451,6 +453,20 @@ Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network t
 
    docker run --privileged --net=host -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
+Mutli-repository web service
+""""""""""""""""""""""""""""
+
+Idea is pretty same as to just run web service. However, it is required to run setup commands for each repository, except for one which is specified by ``AHRIMAN_REPOSITORY`` and ``AHRIMAN_ARCHITECTURE ` variables.
+
+In order to create configuration for additional repositories, the ``AHRIMAN_POSTSETUP_COMMAND`` variable should be used, e.g.:
+
+.. code-block:: shell
+
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -e AHRIMAN_POSTSETUP_COMMAND="ahriman --architecture x86_64 --repository aur-clone-v2 service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'" -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+
+The command above will also create configuration for the repository named ``aur-clone-v2``.
+
+Note, however, that the command above is only required in case if the service is going to be used to run subprocesses. Otherwise, everything else (web interface, status, etc) will be handled as usual.
 
 Non-x86_64 architecture setup
 -----------------------------

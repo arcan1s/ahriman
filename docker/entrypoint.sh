@@ -49,7 +49,10 @@ fi
 if [ -n "$AHRIMAN_UNIX_SOCKET" ]; then
     AHRIMAN_SETUP_ARGS+=("--web-unix-socket" "$AHRIMAN_UNIX_SOCKET")
 fi
+
+[ -n "$AHRIMAN_PRESETUP_COMMAND" ] && eval "$AHRIMAN_PRESETUP_COMMAND"
 ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-setup "${AHRIMAN_SETUP_ARGS[@]}"
+[ -n "$AHRIMAN_POSTSETUP_COMMAND" ] && eval "$AHRIMAN_POSTSETUP_COMMAND"
 
 # validate configuration if set
 [ -n "$AHRIMAN_VALIDATE_CONFIGURATION" ] && ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-config-validate --exit-code

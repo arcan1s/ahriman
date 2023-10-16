@@ -45,10 +45,7 @@ def test_from_path(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     configuration = Configuration.from_path(path, repository_id)
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
-    load_includes_mock.assert_has_calls([
-        MockCall(),
-        MockCall(configuration.repository_paths.root),
-    ])
+    load_includes_mock.assert_called_once_with()
 
 
 def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixture) -> None:

@@ -135,7 +135,7 @@ class Setup(Handler):
             configuration.set_option("auth", "salt", User.generate_password(20))
 
         (root.include / "00-setup-overrides.ini").unlink(missing_ok=True)  # remove old-style configuration
-        target = root.repository_paths.root / f"00-setup-overrides-{repository_id.id}.ini"
+        target = root.include / f"00-setup-overrides-{repository_id.id}.ini"
         with target.open("w") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 

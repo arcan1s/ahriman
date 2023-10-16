@@ -284,18 +284,18 @@ class Configuration(configparser.RawConfigParser):
         self.path = path
 
         self.read(self.path)
-
-        self.includes = []  # reset state
-        self.load_includes()  # basic includes
-        self.load_includes(self.getpath("repository", "root"))  # home directory includes
+        self.load_includes()  # load includes
 
     def load_includes(self, path: Path | None = None) -> None:
         """
         load configuration includes from specified path
 
         Args:
-            path(Path | None, optional): path to directory with include files (Default value = None)
+            path(Path | None, optional): path to directory with include files. If none set, the default path will be
+                used (Default value = None)
         """
+        self.includes = []  # reset state
+
         try:
             path = path or self.include
             for include in sorted(path.glob("*.ini")):

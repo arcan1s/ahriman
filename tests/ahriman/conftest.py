@@ -245,19 +245,17 @@ def auth(configuration: Configuration) -> Auth:
 
 
 @pytest.fixture
-def configuration(repository_id: RepositoryId, resource_path_root: Path, mocker: MockerFixture) -> Configuration:
+def configuration(repository_id: RepositoryId, resource_path_root: Path) -> Configuration:
     """
     configuration fixture
 
     Args:
         repository_id(RepositoryId): repository identifier fixture
         resource_path_root(Path): resource path root directory
-        mocker(MockerFixture): mocker object
 
     Returns:
         Configuration: configuration test instance
     """
-    mocker.patch("ahriman.core.configuration.Configuration.load_includes")
     path = resource_path_root / "core" / "ahriman.ini"
     return Configuration.from_path(path, repository_id)
 
