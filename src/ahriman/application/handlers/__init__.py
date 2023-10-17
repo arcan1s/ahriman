@@ -30,6 +30,7 @@ from ahriman.application.handlers.patch import Patch
 from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.application.handlers.remove import Remove
 from ahriman.application.handlers.remove_unknown import RemoveUnknown
+from ahriman.application.handlers.repositories import Repositories
 from ahriman.application.handlers.restore import Restore
 from ahriman.application.handlers.search import Search
 from ahriman.application.handlers.service_updates import ServiceUpdates

@@ -140,6 +140,14 @@ ahriman.models.pkgbuild\_patch module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.process\_status module
+-------------------------------------
+
+.. automodule:: ahriman.models.process_status
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.property module
 ------------------------------
 

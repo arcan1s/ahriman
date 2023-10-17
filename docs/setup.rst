@@ -81,7 +81,7 @@ Initial setup
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman-web@x86_64-aur-clone
+       systemctl enable --now ahriman-web
 
 #. 
    Add packages by using ``ahriman package-add {package}`` command:

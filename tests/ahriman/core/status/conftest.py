@@ -28,4 +28,5 @@ def web_client(configuration: Configuration) -> WebClient:
         WebClient: web client test instance
     """
     configuration.set("web", "port", "8080")
-    return WebClient(configuration)
+    _, repository_id = configuration.check_loaded()
+    return WebClient(repository_id, configuration)

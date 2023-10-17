@@ -26,7 +26,7 @@ from aiohttp.web import HTTPNoContent, Response, json_response
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema, PaginationSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema, PaginationSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -52,6 +52,7 @@ class PackagesView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -68,12 +69,16 @@ class PackagesView(BaseView):
         limit, offset = self.page()
         stop = offset + limit if limit >= 0 else None
 
-        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda pair: pair[0].base
+        repository_id = self.repository_id()
+        packages = self.service(repository_id).packages
+
+        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda items: items[0].base
         response = [
             {
                 "package": package.view(),
-                "status": status.view()
-            } for package, status in itertools.islice(sorted(self.service.packages, key=comparator), offset, stop)
+                "status": status.view(),
+                "repository": repository_id.view(),
+            } for package, status in itertools.islice(sorted(packages, key=comparator), offset, stop)
         ]
 
         return json_response(response)
@@ -86,11 +91,13 @@ class PackagesView(BaseView):
             204: {"description": "Success response"},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def post(self) -> None:
         """
         reload all packages from repository
@@ -98,6 +105,6 @@ class PackagesView(BaseView):
         Raises:
             HTTPNoContent: on success response
         """
-        self.service.load()
+        self.service().load()
 
         raise HTTPNoContent

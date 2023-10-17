@@ -38,7 +38,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
 
     _, repository_id = configuration.check_loaded()
     ServiceUpdates.run(args, repository_id, configuration, report=False)
-    package_mock.assert_called_once_with(package_ahriman.base, repository.pacman, None)
+    package_mock.assert_called_once_with(package_ahriman.base, None)
     application_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" -> ")
     check_mock.assert_called_once_with(args.exit_code, True)
 

@@ -32,7 +32,7 @@ class Web(Handler):
     web server handler
     """
 
-    ALLOW_MULTI_ARCHITECTURE_RUN = False  # required to be able to spawn external processes
+    ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
@@ -47,13 +47,20 @@ class Web(Handler):
             report(bool): force enable or disable reporting
         """
         # we are using local import for optional dependencies
-        from ahriman.web.web import run_server, setup_service
+        from ahriman.web.web import run_server, setup_server
 
-        spawner_args = Web.extract_arguments(args, repository_id, configuration)
-        spawner = Spawn(args.parser(), repository_id, list(spawner_args))
+        spawner_args = Web.extract_arguments(args, configuration)
+        spawner = Spawn(args.parser(), list(spawner_args))
         spawner.start()
 
-        application = setup_service(repository_id, configuration, spawner)
+        dummy_args = argparse.Namespace(
+            architecture=None,
+            configuration=args.configuration,
+            repository=None,
+            repository_id=None,
+        )
+        repositories = cls.repositories_extract(dummy_args)
+        application = setup_server(configuration, spawner, repositories)
         run_server(application)
 
         # terminate spawn process at the last
@@ -61,22 +68,17 @@ class Web(Handler):
         spawner.join()
 
     @staticmethod
-    def extract_arguments(args: argparse.Namespace, repository_id: RepositoryId,
-                          configuration: Configuration) -> Generator[str, None, None]:
+    def extract_arguments(args: argparse.Namespace, configuration: Configuration) -> Generator[str, None, None]:
         """
         extract list of arguments used for current command, except for command specific ones
 
         Args:
             args(argparse.Namespace): command line args
-            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
             Generator[str, None, None]: command line arguments which were used for this specific command
         """
-        # read architecture from the same argument list
-        yield from ["--architecture", repository_id.architecture]
-        yield from ["--repository", repository_id.name]
         # read configuration path from current settings
         if (configuration_path := configuration.path) is not None:
             yield from ["--configuration", str(configuration_path)]

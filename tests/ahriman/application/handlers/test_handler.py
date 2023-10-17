@@ -30,7 +30,12 @@ def test_call(args: argparse.Namespace, configuration: Configuration, mocker: Mo
     assert Handler.call(args, repository_id)
     configuration_mock.assert_called_once_with(args.configuration, repository_id)
     log_handler_mock.assert_called_once_with(args.log_handler)
-    log_load_mock.assert_called_once_with(configuration, args.log_handler, quiet=args.quiet, report=args.report)
+    log_load_mock.assert_called_once_with(
+        repository_id,
+        configuration,
+        args.log_handler,
+        quiet=args.quiet,
+        report=args.report)
     enter_mock.assert_called_once_with()
     exit_mock.assert_called_once_with(None, None, None)
 
@@ -115,13 +120,24 @@ def test_run(args: argparse.Namespace, configuration: Configuration) -> None:
         Handler.run(args, repository_id, configuration, report=True)
 
 
+def test_check_if_empty() -> None:
+    """
+    must raise exception in case if predicate is True and enabled
+    """
+    Handler.check_if_empty(False, False)
+    Handler.check_if_empty(True, False)
+    Handler.check_if_empty(False, True)
+    with pytest.raises(ExitCode):
+        Handler.check_if_empty(True, True)
+
+
 def test_repositories_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must generate list of available repositories based on flags
     """
-    args.architecture = ["arch"]
+    args.architecture = "arch"
     args.configuration = configuration.path
-    args.repository = ["repo"]
+    args.repository = "repo"
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
 
@@ -135,7 +151,7 @@ def test_repositories_extract_repository(args: argparse.Namespace, configuration
     """
     must generate list of available repositories based on flags and tree
     """
-    args.architecture = ["arch"]
+    args.architecture = "arch"
     args.configuration = configuration.path
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
@@ -151,7 +167,7 @@ def test_repositories_extract_repository_legacy(args: argparse.Namespace, config
     """
     must generate list of available repositories based on flags and tree
     """
-    args.architecture = ["arch"]
+    args.architecture = "arch"
     args.configuration = configuration.path
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
@@ -168,7 +184,7 @@ def test_repositories_extract_architecture(args: argparse.Namespace, configurati
     must read repository name from config
     """
     args.configuration = configuration.path
-    args.repository = ["repo"]
+    args.repository = "repo"
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures",
                                             return_value={"arch"})
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
@@ -207,6 +223,21 @@ def test_repositories_extract_systemd(args: argparse.Namespace, configuration: C
     known_repositories_mock.assert_not_called()
 
 
+def test_repositories_extract_systemd_with_dash(args: argparse.Namespace, configuration: Configuration,
+                                                mocker: MockerFixture) -> None:
+    """
+    must extract repository list by using dash separated identifier
+    """
+    args.configuration = configuration.path
+    args.repository_id = "i686-some-repo-name"
+    known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
+    known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
+
+    assert Handler.repositories_extract(args) == [RepositoryId("i686", "some-repo-name")]
+    known_architectures_mock.assert_not_called()
+    known_repositories_mock.assert_not_called()
+
+
 def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configuration: Configuration,
                                              mocker: MockerFixture) -> None:
     """
@@ -221,14 +252,3 @@ def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configura
     assert Handler.repositories_extract(args) == [RepositoryId("i686", "aur-clone")]
     known_architectures_mock.assert_not_called()
     known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
-
-
-def test_check_if_empty() -> None:
-    """
-    must raise exception in case if predicate is True and enabled
-    """
-    Handler.check_if_empty(False, False)
-    Handler.check_if_empty(True, False)
-    Handler.check_if_empty(False, True)
-    with pytest.raises(ExitCode):
-        Handler.check_if_empty(True, True)

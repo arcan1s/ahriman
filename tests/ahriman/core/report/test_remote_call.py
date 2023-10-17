@@ -79,11 +79,13 @@ def test_remote_update(remote_call: RemoteCall, mocker: MockerFixture) -> None:
     request_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
 
     assert remote_call.remote_update() == "id"
-    request_mock.assert_called_once_with("POST", "/api/v1/service/update", json={
-        "aur": False,
-        "local": False,
-        "manual": True,
-    })
+    request_mock.assert_called_once_with("POST", "/api/v1/service/update",
+                                         params=remote_call.repository_id.query(),
+                                         json={
+                                             "aur": False,
+                                             "local": False,
+                                             "manual": True,
+                                         })
 
 
 def test_remote_wait(remote_call: RemoteCall, mocker: MockerFixture) -> None:

@@ -3,12 +3,13 @@ import pytest
 from pathlib import Path
 
 from ahriman.core.formatters import AurPrinter, ConfigurationPrinter, ConfigurationPathsPrinter, PackagePrinter, \
-    PatchPrinter, StatusPrinter, StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, ValidationPrinter, \
-    VersionPrinter
+    PatchPrinter, RepositoryPrinter, StatusPrinter, StringPrinter, TreePrinter, UpdatePrinter, UserPrinter, \
+    ValidationPrinter, VersionPrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user import User
 
 
@@ -74,6 +75,17 @@ def patch_printer(package_ahriman: Package) -> PatchPrinter:
         PatchPrinter: patch printer test instance
     """
     return PatchPrinter(package_ahriman.base, [PkgbuildPatch("key", "value")])
+
+
+@pytest.fixture
+def repository_printer(repository_id: RepositoryId) -> RepositoryPrinter:
+    """
+    fixture for repository printer
+
+    Returns:
+        RepositoryPrinter: repository printer test instance
+    """
+    return RepositoryPrinter(repository_id)
 
 
 @pytest.fixture

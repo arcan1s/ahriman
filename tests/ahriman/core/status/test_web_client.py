@@ -139,7 +139,8 @@ def test_package_add(web_client: WebClient, package_ahriman: Package, mocker: Mo
     payload = pytest.helpers.get_package_status(package_ahriman)
 
     web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), json=payload)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json=payload)
 
 
 def test_package_add_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -196,7 +197,7 @@ def test_package_get_all(web_client: WebClient, package_ahriman: Package, mocker
                                  return_value=response_obj)
 
     result = web_client.package_get(None)
-    requests_mock.assert_called_once_with("GET", web_client._package_url())
+    requests_mock.assert_called_once_with("GET", web_client._package_url(), params=web_client.repository_id.query())
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -230,7 +231,8 @@ def test_package_get_single(web_client: WebClient, package_ahriman: Package, moc
                                  return_value=response_obj)
 
     result = web_client.package_get(package_ahriman.base)
-    requests_mock.assert_called_once_with("GET", web_client._package_url(package_ahriman.base))
+    requests_mock.assert_called_once_with("GET", web_client._package_url(package_ahriman.base),
+                                          params=web_client.repository_id.query())
     assert len(result) == len(response)
     assert (package_ahriman, BuildStatusEnum.Unknown) in [(package, status.status) for package, status in result]
 
@@ -248,8 +250,8 @@ def test_package_logs(web_client: WebClient, log_record: logging.LogRecord, pack
     }
 
     web_client.package_logs(LogRecordId(package_ahriman.base, package_ahriman.version), log_record)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), json=payload,
-                                          suppress_errors=True)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json=payload, suppress_errors=True)
 
 
 def test_package_logs_failed(web_client: WebClient, log_record: logging.LogRecord, package_ahriman: Package,
@@ -281,7 +283,8 @@ def test_package_remove(web_client: WebClient, package_ahriman: Package, mocker:
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
     web_client.package_remove(package_ahriman.base)
-    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True))
+    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query())
 
 
 def test_package_remove_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -308,8 +311,10 @@ def test_package_update(web_client: WebClient, package_ahriman: Package, mocker:
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
     web_client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), json={
-        "status": BuildStatusEnum.Unknown.value
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(),
+                                          json={
+                                              "status": BuildStatusEnum.Unknown.value,
     })
 
 
@@ -343,7 +348,7 @@ def test_status_get(web_client: WebClient, mocker: MockerFixture) -> None:
                                  return_value=response_obj)
 
     result = web_client.status_get()
-    requests_mock.assert_called_once_with("GET", web_client._status_url())
+    requests_mock.assert_called_once_with("GET", web_client._status_url(), params=web_client.repository_id.query())
     assert result.architecture == "x86_64"
 
 
@@ -370,8 +375,10 @@ def test_status_update(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
     web_client.status_update(BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), json={
-        "status": BuildStatusEnum.Unknown.value
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(),
+                                          json={
+                                              "status": BuildStatusEnum.Unknown.value,
     })
 
 

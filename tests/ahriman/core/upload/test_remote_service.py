@@ -30,9 +30,13 @@ def test_package_upload(remote_service: RemoteService, package_ahriman: Package,
     remote_service.sync(Path("local"), [package_ahriman])
     open_mock.assert_called_once_with("rb")
     file_mock.close.assert_called_once()
-    upload_mock.assert_called_once_with("POST", f"{remote_service.client.address}/api/v1/service/upload", files={
-        "package": (filename, pytest.helpers.anyvar(int), "application/octet-stream", {})
-    })
+    upload_mock.assert_called_once_with(
+        "POST", f"{remote_service.client.address}/api/v1/service/upload",
+        params=remote_service.repository_id.query(),
+        files={
+            "package": (filename, pytest.helpers.anyvar(int), "application/octet-stream", {}),
+        },
+    )
 
 
 def test_package_upload_with_signature(remote_service: RemoteService, package_ahriman: Package,
@@ -50,10 +54,12 @@ def test_package_upload_with_signature(remote_service: RemoteService, package_ah
     open_mock.assert_has_calls([MockCall("rb"), MockCall("rb")])
     file_mock.close.assert_has_calls([MockCall(), MockCall()])
     upload_mock.assert_called_once_with(
-        "POST", f"{remote_service.client.address}/api/v1/service/upload", files={
+        "POST", f"{remote_service.client.address}/api/v1/service/upload",
+        params=remote_service.repository_id.query(),
+        files={
             "package": (filename, pytest.helpers.anyvar(int), "application/octet-stream", {}),
-            "signature": (f"{filename}.sig", pytest.helpers.anyvar(int), "application/octet-stream", {})
-        }
+            "signature": (f"{filename}.sig", pytest.helpers.anyvar(int), "application/octet-stream", {}),
+        },
     )
 
 

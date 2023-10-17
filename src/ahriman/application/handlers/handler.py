@@ -20,6 +20,7 @@
 import argparse
 import logging
 
+from collections.abc import Iterable
 from multiprocessing import Pool
 
 from ahriman.application.lock import Lock
@@ -64,7 +65,7 @@ class Handler:
             configuration = Configuration.from_path(args.configuration, repository_id)
 
             log_handler = LogLoader.handler(args.log_handler)
-            LogLoader.load(configuration, log_handler, quiet=args.quiet, report=args.report)
+            LogLoader.load(repository_id, configuration, log_handler, quiet=args.quiet, report=args.report)
 
             with Lock(args, repository_id, configuration):
                 cls.run(args, repository_id, configuration, report=args.report)
@@ -106,59 +107,6 @@ class Handler:
         return 0 if all(result) else 1
 
     @classmethod
-    def repositories_extract(cls, args: argparse.Namespace) -> list[RepositoryId]:
-        """
-        get known architectures
-
-        Args:
-            args(argparse.Namespace): command line args
-
-        Returns:
-            list[RepositoryId]: list of repository names and architectures for which tree is created
-
-        Raises:
-            MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
-        """
-        configuration = Configuration()
-        configuration.load(args.configuration)
-        # pylint, wtf???
-        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
-
-        # preparse systemd repository-id argument
-        # we are using unescaped values, so / is not allowed here, because it is impossible to separate if from dashes
-        if args.repository_id is not None:
-            # repository parts is optional for backward compatibility
-            architecture, *repository_parts = args.repository_id.split("/")
-            args.architecture = [architecture]
-            if repository_parts:
-                args.repository = ["-".join(repository_parts)]  # replace slash with dash
-
-        # extract repository names first
-        names = args.repository
-        if names is None:  # try to read file system first
-            names = RepositoryPaths.known_repositories(root)
-        if not names:  # try to read configuration now
-            names = [configuration.get("repository", "name")]
-
-        # extract architecture names
-        if (architectures := args.architecture) is not None:
-            repositories = set(
-                RepositoryId(architecture, name)
-                for name in names
-                for architecture in architectures
-            )
-        else:  # try to read from file system
-            repositories = set(
-                RepositoryId(architecture, name)
-                for name in names
-                for architecture in RepositoryPaths.known_architectures(root, name)
-            )
-
-        if not repositories:
-            raise MissingArchitectureError(args.command)
-        return sorted(repositories)
-
-    @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,
             report: bool) -> None:
         """
@@ -189,3 +137,57 @@ class Handler:
         """
         if enabled and predicate:
             raise ExitCode
+
+    @staticmethod
+    def repositories_extract(args: argparse.Namespace) -> list[RepositoryId]:
+        """
+        get known architectures
+
+        Args:
+            args(argparse.Namespace): command line args
+
+        Returns:
+            list[RepositoryId]: list of repository names and architectures for which tree is created
+
+        Raises:
+            MissingArchitectureError: if no architecture set and automatic detection is not allowed or failed
+        """
+        configuration = Configuration()
+        configuration.load(args.configuration)
+        # pylint, wtf???
+        root = configuration.getpath("repository", "root")  # pylint: disable=assignment-from-no-return
+
+        # preparse systemd repository-id argument
+        # we are using unescaped values, so / is not allowed here, because it is impossible to separate if from dashes
+        if args.repository_id is not None:
+            separator = "/" if "/" in args.repository_id else "-"  # systemd and non-systemd identifiers
+            # repository parts is optional for backward compatibility
+            architecture, *repository_parts = args.repository_id.split(separator)
+            args.architecture = architecture
+            if repository_parts:
+                args.repository = "-".join(repository_parts)  # replace slash with dash
+
+        # extract repository names first
+        if (from_args := args.repository) is not None:
+            repositories: Iterable[str] = [from_args]
+        elif (from_filesystem := RepositoryPaths.known_repositories(root)):
+            repositories = from_filesystem
+        else:  # try to read configuration now
+            repositories = [configuration.get("repository", "name")]
+
+        # extract architecture names
+        if (architecture := args.architecture) is not None:
+            parsed = set(
+                RepositoryId(architecture, repository)
+                for repository in repositories
+            )
+        else:  # try to read from file system
+            parsed = set(
+                RepositoryId(architecture, repository)
+                for repository in repositories
+                for architecture in RepositoryPaths.known_architectures(root, repository)
+            )
+
+        if not parsed:
+            raise MissingArchitectureError(args.command)
+        return sorted(parsed)

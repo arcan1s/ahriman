@@ -54,6 +54,27 @@ class RepositoryId:
         """
         return f"{self.architecture}-{self.name}"  # basically the same as used for command line
 
+    def query(self) -> list[tuple[str, str]]:
+        """
+        generate query parameters
+
+        Returns:
+            list[tuple[str, str]]: json view as query parameters
+        """
+        return list(self.view().items())
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json package view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return {
+            "architecture": self.architecture,
+            "repository": self.name,
+        }
+
     def __lt__(self, other: Any) -> bool:
         """
         comparison operator for sorting

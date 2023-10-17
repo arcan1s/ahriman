@@ -202,6 +202,7 @@ Again, the most checks can be performed by `make check` command, though some add
                 400: {"description": "Bad data is supplied", "schema": ErrorSchema},  # exception raised by this method
                 401: {"description": "Authorization required", "schema": ErrorSchema},  # should be always presented
                 403: {"description": "Access is forbidden", "schema": ErrorSchema},  # should be always presented
+                404: {"description": "Repository is unknown", "schema": ErrorSchema},  # include if BaseView.service() method is called
                 500: {"description": "Internal server error", "schema": ErrorSchema},  # should be always presented
             },
             security=[{"token": [POST_PERMISSION]}],

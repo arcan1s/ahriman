@@ -61,7 +61,7 @@ class UpdateHandler(Cleaner):
                 try:
                     if package.remote.source == PackageSource.Repository:
                         return Package.from_official(probe, self.pacman, None)
-                    return Package.from_aur(probe, self.pacman, None)
+                    return Package.from_aur(probe, None)
                 except UnknownPackageError:
                     continue
             raise UnknownPackageError(package.base)

@@ -46,7 +46,7 @@ package() {
   python -m installer --destdir="$pkgdir" "dist/$pkgname-$pkgver-py3-none-any.whl"
 
   # thanks too PEP517, which we all wanted, you need to install data files manually nowadays
-  pushd package && find . -type f -exec install -Dm644 "{}" "$pkgdir/usr/{}" \; && popd
+  pushd package && find . \( -type f -or -type l \) -exec install -Dm644 "{}" "$pkgdir/usr/{}" \; && popd
 
   # keep usr/share configs as reference and copy them to /etc
   install -Dm644 "$pkgdir/usr/share/$pkgname/settings/ahriman.ini" "$pkgdir/etc/ahriman.ini"

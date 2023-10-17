@@ -26,6 +26,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class Client:
@@ -34,11 +35,12 @@ class Client:
     """
 
     @staticmethod
-    def load(configuration: Configuration, *, report: bool) -> Client:
+    def load(repository_id: RepositoryId, configuration: Configuration, *, report: bool) -> Client:
         """
         load client from settings
 
         Args:
+            repository_id(RepositoryId): repository unqiue identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
 
@@ -58,7 +60,7 @@ class Client:
         # but it will totally break used experience
         if address or (host and port) or socket:
             from ahriman.core.status.web_client import WebClient
-            return WebClient(configuration)
+            return WebClient(repository_id, configuration)
         return Client()
 
     def package_add(self, package: Package, status: BuildStatusEnum) -> None:

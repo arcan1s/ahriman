@@ -20,7 +20,6 @@
 import argparse
 
 from ahriman import __version__
-from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import UpdatePrinter
@@ -47,9 +46,7 @@ class ServiceUpdates(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        application = Application(repository_id, configuration, report=report)
-
-        remote = Package.from_aur("ahriman", application.repository.pacman, None)
+        remote = Package.from_aur("ahriman", None)
         _, release = remote.version.rsplit("-", 1)  # we don't store pkgrel locally, so we just append it
         local_version = f"{__version__}-{release}"
 

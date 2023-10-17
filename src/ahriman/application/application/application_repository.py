@@ -104,7 +104,7 @@ class ApplicationRepository(ApplicationProperties):
             packages: list[str] = []
             for single in probe.packages:
                 try:
-                    _ = Package.from_aur(single, self.repository.pacman, None)
+                    _ = Package.from_aur(single, None)
                 except Exception:
                     packages.append(single)
             return packages

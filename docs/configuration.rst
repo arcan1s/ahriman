@@ -41,7 +41,7 @@ Base configuration settings.
 
 * ``apply_migrations`` - perform migrations on application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations automatically.
 * ``database`` - path to SQLite database, string, required.
-* ``include`` - path to directory with configuration files overrides, string, required.
+* ``include`` - path to directory with configuration files overrides, string, optional.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 * ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
 
@@ -103,10 +103,10 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``target`` - configuration flag to enable signing, space separated list of strings, required. Allowed values are ``package`` (sign each package separately), ``repository`` (sign repository database file).
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
 
-``web:*`` groups
-----------------
+``web`` group
+-------------
 
-Web server settings. If any of ``host``/``port`` is not set, web integration will be disabled. Group name can refer to architecture, e.g. ``web:x86_64`` can be used for x86_64 architecture specific settings. This feature requires ``aiohttp`` libraries to be installed.
+Web server settings. If any of ``host``/``port`` is not set, web integration will be disabled. This feature requires ``aiohttp`` libraries to be installed.
 
 * ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
 * ``debug`` - enable debug toolbar, boolean, optional, default ``no``.

@@ -22,6 +22,7 @@ import logging
 from typing import Self
 
 from ahriman.core.configuration import Configuration
+from ahriman.models.repository_id import RepositoryId
 
 
 class HttpLogHandler(logging.Handler):
@@ -34,11 +35,13 @@ class HttpLogHandler(logging.Handler):
         suppress_errors(bool): suppress logging errors (e.g. if no web server available)
     """
 
-    def __init__(self, configuration: Configuration, *, report: bool, suppress_errors: bool) -> None:
+    def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
+                 report: bool, suppress_errors: bool) -> None:
         """
         default constructor
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
             suppress_errors(bool): suppress logging errors (e.g. if no web server available)
@@ -48,16 +51,17 @@ class HttpLogHandler(logging.Handler):
 
         # client has to be imported here because of circular imports
         from ahriman.core.status.client import Client
-        self.reporter = Client.load(configuration, report=report)
+        self.reporter = Client.load(repository_id, configuration, report=report)
         self.suppress_errors = suppress_errors
 
     @classmethod
-    def load(cls, configuration: Configuration, *, report: bool) -> Self:
+    def load(cls, repository_id: RepositoryId, configuration: Configuration, *, report: bool) -> Self:
         """
         install logger. This function creates handler instance and adds it to the handler list in case if no other
         http handler found
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
 
@@ -69,7 +73,7 @@ class HttpLogHandler(logging.Handler):
             return handler  # there is already registered instance
 
         suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
-        handler = cls(configuration, report=report, suppress_errors=suppress_errors)
+        handler = cls(repository_id, configuration, report=report, suppress_errors=suppress_errors)
         root.addHandler(handler)
 
         return handler

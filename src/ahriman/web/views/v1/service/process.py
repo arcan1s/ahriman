@@ -45,7 +45,7 @@ class ProcessView(BaseView):
             200: {"description": "Success response", "schema": ProcessSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Not found", "schema": ErrorSchema},
+            404: {"description": "Process is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],

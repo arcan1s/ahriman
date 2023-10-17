@@ -36,7 +36,6 @@ class Operations(LazyLogging):
 
     Attributes:
         path(Path): path to the database file
-        repository_id(RepositoryId): repository unique identifier to perform implicit filtering
     """
 
     def __init__(self, path: Path, repository_id: RepositoryId) -> None:
@@ -48,7 +47,7 @@ class Operations(LazyLogging):
             repository_id(RepositoryId): repository unique identifier
         """
         self.path = path
-        self.repository_id = repository_id
+        self._repository_id = repository_id
 
     @staticmethod
     def factory(cursor: sqlite3.Cursor, row: tuple[Any, ...]) -> dict[str, Any]:

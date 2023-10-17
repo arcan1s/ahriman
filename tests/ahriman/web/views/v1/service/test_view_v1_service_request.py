@@ -4,6 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.v1.service.request import RequestView
 
@@ -24,7 +25,7 @@ def test_routes() -> None:
     assert RequestView.ROUTES == ["/api/v1/service/request"]
 
 
-async def test_post(client: TestClient, mocker: MockerFixture) -> None:
+async def test_post(client: TestClient, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must call post request correctly
     """
@@ -39,7 +40,7 @@ async def test_post(client: TestClient, mocker: MockerFixture) -> None:
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/request", json=payload)
     assert response.ok
-    add_mock.assert_called_once_with(["ahriman"], "username", now=False)
+    add_mock.assert_called_once_with(repository_id, ["ahriman"], "username", now=False)
 
     json = await response.json()
     assert json["process_id"] == "abc"

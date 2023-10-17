@@ -25,6 +25,7 @@ from pathlib import Path
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
 from ahriman.models.log_handler import LogHandler
+from ahriman.models.repository_id import RepositoryId
 
 
 class LogLoader:
@@ -68,11 +69,13 @@ class LogLoader:
             return LogHandler.Console
 
     @staticmethod
-    def load(configuration: Configuration, handler: LogHandler, *, quiet: bool, report: bool) -> None:
+    def load(repository_id: RepositoryId, configuration: Configuration, handler: LogHandler, *,
+             quiet: bool, report: bool) -> None:
         """
         setup logging settings from configuration
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             handler(LogHandler): selected default log handler, which will be used if no handlers were set
             quiet(bool): force disable any log messages
@@ -97,7 +100,7 @@ class LogLoader:
             logging.basicConfig(filename=None, format=LogLoader.DEFAULT_LOG_FORMAT, level=LogLoader.DEFAULT_LOG_LEVEL)
             logging.exception("could not load logging from configuration, fallback to stderr")
 
-        HttpLogHandler.load(configuration, report=report)
+        HttpLogHandler.load(repository_id, configuration, report=report)
 
         if quiet:
             logging.disable(logging.WARNING)  # only print errors here

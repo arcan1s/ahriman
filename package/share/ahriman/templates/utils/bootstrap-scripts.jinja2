@@ -59,7 +59,7 @@
         const [minDate, maxDate] = text.split(" - ");
         const buildDate = asOfStartOfDay(new Date(value));
 
-        return (buildDate >= asOfStartOfDay(new Date(minDate))) && (buildDate <= asOfStartOfDay(new Date(maxDate)));
+        return (buildDate >= new Date(minDate)) && (buildDate <= new Date(maxDate));
     }
 
     function filterList(index, value, field, data) {

@@ -44,12 +44,18 @@ class Dump(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        root, _ = configuration.check_loaded()
-        ConfigurationPathsPrinter(root, configuration.includes)(verbose=True, separator=" = ")
+        if args.info:
+            root, _ = configuration.check_loaded()
+            ConfigurationPathsPrinter(root, configuration.includes)(verbose=True, separator=" = ")
 
-        # empty line
-        StringPrinter("")(verbose=False)
-
-        dump = configuration.dump()
-        for section, values in sorted(dump.items()):
-            ConfigurationPrinter(section, values)(verbose=not args.secure, separator=" = ")
+        match (args.section, args.key):
+            case None, None:  # full configuration
+                dump = configuration.dump()
+                for section, values in sorted(dump.items()):
+                    ConfigurationPrinter(section, values)(verbose=not args.secure, separator=" = ")
+            case section, None:  # section only
+                values = dict(configuration.items(section)) if configuration.has_section(section) else {}
+                ConfigurationPrinter(section, values)(verbose=not args.secure, separator=" = ")
+            case section, key:  # key only
+                value = configuration.get(section, key, fallback="")
+                StringPrinter(value)(verbose=False)

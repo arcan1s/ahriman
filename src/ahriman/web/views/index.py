@@ -37,7 +37,10 @@ class IndexView(BaseView):
             * enabled - whether authorization is enabled by configuration or not, boolean, required
             * username - authenticated username if any, string, null means not authenticated
         * index_url - url to the repository index, string, optional
-        * repository - repository name, string, required
+        * repositories - list of repositories unique identifiers, required
+            * id - unique repository identifier, string, required
+            * repository - repository name, string, required
+            * architecture - repository architecture, string, required
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
@@ -64,5 +67,11 @@ class IndexView(BaseView):
         return {
             "auth": auth,
             "index_url": self.configuration.get("web", "index_url", fallback=None),
-            "repository": self.service.repository.name,
+            "repositories": [
+                {
+                    "id": repository.id,
+                    **repository.view(),
+                }
+                for repository in sorted(self.services)
+            ]
         }

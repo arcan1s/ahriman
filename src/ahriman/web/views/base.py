@@ -18,14 +18,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
-from aiohttp.web import HTTPBadRequest, Request, StreamResponse, View
+from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
 from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.sign.gpg import GPG
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 
 
@@ -56,15 +58,25 @@ class BaseView(View, CorsViewMixin):
         return configuration
 
     @property
-    def service(self) -> Watcher:
+    def services(self) -> dict[RepositoryId, Watcher]:
         """
-        get status watcher instance
+        get all loaded watchers
 
         Returns:
-            Watcher: build status watcher instance
+            dict[RepositoryId, Watcher]: map of loaded watchers per known repository
         """
-        watcher: Watcher = self.request.app["watcher"]
-        return watcher
+        watchers: dict[RepositoryId, Watcher] = self.request.app["watcher"]
+        return watchers
+
+    @property
+    def sign(self) -> GPG:
+        """
+        get GPG control instance
+
+        Returns:
+            GPG: GPG wrapper instance
+        """
+        return GPG(self.configuration)
 
     @property
     def spawner(self) -> Spawn:
@@ -197,8 +209,8 @@ class BaseView(View, CorsViewMixin):
             HTTPBadRequest: if supplied parameters are invalid
         """
         try:
-            limit = int(self.request.query.getone("limit", default=-1))
-            offset = int(self.request.query.getone("offset", default=0))
+            limit = int(self.request.query.get("limit", default=-1))
+            offset = int(self.request.query.get("offset", default=0))
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
@@ -209,6 +221,40 @@ class BaseView(View, CorsViewMixin):
             raise HTTPBadRequest(reason=f"Offset must be non-negative, got {offset}")
 
         return limit, offset
+
+    def repository_id(self) -> RepositoryId:
+        """
+        extract repository from request
+
+        Returns:
+            RepositoryIde: repository if possible to construct and first one otherwise
+        """
+        architecture = self.request.query.get("architecture")
+        name = self.request.query.get("repository")
+
+        if architecture and name:
+            return RepositoryId(architecture, name)
+        return next(iter(sorted(self.services.keys())))
+
+    def service(self, repository_id: RepositoryId | None = None) -> Watcher:
+        """
+        get status watcher instance
+
+        Args:
+            repository_id(RepositoryId | None, optional): repository unique identifier (Default value = None)
+
+        Returns:
+            Watcher: build status watcher instance. If no repository provided, it will return the first one
+
+        Raises:
+            HTTPNotFound: if no repository found
+        """
+        if repository_id is None:
+            repository_id = self.repository_id()
+        try:
+            return self.services[repository_id]
+        except KeyError:
+            raise HTTPNotFound(reason=f"Repository {repository_id.id} is unknown")
 
     async def username(self) -> str | None:
         """

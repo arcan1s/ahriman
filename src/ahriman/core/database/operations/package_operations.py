@@ -25,6 +25,7 @@ from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_id import RepositoryId
 
 
 class PackageOperations(Operations):
@@ -32,23 +33,25 @@ class PackageOperations(Operations):
     package operations
     """
 
-    def _package_remove_package_base(self, connection: Connection, package_base: str) -> None:
+    def _package_remove_package_base(self, connection: Connection, package_base: str,
+                                     repository_id: RepositoryId) -> None:
         """
         remove package base information
 
         Args:
             connection(Connection): database connection
             package_base(str): package base name
+            repository_id(RepositoryId): repository unique identifier
         """
         connection.execute(
             """delete from package_statuses where package_base = :package_base and repository = :repository""",
-            {"package_base": package_base, "repository": self.repository_id.id})
+            {"package_base": package_base, "repository": repository_id.id})
         connection.execute(
             """delete from package_bases where package_base = :package_base and repository = :repository""",
-            {"package_base": package_base, "repository": self.repository_id.id})
+            {"package_base": package_base, "repository": repository_id.id})
 
     def _package_remove_packages(self, connection: Connection, package_base: str,
-                                 current_packages: Iterable[str]) -> None:
+                                 current_packages: Iterable[str], repository_id: RepositoryId) -> None:
         """
         remove packages belong to the package base
 
@@ -56,6 +59,7 @@ class PackageOperations(Operations):
             connection(Connection): database connection
             package_base(str): package base name
             current_packages(Iterable[str]): current packages list which has to be left in database
+            repository_id(RepositoryId): repository unique identifier
         """
         packages = [
             package
@@ -63,20 +67,22 @@ class PackageOperations(Operations):
                 """
                 select package, repository from packages
                 where package_base = :package_base and repository = :repository""",
-                {"package_base": package_base, "repository": self.repository_id.id})
+                {"package_base": package_base, "repository": repository_id.id})
             if package["package"] not in current_packages
         ]
         connection.executemany(
             """delete from packages where package = :package and repository = :repository""",
             packages)
 
-    def _package_update_insert_base(self, connection: Connection, package: Package) -> None:
+    def _package_update_insert_base(self, connection: Connection, package: Package,
+                                    repository_id: RepositoryId) -> None:
         """
         insert base package into table
 
         Args:
             connection(Connection): database connection
             package(Package): package properties
+            repository_id(RepositoryId): repository unique identifier
         """
         connection.execute(
             """
@@ -97,17 +103,19 @@ class PackageOperations(Operations):
                 "web_url": package.remote.web_url,
                 "source": package.remote.source.value,
                 "packager": package.packager,
-                "repository": self.repository_id.id,
+                "repository": repository_id.id,
             }
         )
 
-    def _package_update_insert_packages(self, connection: Connection, package: Package) -> None:
+    def _package_update_insert_packages(self, connection: Connection, package: Package,
+                                        repository_id: RepositoryId) -> None:
         """
         insert packages into table
 
         Args:
             connection(Connection): database connection
             package(Package): package properties
+            repository_id(RepositoryId): repository unique identifier
         """
         package_list = []
         for name, description in package.packages.items():
@@ -116,7 +124,7 @@ class PackageOperations(Operations):
             package_list.append({
                 "package": name,
                 "package_base": package.base,
-                "repository": self.repository_id.id,
+                "repository": repository_id.id,
                 **description.view(),
             })
         connection.executemany(
@@ -141,7 +149,8 @@ class PackageOperations(Operations):
             """,
             package_list)
 
-    def _package_update_insert_status(self, connection: Connection, package_base: str, status: BuildStatus) -> None:
+    def _package_update_insert_status(self, connection: Connection, package_base: str, status: BuildStatus,
+                                      repository_id: RepositoryId) -> None:
         """
         insert base package status into table
 
@@ -149,6 +158,7 @@ class PackageOperations(Operations):
             connection(Connection): database connection
             package_base(str): package base name
             status(BuildStatus): new build status
+            repository_id(RepositoryId): repository unique identifier
         """
         connection.execute(
             """
@@ -163,15 +173,17 @@ class PackageOperations(Operations):
                 "package_base": package_base,
                 "status": status.status.value,
                 "last_updated": status.timestamp,
-                "repository": self.repository_id.id,
+                "repository": repository_id.id,
             })
 
-    def _packages_get_select_package_bases(self, connection: Connection) -> dict[str, Package]:
+    def _packages_get_select_package_bases(self, connection: Connection,
+                                           repository_id: RepositoryId) -> dict[str, Package]:
         """
         select package bases from the table
 
         Args:
             connection(Connection): database connection
+            repository_id(RepositoryId): repository unique identifier
 
         Returns:
             dict[str, Package]: map of the package base to its descriptor (without packages themselves)
@@ -185,36 +197,40 @@ class PackageOperations(Operations):
                 packager=row["packager"] or None,
             ) for row in connection.execute(
                 """select * from package_bases where repository = :repository""",
-                {"repository": self.repository_id.id}
+                {"repository": repository_id.id}
             )
         }
 
-    def _packages_get_select_packages(self, connection: Connection, packages: dict[str, Package]) -> dict[str, Package]:
+    def _packages_get_select_packages(self, connection: Connection, packages: dict[str, Package],
+                                      repository_id: RepositoryId) -> dict[str, Package]:
         """
         select packages from the table
 
         Args:
             connection(Connection): database connection
             packages(dict[str, Package]): packages descriptor map
+            repository_id(RepositoryId): repository unique identifier
 
         Returns:
             dict[str, Package]: map of the package base to its descriptor including individual packages
         """
         for row in connection.execute(
                 """select * from packages where repository = :repository""",
-                {"repository": self.repository_id.id}
+                {"repository": repository_id.id}
         ):
             if row["package_base"] not in packages:
                 continue  # normally must never happen though
             packages[row["package_base"]].packages[row["package"]] = PackageDescription.from_json(row)
         return packages
 
-    def _packages_get_select_statuses(self, connection: Connection) -> dict[str, BuildStatus]:
+    def _packages_get_select_statuses(self, connection: Connection,
+                                      repository_id: RepositoryId) -> dict[str, BuildStatus]:
         """
         select package build statuses from the table
 
         Args:
             connection(Connection): database connection
+            repository_id(RepositoryId): repository unique identifier
 
         Returns:
             dict[str, BuildStatus]: map of the package base to its status
@@ -223,50 +239,62 @@ class PackageOperations(Operations):
             row["package_base"]: BuildStatus.from_json({"status": row["status"], "timestamp": row["last_updated"]})
             for row in connection.execute(
                 """select * from package_statuses where repository = :repository""",
-                {"repository": self.repository_id.id}
+                {"repository": repository_id.id}
             )
         }
 
-    def package_remove(self, package_base: str) -> None:
+    def package_remove(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """
         remove package from database
 
         Args:
             package_base(str): package base name
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
-            self._package_remove_packages(connection, package_base, [])
-            self._package_remove_package_base(connection, package_base)
+            self._package_remove_packages(connection, package_base, [], repository_id)
+            self._package_remove_package_base(connection, package_base, repository_id)
 
         return self.with_connection(run, commit=True)
 
-    def package_update(self, package: Package, status: BuildStatus) -> None:
+    def package_update(self, package: Package, status: BuildStatus, repository_id: RepositoryId | None = None) -> None:
         """
         update package status
 
         Args:
             package(Package): package properties
             status(BuildStatus): new build status
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
-            self._package_update_insert_base(connection, package)
-            self._package_update_insert_status(connection, package.base, status)
-            self._package_update_insert_packages(connection, package)
-            self._package_remove_packages(connection, package.base, package.packages.keys())
+            self._package_update_insert_base(connection, package, repository_id)
+            self._package_update_insert_status(connection, package.base, status, repository_id)
+            self._package_update_insert_packages(connection, package, repository_id)
+            self._package_remove_packages(connection, package.base, package.packages.keys(), repository_id)
 
         return self.with_connection(run, commit=True)
 
-    def packages_get(self) -> list[tuple[Package, BuildStatus]]:
+    def packages_get(self, repository_id: RepositoryId | None = None) -> list[tuple[Package, BuildStatus]]:
         """
         get package list and their build statuses from database
+
+        Args:
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Return:
             list[tuple[Package, BuildStatus]]: list of package properties and their statuses
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> Generator[tuple[Package, BuildStatus], None, None]:
-            packages = self._packages_get_select_package_bases(connection)
-            statuses = self._packages_get_select_statuses(connection)
-            for package_base, package in self._packages_get_select_packages(connection, packages).items():
+            packages = self._packages_get_select_package_bases(connection, repository_id)
+            statuses = self._packages_get_select_statuses(connection, repository_id)
+            per_package_base = self._packages_get_select_packages(connection, packages, repository_id)
+            for package_base, package in per_package_base.items():
                 yield package, statuses.get(package_base, BuildStatus())
 
         return self.with_connection(lambda connection: list(run(connection)))
@@ -279,7 +307,7 @@ class PackageOperations(Operations):
             package(Package): package properties
         """
         return self.with_connection(
-            lambda connection: self._package_update_insert_base(connection, package),
+            lambda connection: self._package_update_insert_base(connection, package, self._repository_id),
             commit=True)
 
     def remotes_get(self) -> dict[str, RemoteSource]:
@@ -289,8 +317,10 @@ class PackageOperations(Operations):
         Returns:
             dict[str, RemoteSource]: map of package base to its remote sources
         """
-        packages = self.with_connection(self._packages_get_select_package_bases)
+        def run(connection: Connection) -> dict[str, Package]:
+            return self._packages_get_select_package_bases(connection, self._repository_id)
+
         return {
             package_base: package.remote
-            for package_base, package in packages.items()
+            for package_base, package in self.with_connection(run).items()
         }

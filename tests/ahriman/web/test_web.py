@@ -5,10 +5,12 @@ from aiohttp.web import Application
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeError
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
+from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
-from ahriman.web.web import _create_socket, _on_shutdown, _on_startup, run_server
+from ahriman.web.web import _create_socket, _on_shutdown, _on_startup, run_server, setup_server
 
 
 async def test_create_socket(application: Application, mocker: MockerFixture) -> None:
@@ -72,7 +74,7 @@ async def test_on_startup(application: Application, watcher: Watcher, mocker: Mo
     """
     must call load method
     """
-    mocker.patch("aiohttp.web.Application.__getitem__", return_value=watcher)
+    mocker.patch("aiohttp.web.Application.__getitem__", return_value={"": watcher})
     load_mock = mocker.patch("ahriman.core.status.watcher.Watcher.load")
 
     await _on_startup(application)
@@ -83,7 +85,7 @@ async def test_on_startup_exception(application: Application, watcher: Watcher, 
     """
     must throw exception on load error
     """
-    mocker.patch("aiohttp.web.Application.__getitem__", return_value=watcher)
+    mocker.patch("aiohttp.web.Application.__getitem__", return_value={"": watcher})
     mocker.patch("ahriman.core.status.watcher.Watcher.load", side_effect=Exception())
 
     with pytest.raises(InitializeError):
@@ -151,3 +153,11 @@ def test_run_with_socket(application: Application, mocker: MockerFixture) -> Non
         application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
         access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
     )
+
+
+def test_setup_no_repositories(configuration: Configuration, spawner: Spawn) -> None:
+    """
+    must raise InitializeError if no repositories set
+    """
+    with pytest.raises(InitializeError):
+        setup_server(configuration, spawner, [])

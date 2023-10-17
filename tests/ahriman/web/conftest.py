@@ -14,10 +14,9 @@ import ahriman.core.auth.helpers
 from ahriman.core.auth.oauth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
-from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.models.user import User
-from ahriman.web.web import setup_service
+from ahriman.web.web import setup_server
 
 
 @pytest.helpers.register
@@ -114,8 +113,7 @@ def schema_response(handler: Callable[..., Awaitable[Any]], *, code: int = 200) 
 
 
 @pytest.fixture
-def application(configuration: Configuration, spawner: Spawn, database: SQLite, repository: Repository,
-                mocker: MockerFixture) -> Application:
+def application(configuration: Configuration, spawner: Spawn, database: SQLite, mocker: MockerFixture) -> Application:
     """
     application fixture
 
@@ -123,7 +121,6 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
         configuration(Configuration): configuration fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
-        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -131,17 +128,16 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
     """
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     _, repository_id = configuration.check_loaded()
 
-    return setup_service(repository_id, configuration, spawner)
+    return setup_server(configuration, spawner, [repository_id])
 
 
 @pytest.fixture
 def application_with_auth(configuration: Configuration, user: User, spawner: Spawn, database: SQLite,
-                          repository: Repository, mocker: MockerFixture) -> Application:
+                          mocker: MockerFixture) -> Application:
     """
     application fixture with auth enabled
 
@@ -150,7 +146,6 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
         user(User): user descriptor fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
-        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -159,11 +154,10 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     configuration.set_option("auth", "target", "configuration")
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
     _, repository_id = configuration.check_loaded()
-    application = setup_service(repository_id, configuration, spawner)
+    application = setup_server(configuration, spawner, [repository_id])
 
     generated = user.hash_password(application["validator"].salt)
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=generated)
@@ -173,7 +167,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
 
 @pytest.fixture
 def application_with_debug(configuration: Configuration, user: User, spawner: Spawn, database: SQLite,
-                           repository: Repository, mocker: MockerFixture) -> Application:
+                           mocker: MockerFixture) -> Application:
     """
     application fixture with debug enabled
 
@@ -182,7 +176,6 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
         user(User): user descriptor fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
-        repository(Repository): repository fixture
         mocker(MockerFixture): mocker object
 
     Returns:
@@ -191,17 +184,16 @@ def application_with_debug(configuration: Configuration, user: User, spawner: Sp
     configuration.set_option("web", "debug", "yes")
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
     mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
     _, repository_id = configuration.check_loaded()
 
-    return setup_service(repository_id, configuration, spawner)
+    return setup_server(configuration, spawner, [repository_id])
 
 
 @pytest.fixture
-def client(application: Application, event_loop: BaseEventLoop,
-           aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+def client(application: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
+           mocker: MockerFixture) -> TestClient:
     """
     web client fixture
 
@@ -219,8 +211,8 @@ def client(application: Application, event_loop: BaseEventLoop,
 
 
 @pytest.fixture
-def client_with_auth(application_with_auth: Application, event_loop: BaseEventLoop,
-                     aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+def client_with_auth(application_with_auth: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
+                     mocker: MockerFixture) -> TestClient:
     """
     web client fixture with full authorization functions
 
@@ -238,8 +230,8 @@ def client_with_auth(application_with_auth: Application, event_loop: BaseEventLo
 
 
 @pytest.fixture
-def client_with_oauth_auth(application_with_auth: Application, event_loop: BaseEventLoop,
-                           aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
+def client_with_oauth_auth(application_with_auth: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
+                           mocker: MockerFixture) -> TestClient:
     """
     web client fixture with full authorization functions
 

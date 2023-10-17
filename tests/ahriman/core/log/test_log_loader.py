@@ -50,9 +50,10 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     logging_mock = mocker.patch("ahriman.core.log.log_loader.fileConfig", side_effect=fileConfig)
     http_log_mock = mocker.patch("ahriman.core.log.http_log_handler.HttpLogHandler.load")
 
-    LogLoader.load(configuration, LogHandler.Journald, quiet=False, report=False)
+    _, repository_id = configuration.check_loaded()
+    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=False, report=False)
     logging_mock.assert_called_once_with(pytest.helpers.anyvar(int), disable_existing_loggers=True)
-    http_log_mock.assert_called_once_with(configuration, report=False)
+    http_log_mock.assert_called_once_with(repository_id, configuration, report=False)
     assert all(isinstance(handler, JournalHandler) for handler in logging.getLogger().handlers)
 
 
@@ -61,7 +62,8 @@ def test_load_fallback(configuration: Configuration, mocker: MockerFixture) -> N
     must fall back to stderr without errors
     """
     mocker.patch("ahriman.core.log.log_loader.fileConfig", side_effect=PermissionError())
-    LogLoader.load(configuration, LogHandler.Journald, quiet=False, report=False)
+    _, repository_id = configuration.check_loaded()
+    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=False, report=False)
 
 
 def test_load_quiet(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -69,5 +71,7 @@ def test_load_quiet(configuration: Configuration, mocker: MockerFixture) -> None
     must disable logging in case if quiet flag set
     """
     disable_mock = mocker.patch("logging.disable")
-    LogLoader.load(configuration, LogHandler.Journald, quiet=True, report=False)
+
+    _, repository_id = configuration.check_loaded()
+    LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=True, report=False)
     disable_mock.assert_called_once_with(logging.WARNING)

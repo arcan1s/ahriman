@@ -69,8 +69,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcH linux ReposItory MANager",
                                      epilog="Argument list can also be read from file by using @ prefix.",
                                      fromfile_prefix_chars="@", formatter_class=_formatter)
-    parser.add_argument("-a", "--architecture", help="target architectures. For several subcommands it can be used "
-                                                     "multiple times", action="append")
+    parser.add_argument("-a", "--architecture", help="filter by target architecture")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
                         default=Path("/etc") / "ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
@@ -82,8 +81,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-q", "--quiet", help="force disable any logging", action="store_true")
     parser.add_argument("--report", help="force enable or disable reporting to web service",
                         action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("-r", "--repository", help="target repository. For several subcommands it can be used "
-                                                   "multiple times", action="append")
+    parser.add_argument("-r", "--repository", help="filter by target repository")
     # special secret argument for systemd unit. The issue is that systemd doesn't allow multiple arguments to template
     # name. This parameter accepts [[arch]-repo] in order to keep backward compatibility
     parser.add_argument("--repository-id", help=argparse.SUPPRESS)
@@ -130,6 +128,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_service_config_parser(subparsers)
     _set_service_config_validate_parser(subparsers)
     _set_service_key_import_parser(subparsers)
+    _set_service_repositories(subparsers)
     _set_service_setup_parser(subparsers)
     _set_service_shell_parser(subparsers)
     _set_service_tree_migrate_parser(subparsers)
@@ -161,8 +160,8 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--sort-by", help="sort field by this field. In case if two packages have the same value of "
                                           "the specified field, they will be always sorted by name",
                         default="name", choices=sorted(handlers.Search.SORT_FIELDS))
-    parser.set_defaults(handler=handlers.Search, architecture=[""], lock=None, quiet=True, report=False,
-                        repository=[""], unsafe=True)
+    parser.set_defaults(handler=handlers.Search, architecture="", lock=None, quiet=True, report=False,
+                        repository="", unsafe=True)
     return parser
 
 
@@ -180,7 +179,7 @@ def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="show help message for application or command and exit",
                              formatter_class=_formatter)
     parser.add_argument("command", help="show help message for specific command", nargs="?")
-    parser.set_defaults(handler=handlers.Help, architecture=[""], lock=None, quiet=True, report=False, repository=[""],
+    parser.set_defaults(handler=handlers.Help, architecture="", lock=None, quiet=True, report=False, repository="",
                         unsafe=True, parser=_parser)
     return parser
 
@@ -199,8 +198,8 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
                              description="list unsafe commands as defined in default args", formatter_class=_formatter)
     parser.add_argument("command", help="instead of showing commands, just test command line for unsafe subcommand "
                                         "and return 0 in case if command is safe and 1 otherwise", nargs="*")
-    parser.set_defaults(handler=handlers.UnsafeCommands, architecture=[""], lock=None, quiet=True, report=False,
-                        repository=[""], unsafe=True, parser=_parser)
+    parser.set_defaults(handler=handlers.UnsafeCommands, architecture="", lock=None, quiet=True, report=False,
+                        repository="", unsafe=True, parser=_parser)
     return parser
 
 
@@ -218,8 +217,8 @@ def _set_help_updates_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="request AUR for current version and compare with current service version",
                              formatter_class=_formatter)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit code if updates available", action="store_true")
-    parser.set_defaults(handler=handlers.ServiceUpdates, architecture=[""], lock=None, quiet=True, report=False,
-                        repository=[""], unsafe=True)
+    parser.set_defaults(handler=handlers.ServiceUpdates, architecture="", lock=None, quiet=True, report=False,
+                        repository="", unsafe=True)
     return parser
 
 
@@ -235,8 +234,8 @@ def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("help-version", aliases=["version"], help="application version",
                              description="print application and its dependencies versions", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Versions, architecture=[""], lock=None, quiet=True, report=False,
-                        repository=[""], unsafe=True)
+    parser.set_defaults(handler=handlers.Versions, architecture="", lock=None, quiet=True, report=False,
+                        repository="", unsafe=True)
     return parser
 
 
@@ -387,8 +386,8 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                          "it must end with ()")
     parser.add_argument("patch", help="path to file which contains function or variable value. If not set, "
                                       "the value will be read from stdin", type=Path, nargs="?")
-    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture=[""], lock=None, report=False,
-                        repository=[""])
+    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", lock=None, report=False,
+                        repository="")
     return parser
 
 
@@ -408,8 +407,8 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
                         action="append")
-    parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture=[""], lock=None, report=False,
-                        repository=[""], unsafe=True)
+    parser.set_defaults(handler=handlers.Patch, action=Action.List, architecture="", lock=None, report=False,
+                        repository="", unsafe=True)
     return parser
 
 
@@ -430,8 +429,8 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                  "to remove only specified PKGBUILD variables. In case if not set, "
                                                  "it will remove all patches related to the package",
                         action="append")
-    parser.set_defaults(handler=handlers.Patch, action=Action.Remove, architecture=[""], lock=None, report=False,
-                        repository=[""])
+    parser.set_defaults(handler=handlers.Patch, action=Action.Remove, architecture="", lock=None, report=False,
+                        repository="")
     return parser
 
 
@@ -455,8 +454,8 @@ def _set_patch_set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="path to directory with changed files for patch addition/update", type=Path)
     parser.add_argument("-t", "--track", help="files which has to be tracked", action="append",
                         default=["*.diff", "*.patch"])
-    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture=[""], lock=None, report=False,
-                        repository=[""], variable=None)
+    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", lock=None, report=False,
+                        repository="", variable=None)
     return parser
 
 
@@ -473,7 +472,7 @@ def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-backup", help="backup repository data",
                              description="backup repository settings and database", formatter_class=_formatter)
     parser.add_argument("path", help="path of the output archive", type=Path)
-    parser.set_defaults(handler=handlers.Backup, architecture=[""], lock=None, report=False, repository=[""],
+    parser.set_defaults(handler=handlers.Backup, architecture="", lock=None, report=False, repository="",
                         unsafe=True)
     return parser
 
@@ -653,7 +652,7 @@ def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="restore settings and database", formatter_class=_formatter)
     parser.add_argument("path", help="path of the input archive", type=Path)
     parser.add_argument("-o", "--output", help="root path of the extracted files", type=Path, default=Path("/"))
-    parser.set_defaults(handler=handlers.Restore, architecture=[""], lock=None, report=False, repository=[""],
+    parser.set_defaults(handler=handlers.Restore, architecture="", lock=None, report=False, repository="",
                         unsafe=True)
     return parser
 
@@ -830,6 +829,10 @@ def _set_service_config_parser(root: SubParserAction) -> argparse.ArgumentParser
     parser = root.add_parser("service-config", aliases=["config", "repo-config"], help="dump configuration",
                              description="dump configuration for the specified architecture",
                              formatter_class=_formatter)
+    parser.add_argument("section", help="filter settings by section", nargs="?")
+    parser.add_argument("key", help="filter settings by key", nargs="?")
+    parser.add_argument("--info", help="show additional information, e.g. configuration files",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--secure", help="hide passwords and secrets from output",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.set_defaults(handler=handlers.Dump, lock=None, quiet=True, report=False, unsafe=True)
@@ -875,7 +878,27 @@ def _set_service_key_import_parser(root: SubParserAction) -> argparse.ArgumentPa
                              formatter_class=_formatter)
     parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
     parser.add_argument("key", help="PGP key to import from public server")
-    parser.set_defaults(handler=handlers.KeyImport, architecture=[""], lock=None, report=False, repository=[""])
+    parser.set_defaults(handler=handlers.KeyImport, architecture="", lock=None, report=False, repository="")
+    return parser
+
+
+def _set_service_repositories(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repositories listing
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-repositories", help="show repositories",
+                             description="list all available repositories",
+                             formatter_class=_formatter)
+    parser.add_argument("--id-only", help="show machine readable identifier instead",
+                        action=argparse.BooleanOptionalAction, default=False)
+    parser.set_defaults(handler=handlers.Repositories, architecture="", lock=None, report=False, repository="",
+                        unsafe=True)
     return parser
 
 
@@ -971,8 +994,8 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-R", "--role", help="user access level",
                         type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
-    parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture=[""], lock=None, quiet=True,
-                        report=False, repository=[""])
+    parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture="", lock=None, quiet=True,
+                        report=False, repository="")
     return parser
 
 
@@ -992,8 +1015,8 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
-    parser.set_defaults(handler=handlers.Users, action=Action.List, architecture=[""], lock=None, quiet=True,
-                        report=False, repository=[""], unsafe=True)
+    parser.set_defaults(handler=handlers.Users, action=Action.List, architecture="", lock=None, quiet=True,
+                        report=False, repository="", unsafe=True)
     return parser
 
 
@@ -1011,8 +1034,8 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture=[""], lock=None, quiet=True,
-                        report=False, repository=[""])
+    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture="", lock=None, quiet=True,
+                        report=False, repository="")
     return parser
 
 
@@ -1027,8 +1050,8 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("web", help="web server", description="start web server", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Web, lock=Path(tempfile.gettempdir()) / "ahriman-web.lock", report=False,
-                        parser=_parser)
+    parser.set_defaults(handler=handlers.Web, architecture="", lock=Path(tempfile.gettempdir()) / "ahriman-web.lock",
+                        report=False, repository="", parser=_parser)
     return parser
 
 

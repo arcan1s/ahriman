@@ -75,7 +75,7 @@ class RepositoryProperties(LazyLogging):
         self.pacman = Pacman(repository_id, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(configuration, report=report)
+        self.reporter = Client.load(repository_id, configuration, report=report)
         self.triggers = TriggerLoader.load(repository_id, configuration)
 
     @property

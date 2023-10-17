@@ -40,13 +40,14 @@ class Remote(SyncHttpClient):
     """
 
     @classmethod
-    def info(cls, package_name: str, *, pacman: Pacman) -> AURPackage:
+    def info(cls, package_name: str, *, pacman: Pacman | None = None) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None, optional): alpm wrapper instance, required for official repositories search
+                (Default value = None)
 
         Returns:
             AURPackage: package which match the package name
@@ -54,14 +55,15 @@ class Remote(SyncHttpClient):
         return cls().package_info(package_name, pacman=pacman)
 
     @classmethod
-    def multisearch(cls, *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def multisearch(cls, *keywords: str, pacman: Pacman | None = None) -> list[AURPackage]:
         """
         search in remote repository by using API with multiple words. This method is required in order to handle
         https://bugs.archlinux.org/task/49133. In addition, short words will be dropped
 
         Args:
             *keywords(str): search terms, e.g. "ahriman", "is", "cool"
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None, optional): alpm wrapper instance, required for official repositories search
+                (Default value = None)
 
         Returns:
             list[AURPackage]: list of packages each of them matches all search terms
@@ -111,26 +113,27 @@ class Remote(SyncHttpClient):
         raise NotImplementedError
 
     @classmethod
-    def search(cls, *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def search(cls, *keywords: str, pacman: Pacman | None = None) -> list[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): search terms, e.g. "ahriman", "is", "cool"
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None, optional): alpm wrapper instance, required for official repositories search
+                (Default value = None)
 
         Returns:
             list[AURPackage]: list of packages which match the criteria
         """
         return cls().package_search(*keywords, pacman=pacman)
 
-    def package_info(self, package_name: str, *, pacman: Pacman) -> AURPackage:
+    def package_info(self, package_name: str, *, pacman: Pacman | None) -> AURPackage:
         """
         get package info by its name
 
         Args:
             package_name(str): package name to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
 
         Returns:
             AURPackage: package which match the package name
@@ -140,13 +143,13 @@ class Remote(SyncHttpClient):
         """
         raise NotImplementedError
 
-    def package_search(self, *keywords: str, pacman: Pacman) -> list[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman | None) -> list[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
-            pacman(Pacman): alpm wrapper instance
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
 
         Returns:
             list[AURPackage]: list of packages which match the criteria

@@ -26,7 +26,7 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, StatusSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, StatusSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -51,6 +51,7 @@ class StatusView(BaseView):
             200: {"description": "Success response", "schema": InternalStatusSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -63,12 +64,13 @@ class StatusView(BaseView):
         Returns:
             Response: 200 with service status object
         """
-        counters = Counters.from_packages(self.service.packages)
+        repository_id = self.repository_id()
+        counters = Counters.from_packages(self.service(repository_id).packages)
         status = InternalStatus(
-            status=self.service.status,
-            architecture=self.service.repository_id.architecture,
+            status=self.service(repository_id).status,
+            architecture=repository_id.architecture,
             packages=counters,
-            repository=self.service.repository_id.name,
+            repository=repository_id.name,
             version=__version__,
         )
 
@@ -83,11 +85,13 @@ class StatusView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     @aiohttp_apispec.json_schema(StatusSchema)
     async def post(self) -> None:
         """
@@ -103,6 +107,6 @@ class StatusView(BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service.status_update(status)
+        self.service().status_update(status)
 
         raise HTTPNoContent

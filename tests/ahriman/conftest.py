@@ -541,10 +541,7 @@ def spawner(configuration: Configuration) -> Spawn:
     Returns:
         Spawn: spawner fixture
     """
-    _, repository_id = configuration.check_loaded()
-    return Spawn(MagicMock(), repository_id, [
-        "--architecture", "x86_64",
-        "--repository", repository_id.name,
+    return Spawn(MagicMock(), [
         "--configuration", str(configuration.path),
     ])
 
@@ -561,19 +558,15 @@ def user() -> User:
 
 
 @pytest.fixture
-def watcher(configuration: Configuration, database: SQLite, repository: Repository, mocker: MockerFixture) -> Watcher:
+def watcher(repository_id: RepositoryId, database: SQLite, repository: Repository) -> Watcher:
     """
     package status watcher fixture
 
     Args:
-        configuration(Configuration): configuration fixture
+        repository_id(RepositoryId): repository identifier fixture
         database(SQLite): database fixture
-        repository(Repository): repository fixture
-        mocker(MockerFixture): mocker object
 
     Returns:
         Watcher: package status watcher test instance
     """
-    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    _, repository_id = configuration.check_loaded()
-    return Watcher(repository_id, configuration, database)
+    return Watcher(repository_id, database)

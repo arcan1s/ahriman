@@ -19,11 +19,11 @@ def test_build_queue_insert_clear_multi(database: SQLite, package_ahriman: Packa
     must clear all packages from queue for specific repository
     """
     database.build_queue_insert(package_ahriman)
-    database.repository_id = RepositoryId("i686", database.repository_id.name)
+    database._repository_id = RepositoryId("i686", database._repository_id.name)
     database.build_queue_insert(package_ahriman)
 
     database.build_queue_clear(None)
-    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    database._repository_id = RepositoryId("x86_64", database._repository_id.name)
     assert database.build_queue_get() == [package_ahriman]
 
 
@@ -68,19 +68,19 @@ def test_build_queue_insert_multi(database: SQLite, package_ahriman: Package) ->
     assert database.build_queue_get() == [package_ahriman]
 
     package_ahriman.version = "2"
-    database.repository_id = RepositoryId("i686", database.repository_id.name)
+    database._repository_id = RepositoryId("i686", database._repository_id.name)
     database.build_queue_insert(package_ahriman)
     assert database.build_queue_get() == [package_ahriman]
 
     package_ahriman.version = "1"
-    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    database._repository_id = RepositoryId("x86_64", database._repository_id.name)
     assert database.build_queue_get() == [package_ahriman]
 
     package_ahriman.version = "3"
-    database.repository_id = RepositoryId(database.repository_id.architecture, "repo")
+    database._repository_id = RepositoryId(database._repository_id.architecture, "repo")
     database.build_queue_insert(package_ahriman)
     assert database.build_queue_get() == [package_ahriman]
 
     package_ahriman.version = "1"
-    database.repository_id = RepositoryId(database.repository_id.architecture, "aur-clone")
+    database._repository_id = RepositoryId(database._repository_id.architecture, "aur-clone")
     assert database.build_queue_get() == [package_ahriman]

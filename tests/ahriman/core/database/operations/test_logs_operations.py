@@ -23,12 +23,11 @@ def test_logs_insert_remove_multi(database: SQLite, package_ahriman: Package) ->
     must clear logs for specified repository
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
-    database.repository_id = RepositoryId("i686", database.repository_id.name)
-    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2",
+                         RepositoryId("i686", database._repository_id.name))
 
-    database.logs_remove(package_ahriman.base, None)
-    assert not database.logs_get(package_ahriman.base)
-    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    database.logs_remove(package_ahriman.base, None, RepositoryId("i686", database._repository_id.name))
+    assert not database.logs_get(package_ahriman.base, repository_id=RepositoryId("i686", database._repository_id.name))
     assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
 
 
@@ -68,9 +67,9 @@ def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> No
     must insert and get package logs for multiple repositories
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
-    database.repository_id = RepositoryId("i686", database.repository_id.name)
-    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2",
+                         RepositoryId("i686", database._repository_id.name))
 
-    assert database.logs_get(package_ahriman.base) == [(43.0, "message 2")]
-    database.repository_id = RepositoryId("x86_64", database.repository_id.name)
+    assert database.logs_get(package_ahriman.base,
+                             repository_id=RepositoryId("i686", database._repository_id.name)) == [(43.0, "message 2")]
     assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
