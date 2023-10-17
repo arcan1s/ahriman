@@ -146,7 +146,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                     # there is local cache, load package from it
                     package = Package.from_build(source_dir, self.repository.architecture, username)
                 else:
-                    package = Package.from_aur(package_name, self.repository.pacman, username)
+                    package = Package.from_aur(package_name, username)
                 with_dependencies[package.base] = package
 
                 # register package in local database

@@ -100,6 +100,14 @@ ahriman.application.handlers.remove\_unknown module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.repositories module
+------------------------------------------------
+
+.. automodule:: ahriman.application.handlers.repositories
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.restore module
 -------------------------------------------
 

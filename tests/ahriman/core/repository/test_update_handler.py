@@ -89,7 +89,7 @@ def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Pack
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
 
     assert update_handler.updates_aur([package_ahriman.base], vcs=True) == [package_ahriman]
-    package_load_mock.assert_called_once_with(package_ahriman.base, update_handler.pacman, None)
+    package_load_mock.assert_called_once_with(package_ahriman.base, None)
 
 
 def test_updates_aur_ignore(update_handler: UpdateHandler, package_ahriman: Package,

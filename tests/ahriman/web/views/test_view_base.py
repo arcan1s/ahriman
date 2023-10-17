@@ -2,10 +2,11 @@ import pytest
 
 from multidict import MultiDict
 from aiohttp.test_utils import TestClient
-from aiohttp.web import HTTPBadRequest
+from aiohttp.web import HTTPBadRequest, HTTPNotFound
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 
@@ -24,11 +25,18 @@ def test_configuration(base: BaseView) -> None:
     assert base.configuration
 
 
-def test_service(base: BaseView) -> None:
+def test_services(base: BaseView) -> None:
     """
-    must return service
+    must return services
     """
-    assert base.service
+    assert base.services
+
+
+def test_sign(base: BaseView) -> None:
+    """
+    must return GPP wrapper instance
+    """
+    assert base.sign
 
 
 def test_spawn(base: BaseView) -> None:
@@ -191,6 +199,53 @@ def test_page_bad_request(base: BaseView) -> None:
     with pytest.raises(HTTPBadRequest):
         base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(offset=-1))
         base.page()
+
+
+def test_repository_id(base: BaseView, repository_id: RepositoryId) -> None:
+    """
+    must repository identifier from parameters
+    """
+    base._request = pytest.helpers.request(base.request.app, "", "",
+                                           params=MultiDict(architecture="i686", repository="repo"))
+    assert base.repository_id() == RepositoryId("i686", "repo")
+
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(architecture="i686"))
+    assert base.repository_id() == repository_id
+
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict(repository="repo"))
+    assert base.repository_id() == repository_id
+
+    base._request = pytest.helpers.request(base.request.app, "", "", params=MultiDict())
+    assert base.repository_id() == repository_id
+
+
+def test_service(base: BaseView) -> None:
+    """
+    must return service for repository
+    """
+    repository_id = RepositoryId("i686", "repo")
+    base.request.app["watcher"] = {
+        repository_id: watcher
+        for watcher in base.request.app["watcher"].values()
+    }
+
+    assert base.service(repository_id) == base.services[repository_id]
+
+
+def test_service_auto(base: BaseView, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must return service for repository if no parameters set
+    """
+    mocker.patch("ahriman.web.views.base.BaseView.repository_id", return_value=repository_id)
+    assert base.service() == base.services[repository_id]
+
+
+def test_service_not_found(base: BaseView) -> None:
+    """
+    must raise HTTPNotFound if no repository found
+    """
+    with pytest.raises(HTTPNotFound):
+        base.service(RepositoryId("", ""))
 
 
 async def test_username(base: BaseView, mocker: MockerFixture) -> None:

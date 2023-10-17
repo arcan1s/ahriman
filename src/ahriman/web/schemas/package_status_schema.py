@@ -21,6 +21,7 @@ from marshmallow import Schema, fields
 
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.web.schemas.package_schema import PackageSchema
+from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.status_schema import StatusSchema
 
 
@@ -35,6 +36,9 @@ class PackageStatusSimplifiedSchema(Schema):
     status = fields.Enum(BuildStatusEnum, by_value=True, required=True, metadata={
         "description": "Current status",
     })
+    repository = fields.Nested(RepositoryIdSchema(), required=True, metadata={
+        "description": "Repository identifier",
+    })
 
 
 class PackageStatusSchema(Schema):
@@ -47,4 +51,7 @@ class PackageStatusSchema(Schema):
     })
     status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Last package status",
+    })
+    repository = fields.Nested(RepositoryIdSchema(), required=True, metadata={
+        "description": "Repository identifier",
     })

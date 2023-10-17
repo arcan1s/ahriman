@@ -45,14 +45,18 @@ class StatusUpdate(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        # we are using reporter here
-        client = Application(repository_id, configuration, report=True).repository.reporter
+        application = Application(repository_id, configuration, report=True)
+        client = application.repository.reporter
 
         match args.action:
             case Action.Update if args.package:
                 # update packages statuses
-                for package in args.package:
-                    client.package_update(package, args.status)
+                packages = application.repository.packages()
+                for base in args.package:
+                    if (local := next((package for package in packages if package.base == base), None)) is not None:
+                        client.package_add(local, args.status)
+                    else:
+                        client.package_update(base, args.status)
             case Action.Update:
                 # update service status
                 client.status_update(args.status)

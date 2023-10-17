@@ -1,16 +1,16 @@
-.TH AHRIMAN "1" "2023\-09\-02" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-10\-09" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help,help-commands-unsafe,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
 .SH OPTIONS
 .TP
 \fB\-a\fR \fI\,ARCHITECTURE\/\fR, \fB\-\-architecture\fR \fI\,ARCHITECTURE\/\fR
-target architectures. For several subcommands it can be used multiple times
+filter by target architecture
 
 .TP
 \fB\-c\fR \fI\,CONFIGURATION\/\fR, \fB\-\-configuration\fR \fI\,CONFIGURATION\/\fR
@@ -38,7 +38,7 @@ force enable or disable reporting to web service
 
 .TP
 \fB\-r\fR \fI\,REPOSITORY\/\fR, \fB\-\-repository\fR \fI\,REPOSITORY\/\fR
-target repository. For several subcommands it can be used multiple times
+filter by target repository
 
 .TP
 \fB\-\-unsafe\fR
@@ -154,6 +154,9 @@ validate system configuration
 .TP
 \fBahriman\fR \fI\,service\-key\-import\/\fR
 import PGP key
+.TP
+\fBahriman\fR \fI\,service\-repositories\/\fR
+show repositories
 .TP
 \fBahriman\fR \fI\,service\-setup\/\fR
 initial service configuration
@@ -664,11 +667,23 @@ clear directory with built packages
 clear directory with pacman local database cache
 
 .SH COMMAND \fI\,'ahriman service\-config'\/\fR
-usage: ahriman service\-config [\-h] [\-\-secure | \-\-no\-secure]
+usage: ahriman service\-config [\-h] [\-\-info | \-\-no\-info] [\-\-secure | \-\-no\-secure] [section] [key]
 
 dump configuration for the specified architecture
 
+.TP
+\fBsection\fR
+filter settings by section
+
+.TP
+\fBkey\fR
+filter settings by key
+
 .SH OPTIONS \fI\,'ahriman service\-config'\/\fR
+.TP
+\fB\-\-info\fR, \fB\-\-no\-info\fR
+show additional information, e.g. configuration files
+
 .TP
 \fB\-\-secure\fR, \fB\-\-no\-secure\fR
 hide passwords and secrets from output
@@ -696,6 +711,16 @@ PGP key to import from public server
 .TP
 \fB\-\-key\-server\fR \fI\,KEY_SERVER\/\fR
 key server for key import
+
+.SH COMMAND \fI\,'ahriman service\-repositories'\/\fR
+usage: ahriman service\-repositories [\-h] [\-\-id\-only | \-\-no\-id\-only]
+
+list all available repositories
+
+.SH OPTIONS \fI\,'ahriman service\-repositories'\/\fR
+.TP
+\fB\-\-id\-only\fR, \fB\-\-no\-id\-only\fR
+show machine readable identifier instead
 
 .SH COMMAND \fI\,'ahriman service\-setup'\/\fR
 usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-from\-configuration FROM_CONFIGURATION]

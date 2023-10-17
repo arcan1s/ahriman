@@ -43,7 +43,7 @@ class BuildOperations(Operations):
                 """,
                 {
                     "package_base": package_base,
-                    "repository": self.repository_id.id,
+                    "repository": self._repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)
@@ -60,7 +60,7 @@ class BuildOperations(Operations):
                 Package.from_json(row["properties"])
                 for row in connection.execute(
                     """select properties from build_queue where repository = :repository""",
-                    {"repository": self.repository_id.id}
+                    {"repository": self._repository_id.id}
                 )
             ]
 
@@ -86,7 +86,7 @@ class BuildOperations(Operations):
                 {
                     "package_base": package.base,
                     "properties": package.view(),
-                    "repository": self.repository_id.id,
+                    "repository": self._repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)

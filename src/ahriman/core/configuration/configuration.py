@@ -63,7 +63,7 @@ class Configuration(configparser.RawConfigParser):
             >>> path, repository_id = configuration.check_loaded()
     """
 
-    ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign", "web"]
+    ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
     converters: dict[str, Callable[[str], Any]]  # typing guard
 
@@ -232,7 +232,7 @@ class Configuration(configparser.RawConfigParser):
             dict[str, dict[str, str]]: configuration dump for specific architecture
         """
         return {
-            section: dict(self[section])
+            section: dict(self.items(section))
             for section in self.sections()
         }
 
@@ -282,20 +282,27 @@ class Configuration(configparser.RawConfigParser):
         if not path.is_file():  # fallback to the system file
             path = self.SYSTEM_CONFIGURATION_PATH
         self.path = path
-        self.read(self.path)
-        self.load_includes()
 
-    def load_includes(self) -> None:
+        self.read(self.path)
+        self.load_includes()  # load includes
+
+    def load_includes(self, path: Path | None = None) -> None:
         """
-        load configuration includes
+        load configuration includes from specified path
+
+        Args:
+            path(Path | None, optional): path to directory with include files. If none set, the default path will be
+                used (Default value = None)
         """
         self.includes = []  # reset state
+
         try:
-            for path in sorted(self.include.glob("*.ini")):
-                if path == self.logging_path:
+            path = path or self.include
+            for include in sorted(path.glob("*.ini")):
+                if include == self.logging_path:
                     continue  # we don't want to load logging explicitly
-                self.read(path)
-                self.includes.append(path)
+                self.read(include)
+                self.includes.append(include)
         except (FileNotFoundError, configparser.NoOptionError, configparser.NoSectionError):
             pass
 

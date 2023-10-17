@@ -21,6 +21,17 @@ def test_package_info(official_syncdb: OfficialSyncdb, aur_package_akonadi: AURP
     assert package == aur_package_akonadi
 
 
+def test_package_info_no_pacman(official_syncdb: OfficialSyncdb, aur_package_akonadi: AURPackage,
+                                mocker: MockerFixture) -> None:
+    """
+    must raise UnknownPackageError if no pacman set
+    """
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.package_get", return_value=[aur_package_akonadi])
+
+    with pytest.raises(UnknownPackageError, match=aur_package_akonadi.name):
+        official_syncdb.package_info(aur_package_akonadi.name, pacman=None)
+
+
 def test_package_info_not_found(official_syncdb: OfficialSyncdb, aur_package_akonadi: AURPackage, pacman: Pacman,
                                 mocker: MockerFixture) -> None:
     """

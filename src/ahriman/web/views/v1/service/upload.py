@@ -25,8 +25,9 @@ from aiohttp.web import HTTPBadRequest, HTTPCreated, HTTPNotFound
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, FileSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, FileSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -100,12 +101,13 @@ class UploadView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Not found", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown or endpoint is disabled", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     @aiohttp_apispec.form_schema(FileSchema)
     async def post(self) -> None:
         """
@@ -125,7 +127,10 @@ class UploadView(BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         max_body_size = self.configuration.getint("web", "max_body_size", fallback=None)
-        target = self.configuration.repository_paths.packages
+
+        paths_root = self.configuration.repository_paths.root
+        repository_id = self.repository_id()
+        target = RepositoryPaths(paths_root, repository_id).packages
 
         files = []
         while (part := await reader.next()) is not None:

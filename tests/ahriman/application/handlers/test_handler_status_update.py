@@ -47,13 +47,16 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, re
     must run command with specified packages
     """
     args = _default_args(args)
-    args.package = [package_ahriman.base]
+    args.package = [package_ahriman.base, "package"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
+    mocker.patch("ahriman.core.repository.repository.Repository.packages", return_value=[package_ahriman])
+    add_mock = mocker.patch("ahriman.core.status.client.Client.package_add")
     update_mock = mocker.patch("ahriman.core.status.client.Client.package_update")
 
     _, repository_id = configuration.check_loaded()
     StatusUpdate.run(args, repository_id, configuration, report=False)
-    update_mock.assert_called_once_with(package_ahriman.base, args.status)
+    add_mock.assert_called_once_with(package_ahriman, args.status)
+    update_mock.assert_called_once_with("package", args.status)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, repository: Repository,

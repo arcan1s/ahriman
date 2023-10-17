@@ -8,10 +8,20 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="package-input" class="col-sm-2 col-form-label">package</label>
-                        <div class="col-sm-10">
-                            <input id="package-input" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
-                            <datalist id="known-packages-dlist"></datalist>
+                        <label for="package-add-repository-input" class="col-sm-4 col-form-label">repository</label>
+                        <div class="col-sm-8">
+                            <select id="package-add-repository-input" class="form-control" name="repository" required>
+                                {% for repository in repositories %}
+                                    <option value="{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="package-add-input" class="col-sm-4 col-form-label">package</label>
+                        <div class="col-sm-8">
+                            <input id="package-add-input" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
+                            <datalist id="package-add-known-packages-dlist"></datalist>
                         </div>
                     </div>
                 </div>
@@ -27,14 +37,19 @@
 <script>
     const packageAddModal = $("#package-add-modal");
     const packageAddForm = $("#package-add-form");
+    packageAddModal.on("shown.bs.modal", () => {
+        $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
+
+    });
     packageAddModal.on("hidden.bs.modal", () => { packageAddForm.trigger("reset"); });
 
-    const packageInput = $("#package-input");
-    const knownPackagesList = $("#known-packages-dlist");
-    packageInput.keyup(() => {
-        clearTimeout(packageInput.data("timeout"));
-        packageInput.data("timeout", setTimeout($.proxy(() => {
-            const value = packageInput.val();
+    const packageAddInput = $("#package-add-input");
+    const packageAddRepositoryInput = $("#package-add-repository-input");
+    const packageAddKnownPackagesList = $("#package-add-known-packages-dlist");
+    packageAddInput.keyup(() => {
+        clearTimeout(packageAddInput.data("timeout"));
+        packageAddInput.data("timeout", setTimeout($.proxy(() => {
+            const value = packageAddInput.val();
 
             if (value.length >= 3) {
                 $.ajax({
@@ -49,7 +64,7 @@
                             option.innerText = `${pkg.package} (${pkg.description})`;
                             return option;
                         });
-                        knownPackagesList.empty().append(options);
+                        packageAddKnownPackagesList.empty().append(options);
                     },
                 });
             }
@@ -57,22 +72,24 @@
     });
 
     function packagesAdd() {
-        const packages = packageInput.val();
+        const packages = packageAddInput.val();
+        const repository = getRepositorySelector(packageAddRepositoryInput);
         if (packages) {
             packageAddModal.modal("hide");
             const onSuccess = update => `Packages ${update} have been added`;
             const onFailure = error => `Package addition failed: ${error}`;
-            doPackageAction("/api/v1/service/add", [packages], onSuccess, onFailure);
+            doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure);
         }
     }
 
     function packagesRequest() {
-        const packages = packageInput.val();
+        const packages = packageAddInput.val();
+        const repository = getRepositorySelector(packageAddRepositoryInput);
         if (packages) {
             packageAddModal.modal("hide");
             const onSuccess = update => `Packages ${update} have been requested`;
             const onFailure = error => `Package request failed: ${error}`;
-            doPackageAction("/api/v1/service/request", [packages], onSuccess, onFailure);
+            doPackageAction("/api/v1/service/request", [packages], repository, onSuccess, onFailure);
         }
     }
 </script>

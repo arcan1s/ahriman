@@ -8,21 +8,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="key-fingerprint-input" class="col-sm-2 col-form-label">fingerprint</label>
+                        <label for="key-import-fingerprint-input" class="col-sm-2 col-form-label">fingerprint</label>
                         <div class="col-sm-10">
-                            <input id="key-fingerprint-input" type="text" class="form-control" placeholder="PGP key fingerprint" name="key" required>
+                            <input id="key-import-fingerprint-input" type="text" class="form-control" placeholder="PGP key fingerprint" name="key" required>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="key-server-input" class="col-sm-2 col-form-label">key server</label>
+                        <label for="key-import-server-input" class="col-sm-2 col-form-label">key server</label>
                         <div class="col-sm-10">
-                            <input id="key-server-input" type="text" class="form-control" placeholder="PGP key server" name="server" value="keyserver.ubuntu.com" required>
+                            <input id="key-import-server-input" type="text" class="form-control" placeholder="PGP key server" name="server" value="keyserver.ubuntu.com" required>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-2"></div>
                         <div class="col-sm-10">
-                            <pre class="language-less"><samp id="key-body-input" class="pre-scrollable language-less"></samp><button id="key-copy-btn" type="button" class="btn language-less" onclick="copyPgpKey()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                            <pre class="language-less"><samp id="key-import-body-input" class="pre-scrollable language-less"></samp><button id="key-import-copy-button" type="button" class="btn language-less" onclick="copyPgpKey()"><i class="bi bi-clipboard"></i> copy</button></pre>
                         </div>
                     </div>
                 </div>
@@ -39,24 +39,24 @@
     const keyImportModal = $("#key-import-modal");
     const keyImportForm = $("#key-import-form");
     keyImportModal.on("hidden.bs.modal", () => {
-        keyBodyInput.text("");
+        keyImportBodyInput.text("");
         keyImportForm.trigger("reset");
     });
 
-    const keyBodyInput = $("#key-body-input");
-    const keyCopyButton = $("#key-copy-btn");
+    const keyImportBodyInput = $("#key-import-body-input");
+    const keyImportCopyButton = $("#key-import-copy-button");
 
-    const keyFingerprintInput = $("#key-fingerprint-input");
-    const keyServerInput = $("#key-server-input");
+    const keyImportFingerprintInput = $("#key-import-fingerprint-input");
+    const keyImportServerInput = $("#key-import-server-input");
 
     async function copyPgpKey() {
-        const logs = keyBodyInput.text();
-        await copyToClipboard(logs, keyCopyButton);
+        const logs = keyImportBodyInput.text();
+        await copyToClipboard(logs, keyImportCopyButton);
     }
 
     function fetchPgpKey() {
-        const key = keyFingerprintInput.val();
-        const server = keyServerInput.val();
+        const key = keyImportFingerprintInput.val();
+        const server = keyImportServerInput.val();
 
         if (key && server) {
             $.ajax({
@@ -64,14 +64,14 @@
                 data: {"key": key, "server": server},
                 type: "GET",
                 dataType: "json",
-                success: response => { keyBodyInput.text(response.key); },
+                success: response => { keyImportBodyInput.text(response.key); },
             });
         }
     }
 
     function importPgpKey() {
-        const key = keyFingerprintInput.val();
-        const server = keyServerInput.val();
+        const key = keyImportFingerprintInput.val();
+        const server = keyImportServerInput.val();
 
         if (key && server) {
             $.ajax({

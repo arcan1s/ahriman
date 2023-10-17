@@ -23,8 +23,7 @@ from aiohttp.web import HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PaginationSchema
-from ahriman.web.schemas.logs_schema import LogsSchemaV2
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchemaV2, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -48,7 +47,7 @@ class LogsView(BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base is unknown", "schema": ErrorSchema},
+            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -70,10 +69,10 @@ class LogsView(BaseView):
         limit, offset = self.page()
 
         try:
-            _, status = self.service.package_get(package_base)
+            _, status = self.service().package_get(package_base)
         except UnknownPackageError:
-            raise HTTPNotFound
-        logs = self.service.logs_get(package_base, limit, offset)
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        logs = self.service().logs_get(package_base, limit, offset)
 
         response = {
             "package_base": package_base,

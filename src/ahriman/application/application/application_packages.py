@@ -63,7 +63,7 @@ class ApplicationPackages(ApplicationProperties):
             source(str): package base name
             username(str | None): optional override of username for build process
         """
-        package = Package.from_aur(source, self.repository.pacman, username)
+        package = Package.from_aur(source, username)
         self.database.build_queue_insert(package)
         self.database.remote_update(package)
 

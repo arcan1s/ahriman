@@ -21,6 +21,7 @@ from sqlite3 import Connection
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.repository_id import RepositoryId
 
 
 class LogsOperations(Operations):
@@ -28,7 +29,8 @@ class LogsOperations(Operations):
     logs operations
     """
 
-    def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+    def logs_get(self, package_base: str, limit: int = -1, offset: int = 0,
+                 repository_id: RepositoryId | None = None) -> list[tuple[float, str]]:
         """
         extract logs for specified package base
 
@@ -36,10 +38,13 @@ class LogsOperations(Operations):
             package_base(str): package base to extract logs
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Return:
             list[tuple[float, str]]: sorted package log records and their timestamps
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> list[tuple[float, str]]:
             return [
                 (row["created"], row["record"])
@@ -51,7 +56,7 @@ class LogsOperations(Operations):
                     """,
                     {
                         "package_base": package_base,
-                        "repository": self.repository_id.id,
+                        "repository": repository_id.id,
                         "limit": limit,
                         "offset": offset,
                     })
@@ -59,7 +64,8 @@ class LogsOperations(Operations):
 
         return self.with_connection(run)
 
-    def logs_insert(self, log_record_id: LogRecordId, created: float, record: str) -> None:
+    def logs_insert(self, log_record_id: LogRecordId, created: float, record: str,
+                    repository_id: RepositoryId | None = None) -> None:
         """
         write new log record to database
 
@@ -67,7 +73,10 @@ class LogsOperations(Operations):
             log_record_id(LogRecordId): current log record id
             created(float): log created timestamp from log record attribute
             record(str): log record
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
             connection.execute(
                 """
@@ -81,21 +90,23 @@ class LogsOperations(Operations):
                     "version": log_record_id.version,
                     "created": created,
                     "record": record,
-                    "repository": self.repository_id.id,
+                    "repository": repository_id.id,
                 }
             )
 
         return self.with_connection(run, commit=True)
 
-    def logs_remove(self, package_base: str, version: str | None) -> None:
+    def logs_remove(self, package_base: str, version: str | None, repository_id: RepositoryId | None = None) -> None:
         """
         remove log records for the specified package
 
         Args:
             package_base(str): package base to remove logs
-            version(str): package version. If set it will remove only logs belonging to another
-                version
+            version(str | None): package version. If set it will remove only logs belonging to another version
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
             connection.execute(
                 """
@@ -107,7 +118,7 @@ class LogsOperations(Operations):
                 {
                     "package_base": package_base,
                     "version": version,
-                    "repository": self.repository_id.id,
+                    "repository": repository_id.id,
                 }
             )
 

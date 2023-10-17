@@ -42,7 +42,7 @@ ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@exa
 # validate configuration
 ahriman service-config-validate --exit-code
 # enable services
-systemctl enable ahriman-web@x86_64-github
+systemctl enable ahriman-web
 systemctl enable ahriman@x86_64-github.timer
 if [[ -z $MINIMAL_INSTALL ]]; then
     # run web service (detached)

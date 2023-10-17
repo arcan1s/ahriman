@@ -38,7 +38,7 @@ from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
 
-__all__ = ["run_server", "setup_service"]
+__all__ = ["run_server", "setup_server"]
 
 
 def _create_socket(configuration: Configuration, application: Application) -> socket.socket | None:
@@ -95,8 +95,10 @@ async def _on_startup(application: Application) -> None:
         InitializeError: in case if matched could not be loaded
     """
     application.logger.info("server started")
+
     try:
-        application["watcher"].load()
+        for watcher in application["watcher"].values():
+            watcher.load()
     except Exception:
         message = "could not load packages"
         application.logger.exception(message)
@@ -121,17 +123,20 @@ def run_server(application: Application) -> None:
             access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
 
 
-def setup_service(repository_id: RepositoryId, configuration: Configuration, spawner: Spawn) -> Application:
+def setup_server(configuration: Configuration, spawner: Spawn, repositories: list[RepositoryId]) -> Application:
     """
     create web application
 
     Args:
-        repository_id(RepositoryId): repository unique identifier
         configuration(Configuration): configuration instance
         spawner(Spawn): spawner thread
+        repositories(list[RepositoryId]): list of known repositories
 
     Returns:
         Application: web application instance
+
+    Raises:
+        InitializeError: if no repositories set
     """
     application = Application(logger=logging.getLogger(__name__))
     application.on_shutdown.append(_on_shutdown)
@@ -153,11 +158,15 @@ def setup_service(repository_id: RepositoryId, configuration: Configuration, spa
     application.logger.info("setup configuration")
     application["configuration"] = configuration
 
-    application.logger.info("setup database and perform migrations")
-    database = application["database"] = SQLite.load(configuration)
-
-    application.logger.info("setup watcher")
-    application["watcher"] = Watcher(repository_id, configuration, database)
+    application.logger.info("setup watchers")
+    if not repositories:
+        raise InitializeError("No repositories configured, exiting")
+    database = SQLite.load(configuration)
+    watchers: dict[RepositoryId, Watcher] = {}
+    for repository_id in repositories:
+        application.logger.info("load repository %s", repository_id)
+        watchers[repository_id] = Watcher(repository_id, database)
+    application["watcher"] = watchers
 
     application.logger.info("setup process spawner")
     application["spawn"] = spawner

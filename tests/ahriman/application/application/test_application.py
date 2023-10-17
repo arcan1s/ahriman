@@ -99,8 +99,8 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     result = application.with_dependencies([package_ahriman], process_dependencies=True)
     assert {package.base: package for package in result} == packages
     package_aur_mock.assert_has_calls([
-        MockCall(package_python_schedule.base, application.repository.pacman, package_ahriman.packager),
-        MockCall("python-installer", application.repository.pacman, package_ahriman.packager),
+        MockCall(package_python_schedule.base, package_ahriman.packager),
+        MockCall("python-installer", package_ahriman.packager),
     ], any_order=True)
     package_local_mock.assert_has_calls([
         MockCall(application.repository.paths.cache_for("python"), "x86_64", package_ahriman.packager),

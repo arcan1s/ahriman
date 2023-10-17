@@ -6,7 +6,6 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import Official
 from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
 from ahriman.models.aur_package import AURPackage
@@ -95,33 +94,30 @@ def test_arch_request_failed_http_error(official: Official, mocker: MockerFixtur
         official.arch_request("akonadi", by="q")
 
 
-def test_package_info(official: Official, aur_package_akonadi: AURPackage, pacman: Pacman,
-                      mocker: MockerFixture) -> None:
+def test_package_info(official: Official, aur_package_akonadi: AURPackage, mocker: MockerFixture) -> None:
     """
     must make request for info
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request",
                                 return_value=[aur_package_akonadi])
-    assert official.package_info(aur_package_akonadi.name, pacman=pacman) == aur_package_akonadi
+    assert official.package_info(aur_package_akonadi.name, pacman=None) == aur_package_akonadi
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="name")
 
 
-def test_package_info_not_found(official: Official, aur_package_ahriman: AURPackage, pacman: Pacman,
-                                mocker: MockerFixture) -> None:
+def test_package_info_not_found(official: Official, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
     must raise UnknownPackage exception in case if no package was found
     """
     mocker.patch("ahriman.core.alpm.remote.Official.arch_request", return_value=[])
     with pytest.raises(UnknownPackageError, match=aur_package_ahriman.name):
-        assert official.package_info(aur_package_ahriman.name, pacman=pacman)
+        assert official.package_info(aur_package_ahriman.name, pacman=None)
 
 
-def test_package_search(official: Official, aur_package_akonadi: AURPackage, pacman: Pacman,
-                        mocker: MockerFixture) -> None:
+def test_package_search(official: Official, aur_package_akonadi: AURPackage, mocker: MockerFixture) -> None:
     """
     must make request for search
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request",
                                 return_value=[aur_package_akonadi])
-    assert official.package_search(aur_package_akonadi.name, pacman=pacman) == [aur_package_akonadi]
+    assert official.package_search(aur_package_akonadi.name, pacman=None) == [aur_package_akonadi]
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="q")

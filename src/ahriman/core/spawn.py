@@ -28,6 +28,7 @@ from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
+from ahriman.models.process_status import ProcessStatus
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -39,22 +40,18 @@ class Spawn(Thread, LazyLogging):
     Attributes:
         active(dict[str, Process]): map of active child processes required to avoid zombies
         command_arguments(list[str]): base command line arguments
-        queue(Queue[tuple[str, bool, int]]): multiprocessing queue to read updates from processes
-        repository_id(RepositoryId): repository unique identifier
+        queue(Queue[ProcessStatus | None]): multiprocessing queue to read updates from processes
     """
 
-    def __init__(self, args_parser: argparse.ArgumentParser, repository_id: RepositoryId,
-                 command_arguments: list[str]) -> None:
+    def __init__(self, args_parser: argparse.ArgumentParser, command_arguments: list[str]) -> None:
         """
         default constructor
 
         Args:
             args_parser(argparse.ArgumentParser): command line parser for the application
-            repository_id(RepositoryId): repository unique identifier
             command_arguments(list[str]): base command line arguments
         """
         Thread.__init__(self, name="spawn")
-        self.repository_id = repository_id
 
         self.args_parser = args_parser
         self.command_arguments = command_arguments
@@ -62,7 +59,7 @@ class Spawn(Thread, LazyLogging):
         self.lock = Lock()
         self.active: dict[str, Process] = {}
         # stupid pylint does not know that it is possible
-        self.queue: Queue[tuple[str, bool, int] | None] = Queue()  # pylint: disable=unsubscriptable-object
+        self.queue: Queue[ProcessStatus | None] = Queue()  # pylint: disable=unsubscriptable-object
 
     @staticmethod
     def boolean_action_argument(name: str, value: bool) -> str:
@@ -80,16 +77,16 @@ class Spawn(Thread, LazyLogging):
 
     @staticmethod
     def process(callback: Callable[[argparse.Namespace, RepositoryId], bool], args: argparse.Namespace,
-                repository_id: RepositoryId, process_id: str, queue: Queue[tuple[str, bool, int]]) -> None:  # pylint: disable=unsubscriptable-object
+                repository_id: RepositoryId, process_id: str, queue: Queue[ProcessStatus | None]) -> None:  # pylint: disable=unsubscriptable-object
         """
         helper to run external process
 
         Args:
-            callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. Handler.run method)
+            callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. ``Handler.call`` method)
             args(argparse.Namespace): command line arguments
             repository_id(RepositoryId): repository unique identifier
             process_id(str): process unique identifier
-            queue(Queue[tuple[str, bool, int]]): output queue
+            queue(Queue[ProcessStatus | None]): output queue
         """
         start_time = time.monotonic()
         result = callback(args, repository_id)
@@ -97,19 +94,20 @@ class Spawn(Thread, LazyLogging):
 
         consumed_time = int(1000 * (stop_time - start_time))
 
-        queue.put((process_id, result, consumed_time))
+        queue.put(ProcessStatus(process_id, result, consumed_time))
 
-    def _spawn_process(self, command: str, *args: str, **kwargs: str | None) -> str:
+    def _spawn_process(self, repository_id: RepositoryId, command: str, *args: str, **kwargs: str | None) -> str:
         """
         spawn external ahriman process with supplied arguments
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             command(str): subcommand to run
             *args(str): positional command arguments
             **kwargs(str): named command arguments
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
         # default arguments
         arguments = self.command_arguments[:]
@@ -125,12 +123,14 @@ class Spawn(Thread, LazyLogging):
                 arguments.append(value)
 
         process_id = str(uuid.uuid4())
-        self.logger.info("full command line arguments of %s are %s", process_id, arguments)
+        self.logger.info("full command line arguments of %s are %s using repository %s",
+                         process_id, arguments, repository_id)
+
         parsed = self.args_parser.parse_args(arguments)
 
         callback = parsed.handler.call
         process = Process(target=self.process,
-                          args=(callback, parsed, self.repository_id, process_id, self.queue),
+                          args=(callback, parsed, repository_id, process_id, self.queue),
                           daemon=True)
         process.start()
 
@@ -160,66 +160,73 @@ class Spawn(Thread, LazyLogging):
             server(str | None): PGP key server
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
         kwargs = {} if server is None else {"key-server": server}
-        return self._spawn_process("service-key-import", key, **kwargs)
+        repository_id = RepositoryId("", "")
+        return self._spawn_process(repository_id, "service-key-import", key, **kwargs)
 
-    def packages_add(self, packages: Iterable[str], username: str | None, *, now: bool) -> str:
+    def packages_add(self, repository_id: RepositoryId, packages: Iterable[str], username: str | None, *,
+                     now: bool) -> str:
         """
         add packages
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             packages(Iterable[str]): packages list to add
             username(str | None): optional override of username for build process
             now(bool): build packages now
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
         kwargs = {"username": username}
         if now:
             kwargs["now"] = ""
-        return self._spawn_process("package-add", *packages, **kwargs)
+        return self._spawn_process(repository_id, "package-add", *packages, **kwargs)
 
-    def packages_rebuild(self, depends_on: str, username: str | None) -> str:
+    def packages_rebuild(self, repository_id: RepositoryId, depends_on: str, username: str | None) -> str:
         """
         rebuild packages which depend on the specified package
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             depends_on(str): packages dependency
             username(str | None): optional override of username for build process
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
         kwargs = {"depends-on": depends_on, "username": username}
-        return self._spawn_process("repo-rebuild", **kwargs)
+        return self._spawn_process(repository_id, "repo-rebuild", **kwargs)
 
-    def packages_remove(self, packages: Iterable[str]) -> str:
+    def packages_remove(self, repository_id: RepositoryId, packages: Iterable[str]) -> str:
         """
         remove packages
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             packages(Iterable[str]): packages list to remove
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
-        return self._spawn_process("package-remove", *packages)
+        return self._spawn_process(repository_id, "package-remove", *packages)
 
-    def packages_update(self, username: str | None, *, aur: bool, local: bool, manual: bool) -> str:
+    def packages_update(self, repository_id: RepositoryId, username: str | None, *,
+                        aur: bool, local: bool, manual: bool) -> str:
         """
         run full repository update
 
         Args:
+            repository_id(RepositoryId): repository unique identifier
             username(str | None): optional override of username for build process
             aur(bool): check for aur updates
             local(bool): check for local packages updates
             manual(bool): check for manual packages
 
         Returns:
-            str: spawned process id
+            str: spawned process identifier
         """
         kwargs = {
             "username": username,
@@ -227,18 +234,18 @@ class Spawn(Thread, LazyLogging):
             self.boolean_action_argument("local", local): "",
             self.boolean_action_argument("manual", manual): "",
         }
-        return self._spawn_process("repo-update", **kwargs)
+        return self._spawn_process(repository_id, "repo-update", **kwargs)
 
     def run(self) -> None:
         """
         thread run method
         """
-        for process_id, status, consumed_time in iter(self.queue.get, None):
-            self.logger.info("process %s has been terminated with status %s, consumed time %s",
-                             process_id, status, consumed_time / 1000)
+        for terminated in iter(self.queue.get, None):
+            self.logger.info("process %s has been terminated with status %s, consumed time %ss",
+                             terminated.process_id, terminated.status, terminated.consumed_time / 1000)
 
             with self.lock:
-                process = self.active.pop(process_id, None)
+                process = self.active.pop(terminated.process_id, None)
 
             if process is not None:
                 process.join()

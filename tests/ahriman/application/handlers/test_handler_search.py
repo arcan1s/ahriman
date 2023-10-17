@@ -44,8 +44,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)
-    aur_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
-    official_search_mock.assert_called_once_with("ahriman", pacman=pytest.helpers.anyvar(int))
+    aur_search_mock.assert_called_once_with("ahriman")
+    official_search_mock.assert_called_once_with("ahriman")
     check_mock.assert_called_once_with(False, False)
     print_mock.assert_has_calls([
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": "),
