@@ -199,10 +199,8 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
-    status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
-    assert update_handler.updates_local(vcs=True) == [package_ahriman]
-    status_client_mock.assert_called_once_with(package_ahriman)
+    assert update_handler.updates_local(vcs=True) == []
 
 
 def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahriman: Package,
