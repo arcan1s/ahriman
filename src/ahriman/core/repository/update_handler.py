@@ -123,11 +123,11 @@ class UpdateHandler(Cleaner):
 
                     local = packages.get(remote.base)
                     if local is None:
-                        self.reporter.set_unknown(remote)
-                        result.append(remote)
-                    elif local.is_outdated(remote, self.paths,
-                                           vcs_allowed_age=self.vcs_allowed_age,
-                                           calculate_version=vcs):
+                        continue  # we don't add packages automatically
+
+                    if local.is_outdated(remote, self.paths,
+                                         vcs_allowed_age=self.vcs_allowed_age,
+                                         calculate_version=vcs):
                         self.reporter.set_pending(local.base)
                         result.append(remote)
                 except Exception:

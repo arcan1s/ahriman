@@ -96,14 +96,16 @@ class Task(LazyLogging):
             cwd=sources_dir,
             logger=self.logger,
             user=self.uid,
-            environment=environment)
+            environment=environment,
+        )
 
         # well it is not actually correct, but we can deal with it
         packages = Task._check_output(
             "makepkg", "--packagelist",
             exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
-            logger=self.logger
+            logger=self.logger,
+            environment=environment,
         ).splitlines()
         return [Path(package) for package in packages]
 
