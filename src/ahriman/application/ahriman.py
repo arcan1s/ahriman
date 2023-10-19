@@ -129,6 +129,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_service_config_validate_parser(subparsers)
     _set_service_key_import_parser(subparsers)
     _set_service_repositories(subparsers)
+    _set_service_run(subparsers)
     _set_service_setup_parser(subparsers)
     _set_service_shell_parser(subparsers)
     _set_service_tree_migrate_parser(subparsers)
@@ -899,6 +900,27 @@ def _set_service_repositories(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=False)
     parser.set_defaults(handler=handlers.Repositories, architecture="", lock=None, report=False, repository="",
                         unsafe=True)
+    return parser
+
+
+def _set_service_run(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for multicommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("service-run", aliases=["run"], help="run multiple commands",
+                             description="run multiple commands on success run of the previous command",
+                             epilog="Commands must be quoted by using usual bash rules. Processes will be spawned "
+                                    "under the same user as this command",
+                             formatter_class=_formatter)
+    parser.add_argument("command", help="command to be run (quoted) without ``ahriman``", nargs="+")
+    parser.set_defaults(handler=handlers.Run, architecture="", lock=None, report=False, repository="",
+                        unsafe=True, parser=_parser)
     return parser
 
 

@@ -1060,6 +1060,34 @@ def test_subparsers_service_repositories_option_repository(parser: argparse.Argu
     assert args.repository == ""
 
 
+def test_subparsers_service_run(parser: argparse.ArgumentParser) -> None:
+    """
+    service-run command must imply architecture, lock, report, repository and parser
+    """
+    args = parser.parse_args(["service-run", "help"])
+    assert args.architecture == ""
+    assert args.lock is None
+    assert not args.report
+    assert args.repository == ""
+    assert args.parser is not None and args.parser()
+
+
+def test_subparsers_service_run_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    service-run command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "service-run", "help"])
+    assert args.architecture == ""
+
+
+def test_subparsers_service_run_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    service-run command must correctly parse repository list
+    """
+    args = parser.parse_args(["-r", "repo", "service-run", "help"])
+    assert args.repository == ""
+
+
 def test_subparsers_service_setup(parser: argparse.ArgumentParser) -> None:
     """
     service-setup command must imply lock, quiet, report and unsafe
