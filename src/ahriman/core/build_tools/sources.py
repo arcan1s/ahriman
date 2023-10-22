@@ -42,8 +42,6 @@ class Sources(LazyLogging):
     DEFAULT_BRANCH = "master"  # default fallback branch
     DEFAULT_COMMIT_AUTHOR = ("ahriman", "ahriman@localhost")
 
-    _check_output = check_output
-
     @staticmethod
     def extend_architectures(sources_dir: Path, architecture: str) -> list[PkgbuildPatch]:
         """
@@ -82,20 +80,20 @@ class Sources(LazyLogging):
         branch = remote.branch or instance.DEFAULT_BRANCH
         if is_initialized_git:
             instance.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
-            Sources._check_output("git", "fetch", "--quiet", "--depth", "1", "origin", branch,
-                                  cwd=sources_dir, logger=instance.logger)
+            check_output("git", "fetch", "--quiet", "--depth", "1", "origin", branch,
+                         cwd=sources_dir, logger=instance.logger)
         elif remote.git_url is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
-            Sources._check_output("git", "clone", "--quiet", "--depth", "1", "--branch", branch, "--single-branch",
-                                  remote.git_url, str(sources_dir), cwd=sources_dir.parent, logger=instance.logger)
+            check_output("git", "clone", "--quiet", "--depth", "1", "--branch", branch, "--single-branch",
+                         remote.git_url, str(sources_dir), cwd=sources_dir.parent, logger=instance.logger)
         else:
             # it will cause an exception later
             instance.logger.error("%s is not initialized, but no remote provided", sources_dir)
 
         # and now force reset to our branch
-        Sources._check_output("git", "checkout", "--force", branch, cwd=sources_dir, logger=instance.logger)
-        Sources._check_output("git", "reset", "--quiet", "--hard", f"origin/{branch}",
-                              cwd=sources_dir, logger=instance.logger)
+        check_output("git", "checkout", "--force", branch, cwd=sources_dir, logger=instance.logger)
+        check_output("git", "reset", "--quiet", "--hard", f"origin/{branch}",
+                     cwd=sources_dir, logger=instance.logger)
 
         # move content if required
         # we are using full path to source directory in order to make append possible
@@ -114,7 +112,7 @@ class Sources(LazyLogging):
             bool: True in case if there is any remote and false otherwise
         """
         instance = Sources()
-        remotes = Sources._check_output("git", "remote", cwd=sources_dir, logger=instance.logger)
+        remotes = check_output("git", "remote", cwd=sources_dir, logger=instance.logger)
         return bool(remotes)
 
     @staticmethod
@@ -128,8 +126,8 @@ class Sources(LazyLogging):
         instance = Sources()
         if not (sources_dir / ".git").is_dir():
             # skip initializing in case if it was already
-            Sources._check_output("git", "init", "--quiet", "--initial-branch", instance.DEFAULT_BRANCH,
-                                  cwd=sources_dir, logger=instance.logger)
+            check_output("git", "init", "--quiet", "--initial-branch", instance.DEFAULT_BRANCH,
+                         cwd=sources_dir, logger=instance.logger)
 
         # extract local files...
         files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Package.local_files(sources_dir)]
@@ -193,7 +191,7 @@ class Sources(LazyLogging):
             return  # no changes to push, just skip action
 
         git_url, branch = remote.git_source()
-        Sources._check_output("git", "push", "--quiet", git_url, branch, cwd=sources_dir, logger=instance.logger)
+        check_output("git", "push", "--quiet", git_url, branch, cwd=sources_dir, logger=instance.logger)
 
     def add(self, sources_dir: Path, *pattern: str, intent_to_add: bool = False) -> None:
         """
@@ -214,8 +212,8 @@ class Sources(LazyLogging):
         self.logger.info("found matching files %s", found_files)
         # add them to index
         args = ["--intent-to-add"] if intent_to_add else []
-        Sources._check_output("git", "add", *args, *[str(fn.relative_to(sources_dir)) for fn in found_files],
-                              cwd=sources_dir, logger=self.logger)
+        check_output("git", "add", *args, *[str(fn.relative_to(sources_dir)) for fn in found_files],
+                     cwd=sources_dir, logger=self.logger)
 
     def commit(self, sources_dir: Path, message: str | None = None,
                commit_author: tuple[str, str] | None = None) -> bool:
@@ -245,8 +243,7 @@ class Sources(LazyLogging):
         environment["GIT_AUTHOR_NAME"] = environment["GIT_COMMITTER_NAME"] = user
         environment["GIT_AUTHOR_EMAIL"] = environment["GIT_COMMITTER_EMAIL"] = email
 
-        Sources._check_output("git", "commit", "--quiet", *args,
-                              cwd=sources_dir, logger=self.logger, environment=environment)
+        check_output("git", "commit", "--quiet", *args, cwd=sources_dir, logger=self.logger, environment=environment)
 
         return True
 
@@ -260,7 +257,7 @@ class Sources(LazyLogging):
         Returns:
             str: patch as plain string
         """
-        return Sources._check_output("git", "diff", cwd=sources_dir, logger=self.logger)
+        return check_output("git", "diff", cwd=sources_dir, logger=self.logger)
 
     def has_changes(self, sources_dir: Path) -> bool:
         """
@@ -273,7 +270,7 @@ class Sources(LazyLogging):
             bool: True if there are uncommitted changes and False otherwise
         """
         # there is --exit-code argument to diff, however, there might be other process errors
-        changes = Sources._check_output("git", "diff", "--cached", "--name-only", cwd=sources_dir, logger=self.logger)
+        changes = check_output("git", "diff", "--cached", "--name-only", cwd=sources_dir, logger=self.logger)
         return bool(changes)
 
     def move(self, pkgbuild_dir: Path, sources_dir: Path) -> None:
@@ -302,7 +299,7 @@ class Sources(LazyLogging):
         # create patch
         self.logger.info("apply patch %s from database at %s", patch.key, sources_dir)
         if patch.is_plain_diff:
-            Sources._check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace",
-                                  cwd=sources_dir, input_data=patch.serialize(), logger=self.logger)
+            check_output("git", "apply", "--ignore-space-change", "--ignore-whitespace",
+                         cwd=sources_dir, input_data=patch.serialize(), logger=self.logger)
         else:
             patch.write(sources_dir / "PKGBUILD")

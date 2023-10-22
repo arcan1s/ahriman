@@ -36,8 +36,6 @@ class GPG(SyncHttpClient):
         targets(set[SignSettings]): list of targets to sign (repository, package etc.)
     """
 
-    _check_output = check_output
-
     def __init__(self, configuration: Configuration) -> None:
         """
         default constructor
@@ -140,7 +138,7 @@ class GPG(SyncHttpClient):
         Returns:
             str: PGP key in .asc format
         """
-        return GPG._check_output("gpg", "--armor", "--no-emit-version", "--export", key, logger=self.logger)
+        return check_output("gpg", "--armor", "--no-emit-version", "--export", key, logger=self.logger)
 
     def key_fingerprint(self, key: str) -> str:
         """
@@ -152,7 +150,7 @@ class GPG(SyncHttpClient):
         Returns:
             str: full PGP key fingerprint
         """
-        metadata = GPG._check_output("gpg", "--with-colons", "--fingerprint", key, logger=self.logger)
+        metadata = check_output("gpg", "--with-colons", "--fingerprint", key, logger=self.logger)
         # fingerprint line will be like
         # fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:
         fingerprint = next(filter(lambda line: line[:3] == "fpr", metadata.splitlines()))
@@ -167,7 +165,7 @@ class GPG(SyncHttpClient):
             key(str): key ID to import
         """
         key_body = self.key_download(server, key)
-        GPG._check_output("gpg", "--import", input_data=key_body, logger=self.logger)
+        check_output("gpg", "--import", input_data=key_body, logger=self.logger)
 
     def process(self, path: Path, key: str) -> list[Path]:
         """
@@ -180,7 +178,7 @@ class GPG(SyncHttpClient):
         Returns:
             list[Path]: list of generated files including original file
         """
-        GPG._check_output(
+        check_output(
             *GPG.sign_command(path, key),
             exception=BuildError.from_process(path.name),
             logger=self.logger)

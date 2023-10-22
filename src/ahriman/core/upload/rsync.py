@@ -35,8 +35,6 @@ class Rsync(Upload):
         remote(str): remote address to sync
     """
 
-    _check_output = check_output
-
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
         default constructor
@@ -58,4 +56,4 @@ class Rsync(Upload):
             path(Path): local path to sync
             built_packages(list[Package]): list of packages which has just been built
         """
-        Rsync._check_output(*self.command, str(path), self.remote, logger=self.logger)
+        check_output(*self.command, str(path), self.remote, logger=self.logger)

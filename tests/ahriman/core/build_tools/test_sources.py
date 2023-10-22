@@ -38,7 +38,7 @@ def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     Sources.fetch(Path("local"), remote_source)
     check_output_mock.assert_not_called()
@@ -50,7 +50,7 @@ def test_fetch_existing(remote_source: RemoteSource, mocker: MockerFixture) -> N
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=True)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
@@ -70,7 +70,7 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     must fetch new package via clone command
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
@@ -90,7 +90,7 @@ def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
     must fetch nothing in case if no remote set
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     local = Path("local")
@@ -107,7 +107,7 @@ def test_fetch_relative(remote_source: RemoteSource, mocker: MockerFixture) -> N
     """
     must process move correctly on relative directory
     """
-    mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
 
     Sources.fetch(Path("path"), remote_source)
@@ -118,7 +118,7 @@ def test_has_remotes(mocker: MockerFixture) -> None:
     """
     must ask for remotes
     """
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="origin")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="origin")
 
     local = Path("local")
     assert Sources.has_remotes(local)
@@ -129,7 +129,7 @@ def test_has_remotes_empty(mocker: MockerFixture) -> None:
     """
     must ask for remotes and return false in case if no remotes found
     """
-    mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="")
+    mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="")
     assert not Sources.has_remotes(Path("local"))
 
 
@@ -140,7 +140,7 @@ def test_init(mocker: MockerFixture) -> None:
     mocker.patch("ahriman.models.package.Package.local_files", return_value=[Path("local")])
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     commit_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.commit")
 
     local = Path("local")
@@ -159,7 +159,7 @@ def test_init_skip(mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     mocker.patch("ahriman.core.build_tools.sources.Sources.commit")
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     Sources.init(Path("local"))
     check_output_mock.assert_not_called()
@@ -234,7 +234,7 @@ def test_push(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     commit_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.commit", return_value=True)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     commit_author = ("commit author", "user@host")
     local = Path("local")
@@ -252,7 +252,7 @@ def test_push_skipped(package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     mocker.patch("ahriman.core.build_tools.sources.Sources.commit", return_value=False)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     Sources.push(Path("local"), package_ahriman.remote)
     check_output_mock.assert_not_called()
@@ -263,7 +263,7 @@ def test_add(sources: Sources, mocker: MockerFixture) -> None:
     must add files to git
     """
     glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     sources.add(local, "pattern1", "pattern2")
@@ -278,7 +278,7 @@ def test_add_intent_to_add(sources: Sources, mocker: MockerFixture) -> None:
     must add files to git with --intent-to-add flag
     """
     glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("local/1"), Path("local/2")])
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     sources.add(local, "pattern1", "pattern2", intent_to_add=True)
@@ -293,7 +293,7 @@ def test_add_skip(sources: Sources, mocker: MockerFixture) -> None:
     must skip addition of files to index if no fields found
     """
     mocker.patch("pathlib.Path.glob", return_value=[])
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     sources.add(Path("local"), "pattern1")
     check_output_mock.assert_not_called()
@@ -304,7 +304,7 @@ def test_commit(sources: Sources, mocker: MockerFixture) -> None:
     must commit changes
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_changes", return_value=True)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     message = "Commit message"
@@ -326,7 +326,7 @@ def test_commit_no_changes(sources: Sources, mocker: MockerFixture) -> None:
     must skip commit if there are no changes
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_changes", return_value=False)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     assert not sources.commit(Path("local"))
     check_output_mock.assert_not_called()
@@ -337,7 +337,7 @@ def test_commit_author(sources: Sources, mocker: MockerFixture) -> None:
     must commit changes with commit author
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_changes", return_value=True)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     message = "Commit message"
@@ -359,7 +359,7 @@ def test_commit_autogenerated_message(sources: Sources, mocker: MockerFixture) -
     must commit changes with autogenerated commit message
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_changes", return_value=True)
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     assert sources.commit(Path("local"))
@@ -379,7 +379,7 @@ def test_diff(sources: Sources, mocker: MockerFixture) -> None:
     """
     must calculate diff
     """
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     assert sources.diff(local)
@@ -392,12 +392,12 @@ def test_has_changes(sources: Sources, mocker: MockerFixture) -> None:
     """
     local = Path("local")
 
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="M a.txt")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="M a.txt")
     assert sources.has_changes(local)
     check_output_mock.assert_called_once_with("git", "diff", "--cached", "--name-only",
                                               cwd=local, logger=pytest.helpers.anyvar(int))
 
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output", return_value="")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="")
     assert not sources.has_changes(local)
     check_output_mock.assert_called_once_with("git", "diff", "--cached", "--name-only",
                                               cwd=local, logger=pytest.helpers.anyvar(int))
@@ -428,7 +428,7 @@ def test_patch_apply(sources: Sources, mocker: MockerFixture) -> None:
     must apply patches if any
     """
     patch = PkgbuildPatch(None, "patch")
-    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.Sources._check_output")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
     local = Path("local")
     sources.patch_apply(local, patch)

@@ -36,8 +36,6 @@ class Repo(LazyLogging):
         uid(int): uid of the repository owner user
     """
 
-    _check_output = check_output
-
     def __init__(self, name: str, paths: RepositoryPaths, sign_args: list[str]) -> None:
         """
         default constructor
@@ -69,7 +67,7 @@ class Repo(LazyLogging):
         Args:
             path(Path): path to archive to add
         """
-        Repo._check_output(
+        check_output(
             "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
             exception=BuildError.from_process(path.name),
             cwd=self.paths.repository,
@@ -80,8 +78,8 @@ class Repo(LazyLogging):
         """
         create empty repository database
         """
-        Repo._check_output("repo-add", *self.sign_args, str(self.repo_path),
-                           cwd=self.paths.repository, logger=self.logger, user=self.uid)
+        check_output("repo-add", *self.sign_args, str(self.repo_path),
+                     cwd=self.paths.repository, logger=self.logger, user=self.uid)
 
     def remove(self, package: str, filename: Path) -> None:
         """
@@ -96,7 +94,7 @@ class Repo(LazyLogging):
             full_path.unlink()
 
         # remove package from registry
-        Repo._check_output(
+        check_output(
             "repo-remove", *self.sign_args, str(self.repo_path), package,
             exception=BuildError.from_process(package),
             cwd=self.paths.repository,

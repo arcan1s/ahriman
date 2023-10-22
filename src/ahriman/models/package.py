@@ -80,8 +80,6 @@ class Package(LazyLogging):
     packages: dict[str, PackageDescription]
     packager: str | None = None
 
-    _check_output = check_output
-
     @property
     def depends(self) -> list[str]:
         """
@@ -259,7 +257,7 @@ class Package(LazyLogging):
         Raises:
             PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
+        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -363,7 +361,7 @@ class Package(LazyLogging):
         Raises:
             PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
+        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -400,7 +398,7 @@ class Package(LazyLogging):
         Raises:
             PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = Package._check_output("makepkg", "--printsrcinfo", cwd=path)
+        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
         srcinfo, errors = parse_srcinfo(srcinfo_source)
         if errors:
             raise PackageInfoError(errors)
@@ -448,11 +446,10 @@ class Package(LazyLogging):
 
         try:
             # update pkgver first
-            Package._check_output("makepkg", "--nodeps", "--nobuild",
-                                  cwd=paths.cache_for(self.base), logger=self.logger)
+            check_output("makepkg", "--nodeps", "--nobuild", cwd=paths.cache_for(self.base), logger=self.logger)
             # generate new .SRCINFO and put it to parser
-            srcinfo_source = Package._check_output("makepkg", "--printsrcinfo",
-                                                   cwd=paths.cache_for(self.base), logger=self.logger)
+            srcinfo_source = check_output("makepkg", "--printsrcinfo",
+                                          cwd=paths.cache_for(self.base), logger=self.logger)
             srcinfo, errors = parse_srcinfo(srcinfo_source)
             if errors:
                 raise PackageInfoError(errors)
