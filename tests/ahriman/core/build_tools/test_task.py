@@ -10,7 +10,7 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
     must build package
     """
     check_output_mock = mocker.patch("ahriman.core.build_tools.task.Task._check_output")
-    task_ahriman.build(Path("ahriman"), "packager")
+    task_ahriman.build(Path("ahriman"))
     check_output_mock.assert_called()
 
 
