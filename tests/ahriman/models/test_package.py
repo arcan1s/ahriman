@@ -54,7 +54,7 @@ def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_
     """
 
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
 
     package_gcc10 = Package.from_build(Path("local"), "x86_64", None)
     assert package_gcc10.depends_build == {
@@ -182,7 +182,7 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
     must construct package from srcinfo
     """
     srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
 
     package = Package.from_build(Path("path"), "x86_64", "packager")
     assert package_ahriman.packages.keys() == package.packages.keys()
@@ -196,7 +196,7 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
     must construct package from srcinfo with dependencies per-package overrides
     """
     srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
 
     package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
@@ -226,7 +226,7 @@ def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path
     must construct package with architecture specific depends list
     """
     srcinfo = (resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
 
     package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
@@ -253,7 +253,7 @@ def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> N
     """
     must raise exception if there are errors during srcinfo load
     """
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(PackageInfoError):
@@ -303,7 +303,7 @@ def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
     parsed_srcinfo, _ = parse_srcinfo(srcinfo)
     parsed_srcinfo["source"] = ["local-file.tar.gz"]
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == [Path("local-file.tar.gz")]
@@ -314,7 +314,7 @@ def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> N
     must extract empty local files list when there is no local files
     """
     srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == []
@@ -324,7 +324,7 @@ def test_local_files_error(mocker: MockerFixture, resource_path_root: Path) -> N
     """
     must raise exception on package parsing for local sources
     """
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(PackageInfoError):
@@ -339,7 +339,7 @@ def test_local_files_schema(mocker: MockerFixture, resource_path_root: Path) -> 
     parsed_srcinfo, _ = parse_srcinfo(srcinfo)
     parsed_srcinfo["source"] = ["file:///local-file.tar.gz"]
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == []
@@ -353,7 +353,7 @@ def test_local_files_with_install(mocker: MockerFixture, resource_path_root: Pat
     parsed_srcinfo, _ = parse_srcinfo(srcinfo)
     parsed_srcinfo["install"] = "install"
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == [Path("install")]
@@ -364,7 +364,7 @@ def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path
     must generate list of available architectures
     """
     srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
     assert Package.supported_architectures(Path("path")) == \
         {"i686", "pentium4", "x86_64", "arm", "armv7h", "armv6h", "aarch64"}
 
@@ -373,7 +373,7 @@ def test_supported_architectures_failed(mocker: MockerFixture) -> None:
     """
     must raise exception if there are errors during srcinfo load for architectures
     """
-    mocker.patch("ahriman.models.package.Package._check_output", return_value="")
+    mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
 
     with pytest.raises(PackageInfoError):
@@ -393,7 +393,7 @@ def test_actual_version_vcs(package_tpacpi_bat_git: Package, repository_paths: R
     must return valid actual_version for VCS package
     """
     srcinfo = (resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.Package._check_output", return_value=srcinfo)
+    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
     mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == "3.1.r13.g4959b52-1"
@@ -404,7 +404,7 @@ def test_actual_version_srcinfo_failed(package_tpacpi_bat_git: Package, reposito
     """
     must return same version in case if exception occurred
     """
-    mocker.patch("ahriman.models.package.Package._check_output", side_effect=Exception())
+    mocker.patch("ahriman.models.package.check_output", side_effect=Exception())
     mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
@@ -417,7 +417,7 @@ def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_p
     """
     mocker.patch("pathlib.Path.read_text", return_value="")
     mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-    mocker.patch("ahriman.models.package.Package._check_output")
+    mocker.patch("ahriman.models.package.check_output")
     mocker.patch("ahriman.core.build_tools.sources.Sources.load")
 
     assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version

@@ -45,8 +45,6 @@ class Task(LazyLogging):
         uid(int): uid of the repository owner user
     """
 
-    _check_output = check_output
-
     def __init__(self, package: Package, configuration: Configuration, architecture: str,
                  paths: RepositoryPaths) -> None:
         """
@@ -92,7 +90,7 @@ class Task(LazyLogging):
         }
         self.logger.info("using environment variables %s", environment)
 
-        Task._check_output(
+        check_output(
             *command,
             exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
@@ -102,7 +100,7 @@ class Task(LazyLogging):
         )
 
         # well it is not actually correct, but we can deal with it
-        packages = Task._check_output(
+        packages = check_output(
             "makepkg", "--packagelist",
             exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
