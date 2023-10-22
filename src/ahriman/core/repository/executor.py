@@ -83,7 +83,7 @@ class Executor(Cleaner):
             task = Task(package, self.configuration, self.architecture, self.paths)
             local_version = local_versions.get(package.base) if bump_pkgrel else None
             task.init(local_path, self.database, local_version)
-            built = task.build(local_path, packager_id)
+            built = task.build(local_path, PACKAGER=packager_id)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
