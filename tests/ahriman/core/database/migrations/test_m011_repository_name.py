@@ -8,7 +8,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations.m011_repository_name import migrate_data, migrate_package_repository, steps
 
 
-def test_migration_check_depends() -> None:
+def test_migration_repository_name() -> None:
     """
     migration must not be empty
     """

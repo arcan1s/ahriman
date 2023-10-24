@@ -200,6 +200,14 @@ Alternatively you can create full-diff patches, which are calculated by using ``
 
 The last command will calculate diff from current tree to the ``HEAD`` and will store it locally. Patches will be applied on any package actions (e.g. it can be used for dependency management).
 
+It is also possible to create simple patch during package addition, e.g.:
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman package-add ahriman --variable PKGEXT=.pkg.tar.xz
+
+The ``--variable`` argument accepts variables in shell like format: quotation and lists are supported as usual, but functions are not. This feature is useful in particular in order to override specific makepkg variables during build.
+
 How to build package from official repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

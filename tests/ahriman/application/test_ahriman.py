@@ -254,6 +254,22 @@ def test_subparsers_package_add_option_refresh(parser: argparse.ArgumentParser) 
     assert args.refresh == 2
 
 
+def test_subparsers_package_add_option_variable_empty(parser: argparse.ArgumentParser) -> None:
+    """
+    package-add command must accept empty variable list as None
+    """
+    args = parser.parse_args(["package-add", "ahriman"])
+    assert args.variable is None
+
+
+def test_subparsers_package_add_option_variable_multiple(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-rebuild command must accept multiple depends-on
+    """
+    args = parser.parse_args(["package-add", "ahriman", "-v", "var1", "-v", "var2"])
+    assert args.variable == ["var1", "var2"]
+
+
 def test_subparsers_package_remove_option_architecture(parser: argparse.ArgumentParser) -> None:
     """
     package-remove command must correctly parse architecture list

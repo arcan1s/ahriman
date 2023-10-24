@@ -115,7 +115,7 @@ class Patch(Handler):
             package_base(str): package base
             patch(PkgbuildPatch): patch descriptor
         """
-        application.database.patches_insert(package_base, patch)
+        application.database.patches_insert(package_base, [patch])
 
     @staticmethod
     def patch_set_list(application: Application, package_base: str | None, variables: list[str] | None,

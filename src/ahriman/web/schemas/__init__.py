@@ -33,6 +33,7 @@ from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchem
 from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.package_status_schema import PackageStatusSimplifiedSchema, PackageStatusSchema
 from ahriman.web.schemas.pagination_schema import PaginationSchema
+from ahriman.web.schemas.patch_schema import PackagePatchSchema, PatchSchema
 from ahriman.web.schemas.pgp_key_id_schema import PGPKeyIdSchema
 from ahriman.web.schemas.pgp_key_schema import PGPKeySchema
 from ahriman.web.schemas.process_id_schema import ProcessIdSchema

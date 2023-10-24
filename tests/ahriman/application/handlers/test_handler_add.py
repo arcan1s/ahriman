@@ -9,6 +9,7 @@ from ahriman.core.repository import Repository
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.packagers import Packagers
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.result import Result
 
 
@@ -22,7 +23,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: generated arguments for these test cases
     """
-    args.package = []
+    args.package = ["ahriman"]
     args.exit_code = False
     args.increment = True
     args.now = False
@@ -30,6 +31,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.source = PackageSource.Auto
     args.dependencies = True
     args.username = "username"
+    args.variable = None
     return args
 
 
@@ -49,6 +51,22 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     application_mock.assert_called_once_with(args.package, args.source, args.username)
     dependencies_mock.assert_not_called()
     on_start_mock.assert_called_once_with()
+
+
+def test_run_with_patches(args: argparse.Namespace, configuration: Configuration, repository: Repository,
+                          mocker: MockerFixture) -> None:
+    """
+    must run command and insert temporary patches
+    """
+    args = _default_args(args)
+    args.variable = ["KEY=VALUE"]
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
+    mocker.patch("ahriman.application.application.Application.add")
+    application_mock = mocker.patch("ahriman.core.database.SQLite.patches_insert")
+
+    _, repository_id = configuration.check_loaded()
+    Add.run(args, repository_id, configuration, report=False)
+    application_mock.assert_called_once_with(args.package[0], [PkgbuildPatch("KEY", "VALUE")])
 
 
 def test_run_with_updates(args: argparse.Namespace, configuration: Configuration, repository: Repository,
