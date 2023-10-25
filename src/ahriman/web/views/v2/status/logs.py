@@ -19,11 +19,10 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPNotFound, Response, json_response
+from aiohttp.web import Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchemaV2, PackageNameSchema, PaginationSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -43,7 +42,7 @@ class LogsView(BaseView):
         summary="Get paginated package logs",
         description="Retrieve package logs and the last package status",
         responses={
-            200: {"description": "Success response", "schema": LogsSchemaV2},
+            200: {"description": "Success response", "schema": LogSchema(many=True)},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
@@ -67,16 +66,12 @@ class LogsView(BaseView):
         """
         package_base = self.request.match_info["package"]
         limit, offset = self.page()
-
-        try:
-            _, status = self.service().package_get(package_base)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
         logs = self.service().logs_get(package_base, limit, offset)
 
-        response = {
-            "package_base": package_base,
-            "status": status.view(),
-            "logs": logs,
-        }
+        response = [
+            {
+                "created": created,
+                "message": message,
+            } for created, message in logs
+        ]
         return json_response(response)

@@ -19,12 +19,10 @@
 #
 from marshmallow import Schema, fields
 
-from ahriman.web.schemas.package_names_schema import PackageNamesSchema
-
 
 class PatchSchema(Schema):
     """
-    request patch schema
+    request and response patch schema
     """
 
     key = fields.String(required=True, metadata={
@@ -32,14 +30,4 @@ class PatchSchema(Schema):
     })
     value = fields.String(metadata={
         "description": "environment variable value",
-    })
-
-
-class PackagePatchSchema(PackageNamesSchema):
-    """
-    request schema with packages and patches
-    """
-
-    patches = fields.Nested(PatchSchema(many=True), metadata={
-        "description": "optional environment variables to be applied as patches"
     })

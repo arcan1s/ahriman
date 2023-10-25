@@ -17,18 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
+from marshmallow import fields
+
+from ahriman.web.schemas.package_names_schema import PackageNamesSchema
+from ahriman.web.schemas.patch_schema import PatchSchema
 
 
-class LogSchema(Schema):
+class PackagePatchSchema(PackageNamesSchema):
     """
-    request package log schema
+    response schema with packages and patches
     """
 
-    created = fields.Float(required=True, metadata={
-        "description": "Log record timestamp",
-        "example": 1680537091.233495,
-    })
-    message = fields.String(required=True, metadata={
-        "description": "Log message",
+    patches = fields.Nested(PatchSchema(many=True), metadata={
+        "description": "optional environment variables to be applied as patches"
     })

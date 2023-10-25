@@ -21,9 +21,9 @@ import shlex
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
-from ahriman.core.util import unquote
+from ahriman.core.util import dataclass_view, unquote
 
 
 @dataclass(frozen=True)
@@ -108,6 +108,15 @@ class PkgbuildPatch:
         if self.is_function:
             return f"{self.key} {self.value}"  # no quoting enabled here
         return f"""{self.key}={PkgbuildPatch.quote(self.value)}"""
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json patch view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return dataclass_view(self)
 
     def write(self, pkgbuild_path: Path) -> None:
         """

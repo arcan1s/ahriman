@@ -1,12 +1,14 @@
 import pytest
 
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
 def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -161,6 +163,42 @@ def test_package_update_unknown(watcher: Watcher, package_ahriman: Package) -> N
     """
     with pytest.raises(UnknownPackageError):
         watcher.package_update(package_ahriman.base, BuildStatusEnum.Unknown, None)
+
+
+def test_patches_get(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return patches for the package
+    """
+    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_list")
+
+    watcher.patches_get(package_ahriman.base, None)
+    watcher.patches_get(package_ahriman.base, "var")
+    patches_mock.assert_has_calls([
+        MockCall(package_ahriman.base, None),
+        MockCall().get(package_ahriman.base, []),
+        MockCall(package_ahriman.base, ["var"]),
+        MockCall().get(package_ahriman.base, []),
+    ])
+
+
+def test_patches_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove patches for the package
+    """
+    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
+    watcher.patches_remove(package_ahriman.base, "var")
+    patches_mock.assert_called_once_with(package_ahriman.base, ["var"])
+
+
+def test_patches_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must update patches for the package
+    """
+    patch = PkgbuildPatch("key", "value")
+    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_insert")
+
+    watcher.patches_update(package_ahriman.base, patch)
+    patches_mock.assert_called_once_with(package_ahriman.base, [patch])
 
 
 def test_status_update(watcher: Watcher) -> None:

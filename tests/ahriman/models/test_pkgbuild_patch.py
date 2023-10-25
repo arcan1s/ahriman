@@ -92,6 +92,13 @@ def test_serialize_list() -> None:
     assert PkgbuildPatch("key", ["val'ue", "val\"ue2"]).serialize() == """key=('val'"'"'ue' 'val"ue2')"""
 
 
+def test_view() -> None:
+    """
+    must correctly serialize to json
+    """
+    assert PkgbuildPatch("key", "value").view() == {"key": "key", "value": "value"}
+
+
 def test_write(mocker: MockerFixture) -> None:
     """
     must write serialized value to the file
