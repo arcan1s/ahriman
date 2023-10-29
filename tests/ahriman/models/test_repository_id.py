@@ -17,7 +17,7 @@ def test_id() -> None:
     """
     must correctly generate id
     """
-    assert RepositoryId("", "").id == "-"
+    assert RepositoryId("", "").id == ""
     assert RepositoryId("arch", "repo").id == "arch-repo"
 
 

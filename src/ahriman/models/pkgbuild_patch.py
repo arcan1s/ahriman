@@ -19,8 +19,11 @@
 #
 import shlex
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Self
+
+from ahriman.core.util import dataclass_view, unquote
 
 
 @dataclass(frozen=True)
@@ -33,12 +36,12 @@ class PkgbuildPatch:
             considered as full PKGBUILD diffs
         value(str | list[str]): value of the stored PKGBUILD property. It must be either string or list of string
             values
-        unsafe(bool): if set, value will be not quoted, might break PKGBUILD
     """
 
     key: str | None
     value: str | list[str]
-    unsafe: bool = field(default=False, kw_only=True)
+
+    quote = shlex.quote
 
     def __post_init__(self) -> None:
         """
@@ -66,17 +69,26 @@ class PkgbuildPatch:
         """
         return self.key is None
 
-    def quote(self, value: str) -> str:
+    @classmethod
+    def from_env(cls, variable: str) -> Self:
         """
-        quote value according to the unsafe flag
+        construct patch from environment variable. Functions are not supported
 
         Args:
-            value(str): value to be quoted
+            variable(str): variable in bash form, i.e. KEY=VALUE
 
         Returns:
-            str: quoted string in case if unsafe is False and as is otherwise
+            Self: package properties
         """
-        return value if self.unsafe else shlex.quote(value)
+        key, *value_parts = variable.split("=", maxsplit=1)
+
+        raw_value = next(iter(value_parts), "")  # extract raw value
+        if raw_value.startswith("(") and raw_value.endswith(")"):
+            value: str | list[str] = shlex.split(raw_value[1:-1])  # arrays for poor
+        else:
+            value = unquote(raw_value)
+
+        return cls(key, value)
 
     def serialize(self) -> str:
         """
@@ -88,14 +100,23 @@ class PkgbuildPatch:
             str: serialized key-value pair, print-friendly
         """
         if isinstance(self.value, list):  # list like
-            value = " ".join(map(self.quote, self.value))
+            value = " ".join(map(PkgbuildPatch.quote, self.value))
             return f"""{self.key}=({value})"""
         if self.is_plain_diff:  # no additional logic for plain diffs
             return self.value
         # we suppose that function values are only supported in string-like values
         if self.is_function:
             return f"{self.key} {self.value}"  # no quoting enabled here
-        return f"""{self.key}={self.quote(self.value)}"""
+        return f"""{self.key}={PkgbuildPatch.quote(self.value)}"""
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json patch view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return dataclass_view(self)
 
     def write(self, pkgbuild_path: Path) -> None:
         """

@@ -17,18 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
+from marshmallow import fields
+
+from ahriman import __version__
+from ahriman.web.schemas.log_schema import LogSchema
+from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 
 
-class LogSchema(Schema):
+class VersionedLogSchema(LogSchema, RepositoryIdSchema):
     """
     request package log schema
     """
 
-    created = fields.Float(required=True, metadata={
-        "description": "Log record timestamp",
-        "example": 1680537091.233495,
-    })
-    message = fields.String(required=True, metadata={
-        "description": "Log message",
+    version = fields.Integer(required=True, metadata={
+        "description": "Package version to tag",
+        "example": __version__,
     })

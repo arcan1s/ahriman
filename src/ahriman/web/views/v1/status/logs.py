@@ -25,7 +25,8 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.util import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, LogsSchema, PackageNameSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchema, PackageNameSchema, RepositoryIdSchema, \
+    VersionedLogSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -128,7 +129,7 @@ class LogsView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.json_schema(LogSchema)
+    @aiohttp_apispec.json_schema(VersionedLogSchema)
     async def post(self) -> None:
         """
         create new package log record

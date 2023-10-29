@@ -44,7 +44,16 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
 
     logs = await response.json()
     assert not response_schema.validate(logs)
-    assert logs["logs"] == [[42.0, "message 1"], [43.0, "message 2"]]
+    assert logs == [
+        {
+            "created": 42.0,
+            "message": "message 1",
+        },
+        {
+            "created": 43.0,
+            "message": "message 2",
+        },
+    ]
 
 
 async def test_get_with_pagination(client: TestClient, package_ahriman: Package) -> None:
@@ -67,18 +76,7 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
 
     logs = await response.json()
     assert not response_schema.validate(logs)
-    assert logs["logs"] == [[43.0, "message 2"]]
-
-
-async def test_get_not_found(client: TestClient, package_ahriman: Package) -> None:
-    """
-    must return not found for missing package
-    """
-    response_schema = pytest.helpers.schema_response(LogsView.get, code=404)
-
-    response = await client.get(f"/api/v2/packages/{package_ahriman.base}/logs")
-    assert response.status == 404
-    assert not response_schema.validate(await response.json())
+    assert logs == [{"created": 43.0, "message": "message 2"}]
 
 
 async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> None:

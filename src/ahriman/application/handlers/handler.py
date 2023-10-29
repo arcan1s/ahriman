@@ -162,7 +162,7 @@ class Handler:
         if args.repository_id is not None:
             separator = "/" if "/" in args.repository_id else "-"  # systemd and non-systemd identifiers
             # repository parts is optional for backward compatibility
-            architecture, *repository_parts = args.repository_id.split(separator)
+            architecture, *repository_parts = args.repository_id.split(separator)  # maxsplit isn't used intentionally
             args.architecture = architecture
             if repository_parts:
                 args.repository = "-".join(repository_parts)  # replace slash with dash

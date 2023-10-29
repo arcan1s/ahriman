@@ -20,15 +20,14 @@
 from marshmallow import Schema, fields
 
 
-class LogSchema(Schema):
+class PatchSchema(Schema):
     """
-    request package log schema
+    request and response patch schema
     """
 
-    created = fields.Float(required=True, metadata={
-        "description": "Log record timestamp",
-        "example": 1680537091.233495,
+    key = fields.String(required=True, metadata={
+        "description": "environment variable name",
     })
-    message = fields.String(required=True, metadata={
-        "description": "Log message",
+    value = fields.String(metadata={
+        "description": "environment variable value",
     })

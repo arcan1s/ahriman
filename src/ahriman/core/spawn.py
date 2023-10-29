@@ -28,6 +28,7 @@ from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.process_status import ProcessStatus
 from ahriman.models.repository_id import RepositoryId
 
@@ -96,7 +97,8 @@ class Spawn(Thread, LazyLogging):
 
         queue.put(ProcessStatus(process_id, result, consumed_time))
 
-    def _spawn_process(self, repository_id: RepositoryId, command: str, *args: str, **kwargs: str | None) -> str:
+    def _spawn_process(self, repository_id: RepositoryId, command: str, *args: str,
+                       **kwargs: str | list[str] | None) -> str:
         """
         spawn external ahriman process with supplied arguments
 
@@ -104,7 +106,7 @@ class Spawn(Thread, LazyLogging):
             repository_id(RepositoryId): repository unique identifier
             command(str): subcommand to run
             *args(str): positional command arguments
-            **kwargs(str): named command arguments
+            **kwargs(str | list[str] | None): named command arguments
 
         Returns:
             str: spawned process identifier
@@ -118,9 +120,13 @@ class Spawn(Thread, LazyLogging):
         for argument, value in kwargs.items():
             if value is None:
                 continue  # skip null values
-            arguments.append(f"--{argument}")
-            if value:
-                arguments.append(value)
+            flag = f"--{argument}"
+            if isinstance(value, list):
+                arguments.extend(list(sum(((flag, v) for v in value), ())))
+            elif value:
+                arguments.extend([flag, value])
+            else:
+                arguments.append(flag)  # boolean argument
 
         process_id = str(uuid.uuid4())
         self.logger.info("full command line arguments of %s are %s using repository %s",
@@ -167,7 +173,7 @@ class Spawn(Thread, LazyLogging):
         return self._spawn_process(repository_id, "service-key-import", key, **kwargs)
 
     def packages_add(self, repository_id: RepositoryId, packages: Iterable[str], username: str | None, *,
-                     now: bool) -> str:
+                     patches: list[PkgbuildPatch], now: bool) -> str:
         """
         add packages
 
@@ -175,14 +181,18 @@ class Spawn(Thread, LazyLogging):
             repository_id(RepositoryId): repository unique identifier
             packages(Iterable[str]): packages list to add
             username(str | None): optional override of username for build process
+            patches(list[PkgbuildPatch]): list of patches to be passed
             now(bool): build packages now
 
         Returns:
             str: spawned process identifier
         """
-        kwargs = {"username": username}
+        kwargs: dict[str, str | list[str] | None] = {"username": username}
         if now:
             kwargs["now"] = ""
+        if patches:
+            kwargs["variable"] = [patch.serialize() for patch in patches]
+
         return self._spawn_process(repository_id, "package-add", *packages, **kwargs)
 
     def packages_rebuild(self, repository_id: RepositoryId, depends_on: str, username: str | None) -> str:

@@ -1,5 +1,5 @@
 <div id="package-rebuild-modal" tabindex="-1" role="dialog" class="modal fade">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <form id="package-rebuild-form" onsubmit="return false">
                 <div class="modal-header">
@@ -8,8 +8,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="package-rebuild-repository-input" class="col-sm-4 col-form-label">repository</label>
-                        <div class="col-sm-8">
+                        <label for="package-rebuild-repository-input" class="col-3 col-form-label">repository</label>
+                        <div class="col-9">
                             <select id="package-rebuild-repository-input" class="form-control" name="repository" required>
                                 {% for repository in repositories %}
                                     <option value="{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</option>
@@ -18,8 +18,8 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="package-rebuild-dependency-input" class="col-sm-4 col-form-label">dependency</label>
-                        <div class="col-sm-8">
+                        <label for="package-rebuild-dependency-input" class="col-3 col-form-label">dependency</label>
+                        <div class="col-9">
                             <input id="package-rebuild-dependency-input" type="text" class="form-control" placeholder="packages dependency" name="package" required>
                         </div>
                     </div>

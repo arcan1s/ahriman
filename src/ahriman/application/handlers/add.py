@@ -23,6 +23,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.packagers import Packagers
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -45,7 +46,12 @@ class Add(Handler):
         """
         application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
+
         application.add(args.package, args.source, args.username)
+        patches = [PkgbuildPatch.from_env(patch) for patch in args.variable] if args.variable is not None else []
+        for package in args.package:  # for each requested package insert patch
+            application.database.patches_insert(package, patches)
+
         if not args.now:
             return
 

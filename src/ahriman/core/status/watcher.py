@@ -23,6 +23,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -161,6 +162,40 @@ class Watcher(LazyLogging):
         full_status = BuildStatus(status)
         self.known[package_base] = (package, full_status)
         self.database.package_update(package, full_status, self.repository_id)
+
+    def patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
+        """
+        get patches for the package
+
+        Args:
+            package_base(str): package base
+            variable(str | None): patch variable name if any
+
+        Returns:
+            list[PkgbuildPatch]: list of patches which are stored for the package
+        """
+        variables = [variable] if variable is not None else None
+        return self.database.patches_list(package_base, variables).get(package_base, [])
+
+    def patches_remove(self, package_base: str, variable: str) -> None:
+        """
+        remove package patch
+
+        Args:
+            package_base(str): package base
+            variable(str): patch variable name
+        """
+        self.database.patches_remove(package_base, [variable])
+
+    def patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
+        """
+        update package patch
+
+        Args:
+            package_base(str): package base
+            patch(PkgbuildPatch): package patch
+        """
+        self.database.patches_insert(package_base, [patch])
 
     def status_update(self, status: BuildStatusEnum) -> None:
         """
