@@ -1,5 +1,5 @@
 <div id="package-add-modal" tabindex="-1" role="dialog" class="modal fade">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <form id="package-add-form" onsubmit="return false">
                 <div class="modal-header">
@@ -8,9 +8,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group row">
-                        <label for="package-add-repository-input" class="col-sm-4 col-form-label">repository</label>
-                        <div class="col-sm-8">
-                            <select id="package-add-repository-input" class="form-control" name="repository" required>
+                        <label for="package-add-repository-input" class="col-3 col-form-label">repository</label>
+                        <div class="col-9">
+                            <select id="package-add-repository-input" class="form-control" required>
                                 {% for repository in repositories %}
                                     <option value="{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</option>
                                 {% endfor %}
@@ -18,12 +18,18 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="package-add-input" class="col-sm-4 col-form-label">package</label>
-                        <div class="col-sm-8">
-                            <input id="package-add-input" type="text" list="known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" name="package" required>
+                        <label for="package-add-input" class="col-3 col-form-label">package</label>
+                        <div class="col-9">
+                            <input id="package-add-input" type="text" list="package-add-known-packages-dlist" autocomplete="off" class="form-control" placeholder="AUR package" required>
                             <datalist id="package-add-known-packages-dlist"></datalist>
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <div class="col-12">
+                            <button id="package-add-variable-button" type="button" class="form-control btn btn-light rounded" onclick="packageAddVariableInputCreate()"><i class="bi bi-plus"></i> add environment variable </button>
+                        </div>
+                    </div>
+                    <div id="package-add-variables-div" class="form-group row"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" onclick="packagesAdd()"><i class="bi bi-play"></i> add</button>
@@ -39,9 +45,11 @@
     const packageAddForm = $("#package-add-form");
     packageAddModal.on("shown.bs.modal", () => {
         $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
-
     });
-    packageAddModal.on("hidden.bs.modal", () => { packageAddForm.trigger("reset"); });
+    packageAddModal.on("hidden.bs.modal", () => {
+        packageAddVariablesDiv.empty();
+        packageAddForm.trigger("reset");
+    });
 
     const packageAddInput = $("#package-add-input");
     const packageAddRepositoryInput = $("#package-add-repository-input");
@@ -71,25 +79,81 @@
         }, this), 500));
     });
 
-    function packagesAdd() {
-        const packages = packageAddInput.val();
+    const packageAddVariablesDiv = $("#package-add-variables-div");
+
+    function packageAddVariableInputCreate() {
+        const variableInput = document.createElement("div");
+        variableInput.classList.add("input-group");
+        variableInput.classList.add("package-add-variable");
+
+        const variableNameInput = document.createElement("input");
+        variableNameInput.type = "text";
+        variableNameInput.classList.add("form-control");
+        variableNameInput.classList.add("package-add-variable-name");
+        variableNameInput.placeholder = "name";
+        variableNameInput.ariaLabel = "variable name";
+
+        const variableSeparator = document.createElement("span");
+        variableSeparator.classList.add("input-group-text")
+        variableSeparator.textContent = "=";
+
+        const variableValueInput = document.createElement("input");
+        variableValueInput.type = "text";
+        variableValueInput.classList.add("form-control");
+        variableValueInput.classList.add("package-add-variable-value");
+        variableValueInput.placeholder = "value";
+        variableValueInput.ariaLabel = "variable value";
+
+        const variableButtonRemove = document.createElement("button");
+        variableButtonRemove.type = "button";
+        variableButtonRemove.classList.add("btn");
+        variableButtonRemove.classList.add("btn-outline-danger");
+        variableButtonRemove.innerHTML = "<i class=\"bi bi-trash\"></i>";
+        variableButtonRemove.onclick = _ => { return variableInput.remove(); };
+
+        // bring them together
+        variableInput.appendChild(variableNameInput);
+        variableInput.appendChild(variableSeparator);
+        variableInput.appendChild(variableValueInput);
+        variableInput.appendChild(variableButtonRemove);
+
+        packageAddVariablesDiv.append(variableInput);
+    }
+
+    function patchesParse() {
+        const patches = packageAddVariablesDiv.find(".package-add-variable").map((_, element) => {
+            const richElement = $(element);
+            return {
+                key: richElement.find(".package-add-variable-name").val(),
+                value: richElement.find(".package-add-variable-value").val(),
+            };
+        }).filter((_, patch) => patch.key).get();
+        return {patches: patches};
+    }
+
+    function packagesAdd(packages, patches) {
+        packages = packages ?? packageAddInput.val();
+        patches = patches ?? patchesParse();
         const repository = getRepositorySelector(packageAddRepositoryInput);
+
         if (packages) {
             packageAddModal.modal("hide");
             const onSuccess = update => `Packages ${update} have been added`;
             const onFailure = error => `Package addition failed: ${error}`;
-            doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure);
+            doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure, patches);
         }
     }
 
-    function packagesRequest() {
-        const packages = packageAddInput.val();
+    function packagesRequest(packages, patches) {
+        packages = packages ?? packageAddInput.val();
+        patches = patches ?? patchesParse();
         const repository = getRepositorySelector(packageAddRepositoryInput);
+
         if (packages) {
             packageAddModal.modal("hide");
             const onSuccess = update => `Packages ${update} have been requested`;
             const onFailure = error => `Package request failed: ${error}`;
-            doPackageAction("/api/v1/service/request", [packages], repository, onSuccess, onFailure);
+            doPackageAction("/api/v1/service/request", [packages], repository, onSuccess, onFailure, patches);
         }
     }
 </script>

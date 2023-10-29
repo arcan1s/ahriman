@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 from ahriman.core.spawn import Spawn
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.process_status import ProcessStatus
 from ahriman.models.repository_id import RepositoryId
 
@@ -56,11 +57,12 @@ def test_spawn_process(spawner: Spawn, repository_id: RepositoryId, mocker: Mock
     """
     start_mock = mocker.patch("multiprocessing.Process.start")
 
-    assert spawner._spawn_process(repository_id, "add", "ahriman", now="", maybe="?", none=None)
+    assert spawner._spawn_process(repository_id, "command", "argument",
+                                  empty="", string="v", list=["a", "b"], empty_list=[], none=None)
     start_mock.assert_called_once_with()
     spawner.args_parser.parse_args.assert_called_once_with(
         spawner.command_arguments + [
-            "add", "ahriman", "--now", "--maybe", "?"
+            "command", "argument", "--empty", "--string", "v", "--list", "a", "--list", "b",
         ]
     )
 
@@ -99,7 +101,7 @@ def test_packages_add(spawner: Spawn, repository_id: RepositoryId, mocker: Mocke
     must call package addition
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, now=False)
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=[], now=False)
     spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None)
 
 
@@ -108,7 +110,7 @@ def test_packages_add_with_build(spawner: Spawn, repository_id: RepositoryId, mo
     must call package addition with update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, now=True)
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=[], now=True)
     spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None, now="")
 
 
@@ -117,8 +119,19 @@ def test_packages_add_with_username(spawner: Spawn, repository_id: RepositoryId,
     must call package addition with username
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], "username", now=False)
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], "username", patches=[], now=False)
     spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username="username")
+
+
+def test_packages_add_with_patches(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package addition with patches
+    """
+    patches = [PkgbuildPatch("key", "value"), PkgbuildPatch("key", "value")]
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=patches, now=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None,
+                                       variable=[patch.serialize() for patch in patches])
 
 
 def test_packages_rebuild(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:

@@ -180,7 +180,7 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     """
     create_mock = mocker.patch("ahriman.core.database.SQLite.patches_insert")
     Patch.patch_set_create(application, package_ahriman.base, PkgbuildPatch("version", package_ahriman.version))
-    create_mock.assert_called_once_with(package_ahriman.base, PkgbuildPatch("version", package_ahriman.version))
+    create_mock.assert_called_once_with(package_ahriman.base, [PkgbuildPatch("version", package_ahriman.version)])
 
 
 def test_patch_set_remove(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

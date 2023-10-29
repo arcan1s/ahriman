@@ -52,6 +52,8 @@ class RepositoryId:
         Returns:
             str: unique id for this repository
         """
+        if self.is_empty:
+            return ""
         return f"{self.architecture}-{self.name}"  # basically the same as used for command line
 
     def query(self) -> list[tuple[str, str]]:

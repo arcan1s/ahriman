@@ -34,9 +34,18 @@ def test_quote() -> None:
     """
     must quote strings if unsafe flag is not set
     """
-    assert PkgbuildPatch("key", "value").quote("value") == """value"""
-    assert PkgbuildPatch("key", "va'lue").quote("va'lue") == """'va'"'"'lue'"""
-    assert PkgbuildPatch("key", "va'lue", unsafe=True).quote("va'lue") == """va'lue"""
+    assert PkgbuildPatch.quote("value") == """value"""
+    assert PkgbuildPatch.quote("va'lue") == """'va'"'"'lue'"""
+
+
+def test_from_env() -> None:
+    """
+    must construct patch from environment variable
+    """
+    assert PkgbuildPatch.from_env("KEY=VALUE") == PkgbuildPatch("KEY", "VALUE")
+    assert PkgbuildPatch.from_env("KEY=VA=LUE") == PkgbuildPatch("KEY", "VA=LUE")
+    assert PkgbuildPatch.from_env("KEY=") == PkgbuildPatch("KEY", "")
+    assert PkgbuildPatch.from_env("KEY") == PkgbuildPatch("KEY", "")
 
 
 def test_serialize() -> None:
@@ -46,7 +55,19 @@ def test_serialize() -> None:
     assert PkgbuildPatch("key", "value").serialize() == "key=value"
     assert PkgbuildPatch("key", "42").serialize() == "key=42"
     assert PkgbuildPatch("key", "4'2").serialize() == """key='4'"'"'2'"""
-    assert PkgbuildPatch("key", "4'2", unsafe=True).serialize() == "key=4'2"
+
+
+def test_from_env_serialize() -> None:
+    """
+    must serialize and parse back
+    """
+    for patch in (
+            PkgbuildPatch("key", "value"),
+            PkgbuildPatch("key", "4'2"),
+            PkgbuildPatch("arch", ["i686", "x86_64"]),
+            PkgbuildPatch("key", ["val'ue", "val\"ue2"]),
+    ):
+        assert PkgbuildPatch.from_env(patch.serialize()) == patch
 
 
 def test_serialize_plain_diff() -> None:
@@ -60,7 +81,7 @@ def test_serialize_function() -> None:
     """
     must correctly serialize function values
     """
-    assert PkgbuildPatch("key()", "{ value }", unsafe=True).serialize() == "key() { value }"
+    assert PkgbuildPatch("key()", "{ value }").serialize() == "key() { value }"
 
 
 def test_serialize_list() -> None:
@@ -69,7 +90,13 @@ def test_serialize_list() -> None:
     """
     assert PkgbuildPatch("arch", ["i686", "x86_64"]).serialize() == """arch=(i686 x86_64)"""
     assert PkgbuildPatch("key", ["val'ue", "val\"ue2"]).serialize() == """key=('val'"'"'ue' 'val"ue2')"""
-    assert PkgbuildPatch("key", ["val'ue", "val\"ue2"], unsafe=True).serialize() == """key=(val'ue val"ue2)"""
+
+
+def test_view() -> None:
+    """
+    must correctly serialize to json
+    """
+    assert PkgbuildPatch("key", "value").view() == {"key": "key", "value": "value"}
 
 
 def test_write(mocker: MockerFixture) -> None:

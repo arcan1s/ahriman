@@ -21,8 +21,9 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 
 from aiohttp.web import HTTPBadRequest, Response, json_response
 
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNamesSchema, ProcessIdSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, PackagePatchSchema, ProcessIdSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -53,7 +54,7 @@ class RequestView(BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(PackageNamesSchema)
+    @aiohttp_apispec.json_schema(PackagePatchSchema)
     async def post(self) -> Response:
         """
         request to add new package
@@ -65,13 +66,14 @@ class RequestView(BaseView):
             HTTPBadRequest: if bad data is supplied
         """
         try:
-            data = await self.extract_data(["packages"])
+            data = await self.extract_data(["packages", "patches"])
             packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
+            patches = [PkgbuildPatch(patch["key"], patch.get("value", "")) for patch in data.get("patches", [])]
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
         username = await self.username()
         repository_id = self.repository_id()
-        process_id = self.spawner.packages_add(repository_id, packages, username, now=False)
+        process_id = self.spawner.packages_add(repository_id, packages, username, patches=patches, now=False)
 
         return json_response({"process_id": process_id})

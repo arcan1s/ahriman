@@ -6,10 +6,47 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
             </div>
             <div class="modal-body">
+                <div class="form-group row">
+                    <div class="input-group">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 10%; text-align: right">version</td>
+                                    <td id="package-info-version" style="width: 40%"></td>
+                                    <td style="width: 10%; text-align: right">packager</td>
+                                    <td id="package-info-packager" style="width: 40%"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 10%; text-align: right">groups</td>
+                                    <td id="package-info-groups" style="width: 40%"></td>
+                                    <td style="width: 10%; text-align: right">licenses</td>
+                                    <td id="package-info-licenses" style="width: 40%"></td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 10%; text-align: right">packages</td>
+                                    <td id="package-info-packages" style="width: 40%"></td>
+                                    <td style="width: 10%; text-align: right">depends</td>
+                                    <td id="package-info-depends" style="width: 40%"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="col-12">
+
+                <h3>Environment variables</h3>
+                <div id="package-info-variables-div" class="form-group row"></div>
+
+                <hr class="col-12">
+
+                <h3>Build logs</h3>
                 <pre class="language-logs"><samp id="package-info-logs-input" class="pre-scrollable language-logs"></samp><button id="package-info-logs-copy-button" type="button" class="btn language-logs" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="showLogs()"><i class="bi bi-arrow-clockwise"></i> reload</button>
+                <button type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i> update</button>
+                <button type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i> remove</button>
+                <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i> reload</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i> close</button>
             </div>
         </div>
@@ -20,30 +57,78 @@
     const packageInfoModal = $("#package-info-modal");
     const packageInfoModalHeader = $("#package-info-modal-header");
     const packageInfo = $("#package-info");
+    packageInfoModal.on("hidden.bs.modal", () => {
+        packageInfoDepends.empty();
+        packageInfoGroups.empty();
+        packageInfoLicenses.empty();
+        packageInfoPackager.empty();
+        packageInfoPackages.empty();
+        packageInfoVersion.empty();
+
+        packageInfoVariablesDiv.empty();
+
+        packageInfoModal.trigger("reset");
+    });
 
     const packageInfoLogsInput = $("#package-info-logs-input");
     const packageInfoLogsCopyButton = $("#package-info-logs-copy-button");
+
+    const packageInfoDepends = $("#package-info-depends");
+    const packageInfoGroups = $("#package-info-groups");
+    const packageInfoLicenses = $("#package-info-licenses");
+    const packageInfoPackager = $("#package-info-packager");
+    const packageInfoPackages = $("#package-info-packages");
+    const packageInfoVersion = $("#package-info-version");
+
+    const packageInfoVariablesDiv = $("#package-info-variables-div");
 
     async function copyLogs() {
         const logs = packageInfoLogsInput.text();
         await copyToClipboard(logs, packageInfoLogsCopyButton);
     }
 
-    function showLogs(packageBase) {
-        const isPackageBaseSet = packageBase !== undefined;
-        if (isPackageBaseSet)
-            packageInfoModal.data("package", packageBase); // set package base as currently used
-        else
-            packageBase = packageInfoModal.data("package"); // read package base from the current window attribute
+    function insertVariable(packageBase, variable) {
+        const variableInput = document.createElement("div");
+        variableInput.classList.add("input-group");
 
-        const headerClass = status => {
-            if (status === "pending") return ["bg-warning"];
-            if (status === "building") return ["bg-warning"];
-            if (status === "failed") return ["bg-danger", "text-white"];
-            if (status === "success") return ["bg-success", "text-white"];
-            return ["bg-secondary", "text-white"];
+        const variableNameInput = document.createElement("input");
+        variableNameInput.classList.add("form-control");
+        variableNameInput.readOnly = true;
+        variableNameInput.value = variable.key;
+
+        const variableSeparator = document.createElement("span");
+        variableSeparator.classList.add("input-group-text")
+        variableSeparator.textContent = "=";
+
+        const variableValueInput = document.createElement("input");
+        variableValueInput.classList.add("form-control");
+        variableValueInput.readOnly = true;
+        variableValueInput.value = variable.value;
+
+        const variableButtonRemove = document.createElement("button");
+        variableButtonRemove.type = "button";
+        variableButtonRemove.classList.add("btn");
+        variableButtonRemove.classList.add("btn-outline-danger");
+        variableButtonRemove.innerHTML = "<i class=\"bi bi-trash\"></i>";
+        variableButtonRemove.onclick = _ => {
+            $.ajax({
+                url: `/api/v1/packages/${packageBase}/patches/${variable.key}`,
+                type: "DELETE",
+                dataType: "json",
+                success: _ => variableInput.remove(),
+            });
         };
 
+        // bring them together
+        variableInput.appendChild(variableNameInput);
+        variableInput.appendChild(variableSeparator);
+        variableInput.appendChild(variableValueInput);
+        variableInput.appendChild(variableButtonRemove);
+
+        packageInfoVariablesDiv.append(variableInput);
+    }
+
+    function loadLogs(packageBase, onFailure) {
         $.ajax({
             url: `/api/v2/packages/${packageBase}/logs`,
             data: {
@@ -53,26 +138,101 @@
             type: "GET",
             dataType: "json",
             success: response => {
-                packageInfo.text(`${response.package_base} ${response.status.status} at ${new Date(1000 * response.status.timestamp).toISOString()}`);
-                const logs = response.logs.map(log_record => {
-                    const [timestamp, record] = log_record;
-                    return `[${new Date(1000 * timestamp).toISOString()}] ${record}`;
+                const logs = response.map(log_record => {
+                    return `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`;
                 });
                 packageInfoLogsInput.text(logs.join("\n"));
+            },
+            error: onFailure,
+        });
+    }
+
+    function loadPackage(packageBase, onFailure) {
+        const headerClass = status => {
+            if (status === "pending") return ["bg-warning"];
+            if (status === "building") return ["bg-warning"];
+            if (status === "failed") return ["bg-danger", "text-white"];
+            if (status === "success") return ["bg-success", "text-white"];
+            return ["bg-secondary", "text-white"];
+        };
+
+        $.ajax({
+            url: `/api/v1/packages/${packageBase}`,
+            data: {
+                architecture: repository.architecture,
+                repository: repository.repository,
+            },
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                const description = response.find(Boolean);
+                const packages = Object.keys(description.package.packages);
+
+                packageInfo.text(`${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`);
 
                 packageInfoModalHeader.removeClass();
                 packageInfoModalHeader.addClass("modal-header");
-                headerClass(response.status.status).forEach((clz) => packageInfoModalHeader.addClass(clz));
+                headerClass(description.status.status).forEach(clz => packageInfoModalHeader.addClass(clz));
 
-                if (isPackageBaseSet) packageInfoModal.modal("show"); // we don't need to show window again
+                packageInfoDepends.html(listToTable(
+                    Object.values(description.package.packages)
+                        .reduce((accumulator, currentValue) => {
+                            return accumulator.concat(currentValue.depends.filter(v => packages.indexOf(v) === -1))
+                                .concat(currentValue.make_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (make)`))
+                                .concat(currentValue.opt_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (optional)`));
+                        }, [])
+                ));
+                packageInfoGroups.html(listToTable(extractListProperties(description.package, "groups")));
+                packageInfoLicenses.html(listToTable(extractListProperties(description.package, "licenses")));
+                packageInfoPackager.text(description.package.packager);
+                packageInfoPackages.html(listToTable(packages));
+                packageInfoVersion.text(description.package.version);
             },
-            error: (jqXHR, _, errorThrown) => {
-                // show failed modal in case if first time loading
-                if (isPackageBaseSet) {
-                    const message = error => `Could not load package ${packageBase} logs: ${error}`;
-                    showFailure("Load failure", message, jqXHR, errorThrown);
-                }
-            },
+            error: onFailure,
         });
+    }
+
+    function loadPatches(packageBase, onFailure) {
+        $.ajax({
+            url: `/api/v1/packages/${packageBase}/patches`,
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                packageInfoVariablesDiv.empty();
+                response.map(patch => insertVariable(packageBase, patch));
+            },
+            error: onFailure,
+        });
+    }
+
+    function packageInfoRemove() {
+        const packageBase = packageInfoModal.data("package");
+        if (packageBase) return packagesRemove([packageBase]);
+    }
+
+    function packageInfoUpdate() {
+        const packageBase = packageInfoModal.data("package");
+        if (packageBase) return packagesAdd(packageBase, []);
+    }
+
+    function showPackageInfo(packageBase) {
+        const isPackageBaseSet = packageBase !== undefined;
+        if (isPackageBaseSet)
+            packageInfoModal.data("package", packageBase); // set package base as currently used
+        else
+            packageBase = packageInfoModal.data("package"); // read package base from the current window attribute
+
+        const onFailure = (jqXHR, _, errorThrown) => {
+            if (isPackageBaseSet) {
+                const message = error => `Could not load package ${packageBase} info: ${error}`;
+                showFailure("Load failure", message, jqXHR, errorThrown);
+            }
+        };
+
+        loadPackage(packageBase, onFailure);
+        loadPatches(packageBase, onFailure);
+        loadLogs(packageBase, onFailure);
+
+        if (isPackageBaseSet) packageInfoModal.modal("show");
     }
 </script>

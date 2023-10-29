@@ -33,8 +33,8 @@ class PackageOperations(Operations):
     package operations
     """
 
-    def _package_remove_package_base(self, connection: Connection, package_base: str,
-                                     repository_id: RepositoryId) -> None:
+    @staticmethod
+    def _package_remove_package_base(connection: Connection, package_base: str, repository_id: RepositoryId) -> None:
         """
         remove package base information
 
@@ -50,8 +50,9 @@ class PackageOperations(Operations):
             """delete from package_bases where package_base = :package_base and repository = :repository""",
             {"package_base": package_base, "repository": repository_id.id})
 
-    def _package_remove_packages(self, connection: Connection, package_base: str,
-                                 current_packages: Iterable[str], repository_id: RepositoryId) -> None:
+    @staticmethod
+    def _package_remove_packages(connection: Connection, package_base: str, current_packages: Iterable[str],
+                                 repository_id: RepositoryId) -> None:
         """
         remove packages belong to the package base
 
@@ -74,8 +75,8 @@ class PackageOperations(Operations):
             """delete from packages where package = :package and repository = :repository""",
             packages)
 
-    def _package_update_insert_base(self, connection: Connection, package: Package,
-                                    repository_id: RepositoryId) -> None:
+    @staticmethod
+    def _package_update_insert_base(connection: Connection, package: Package, repository_id: RepositoryId) -> None:
         """
         insert base package into table
 
@@ -107,8 +108,8 @@ class PackageOperations(Operations):
             }
         )
 
-    def _package_update_insert_packages(self, connection: Connection, package: Package,
-                                        repository_id: RepositoryId) -> None:
+    @staticmethod
+    def _package_update_insert_packages(connection: Connection, package: Package, repository_id: RepositoryId) -> None:
         """
         insert packages into table
 
@@ -149,7 +150,8 @@ class PackageOperations(Operations):
             """,
             package_list)
 
-    def _package_update_insert_status(self, connection: Connection, package_base: str, status: BuildStatus,
+    @staticmethod
+    def _package_update_insert_status(connection: Connection, package_base: str, status: BuildStatus,
                                       repository_id: RepositoryId) -> None:
         """
         insert base package status into table
@@ -176,8 +178,8 @@ class PackageOperations(Operations):
                 "repository": repository_id.id,
             })
 
-    def _packages_get_select_package_bases(self, connection: Connection,
-                                           repository_id: RepositoryId) -> dict[str, Package]:
+    @staticmethod
+    def _packages_get_select_package_bases(connection: Connection, repository_id: RepositoryId) -> dict[str, Package]:
         """
         select package bases from the table
 
@@ -201,7 +203,8 @@ class PackageOperations(Operations):
             )
         }
 
-    def _packages_get_select_packages(self, connection: Connection, packages: dict[str, Package],
+    @staticmethod
+    def _packages_get_select_packages(connection: Connection, packages: dict[str, Package],
                                       repository_id: RepositoryId) -> dict[str, Package]:
         """
         select packages from the table
@@ -223,8 +226,8 @@ class PackageOperations(Operations):
             packages[row["package_base"]].packages[row["package"]] = PackageDescription.from_json(row)
         return packages
 
-    def _packages_get_select_statuses(self, connection: Connection,
-                                      repository_id: RepositoryId) -> dict[str, BuildStatus]:
+    @staticmethod
+    def _packages_get_select_statuses(connection: Connection, repository_id: RepositoryId) -> dict[str, BuildStatus]:
         """
         select package build statuses from the table
 

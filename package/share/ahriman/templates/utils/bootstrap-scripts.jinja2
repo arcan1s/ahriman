@@ -36,17 +36,15 @@
         }, 2000);
     }
 
-    function safe(string) {
-        return String(string)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
     function extractDataList(data, column) {
         const elements = data.flatMap(row => row[column].split("<br>")).filter(v => v); // remove empty elements from array
         return Array.from(new Set(elements)).sort();
+    }
+
+    function extractListProperties(description, property) {
+        return Object.values(description.packages)
+            .map(pkg => pkg[property])
+            .reduce((left, right) => left.concat(right), []);
     }
 
     function filterContains(text, value) {
@@ -66,5 +64,25 @@
         const dataList = extractDataList(data, field);
         // the library removes all symbols from string, so it is just string
         return value.includes(dataList[index].toLowerCase());
+    }
+
+    function listToTable(data) {
+        return Array.from(new Set(data))
+            .sort()
+            .map(entry => safe(entry))
+            .join("<br>");
+    }
+
+    function safe(string) {
+        return String(string)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    Date.prototype.toISOStringShort = function() {
+        const pad = number => String(number).padStart(2, "0");
+        return `${this.getFullYear()}-${pad(this.getMonth())}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;
     }
 </script>

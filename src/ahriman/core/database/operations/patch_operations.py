@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections import defaultdict
-
 from sqlite3 import Connection
 
 from ahriman.core.database.operations import Operations
@@ -42,16 +41,16 @@ class PatchOperations(Operations):
         """
         return self.patches_list(package_base, None).get(package_base, [])
 
-    def patches_insert(self, package_base: str, patch: PkgbuildPatch) -> None:
+    def patches_insert(self, package_base: str, patches: list[PkgbuildPatch]) -> None:
         """
         insert or update patch in database
 
         Args:
             package_base(str): package base to insert
-            patch(PkgbuildPatch): patch content
+            patches(list[PkgbuildPatch]): patch content
         """
         def run(connection: Connection) -> None:
-            connection.execute(
+            connection.executemany(
                 """
                 insert into patches
                 (package_base, variable, patch)
@@ -60,7 +59,14 @@ class PatchOperations(Operations):
                 on conflict (package_base, coalesce(variable, '')) do update set
                 patch = :patch
                 """,
-                {"package_base": package_base, "variable": patch.key, "patch": patch.value})
+                [
+                    {
+                        "package_base": package_base,
+                        "variable": patch.key,
+                        "patch": patch.value,
+                    } for patch in patches
+                ]
+            )
 
         return self.with_connection(run, commit=True)
 
@@ -89,7 +95,7 @@ class PatchOperations(Operations):
             if variables is not None and patch.key not in variables:
                 continue
             patches[package].append(patch)
-        return dict(patches)
+        return patches
 
     def patches_remove(self, package_base: str, variables: list[str] | None) -> None:
         """
@@ -102,12 +108,21 @@ class PatchOperations(Operations):
         def run_many(connection: Connection) -> None:
             patches = variables or []  # suppress mypy warning
             connection.executemany(
-                """delete from patches where package_base = :package_base and variable = :variable""",
-                [{"package_base": package_base, "variable": variable} for variable in patches])
+                """
+                delete from patches where package_base = :package_base and variable = :variable
+                """,
+                [
+                    {
+                        "package_base": package_base,
+                        "variable": variable,
+                    } for variable in patches
+                ])
 
         def run(connection: Connection) -> None:
             connection.execute(
-                """delete from patches where package_base = :package_base""",
+                """
+                delete from patches where package_base = :package_base
+                """,
                 {"package_base": package_base})
 
         if variables is not None:
