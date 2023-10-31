@@ -83,6 +83,6 @@
 
     Date.prototype.toISOStringShort = function() {
         const pad = number => String(number).padStart(2, "0");
-        return `${this.getFullYear()}-${pad(this.getMonth())}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;
+        return `${this.getFullYear()}-${pad(this.getMonth() + 1)}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;
     }
 </script>
