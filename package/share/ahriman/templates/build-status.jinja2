@@ -18,15 +18,15 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg">
                 <div class="navbar-brand"><img src="/static/logo.svg" width="30" height="30" alt=""> ahriman</div>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-supported-content" aria-controls="navbar-supported-content" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#repositories-navbar-supported-content" aria-controls="repositories-navbar-supported-content" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div id="navbar-supported-content" class="collapse navbar-collapse">
+                <div id="repositories-navbar-supported-content" class="collapse navbar-collapse">
                     <ul id="repositories" class="nav nav-tabs">
                         {% for repository in repositories %}
                             <li class="nav-item">
-                                <a id="{{ repository.id }}-lnk" class="nav-link" href="#{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</a>
+                                <a id="{{ repository.id }}-link" class="nav-link" href="#{{ repository.id }}" data-repository="{{ repository.repository }}" data-architecture="{{ repository.architecture }}">{{ repository.repository }} ({{ repository.architecture }})</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -42,7 +42,7 @@
 
                 {% if not auth.enabled or auth.username is not none %}
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-box"></i> packages
+                        <i class="bi bi-box"></i><span class="d-none d-sm-inline"> packages</span>
                     </button>
                     <ul class="dropdown-menu">
                         <li>
@@ -68,12 +68,12 @@
                     </ul>
 
                     <button id="key-import-button" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
-                        <i class="bi bi-key"></i> import key
+                        <i class="bi bi-key"></i><span class="d-none d-sm-inline"> import key</span>
                     </button>
                 {% endif %}
 
                 <button type="button" class="btn btn-secondary" onclick="reload()">
-                    <i class="bi bi-arrow-clockwise"></i> reload
+                    <i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span>
                 </button>
             </div>
 

@@ -5,6 +5,9 @@
     const packageRemoveButton = $("#package-remove-button");
     const packageUpdateButton = $("#package-update-button");
 
+    const packageInfoRemoveButton = $("#package-info-remove-button");
+    const packageInfoUpdateButton = $("#package-info-update-button");
+
     let repository = null;
     $("#repositories a").on("click", (event) => {
         const element = event.target;
@@ -12,7 +15,7 @@
             architecture: element.dataset.architecture,
             repository: element.dataset.repository,
         };
-        packageUpdateButton.html(`<i class="bi bi-play"></i> update ${safe(repository.repository)} (${safe(repository.architecture)})`);
+        packageUpdateButton.html(`<i class="bi bi-play"></i> update<span class="d-none d-sm-inline"> ${safe(repository.repository)} (${safe(repository.architecture)})</span>`);
         $(`#${element.id}`).tab("show");
         reload();
     });
@@ -202,7 +205,7 @@
 
     function selectRepository() {
         const fragment = window.location.hash.replace("#", "") || "{{ repositories[0].id }}";
-        const element = $(`#${fragment}-lnk`);
+        const element = $(`#${fragment}-link`);
         element.click();
     }
 

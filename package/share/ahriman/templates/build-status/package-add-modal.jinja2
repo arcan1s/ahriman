@@ -131,10 +131,10 @@
         return {patches: patches};
     }
 
-    function packagesAdd(packages, patches) {
+    function packagesAdd(packages, patches, repository) {
         packages = packages ?? packageAddInput.val();
         patches = patches ?? patchesParse();
-        const repository = getRepositorySelector(packageAddRepositoryInput);
+        repository = repository ?? getRepositorySelector(packageAddRepositoryInput);
 
         if (packages) {
             packageAddModal.modal("hide");

@@ -6,31 +6,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-group row">
-                    <div class="input-group">
-                        <table class="table table-borderless">
-                            <tbody>
-                                <tr>
-                                    <td style="width: 10%; text-align: right">version</td>
-                                    <td id="package-info-version" style="width: 40%"></td>
-                                    <td style="width: 10%; text-align: right">packager</td>
-                                    <td id="package-info-packager" style="width: 40%"></td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 10%; text-align: right">groups</td>
-                                    <td id="package-info-groups" style="width: 40%"></td>
-                                    <td style="width: 10%; text-align: right">licenses</td>
-                                    <td id="package-info-licenses" style="width: 40%"></td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 10%; text-align: right">packages</td>
-                                    <td id="package-info-packages" style="width: 40%"></td>
-                                    <td style="width: 10%; text-align: right">depends</td>
-                                    <td id="package-info-depends" style="width: 40%"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-1" style="text-align: right">version</div>
+                    <div id="package-info-version" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right">packager</div>
+                    <div id="package-info-packager" class="col-8 col-lg-5"></div>
+                </div>
+
+                <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-1" style="text-align: right">groups</div>
+                    <div id="package-info-groups" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right">licenses</div>
+                    <div id="package-info-licenses" class="col-8 col-lg-5"></div>
+                </div>
+
+                <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-1" style="text-align: right">packages</div>
+                    <div id="package-info-packages" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right">depends</div>
+                    <div id="package-info-depends" class="col-8 col-lg-5"></div>
                 </div>
 
                 <hr class="col-12">
@@ -44,10 +38,10 @@
                 <pre class="language-logs"><samp id="package-info-logs-input" class="pre-scrollable language-logs"></samp><button id="package-info-logs-copy-button" type="button" class="btn language-logs" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i> update</button>
-                <button type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i> remove</button>
-                <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i> reload</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i> close</button>
+                <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal" hidden><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
+                <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal" hidden><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
+                <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span></button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i><span class="d-none d-sm-inline"> close</span></button>
             </div>
         </div>
     </div>
@@ -70,6 +64,8 @@
         packageInfoLogsInput.empty();
 
         packageInfoModal.trigger("reset");
+
+        hideInfoControls(true);
     });
 
     const packageInfoLogsInput = $("#package-info-logs-input");
@@ -87,6 +83,11 @@
     async function copyLogs() {
         const logs = packageInfoLogsInput.text();
         await copyToClipboard(logs, packageInfoLogsCopyButton);
+    }
+
+    function hideInfoControls(hidden) {
+        packageInfoRemoveButton.attr("hidden", hidden);
+        packageInfoUpdateButton.attr("hidden", hidden);
     }
 
     function insertVariable(packageBase, variable) {
@@ -189,8 +190,13 @@
                 packageInfoPackager.text(description.package.packager);
                 packageInfoPackages.html(listToTable(packages));
                 packageInfoVersion.text(description.package.version);
+
+                hideInfoControls(false);
             },
-            error: onFailure,
+            error: (jqXHR, _, errorThrown) => {
+                hideInfoControls(true);
+                onFailure(jqXHR, null, errorThrown);
+            },
         });
     }
 
@@ -214,7 +220,7 @@
 
     function packageInfoUpdate() {
         const packageBase = packageInfoModal.data("package");
-        if (packageBase) return packagesAdd(packageBase, []);
+        if (packageBase) return packagesAdd(packageBase, [], repository);
     }
 
     function showPackageInfo(packageBase) {
