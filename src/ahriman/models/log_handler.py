@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from enum import Enum
+from enum import StrEnum
 
 
-class LogHandler(str, Enum):
+class LogHandler(StrEnum):
     """
     log handler as described by default configuration
 

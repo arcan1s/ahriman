@@ -19,10 +19,10 @@
 #
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ReportSettings(str, Enum):
+class ReportSettings(StrEnum):
     """
     report targets enumeration
 

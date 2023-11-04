@@ -19,7 +19,7 @@
 #
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -27,7 +27,7 @@ from ahriman.core.util import package_like
 from ahriman.models.repository_paths import RepositoryPaths
 
 
-class PackageSource(str, Enum):
+class PackageSource(StrEnum):
     """
     package source for addition enumeration
 
