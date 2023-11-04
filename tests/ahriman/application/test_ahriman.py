@@ -104,36 +104,6 @@ def test_subparsers_aur_search_option_repository(parser: argparse.ArgumentParser
     assert args.repository == ""
 
 
-def test_subparsers_help(parser: argparse.ArgumentParser) -> None:
-    """
-    help command must imply architecture list, lock, quiet, report, repository, unsafe and parser
-    """
-    args = parser.parse_args(["help"])
-    assert args.architecture == ""
-    assert args.lock is None
-    assert args.quiet
-    assert not args.report
-    assert args.repository == ""
-    assert args.unsafe
-    assert args.parser is not None and args.parser()
-
-
-def test_subparsers_help_option_architecture(parser: argparse.ArgumentParser) -> None:
-    """
-    help command must correctly parse architecture list
-    """
-    args = parser.parse_args(["-a", "x86_64", "help"])
-    assert args.architecture == ""
-
-
-def test_subparsers_help_option_repository(parser: argparse.ArgumentParser) -> None:
-    """
-    help command must correctly parse repository list
-    """
-    args = parser.parse_args(["-r", "repo", "help"])
-    assert args.repository == ""
-
-
 def test_subparsers_help_commands_unsafe(parser: argparse.ArgumentParser) -> None:
     """
     help-commands-unsafe command must imply architecture list, lock, quiet, report, repository, unsafe and parser
@@ -161,6 +131,36 @@ def test_subparsers_help_commands_unsafe_option_repository(parser: argparse.Argu
     help-commands-unsafe command must correctly parse repository list
     """
     args = parser.parse_args(["-r", "repo", "help-commands-unsafe"])
+    assert args.repository == ""
+
+
+def test_subparsers_help(parser: argparse.ArgumentParser) -> None:
+    """
+    help command must imply architecture list, lock, quiet, report, repository, unsafe and parser
+    """
+    args = parser.parse_args(["help"])
+    assert args.architecture == ""
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == ""
+    assert args.unsafe
+    assert args.parser is not None and args.parser()
+
+
+def test_subparsers_help_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    help command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "help"])
+    assert args.architecture == ""
+
+
+def test_subparsers_help_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    help command must correctly parse repository list
+    """
+    args = parser.parse_args(["-r", "repo", "help"])
     assert args.repository == ""
 
 

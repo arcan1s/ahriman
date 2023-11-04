@@ -67,8 +67,8 @@ class Versions(Handler):
         Args:
             root(str): root package name
 
-        Returns:
-            Generator[tuple[str, str], None, None]: map of installed dependency to its version
+        Yields:
+            tuple[str, str]: map of installed dependency to its version
         """
         def dependencies_by_key(key: str) -> Generator[str, None, None]:
             # in importlib it returns requires in the following format

@@ -30,30 +30,6 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
         Lock(args, repository_id, configuration).path  # special case
 
 
-def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must check version correctly
-    """
-    mocker.patch("ahriman.core.status.client.Client.status_get",
-                 return_value=InternalStatus(status=BuildStatus(), version=__version__))
-    logging_mock = mocker.patch("logging.Logger.warning")
-
-    lock.check_version()
-    logging_mock.assert_not_called()
-
-
-def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must check mismatched version correctly
-    """
-    mocker.patch("ahriman.core.status.client.Client.status_get",
-                 return_value=InternalStatus(status=BuildStatus(), version="version"))
-    logging_mock = mocker.patch("logging.Logger.warning")
-
-    lock.check_version()
-    logging_mock.assert_called_once()  # we do not check logging arguments
-
-
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check user correctly
@@ -82,6 +58,30 @@ def test_check_user_unsafe(lock: Lock, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
     lock.unsafe = True
     lock.check_user()
+
+
+def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check version correctly
+    """
+    mocker.patch("ahriman.core.status.client.Client.status_get",
+                 return_value=InternalStatus(status=BuildStatus(), version=__version__))
+    logging_mock = mocker.patch("logging.Logger.warning")
+
+    lock.check_version()
+    logging_mock.assert_not_called()
+
+
+def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check mismatched version correctly
+    """
+    mocker.patch("ahriman.core.status.client.Client.status_get",
+                 return_value=InternalStatus(status=BuildStatus(), version="version"))
+    logging_mock = mocker.patch("logging.Logger.warning")
+
+    lock.check_version()
+    logging_mock.assert_called_once()  # we do not check logging arguments
 
 
 def test_clear(lock: Lock) -> None:

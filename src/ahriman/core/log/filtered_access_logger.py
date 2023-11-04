@@ -67,7 +67,7 @@ class FilteredAccessLogger(AccessLogger):
         Args:
             request(BaseRequest): http reqeust descriptor
             response(StreamResponse): streaming response object
-            time(float):
+            time(float): log record timestamp
         """
         if self.is_logs_post(request) \
                 or self.is_process_get(request):

@@ -89,15 +89,6 @@ def test_asset_upload_empty_mimetype(github: GitHub, github_release: dict[str, A
                                          headers={"Content-Type": "application/octet-stream"})
 
 
-def test_get_local_files(github: GitHub, resource_path_root: Path, mocker: MockerFixture) -> None:
-    """
-    must get all local files recursively
-    """
-    walk_mock = mocker.patch("ahriman.core.util.walk")
-    github.get_local_files(resource_path_root)
-    walk_mock.assert_called()
-
-
 def test_files_remove(github: GitHub, github_release: dict[str, Any], mocker: MockerFixture) -> None:
     """
     must remove files from the remote
@@ -135,6 +126,15 @@ def test_files_upload_empty(github: GitHub, github_release: dict[str, Any], mock
     upload_mock = mocker.patch("ahriman.core.upload.github.GitHub.asset_upload")
     github.files_upload(github_release, {Path("a"): "a"}, {"a": "a"})
     upload_mock.assert_not_called()
+
+
+def test_get_local_files(github: GitHub, resource_path_root: Path, mocker: MockerFixture) -> None:
+    """
+    must get all local files recursively
+    """
+    walk_mock = mocker.patch("ahriman.core.util.walk")
+    github.get_local_files(resource_path_root)
+    walk_mock.assert_called()
 
 
 def test_release_create(github: GitHub, mocker: MockerFixture) -> None:

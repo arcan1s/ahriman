@@ -96,8 +96,8 @@ def _parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command")
 
     _set_aur_search_parser(subparsers)
-    _set_help_parser(subparsers)
     _set_help_commands_unsafe_parser(subparsers)
+    _set_help_parser(subparsers)
     _set_help_updates_parser(subparsers)
     _set_help_version_parser(subparsers)
     _set_package_add_parser(subparsers)
@@ -166,25 +166,6 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for listing help subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("help", help="show help message",
-                             description="show help message for application or command and exit",
-                             formatter_class=_formatter)
-    parser.add_argument("command", help="show help message for specific command", nargs="?")
-    parser.set_defaults(handler=handlers.Help, architecture="", lock=None, quiet=True, report=False, repository="",
-                        unsafe=True, parser=_parser)
-    return parser
-
-
 def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     add parser for listing unsafe commands
@@ -201,6 +182,25 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
                                         "and return 0 in case if command is safe and 1 otherwise", nargs="*")
     parser.set_defaults(handler=handlers.UnsafeCommands, architecture="", lock=None, quiet=True, report=False,
                         repository="", unsafe=True, parser=_parser)
+    return parser
+
+
+def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for listing help subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("help", help="show help message",
+                             description="show help message for application or command and exit",
+                             formatter_class=_formatter)
+    parser.add_argument("command", help="show help message for specific command", nargs="?")
+    parser.set_defaults(handler=handlers.Help, architecture="", lock=None, quiet=True, report=False, repository="",
+                        unsafe=True, parser=_parser)
     return parser
 
 

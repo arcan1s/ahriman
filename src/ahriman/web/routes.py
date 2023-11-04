@@ -41,8 +41,8 @@ def _dynamic_routes(module_root: Path) -> dict[str, Type[View]]:
     Returns:
         dict[str, Type[View]]: map of the route to its view
     """
-    def is_base_view(clz: Any) -> TypeGuard[Type[BaseView]]:
-        return isinstance(clz, type) and issubclass(clz, BaseView)
+    def is_base_view(clazz: Any) -> TypeGuard[Type[BaseView]]:
+        return isinstance(clazz, type) and issubclass(clazz, BaseView)
 
     routes: dict[str, Type[View]] = {}
     for module_info in _modules(module_root):
