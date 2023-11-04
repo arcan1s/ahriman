@@ -76,8 +76,8 @@ class Web(Handler):
             args(argparse.Namespace): command line args
             configuration(Configuration): configuration instance
 
-        Returns:
-            Generator[str, None, None]: command line arguments which were used for this specific command
+        Yields:
+            str: command line arguments which were used for this specific command
         """
         # read configuration path from current settings
         if (configuration_path := configuration.path) is not None:

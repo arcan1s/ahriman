@@ -354,9 +354,9 @@ class Package(LazyLogging):
         Args:
             path(Path): path to package sources directory
 
-        Returns:
-            Generator[Path, None, None]: list of paths of files which belong to the package and distributed together
-                with this tarball. All paths are relative to the ``path``
+        Yields:
+            Path: list of paths of files which belong to the package and distributed together with this tarball.
+                All paths are relative to the ``path``
 
         Raises:
             PackageInfoError: if there are parsing errors

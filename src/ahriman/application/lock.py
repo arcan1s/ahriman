@@ -80,6 +80,13 @@ class Lock(LazyLogging):
         self.paths = configuration.repository_paths
         self.reporter = Client.load(repository_id, configuration, report=args.report)
 
+    def check_user(self) -> None:
+        """
+        check if current user is actually owner of ahriman root
+        """
+        check_user(self.paths, unsafe=self.unsafe)
+        self.paths.tree_create()
+
     def check_version(self) -> None:
         """
         check web server version
@@ -88,13 +95,6 @@ class Lock(LazyLogging):
         if status.version is not None and status.version != __version__:
             self.logger.warning("status watcher version mismatch, our %s, their %s",
                                 __version__, status.version)
-
-    def check_user(self) -> None:
-        """
-        check if current user is actually owner of ahriman root
-        """
-        check_user(self.paths, unsafe=self.unsafe)
-        self.paths.tree_create()
 
     def clear(self) -> None:
         """

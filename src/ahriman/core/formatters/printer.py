@@ -57,6 +57,7 @@ class Printer:
         """
         return []
 
+    # pylint: disable=redundant-returns-doc
     def title(self) -> str | None:
         """
         generate entry title from content

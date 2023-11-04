@@ -88,6 +88,20 @@ class S3(Upload):
         return f"{checksum.hexdigest()}{suffix}"
 
     @staticmethod
+    def files_remove(local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:
+        """
+        remove files which have been removed locally
+
+        Args:
+            local_files(dict[Path, str]): map of local path object to its checksum
+            remote_objects(dict[Path, Any]): map of remote path object to the remote s3 object
+        """
+        for local_file, remote_object in remote_objects.items():
+            if local_file in local_files:
+                continue
+            remote_object.delete()
+
+    @staticmethod
     def get_bucket(configuration: Configuration, section: str) -> Any:
         """
         create resource client from configuration
@@ -104,20 +118,6 @@ class S3(Upload):
                                 aws_access_key_id=configuration.get(section, "access_key"),
                                 aws_secret_access_key=configuration.get(section, "secret_key"))
         return client.Bucket(configuration.get(section, "bucket"))
-
-    @staticmethod
-    def files_remove(local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:
-        """
-        remove files which have been removed locally
-
-        Args:
-            local_files(dict[Path, str]): map of local path object to its checksum
-            remote_objects(dict[Path, Any]): map of remote path object to the remote s3 object
-        """
-        for local_file, remote_object in remote_objects.items():
-            if local_file in local_files:
-                continue
-            remote_object.delete()
 
     def files_upload(self, path: Path, local_files: dict[Path, str], remote_objects: dict[Path, Any]) -> None:
         """

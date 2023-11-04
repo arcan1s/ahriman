@@ -95,21 +95,6 @@ class GitHub(Upload, HttpUpload):
         with path.open("rb") as archive:
             self.make_request("POST", url, params=[("name", path.name)], data=archive, headers=headers)
 
-    def get_local_files(self, path: Path) -> dict[Path, str]:
-        """
-        get all local files and their calculated checksums
-
-        Args:
-            path(Path): local path to sync
-
-        Returns:
-            dict[Path, str]: map of path objects to its checksum
-        """
-        return {
-            local_file: self.calculate_hash(local_file)
-            for local_file in walk(path)
-        }
-
     def files_remove(self, release: dict[str, Any], local_files: dict[Path, str], remote_files: dict[str, str]) -> None:
         """
         remove files from GitHub
@@ -139,6 +124,21 @@ class GitHub(Upload, HttpUpload):
             if remote_checksum == checksum:
                 continue
             self.asset_upload(release, local_file)
+
+    def get_local_files(self, path: Path) -> dict[Path, str]:
+        """
+        get all local files and their calculated checksums
+
+        Args:
+            path(Path): local path to sync
+
+        Returns:
+            dict[Path, str]: map of path objects to its checksum
+        """
+        return {
+            local_file: self.calculate_hash(local_file)
+            for local_file in walk(path)
+        }
 
     def release_create(self) -> dict[str, Any]:
         """

@@ -35,16 +35,6 @@ class RepositoryId:
     name: str
 
     @property
-    def is_empty(self) -> bool:
-        """
-        check if all data is supplied for the loading
-
-        Returns:
-            bool: True in case if architecture or name are not set and False otherwise
-        """
-        return not self.architecture or not self.name
-
-    @property
     def id(self) -> str:
         """
         get repository id to be used for databases
@@ -55,6 +45,16 @@ class RepositoryId:
         if self.is_empty:
             return ""
         return f"{self.architecture}-{self.name}"  # basically the same as used for command line
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        check if all data is supplied for the loading
+
+        Returns:
+            bool: True in case if architecture or name are not set and False otherwise
+        """
+        return not self.architecture or not self.name
 
     def query(self) -> list[tuple[str, str]]:
         """

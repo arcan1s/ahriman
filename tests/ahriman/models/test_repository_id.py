@@ -3,6 +3,14 @@ import pytest
 from ahriman.models.repository_id import RepositoryId
 
 
+def test_id() -> None:
+    """
+    must correctly generate id
+    """
+    assert RepositoryId("", "").id == ""
+    assert RepositoryId("arch", "repo").id == "arch-repo"
+
+
 def test_is_empty() -> None:
     """
     must check if repository id is empty or not
@@ -11,14 +19,6 @@ def test_is_empty() -> None:
     assert RepositoryId("arch", "").is_empty
     assert RepositoryId("", "repo").is_empty
     assert not RepositoryId("arch", "repo").is_empty
-
-
-def test_id() -> None:
-    """
-    must correctly generate id
-    """
-    assert RepositoryId("", "").id == ""
-    assert RepositoryId("arch", "repo").id == "arch-repo"
 
 
 def test_query() -> None:
