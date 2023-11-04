@@ -21,6 +21,7 @@ from sqlite3 import Connection
 
 from ahriman.core.database.operations import Operations
 from ahriman.models.package import Package
+from ahriman.models.repository_id import RepositoryId
 
 
 class BuildOperations(Operations):
@@ -28,13 +29,16 @@ class BuildOperations(Operations):
     operations for build queue functions
     """
 
-    def build_queue_clear(self, package_base: str | None) -> None:
+    def build_queue_clear(self, package_base: str | None, repository_id: RepositoryId | None = None) -> None:
         """
         remove packages from build queue
 
         Args:
             package_base(str | None): optional filter by package base
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
             connection.execute(
                 """
@@ -43,36 +47,44 @@ class BuildOperations(Operations):
                 """,
                 {
                     "package_base": package_base,
-                    "repository": self._repository_id.id,
+                    "repository": repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)
 
-    def build_queue_get(self) -> list[Package]:
+    def build_queue_get(self, repository_id: RepositoryId | None = None) -> list[Package]:
         """
         retrieve packages from build queue
+
+        Args:
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Return:
             list[Package]: list of packages to be built
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> list[Package]:
             return [
                 Package.from_json(row["properties"])
                 for row in connection.execute(
                     """select properties from build_queue where repository = :repository""",
-                    {"repository": self._repository_id.id}
+                    {"repository": repository_id.id}
                 )
             ]
 
         return self.with_connection(run)
 
-    def build_queue_insert(self, package: Package) -> None:
+    def build_queue_insert(self, package: Package, repository_id: RepositoryId | None = None) -> None:
         """
         insert packages to build queue
 
         Args:
             package(Package): package to be inserted
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> None:
             connection.execute(
                 """
@@ -86,7 +98,7 @@ class BuildOperations(Operations):
                 {
                     "package_base": package.base,
                     "properties": package.view(),
-                    "repository": self._repository_id.id,
+                    "repository": repository_id.id,
                 })
 
         return self.with_connection(run, commit=True)

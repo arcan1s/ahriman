@@ -302,26 +302,35 @@ class PackageOperations(Operations):
 
         return self.with_connection(lambda connection: list(run(connection)))
 
-    def remote_update(self, package: Package) -> None:
+    def remote_update(self, package: Package, repository_id: RepositoryId | None = None) -> None:
         """
         update package remote source
 
         Args:
             package(Package): package properties
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
-        return self.with_connection(
-            lambda connection: self._package_update_insert_base(connection, package, self._repository_id),
-            commit=True)
+        repository_id = repository_id or self._repository_id
 
-    def remotes_get(self) -> dict[str, RemoteSource]:
+        def run(connection: Connection) -> None:
+            self._package_update_insert_base(connection, package, repository_id)
+
+        return self.with_connection(run, commit=True)
+
+    def remotes_get(self, repository_id: RepositoryId | None = None) -> dict[str, RemoteSource]:
         """
         get packages remotes based on current settings
+
+        Args:
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Returns:
             dict[str, RemoteSource]: map of package base to its remote sources
         """
+        repository_id = repository_id or self._repository_id
+
         def run(connection: Connection) -> dict[str, Package]:
-            return self._packages_get_select_package_bases(connection, self._repository_id)
+            return self._packages_get_select_package_bases(connection, repository_id)
 
         return {
             package_base: package.remote
