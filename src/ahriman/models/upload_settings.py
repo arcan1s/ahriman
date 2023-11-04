@@ -19,10 +19,10 @@
 #
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class UploadSettings(str, Enum):
+class UploadSettings(StrEnum):
     """
     remote synchronization targets enumeration
 

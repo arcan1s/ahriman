@@ -19,33 +19,33 @@
 #
 from astroid import nodes
 from collections.abc import Iterable
-from enum import Enum
+from enum import StrEnum
 from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter
 from typing import Any
 
 
-class MethodTypeOrder(int, Enum):
+class MethodTypeOrder(StrEnum):
     """
     method type enumeration
 
     Attributes:
-        New(MethodTypeOrder): (class attribute) constructor method
-        Init(MethodTypeOrder): (class attribute) initialization method
-        Property(MethodTypeOrder): (class attribute) property method
         Class(MethodTypeOrder): (class attribute) class method
-        Static(MethodTypeOrder): (class attribute) static method
-        Normal(MethodTypeOrder): (class attribute) usual method
+        Init(MethodTypeOrder): (class attribute) initialization method
         Magic(MethodTypeOrder): (class attribute) other magical methods
+        New(MethodTypeOrder): (class attribute) constructor method
+        Normal(MethodTypeOrder): (class attribute) usual method
+        Property(MethodTypeOrder): (class attribute) property method
+        Static(MethodTypeOrder): (class attribute) static method
     """
 
-    New = 0
-    Init = 1
-    Property = 2
-    Class = 3
-    Static = 4
-    Normal = 5
-    Magic = 6
+    Class = "classmethod"
+    Init = "init"
+    Magic = "magic"
+    New = "new"
+    Normal = "regular"
+    Property = "property"
+    Static = "staticmethod"
 
 
 class DefinitionOrder(BaseRawFileChecker):
@@ -65,45 +65,31 @@ class DefinitionOrder(BaseRawFileChecker):
 
     name = "method-ordering"
     msgs = {
-        "W0001": (
+        "W6001": (
             "Invalid method order %s, expected %s",
             "methods-out-of-order",
             "Methods are defined out of recommended order.",
         )
     }
-    options = ()
-
-    @staticmethod
-    def comparator(function: nodes.FunctionDef) -> tuple[int, str]:
-        """
-        compare key for function node
-
-        Args:
-            function(nodes.FunctionDef): function definition
-
-        Returns:
-            tuple[int, str]: comparison key
-        """
-        # init methods
-        if function.name in ("__new__",):
-            return MethodTypeOrder.New, function.name
-        if function.name in ("__init__", "__post_init__"):
-            return MethodTypeOrder.Init, function.name
-
-        # decorated methods
-        decorators = []
-        if function.decorators is not None:
-            decorators = [getattr(decorator, "name", None) for decorator in function.decorators.get_children()]
-        for decorator in decorators:
-            if decorator in DefinitionOrder.DECORATED_METHODS_ORDER:
-                return DefinitionOrder.DECORATED_METHODS_ORDER[decorator], function.name
-
-        # magic methods
-        if function.name.startswith("__") and function.name.endswith("__"):
-            return MethodTypeOrder.Magic, function.name
-
-        # normal method
-        return MethodTypeOrder.Normal, function.name
+    options = (
+        (
+            "method-type-order",
+            {
+                "default": [
+                    "new",
+                    "init",
+                    "property",
+                    "classmethod",
+                    "staticmethod",
+                    "regular",
+                    "magic",
+                ],
+                "type": "csv",
+                "metavar": "<comma-separated types>",
+                "help": "Method types order to check.",
+            },
+        ),
+    )
 
     @staticmethod
     def methods(source: Iterable[Any], start_lineno: int = 0) -> list[nodes.FunctionDef]:
@@ -124,6 +110,38 @@ class DefinitionOrder(BaseRawFileChecker):
 
         return list(filter(is_defined_function, source))
 
+    @staticmethod
+    def resolve_type(function: nodes.FunctionDef) -> MethodTypeOrder:
+        """
+        resolve type of the function
+
+        Args:
+            function(nodes.FunctionDef): function definition
+
+        Returns:
+            MethodTypeOrder: resolved function type
+        """
+        # init methods
+        if function.name in ("__new__",):
+            return MethodTypeOrder.New
+        if function.name in ("__init__", "__post_init__"):
+            return MethodTypeOrder.Init
+
+        # decorated methods
+        decorators = []
+        if function.decorators is not None:
+            decorators = [getattr(decorator, "name", None) for decorator in function.decorators.get_children()]
+        for decorator in decorators:
+            if decorator in DefinitionOrder.DECORATED_METHODS_ORDER:
+                return DefinitionOrder.DECORATED_METHODS_ORDER[decorator]
+
+        # magic methods
+        if function.name.startswith("__") and function.name.endswith("__"):
+            return MethodTypeOrder.Magic
+
+        # normal method
+        return MethodTypeOrder.Normal
+
     def check_class(self, clazz: nodes.ClassDef) -> None:
         """
         check class functions ordering
@@ -131,7 +149,7 @@ class DefinitionOrder(BaseRawFileChecker):
         Args:
             clazz(nodes.ClassDef): class definition
         """
-        methods = DefinitionOrder.methods(clazz.values(), clazz.lineno)
+        methods = self.methods(clazz.values(), clazz.lineno)
         self.check_functions(methods)
 
     def check_functions(self, functions: list[nodes.FunctionDef]) -> None:
@@ -141,11 +159,29 @@ class DefinitionOrder(BaseRawFileChecker):
         Args:
             functions(list[nodes.FunctionDef]): list of functions in their defined order
         """
-        for real, expected in zip(functions, sorted(functions, key=DefinitionOrder.comparator)):
+        for real, expected in zip(functions, sorted(functions, key=self.comparator)):
             if real == expected:
                 continue
             self.add_message("methods-out-of-order", line=real.lineno, args=(real.name, expected.name))
             break
+
+    def comparator(self, function: nodes.FunctionDef) -> tuple[int, str]:
+        """
+        compare key for sorting function
+
+        Args:
+            function(nodes.FunctionDef): function definition
+
+        Returns:
+            tuple[int, str]: comparison key for the specified function definition
+        """
+        function_type = self.resolve_type(function)
+        try:
+            function_type_index = self.linter.config.method_type_order.index(function_type)
+        except ValueError:
+            function_type_index = 10  # not in the list
+
+        return function_type_index, function.name
 
     def process_module(self, node: nodes.Module) -> None:
         """
@@ -155,7 +191,7 @@ class DefinitionOrder(BaseRawFileChecker):
             node(nodes.Module): module node to check
         """
         # check global methods
-        self.check_functions(DefinitionOrder.methods(node.values()))
+        self.check_functions(self.methods(node.values()))
         # check class definitions
         for clazz in filter(lambda method: isinstance(method, nodes.ClassDef), node.values()):
             self.check_class(clazz)

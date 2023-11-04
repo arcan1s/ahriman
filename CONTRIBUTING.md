@@ -26,7 +26,7 @@ In order to resolve all difficult cases the `autopep8` is used. You can perform 
 Again, the most checks can be performed by `make check` command, though some additional guidelines must be applied:
 
 * Every class, every function (including private and protected), every attribute must be documented. The project follows [Google style documentation](https://google.github.io/styleguide/pyguide.html). The only exception is local functions.
-* Correct way to document function, if section is empty, e.g. no notes or there are no args, it should be omitted:
+* Correct way to document function (if a section is empty, e.g. no notes or there are no args, it should be omitted) is the following:
 
     ```python
     def foo(argument: str, *, flag: bool = False) -> int:
@@ -64,7 +64,7 @@ Again, the most checks can be performed by `make check` command, though some add
     ```python
     class Clazz(BaseClazz):
         """
-        brand-new implementation of ``BaseClazz``
+        brand-new implementation of :class:`BaseClazz`
   
         Attributes:
             CLAZZ_ATTRIBUTE(int): (class attribute) a brand-new class attribute
@@ -92,7 +92,7 @@ Again, the most checks can be performed by `make check` command, though some add
 
 * Type annotations are the must, even for local functions. For the function argument `self` (for instance methods) and `cls` (for class methods) should not be annotated.
 * For collection types built-in classes must be used if possible (e.g. `dict` instead of `typing.Dict`, `tuple` instead of `typing.Tuple`). In case if built-in type is not available, but `collections.abc` provides interface, it must be used (e.g. `collections.abc.Awaitable` instead of `typing.Awaitable`, `collections.abc.Iterable` instead of `typing.Iterable`). For union classes, the bar operator (`|`) must be used (e.g. `float | int` instead of `typing.Union[float, int]`), which also includes `typinng.Optional` (e.g. `str | None` instead of `Optional[str]`).
-* `classmethod` should always return `Self`. In case of mypy warning (e.g. if there is a branch in which function doesn't return the instance of `cls`) consider using `staticmethod` instead.
+* `classmethod` should (almost) always return `Self`. In case of mypy warning (e.g. if there is a branch in which function doesn't return the instance of `cls`) consider using `staticmethod` instead.
 * Recommended order of function definitions in class:
 
     ```python
@@ -121,9 +121,11 @@ Again, the most checks can be performed by `make check` command, though some add
         def __hash__(self) -> int: ...  # basically any magic (or look-alike) method
     ```
   
-  Methods inside one group should be ordered alphabetically, the only exception is `__init__` method (`__post__init__` for dataclasses) which should be defined first. For test methods it is recommended to follow the order in which functions are defined.
+  Methods inside one group should be ordered alphabetically, the only exceptions are `__init__` (`__post_init__` for dataclasses) and `__new__` methods which should be defined first. For test methods it is recommended to follow the order in which functions are defined.
 
   Though, we would like to highlight abstract methods (i.e. ones which raise `NotImplementedError`), we still keep in global order at the moment.
+
+  For the most cases there is custom `pylint` plugin, which performs checks automatically.
 
 * Abstract methods must raise `NotImplementedError` instead of using `abc.abstractmethod`. The reason behind this restriction is the fact that we have class/static abstract methods for those we need to define their attribute first making the code harder to read.
 * For any path interactions `pathlib.Path` must be used.
@@ -167,7 +169,7 @@ Again, the most checks can be performed by `make check` command, though some add
 * No global variable is allowed outside of `ahriman` module. `ahriman.core.context` is also special case.
 * Single quotes are not allowed. The reason behind this restriction is the fact that docstrings must be written by using double quotes only, and we would like to make style consistent.
 * If your class writes anything to log, the `ahriman.core.log.LazyLogging` trait must be used.
-* Web API methods must be documented by using `aiohttp_apispec` library. Schema testing mostly should be implemented in related view class tests. Recommended example for documentation (excluding comments):
+* Web API methods must be documented by using `aiohttp_apispec` library. The schema testing mostly should be implemented in related view class tests. Recommended example for documentation (excluding comments):
 
     ```python
     import aiohttp_apispec
@@ -191,6 +193,7 @@ Again, the most checks can be performed by `make check` command, though some add
     class Foo(BaseView):
 
         POST_PERMISSION = ...
+        ROUTES = ...
 
         @aiohttp_apispec.docs(
             tags=["Tag"],
@@ -216,6 +219,7 @@ Again, the most checks can be performed by `make check` command, though some add
 
 * It is allowed to change web API to add new fields or remove optional ones. However, in case of model changes, new API version must be introduced.
 * On the other hand, it is allowed to change method signatures, however, it is recommended to add new parameters as optional if possible. Deprecated API can be dropped during major release.
+* Enumerations (`Enum` classes) are allowed and recommended. However, it is recommended to use `StrEnum` class if there are from/to string conversions and `IntEnum` otherwise.
 
 ### Other checks
 

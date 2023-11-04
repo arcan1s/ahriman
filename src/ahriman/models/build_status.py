@@ -18,13 +18,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass, field, fields
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Self
 
 from ahriman.core.util import filter_json, pretty_datetime, utcnow
 
 
-class BuildStatusEnum(str, Enum):
+class BuildStatusEnum(StrEnum):
     """
     build status enumeration
 

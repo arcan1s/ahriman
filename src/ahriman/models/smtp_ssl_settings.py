@@ -19,10 +19,10 @@
 #
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class SmtpSSLSettings(str, Enum):
+class SmtpSSLSettings(StrEnum):
     """
     SMTP SSL mode enumeration
 
