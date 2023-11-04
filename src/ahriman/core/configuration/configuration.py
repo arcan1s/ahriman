@@ -63,6 +63,7 @@ class Configuration(configparser.RawConfigParser):
             >>> path, repository_id = configuration.check_loaded()
     """
 
+    _LEGACY_ARCHITECTURE_SPECIFIC_SECTIONS = ["web"]
     ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
     converters: dict[str, Callable[[str], Any]]  # typing guard
@@ -159,25 +160,6 @@ class Configuration(configparser.RawConfigParser):
         configuration.load(path)
         configuration.merge_sections(repository_id)
         return configuration
-
-    @staticmethod
-    def override_sections(section: str, repository_id: RepositoryId) -> list[str]:
-        """
-        extract override sections
-
-        Args:
-            section(str): section name
-            repository_id(RepositoryId): repository unique identifier
-
-        Returns:
-            list[str]: architecture and repository specific sections in correct order
-        """
-        # the valid order is global < per architecture < per repository < per repository and architecture
-        return [
-            Configuration.section_name(section, repository_id.architecture),  # architecture specific override
-            Configuration.section_name(section, repository_id.name),  # override with repository name
-            Configuration.section_name(section, repository_id.name, repository_id.architecture),  # both
-        ]
 
     @staticmethod
     def section_name(section: str, *suffixes: str | None) -> str:
@@ -315,7 +297,7 @@ class Configuration(configparser.RawConfigParser):
         """
         self.repository_id = repository_id
 
-        for section in self.ARCHITECTURE_SPECIFIC_SECTIONS:
+        for section in self.ARCHITECTURE_SPECIFIC_SECTIONS + self._LEGACY_ARCHITECTURE_SPECIFIC_SECTIONS:
             for specific in self.override_sections(section, repository_id):
                 if self.has_section(specific):
                     # if there is no such section it means that there is no overrides for this arch,
@@ -329,6 +311,26 @@ class Configuration(configparser.RawConfigParser):
                 if not foreign.startswith(f"{section}:"):
                     continue
                 self.remove_section(foreign)
+
+    def override_sections(self, section: str, repository_id: RepositoryId) -> list[str]:
+        """
+        extract override sections
+
+        Args:
+            section(str): section name
+            repository_id(RepositoryId): repository unique identifier
+
+        Returns:
+            list[str]: architecture and repository specific sections in correct order
+        """
+        if repository_id.is_empty:  # special case, guess sections from configuration
+            return sorted(specific for specific in self.sections() if specific.startswith(f"{section}:"))
+        # the valid order is global < per architecture < per repository < per repository and architecture
+        return [
+            Configuration.section_name(section, repository_id.architecture),  # architecture specific override
+            Configuration.section_name(section, repository_id.name),  # override with repository name
+            Configuration.section_name(section, repository_id.name, repository_id.architecture),  # both
+        ]
 
     def reload(self) -> None:
         """
