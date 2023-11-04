@@ -61,17 +61,6 @@ def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixtu
     read_mock.assert_called_once_with(configuration.SYSTEM_CONFIGURATION_PATH)
 
 
-def test_override_sections(repository_id: RepositoryId) -> None:
-    """
-    must correctly generate override section names
-    """
-    assert Configuration.override_sections("build", repository_id) == [
-        "build:x86_64",
-        "build:aur-clone",
-        "build:aur-clone:x86_64",
-    ]
-
-
 def test_section_name(configuration: Configuration) -> None:
     """
     must return architecture specific group
@@ -382,6 +371,26 @@ def test_merge_sections_priority(configuration: Configuration) -> None:
     assert configuration.get("build", "key2") == "key2_value3"
     assert configuration.get("build", "key3") == "key3_value2"
     assert configuration.get("build", "key4") == "key4_value1"
+
+
+def test_override_sections(configuration: Configuration, repository_id: RepositoryId) -> None:
+    """
+    must correctly generate override section names
+    """
+    assert configuration.override_sections("build", repository_id) == [
+        "build:x86_64",
+        "build:aur-clone",
+        "build:aur-clone:x86_64",
+    ]
+
+
+def test_override_sections_empty(configuration: Configuration) -> None:
+    """
+    must look up for sections if repository identifier is empty
+    """
+    configuration.set_option("web:x86_64", "port", "8080")
+    configuration.set_option("web:i686", "port", "8080")
+    assert configuration.override_sections("web", RepositoryId("", "")) == ["web:i686", "web:x86_64"]
 
 
 def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
