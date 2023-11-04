@@ -3,7 +3,7 @@
 
 PROJECT := ahriman
 
-FILES := AUTHORS CONTRIBUTING.md COPYING Makefile README.md SECURITY.md docs package pyproject.toml src tox.ini web.png
+FILES := AUTHORS CONTRIBUTING.md COPYING README.md SECURITY.md package pyproject.toml src web.png
 TARGET_FILES := $(addprefix $(PROJECT)/, $(FILES))
 IGNORE_FILES := package/archlinux src/.mypy_cache
 
