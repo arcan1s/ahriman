@@ -76,8 +76,8 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
     Args:
         *args(str): command line arguments
         exception(Exception | Callable[[int, list[str], str, str]] | None, optional): exception which has to be raised
-            instead of default subprocess exception. If callable us is supplied, the ``subprocess.CalledProcessError``
-            arguments will be passed (Default value = None)
+            instead of default subprocess exception. If callable us is supplied, the
+            :exc:`subprocess.CalledProcessError` arguments will be passed (Default value = None)
         cwd(Path | None, optional): current working directory (Default value = None)
         input_data(str | None, optional): data which will be written to command stdin (Default value = None)
         logger(logging.Logger | None, optional): logger to log command result if required (Default value = None)
@@ -412,7 +412,7 @@ def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[st
                      default: Any = None) -> Any:
     """
     extract property from SRCINFO. This method extracts property from package if this property is presented in
-    ``package``. Otherwise, it looks for the same property in root srcinfo. If none found, the default value will be
+    ``srcinfo``. Otherwise, it looks for the same property in root srcinfo. If none found, the default value will be
     returned
 
     Args:
@@ -430,9 +430,9 @@ def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[st
 def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[str, Any], *,
                           architecture: str | None = None) -> list[Any]:
     """
-    extract list property from SRCINFO. Unlike ``srcinfo_property`` it supposes that default return value is always
-    empty list. If ``architecture`` is supplied, then it will try to lookup for architecture specific values and will
-    append it at the end of result
+    extract list property from SRCINFO. Unlike :func:`srcinfo_property()` it supposes that default return value is
+    always empty list. If ``architecture`` is supplied, then it will try to lookup for architecture specific values and
+    will append it at the end of result
 
     Args:
         key(str): key to extract
@@ -468,7 +468,7 @@ def trim_package(package_name: str) -> str:
 
 def unquote(source: str) -> str:
     """
-    like ``shlex.quote``, but opposite
+    like :func:`shlex.quote()`, but opposite
 
     Args:
         source(str): source string to remove quotes
@@ -520,7 +520,8 @@ def walk(directory_path: Path) -> Generator[Path, None, None]:
         Path: all found files in given directory with full path
 
     Examples:
-        Since the ``pathlib`` module does not provide an alternative to ``os.walk``, this wrapper can be used instead::
+        Since the :mod:`pathlib` module does not provide an alternative to :func:`os.walk()`, this wrapper
+        can be used instead::
 
             >>> from pathlib import Path
             >>>

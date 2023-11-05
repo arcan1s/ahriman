@@ -33,8 +33,8 @@ class Watcher(LazyLogging):
 
     Attributes:
         database(SQLite): database instance
-        known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases ``packages`` should
-            be used instead
+        known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases :attr:`packages`
+            should be used instead
         repository_id(RepositoryId): repository unique identifier
         status(BuildStatus): daemon status
     """

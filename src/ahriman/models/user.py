@@ -43,7 +43,8 @@ class User:
             >>> password = User.generate_password(24)
             >>> user = User(username="ahriman", password=password, access=UserAccess.Full)
 
-        Since the password supplied may be plain text, the ``hash_password`` method can be used to hash the password::
+        Since the password supplied may be plain text, the :func:`hash_password()` method can be used to hash
+        the password::
 
             >>> user = user.hash_password("salt")
 

@@ -28,6 +28,22 @@ ahriman.web.views.v1.status.packages module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.status.patch module
+----------------------------------------
+
+.. automodule:: ahriman.web.views.v1.status.patch
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.views.v1.status.patches module
+------------------------------------------
+
+.. automodule:: ahriman.web.views.v1.status.patches
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.status.repositories module
 -----------------------------------------------
 

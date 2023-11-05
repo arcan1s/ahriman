@@ -62,7 +62,7 @@ class BuildError(RuntimeError):
 
 class CalledProcessError(subprocess.CalledProcessError):
     """
-    like ``subprocess.CalledProcessError``, but better
+    like :exc:`subprocess.CalledProcessError`, but better
     """
 
     def __init__(self, status_code: int, process: list[str], stderr: str) -> None:

@@ -48,8 +48,8 @@ class Waiter:
         check if timer is out
 
         Returns:
-            bool: True in case current monotonic time is more than ``Waiter.start_time`` and
-        ``Waiter.wait_timeout`` doesn't equal to 0
+            bool: True in case current monotonic time is more than :attr:`start_time` and :attr:`wait_timeout`
+                doesn't equal to 0
         """
         since_start: float = time.monotonic() - self.start_time
         return self.wait_timeout != 0 and since_start > self.wait_timeout

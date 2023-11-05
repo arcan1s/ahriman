@@ -46,6 +46,6 @@ class ShellInterpolator(configparser.Interpolation):
         """
         # At the moment it seems that it is the most legit way to handle environment variables
         # Template behaviour is literally the same as shell
-        # In addition, we are using shell-like variables in some cases (see ``alpm.mirror`` option), thus we would like
-        # to keep them alive
+        # In addition, we are using shell-like variables in some cases (see :attr:`alpm.mirror` option),
+        # thus we would like to keep them alive
         return Template(value).safe_substitute(os.environ)

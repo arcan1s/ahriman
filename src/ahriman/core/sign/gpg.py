@@ -213,7 +213,7 @@ class GPG(SyncHttpClient):
         sign repository if required by configuration
 
         Notes:
-            More likely you just want to pass ``repository_sign_args`` to repo wrapper
+            More likely you just want to pass :attr:`repository_sign_args` to repo wrapper
 
         Args:
             path(Path): path to repository database

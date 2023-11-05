@@ -69,7 +69,7 @@ class Printer:
 
     def __call__(self, *, verbose: bool, log_fn: Callable[[str], None] = _print, separator: str = ": ") -> None:
         """
-        print content. Shortcut for ``Printer.print``
+        print content. Shortcut for :func:`print()`
 
         Args:
             verbose(bool): print all fields

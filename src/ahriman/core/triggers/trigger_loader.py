@@ -88,8 +88,8 @@ class TriggerLoader(LazyLogging):
     @staticmethod
     def known_triggers(configuration: Configuration) -> list[str]:
         """
-        read configuration and return list of known triggers. Unlike ``selected_triggers`` this option is used mainly
-        for configuration and validation and mentioned triggers are not being executed automatically
+        read configuration and return list of known triggers. Unlike :func:`selected_triggers()` this option is used
+        mainly for configuration and validation and mentioned triggers are not being executed automatically
 
         Args:
             configuration(Configuration): configuration instance
@@ -141,7 +141,7 @@ class TriggerLoader(LazyLogging):
         """
         self.logger.info("load module %s from path %s", implementation, module_path)
         # basically this method is called only if ``module_path`` exists and is file.
-        # Thus, this method should never throw ``FileNotFoundError`` exception
+        # Thus, this method should never throw :exc:`FileNotFoundError` exception
         loader = machinery.SourceFileLoader(implementation, module_path)
         module = ModuleType(loader.name)
         loader.exec_module(module)

@@ -66,11 +66,13 @@ class Package(LazyLogging):
         it will probably miss file descriptions (in case if there are multiple packages which belong to the base).
 
         The specific class load method must be defined based on the source provided. The following methods (mostly) must
-        be used: ``from_archive``, ``from_aur``, ``from_build``, ``from_official`` for sources
-        ``PackageSource.Archive``, ``PackageSource.AUR``, ``PackageSource.Local`` and ``PackageSource.Repository``
-        repsectively:
+        be used: :func:`from_archive()`, :func:`from_aur()`, :func:`from_build()`, :func:`from_official()` for sources
+        :attr:`ahriman.models.package_source.PackageSource.Archive`,
+        :attr:`ahriman.models.package_source.PackageSource.AUR`,
+        :attr:`ahriman.models.package_source.PackageSource.Local` and
+        :attr:`ahriman.models.package_source.PackageSource.Repository` repsectively:
 
-            >>> ahriman_package = Package.from_aur("ahriman", pacman)
+            >>> ahriman_package = Package.from_aur("ahriman")
             >>> pacman_package = Package.from_official("pacman", pacman)
     """
 
@@ -540,7 +542,7 @@ class Package(LazyLogging):
     def next_pkgrel(self, local_version: str) -> str | None:
         """
         generate next pkgrel variable. The package release will be incremented if ``local_version`` is more or equal to
-        the ``Package.version``; in this case the function will return new pkgrel value, otherwise ``None`` will be
+        the :attr:`version`; in this case the function will return new pkgrel value, otherwise ``None`` will be
         returned
 
         Args:
@@ -548,8 +550,8 @@ class Package(LazyLogging):
 
         Returns:
             str | None: new generated package release version if any. In case if the release contains dot (e.g. 1.2),
-        the minor part will be incremented by 1. If the release does not contain major.minor notation, the minor version
-        equals to 1 will be appended
+                the minor part will be incremented by 1. If the release does not contain major.minor notation, the minor
+                version equals to 1 will be appended
         """
         epoch, pkgver, _ = parse_version(self.version)
         local_epoch, local_pkgver, local_pkgrel = parse_version(local_version)

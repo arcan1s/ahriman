@@ -68,7 +68,7 @@ def _module(module_info: ModuleInfo) -> ModuleType:
         ModuleType: loaded module
 
     Raises:
-        ValueError: if loader is not an instance of ``SourceFileLoader``
+        ValueError: if loader is not an instance of :class:`importlib.machinery.SourceFileLoader`
     """
     module_spec = module_info.module_finder.find_spec(module_info.name, None)
     if module_spec is None:
