@@ -40,7 +40,7 @@ check = [
     "mypy",
     "pylint",
 ]
- docs = [
+docs = [
      "Sphinx",
      "argparse-manpage",
      "pydeps",
