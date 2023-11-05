@@ -37,14 +37,14 @@ class Report(LazyLogging):
         repository_id(RepositoryId): repository unique identifier
 
     Examples:
-        ``Report`` classes provide several method in order to operate with the report generation and additional class
-        method ``load`` which can be used in order to determine right report instance::
+        :class:`Report` subclasses provide several method in order to operate with the report generation and additional
+        class method :func:`load()` which can be used in order to determine right report instance::
 
             >>> configuration = Configuration()
             >>> report = Report.load(RepositoryId("x86_64", "aur-clone"), configuration, "email")
 
-        The ``generate`` method can be used in order to perform the report itself, whereas ``run`` method handles
-        exception and raises ``ReportFailed`` instead::
+        The :func:`generate()` method can be used in order to perform the report itself, whereas :func:`run()` method
+        handles exception and raises :exc:`ahriman.core.exceptions.ReportError` instead::
 
             >>> try:
             >>>     report.generate([], Result())

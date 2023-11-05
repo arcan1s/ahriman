@@ -182,7 +182,7 @@ class Tree:
 
         Returns:
             list[list[Package]]: list of packages lists based on their dependencies. The amount of elements in each
-        sublist is less or equal to ``count``
+                sublist is less or equal to ``count``
 
         Raises:
             PartitionError: in case if it is impossible to divide tree by specified amount of partitions

@@ -43,7 +43,8 @@ Again, the most checks can be performed by `make check` command, though some add
             flag(bool, optional): a flag (Default value = False)
   
         Returns:
-            int: result
+            int: result with
+                long description
   
         Raises:
             RuntimeError: a local function error occurs

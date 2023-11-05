@@ -32,8 +32,8 @@ class Application(ApplicationPackages, ApplicationRepository):
     base application class
 
     Examples:
-        This class groups ``Repository`` methods into specific method which process all supposed actions caused by
-        underlying action. E.g.::
+        This class groups :class:`ahriman.core.repository.repository.Repository` methods into specific method which
+        process all supposed actions caused by underlying action. E.g.::
 
             >>> from ahriman.core.configuration import Configuration
             >>> from ahriman.models.package_source import PackageSource
@@ -49,8 +49,8 @@ class Application(ApplicationPackages, ApplicationRepository):
             >>> # updates for specified packages
             >>> application.update(updates)
 
-        In case if specific actions or their order are required, the direct access to ``Repository`` must
-        be used instead.
+        In case if specific actions or their order are required, the direct access to
+        :class:`ahriman.core.repository.repository.Repository` must be used instead.
     """
 
     def _known_packages(self) -> set[str]:
@@ -117,7 +117,7 @@ class Application(ApplicationPackages, ApplicationRepository):
 
         Returns:
             list[Package]: updated packages list. Packager for dependencies will be copied from
-        original package
+                original package
         """
         def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources

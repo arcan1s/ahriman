@@ -83,7 +83,8 @@ class Spawn(Thread, LazyLogging):
         helper to run external process
 
         Args:
-            callback(Callable[[argparse.Namespace, str], bool]): application run function (i.e. ``Handler.call`` method)
+            callback(Callable[[argparse.Namespace, str], bool]): application run function
+                (i.e. :func:`ahriman.application.handlers.handler.Handler.call()` method)
             args(argparse.Namespace): command line arguments
             repository_id(RepositoryId): repository unique identifier
             process_id(str): process unique identifier
@@ -149,7 +150,7 @@ class Spawn(Thread, LazyLogging):
         check if given process is alive
 
         Args:
-            process_id(str): process id to be checked as returned by ``Spawn._spawn_process``
+            process_id(str): process id to be checked as returned by :func:`_spawn_process()`
 
         Returns:
             bool: True in case if process still counts as active and False otherwise

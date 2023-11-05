@@ -59,7 +59,7 @@ class AURPackage:
         keywords(list[str]): list of package keywords
 
     Examples:
-        Mainly this class must be used from class methods instead of default ``__init__``::
+        Mainly this class must be used from class methods instead of default :func:`__init__()`::
 
             >>> package = AURPackage.from_json(metadata)  # load package from json dump
             >>> # ...or alternatively...

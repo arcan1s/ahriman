@@ -27,8 +27,8 @@ from ahriman.models.repository_id import RepositoryId
 
 class HttpLogHandler(logging.Handler):
     """
-    handler for the http logging. Because default ``logging.handlers.HTTPHandler`` does not support cookies
-    authorization, we have to implement own handler which overrides the ``logging.handlers.HTTPHandler.emit`` method
+    handler for the http logging. Because default :class:`logging.handlers.HTTPHandler` does not support cookies
+    authorization, we have to implement own handler which overrides the :func:`logging.handlers.HTTPHandler.emit` method
 
     Attributes:
         reporter(Client): build status reporter instance

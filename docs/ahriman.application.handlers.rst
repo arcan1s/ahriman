@@ -116,6 +116,14 @@ ahriman.application.handlers.restore module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.run module
+---------------------------------------
+
+.. automodule:: ahriman.application.handlers.run
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.search module
 ------------------------------------------
 

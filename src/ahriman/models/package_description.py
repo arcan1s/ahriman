@@ -48,8 +48,9 @@ class PackageDescription:
         url(str | None): package url
 
     Examples:
-        Unlike the ``Package`` class, this implementation only holds properties. The recommended way to deal with it is
-        to read data based on the source type - either json or ``pyalpm.Package`` instance::
+        Unlike the :class:`ahriman.models.package.Package` class, this implementation only holds properties.
+        The recommended way to deal with it is to read data based on the source type - either json or
+        :class:`pyalpm.Package` instance::
 
             >>> description = PackageDescription.from_json(dump)
             >>>

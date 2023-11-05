@@ -28,15 +28,16 @@ class Remote(SyncHttpClient):
 
     Examples:
         These classes are designed to be used without instancing. In order to achieve it several class methods are
-        provided: ``info``, ``multisearch`` and ``search``. Thus, the basic flow is the following::
+        provided: :func:`info()`, :func:`multisearch()` and :func:`search()`. Thus, the basic flow is the following::
 
             >>> from ahriman.core.alpm.remote import AUR, Official
             >>>
             >>> package = AUR.info("ahriman", pacman=pacman)
             >>> search_result = Official.multisearch("pacman", "manager", pacman=pacman)
 
-        Differnece between ``search`` and ``multisearch`` is that ``search`` passes all arguments to underlying wrapper
-        directly, whereas ``multisearch`` splits search one by one and finds intersection between search results.
+        Differnece between :func:`search()` and :func:`multisearch()` is that :func:`search()` passes all arguments to
+        underlying wrapper directly, whereas :func:`multisearch()` splits search one by one and finds intersection
+        between search results.
     """
 
     @classmethod

@@ -52,12 +52,14 @@ _shtab_ahriman_commands() {
     "repo-triggers:run triggers on empty build result as configured by settings"
     "repo-update:check for packages updates and run build process if requested"
     "report:generate repository report according to current settings"
+    "run:run multiple commands on success run of the previous command"
     "search:search for package in AUR using API"
     "service-clean:remove local caches"
     "service-config:dump configuration for the specified architecture"
     "service-config-validate:validate configuration and print found errors"
     "service-key-import:import PGP key from public sources to the repository user"
     "service-repositories:list all available repositories"
+    "service-run:run multiple commands on success run of the previous command"
     "service-setup:create initial service configuration, requires root"
     "service-shell:drop into python shell"
     "service-tree-migrate:migrate repository tree between versions"
@@ -99,8 +101,9 @@ _shtab_ahriman_add_options=(
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
-  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
+  "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -201,8 +204,9 @@ _shtab_ahriman_package_add_options=(
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
-  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
+  "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -227,7 +231,7 @@ _shtab_ahriman_package_status_remove_options=(
 
 _shtab_ahriman_package_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new package build status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
+  {-s,--status}"[new package build status (default\: success)]:status:(unknown pending building failed success)"
   "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
 
@@ -238,8 +242,9 @@ _shtab_ahriman_package_update_options=(
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
   {-n,--now}"[run update function after (default\: False)]"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
-  {-s,--source}"[explicitly specify the package source for this command (default\: PackageSource.Auto)]:source:(auto archive aur directory local remote repository)"
+  {-s,--source}"[explicitly specify the package source for this command (default\: auto)]:source:(auto archive aur directory local remote repository)"
   {-u,--username}"[build as user (default\: None)]:username:"
+  "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
   "(*):package source (base name, path to local files, remote URL):"
 )
 
@@ -409,7 +414,7 @@ _shtab_ahriman_repo_sign_options=(
 
 _shtab_ahriman_repo_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
+  {-s,--status}"[new status (default\: success)]:status:(unknown pending building failed success)"
 )
 
 _shtab_ahriman_repo_sync_options=(
@@ -443,6 +448,11 @@ _shtab_ahriman_repo_update_options=(
 
 _shtab_ahriman_report_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+)
+
+_shtab_ahriman_run_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "(*):command to be run (quoted) without \`\`ahriman\`\`:"
 )
 
 _shtab_ahriman_search_options=(
@@ -484,6 +494,11 @@ _shtab_ahriman_service_key_import_options=(
 _shtab_ahriman_service_repositories_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--id-only,--no-id-only}"[show machine readable identifier instead (default\: False)]:id_only:"
+)
+
+_shtab_ahriman_service_run_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "(*):command to be run (quoted) without \`\`ahriman\`\`:"
 )
 
 _shtab_ahriman_service_setup_options=(
@@ -548,7 +563,7 @@ _shtab_ahriman_status_options=(
 
 _shtab_ahriman_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {-s,--status}"[new package build status (default\: BuildStatusEnum.Success)]:status:(unknown pending building failed success)"
+  {-s,--status}"[new package build status (default\: success)]:status:(unknown pending building failed success)"
   "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
 
@@ -576,7 +591,7 @@ _shtab_ahriman_user_add_options=(
   "--key[optional PGP key used by this user. The private key must be imported (default\: None)]:key:"
   "--packager[optional packager id used for build process in form of \`Name Surname \<mail\@example.com\>\` (default\: None)]:packager:"
   {-p,--password}"[user password. Blank password will be treated as empty password, which is in particular must be used for OAuth2 authorization type. (default\: None)]:password:"
-  {-R,--role}"[user access level (default\: UserAccess.Read)]:role:(unauthorized read reporter full)"
+  {-R,--role}"[user access level (default\: read)]:role:(unauthorized read reporter full)"
   ":username for web service:"
 )
 
@@ -662,12 +677,14 @@ _shtab_ahriman() {
         repo-triggers) _arguments -C -s $_shtab_ahriman_repo_triggers_options ;;
         repo-update) _arguments -C -s $_shtab_ahriman_repo_update_options ;;
         report) _arguments -C -s $_shtab_ahriman_report_options ;;
+        run) _arguments -C -s $_shtab_ahriman_run_options ;;
         search) _arguments -C -s $_shtab_ahriman_search_options ;;
         service-clean) _arguments -C -s $_shtab_ahriman_service_clean_options ;;
         service-config) _arguments -C -s $_shtab_ahriman_service_config_options ;;
         service-config-validate) _arguments -C -s $_shtab_ahriman_service_config_validate_options ;;
         service-key-import) _arguments -C -s $_shtab_ahriman_service_key_import_options ;;
         service-repositories) _arguments -C -s $_shtab_ahriman_service_repositories_options ;;
+        service-run) _arguments -C -s $_shtab_ahriman_service_run_options ;;
         service-setup) _arguments -C -s $_shtab_ahriman_service_setup_options ;;
         service-shell) _arguments -C -s $_shtab_ahriman_service_shell_options ;;
         service-tree-migrate) _arguments -C -s $_shtab_ahriman_service_tree_migrate_options ;;

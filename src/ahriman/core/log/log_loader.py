@@ -46,9 +46,11 @@ class LogLoader:
     def handler(selected: LogHandler | None) -> LogHandler:
         """
         try to guess default log handler. In case if ``selected`` is set, it will return specified value with appended
-        _handler suffix. Otherwise, it will try to import journald handler and returns ``journald_handler`` if library
-        is available. Otherwise, it will check if there is ``/dev/log`` device and returns ``syslog_handler`` in this
-        case. And, finally, it will fall back to ``console_handler`` if none were found
+        _handler suffix. Otherwise, it will try to import journald handler and returns
+        :attr:`ahriman.models.log_handler.LogHandler.Journald` if library is available. Otherwise, it will check if
+        there is ``/dev/log`` device and returns :attr:`ahriman.models.log_handler.LogHandler.Syslog` in this
+        case. And, finally, it will fall back to :attr:`ahriman.models.log_handler.LogHandler.Console`
+        if none were found
 
         Args:
             selected(LogHandler | None): user specified handler if any

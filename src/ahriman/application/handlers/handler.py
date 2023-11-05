@@ -39,8 +39,8 @@ class Handler:
         ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
 
     Examples:
-        Wrapper for all command line actions, though each derived class implements ``run`` method, it usually must not
-        be called directly. The recommended way is to call ``execute`` class method, e.g.::
+        Wrapper for all command line actions, though each derived class implements :func:`run()` method, it usually
+        must not be called directly. The recommended way is to call :func:`execute()` class method, e.g.::
 
             >>> from ahriman.application.handlers import Add
             >>>

@@ -45,8 +45,8 @@ class Configuration(configparser.RawConfigParser):
 
     Examples:
         Configuration class provides additional method in order to handle application configuration. Since this class is
-        derived from built-in ``configparser.RawConfigParser`` class, the same flow is applicable here. Nevertheless,
-        it is recommended to use ``from_path`` class method which also calls initialization methods::
+        derived from built-in :class:`configparser.RawConfigParser` class, the same flow is applicable here.
+        Nevertheless, it is recommended to use :func:`from_path` class method which also calls initialization methods::
 
             >>> from pathlib import Path
             >>>
@@ -57,8 +57,8 @@ class Configuration(configparser.RawConfigParser):
         The configuration instance loaded in this way will contain only sections which are defined for the specified
         architecture according to the merge rules. Moreover, the architecture names will be removed from section names.
 
-        In order to get current settings, the ``check_loaded`` method can be used. This method will raise an
-        ``InitializeError`` in case if configuration was not yet loaded::
+        In order to get current settings, the :func:`check_loaded` method can be used. This method will raise an
+        :exc:`ahriman.core.exceptions.InitializeError` in case if configuration was not yet loaded::
 
             >>> path, repository_id = configuration.check_loaded()
     """
@@ -73,7 +73,7 @@ class Configuration(configparser.RawConfigParser):
         default constructor. In the most cases must not be called directly
 
         Args:
-            allow_no_value(bool, optional): copies ``configparser.RawConfigParser`` behaviour. In case if it is set
+            allow_no_value(bool, optional): copies :class:`configparser.RawConfigParser` behaviour. In case if it is set
                 to ``True``, the keys without values will be allowed (Default value = False)
         """
         configparser.RawConfigParser.__init__(
@@ -344,7 +344,7 @@ class Configuration(configparser.RawConfigParser):
 
     def set_option(self, section: str, option: str, value: str) -> None:
         """
-        set option. Unlike default ``configparser.RawConfigParser.set`` it also creates section if it does not exist
+        set option. Unlike default :func:`configparser.RawConfigParser.set` it also creates section if it does not exist
 
         Args:
             section(str): section name

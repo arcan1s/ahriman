@@ -189,7 +189,7 @@ class BaseView(View, CorsViewMixin):
         """
         get_method: Callable[..., Awaitable[StreamResponse]] | None = getattr(self, "get", None)
         # using if/else in order to suppress mypy warning which doesn't know that
-        # ``_raise_allowed_methods`` raises exception
+        # :func:`aiohttp.web.View._raise_allowed_methods()` raises exception
         if get_method is not None:
             # there is a bug in pylint, see https://github.com/pylint-dev/pylint/issues/6005
             response = await get_method()
