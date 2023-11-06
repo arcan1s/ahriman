@@ -79,6 +79,15 @@
             .replace(/"/g, "&quot;");
     }
 
+    // because I'm tired of safe element generation
+    function safeLink(url, text, title) {
+        const element = document.createElement("a");
+        element.href = url;
+        element.innerText = text;
+        if (title) element.title = title;
+        return element;
+    }
+
     Date.prototype.toISOStringShort = function() {
         const pad = number => String(number).padStart(2, "0");
         return `${this.getFullYear()}-${pad(this.getMonth() + 1)}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;

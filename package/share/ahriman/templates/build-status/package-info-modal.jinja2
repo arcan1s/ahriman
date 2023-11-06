@@ -21,6 +21,13 @@
                 </div>
 
                 <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-1" style="text-align: right">upstream</div>
+                    <div id="package-info-upstream-url" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right">AUR</div>
+                    <div id="package-info-aur-url" class="col-8 col-lg-5"></div>
+                </div>
+
+                <div class="form-group row mt-2">
                     <div class="col-4 col-lg-1" style="text-align: right">packages</div>
                     <div id="package-info-packages" class="col-8 col-lg-5"></div>
                     <div class="col-4 col-lg-1" style="text-align: right">depends</div>
@@ -52,11 +59,13 @@
     const packageInfoModalHeader = $("#package-info-modal-header");
     const packageInfo = $("#package-info");
     packageInfoModal.on("hidden.bs.modal", () => {
+        packageInfoAurUrl.empty();
         packageInfoDepends.empty();
         packageInfoGroups.empty();
         packageInfoLicenses.empty();
         packageInfoPackager.empty();
         packageInfoPackages.empty();
+        packageInfoUpstreamUrl.empty();
         packageInfoVersion.empty();
 
         packageInfoVariablesDiv.empty();
@@ -71,11 +80,13 @@
     const packageInfoLogsInput = $("#package-info-logs-input");
     const packageInfoLogsCopyButton = $("#package-info-logs-copy-button");
 
+    const packageInfoAurUrl = $("#package-info-aur-url");
     const packageInfoDepends = $("#package-info-depends");
     const packageInfoGroups = $("#package-info-groups");
     const packageInfoLicenses = $("#package-info-licenses");
     const packageInfoPackager = $("#package-info-packager");
     const packageInfoPackages = $("#package-info-packages");
+    const packageInfoUpstreamUrl = $("#package-info-upstream-url");
     const packageInfoVersion = $("#package-info-version");
 
     const packageInfoVariablesDiv = $("#package-info-variables-div");
@@ -170,6 +181,8 @@
             success: response => {
                 const description = response.find(Boolean);
                 const packages = Object.keys(description.package.packages);
+                const aurUrl = description.package.remote.web_url;
+                const upstreamUrls = Object.values(description.package.packages).map(single => single.url);
 
                 packageInfo.text(`${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`);
 
@@ -177,6 +190,7 @@
                 packageInfoModalHeader.addClass("modal-header");
                 headerClass(description.status.status).forEach(clz => packageInfoModalHeader.addClass(clz));
 
+                packageInfoAurUrl.html(aurUrl ? safeLink(aurUrl, aurUrl, "AUR link").outerHTML : "");
                 packageInfoDepends.html(listToTable(
                     Object.values(description.package.packages)
                         .reduce((accumulator, currentValue) => {
@@ -189,6 +203,7 @@
                 packageInfoLicenses.html(listToTable(extractListProperties(description.package, "licenses")));
                 packageInfoPackager.text(description.package.packager);
                 packageInfoPackages.html(listToTable(packages));
+                packageInfoUpstreamUrl.html(upstreamUrls.map(url => safeLink(url, url, "upstream link").outerHTML).join("<br>"));
                 packageInfoVersion.text(description.package.version);
 
                 hideInfoControls(false);
