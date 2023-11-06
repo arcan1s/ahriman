@@ -149,7 +149,7 @@
                     const web_url = description.package.remote.web_url;
                     return {
                         id: package_base,
-                        base: web_url ? `<a href="${safe(web_url)}" title="${safe(package_base)}">${safe(package_base)}</a>` : safe(package_base),
+                        base: web_url ? safeLink(web_url, package_base, package_base).outerHTML : safe(package_base),
                         version: safe(description.package.version),
                         packager: description.package.packager ? safe(description.package.packager) : "",
                         packages: listToTable(Object.keys(description.package.packages)),
