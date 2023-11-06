@@ -182,7 +182,12 @@
                 const description = response.find(Boolean);
                 const packages = Object.keys(description.package.packages);
                 const aurUrl = description.package.remote.web_url;
-                const upstreamUrls = Object.values(description.package.packages).map(single => single.url);
+                const upstreamUrls = Array.from(
+                    new Set(
+                        Object.values(description.package.packages)
+                            .map(single => single.url)
+                    )
+                ).sort();
 
                 packageInfo.text(`${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`);
 
