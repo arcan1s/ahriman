@@ -225,3 +225,25 @@ Again, the most checks can be performed by `make check` command, though some add
 ### Other checks
 
 The projects also uses typing checks (provided by `mypy`) and some linter checks provided by `pylint` and `bandit`. Those checks must be passed successfully for any open pull requests.
+
+## Developers how to
+
+### Run automated checks
+
+```shell
+make check tests
+```
+
+### Generate documentation templates
+
+```shell
+make specification
+```
+
+### Create release
+
+```shell
+make VERSION=x.y.z check tests release
+```
+
+The command above will also run checks first and will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically.

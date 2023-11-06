@@ -1,4 +1,4 @@
-.PHONY: archive archlinux check clean directory html push specification tests version
+.PHONY: archive archlinux check clean directory html release specification tests version
 .DEFAULT_GOAL := archlinux
 
 PROJECT := ahriman
@@ -37,7 +37,7 @@ html: specification
 	rm -rf docs/html
 	tox -e docs-html
 
-push: specification archlinux
+release: specification archlinux
 	git add package/archlinux/PKGBUILD src/ahriman/__init__.py docs/ahriman-architecture.svg package/share/man/man1/ahriman.1 package/share/bash-completion/completions/_ahriman package/share/zsh/site-functions/_ahriman
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
