@@ -30,6 +30,14 @@ ahriman.web.views.index module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.static module
+-------------------------------
+
+.. automodule:: ahriman.web.views.static
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
