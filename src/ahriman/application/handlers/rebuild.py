@@ -24,6 +24,7 @@ from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
+from ahriman.models.packagers import Packagers
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -55,7 +56,7 @@ class Rebuild(Handler):
             application.print_updates(updates, log_fn=print)
             return
 
-        result = application.update(updates, args.username, bump_pkgrel=args.increment)
+        result = application.update(updates, Packagers(args.username), bump_pkgrel=args.increment)
         Rebuild.check_if_empty(args.exit_code, result.is_empty)
 
     @staticmethod
