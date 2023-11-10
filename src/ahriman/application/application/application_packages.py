@@ -167,12 +167,16 @@ class ApplicationPackages(ApplicationProperties):
         """
         raise NotImplementedError
 
-    def remove(self, names: Iterable[str]) -> None:
+    def remove(self, names: Iterable[str]) -> Result:
         """
         remove packages from repository
 
         Args:
             names(Iterable[str]): list of packages (either base or name) to remove
+
+        Returns:
+            Result: removal result
         """
-        self.repository.process_remove(names)
-        self.on_result(Result())
+        result = self.repository.process_remove(names)
+        self.on_result(result)
+        return result

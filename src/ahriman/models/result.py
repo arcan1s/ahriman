@@ -19,28 +19,50 @@
 #
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any
+from collections.abc import Iterable, Callable
+from typing import Any, Self
 
-from ahriman.core.exceptions import UnprocessedPackageStatusError
 from ahriman.models.package import Package
 
 
 class Result:
     """
     build result class holder
+
+    Attributes:
+        STATUS_PRIORITIES(list[str]): (class attribute) list of statues according to their priorities
     """
 
-    def __init__(self, success: Iterable[Package] | None = None, failed: Iterable[Package] | None = None) -> None:
+    STATUS_PRIORITIES = [
+        "failed",
+        "removed",
+        "updated",
+        "added",
+    ]
+
+    def __init__(self, *, added: Iterable[Package] | None = None, updated: Iterable[Package] | None = None,
+                 removed: Iterable[Package] | None = None, failed: Iterable[Package] | None = None) -> None:
         """
         default constructor
 
         Args:
-            success(Iterable[Package] | None, optional): initial list of successes packages (Default value = None)
+            addded(Iterable[Package] | None, optional): initial list of successfully added packages
+                (Default value = None)
+            updated(Iterable[Package] | None, optional): initial list of successfully updated packages
+                (Default value = None)
+            removed(Iterable[Package] | None, optional): initial list of successfully removed packages
+                (Default value = None)
             failed(Iterable[Package] | None, optional): initial list of failed packages (Default value = None)
         """
-        success = success or []
-        self._success = {package.base: package for package in success}
+        added = added or []
+        self._added = {package.base: package for package in added}
+
+        updated = updated or []
+        self._updated = {package.base: package for package in updated}
+
+        removed = removed or []
+        self._removed = {package.base: package for package in removed}
+
         failed = failed or []
         self._failed = {package.base: package for package in failed}
 
@@ -62,7 +84,17 @@ class Result:
         Returns:
             bool: True in case if success list is empty and False otherwise
         """
-        return not bool(self._success)
+        return not self._added and not self._updated
+
+    @property
+    def removed(self) -> list[Package]:
+        """
+        get list of removed packages
+
+        Returns:
+            list[Package]: list of packages successfully removed
+        """
+        return list(self._removed.values())
 
     @property
     def success(self) -> list[Package]:
@@ -72,7 +104,16 @@ class Result:
         Returns:
             list[Package]: list of packages with success result
         """
-        return list(self._success.values())
+        return list(self._added.values()) + list(self._updated.values())
+
+    def add_added(self, package: Package) -> None:
+        """
+        add new package to new packages list
+
+        Args:
+            package(Package): package removed
+        """
+        self._added[package.base] = package
 
     def add_failed(self, package: Package) -> None:
         """
@@ -83,17 +124,26 @@ class Result:
         """
         self._failed[package.base] = package
 
-    def add_success(self, package: Package) -> None:
+    def add_removed(self, package: Package) -> None:
+        """
+        add new package to removed list
+
+        Args:
+            package(Package): package removed
+        """
+        self._removed[package.base] = package
+
+    def add_updated(self, package: Package) -> None:
         """
         add new package to success built
 
         Args:
             package(Package): package built
         """
-        self._success[package.base] = package
+        self._updated[package.base] = package
 
     # pylint: disable=protected-access
-    def merge(self, other: Result) -> Result:
+    def merge(self, other: Result) -> Self:
         """
         merge other result into this one. This method assumes that other has fresh info about status and override it
 
@@ -101,19 +151,35 @@ class Result:
             other(Result): instance of the newest result
 
         Returns:
-            Result: updated instance
-
-        Raises:
-            UnprocessedPackageStatusError: if there is previously failed package which is masked as success
+            Self: updated instance
         """
-        for base, package in other._failed.items():
-            if base in self._success:
-                del self._success[base]
-            self.add_failed(package)
-        for base, package in other._success.items():
-            if base in self._failed:
-                raise UnprocessedPackageStatusError(base)
-            self.add_success(package)
+        for status in self.STATUS_PRIORITIES:
+            new_packages: Iterable[Package] = getattr(other, f"_{status}", {}).values()
+            insert_package: Callable[[Package], None] = getattr(self, f"add_{status}")
+            for package in new_packages:
+                insert_package(package)
+
+        return self.refine()
+
+    def refine(self) -> Self:
+        """
+        merge packages between different results (e.g. remove failed from added, etc.) removing duplicates
+
+        Returns:
+            Self: updated instance
+        """
+        for index, base_status in enumerate(self.STATUS_PRIORITIES):
+            # extract top-level packages
+            base_packages: Iterable[str] = getattr(self, f"_{base_status}", {}).keys()
+            # extract packages for each bottom-level
+            for status in self.STATUS_PRIORITIES[index + 1:]:
+                packages: dict[str, Package] = getattr(self, f"_{status}", {})
+
+                # if there is top-level package in bottom-level, then remove it
+                for base in base_packages:
+                    if base in packages:
+                        del packages[base]
+
         return self
 
     # required for tests at least
@@ -129,4 +195,7 @@ class Result:
         """
         if not isinstance(other, Result):
             return False
-        return self.success == other.success and self.failed == other.failed
+        return self._added == other._added \
+            and self._removed == other._removed \
+            and self._updated == other._updated \
+            and self._failed == other._failed

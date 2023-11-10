@@ -228,7 +228,7 @@ def test_remove(application_packages: ApplicationPackages, mocker: MockerFixture
     """
     must remove package
     """
-    executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
+    executor_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove", return_value=Result())
     on_result_mock = mocker.patch("ahriman.application.application.application_packages.ApplicationPackages.on_result")
 
     application_packages.remove([])

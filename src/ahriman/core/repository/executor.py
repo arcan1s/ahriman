@@ -98,7 +98,7 @@ class Executor(Cleaner):
                 try:
                     packager = self.packager(packagers, single.base)
                     build_single(single, Path(dir_name), packager.packager_id)
-                    result.add_success(single)
+                    result.add_updated(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
                     result.add_failed(single)
@@ -106,7 +106,7 @@ class Executor(Cleaner):
 
         return result
 
-    def process_remove(self, packages: Iterable[str]) -> Path:
+    def process_remove(self, packages: Iterable[str]) -> Result:
         """
         remove packages from list
 
@@ -114,7 +114,7 @@ class Executor(Cleaner):
             packages(Iterable[str]): list of package names or bases to remove
 
         Returns:
-            Path: path to repository database
+            Result: remove result
         """
         def remove_base(package_base: str) -> None:
             try:
@@ -126,9 +126,9 @@ class Executor(Cleaner):
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)
 
-        def remove_package(package: str, fn: Path) -> None:
+        def remove_package(package: str, archive_path: Path) -> None:
             try:
-                self.repo.remove(package, fn)  # remove the package itself
+                self.repo.remove(package, archive_path)  # remove the package itself
             except Exception:
                 self.logger.exception("could not remove %s", package)
 
@@ -136,6 +136,7 @@ class Executor(Cleaner):
         bases_to_remove: list[str] = []
 
         # build package list based on user input
+        result = Result()
         requested = set(packages)
         for local in self.packages():
             if local.base in packages or all(package in requested for package in local.packages):
@@ -145,6 +146,7 @@ class Executor(Cleaner):
                     if properties.filepath is not None
                 })
                 bases_to_remove.append(local.base)
+                result.add_removed(local)
             elif requested.intersection(local.packages.keys()):
                 packages_to_remove.update({
                     package: properties.filepath
@@ -167,7 +169,7 @@ class Executor(Cleaner):
         for package in bases_to_remove:
             remove_base(package)
 
-        return self.repo.repo_path
+        return result
 
     def process_update(self, packages: Iterable[Path], packagers: Packagers | None = None) -> Result:
         """
@@ -219,7 +221,7 @@ class Executor(Cleaner):
                         rename(description, local.base)
                         update_single(description.filename, local.base, packager.key)
                     self.reporter.set_success(local)
-                    result.add_success(local)
+                    result.add_updated(local)
 
                     current_package_archives: set[str] = set()
                     if local.base in current_packages:

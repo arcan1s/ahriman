@@ -77,7 +77,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     args = _default_args(args)
     args.now = True
     result = Result()
-    result.add_success(package_ahriman)
+    result.add_updated(package_ahriman)
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
