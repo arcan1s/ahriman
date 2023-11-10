@@ -41,7 +41,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     """
     args = _default_args(args)
     result = Result()
-    result.add_success(package_ahriman)
+    result.add_updated(package_ahriman)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on",

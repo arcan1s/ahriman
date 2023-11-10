@@ -316,21 +316,6 @@ class UnknownPackageError(ValueError):
         ValueError.__init__(self, f"Package base {package_base} is unknown")
 
 
-class UnprocessedPackageStatusError(ValueError):
-    """
-    exception for merging invalid statues
-    """
-
-    def __init__(self, package_base: str) -> None:
-        """
-        default constructor
-
-        Args:
-            package_base(str): package base name
-        """
-        ValueError.__init__(self, f"Package base {package_base} had status failed, but new status is success")
-
-
 class UnsafeRunError(RuntimeError):
     """
     exception which will be raised in case if user is not owner of repository

@@ -44,7 +44,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     """
     args = _default_args(args)
     result = Result()
-    result.add_success(package_ahriman)
+    result.add_updated(package_ahriman)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")

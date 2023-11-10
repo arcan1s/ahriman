@@ -526,7 +526,7 @@ def result(package_ahriman: Package) -> Result:
         Result: result test instance
     """
     result = Result()
-    result.add_success(package_ahriman)
+    result.add_updated(package_ahriman)
     return result
 
 
