@@ -30,9 +30,30 @@ def test_load_dummy_client_disabled(configuration: Configuration) -> None:
     assert not isinstance(Client.load(repository_id, configuration, report=False), WebClient)
 
 
-def test_load_full_client(configuration: Configuration) -> None:
+def test_load_dummy_client_disabled_in_configuration(configuration: Configuration) -> None:
     """
-    must load full client if settings set
+    must load dummy client if disabled in configuration
+    """
+    configuration.set_option("web", "host", "localhost")
+    configuration.set_option("web", "port", "8080")
+    configuration.set_option("status", "enabled", "no")
+
+    _, repository_id = configuration.check_loaded()
+    assert not isinstance(Client.load(repository_id, configuration, report=True), WebClient)
+
+
+def test_load_full_client_from_address(configuration: Configuration) -> None:
+    """
+    must load full client by using address
+    """
+    configuration.set_option("status", "address", "http://localhost:8080")
+    _, repository_id = configuration.check_loaded()
+    assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
+
+
+def test_load_full_client_from_legacy_host(configuration: Configuration) -> None:
+    """
+    must load full client if host and port settings set
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
@@ -41,16 +62,16 @@ def test_load_full_client(configuration: Configuration) -> None:
     assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
-def test_load_full_client_from_address(configuration: Configuration) -> None:
+def test_load_full_client_from_legacy_address(configuration: Configuration) -> None:
     """
-    must load full client by using address
+    must load full client by using legacy address
     """
     configuration.set_option("web", "address", "http://localhost:8080")
     _, repository_id = configuration.check_loaded()
     assert isinstance(Client.load(repository_id, configuration, report=True), WebClient)
 
 
-def test_load_full_client_from_unix_socket(configuration: Configuration) -> None:
+def test_load_full_client_from_legacy_unix_socket(configuration: Configuration) -> None:
     """
     must load full client by using unix socket
     """

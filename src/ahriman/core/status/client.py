@@ -49,16 +49,19 @@ class Client:
         """
         if not report:
             return Client()
+        if not configuration.getboolean("status", "enabled", fallback=True):  # global switch
+            return Client()
 
-        address = configuration.get("web", "address", fallback=None)
+        # new-style section
+        address = configuration.get("status", "address", fallback=None)
+        # old-style section
+        legacy_address = configuration.get("web", "address", fallback=None)
         host = configuration.get("web", "host", fallback=None)
         port = configuration.getint("web", "port", fallback=None)
         socket = configuration.get("web", "unix_socket", fallback=None)
 
         # basically we just check if there is something we can use for interaction with remote server
-        # at the moment (end of 2022) I think it would be much better idea to introduce flag like `enabled`,
-        # but it will totally break used experience
-        if address or (host and port) or socket:
+        if address or legacy_address or (host and port) or socket:
             from ahriman.core.status.web_client import WebClient
             return WebClient(repository_id, configuration)
         return Client()

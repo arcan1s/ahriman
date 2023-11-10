@@ -72,7 +72,9 @@ class HttpLogHandler(logging.Handler):
         if (handler := next((handler for handler in root.handlers if isinstance(handler, cls)), None)) is not None:
             return handler  # there is already registered instance
 
-        suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
+        suppress_errors = configuration.getboolean(  # read old-style first and then fallback to new style
+            "settings", "suppress_http_log_errors",
+            fallback=configuration.getboolean("status", "suppress_http_log_errors", fallback=False))
         handler = cls(repository_id, configuration, report=report, suppress_errors=suppress_errors)
         root.addHandler(handler)
 

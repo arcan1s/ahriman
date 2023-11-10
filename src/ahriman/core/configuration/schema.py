@@ -249,6 +249,32 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             },
         },
     },
+    "status": {
+        "type": "dict",
+        "schema": {
+            "enabled": {
+                "type": "boolean",
+                "coerce": "boolean",
+            },
+            "address": {
+                "type": "string",
+                "empty": False,
+                "is_url": [],
+            },
+            "password": {
+                "type": "string",
+                "empty": False,
+            },
+            "suppress_http_log_errors": {
+                "type": "boolean",
+                "coerce": "boolean",
+            },
+            "username": {
+                "type": "string",
+                "empty": False,
+            },
+        },
+    },
     "web": {
         "type": "dict",
         "schema": {

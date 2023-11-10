@@ -43,7 +43,6 @@ Base configuration settings.
 * ``database`` - path to SQLite database, string, required.
 * ``include`` - path to directory with configuration files overrides, string, optional.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
-* ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
 
 ``alpm:*`` groups
 -----------------
@@ -86,7 +85,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of mention.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
-* ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, int, optional, default ``604800``.
+* ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default ``604800``.
 
 ``repository`` group
 --------------------
@@ -103,6 +102,17 @@ Settings for signing packages or repository. Group name can refer to architectur
 * ``target`` - configuration flag to enable signing, space separated list of strings, required. Allowed values are ``package`` (sign each package separately), ``repository`` (sign repository database file).
 * ``key`` - default PGP key, string, required. This key will also be used for database signing if enabled.
 
+``status`` group
+----------------
+
+Reporting to web service related settings. In most cases there is fallback to web section settings.
+
+* ``enabled`` - enable reporting to web service, boolean, optional, default ``yes`` for backward compatibility.
+* ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and url encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
+* ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
+* ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
+* ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
+
 ``web`` group
 -------------
 
@@ -116,15 +126,13 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full url of the repository index page, string, optional.
 * ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
-* ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
-* ``port`` - port to bind, int, optional.
+* ``port`` - port to bind, integer, optional.
 * ``static_path`` - path to directory with static files, string, required.
 * ``templates`` - path to templates directories, space separated list of strings, required.
-* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
-* ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
-* ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, int, optional.
+* ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.
 
 ``keyring`` group
 --------------------
@@ -237,7 +245,7 @@ Section name must be either ``email`` (plus optional architecture name, e.g. ``e
 * ``link_path`` - prefix for HTML links, string, required.
 * ``no_empty_report`` - skip report generation for empty packages list, boolean, optional, default ``yes``.
 * ``password`` - SMTP password to authenticate, string, optional.
-* ``port`` - SMTP port for sending emails, int, required.
+* ``port`` - SMTP port for sending emails, integer, required.
 * ``receivers`` - SMTP receiver addresses, space separated list of strings, required.
 * ``sender`` - SMTP sender address, string, required.
 * ``ssl`` - SSL mode for SMTP connection, one of ``ssl``, ``starttls``, ``disabled``, optional, default ``disabled``.
@@ -267,7 +275,7 @@ Section name must be either ``remote-call`` (plus optional architecture name, e.
 * ``aur`` - check for AUR packages updates, boolean, optional, default ``no``.
 * ``local`` - check for local packages updates, boolean, optional, default ``no``.
 * ``manual`` - update manually built packages, boolean, optional, default ``no``.
-* ``wait_timeout`` - maximum amount of time in seconds to be waited before remote process will be terminated, int, optional, default ``-1``.
+* ``wait_timeout`` - maximum amount of time in seconds to be waited before remote process will be terminated, integer, optional, default ``-1``.
 
 ``telegram`` type
 ^^^^^^^^^^^^^^^^^
@@ -282,7 +290,7 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``template`` - Jinja2 template name, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
 * ``templates`` - path to templates directories, space separated list of strings, required.
-* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 
 ``upload`` group
 ----------------
@@ -312,7 +320,7 @@ This feature requires GitHub key creation (see below). Section name must be eith
   #. Generate new token. Required scope is ``public_repo`` (or ``repo`` for private repository support).
 
 * ``repository`` - GitHub repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
-* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``use_full_release_name`` - if set to ``yes``, the release will contain both repository name and architecture, and only architecture otherwise, boolean, optional, default ``no`` (legacy behavior).
 * ``username`` - GitHub authorization user, string, required. Basically the same as ``owner``.
 
@@ -322,7 +330,7 @@ This feature requires GitHub key creation (see below). Section name must be eith
 Section name must be either ``remote-service`` (plus optional architecture name, e.g. ``remote-service:x86_64``) or random name with ``type`` set.
 
 * ``type`` - type of the report, string, optional, must be set to ``remote-service`` if exists.
-* ``timeout`` - HTTP request timeout in seconds, int, optional, default is ``30``.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 
 ``rsync`` type
 ^^^^^^^^^^^^^^
@@ -341,7 +349,7 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 * ``type`` - type of the upload, string, optional, must be set to ``s3`` if exists.
 * ``access_key`` - AWS access key ID, string, required.
 * ``bucket`` - bucket name (e.g. ``bucket``), string, required.
-* ``chunk_size`` - chunk size for calculating entity tags, int, optional, default 8 * 1024 * 1024.
+* ``chunk_size`` - chunk size for calculating entity tags, integer, optional, default 8 * 1024 * 1024.
 * ``object_path`` - path prefix for stored objects, string, optional. If none set, the prefix as in repository tree will be used.
 * ``region`` - bucket region (e.g. ``eu-central-1``), string, required.
 * ``secret_key`` - AWS secret access key, string, required.
