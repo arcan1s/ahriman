@@ -22,7 +22,7 @@ import logging
 import requests
 
 from functools import cached_property
-from urllib.parse import quote_plus as urlencode
+from urllib.parse import quote_plus as urlencode, urlparse
 
 from ahriman import __version__
 from ahriman.core.configuration import Configuration
@@ -42,7 +42,6 @@ class WebClient(Client, SyncHttpClient):
     Attributes:
         address(str): address of the web service
         repository_id(RepositoryId): repository unique identifier
-        use_unix_socket(bool): use websocket or not
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
@@ -53,11 +52,13 @@ class WebClient(Client, SyncHttpClient):
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        suppress_errors = configuration.getboolean("settings", "suppress_http_log_errors", fallback=False)
-        SyncHttpClient.__init__(self, configuration, "web", suppress_errors=suppress_errors)
+        section, self.address = self.parse_address(configuration)
+        suppress_errors = configuration.getboolean(  # read old-style first and then fallback to new style
+            "settings", "suppress_http_log_errors",
+            fallback=configuration.getboolean("status", "suppress_http_log_errors", fallback=False))
+        SyncHttpClient.__init__(self, configuration, section, suppress_errors=suppress_errors)
 
         self.repository_id = repository_id
-        self.address, self.use_unix_socket = self.parse_address(configuration)
 
     @cached_property
     def session(self) -> requests.Session:
@@ -67,41 +68,7 @@ class WebClient(Client, SyncHttpClient):
         Returns:
             request.Session: created session object
         """
-        return self._create_session(use_unix_socket=self.use_unix_socket)
-
-    @staticmethod
-    def parse_address(configuration: Configuration) -> tuple[str, bool]:
-        """
-        parse address from configuration
-
-        Args:
-            configuration(Configuration): configuration instance
-
-        Returns:
-            tuple[str, bool]: tuple of server address and socket flag (True in case if unix socket must be used)
-        """
-        if (unix_socket := configuration.get("web", "unix_socket", fallback=None)) is not None:
-            # special pseudo-protocol which is used for unix sockets
-            return f"http+unix://{urlencode(unix_socket)}", True
-        address = configuration.get("web", "address", fallback=None)
-        if not address:
-            # build address from host and port directly
-            host = configuration.get("web", "host")
-            port = configuration.getint("web", "port")
-            address = f"http://{host}:{port}"
-        return address, False
-
-    def _create_session(self, *, use_unix_socket: bool) -> requests.Session:
-        """
-        generate new request session
-
-        Args:
-            use_unix_socket(bool): if set to True then unix socket session will be generated instead of native requests
-
-        Returns:
-            requests.Session: generated session object
-        """
-        if use_unix_socket:
+        if urlparse(self.address).scheme == "http+unix":
             import requests_unixsocket  # type: ignore[import-untyped]
             session: requests.Session = requests_unixsocket.Session()
             session.headers["User-Agent"] = f"ahriman/{__version__}"
@@ -112,6 +79,33 @@ class WebClient(Client, SyncHttpClient):
         self._login(session)
 
         return session
+
+    @staticmethod
+    def parse_address(configuration: Configuration) -> tuple[str, str]:
+        """
+        parse address from legacy configuration
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            tuple[str, str]: tuple of section name and server address
+        """
+        # new-style section
+        if (address := configuration.get("status", "address", fallback=None)) is not None:
+            return "status", address
+
+        # legacy-style section
+        if (unix_socket := configuration.get("web", "unix_socket", fallback=None)) is not None:
+            # special pseudo-protocol which is used for unix sockets
+            return "web", f"http+unix://{urlencode(unix_socket)}"
+        address = configuration.get("web", "address", fallback=None)
+        if not address:
+            # build address from host and port directly
+            host = configuration.get("web", "host")
+            port = configuration.getint("web", "port")
+            address = f"http://{host}:{port}"
+        return "web", address
 
     def _login(self, session: requests.Session) -> None:
         """

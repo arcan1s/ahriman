@@ -15,42 +15,44 @@ from ahriman.models.package import Package
 from ahriman.models.user import User
 
 
+def test_session(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must create normal requests session
+    """
+    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
+
+    assert isinstance(web_client.session, requests.Session)
+    assert not isinstance(web_client.session, requests_unixsocket.Session)
+    login_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+
+
+def test_session_unix_socket(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must create unix socket session
+    """
+    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
+    web_client.address = "http+unix://path"
+
+    assert isinstance(web_client.session, requests_unixsocket.Session)
+    login_mock.assert_not_called()
+
+
 def test_parse_address(configuration: Configuration) -> None:
     """
     must extract address correctly
     """
     configuration.set_option("web", "host", "localhost")
     configuration.set_option("web", "port", "8080")
-    assert WebClient.parse_address(configuration) == ("http://localhost:8080", False)
+    assert WebClient.parse_address(configuration) == ("web", "http://localhost:8080")
 
     configuration.set_option("web", "address", "http://localhost:8081")
-    assert WebClient.parse_address(configuration) == ("http://localhost:8081", False)
+    assert WebClient.parse_address(configuration) == ("web", "http://localhost:8081")
 
     configuration.set_option("web", "unix_socket", "/run/ahriman.sock")
-    assert WebClient.parse_address(configuration) == ("http+unix://%2Frun%2Fahriman.sock", True)
+    assert WebClient.parse_address(configuration) == ("web", "http+unix://%2Frun%2Fahriman.sock")
 
-
-def test_create_session(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must create normal requests session
-    """
-    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
-
-    session = web_client._create_session(use_unix_socket=False)
-    assert isinstance(session, requests.Session)
-    assert not isinstance(session, requests_unixsocket.Session)
-    login_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-
-
-def test_create_session_unix_socket(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must create unix socket session
-    """
-    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
-
-    session = web_client._create_session(use_unix_socket=True)
-    assert isinstance(session, requests_unixsocket.Session)
-    login_mock.assert_not_called()
+    configuration.set_option("status", "address", "http://localhost:8082")
+    assert WebClient.parse_address(configuration) == ("status", "http://localhost:8082")
 
 
 def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None:

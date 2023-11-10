@@ -8,13 +8,11 @@ from ahriman.core.upload.remote_service import RemoteService
 from ahriman.models.package import Package
 
 
-def test_session(remote_service: RemoteService, mocker: MockerFixture) -> None:
+def test_session(remote_service: RemoteService) -> None:
     """
     must generate ahriman session
     """
-    upload_mock = mocker.patch("ahriman.core.status.web_client.WebClient._create_session")
-    assert remote_service.session
-    upload_mock.assert_called_once_with(use_unix_socket=False)
+    assert remote_service.session == remote_service.client.session
 
 
 def test_package_upload(remote_service: RemoteService, package_ahriman: Package, mocker: MockerFixture) -> None:

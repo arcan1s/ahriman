@@ -869,12 +869,12 @@ Worker nodes configuration
 
    .. code-block:: ini
 
-      [web]
-      address = master.example.com
+      [status]
+      address = https://master.example.com
       username = worker-user
       password = very-secure-password
 
-   As it has been mentioned above, ``web.address`` must be available for workers. In case if unix socket is used, it can be passed as ``web.unix_socket`` variable as usual. Optional ``web.username``/``web.password`` can be supplied in case if authentication was enabled on master node.
+   As it has been mentioned above, ``status.address`` must be available for workers. In case if unix socket is used, it can be passed in the same option as usual. Optional ``status.username``/``status.password`` can be supplied in case if authentication was enabled on master node.
 
 #.
    Each worker must call master node on success:
@@ -958,7 +958,7 @@ The user ``worker-user`` has been created additionally. Worker node config (``wo
 
 .. code-block:: ini
 
-   [web]
+   [status]
    address = http://172.17.0.1:8080
    username = worker-user
    password = very-secure-password
@@ -1142,7 +1142,7 @@ How to enable basic authorization
 
    .. code-block:: ini
 
-      [web]
+      [status]
       username = api
       password = pa55w0rd
 
