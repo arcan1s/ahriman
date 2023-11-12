@@ -90,8 +90,8 @@ _shtab_ahriman_options=(
   {--report,--no-report}"[force enable or disable reporting to web service (default\: True)]:report:"
   {-r,--repository}"[filter by target repository (default\: None)]:repository:"
   "--unsafe[allow to run ahriman as non-ahriman user. Some actions might be unavailable (default\: False)]"
-  "--wait-timeout[wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of zero value, the application will wait infinitely (default\: -1)]:wait_timeout:"
   "(- : *)"{-V,--version}"[show program\'s version number and exit]"
+  "--wait-timeout[wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of zero value, the application will wait infinitely (default\: -1)]:wait_timeout:"
 )
 
 _shtab_ahriman_add_options=(

@@ -88,7 +88,7 @@ def test_clear(lock: Lock) -> None:
     """
     must remove lock file
     """
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
     lock.path.touch()
 
     lock.clear()
@@ -99,7 +99,7 @@ def test_clear_missing(lock: Lock) -> None:
     """
     must not fail on lock removal if file is missing
     """
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
     lock.clear()
 
 
@@ -116,7 +116,7 @@ def test_create(lock: Lock) -> None:
     """
     must create lock
     """
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
 
     lock.create()
     assert lock.path.is_file()
@@ -127,7 +127,7 @@ def test_create_exception(lock: Lock) -> None:
     """
     must raise exception if file already exists
     """
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
     lock.path.touch()
 
     with pytest.raises(DuplicateRunError):
@@ -149,7 +149,7 @@ def test_create_unsafe(lock: Lock) -> None:
     must not raise exception if force flag set
     """
     lock.force = True
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
     lock.path.touch()
 
     lock.create()
@@ -161,7 +161,7 @@ def test_watch(lock: Lock, mocker: MockerFixture) -> None:
     must check if lock file exists
     """
     wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
-    lock.path = Path(tempfile.mktemp())  # nosec
+    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
 
     lock.watch()
     wait_mock.assert_called_once_with(lock.path.is_file)

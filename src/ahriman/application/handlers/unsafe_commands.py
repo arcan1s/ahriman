@@ -46,8 +46,8 @@ class UnsafeCommands(Handler):
         """
         parser = args.parser()
         unsafe_commands = UnsafeCommands.get_unsafe_commands(parser)
-        if args.command:
-            UnsafeCommands.check_unsafe(args.command, unsafe_commands, parser)
+        if args.subcommand:
+            UnsafeCommands.check_unsafe(args.subcommand, unsafe_commands, parser)
         else:
             for command in unsafe_commands:
                 StringPrinter(command)(verbose=True)
