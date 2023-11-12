@@ -18,7 +18,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.parser = _parser
-    args.command = None
+    args.subcommand = None
     return args
 
 
@@ -39,7 +39,7 @@ def test_run_command(args: argparse.Namespace, configuration: Configuration, moc
     must run command for specific subcommand
     """
     args = _default_args(args)
-    args.command = "aur-search"
+    args.subcommand = "aur-search"
     parse_mock = mocker.patch("argparse.ArgumentParser.parse_args")
 
     _, repository_id = configuration.check_loaded()

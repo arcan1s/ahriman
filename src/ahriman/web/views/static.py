@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import HTTPFound
+from aiohttp.web import HTTPFound, HTTPNotFound
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -40,5 +40,8 @@ class StaticView(BaseView):
 
         Raises:
             HTTPFound: on success response
+            HTTPNotFound: if path is invalid or unknown
         """
-        raise HTTPFound(f"/static{self.request.path}")
+        if self.request.path in self.ROUTES:  # explicit validation
+            raise HTTPFound(f"/static{self.request.path}")
+        raise HTTPNotFound

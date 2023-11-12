@@ -87,11 +87,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--repository-id", help=argparse.SUPPRESS)
     parser.add_argument("--unsafe", help="allow to run ahriman as non-ahriman user. Some actions might be unavailable",
                         action="store_true")
+    parser.add_argument("-V", "--version", action="version", version=__version__)
     parser.add_argument("--wait-timeout", help="wait for lock to be free. Negative value will lead to "
                                                "immediate application run even if there is lock file. "
                                                "In case of zero value, the application will wait infinitely",
                         type=int, default=-1)
-    parser.add_argument("-V", "--version", action="version", version=__version__)
 
     subparsers = parser.add_subparsers(title="command", help="command to run", dest="command")
 
@@ -178,8 +178,8 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
     """
     parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
                              description="list unsafe commands as defined in default args", formatter_class=_formatter)
-    parser.add_argument("command", help="instead of showing commands, just test command line for unsafe subcommand "
-                                        "and return 0 in case if command is safe and 1 otherwise", nargs="*")
+    parser.add_argument("subcommand", help="instead of showing commands, just test command line for unsafe subcommand "
+                                           "and return 0 in case if command is safe and 1 otherwise", nargs="*")
     parser.set_defaults(handler=handlers.UnsafeCommands, architecture="", lock=None, quiet=True, report=False,
                         repository="", unsafe=True, parser=_parser)
     return parser
@@ -198,7 +198,7 @@ def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("help", help="show help message",
                              description="show help message for application or command and exit",
                              formatter_class=_formatter)
-    parser.add_argument("command", help="show help message for specific command", nargs="?")
+    parser.add_argument("subcommand", help="show help message for specific command", nargs="?")
     parser.set_defaults(handler=handlers.Help, architecture="", lock=None, quiet=True, report=False, repository="",
                         unsafe=True, parser=_parser)
     return parser

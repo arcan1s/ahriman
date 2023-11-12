@@ -24,8 +24,19 @@ def test_routes() -> None:
 
 async def test_get(client_with_auth: TestClient) -> None:
     """
-    must generate status page correctly (/)
+    must redirect favicon to static files
     """
     response = await client_with_auth.get("/favicon.ico", allow_redirects=False)
     assert response.status == 302
     assert response.headers["Location"] == "/static/favicon.ico"
+
+
+async def test_get_not_found(client_with_auth: TestClient) -> None:
+    """
+    must raise not found if path is invalid
+    """
+    for route in client_with_auth.app.router.routes():
+        if hasattr(route.handler, "ROUTES"):
+            route.handler.ROUTES = []
+    response = await client_with_auth.get("/favicon.ico", allow_redirects=False)
+    assert response.status == 404

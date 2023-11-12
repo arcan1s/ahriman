@@ -44,7 +44,7 @@ class Help(Handler):
             report(bool): force enable or disable reporting
         """
         parser: argparse.ArgumentParser = args.parser()
-        if args.command is None:
+        if args.subcommand is None:
             parser.parse_args(["--help"])
         else:
-            parser.parse_args([args.command, "--help"])
+            parser.parse_args([args.subcommand, "--help"])

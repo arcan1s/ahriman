@@ -19,7 +19,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: generated arguments for these test cases
     """
     args.parser = _parser
-    args.command = []
+    args.subcommand = []
     return args
 
 
@@ -43,7 +43,7 @@ def test_run_check(args: argparse.Namespace, configuration: Configuration, mocke
     must run command and check if command is unsafe
     """
     args = _default_args(args)
-    args.command = ["clean"]
+    args.subcommand = ["clean"]
     commands_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.get_unsafe_commands",
                                  return_value=["command"])
     check_mock = mocker.patch("ahriman.application.handlers.UnsafeCommands.check_unsafe")

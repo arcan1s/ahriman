@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-11\-06" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-11\-12" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [--wait-timeout WAIT_TIMEOUT] [-V] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -45,13 +45,13 @@ filter by target repository
 allow to run ahriman as non\-ahriman user. Some actions might be unavailable
 
 .TP
+\fB\-V\fR, \fB\-\-version\fR
+show program's version number and exit
+
+.TP
 \fB\-\-wait\-timeout\fR \fI\,WAIT_TIMEOUT\/\fR
 wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of
 zero value, the application will wait infinitely
-
-.TP
-\fB\-V\fR, \fB\-\-version\fR
-show program's version number and exit
 
 .SH
 COMMAND
@@ -208,22 +208,22 @@ sort field by this field. In case if two packages have the same value of the spe
 by name
 
 .SH COMMAND \fI\,'ahriman help\-commands\-unsafe'\/\fR
-usage: ahriman help\-commands\-unsafe [\-h] [command ...]
+usage: ahriman help\-commands\-unsafe [\-h] [subcommand ...]
 
 list unsafe commands as defined in default args
 
 .TP
-\fBcommand\fR
+\fBsubcommand\fR
 instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1
 otherwise
 
 .SH COMMAND \fI\,'ahriman help'\/\fR
-usage: ahriman help [\-h] [command]
+usage: ahriman help [\-h] [subcommand]
 
 show help message for application or command and exit
 
 .TP
-\fBcommand\fR
+\fBsubcommand\fR
 show help message for specific command
 
 .SH COMMAND \fI\,'ahriman help\-updates'\/\fR
