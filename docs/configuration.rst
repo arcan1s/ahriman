@@ -111,6 +111,7 @@ Reporting to web service related settings. In most cases there is fallback to we
 * ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and url encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
 * ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
+* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
 
 ``web`` group
@@ -129,7 +130,6 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``port`` - port to bind, integer, optional.
 * ``static_path`` - path to directory with static files, string, required.
 * ``templates`` - path to templates directories, space separated list of strings, required.
-* ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.

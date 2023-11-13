@@ -269,6 +269,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "type": "boolean",
                 "coerce": "boolean",
             },
+            "timeout": {
+                "type": "integer",
+                "coerce": "integer",
+                "min": 0,
+            },
             "username": {
                 "type": "string",
                 "empty": False,
