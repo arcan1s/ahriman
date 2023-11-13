@@ -122,7 +122,7 @@ Again, the most checks can be performed by `make check` command, though some add
         def __hash__(self) -> int: ...  # basically any magic (or look-alike) method
     ```
   
-  Methods inside one group should be ordered alphabetically, the only exceptions are `__init__` (`__post_init__` for dataclasses) and `__new__` methods which should be defined first. For test methods it is recommended to follow the order in which functions are defined.
+  Methods inside one group should be ordered alphabetically, the only exceptions are `__init__` (`__post_init__` for dataclasses), `__new__` and `__del__` methods which should be defined first. For test methods it is recommended to follow the order in which functions are defined.
 
   Though, we would like to highlight abstract methods (i.e. ones which raise `NotImplementedError`), we still keep in global order at the moment.
 

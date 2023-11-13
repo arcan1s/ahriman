@@ -65,6 +65,14 @@ class TriggerLoader(LazyLogging):
         self._on_stop_requested = False
         self.triggers: list[Trigger] = []
 
+    def __del__(self) -> None:
+        """
+        custom destructor object which calls on_stop in case if it was requested
+        """
+        if not self._on_stop_requested:
+            return
+        self.on_stop()
+
     @classmethod
     def load(cls, repository_id: RepositoryId, configuration: Configuration) -> Self:
         """
@@ -257,11 +265,3 @@ class TriggerLoader(LazyLogging):
         for trigger in self.triggers:
             with self.__execute_trigger(trigger):
                 trigger.on_stop()
-
-    def __del__(self) -> None:
-        """
-        custom destructor object which calls on_stop in case if it was requested
-        """
-        if not self._on_stop_requested:
-            return
-        self.on_stop()

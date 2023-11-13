@@ -31,6 +31,7 @@ class MethodTypeOrder(StrEnum):
 
     Attributes:
         Class(MethodTypeOrder): (class attribute) class method
+        Delete(MethodTypeOrder): (class attribute) destructor-like methods
         Init(MethodTypeOrder): (class attribute) initialization method
         Magic(MethodTypeOrder): (class attribute) other magical methods
         New(MethodTypeOrder): (class attribute) constructor method
@@ -40,6 +41,7 @@ class MethodTypeOrder(StrEnum):
     """
 
     Class = "classmethod"
+    Delete = "del"
     Init = "init"
     Magic = "magic"
     New = "new"
@@ -76,8 +78,9 @@ class DefinitionOrder(BaseRawFileChecker):
             "method-type-order",
             {
                 "default": [
-                    "new",
                     "init",
+                    "new",
+                    "del",
                     "property",
                     "classmethod",
                     "staticmethod",
@@ -122,10 +125,12 @@ class DefinitionOrder(BaseRawFileChecker):
             MethodTypeOrder: resolved function type
         """
         # init methods
-        if function.name in ("__new__",):
-            return MethodTypeOrder.New
         if function.name in ("__init__", "__post_init__"):
             return MethodTypeOrder.Init
+        if function.name in ("__new__",):
+            return MethodTypeOrder.New
+        if function.name in ("__del__",):
+            return MethodTypeOrder.Delete
 
         # decorated methods
         decorators = []
