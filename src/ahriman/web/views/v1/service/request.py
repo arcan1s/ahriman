@@ -74,6 +74,14 @@ class RequestView(BaseView):
 
         username = await self.username()
         repository_id = self.repository_id()
-        process_id = self.spawner.packages_add(repository_id, packages, username, patches=patches, now=False)
+        process_id = self.spawner.packages_add(
+            repository_id,
+            packages,
+            username,
+            patches=patches,
+            now=False,
+            increment=False,  # no-increment doesn't work here
+            refresh=False,  # refresh doesn't work here
+        )
 
         return json_response({"process_id": process_id})

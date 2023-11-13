@@ -86,6 +86,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of mention.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default ``604800``.
+* ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable url, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node.
 
 ``repository`` group
 --------------------

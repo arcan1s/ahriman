@@ -101,8 +101,10 @@ def test_packages_add(spawner: Spawn, repository_id: RepositoryId, mocker: Mocke
     must call package addition
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=[], now=False)
-    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None)
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None,
+                                patches=[], now=False, increment=False, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{"username": None, "variable": [], "no-increment": ""})
 
 
 def test_packages_add_with_build(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -110,8 +112,10 @@ def test_packages_add_with_build(spawner: Spawn, repository_id: RepositoryId, mo
     must call package addition with update
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=[], now=True)
-    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None, now="")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None,
+                                patches=[], now=True, increment=False, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{"username": None, "variable": [], "no-increment": "", "now": ""})
 
 
 def test_packages_add_with_username(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -119,8 +123,10 @@ def test_packages_add_with_username(spawner: Spawn, repository_id: RepositoryId,
     must call package addition with username
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], "username", patches=[], now=False)
-    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username="username")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], "username",
+                                patches=[], now=False, increment=False, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{"username": "username", "variable": [], "no-increment": ""})
 
 
 def test_packages_add_with_patches(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -129,9 +135,36 @@ def test_packages_add_with_patches(spawner: Spawn, repository_id: RepositoryId, 
     """
     patches = [PkgbuildPatch("key", "value"), PkgbuildPatch("key", "value")]
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None, patches=patches, now=False)
-    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux", username=None,
-                                       variable=[patch.serialize() for patch in patches])
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None,
+                                patches=patches, now=False, increment=False, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{
+                                           "username": None,
+                                           "variable": [patch.serialize() for patch in patches],
+                                           "no-increment": ""
+                                       })
+
+
+def test_packages_add_with_increment(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package addition with increment
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None,
+                                patches=[], now=False, increment=True, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{"username": None, "variable": [], "increment": ""})
+
+
+def test_packages_add_with_refresh(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package addition with refresh
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_add(repository_id, ["ahriman", "linux"], None,
+                                patches=[], now=False, increment=False, refresh=True)
+    spawn_mock.assert_called_once_with(repository_id, "package-add", "ahriman", "linux",
+                                       **{"username": None, "variable": [], "no-increment": "", "refresh": ""})
 
 
 def test_packages_rebuild(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -139,9 +172,19 @@ def test_packages_rebuild(spawner: Spawn, repository_id: RepositoryId, mocker: M
     must call package rebuild
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
-    assert spawner.packages_rebuild(repository_id, "python", "packager")
+    assert spawner.packages_rebuild(repository_id, "python", "packager", increment=False)
     spawn_mock.assert_called_once_with(repository_id, "repo-rebuild",
-                                       **{"depends-on": "python", "username": "packager"})
+                                       **{"depends-on": "python", "username": "packager", "no-increment": ""})
+
+
+def test_packages_rebuild_with_increment(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call package rebuild with increment
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_rebuild(repository_id, "python", "packager", increment=True)
+    spawn_mock.assert_called_once_with(repository_id, "repo-rebuild",
+                                       **{"depends-on": "python", "username": "packager", "increment": ""})
 
 
 def test_packages_remove(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -159,25 +202,59 @@ def test_packages_update(spawner: Spawn, repository_id: RepositoryId, mocker: Mo
     """
     spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
 
-    assert spawner.packages_update(repository_id, "packager", aur=True, local=True, manual=True)
-    args = {"username": "packager", "aur": "", "local": "", "manual": ""}
+    assert spawner.packages_update(repository_id, "packager",
+                                   aur=True, local=True, manual=True, increment=False, refresh=False)
+    args = {"username": "packager", "aur": "", "local": "", "manual": "", "no-increment": ""}
     spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update(repository_id, "packager", aur=False, local=True, manual=True)
-    args = {"username": "packager", "no-aur": "", "local": "", "manual": ""}
+    assert spawner.packages_update(repository_id, "packager",
+                                   aur=False, local=True, manual=True, increment=False, refresh=False)
+    args = {"username": "packager", "no-aur": "", "local": "", "manual": "", "no-increment": ""}
     spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update(repository_id, "packager", aur=True, local=False, manual=True)
-    args = {"username": "packager", "aur": "", "no-local": "", "manual": ""}
+    assert spawner.packages_update(repository_id, "packager",
+                                   aur=True, local=False, manual=True, increment=False, refresh=False)
+    args = {"username": "packager", "aur": "", "no-local": "", "manual": "", "no-increment": ""}
     spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
 
-    assert spawner.packages_update(repository_id, "packager", aur=True, local=True, manual=False)
-    args = {"username": "packager", "aur": "", "local": "", "no-manual": ""}
+    assert spawner.packages_update(repository_id, "packager",
+                                   aur=True, local=True, manual=False, increment=False, refresh=False)
+    args = {"username": "packager", "aur": "", "local": "", "no-manual": "", "no-increment": ""}
     spawn_mock.assert_called_once_with(repository_id, "repo-update", **args)
     spawn_mock.reset_mock()
+
+
+def test_packages_update_with_increment(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call repo update with increment
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_update(repository_id, None,
+                                   aur=True, local=True, manual=True, increment=True, refresh=False)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update",
+                                       **{"username": None, "aur": "", "local": "", "manual": "", "increment": ""})
+
+
+def test_packages_update_with_refresh(spawner: Spawn, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must call repo update with refresh
+    """
+    spawn_mock = mocker.patch("ahriman.core.spawn.Spawn._spawn_process")
+    assert spawner.packages_update(repository_id, None,
+                                   aur=True, local=True, manual=True, increment=False, refresh=True)
+    spawn_mock.assert_called_once_with(repository_id, "repo-update",
+                                       **{
+                                           "username": None,
+                                           "aur": "",
+                                           "local": "",
+                                           "manual": "",
+                                           "no-increment": "",
+                                           "refresh": "",
+                                       }
+                                       )
 
 
 def test_run(spawner: Spawn, mocker: MockerFixture) -> None:

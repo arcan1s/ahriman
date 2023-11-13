@@ -174,7 +174,7 @@ class Spawn(Thread, LazyLogging):
         return self._spawn_process(repository_id, "service-key-import", key, **kwargs)
 
     def packages_add(self, repository_id: RepositoryId, packages: Iterable[str], username: str | None, *,
-                     patches: list[PkgbuildPatch], now: bool) -> str:
+                     patches: list[PkgbuildPatch], now: bool, increment: bool, refresh: bool) -> str:
         """
         add packages
 
@@ -184,19 +184,26 @@ class Spawn(Thread, LazyLogging):
             username(str | None): optional override of username for build process
             patches(list[PkgbuildPatch]): list of patches to be passed
             now(bool): build packages now
+            increment(bool): increment pkgrel on conflict
+            refresh(bool): refresh pacman database before process
 
         Returns:
             str: spawned process identifier
         """
-        kwargs: dict[str, str | list[str] | None] = {"username": username}
+        kwargs: dict[str, str | list[str] | None] = {
+            "username": username,
+            "variable": [patch.serialize() for patch in patches],
+            self.boolean_action_argument("increment", increment): "",
+        }
         if now:
             kwargs["now"] = ""
-        if patches:
-            kwargs["variable"] = [patch.serialize() for patch in patches]
+        if refresh:
+            kwargs["refresh"] = ""
 
         return self._spawn_process(repository_id, "package-add", *packages, **kwargs)
 
-    def packages_rebuild(self, repository_id: RepositoryId, depends_on: str, username: str | None) -> str:
+    def packages_rebuild(self, repository_id: RepositoryId, depends_on: str, username: str | None, *,
+                         increment: bool) -> str:
         """
         rebuild packages which depend on the specified package
 
@@ -204,11 +211,16 @@ class Spawn(Thread, LazyLogging):
             repository_id(RepositoryId): repository unique identifier
             depends_on(str): packages dependency
             username(str | None): optional override of username for build process
+            increment(bool): increment pkgrel on conflict
 
         Returns:
             str: spawned process identifier
         """
-        kwargs = {"depends-on": depends_on, "username": username}
+        kwargs = {
+            "depends-on": depends_on,
+            "username": username,
+            self.boolean_action_argument("increment", increment): "",
+        }
         return self._spawn_process(repository_id, "repo-rebuild", **kwargs)
 
     def packages_remove(self, repository_id: RepositoryId, packages: Iterable[str]) -> str:
@@ -225,7 +237,7 @@ class Spawn(Thread, LazyLogging):
         return self._spawn_process(repository_id, "package-remove", *packages)
 
     def packages_update(self, repository_id: RepositoryId, username: str | None, *,
-                        aur: bool, local: bool, manual: bool) -> str:
+                        aur: bool, local: bool, manual: bool, increment: bool, refresh: bool) -> str:
         """
         run full repository update
 
@@ -235,6 +247,8 @@ class Spawn(Thread, LazyLogging):
             aur(bool): check for aur updates
             local(bool): check for local packages updates
             manual(bool): check for manual packages
+            increment(bool): increment pkgrel on conflict
+            refresh(bool): refresh pacman database before process
 
         Returns:
             str: spawned process identifier
@@ -244,7 +258,11 @@ class Spawn(Thread, LazyLogging):
             self.boolean_action_argument("aur", aur): "",
             self.boolean_action_argument("local", local): "",
             self.boolean_action_argument("manual", manual): "",
+            self.boolean_action_argument("increment", increment): "",
         }
+        if refresh:
+            kwargs["refresh"] = ""
+
         return self._spawn_process(repository_id, "repo-update", **kwargs)
 
     def run(self) -> None:

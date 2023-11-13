@@ -193,6 +193,9 @@ async def test_username(base: BaseView, mocker: MockerFixture) -> None:
     policy = AsyncMock()
     policy.identify.return_value = "identity"
     mocker.patch("aiohttp.web.Application.get", return_value=policy)
+    json = AsyncMock()
+    json.return_value = {}
+    base._request = pytest.helpers.request(base.request.app, "", "", json=json)
 
     assert await base.username() == "identity"
     policy.identify.assert_called_once_with(base.request)
@@ -201,5 +204,27 @@ async def test_username(base: BaseView, mocker: MockerFixture) -> None:
 async def test_username_no_auth(base: BaseView) -> None:
     """
     must return None in case if auth is disabled
+    """
+    json = AsyncMock()
+    json.return_value = {}
+    base._request = pytest.helpers.request(base.request.app, "", "", json=json)
+
+    assert await base.username() is None
+
+
+async def test_username_request(base: BaseView) -> None:
+    """
+    must read packager from request
+    """
+    json = AsyncMock()
+    json.return_value = {"packager": "identity"}
+    base._request = pytest.helpers.request(base.request.app, "", "", json=json)
+
+    assert await base.username() == "identity"
+
+
+async def test_username_request_exception(base: BaseView) -> None:
+    """
+    must not fail in case if cannot read request
     """
     assert await base.username() is None

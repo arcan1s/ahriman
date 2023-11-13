@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
+from marshmallow import fields
+
+from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
 
 
-class PackageNamesSchema(Schema):
+class PackageNamesSchema(BuildOptionsSchema):
     """
     request package names schema
     """

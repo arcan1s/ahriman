@@ -197,33 +197,34 @@ def test_update(application_repository: ApplicationRepository, package_ahriman: 
     paths = [package.filepath for package in package_ahriman.packages.values()]
     tree = Tree([Leaf(package_ahriman)])
 
-    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
+    resolve_mock = mocker.patch("ahriman.application.application.workers.local_updater.LocalUpdater.partition",
+                                return_value=tree.levels())
     mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=paths)
-    build_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_build", return_value=result)
-    update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update", return_value=result)
+    build_mock = mocker.patch("ahriman.application.application.workers.local_updater.LocalUpdater.update",
+                              return_value=result)
+    update_mock = mocker.patch("ahriman.core.repository.Repository.process_update", return_value=result)
     on_result_mock = mocker.patch(
         "ahriman.application.application.application_repository.ApplicationRepository.on_result")
 
     application_repository.update([package_ahriman], Packagers("username"), bump_pkgrel=True)
+    resolve_mock.assert_called_once_with([package_ahriman])
     build_mock.assert_called_once_with([package_ahriman], Packagers("username"), bump_pkgrel=True)
-    update_mock.assert_has_calls([
-        MockCall(paths, Packagers("username")),
-        MockCall(paths, Packagers("username")),
-    ])
+    update_mock.assert_called_once_with(paths, Packagers("username"))
     on_result_mock.assert_has_calls([MockCall(result), MockCall(result)])
 
 
-def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package,
+def test_update_empty(application_repository: ApplicationRepository, package_ahriman: Package, result: Result,
                       mocker: MockerFixture) -> None:
     """
     must skip updating repository if no packages supplied
     """
     tree = Tree([Leaf(package_ahriman)])
 
-    mocker.patch("ahriman.core.tree.Tree.resolve", return_value=tree.levels())
-    mocker.patch("ahriman.core.repository.repository.Repository.packages_built", return_value=[])
-    mocker.patch("ahriman.core.repository.executor.Executor.process_build")
-    update_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_update")
+    mocker.patch("ahriman.application.application.workers.Updater.partition", return_value=tree.levels())
+    mocker.patch("ahriman.core.repository.Repository.packages_built", return_value=[])
+    mocker.patch("ahriman.application.application.workers.local_updater.LocalUpdater.update", return_value=result)
+    mocker.patch("ahriman.application.application.application_repository.ApplicationRepository.on_result")
+    update_mock = mocker.patch("ahriman.core.repository.Repository.process_update")
 
     application_repository.update([package_ahriman])
     update_mock.assert_not_called()
