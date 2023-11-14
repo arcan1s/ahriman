@@ -2,7 +2,6 @@ import json
 import logging
 import pytest
 import requests
-import requests_unixsocket
 
 from pytest_mock import MockerFixture
 
@@ -12,29 +11,6 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
-from ahriman.models.user import User
-
-
-def test_session(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must create normal requests session
-    """
-    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
-
-    assert isinstance(web_client.session, requests.Session)
-    assert not isinstance(web_client.session, requests_unixsocket.Session)
-    login_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-
-
-def test_session_unix_socket(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must create unix socket session
-    """
-    login_mock = mocker.patch("ahriman.core.status.web_client.WebClient._login")
-    web_client.address = "http+unix://path"
-
-    assert isinstance(web_client.session, requests_unixsocket.Session)
-    login_mock.assert_not_called()
 
 
 def test_parse_address(configuration: Configuration) -> None:
@@ -53,57 +29,6 @@ def test_parse_address(configuration: Configuration) -> None:
 
     configuration.set_option("status", "address", "http://localhost:8082")
     assert WebClient.parse_address(configuration) == ("status", "http://localhost:8082")
-
-
-def test_login(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
-    """
-    must login user
-    """
-    web_client.auth = (user.username, user.password)
-    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
-    payload = {
-        "username": user.username,
-        "password": user.password
-    }
-    session = requests.Session()
-
-    web_client._login(session)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True), json=payload, session=session)
-
-
-def test_login_failed(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during login
-    """
-    web_client.user = user
-    mocker.patch("requests.Session.request", side_effect=Exception())
-    web_client._login(requests.Session())
-
-
-def test_login_failed_http_error(web_client: WebClient, user: User, mocker: MockerFixture) -> None:
-    """
-    must suppress HTTP exception happened during login
-    """
-    web_client.user = user
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
-    web_client._login(requests.Session())
-
-
-def test_login_skip(web_client: WebClient, mocker: MockerFixture) -> None:
-    """
-    must skip login if no user set
-    """
-    requests_mock = mocker.patch("requests.Session.request")
-    web_client._login(requests.Session())
-    requests_mock.assert_not_called()
-
-
-def test_login_url(web_client: WebClient) -> None:
-    """
-    must generate login url correctly
-    """
-    assert web_client._login_url().startswith(web_client.address)
-    assert web_client._login_url().endswith("/api/v1/login")
 
 
 def test_status_url(web_client: WebClient) -> None:
@@ -377,11 +302,13 @@ def test_status_update(web_client: WebClient, mocker: MockerFixture) -> None:
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
     web_client.status_update(BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
-                                          params=web_client.repository_id.query(),
-                                          json={
-                                              "status": BuildStatusEnum.Unknown.value,
-    })
+    requests_mock.assert_called_once_with(
+        "POST", pytest.helpers.anyvar(str, True),
+        params=web_client.repository_id.query(),
+        json={
+            "status": BuildStatusEnum.Unknown.value,
+        }
+    )
 
 
 def test_status_update_self_failed(web_client: WebClient, mocker: MockerFixture) -> None:
