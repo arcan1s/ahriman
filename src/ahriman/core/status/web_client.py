@@ -19,14 +19,11 @@
 #
 import contextlib
 import logging
-import requests
 
-from functools import cached_property
-from urllib.parse import quote_plus as urlencode, urlparse
+from urllib.parse import quote_plus as urlencode
 
-from ahriman import __version__
 from ahriman.core.configuration import Configuration
-from ahriman.core.http import SyncHttpClient
+from ahriman.core.http import SyncAhrimanClient
 from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
@@ -35,12 +32,11 @@ from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 
 
-class WebClient(Client, SyncHttpClient):
+class WebClient(Client, SyncAhrimanClient):
     """
     build status reporter web client
 
     Attributes:
-        address(str): address of the web service
         repository_id(RepositoryId): repository unique identifier
     """
 
@@ -56,29 +52,9 @@ class WebClient(Client, SyncHttpClient):
         suppress_errors = configuration.getboolean(  # read old-style first and then fallback to new style
             "settings", "suppress_http_log_errors",
             fallback=configuration.getboolean("status", "suppress_http_log_errors", fallback=False))
-        SyncHttpClient.__init__(self, configuration, section, suppress_errors=suppress_errors)
+        SyncAhrimanClient.__init__(self, configuration, section, suppress_errors=suppress_errors)
 
         self.repository_id = repository_id
-
-    @cached_property
-    def session(self) -> requests.Session:
-        """
-        get or create session
-
-        Returns:
-            request.Session: created session object
-        """
-        if urlparse(self.address).scheme == "http+unix":
-            import requests_unixsocket  # type: ignore[import-untyped]
-            session: requests.Session = requests_unixsocket.Session()
-            session.headers["User-Agent"] = f"ahriman/{__version__}"
-            return session
-
-        session = requests.Session()
-        session.headers["User-Agent"] = f"ahriman/{__version__}"
-        self._login(session)
-
-        return session
 
     @staticmethod
     def parse_address(configuration: Configuration) -> tuple[str, str]:
@@ -106,33 +82,6 @@ class WebClient(Client, SyncHttpClient):
             port = configuration.getint("web", "port")
             address = f"http://{host}:{port}"
         return "web", address
-
-    def _login(self, session: requests.Session) -> None:
-        """
-        process login to the service
-
-        Args:
-            session(requests.Session): request session to login
-        """
-        if self.auth is None:
-            return  # no auth configured
-
-        username, password = self.auth
-        payload = {
-            "username": username,
-            "password": password,
-        }
-        with contextlib.suppress(Exception):
-            self.make_request("POST", self._login_url(), json=payload, session=session)
-
-    def _login_url(self) -> str:
-        """
-        get url for the login api
-
-        Returns:
-            str: full url for web service to log in
-        """
-        return f"{self.address}/api/v1/login"
 
     def _logs_url(self, package_base: str) -> str:
         """

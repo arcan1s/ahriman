@@ -17,4 +17,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman.core.http.sync_ahriman_client import SyncAhrimanClient
 from ahriman.core.http.sync_http_client import MultipartType, SyncHttpClient
