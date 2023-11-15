@@ -77,12 +77,12 @@ class SyncHttpClient(LazyLogging):
         return session
 
     @staticmethod
-    def exception_response_text(exception: requests.exceptions.RequestException) -> str:
+    def exception_response_text(exception: requests.RequestException) -> str:
         """
         safe response exception text generation
 
         Args:
-            exception(requests.exceptions.RequestException): exception raised
+            exception(requests.RequestException): exception raised
 
         Returns:
             str: text of the response if it is not None and empty string otherwise

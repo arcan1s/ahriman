@@ -19,8 +19,10 @@
 #
 import contextlib
 import requests
+import tenacity
 
 from functools import cached_property
+from typing import Any
 from urllib.parse import urlparse
 
 from ahriman import __version__
@@ -57,6 +59,34 @@ class SyncAhrimanClient(SyncHttpClient):
 
         return session
 
+    @staticmethod
+    def is_retry_allowed(exception: BaseException) -> bool:
+        """
+        check if retry is allowed for the exception
+
+        Args:
+            exception(BaseException): exception raised
+
+        Returns:
+            bool: True in case if exception is in white list and false otherwise
+        """
+        if not isinstance(exception, requests.RequestException):
+            return False  # not a request exception
+        status_code = exception.response.status_code if exception.response is not None else None
+        return status_code in (401,)
+
+    @staticmethod
+    def on_retry(state: tenacity.RetryCallState) -> None:
+        """
+        action to be called before retry
+
+        Args:
+            state(tenacity.RetryCallState): current retry call state
+        """
+        instance = next(arg for arg in state.args if isinstance(arg, SyncAhrimanClient))
+        if hasattr(instance, "session"):  # only if it was initialized
+            del instance.session  # clear session
+
     def _login(self, session: requests.Session) -> None:
         """
         process login to the service
@@ -83,3 +113,22 @@ class SyncAhrimanClient(SyncHttpClient):
             str: full url for web service to log in
         """
         return f"{self.address}/api/v1/login"
+
+    @tenacity.retry(
+        stop=tenacity.stop_after_attempt(2),
+        retry=tenacity.retry_if_exception(is_retry_allowed),
+        after=on_retry,
+        reraise=True,
+    )
+    def make_request(self, *args: Any, **kwargs: Any) -> requests.Response:
+        """
+        perform request with specified parameters
+
+        Args:
+            *args(Any): request method positional arguments
+            **kwargs(Any): request method keyword arguments
+
+        Returns:
+            requests.Response: response object
+        """
+        return SyncHttpClient.make_request(self, *args, **kwargs)

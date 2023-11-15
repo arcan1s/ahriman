@@ -21,6 +21,7 @@ dependencies = [
     "passlib",
     "requests",
     "srcinfo",
+    "tenacity",
 ]
 
 dynamic = ["version"]
