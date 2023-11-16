@@ -139,9 +139,9 @@ class LogsView(BaseView):
             HTTPNoContent: in case of success response
         """
         package_base = self.request.match_info["package"]
-        data = await self.extract_data()
 
         try:
+            data = await self.request.json()
             created = data["created"]
             record = data["message"]
             version = data["version"]

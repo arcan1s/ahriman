@@ -1,7 +1,7 @@
 <script>
     const alertPlaceholder = $("#alert-placeholder");
 
-    function createAlert(title, message, clz) {
+    function createAlert(title, message, clz, action) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("toast", clz);
         wrapper.role = "alert";
@@ -23,7 +23,7 @@
         const toast = new bootstrap.Toast(wrapper);
         wrapper.addEventListener("hidden.bs.toast", () => {
             wrapper.remove();  // bootstrap doesn't remove elements
-            reload();
+            (action || reload)();
         });
         toast.show();
     }
@@ -38,8 +38,8 @@
         createAlert(title, description(details), "text-bg-danger");
     }
 
-    function showSuccess(title, description) {
-        createAlert(title, description, "text-bg-success");
+    function showSuccess(title, description, action) {
+        createAlert(title, description, "text-bg-success", action);
     }
 
 </script>

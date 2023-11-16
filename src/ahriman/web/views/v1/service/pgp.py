@@ -104,9 +104,8 @@ class PGPView(BaseView):
         Raises:
             HTTPBadRequest: if bad data is supplied
         """
-        data = await self.extract_data()
-
         try:
+            data = await self.request.json()
             key = self.get_non_empty(data.get, "key")
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))

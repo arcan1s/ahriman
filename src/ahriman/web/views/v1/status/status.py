@@ -102,7 +102,7 @@ class StatusView(BaseView):
             HTTPNoContent: in case of success response
         """
         try:
-            data = await self.extract_data()
+            data = await self.request.json()
             status = BuildStatusEnum(data["status"])
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))

@@ -65,7 +65,7 @@ class UpdateView(BaseView):
             HTTPBadRequest: if bad data is supplied
         """
         try:
-            data = await self.extract_data()
+            data = await self.request.json()
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 

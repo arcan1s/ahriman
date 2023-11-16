@@ -95,9 +95,9 @@ class PatchesView(BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        data = await self.extract_data()
 
         try:
+            data = await self.request.json()
             key = data["key"]
             value = data["value"]
         except Exception as ex:
