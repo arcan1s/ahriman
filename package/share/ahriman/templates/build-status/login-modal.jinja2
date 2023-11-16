@@ -1,7 +1,7 @@
 <div id="login-modal" tabindex="-1" role="dialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form action="/api/v1/login" method="post">
+            <form id="login-form" onsubmit="return false">
                 <div class="modal-header">
                     <h4 class="modal-title">Login</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary"><i class="bi bi-person"></i> login</button>
+                    <button type="submit" class="btn btn-primary" onclick="login()"><i class="bi bi-person"></i> login</button>
                 </div>
             </form>
         </div>
@@ -34,16 +34,45 @@
 </div>
 
 <script>
-    const passwordInput = $("#login-password");
+    const loginModal = $("#login-modal");
+    const loginForm = $("#login-form");
+    loginModal.on("hidden.bs.modal", () => {
+        loginForm.trigger("reset");
+    });
+
+    const loginPasswordInput = $("#login-password");
+    const loginUsernameInput = $("#login-username");
     const showHidePasswordButton = $("#login-show-hide-password-button");
 
+    function login() {
+        const password = loginPasswordInput.val();
+        const username = loginUsernameInput.val();
+
+        if (username && password) {
+            $.ajax({
+                url: "/api/v1/login",
+                data: JSON.stringify({username: username, password: password}),
+                type: "POST",
+                contentType: "application/json",
+                success: _ => {
+                    loginModal.modal("hide");
+                    showSuccess("Logged in", `Successfully logged in as ${username}`, () => location.href = "/");
+                },
+                error: (jqXHR, _, errorThrown) => {
+                    const message = _ => `Could not login as ${username}`;
+                    showFailure("Login error", message, jqXHR, errorThrown);
+                },
+            });
+        }
+    }
+
     function showPassword() {
-        if (passwordInput.attr("type") === "password") {
-            passwordInput.attr("type", "text");
+        if (loginPasswordInput.attr("type") === "password") {
+            loginPasswordInput.attr("type", "text");
             showHidePasswordButton.removeClass("bi-eye");
             showHidePasswordButton.addClass("bi-eye-slash");
         } else {
-            passwordInput.attr("type", "password");
+            loginPasswordInput.attr("type", "password");
             showHidePasswordButton.removeClass("bi-eye-slash");
             showHidePasswordButton.addClass("bi-eye");
         }

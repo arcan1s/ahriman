@@ -142,9 +142,9 @@ class PackageView(BaseView):
             HTTPNoContent: in case of success response
         """
         package_base = self.request.match_info["package"]
-        data = await self.extract_data()
 
         try:
+            data = await self.request.json()
             package = Package.from_json(data["package"]) if "package" in data else None
             status = BuildStatusEnum(data["status"])
         except Exception as ex:

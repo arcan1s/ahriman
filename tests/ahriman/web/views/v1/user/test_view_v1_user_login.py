@@ -125,9 +125,6 @@ async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixt
     response = await client_with_auth.post("/api/v1/login", json=payload)
     assert response.ok
 
-    response = await client_with_auth.post("/api/v1/login", data=payload)
-    assert response.ok
-
     remember_mock.assert_called()
 
 
@@ -154,5 +151,18 @@ async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocke
 
     response = await client_with_auth.post("/api/v1/login", json=payload, headers={"accept": "application/json"})
     assert response.status == 401
+    assert not response_schema.validate(await response.json())
+    remember_mock.assert_not_called()
+
+
+async def test_post_invalid_json(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+    """
+    must return unauthorized on invalid auth
+    """
+    response_schema = pytest.helpers.schema_response(LoginView.post, code=400)
+    remember_mock = mocker.patch("aiohttp_security.remember")
+
+    response = await client_with_auth.post("/api/v1/login")
+    assert response.status == 400
     assert not response_schema.validate(await response.json())
     remember_mock.assert_not_called()

@@ -63,7 +63,6 @@ async def test_post_empty(client: TestClient, mocker: MockerFixture) -> None:
     """
     must call raise 400 on invalid request
     """
-    mocker.patch("ahriman.web.views.base.BaseView.extract_data", side_effect=Exception())
     update_mock = mocker.patch("ahriman.core.spawn.Spawn.packages_update")
     response_schema = pytest.helpers.schema_response(UpdateView.post, code=400)
 

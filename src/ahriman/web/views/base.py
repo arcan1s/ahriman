@@ -20,7 +20,7 @@
 from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
 from collections.abc import Awaitable, Callable
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -137,47 +137,6 @@ class BaseView(View, CorsViewMixin):
         except Exception:
             raise KeyError(f"Key {key} is missing or empty") from None
         return value
-
-    async def data_as_json(self, list_keys: list[str]) -> dict[str, Any]:
-        """
-        extract form data and convert it to json object
-
-        Args:
-            list_keys(list[str]): list of keys which must be forced to list from form data
-
-        Returns:
-            dict[str, Any]: form data converted to json. In case if a key is found multiple times
-                it will be returned as list
-        """
-        raw = await self.request.post()
-        json: dict[str, Any] = {}
-        for key, value in raw.items():
-            if key in json and isinstance(json[key], list):
-                json[key].append(value)
-            elif key in json:
-                json[key] = [json[key], value]
-            elif key in list_keys:
-                json[key] = [value]
-            else:
-                json[key] = value
-        return json
-
-    async def extract_data(self, list_keys: list[str] | None = None) -> dict[str, Any]:
-        """
-        extract json data from either json or form data
-
-        Args:
-            list_keys(list[str] | None, optional): optional list of keys which must be forced to list from form data
-                (Default value = None)
-
-        Returns:
-            dict[str, Any]: raw json object or form data converted to json
-        """
-        try:
-            json: dict[str, Any] = await self.request.json()
-            return json
-        except ValueError:
-            return await self.data_as_json(list_keys or [])
 
     # pylint: disable=not-callable,protected-access
     async def head(self) -> StreamResponse:  # type: ignore[return]

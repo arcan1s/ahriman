@@ -19,7 +19,7 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
+from aiohttp.web import HTTPBadRequest, HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
@@ -93,6 +93,7 @@ class LoginView(BaseView):
         description="Login by using username and password",
         responses={
             302: {"description": "Success response"},
+            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
@@ -107,11 +108,15 @@ class LoginView(BaseView):
             HTTPFound: on success response
             HTTPUnauthorized: if case of authorization error
         """
-        data = await self.extract_data()
-        identity = data.get("username")
+        try:
+            data = await self.request.json()
+            identity = data["username"]
+            password = data["password"]
+        except Exception as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
         response = HTTPFound("/")
-        if identity is not None and await self.validator.check_credentials(identity, data.get("password")):
+        if await self.validator.check_credentials(identity, password):
             await remember(self.request, response, identity)
             raise response
 

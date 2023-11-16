@@ -65,7 +65,7 @@ class RemoveView(BaseView):
             HTTPBadRequest: if bad data is supplied
         """
         try:
-            data = await self.extract_data(["packages"])
+            data = await self.request.json()
             packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
