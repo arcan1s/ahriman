@@ -20,6 +20,14 @@ ahriman.web.schemas.auth\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.changes\_schema module
+------------------------------------------
+
+.. automodule:: ahriman.web.schemas.changes_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.counters\_schema module
 -------------------------------------------
 

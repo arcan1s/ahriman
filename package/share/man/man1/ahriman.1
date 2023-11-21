@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2023\-11\-13" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-11\-29" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-changes,package-changes-remove,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -73,6 +73,12 @@ application version
 .TP
 \fBahriman\fR \fI\,package\-add\/\fR
 add package
+.TP
+\fBahriman\fR \fI\,package\-changes\/\fR
+get package changes
+.TP
+\fBahriman\fR \fI\,package\-changes\-remove\/\fR
+remove package changes
 .TP
 \fBahriman\fR \fI\,package\-remove\/\fR
 remove package
@@ -285,6 +291,29 @@ build as user
 \fB\-v\fR \fI\,VARIABLE\/\fR, \fB\-\-variable\fR \fI\,VARIABLE\/\fR
 apply specified makepkg variables to the next build
 
+.SH COMMAND \fI\,'ahriman package\-changes'\/\fR
+usage: ahriman package\-changes [\-h] [\-e] package
+
+retrieve package changes stored in database
+
+.TP
+\fBpackage\fR
+package base
+
+.SH OPTIONS \fI\,'ahriman package\-changes'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if result is empty
+
+.SH COMMAND \fI\,'ahriman package\-changes\-remove'\/\fR
+usage: ahriman package\-changes\-remove [\-h] package
+
+remove the package changes stored remotely
+
+.TP
+\fBpackage\fR
+package base
+
 .SH COMMAND \fI\,'ahriman package\-remove'\/\fR
 usage: ahriman package\-remove [\-h] package [package ...]
 
@@ -418,7 +447,7 @@ backup repository settings and database
 path of the output archive
 
 .SH COMMAND \fI\,'ahriman repo\-check'\/\fR
-usage: ahriman repo\-check [\-h] [\-e] [\-\-vcs | \-\-no\-vcs] [\-y] [package ...]
+usage: ahriman repo\-check [\-h] [\-\-changes | \-\-no\-changes] [\-e] [\-\-vcs | \-\-no\-vcs] [\-y] [package ...]
 
 check for packages updates. Same as repo\-update \-\-dry\-run \-\-no\-manual
 
@@ -427,6 +456,10 @@ check for packages updates. Same as repo\-update \-\-dry\-run \-\-no\-manual
 filter check by package base
 
 .SH OPTIONS \fI\,'ahriman repo\-check'\/\fR
+.TP
+\fB\-\-changes\fR, \fB\-\-no\-changes\fR
+calculate changes from the latest known commit if available. Only applicable in dry run mode
+
 .TP
 \fB\-e\fR, \fB\-\-exit\-code\fR
 return non\-zero exit status if result is empty
@@ -450,8 +483,9 @@ usage: ahriman repo\-create\-mirrorlist [\-h]
 create package which contains list of available mirrors as set by configuration. Note, that this action will only create package, the package itself has to be built manually
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
-usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies]
-                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-vcs | \-\-no\-vcs] [\-y]
+usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes]
+                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-\-local | \-\-no\-local]
+                           [\-\-manual | \-\-no\-manual] [\-\-vcs | \-\-no\-vcs] [\-y]
 
 start process which periodically will run update process
 
@@ -465,8 +499,16 @@ interval between runs in seconds
 enable or disable checking for AUR updates
 
 .TP
+\fB\-\-changes\fR, \fB\-\-no\-changes\fR
+calculate changes from the latest known commit if available. Only applicable in dry run mode
+
+.TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
 process missing package dependencies
+
+.TP
+\fB\-\-dry\-run\fR
+just perform check for updates, same as check command
 
 .TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
@@ -594,9 +636,9 @@ run triggers on empty build result as configured by settings
 instead of running all triggers as set by configuration, just process specified ones in order of mention
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
-usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e]
-                           [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME]
-                           [\-\-vcs | \-\-no\-vcs] [\-y]
+usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes] [\-\-dependencies | \-\-no\-dependencies]
+                           [\-\-dry\-run] [\-e] [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local]
+                           [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
                            [package ...]
 
 check for packages updates and run build process if requested
@@ -609,6 +651,10 @@ filter check by package base
 .TP
 \fB\-\-aur\fR, \fB\-\-no\-aur\fR
 enable or disable checking for AUR updates
+
+.TP
+\fB\-\-changes\fR, \fB\-\-no\-changes\fR
+calculate changes from the latest known commit if available. Only applicable in dry run mode
 
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR

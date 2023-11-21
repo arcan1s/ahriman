@@ -93,7 +93,7 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
                                       side_effect=lambda *args: packages[args[0].name])
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages",
                                  return_value={"devtools", "python-build", "python-pytest"})
-    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
+    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.package_base_update")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_unknown")
 
     result = application.with_dependencies([package_ahriman], process_dependencies=True)

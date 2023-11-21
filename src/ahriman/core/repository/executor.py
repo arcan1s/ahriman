@@ -25,44 +25,19 @@ from tempfile import TemporaryDirectory
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.util import safe_filename
+from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
 
 
-class Executor(Cleaner):
+class Executor(PackageInfo, Cleaner):
     """
     trait for common repository update processes
     """
-
-    def load_archives(self, packages: Iterable[Path]) -> list[Package]:
-        """
-        load packages from list of archives
-
-        Args:
-            packages(Iterable[Path]): paths to package archives
-
-        Returns:
-            list[Package]: list of read packages
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
-
-    def packages(self) -> list[Package]:
-        """
-        generate list of repository packages
-
-        Returns:
-            list[Package]: list of packages properties
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
 
     def process_build(self, updates: Iterable[Package], packagers: Packagers | None = None, *,
                       bump_pkgrel: bool = False) -> Result:
@@ -78,15 +53,17 @@ class Executor(Cleaner):
         Returns:
             Result: build result
         """
-        def build_single(package: Package, local_path: Path, packager_id: str | None) -> None:
+        def build_single(package: Package, local_path: Path, packager_id: str | None) -> str | None:
             self.reporter.set_building(package.base)
             task = Task(package, self.configuration, self.architecture, self.paths)
             local_version = local_versions.get(package.base) if bump_pkgrel else None
-            task.init(local_path, self.database, local_version)
+            commit_sha = task.init(local_path, self.database, local_version)
             built = task.build(local_path, PACKAGER=packager_id)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)
+
+            return commit_sha
 
         packagers = packagers or Packagers()
         local_versions = {package.base: package.version for package in self.packages()}
@@ -97,7 +74,9 @@ class Executor(Cleaner):
                     TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
                     packager = self.packager(packagers, single.base)
-                    build_single(single, Path(dir_name), packager.packager_id)
+                    last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
+                    # clear changes and update commit hash
+                    self.reporter.package_changes_set(single.base, Changes(last_commit_sha))
                     result.add_updated(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
@@ -122,6 +101,7 @@ class Executor(Cleaner):
                 self.database.build_queue_clear(package_base)
                 self.database.patches_remove(package_base, [])
                 self.database.logs_remove(package_base, None)
+                self.database.changes_remove(package_base)
                 self.reporter.package_remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)

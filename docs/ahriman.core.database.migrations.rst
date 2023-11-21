@@ -100,6 +100,14 @@ ahriman.core.database.migrations.m011\_repository\_name module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m012\_last\_commit\_sha module
+---------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m012_last_commit_sha
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

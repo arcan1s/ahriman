@@ -33,6 +33,23 @@ class ApplicationRepository(ApplicationProperties):
     repository control class
     """
 
+    def changes(self, packages: Iterable[Package]) -> None:
+        """
+        generate and update package changes
+
+        Args:
+            packages(Iterable[Package]): list of packages to retrieve changes
+        """
+        last_commit_hashes = self.database.hashes_get()
+
+        for package in packages:
+            last_commit_sha = last_commit_hashes.get(package.base)
+            if last_commit_sha is None:
+                continue  # skip check in case if we can't calculate diff
+
+            changes = self.repository.package_changes(package, last_commit_sha)
+            self.repository.reporter.package_changes_set(package.base, changes)
+
     def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """
         run all clean methods. Warning: some functions might not be available under non-root

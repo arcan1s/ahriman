@@ -5,25 +5,10 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.repository.executor import Executor
+from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.user import User
-
-
-def test_load_archives(executor: Executor) -> None:
-    """
-    must raise NotImplemented for missing load_archives method
-    """
-    with pytest.raises(NotImplementedError):
-        executor.load_archives([])
-
-
-def test_packages(executor: Executor) -> None:
-    """
-    must raise NotImplemented for missing method
-    """
-    with pytest.raises(NotImplementedError):
-        executor.packages()
 
 
 def test_process_build(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -32,9 +17,10 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
-    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
+    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_building")
+    commit_sha_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
@@ -42,6 +28,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, mocker: Moc
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha"))
 
 
 def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -52,6 +39,7 @@ def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package,
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     mocker.patch("shutil.move")
     mocker.patch("ahriman.core.status.client.Client.set_building")
+    mocker.patch("ahriman.core.status.client.Client.package_changes_set")
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=True)
@@ -85,6 +73,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
+    commit_sha_mock = mocker.patch("ahriman.core.database.SQLite.changes_remove")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove([package_ahriman.base])
@@ -97,6 +86,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     patches_mock.assert_called_once_with(package_ahriman.base, [])
     logs_mock.assert_called_once_with(package_ahriman.base, None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    commit_sha_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_remove_base_multiple(executor: Executor, package_python_schedule: Package,

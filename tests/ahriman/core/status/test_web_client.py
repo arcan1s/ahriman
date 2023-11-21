@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 from ahriman.core.configuration import Configuration
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -37,6 +38,14 @@ def test_status_url(web_client: WebClient) -> None:
     """
     assert web_client._status_url().startswith(web_client.address)
     assert web_client._status_url().endswith("/api/v1/status")
+
+
+def test_changes_url(web_client: WebClient, package_ahriman: Package) -> None:
+    """
+    must generate changes url correctly
+    """
+    assert web_client._changes_url(package_ahriman.base).startswith(web_client.address)
+    assert web_client._changes_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/changes")
 
 
 def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
@@ -108,6 +117,121 @@ def test_package_add_failed_http_error_suppress(web_client: WebClient, package_a
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
+    logging_mock.assert_not_called()
+
+
+def test_package_changes_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must get changes
+    """
+    changes = Changes("sha")
+    response_obj = requests.Response()
+    response_obj._content = json.dumps(changes.view()).encode("utf8")
+    response_obj.status_code = 200
+
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
+
+    result = web_client.package_changes_get(package_ahriman.base)
+    requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query())
+    assert result == changes
+
+
+def test_package_changes_get_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during changes fetch
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.package_changes_get(package_ahriman.base)
+
+
+def test_package_changes_get_failed_http_error(web_client: WebClient, package_ahriman: Package,
+                                               mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during changes fetch
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.package_changes_get(package_ahriman.base)
+
+
+def test_package_changes_get_failed_suppress(web_client: WebClient, package_ahriman: Package,
+                                             mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during changes fetch and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_changes_get(package_ahriman.base)
+    logging_mock.assert_not_called()
+
+
+def test_package_changes_get_failed_http_error_suppress(web_client: WebClient, package_ahriman: Package,
+                                                        mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during changes fetch and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_changes_get(package_ahriman.base)
+    logging_mock.assert_not_called()
+
+
+def test_package_changes_set(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must set changes
+    """
+    changes = Changes("sha")
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+
+    web_client.package_changes_set(package_ahriman.base, changes)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json=changes.view())
+
+
+def test_package_changes_set_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during changes update
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.package_changes_set(package_ahriman.base, Changes())
+
+
+def test_package_changes_set_failed_http_error(web_client: WebClient, package_ahriman: Package,
+                                               mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during changes update
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.package_changes_set(package_ahriman.base, Changes())
+
+
+def test_package_changes_set_failed_suppress(web_client: WebClient, package_ahriman: Package,
+                                             mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during changes update and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_changes_set(package_ahriman.base, Changes())
+    logging_mock.assert_not_called()
+
+
+def test_package_changes_set_failed_http_error_suppress(web_client: WebClient, package_ahriman: Package,
+                                                        mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during changes update and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_changes_set(package_ahriman.base, Changes())
     logging_mock.assert_not_called()
 
 

@@ -109,7 +109,7 @@ class Task(LazyLogging):
         ).splitlines()
         return [Path(package) for package in packages]
 
-    def init(self, sources_dir: Path, database: SQLite, local_version: str | None) -> None:
+    def init(self, sources_dir: Path, database: SQLite, local_version: str | None) -> str | None:
         """
         fetch package from git
 
@@ -118,10 +118,13 @@ class Task(LazyLogging):
             database(SQLite): database instance
             local_version(str | None): local version of the package. If set and equal to current version, it will
                 automatically bump pkgrel
+
+        Returns:
+            str | None: current commit sha if available
         """
-        Sources.load(sources_dir, self.package, database.patches_get(self.package.base), self.paths)
+        last_commit_sha = Sources.load(sources_dir, self.package, database.patches_get(self.package.base), self.paths)
         if local_version is None:
-            return  # there is no local package or pkgrel increment is disabled
+            return last_commit_sha  # there is no local package or pkgrel increment is disabled
 
         # load fresh package
         loaded_package = Package.from_build(sources_dir, self.architecture, None)
@@ -129,3 +132,5 @@ class Task(LazyLogging):
             self.logger.info("package %s is the same as in repo, bumping pkgrel to %s", self.package.base, pkgrel)
             patch = PkgbuildPatch("pkgrel", pkgrel)
             patch.write(sources_dir / "PKGBUILD")
+
+        return last_commit_sha

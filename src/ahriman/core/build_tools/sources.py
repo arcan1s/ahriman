@@ -21,6 +21,7 @@ import shutil
 
 from pathlib import Path
 
+from ahriman.core.exceptions import CalledProcessError
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output, utcnow, walk
 from ahriman.models.package import Package
@@ -43,6 +44,25 @@ class Sources(LazyLogging):
     DEFAULT_COMMIT_AUTHOR = ("ahriman", "ahriman@localhost")
 
     @staticmethod
+    def changes(source_dir: Path, last_commit_sha: str | None) -> str | None:
+        """
+        extract changes from the last known commit if available
+
+        Args:
+            source_dir(Path): local path to directory with source files
+            last_commit_sha(str | None): last known commit hash
+
+        Returns:
+            str | None: changes from the last commit if available or ``None`` otherwise
+        """
+        if last_commit_sha is None:
+            return None  # no previous reference found
+
+        instance = Sources()
+        instance.fetch_until(source_dir, commit_sha=last_commit_sha)
+        return instance.diff(source_dir, last_commit_sha)
+
+    @staticmethod
     def extend_architectures(sources_dir: Path, architecture: str) -> list[PkgbuildPatch]:
         """
         extend existing PKGBUILD with repository architecture
@@ -61,13 +81,16 @@ class Sources(LazyLogging):
         return [PkgbuildPatch("arch", list(architectures))]
 
     @staticmethod
-    def fetch(sources_dir: Path, remote: RemoteSource) -> None:
+    def fetch(sources_dir: Path, remote: RemoteSource) -> str | None:
         """
         either clone repository or update it to origin/``remote.branch``
 
         Args:
             sources_dir(Path): local path to fetch
             remote(RemoteSource): remote target (from where to fetch)
+
+        Returns:
+            str | None: current commit sha if available
         """
         instance = Sources()
         # local directory exists and there is .git directory
@@ -75,13 +98,12 @@ class Sources(LazyLogging):
         if is_initialized_git and not instance.has_remotes(sources_dir):
             # there is git repository, but no remote configured so far
             instance.logger.info("skip update at %s because there are no branches configured", sources_dir)
-            return
+            return instance.head(sources_dir)
 
         branch = remote.branch or instance.DEFAULT_BRANCH
         if is_initialized_git:
             instance.logger.info("update HEAD to remote at %s using branch %s", sources_dir, branch)
-            check_output("git", "fetch", "--quiet", "--depth", "1", "origin", branch,
-                         cwd=sources_dir, logger=instance.logger)
+            instance.fetch_until(sources_dir, branch=branch)
         elif remote.git_url is not None:
             instance.logger.info("clone remote %s to %s using branch %s", remote.git_url, sources_dir, branch)
             check_output("git", "clone", "--quiet", "--depth", "1", "--branch", branch, "--single-branch",
@@ -99,6 +121,8 @@ class Sources(LazyLogging):
         # we are using full path to source directory in order to make append possible
         pkgbuild_dir = remote.pkgbuild_dir or sources_dir.resolve()
         instance.move((sources_dir / pkgbuild_dir).resolve(), sources_dir)
+
+        return instance.head(sources_dir)
 
     @staticmethod
     def has_remotes(sources_dir: Path) -> bool:
@@ -136,7 +160,7 @@ class Sources(LazyLogging):
         instance.commit(sources_dir)
 
     @staticmethod
-    def load(sources_dir: Path, package: Package, patches: list[PkgbuildPatch], paths: RepositoryPaths) -> None:
+    def load(sources_dir: Path, package: Package, patches: list[PkgbuildPatch], paths: RepositoryPaths) -> str | None:
         """
         fetch sources from remote and apply patches
 
@@ -145,16 +169,21 @@ class Sources(LazyLogging):
             package(Package): package definitions
             patches(list[PkgbuildPatch]): optional patch to be applied
             paths(RepositoryPaths): repository paths instance
+
+        Returns:
+            str | None: current commit sha if available
         """
         instance = Sources()
         if (cache_dir := paths.cache_for(package.base)).is_dir() and cache_dir != sources_dir:
             # no need to clone whole repository, just copy from cache first
             shutil.copytree(cache_dir, sources_dir, dirs_exist_ok=True)
-        instance.fetch(sources_dir, package.remote)
+        last_commit_sha = instance.fetch(sources_dir, package.remote)
 
         patches.extend(instance.extend_architectures(sources_dir, paths.repository_id.architecture))
         for patch in patches:
             instance.patch_apply(sources_dir, patch)
+
+        return last_commit_sha
 
     @staticmethod
     def patch_create(sources_dir: Path, *pattern: str) -> str:
@@ -247,17 +276,47 @@ class Sources(LazyLogging):
 
         return True
 
-    def diff(self, sources_dir: Path) -> str:
+    def diff(self, sources_dir: Path, sha: str | None = None) -> str:
         """
         generate diff from the current version and write it to the output file
 
         Args:
             sources_dir(Path): local path to git repository
+            sha(str | None, optional): optional commit sha to calculate diff (Default value = None)
 
         Returns:
             str: patch as plain string
         """
-        return check_output("git", "diff", cwd=sources_dir, logger=self.logger)
+        args = []
+        if sha is not None:
+            args.append(sha)
+        return check_output("git", "diff", *args, cwd=sources_dir, logger=self.logger)
+
+    def fetch_until(self, sources_dir: Path, *, branch: str | None = None, commit_sha: str | None = None) -> None:
+        """
+        fetch repository until commit sha
+
+        Args:
+            sources_dir(Path): local path to git repository
+            branch(str | None, optional): use specified branch (Default value = None)
+            commit_sha(str | None, optional): commit hash to fetch. If none set, only one will be fetched
+                (Default value = None)
+        """
+        commit_sha = commit_sha or "HEAD"  # if none set we just fetch the last commit
+
+        commits_count = 1
+        while commit_sha is not None:
+            command = ["git", "fetch", "--quiet", "--depth", str(commits_count)]
+            if branch is not None:
+                command += ["origin", branch]
+            check_output(*command, cwd=sources_dir, logger=self.logger)  # fetch one more level
+
+            try:
+                # check if there is an object in current git directory
+                check_output("git", "cat-file", "-e", commit_sha, cwd=sources_dir, logger=self.logger)
+                commit_sha = None  # reset search
+            except CalledProcessError:
+                commits_count += 1  # increase depth
 
     def has_changes(self, sources_dir: Path) -> bool:
         """
@@ -272,6 +331,20 @@ class Sources(LazyLogging):
         # there is --exit-code argument to diff, however, there might be other process errors
         changes = check_output("git", "diff", "--cached", "--name-only", cwd=sources_dir, logger=self.logger)
         return bool(changes)
+
+    def head(self, sources_dir: Path, ref_name: str = "HEAD") -> str:
+        """
+        extract HEAD reference for the current git repository
+
+        Args:
+            sources_dir(Path): local path to git repository
+            ref_name(str, optional): reference name (Default value = "HEAD")
+
+        Returns:
+            str: HEAD commit hash
+        """
+        # we might want to parse git files instead though
+        return check_output("git", "rev-parse", ref_name, cwd=sources_dir)
 
     def move(self, pkgbuild_dir: Path, sources_dir: Path) -> None:
         """

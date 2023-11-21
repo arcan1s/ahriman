@@ -5,16 +5,49 @@ from unittest.mock import call as MockCall
 
 from ahriman.application.application.application_repository import ApplicationRepository
 from ahriman.core.tree import Leaf, Tree
+from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
+
+
+def test_changes(application_repository: ApplicationRepository, package_ahriman: Package,
+                 mocker: MockerFixture) -> None:
+    """
+    must generate changes for the packages
+    """
+    changes = Changes("hash", "change")
+    hashes_mock = mocker.patch("ahriman.core.database.SQLite.hashes_get", return_value={
+        package_ahriman.base: changes.last_commit_sha,
+    })
+    changes_mock = mocker.patch("ahriman.core.repository.Repository.package_changes", return_value=changes)
+    report_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
+
+    application_repository.changes([package_ahriman])
+    hashes_mock.assert_called_once_with()
+    changes_mock.assert_called_once_with(package_ahriman, changes.last_commit_sha)
+    report_mock.assert_called_once_with(package_ahriman.base, changes)
+
+
+def test_changes_skip(application_repository: ApplicationRepository, package_ahriman: Package,
+                      mocker: MockerFixture) -> None:
+    """
+    must skip change generation if no last commit sha has been found
+    """
+    mocker.patch("ahriman.core.database.SQLite.hashes_get", return_value={})
+    changes_mock = mocker.patch("ahriman.core.repository.Repository.package_changes")
+    report_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
+
+    application_repository.changes([package_ahriman])
+    changes_mock.assert_not_called()
+    report_mock.assert_not_called()
 
 
 def test_clean_cache(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
     must clean cache directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_cache")
+    clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_cache")
     application_repository.clean(cache=True, chroot=False, manual=False, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
@@ -23,7 +56,7 @@ def test_clean_chroot(application_repository: ApplicationRepository, mocker: Moc
     """
     must clean chroot directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_chroot")
+    clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_chroot")
     application_repository.clean(cache=False, chroot=True, manual=False, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
@@ -32,7 +65,7 @@ def test_clean_manual(application_repository: ApplicationRepository, mocker: Moc
     """
     must clean manual directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_queue")
+    clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_queue")
     application_repository.clean(cache=False, chroot=False, manual=True, packages=False, pacman=False)
     clear_mock.assert_called_once_with()
 
@@ -41,7 +74,7 @@ def test_clean_packages(application_repository: ApplicationRepository, mocker: M
     """
     must clean packages directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_packages")
+    clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_packages")
     application_repository.clean(cache=False, chroot=False, manual=False, packages=True, pacman=False)
     clear_mock.assert_called_once_with()
 
@@ -50,7 +83,7 @@ def test_clean_pacman(application_repository: ApplicationRepository, mocker: Moc
     """
     must clean packages directory
     """
-    clear_mock = mocker.patch("ahriman.core.repository.cleaner.Cleaner.clear_pacman")
+    clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_pacman")
     application_repository.clean(cache=False, chroot=False, manual=False, packages=False, pacman=True)
     clear_mock.assert_called_once_with()
 

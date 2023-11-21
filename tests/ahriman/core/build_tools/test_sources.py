@@ -5,11 +5,38 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.build_tools.sources import Sources
+from ahriman.core.exceptions import CalledProcessError
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
+
+
+def test_changes(mocker: MockerFixture) -> None:
+    """
+    must calculate changes from the last known commit
+    """
+    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until")
+    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff", return_value="diff")
+    local = Path("local")
+    last_commit_sha = "sha"
+
+    assert Sources.changes(local, last_commit_sha) == "diff"
+    fetch_mock.assert_called_once_with(local, commit_sha=last_commit_sha)
+    diff_mock.assert_called_once_with(local, last_commit_sha)
+
+
+def test_changes_skip(package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return none in case if commit sha is not available
+    """
+    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until")
+    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
+
+    assert Sources.changes(Path("local"), None) is None
+    fetch_mock.assert_not_called()
+    diff_mock.assert_not_called()
 
 
 def test_extend_architectures(mocker: MockerFixture) -> None:
@@ -38,9 +65,12 @@ def test_fetch_empty(remote_source: RemoteSource, mocker: MockerFixture) -> None
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=False)
+    head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
 
-    Sources.fetch(Path("local"), remote_source)
+    local = Path("local")
+    assert Sources.fetch(local, remote_source) == "sha"
+    head_mock.assert_called_once_with(local)
     check_output_mock.assert_not_called()
 
 
@@ -51,18 +81,20 @@ def test_fetch_existing(remote_source: RemoteSource, mocker: MockerFixture) -> N
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.has_remotes", return_value=True)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
+    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
+    head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
 
     local = Path("local")
-    Sources.fetch(local, remote_source)
+    assert Sources.fetch(local, remote_source) == "sha"
+    fetch_mock.assert_called_once_with(local, branch=remote_source.branch)
     check_output_mock.assert_has_calls([
-        MockCall("git", "fetch", "--quiet", "--depth", "1", "origin",
-                 remote_source.branch, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "checkout", "--force", remote_source.branch, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "reset", "--quiet", "--hard", f"origin/{remote_source.branch}",
                  cwd=local, logger=pytest.helpers.anyvar(int)),
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
+    head_mock.assert_called_once_with(local)
 
 
 def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
@@ -72,9 +104,10 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
+    head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
 
     local = Path("local")
-    Sources.fetch(local, remote_source)
+    assert Sources.fetch(local, remote_source) == "sha"
     check_output_mock.assert_has_calls([
         MockCall("git", "clone", "--quiet", "--depth", "1", "--branch", remote_source.branch, "--single-branch",
                  remote_source.git_url, str(local), cwd=local.parent, logger=pytest.helpers.anyvar(int)),
@@ -83,6 +116,7 @@ def test_fetch_new(remote_source: RemoteSource, mocker: MockerFixture) -> None:
                  cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
+    head_mock.assert_called_once_with(local)
 
 
 def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
@@ -92,15 +126,17 @@ def test_fetch_new_without_remote(mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
+    head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
 
     local = Path("local")
-    Sources.fetch(local, RemoteSource(source=PackageSource.Archive))
+    assert Sources.fetch(local, RemoteSource(source=PackageSource.Archive)) == "sha"
     check_output_mock.assert_has_calls([
         MockCall("git", "checkout", "--force", Sources.DEFAULT_BRANCH, cwd=local, logger=pytest.helpers.anyvar(int)),
         MockCall("git", "reset", "--quiet", "--hard", f"origin/{Sources.DEFAULT_BRANCH}",
                  cwd=local, logger=pytest.helpers.anyvar(int))
     ])
     move_mock.assert_called_once_with(local.resolve(), local)
+    head_mock.assert_called_once_with(local)
 
 
 def test_fetch_relative(remote_source: RemoteSource, mocker: MockerFixture) -> None:
@@ -109,9 +145,12 @@ def test_fetch_relative(remote_source: RemoteSource, mocker: MockerFixture) -> N
     """
     mocker.patch("ahriman.core.build_tools.sources.check_output")
     move_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.move")
+    head_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.head", return_value="sha")
 
-    Sources.fetch(Path("path"), remote_source)
-    move_mock.assert_called_once_with(Path("path").resolve(), Path("path"))
+    local = Path("local")
+    assert Sources.fetch(local, remote_source) == "sha"
+    move_mock.assert_called_once_with(local.resolve(), local)
+    head_mock.assert_called_once_with(local)
 
 
 def test_has_remotes(mocker: MockerFixture) -> None:
@@ -171,11 +210,11 @@ def test_load(package_ahriman: Package, repository_paths: RepositoryPaths, mocke
     """
     patch = PkgbuildPatch(None, "patch")
     path = Path("local")
-    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", return_value="sha")
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
     architectures_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
 
-    Sources.load(path, package_ahriman, [patch], repository_paths)
+    assert Sources.load(path, package_ahriman, [patch], repository_paths) == "sha"
     fetch_mock.assert_called_once_with(path, package_ahriman.remote)
     patch_mock.assert_called_once_with(path, patch)
     architectures_mock.assert_called_once_with(path, repository_paths.repository_id.architecture)
@@ -186,11 +225,11 @@ def test_load_no_patch(package_ahriman: Package, repository_paths: RepositoryPat
     must load packages sources correctly without patches
     """
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", return_value="sha")
     mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
     patch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.patch_apply")
 
-    Sources.load(Path("local"), package_ahriman, [], repository_paths)
+    assert Sources.load(Path("local"), package_ahriman, [], repository_paths) == "sha"
     patch_mock.assert_not_called()
 
 
@@ -200,10 +239,10 @@ def test_load_with_cache(package_ahriman: Package, repository_paths: RepositoryP
     """
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     copytree_mock = mocker.patch("shutil.copytree")
-    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", return_value="sha")
     mocker.patch("ahriman.core.build_tools.sources.Sources.extend_architectures", return_value=[])
 
-    Sources.load(Path("local"), package_ahriman, [], repository_paths)
+    assert Sources.load(Path("local"), package_ahriman, [], repository_paths) == "sha"
     copytree_mock.assert_called_once()  # we do not check full command here, sorry
 
 
@@ -269,7 +308,7 @@ def test_add(sources: Sources, mocker: MockerFixture) -> None:
     sources.add(local, "pattern1", "pattern2")
     glob_mock.assert_has_calls([MockCall("pattern1"), MockCall("pattern2")])
     check_output_mock.assert_called_once_with(
-        "git", "add", "1", "2", "1", "2", cwd=local, logger=pytest.helpers.anyvar(int)
+        "git", "add", "1", "2", "1", "2", cwd=local, logger=sources.logger
     )
 
 
@@ -284,7 +323,7 @@ def test_add_intent_to_add(sources: Sources, mocker: MockerFixture) -> None:
     sources.add(local, "pattern1", "pattern2", intent_to_add=True)
     glob_mock.assert_has_calls([MockCall("pattern1"), MockCall("pattern2")])
     check_output_mock.assert_called_once_with(
-        "git", "add", "--intent-to-add", "1", "2", "1", "2", cwd=local, logger=pytest.helpers.anyvar(int)
+        "git", "add", "--intent-to-add", "1", "2", "1", "2", cwd=local, logger=sources.logger
     )
 
 
@@ -312,7 +351,7 @@ def test_commit(sources: Sources, mocker: MockerFixture) -> None:
     assert sources.commit(local, message=message)
     check_output_mock.assert_called_once_with(
         "git", "commit", "--quiet", "--message", message,
-        cwd=local, logger=pytest.helpers.anyvar(int), environment={
+        cwd=local, logger=sources.logger, environment={
             "GIT_AUTHOR_NAME": user,
             "GIT_AUTHOR_EMAIL": email,
             "GIT_COMMITTER_NAME": user,
@@ -345,7 +384,7 @@ def test_commit_author(sources: Sources, mocker: MockerFixture) -> None:
     assert sources.commit(Path("local"), message=message, commit_author=author)
     check_output_mock.assert_called_once_with(
         "git", "commit", "--quiet", "--message", message,
-        cwd=local, logger=pytest.helpers.anyvar(int), environment={
+        cwd=local, logger=sources.logger, environment={
             "GIT_AUTHOR_NAME": user,
             "GIT_AUTHOR_EMAIL": email,
             "GIT_COMMITTER_NAME": user,
@@ -366,7 +405,7 @@ def test_commit_autogenerated_message(sources: Sources, mocker: MockerFixture) -
     user, email = sources.DEFAULT_COMMIT_AUTHOR
     check_output_mock.assert_called_once_with(
         "git", "commit", "--quiet", "--message", pytest.helpers.anyvar(str, strict=True),
-        cwd=local, logger=pytest.helpers.anyvar(int), environment={
+        cwd=local, logger=sources.logger, environment={
             "GIT_AUTHOR_NAME": user,
             "GIT_AUTHOR_EMAIL": email,
             "GIT_COMMITTER_NAME": user,
@@ -383,7 +422,67 @@ def test_diff(sources: Sources, mocker: MockerFixture) -> None:
 
     local = Path("local")
     assert sources.diff(local)
-    check_output_mock.assert_called_once_with("git", "diff", cwd=local, logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("git", "diff", cwd=local, logger=sources.logger)
+
+
+def test_diff_specific(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must calculate diff from specific ref
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
+
+    local = Path("local")
+    assert sources.diff(local, "hash")
+    check_output_mock.assert_called_once_with("git", "diff", "hash", cwd=local, logger=sources.logger)
+
+
+def test_fetch_until(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must fetch until the specified commit
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", side_effect=[
+        "",
+        CalledProcessError(1, ["command"], "error"),
+        "",
+        "",
+    ])
+
+    local = Path("local")
+    sources.fetch_until(local, branch="master", commit_sha="sha")
+    check_output_mock.assert_has_calls([
+        MockCall("git", "fetch", "--quiet", "--depth", "1", "origin", "master", cwd=local, logger=sources.logger),
+        MockCall("git", "cat-file", "-e", "sha", cwd=local, logger=sources.logger),
+        MockCall("git", "fetch", "--quiet", "--depth", "2", "origin", "master", cwd=local, logger=sources.logger),
+        MockCall("git", "cat-file", "-e", "sha", cwd=local, logger=sources.logger),
+    ])
+
+
+def test_fetch_until_first(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must fetch first commit only
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
+
+    local = Path("local")
+    sources.fetch_until(local, branch="master")
+    check_output_mock.assert_has_calls([
+        MockCall("git", "fetch", "--quiet", "--depth", "1", "origin", "master", cwd=local, logger=sources.logger),
+        MockCall("git", "cat-file", "-e", "HEAD", cwd=local, logger=sources.logger),
+    ])
+
+
+def test_fetch_until_all_branches(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must fetch all branches
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
+
+    local = Path("local")
+    sources.fetch_until(local)
+    check_output_mock.assert_has_calls([
+        MockCall("git", "fetch", "--quiet", "--depth", "1", cwd=local, logger=sources.logger),
+        MockCall("git", "cat-file", "-e", "HEAD", cwd=local, logger=sources.logger),
+    ])
 
 
 def test_has_changes(sources: Sources, mocker: MockerFixture) -> None:
@@ -395,12 +494,34 @@ def test_has_changes(sources: Sources, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="M a.txt")
     assert sources.has_changes(local)
     check_output_mock.assert_called_once_with("git", "diff", "--cached", "--name-only",
-                                              cwd=local, logger=pytest.helpers.anyvar(int))
+                                              cwd=local, logger=sources.logger)
 
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="")
     assert not sources.has_changes(local)
     check_output_mock.assert_called_once_with("git", "diff", "--cached", "--name-only",
-                                              cwd=local, logger=pytest.helpers.anyvar(int))
+                                              cwd=local, logger=sources.logger)
+
+
+def test_head(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must correctly define HEAD hash
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="sha")
+    local = Path("local")
+
+    assert sources.head(local) == "sha"
+    check_output_mock.assert_called_once_with("git", "rev-parse", "HEAD", cwd=local)
+
+
+def test_head_specific(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must correctly define ref hash
+    """
+    check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output", return_value="sha")
+    local = Path("local")
+
+    assert sources.head(local, "master") == "sha"
+    check_output_mock.assert_called_once_with("git", "rev-parse", "master", cwd=local)
 
 
 def test_move(sources: Sources, mocker: MockerFixture) -> None:
@@ -434,7 +555,7 @@ def test_patch_apply(sources: Sources, mocker: MockerFixture) -> None:
     sources.patch_apply(local, patch)
     check_output_mock.assert_called_once_with(
         "git", "apply", "--ignore-space-change", "--ignore-whitespace",
-        cwd=local, input_data=patch.value, logger=pytest.helpers.anyvar(int)
+        cwd=local, input_data=patch.value, logger=sources.logger
     )
 
 

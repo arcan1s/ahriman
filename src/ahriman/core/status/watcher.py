@@ -21,6 +21,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -112,6 +113,23 @@ class Watcher(LazyLogging):
             self.logs_remove(log_record_id.package_base, log_record_id.version)
         self._last_log_record_id = log_record_id
         self.database.logs_insert(log_record_id, created, record, self.repository_id)
+
+    def package_changes_get(self, package_base: str) -> Changes:
+        """
+        retrieve package changes
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            Changes: package changes if available
+
+        Raises:
+            UnknownPackageError: if no package found
+        """
+        if package_base not in self.known:
+            raise UnknownPackageError(package_base)
+        return self.database.changes_get(package_base, self.repository_id)
 
     def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """

@@ -109,8 +109,7 @@ def test_key_export(gpg: GPG, mocker: MockerFixture) -> None:
     """
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.check_output", return_value="key")
     assert gpg.key_export("k") == "key"
-    check_output_mock.assert_called_once_with("gpg", "--armor", "--no-emit-version", "--export", "k",
-                                              logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("gpg", "--armor", "--no-emit-version", "--export", "k", logger=gpg.logger)
 
 
 def test_key_fingerprint(gpg: GPG, mocker: MockerFixture) -> None:
@@ -126,8 +125,7 @@ fpr:::::::::43A663569A07EE1E4ECC55CC7E3A4240CE3C45C2:""")
 
     key = "0xCE3C45C2"
     assert gpg.key_fingerprint(key) == "C6EBB9222C3C8078631A0DE4BD2AC8C5E989490C"
-    check_output_mock.assert_called_once_with("gpg", "--with-colons", "--fingerprint", key,
-                                              logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("gpg", "--with-colons", "--fingerprint", key, logger=gpg.logger)
 
 
 def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
@@ -138,7 +136,7 @@ def test_key_import(gpg: GPG, mocker: MockerFixture) -> None:
     check_output_mock = mocker.patch("ahriman.core.sign.gpg.check_output")
 
     gpg.key_import("keyserver.ubuntu.com", "0xE989490C")
-    check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=pytest.helpers.anyvar(int))
+    check_output_mock.assert_called_once_with("gpg", "--import", input_data="key", logger=gpg.logger)
 
 
 def test_process(gpg_with_key: GPG, mocker: MockerFixture) -> None:

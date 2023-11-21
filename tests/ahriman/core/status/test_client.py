@@ -6,6 +6,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.status.client import Client
 from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -85,6 +86,20 @@ def test_package_add(client: Client, package_ahriman: Package) -> None:
     must process package addition without errors
     """
     client.package_add(package_ahriman, BuildStatusEnum.Unknown)
+
+
+def test_package_changes_get(client: Client, package_ahriman: Package) -> None:
+    """
+    must return null changes
+    """
+    assert client.package_changes_get(package_ahriman.base) == Changes()
+
+
+def test_package_changes_set(client: Client, package_ahriman: Package) -> None:
+    """
+    must process changes update without errors
+    """
+    client.package_changes_set(package_ahriman.base, Changes())
 
 
 def test_package_get(client: Client, package_ahriman: Package) -> None:
