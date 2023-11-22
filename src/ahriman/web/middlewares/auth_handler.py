@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_security  # type: ignore[import-untyped]
+import aiohttp_security
 import socket
 import types
 
@@ -25,6 +25,7 @@ from aiohttp.web import Application, Request, StaticResource, StreamResponse, mi
 from aiohttp_session import setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
+from enum import Enum
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -50,6 +51,7 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
         Args:
             validator(Auth): authorization module instance
         """
+        aiohttp_security.AbstractAuthorizationPolicy.__init__(self)
         self.validator = validator
 
     async def authorized_userid(self, identity: str) -> str | None:
@@ -64,18 +66,21 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
         """
         return identity if await self.validator.known_username(identity) else None
 
-    async def permits(self, identity: str, permission: UserAccess, context: str | None = None) -> bool:
+    async def permits(self, identity: str | None, permission: str | Enum, context: str | None = None) -> bool:
         """
         check user permissions
 
         Args:
-            identity(str): username
-            permission(UserAccess): requested permission level
+            identity(str | None): username
+            permission(str | Enum): requested permission level
             context(str | None, optional): URI request path (Default value = None)
 
         Returns:
             bool: True in case if user is allowed to perform this request and False otherwise
         """
+        # some methods for type checking and parent class compatibility
+        if identity is None or not isinstance(permission, UserAccess):
+            return False  # no identity provided or invalid access rights requested
         return await self.validator.verify_access(identity, permission, context)
 
 
