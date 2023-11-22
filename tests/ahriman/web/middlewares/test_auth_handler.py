@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, call as MockCall
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 from ahriman.web.middlewares.auth_handler import _AuthorizationPolicy, _auth_handler, _cookie_secret_key, setup_auth
@@ -39,6 +40,9 @@ async def test_permits(authorization_policy: _AuthorizationPolicy, user: User) -
 
     assert await authorization_policy.permits(user.username, user.access, "/endpoint")
     assert not await authorization_policy.permits("somerandomname", user.access, "/endpoint")
+    assert not await authorization_policy.permits(None, user.access, "/endpoint")
+    assert not await authorization_policy.permits(user.username, "random", "/endpoint")
+    assert not await authorization_policy.permits(None, BuildStatusEnum.Building, "/endpoint")
 
     authorization_policy.validator.verify_access.assert_has_calls([
         MockCall(user.username, user.access, "/endpoint"),

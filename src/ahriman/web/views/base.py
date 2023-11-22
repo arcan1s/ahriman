@@ -139,7 +139,7 @@ class BaseView(View, CorsViewMixin):
         return value
 
     # pylint: disable=not-callable,protected-access
-    async def head(self) -> StreamResponse:  # type: ignore[return]
+    async def head(self) -> StreamResponse:
         """
         HEAD method implementation based on the result of GET method
 
