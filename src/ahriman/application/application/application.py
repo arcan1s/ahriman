@@ -150,7 +150,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                 with_dependencies[package.base] = package
 
                 # register package in local database
-                self.database.remote_update(package)
+                self.database.package_base_update(package)
                 self.repository.reporter.set_unknown(package)
 
         return list(with_dependencies.values())

@@ -20,6 +20,14 @@ ahriman.core.repository.executor module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.repository.package\_info module
+--------------------------------------------
+
+.. automodule:: ahriman.core.repository.package_info
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.repository.repository module
 -----------------------------------------
 

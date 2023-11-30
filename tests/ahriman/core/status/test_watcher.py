@@ -6,6 +6,7 @@ from unittest.mock import call as MockCall
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -86,6 +87,25 @@ def test_logs_update_update(watcher: Watcher, package_ahriman: Package, mocker: 
     watcher.logs_update(log_record_id, 42.01, "log record")
     delete_mock.assert_not_called()
     insert_mock.assert_called_once_with(log_record_id, 42.01, "log record", watcher.repository_id)
+
+
+def test_package_changes_get(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return package changes
+    """
+    get_mock = mocker.patch("ahriman.core.database.SQLite.changes_get", return_value=Changes("sha"))
+    watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+
+    assert watcher.package_changes_get(package_ahriman.base) == Changes("sha")
+    get_mock.assert_called_once_with(package_ahriman.base, watcher.repository_id)
+
+
+def test_package_changes_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
+    """
+    must raise UnknownPackageError in case of unknown package
+    """
+    with pytest.raises(UnknownPackageError):
+        watcher.package_changes_get(package_ahriman.base)
 
 
 def test_package_get(watcher: Watcher, package_ahriman: Package) -> None:

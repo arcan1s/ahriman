@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Iterable
-from pathlib import Path
 from typing import Self
 
 from ahriman.core import _Context, context
@@ -28,9 +26,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.util import package_like
 from ahriman.models.context_key import ContextKey
-from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 
@@ -101,74 +97,3 @@ class Repository(Executor, UpdateHandler):
         ctx.set(ContextKey("repository", type(self)), self)
 
         context.set(ctx)
-
-    def load_archives(self, packages: Iterable[Path]) -> list[Package]:
-        """
-        load packages from list of archives
-
-        Args:
-            packages(Iterable[Path]): paths to package archives
-
-        Returns:
-            list[Package]: list of read packages
-        """
-        sources = self.database.remotes_get()
-
-        result: dict[str, Package] = {}
-        # we are iterating over bases, not single packages
-        for full_path in packages:
-            try:
-                local = Package.from_archive(full_path, self.pacman)
-                if (source := sources.get(local.base)) is not None:
-                    local.remote = source
-
-                current = result.setdefault(local.base, local)
-                if current.version != local.version:
-                    # force version to max of them
-                    self.logger.warning("version of %s differs, found %s and %s",
-                                        current.base, current.version, local.version)
-                    if current.is_outdated(local, self.paths, calculate_version=False):
-                        current.version = local.version
-                current.packages.update(local.packages)
-            except Exception:
-                self.logger.exception("could not load package from %s", full_path)
-        return list(result.values())
-
-    def packages(self) -> list[Package]:
-        """
-        generate list of repository packages
-
-        Returns:
-            list[Package]: list of packages properties
-        """
-        return self.load_archives(filter(package_like, self.paths.repository.iterdir()))
-
-    def packages_built(self) -> list[Path]:
-        """
-        get list of files in built packages directory
-
-        Returns:
-            list[Path]: list of filenames from the directory
-        """
-        return list(filter(package_like, self.paths.packages.iterdir()))
-
-    def packages_depend_on(self, packages: list[Package], depends_on: Iterable[str] | None) -> list[Package]:
-        """
-        extract list of packages which depends on specified package
-
-        Args:
-            packages(list[Package]): list of packages to be filtered
-            depends_on(Iterable[str] | None): dependencies of the packages
-
-        Returns:
-            list[Package]: list of repository packages which depend on specified packages
-        """
-        if depends_on is None:
-            return packages  # no list provided extract everything by default
-        depends_on = set(depends_on)
-
-        return [
-            package
-            for package in packages
-            if depends_on.intersection(package.full_depends(self.pacman, packages))
-        ]

@@ -47,9 +47,13 @@ class Update(Handler):
         """
         application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         application.on_start()
+
         packages = application.updates(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
-        Update.check_if_empty(args.exit_code, not packages)
-        if args.dry_run:
+        if args.dry_run:  # some check specific actions
+            if args.changes:  # generate changes if requested
+                application.changes(packages)
+
+            Update.check_if_empty(args.exit_code, not packages)  # status code check
             return
 
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)

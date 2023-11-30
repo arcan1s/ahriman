@@ -20,6 +20,14 @@ ahriman.application.handlers.backup module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.change module
+------------------------------------------
+
+.. automodule:: ahriman.application.handlers.change
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.clean module
 -----------------------------------------
 

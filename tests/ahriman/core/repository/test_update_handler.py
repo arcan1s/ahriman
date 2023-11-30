@@ -11,14 +11,6 @@ from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 
 
-def test_packages(update_handler: UpdateHandler) -> None:
-    """
-    must raise NotImplemented for missing method
-    """
-    with pytest.raises(NotImplementedError):
-        update_handler.packages()
-
-
 def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
                      mocker: MockerFixture) -> None:
     """

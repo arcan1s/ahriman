@@ -114,8 +114,8 @@ But for some cases you would like to have multiple different reports with the sa
    type = email
    ...
 
-How do I add new package
-^^^^^^^^^^^^^^^^^^^^^^^^
+How to add new package
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: shell
 
@@ -236,6 +236,27 @@ Normally the service handles VCS packages correctly, however it requires additio
 .. code-block:: shell
 
    pacman -S breezy darcs mercurial subversion
+
+How to review changes before build
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this scenario, the update process must be separated to several stages. First, it is required to check updates:
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman repo-check
+
+During the check process, the service will generate changes from the last known commit and will send it to remote service. In order to verify source files changes, the web interface or special subcommand can be used:
+
+.. code-block:: shell
+
+   ahriman package-changes ahriman
+
+After validation, the operator can run update process with approved list of packages, e.g.:
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman repo-update ahriman
 
 How to remove package
 ^^^^^^^^^^^^^^^^^^^^^

@@ -36,6 +36,14 @@ ahriman.models.build\_status module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.changes module
+-----------------------------
+
+.. automodule:: ahriman.models.changes
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.context\_key module
 ----------------------------------
 

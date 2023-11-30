@@ -20,7 +20,7 @@
 from collections.abc import Generator
 from typing import Any
 
-from ahriman.core.formatters import StringPrinter
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.property import Property
 
 

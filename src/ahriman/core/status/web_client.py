@@ -26,6 +26,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncAhrimanClient
 from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -83,6 +84,18 @@ class WebClient(Client, SyncAhrimanClient):
             address = f"http://{host}:{port}"
         return "web", address
 
+    def _changes_url(self, package_base: str) -> str:
+        """
+        get url for the changes api
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            str: full url for web service for logs
+        """
+        return f"{self.address}/api/v1/packages/{package_base}/changes"
+
     def _logs_url(self, package_base: str) -> str:
         """
         get url for the logs api
@@ -133,6 +146,37 @@ class WebClient(Client, SyncAhrimanClient):
         with contextlib.suppress(Exception):
             self.make_request("POST", self._package_url(package.base),
                               params=self.repository_id.query(), json=payload)
+
+    def package_changes_get(self, package_base: str) -> Changes:
+        """
+        get package changes
+
+        Args:
+            package_base(str): package base to retrieve
+
+        Returns:
+            Changes: package changes if available and empty object otherwise
+        """
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._changes_url(package_base),
+                                         params=self.repository_id.query())
+            response_json = response.json()
+
+            return Changes.from_json(response_json)
+
+        return Changes()
+
+    def package_changes_set(self, package_base: str, changes: Changes) -> None:
+        """
+        update package changes
+
+        Args:
+            package_base(str): package base to update
+            changes(Changes): changes descriptor
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._changes_url(package_base),
+                              params=self.repository_id.query(), json=changes.view())
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
