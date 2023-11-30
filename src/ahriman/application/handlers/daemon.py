@@ -43,8 +43,10 @@ class Daemon(Handler):
             report(bool): force enable or disable reporting
         """
         from ahriman.application.handlers import Update
-        Update.run(args, repository_id, configuration, report=report)
-        timer = threading.Timer(args.interval, Daemon.run, args=[args, repository_id, configuration],
-                                kwargs={"report": report})
-        timer.start()
-        timer.join()
+
+        event = threading.Event()
+        try:
+            while not event.wait(args.interval):
+                Update.run(args, repository_id, configuration, report=report)
+        except KeyboardInterrupt:
+            pass  # normal exit
