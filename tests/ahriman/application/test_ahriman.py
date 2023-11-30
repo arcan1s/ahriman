@@ -270,6 +270,34 @@ def test_subparsers_package_add_option_variable_multiple(parser: argparse.Argume
     assert args.variable == ["var1", "var2"]
 
 
+def test_subparsers_package_changes(parser: argparse.ArgumentParser) -> None:
+    """
+    package-changes command must imply action, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-changes", "ahriman"])
+    assert args.action == Action.List
+    assert args.architecture == "x86_64"
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
+def test_subparsers_package_changes_remove(parser: argparse.ArgumentParser) -> None:
+    """
+    package-changes-remove command must imply action, lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-changes-remove", "ahriman"])
+    assert args.action == Action.Remove
+    assert args.architecture == "x86_64"
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
 def test_subparsers_package_remove_option_architecture(parser: argparse.ArgumentParser) -> None:
     """
     package-remove command must correctly parse architecture list
@@ -633,10 +661,9 @@ def test_subparsers_repo_create_mirrorlist_option_repository(parser: argparse.Ar
 
 def test_subparsers_repo_daemon(parser: argparse.ArgumentParser) -> None:
     """
-    repo-daemon command must imply dry run, exit code and package
+    repo-daemon command must imply exit code and package
     """
     args = parser.parse_args(["repo-daemon"])
-    assert not args.dry_run
     assert not args.exit_code
     assert args.package == []
 

@@ -65,7 +65,7 @@ class ApplicationPackages(ApplicationProperties):
         """
         package = Package.from_aur(source, username)
         self.database.build_queue_insert(package)
-        self.database.remote_update(package)
+        self.database.package_base_update(package)
 
     def _add_directory(self, source: str, *_: Any) -> None:
         """
@@ -139,7 +139,7 @@ class ApplicationPackages(ApplicationProperties):
         """
         package = Package.from_official(source, self.repository.pacman, username)
         self.database.build_queue_insert(package)
-        self.database.remote_update(package)
+        self.database.package_base_update(package)
 
     def add(self, names: Iterable[str], source: PackageSource, username: str | None = None) -> None:
         """

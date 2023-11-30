@@ -199,7 +199,7 @@ def test_remote_update_get(database: SQLite, package_ahriman: Package) -> None:
     """
     must insert and retrieve package remote
     """
-    database.remote_update(package_ahriman)
+    database.package_base_update(package_ahriman)
     assert database.remotes_get()[package_ahriman.base] == package_ahriman.remote
 
 
@@ -207,9 +207,9 @@ def test_remote_update_update(database: SQLite, package_ahriman: Package) -> Non
     """
     must perform package remote update for existing package
     """
-    database.remote_update(package_ahriman)
+    database.package_base_update(package_ahriman)
     remote_source = RemoteSource(source=PackageSource.Repository)
     package_ahriman.remote = remote_source
 
-    database.remote_update(package_ahriman)
+    database.package_base_update(package_ahriman)
     assert database.remotes_get()[package_ahriman.base] == remote_source

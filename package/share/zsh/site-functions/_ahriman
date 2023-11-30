@@ -19,6 +19,8 @@ _shtab_ahriman_commands() {
     "init:create initial service configuration, requires root"
     "key-import:import PGP key from public sources to the repository user"
     "package-add:add existing or new package to the build queue"
+    "package-changes:retrieve package changes stored in database"
+    "package-changes-remove:remove the package changes stored remotely"
     "package-remove:remove package from the repository"
     "package-status:request status of the package"
     "package-status-remove:remove the package from the status page"
@@ -117,6 +119,7 @@ _shtab_ahriman_aur_search_options=(
 
 _shtab_ahriman_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
@@ -149,7 +152,9 @@ _shtab_ahriman_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-i,--interval}"[interval between runs in seconds (default\: 43200)]:interval:"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  "--dry-run[just perform check for updates, same as check command (default\: False)]"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
@@ -208,6 +213,17 @@ _shtab_ahriman_package_add_options=(
   {-u,--username}"[build as user (default\: None)]:username:"
   "*"{-v,--variable}"[apply specified makepkg variables to the next build (default\: None)]:variable:"
   "(*):package source (base name, path to local files, remote URL):"
+)
+
+_shtab_ahriman_package_changes_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
+  ":package base:"
+)
+
+_shtab_ahriman_package_changes_remove_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  ":package base:"
 )
 
 _shtab_ahriman_package_remove_options=(
@@ -302,6 +318,7 @@ _shtab_ahriman_repo_backup_options=(
 
 _shtab_ahriman_repo_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
@@ -342,7 +359,9 @@ _shtab_ahriman_repo_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-i,--interval}"[interval between runs in seconds (default\: 43200)]:interval:"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
+  "--dry-run[just perform check for updates, same as check command (default\: False)]"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
@@ -434,6 +453,7 @@ _shtab_ahriman_repo_triggers_options=(
 _shtab_ahriman_repo_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command (default\: False)]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
@@ -574,6 +594,7 @@ _shtab_ahriman_sync_options=(
 _shtab_ahriman_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--aur,--no-aur}"[enable or disable checking for AUR updates (default\: True)]:aur:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command (default\: False)]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
@@ -644,6 +665,8 @@ _shtab_ahriman() {
         init) _arguments -C -s $_shtab_ahriman_init_options ;;
         key-import) _arguments -C -s $_shtab_ahriman_key_import_options ;;
         package-add) _arguments -C -s $_shtab_ahriman_package_add_options ;;
+        package-changes) _arguments -C -s $_shtab_ahriman_package_changes_options ;;
+        package-changes-remove) _arguments -C -s $_shtab_ahriman_package_changes_remove_options ;;
         package-remove) _arguments -C -s $_shtab_ahriman_package_remove_options ;;
         package-status) _arguments -C -s $_shtab_ahriman_package_status_options ;;
         package-status-remove) _arguments -C -s $_shtab_ahriman_package_status_remove_options ;;

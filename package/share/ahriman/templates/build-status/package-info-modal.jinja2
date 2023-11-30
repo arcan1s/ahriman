@@ -36,13 +36,27 @@
 
                 <hr class="col-12">
 
-                <h3>Environment variables</h3>
-                <div id="package-info-variables-div" class="form-group row"></div>
+                <div id="package-info-variables-block" hidden>
+                    <h3>Environment variables</h3>
+                    <div id="package-info-variables-div" class="form-group row"></div>
 
-                <hr class="col-12">
+                    <hr class="col-12">
+                </div>
 
-                <h3>Build logs</h3>
-                <pre class="language-logs"><samp id="package-info-logs-input" class="pre-scrollable language-logs"></samp><button id="package-info-logs-copy-button" type="button" class="btn language-logs" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                <nav>
+                    <div class="nav nav-tabs" role="tablist">
+                        <button id="package-info-logs-button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#package-info-logs" type="button" role="tab" aria-controls="package-info-logs" aria-selected="true"><h3>Build logs</h3></button>
+                        <button id="package-info-changes-button" class="nav-link" data-bs-toggle="tab" data-bs-target="#package-info-changes" type="button" role="tab" aria-controls="package-info-changes" aria-selected="false"><h3>Changes</h3></button>
+                    </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                    <div id="package-info-logs" class="tab-pane fade show active" role="tabpanel" aria-labelledby="package-info-logs-button" tabindex="0">
+                        <pre class="language-console"><code id="package-info-logs-input" class="pre-scrollable language-console"></code><button id="package-info-logs-copy-button" type="button" class="btn language-console" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                    </div>
+                    <div id="package-info-changes" class="tab-pane fade" role="tabpanel" aria-labelledby="package-info-changes-button" tabindex="0">
+                        <pre class="language-diff"><code id="package-info-changes-input" class="pre-scrollable language-diff"></code><button id="package-info-changes-copy-button" type="button" class="btn language-diff" onclick="copyChanges()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal" hidden><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
@@ -68,9 +82,11 @@
         packageInfoUpstreamUrl.empty();
         packageInfoVersion.empty();
 
+        packageInfoVariablesBlock.attr("hidden", true);
         packageInfoVariablesDiv.empty();
 
         packageInfoLogsInput.empty();
+        packageInfoChangesInput.empty();
 
         packageInfoModal.trigger("reset");
 
@@ -79,6 +95,9 @@
 
     const packageInfoLogsInput = $("#package-info-logs-input");
     const packageInfoLogsCopyButton = $("#package-info-logs-copy-button");
+
+    const packageInfoChangesInput = $("#package-info-changes-input");
+    const packageInfoChangesCopyButton = $("#package-info-changes-copy-button");
 
     const packageInfoAurUrl = $("#package-info-aur-url");
     const packageInfoDepends = $("#package-info-depends");
@@ -89,7 +108,13 @@
     const packageInfoUpstreamUrl = $("#package-info-upstream-url");
     const packageInfoVersion = $("#package-info-version");
 
+    const packageInfoVariablesBlock = $("#package-info-variables-block");
     const packageInfoVariablesDiv = $("#package-info-variables-div");
+
+    async function copyChanges() {
+        const changes = packageInfoChangesInput.text();
+        await copyToClipboard(changes, packageInfoChangesCopyButton);
+    }
 
     async function copyLogs() {
         const logs = packageInfoLogsInput.text();
@@ -142,6 +167,24 @@
         packageInfoVariablesDiv.append(variableInput);
     }
 
+    function loadChanges(packageBase, onFailure) {
+        $.ajax({
+            url: `/api/v1/packages/${packageBase}/changes`,
+            data: {
+                architecture: repository.architecture,
+                repository: repository.repository,
+            },
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                const changes = response.changes;
+                packageInfoChangesInput.text(changes || "");
+                packageInfoChangesInput.map((_, el) => hljs.highlightElement(el));
+            },
+            error: onFailure,
+        });
+    }
+
     function loadLogs(packageBase, onFailure) {
         $.ajax({
             url: `/api/v2/packages/${packageBase}/logs`,
@@ -156,6 +199,7 @@
                     return `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`;
                 });
                 packageInfoLogsInput.text(logs.join("\n"));
+                packageInfoLogsInput.map((_, el) => hljs.highlightElement(el));
             },
             error: onFailure,
         });
@@ -228,6 +272,7 @@
             success: response => {
                 packageInfoVariablesDiv.empty();
                 response.map(patch => insertVariable(packageBase, patch));
+                packageInfoVariablesBlock.attr("hidden", response.length === 0);
             },
             error: onFailure,
         });
@@ -260,6 +305,7 @@
         loadPackage(packageBase, onFailure);
         loadPatches(packageBase, onFailure);
         loadLogs(packageBase, onFailure);
+        loadChanges(packageBase, onFailure)
 
         if (isPackageBaseSet) packageInfoModal.modal("show");
     }

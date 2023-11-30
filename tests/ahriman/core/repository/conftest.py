@@ -6,6 +6,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.executor import Executor
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 
@@ -47,6 +48,23 @@ def executor(configuration: Configuration, database: SQLite, mocker: MockerFixtu
     _, repository_id = configuration.check_loaded()
     return Executor(repository_id, configuration, database, report=False,
                     refresh_pacman_database=PacmanSynchronization.Disabled)
+
+
+@pytest.fixture
+def package_info(configuration: Configuration, database: SQLite) -> PackageInfo:
+    """
+    fixture for package info
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+
+    Returns:
+        PackageInfo: package info test instance
+    """
+    _, repository_id = configuration.check_loaded()
+    return PackageInfo(repository_id, configuration, database, report=False,
+                       refresh_pacman_database=PacmanSynchronization.Disabled)
 
 
 @pytest.fixture

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.formatters import StringPrinter
+from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.core.util import pretty_datetime
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.property import Property

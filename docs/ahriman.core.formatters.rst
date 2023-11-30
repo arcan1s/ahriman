@@ -20,6 +20,14 @@ ahriman.core.formatters.build\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.changes\_printer module
+-----------------------------------------------
+
+.. automodule:: ahriman.core.formatters.changes_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.configuration\_paths\_printer module
 ------------------------------------------------------------
 

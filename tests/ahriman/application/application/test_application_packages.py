@@ -41,7 +41,7 @@ def test_add_aur(application_packages: ApplicationPackages, package_ahriman: Pac
     """
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
-    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
+    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.package_base_update")
 
     application_packages._add_aur(package_ahriman.base, "packager")
     build_queue_mock.assert_called_once_with(package_ahriman)
@@ -153,7 +153,7 @@ def test_add_repository(application_packages: ApplicationPackages, package_ahrim
     """
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
-    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.remote_update")
+    update_remote_mock = mocker.patch("ahriman.core.database.SQLite.package_base_update")
 
     application_packages._add_repository(package_ahriman.base, "packager")
     build_queue_mock.assert_called_once_with(package_ahriman)

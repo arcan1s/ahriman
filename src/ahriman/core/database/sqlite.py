@@ -25,11 +25,12 @@ from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
-from ahriman.core.database.operations import AuthOperations, BuildOperations, LogsOperations, PackageOperations, \
-    PatchOperations
+from ahriman.core.database.operations import AuthOperations, BuildOperations, ChangesOperations, LogsOperations, \
+    PackageOperations, PatchOperations
 
 
-class SQLite(AuthOperations, BuildOperations, LogsOperations, PackageOperations, PatchOperations):
+# pylint: disable=too-many-ancestors
+class SQLite(AuthOperations, BuildOperations, ChangesOperations, LogsOperations, PackageOperations, PatchOperations):
     """
     wrapper for sqlite3 database
 

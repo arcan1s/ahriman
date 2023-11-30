@@ -22,27 +22,16 @@ from collections.abc import Iterable
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
+from ahriman.core.repository.package_info import PackageInfo
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 
 
-class UpdateHandler(Cleaner):
+class UpdateHandler(PackageInfo, Cleaner):
     """
     trait to get package update list
     """
-
-    def packages(self) -> list[Package]:
-        """
-        generate list of repository packages
-
-        Returns:
-            list[Package]: list of packages properties
-
-        Raises:
-            NotImplementedError: not implemented method
-        """
-        raise NotImplementedError
 
     def updates_aur(self, filter_packages: Iterable[str], *, vcs: bool) -> list[Package]:
         """

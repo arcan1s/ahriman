@@ -23,6 +23,7 @@ import logging
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.changes import Changes
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -73,6 +74,28 @@ class Client:
         Args:
             package(Package): package properties
             status(BuildStatusEnum): current package build status
+        """
+
+    def package_changes_get(self, package_base: str) -> Changes:
+        """
+        get package changes
+
+        Args:
+            package_base(str): package base to retrieve
+
+        Returns:
+            Changes: package changes if available and empty object otherwise
+        """
+        del package_base
+        return Changes()
+
+    def package_changes_set(self, package_base: str, changes: Changes) -> None:
+        """
+        update package changes
+
+        Args:
+            package_base(str): package base to update
+            changes(Changes): changes descriptor
         """
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
