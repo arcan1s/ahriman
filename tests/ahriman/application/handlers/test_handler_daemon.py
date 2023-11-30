@@ -1,6 +1,7 @@
 import argparse
 
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.application.handlers import Daemon
 from ahriman.core.configuration import Configuration
@@ -30,11 +31,22 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     args = _default_args(args)
     run_mock = mocker.patch("ahriman.application.handlers.Update.run")
-    start_mock = mocker.patch("threading.Timer.start")
-    join_mock = mocker.patch("threading.Timer.join")
+    wait_mock = mocker.patch("threading.Event.wait", side_effect=[False, True])
 
     _, repository_id = configuration.check_loaded()
     Daemon.run(args, repository_id, configuration, report=True)
     run_mock.assert_called_once_with(args, repository_id, configuration, report=True)
-    start_mock.assert_called_once_with()
-    join_mock.assert_called_once_with()
+    wait_mock.assert_has_calls([MockCall(args.interval), MockCall(args.interval)])
+
+
+def test_run_keyboard_interrupt(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must handle KeyboardInterrupt exception
+    """
+    args = _default_args(args)
+    mocker.patch("ahriman.application.handlers.Update.run", side_effect=KeyboardInterrupt)
+    wait_mock = mocker.patch("threading.Event.wait", return_value=False)
+
+    _, repository_id = configuration.check_loaded()
+    Daemon.run(args, repository_id, configuration, report=True)
+    wait_mock.assert_called_once_with(args.interval)
