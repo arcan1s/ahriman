@@ -30,7 +30,7 @@ def test_is_process_alive(remote_call: RemoteCall, mocker: MockerFixture) -> Non
     request_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
 
     assert remote_call.is_process_alive("id")
-    request_mock.assert_called_once_with("GET", "/api/v1/service/process/id")
+    request_mock.assert_called_once_with("GET", f"{remote_call.client.address}/api/v1/service/process/id")
 
 
 def test_is_process_alive_unknown(remote_call: RemoteCall, mocker: MockerFixture) -> None:
@@ -79,7 +79,7 @@ def test_remote_update(remote_call: RemoteCall, mocker: MockerFixture) -> None:
     request_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
 
     assert remote_call.remote_update() == "id"
-    request_mock.assert_called_once_with("POST", "/api/v1/service/update",
+    request_mock.assert_called_once_with("POST", f"{remote_call.client.address}/api/v1/service/update",
                                          params=remote_call.repository_id.query(),
                                          json={
                                              "aur": False,

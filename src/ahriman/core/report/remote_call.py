@@ -81,7 +81,7 @@ class RemoteCall(Report):
             bool: True in case if remote process is alive and False otherwise
         """
         try:
-            response = self.client.make_request("GET", f"/api/v1/service/process/{process_id}")
+            response = self.client.make_request("GET", f"{self.client.address}/api/v1/service/process/{process_id}")
         except requests.HTTPError as ex:
             status_code = ex.response.status_code if ex.response is not None else None
             if status_code == 404:
@@ -100,7 +100,7 @@ class RemoteCall(Report):
         Returns:
             str: remote process id
         """
-        response = self.client.make_request("POST", "/api/v1/service/update",
+        response = self.client.make_request("POST", f"{self.client.address}/api/v1/service/update",
                                             params=self.repository_id.query(),
                                             json={
                                                 "aur": self.update_aur,
