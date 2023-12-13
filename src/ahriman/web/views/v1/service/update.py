@@ -77,6 +77,8 @@ class UpdateView(BaseView):
             aur=data.get("aur", True),
             local=data.get("local", True),
             manual=data.get("manual", True),
+            increment=data.get("increment", True),
+            refresh=data.get("refresh", False),
         )
 
         return json_response({"process_id": process_id})

@@ -1022,6 +1022,116 @@ This action must be done in two steps:
 #. Remove package on worker.
 #. Remove package on master node.
 
+Delegate builds to remote workers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This setup heavily uses upload feature described above and, in addition, also delegates build process automatically to build machines. Same as above, there must be at least two instances available (``master`` and ``worker``), however, all ``worker`` nodes must be run in the web service mode.
+
+Master node configuration
+"""""""""""""""""""""""""
+
+In addition to the configuration above, the worker list must be defined in configuration file (``build.workers`` option), i.e.:
+
+.. code-block:: ini
+
+   [build]
+   workers = https://worker1.example.com https://worker2.example.com
+
+   [web]
+   enable_archive_upload = yes
+   wait_timeout = 0
+
+In the example above, ``https://worker1.example.com`` and ``https://worker2.example.com`` are remote ``worker`` node addresses available for ``master`` node.
+
+In case if authentication is required (which is recommended way to setup it), it can be set by using ``status`` section as usual.
+
+Worker nodes configuration
+""""""""""""""""""""""""""
+
+It is required to point to the master node repository, otherwise internal dependencies will not be handled correctly. In order to do so, the ``--server`` argument (or ``AHRIMAN_REPOSITORY_SERVER`` environment variable for docker images) can be used.
+
+Also, in case if authentication is enabled, the same user with the same password must be created for all workers.
+
+It is also recommended to set ``web.wait_timeout`` to infinte in case of multiple conflicting runs.
+
+Other settings are the same as mentioned above.
+
+Triple node minimal docker example
+""""""""""""""""""""""""""""""""""
+
+In this example, all instances are run on the same machine with address ``172.17.0.1`` with ports available outside of container. Master node config (``master.ini``) as:
+
+.. code-block:: ini
+
+   [auth]
+   target = mapping
+
+   [status]
+   username = builder-user
+   password = very-secure-password
+
+   [build]
+   workers = http://172.17.0.1:8081 http://172.17.0.1:8082
+
+   [web]
+   enable_archive_upload = yes
+   wait_timeout = 0
+
+Command to run master node:
+
+.. code-block:: shell
+
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -v master.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
+
+Worker nodes (applicable for all workers) config (``worker.ini``) as:
+
+.. code-block:: ini
+
+   [auth]
+   target = mapping
+
+   [status]
+   address = http://172.17.0.1:8080
+   username = builder-user
+   password = very-secure-password
+
+   [upload]
+   target = remote-service
+
+   [remote-service]
+
+   [report]
+   target = remote-call
+
+   [remote-call]
+   manual = yes
+   wait_timeout = 0
+
+   [build]
+   triggers = ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger
+
+Command to run worker nodes (considering there will be two workers, one is on ``8081`` port and other is on ``8082``):
+
+.. code-block:: ini
+
+   docker run --privileged -p 8081:8081 -e AHRIMAN_PORT=8081 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
+   docker run --privileged -p 8082:8082 -e AHRIMAN_PORT=8082 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
+
+Unlike the previous setup, it doesn't require to mount repository root for ``worker`` nodes, because ``worker`` nodes don't use it anyway.
+
+Addition of new package, package removal, repository update
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+In all scenarios, update process must be run only on ``master`` node. Unlike the setup described above, automatic update must be enabled only for ``master`` node also.
+
+Known limitations
+"""""""""""""""""
+
+* Workers don't support local packages. However, it is possible to build custom packages by providing sources by using ``ahriman.core.gitremote.RemotePullTrigger`` trigger.
+* No dynamic nodes discovery. In case if one of worker nodes is unavailable, the build process will fail.
+* No pkgrel bump on conflicts. Well, it works, however, it isn't guaranteed.
+* The identical user must be created for all workers. However, the ``master`` node user can be different from this one.
+
 Maintenance packages
 --------------------
 

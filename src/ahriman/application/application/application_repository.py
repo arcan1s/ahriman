@@ -18,11 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections.abc import Iterable
-from pathlib import Path
 
 from ahriman.application.application.application_properties import ApplicationProperties
+from ahriman.application.application.workers import Updater
 from ahriman.core.build_tools.sources import Sources
-from ahriman.core.tree import Tree
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
@@ -154,26 +153,25 @@ class ApplicationRepository(ApplicationProperties):
         Returns:
             Result: update result
         """
-        def process_update(paths: Iterable[Path], result: Result) -> None:
-            if not paths:
-                return  # don't need to process if no update supplied
-            update_result = self.repository.process_update(paths, packagers)
-            self.on_result(result.merge(update_result))
+        result = Result()
 
-        # process built packages
-        build_result = Result()
-        packages = self.repository.packages_built()
-        process_update(packages, build_result)
+        # process already built packages if any
+        built_packages = self.repository.packages_built()
+        if built_packages:  # speedup a bit
+            build_result = self.repository.process_update(built_packages, packagers)
+            result.merge(build_result)
+            self.on_result(result.merge(build_result))
 
-        # process manual packages
-        tree = Tree.resolve(updates)
-        for num, level in enumerate(tree):
-            self.logger.info("processing level #%i %s", num, [package.base for package in level])
-            build_result = self.repository.process_build(level, packagers, bump_pkgrel=bump_pkgrel)
-            packages = self.repository.packages_built()
-            process_update(packages, build_result)
+        builder = Updater.load(self.repository_id, self.configuration, self.repository)
 
-        return build_result
+        # ok so for now we split all packages into chunks and process each chunk accordingly
+        partitions = builder.partition(updates)
+        for num, partition in enumerate(partitions):
+            self.logger.info("processing chunk #%i %s", num, [package.base for package in partition])
+            build_result = builder.update(partition, packagers, bump_pkgrel=bump_pkgrel)
+            self.on_result(result.merge(build_result))
+
+        return result
 
     def updates(self, filter_packages: Iterable[str], *,
                 aur: bool, local: bool, manual: bool, vcs: bool) -> list[Package]:

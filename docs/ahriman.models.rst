@@ -252,6 +252,14 @@ ahriman.models.waiter module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.worker module
+----------------------------
+
+.. automodule:: ahriman.models.worker
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

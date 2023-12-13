@@ -17,22 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import fields
+from dataclasses import dataclass, field
+from urllib.parse import urlparse
 
-from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
 
-
-class UpdateFlagsSchema(BuildOptionsSchema):
+@dataclass(frozen=True)
+class Worker:
     """
-    update flags request schema
+    worker descriptor
+
+    Attributes:
+        address(str): worker address to be reachable outside
+        identifier(str): worker unique identifier. If none set it will be automatically generated from the address
     """
 
-    aur = fields.Boolean(dump_default=True, metadata={
-        "description": "Check AUR for updates",
-    })
-    local = fields.Boolean(dump_default=True, metadata={
-        "description": "Check local packages for updates",
-    })
-    manual = fields.Boolean(dump_default=True, metadata={
-        "description": "Check manually built packages",
-    })
+    address: str
+    identifier: str = field(default="", kw_only=True)
+
+    def __post_init__(self) -> None:
+        """
+        update identifier based on settings
+        """
+        object.__setattr__(self, "identifier", self.identifier or urlparse(self.address).netloc)

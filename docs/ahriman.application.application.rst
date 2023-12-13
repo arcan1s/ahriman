@@ -1,6 +1,14 @@
 ahriman.application.application package
 =======================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ahriman.application.application.workers
+
 Submodules
 ----------
 
