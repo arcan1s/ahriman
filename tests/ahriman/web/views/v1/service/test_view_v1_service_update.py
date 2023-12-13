@@ -40,6 +40,8 @@ async def test_post(client: TestClient, repository_id: RepositoryId, mocker: Moc
         "aur": True,
         "local": True,
         "manual": True,
+        "increment": True,
+        "refresh": False,
     }
 
     for payload in (

@@ -74,6 +74,14 @@ class AddView(BaseView):
 
         repository_id = self.repository_id()
         username = await self.username()
-        process_id = self.spawner.packages_add(repository_id, packages, username, patches=patches, now=True)
+        process_id = self.spawner.packages_add(
+            repository_id,
+            packages,
+            username,
+            patches=patches,
+            now=True,
+            increment=data.get("increment", True),
+            refresh=data.get("refresh", False),
+        )
 
         return json_response({"process_id": process_id})

@@ -73,6 +73,11 @@ class RebuildView(BaseView):
 
         repository_id = self.repository_id()
         username = await self.username()
-        process_id = self.spawner.packages_rebuild(repository_id, depends_on, username)
+        process_id = self.spawner.packages_rebuild(
+            repository_id,
+            depends_on,
+            username,
+            increment=data.get("increment", True),
+        )
 
         return json_response({"process_id": process_id})

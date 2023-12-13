@@ -17,22 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import fields
-
-from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
+from marshmallow import Schema, fields
 
 
-class UpdateFlagsSchema(BuildOptionsSchema):
+class BuildOptionsSchema(Schema):
     """
-    update flags request schema
+    request build options schema
     """
 
-    aur = fields.Boolean(dump_default=True, metadata={
-        "description": "Check AUR for updates",
+    increment = fields.Boolean(dump_default=True, metadata={
+        "description": "Increment pkgrel on conflicts",
     })
-    local = fields.Boolean(dump_default=True, metadata={
-        "description": "Check local packages for updates",
+    packager = fields.String(metadata={
+        "description": "Packager identity if applicable",
     })
-    manual = fields.Boolean(dump_default=True, metadata={
-        "description": "Check manually built packages",
+    refresh = fields.Boolean(dump_default=True, metadata={
+        "description": "Refresh pacman database"
     })

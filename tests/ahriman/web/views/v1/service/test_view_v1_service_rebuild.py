@@ -40,7 +40,7 @@ async def test_post(client: TestClient, repository_id: RepositoryId, mocker: Moc
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/rebuild", json=payload)
     assert response.ok
-    rebuild_mock.assert_called_once_with(repository_id, "python", "username")
+    rebuild_mock.assert_called_once_with(repository_id, "python", "username", increment=True)
 
     json = await response.json()
     assert json["process_id"] == "abc"

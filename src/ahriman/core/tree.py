@@ -148,6 +148,8 @@ class Tree:
             sorted(part, key=lambda leaf: leaf.package.base)
             for part in partitions if part
         ]
+        if not partitions:  # nothing to balance
+            return partitions
 
         while True:
             min_part, max_part = minmax(partitions, key=len)

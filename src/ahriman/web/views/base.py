@@ -222,6 +222,13 @@ class BaseView(View, CorsViewMixin):
         Returns:
             str | None: authorized username if any and None otherwise (e.g. if authorization is disabled)
         """
+        try:  # try to read from payload
+            data: dict[str, str] = await self.request.json()  # technically it is not, but we only need str here
+            if (packager := data.get("packager")) is not None:
+                return packager
+        except Exception:
+            self.request.app.logger.exception("could not extract json data for packager")
+
         policy = self.request.app.get("identity")
         if policy is not None:
             identity: str = await policy.identify(self.request)

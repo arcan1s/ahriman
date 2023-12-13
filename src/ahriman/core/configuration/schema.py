@@ -213,6 +213,15 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "integer",
                 "min": 0,
             },
+            "workers": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": [],
+                },
+            },
         },
     },
     "repository": {

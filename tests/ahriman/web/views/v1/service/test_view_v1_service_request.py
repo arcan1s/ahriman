@@ -41,7 +41,8 @@ async def test_post(client: TestClient, repository_id: RepositoryId, mocker: Moc
     assert not request_schema.validate(payload)
     response = await client.post("/api/v1/service/request", json=payload)
     assert response.ok
-    add_mock.assert_called_once_with(repository_id, ["ahriman"], "username", patches=[], now=False)
+    add_mock.assert_called_once_with(repository_id, ["ahriman"], "username",
+                                     patches=[], now=False, increment=False, refresh=False)
 
     json = await response.json()
     assert json["process_id"] == "abc"
@@ -74,7 +75,8 @@ async def test_post_patches(client: TestClient, repository_id: RepositoryId, moc
     response = await client.post("/api/v1/service/request", json=payload)
     assert response.ok
     add_mock.assert_called_once_with(repository_id, ["ahriman"], "username",
-                                     patches=[PkgbuildPatch("k", "v"), PkgbuildPatch("k2", "")], now=False)
+                                     patches=[PkgbuildPatch("k", "v"), PkgbuildPatch("k2", "")],
+                                     now=False, increment=False, refresh=False)
 
 
 async def test_post_exception(client: TestClient, mocker: MockerFixture) -> None:

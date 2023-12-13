@@ -88,6 +88,13 @@ def test_tree_balance() -> None:
     assert third == [leaf5]
 
 
+def test_tree_balance_empty() -> None:
+    """
+    must do not fail on empty tree balancing
+    """
+    assert Tree.balance([]) == []
+
+
 def test_tree_partition(package_ahriman: Package, package_python_schedule: Package) -> None:
     """
     must partition dependencies tree
