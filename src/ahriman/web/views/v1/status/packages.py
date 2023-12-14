@@ -28,9 +28,10 @@ from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema, PaginationSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
+from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class PackagesView(BaseView):
+class PackagesView(StatusViewGuard, BaseView):
     """
     global watcher view
 

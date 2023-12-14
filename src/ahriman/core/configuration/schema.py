@@ -342,6 +342,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "min": 0,
                 "max": 65535,
             },
+            "service_only": {
+                "type": "boolean",
+                "coerce": "boolean",
+            },
             "static_path": {
                 "type": "path",
                 "coerce": "absolute_path",

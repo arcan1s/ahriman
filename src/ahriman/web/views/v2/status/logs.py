@@ -24,9 +24,10 @@ from aiohttp.web import Response, json_response
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
+from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class LogsView(BaseView):
+class LogsView(StatusViewGuard, BaseView):
     """
     package logs web view
 
