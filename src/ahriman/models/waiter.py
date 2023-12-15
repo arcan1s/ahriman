@@ -49,7 +49,7 @@ class Waiter:
 
         Returns:
             bool: True in case current monotonic time is more than :attr:`start_time` and :attr:`wait_timeout`
-                doesn't equal to 0
+            doesn't equal to 0
         """
         since_start: float = time.monotonic() - self.start_time
         return self.wait_timeout != 0 and since_start > self.wait_timeout

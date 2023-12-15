@@ -117,7 +117,7 @@ class Application(ApplicationPackages, ApplicationRepository):
 
         Returns:
             list[Package]: updated packages list. Packager for dependencies will be copied from
-                original package
+            original package
         """
         def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources

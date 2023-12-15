@@ -21,6 +21,9 @@ from ahriman.core.configuration import Configuration
 
 
 class StatusViewGuard:
+    """
+    helper for check if status routes are enabled
+    """
 
     ROUTES: list[str]
 
@@ -34,7 +37,7 @@ class StatusViewGuard:
 
         Returns:
             list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
-        and returns empty list otherwise
+            and returns empty list otherwise
         """
         if configuration.getboolean("web", "service_only", fallback=False):
             return []

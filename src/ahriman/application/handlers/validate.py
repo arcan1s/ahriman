@@ -125,7 +125,7 @@ class Validate(Handler):
 
         Returns:
             dict[str, Any]: schema with added elements from source schema if they were set before and not presented
-                in the new one. Note, that schema will be modified in-place
+            in the new one. Note, that schema will be modified in-place
         """
         for key, value in source.items():
             if key not in schema:

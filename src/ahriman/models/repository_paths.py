@@ -75,7 +75,7 @@ class RepositoryPaths(LazyLogging):
 
         Returns:
             Path: relative path which contains only architecture segment in case if legacy tree is used and repository
-                name and architecture otherwise
+            name and architecture otherwise
         """
         if not self._force_current_tree:
             if (self._repository_root / self.repository_id.architecture).is_dir():
@@ -181,7 +181,7 @@ class RepositoryPaths(LazyLogging):
 
         Returns:
             set[str]: list of repository names for which there is created tree. Returns empty set in case if repository
-                is loaded in legacy mode
+            is loaded in legacy mode
         """
         # simply walk through the root. In case if there are subdirectories, emit the name
         def walk(paths: RepositoryPaths) -> Generator[str, None, None]:

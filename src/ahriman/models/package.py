@@ -505,7 +505,7 @@ class Package(LazyLogging):
 
         Returns:
             bool: True in case if package was built after the specified date and False otherwise. In case if build date
-                is not set by any of packages, it returns False
+            is not set by any of packages, it returns False
         """
         return any(
             package.build_date > timestamp

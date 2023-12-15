@@ -79,7 +79,7 @@ class Patch(Handler):
 
         Returns:
             tuple[str, PkgbuildPatch]: package base and created PKGBUILD patch based on the diff from master HEAD
-                to current files
+            to current files
         """
         package = Package.from_build(sources_dir, architecture, None)
         patch = Sources.patch_create(sources_dir, *track)
