@@ -25,9 +25,10 @@ from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PatchSchema
 from ahriman.web.views.base import BaseView
+from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class PatchesView(BaseView):
+class PatchesView(StatusViewGuard, BaseView):
     """
     package patches web view
 

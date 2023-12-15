@@ -26,9 +26,10 @@ from ahriman.models.changes import Changes
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ChangesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
+from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class ChangesView(BaseView):
+class ChangesView(StatusViewGuard, BaseView):
     """
     package changes web view
 

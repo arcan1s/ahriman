@@ -18,6 +18,8 @@ def test_test_coverage() -> None:
             elif (version := source_file.parts[4]) in ("v1", "v2"):
                 api = source_file.parts[5]
                 filename = f"test_view_{version}_{api}_{source_file.name}"
+            elif source_file.name.endswith("_guard.py"):
+                filename = f"test_{source_file.name}"
             else:
                 filename = f"test_view_{source_file.name}"
         else:

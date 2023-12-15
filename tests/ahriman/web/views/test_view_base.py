@@ -6,6 +6,7 @@ from aiohttp.web import HTTPBadRequest, HTTPNotFound
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
+from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
@@ -67,6 +68,15 @@ async def test_get_permission(base: BaseView) -> None:
     for method in ("OPTIONS",):
         request = pytest.helpers.request(base.request.app, "", method)
         assert await base.get_permission(request) == UserAccess.Unauthorized
+
+
+def test_get_routes(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must return list of available routes
+    """
+    routes = ["route1", "route2"]
+    mocker.patch.object(BaseView, "ROUTES", routes)
+    assert BaseView.routes(configuration) == routes
 
 
 def test_get_non_empty() -> None:

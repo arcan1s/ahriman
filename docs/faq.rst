@@ -1052,7 +1052,7 @@ It is required to point to the master node repository, otherwise internal depend
 
 Also, in case if authentication is enabled, the same user with the same password must be created for all workers.
 
-It is also recommended to set ``web.wait_timeout`` to infinte in case of multiple conflicting runs.
+It is also recommended to set ``web.wait_timeout`` to infinite in case of multiple conflicting runs and ``service_only`` to ``yes`` in order to disable status endpoints.
 
 Other settings are the same as mentioned above.
 
@@ -1106,6 +1106,9 @@ Worker nodes (applicable for all workers) config (``worker.ini``) as:
    [remote-call]
    manual = yes
    wait_timeout = 0
+
+   [web]
+   service_only = yes
 
    [build]
    triggers = ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger
