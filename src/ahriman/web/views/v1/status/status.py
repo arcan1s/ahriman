@@ -28,9 +28,10 @@ from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, StatusSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
+from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class StatusView(BaseView):
+class StatusView(StatusViewGuard, BaseView):
     """
     web service status web view
 

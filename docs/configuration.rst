@@ -129,6 +129,7 @@ Web server settings. If any of ``host``/``port`` is not set, web integration wil
 * ``index_url`` - full url of the repository index page, string, optional.
 * ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
 * ``port`` - port to bind, integer, optional.
+* ``service_only`` - disable status routes (including logs), boolean, optional, default ``no``.
 * ``static_path`` - path to directory with static files, string, required.
 * ``templates`` - path to templates directories, space separated list of strings, required.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.

@@ -146,7 +146,7 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     application.middlewares.append(exception_handler(application.logger))
 
     application.logger.info("setup routes")
-    setup_routes(application, configuration.getpath("web", "static_path"))
+    setup_routes(application, configuration)
 
     application.logger.info("setup CORS")
     setup_cors(application)

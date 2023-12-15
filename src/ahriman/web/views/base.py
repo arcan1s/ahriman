@@ -115,6 +115,21 @@ class BaseView(View, CorsViewMixin):
         permission: UserAccess = getattr(cls, f"{method}_PERMISSION", UserAccess.Full)
         return permission
 
+    @classmethod
+    def routes(cls, configuration: Configuration) -> list[str]:
+        """
+        extract routes list for the view
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
+        and returns empty list otherwise
+        """
+        del configuration
+        return cls.ROUTES
+
     @staticmethod
     def get_non_empty(extractor: Callable[[str], T | None], key: str) -> T:
         """

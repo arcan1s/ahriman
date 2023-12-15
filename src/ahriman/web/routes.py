@@ -25,18 +25,20 @@ from pkgutil import ModuleInfo, iter_modules
 from types import ModuleType
 from typing import Any, Type, TypeGuard
 
+from ahriman.core.configuration import Configuration
 from ahriman.web.views.base import BaseView
 
 
 __all__ = ["setup_routes"]
 
 
-def _dynamic_routes(module_root: Path) -> dict[str, Type[View]]:
+def _dynamic_routes(module_root: Path, configuration: Configuration) -> dict[str, Type[View]]:
     """
     extract dynamic routes based on views
 
     Args:
         module_root(Path): root module path with views
+        configuration(Configuration): configuration instance
 
     Returns:
         dict[str, Type[View]]: map of the route to its view
@@ -52,7 +54,9 @@ def _dynamic_routes(module_root: Path) -> dict[str, Type[View]]:
             view = getattr(module, attribute_name)
             if not is_base_view(view):
                 continue
-            routes.update([(route, view) for route in view.ROUTES])
+
+            view_routes = view.routes(configuration)
+            routes.update([(route, view) for route in view_routes])
 
     return routes
 
@@ -101,16 +105,16 @@ def _modules(module_root: Path) -> Generator[ModuleInfo, None, None]:
             yield module_info
 
 
-def setup_routes(application: Application, static_path: Path) -> None:
+def setup_routes(application: Application, configuration: Configuration) -> None:
     """
     setup all defined routes
 
     Args:
         application(Application): web application instance
-        static_path(Path): path to static files directory
+        configuration(Configuration): configuration instance
     """
-    application.router.add_static("/static", static_path, follow_symlinks=True)
+    application.router.add_static("/static", configuration.getpath("web", "static_path"), follow_symlinks=True)
 
-    views = Path(__file__).parent / "views"
-    for route, view in _dynamic_routes(views).items():
+    views_root = Path(__file__).parent / "views"
+    for route, view in _dynamic_routes(views_root, configuration).items():
         application.router.add_view(route, view)
