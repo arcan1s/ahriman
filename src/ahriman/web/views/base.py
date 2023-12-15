@@ -125,7 +125,7 @@ class BaseView(View, CorsViewMixin):
 
         Returns:
             list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
-        and returns empty list otherwise
+            and returns empty list otherwise
         """
         del configuration
         return cls.ROUTES

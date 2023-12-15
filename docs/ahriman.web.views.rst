@@ -38,6 +38,14 @@ ahriman.web.views.static module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.status\_view\_guard module
+--------------------------------------------
+
+.. automodule:: ahriman.web.views.status_view_guard
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
