@@ -24,8 +24,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           filter: 'Release \d+\.\d+\.\d+'
 
+      - name: Install dependencies
+        uses: ConorMacBride/install-package@v1.1.0
+        with:
+          apt: tox
+
       - name: Create archive
-        run: make archive
+        run: tox -e archive
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
 
@@ -35,7 +40,7 @@ jobs:
           body: |
             ${{ steps.changelog.outputs.compareurl }}
             ${{ steps.changelog.outputs.changelog }}
-          files: ahriman-*-src.tar.xz
+          files: dist/ahriman-*.tar.gz
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

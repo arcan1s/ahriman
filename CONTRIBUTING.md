@@ -19,11 +19,11 @@ There are some strict limitation for suggested pull requests:
 
 ### Code formatting
 
-In order to resolve all difficult cases the `autopep8` is used. You can perform formatting at any time by running `make check` or running `autopep8` command directly.
+In order to resolve all difficult cases the `autopep8` is used. You can perform formatting at any time by running `tox` or running `autopep8` command directly.
 
 ### Code style
 
-Again, the most checks can be performed by `make check` command, though some additional guidelines must be applied:
+Again, the most checks can be performed by `tox` command, though some additional guidelines must be applied:
 
 * Every class, every function (including private and protected), every attribute must be documented. The project follows [Google style documentation](https://google.github.io/styleguide/pyguide.html). The only exception is local functions.
 * Correct way to document function (if a section is empty, e.g. no notes or there are no args, it should be omitted) is the following:
@@ -231,19 +231,19 @@ The projects also uses typing checks (provided by `mypy`) and some linter checks
 ### Run automated checks
 
 ```shell
-make check tests
+tox
 ```
 
 ### Generate documentation templates
 
 ```shell
-make specification
+tox -e docs
 ```
 
 ### Create release
 
 ```shell
-make VERSION=x.y.z check tests release
+tox -m release -- x.y.z
 ```
 
-The command above will also run checks first and will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically.
+The command above will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically.
