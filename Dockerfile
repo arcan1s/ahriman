@@ -23,8 +23,9 @@ ENV AHRIMAN_VALIDATE_CONFIGURATION="yes"
 ## update pacman.conf with multilib
 RUN echo "[multilib]" >> "/etc/pacman.conf" && \
     echo "Include = /etc/pacman.d/mirrorlist" >> "/etc/pacman.conf"
-## install minimal required packages
-RUN pacman --noconfirm -Syu binutils fakeroot git make sudo
+## refresh packages, install sudo and install packages for building
+RUN pacman -Syu --noconfirm sudo && \
+    pacman -Sy --noconfirm --asdeps fakeroot python-tox
 ## create build user
 RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build && \
     echo "build ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/build"
@@ -33,7 +34,7 @@ COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
 RUN pacman -Sy --noconfirm --asdeps devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo && \
     pacman -Sy --noconfirm --asdeps python-build python-flit python-installer python-wheel && \
-    pacman -Sy --noconfirm --asdeps breezy mercurial python-aiohttp python-aiohttp-cors python-boto3 python-cryptography python-jinja python-requests-unixsocket python-systemd rsync subversion && \
+    pacman -Sy --noconfirm --asdeps breezy git mercurial python-aiohttp python-aiohttp-cors python-boto3 python-cryptography python-jinja python-requests-unixsocket python-systemd rsync subversion && \
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-apispec-git python-aiohttp-jinja2  \
                                             python-aiohttp-debugtoolbar python-aiohttp-session python-aiohttp-security
 
@@ -45,8 +46,8 @@ COPY "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 COPY --chown=build . "/home/build/ahriman"
 ## create package archive and install it
 RUN cd "/home/build/ahriman" && \
-    make VERSION=$(python -c "from src.ahriman import __version__; print(__version__)") archlinux && \
-    cp ./*-src.tar.xz "package/archlinux" && \
+    tox -e archive && \
+    cp ./dist/*.tar.gz "package/archlinux" && \
     cd "package/archlinux" && \
     runuser -u build -- makepkg --noconfirm --install --skipchecksums && \
     cd / && rm -r "/home/build/ahriman"

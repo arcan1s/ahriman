@@ -9,5 +9,4 @@ Put `closes #ISSUE` in case if the pull requests solves one of the opened issues
 ### Checklist
 
 - [ ] Tests to cover new code
-- [ ] `make check` passed
-- [ ] `make tests` passed
+- [ ] `tox` passed

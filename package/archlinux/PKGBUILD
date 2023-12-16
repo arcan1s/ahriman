@@ -27,7 +27,7 @@ optdepends=('breezy: -bzr packages support'
             'python-systemd: journal support'
             'rsync: sync by using rsync'
             'subversion: -svn packages support')
-source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver-src.tar.xz"
+source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
         'ahriman.sysusers'
         'ahriman.tmpfiles')
 install="$pkgname.install"
@@ -35,13 +35,13 @@ backup=('etc/ahriman.ini'
         'etc/ahriman.ini.d/logging.ini')
 
 build() {
-  cd "$pkgname"
+  cd "$pkgname-$pkgver"
 
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "$pkgname"
+  cd "$pkgname-$pkgver"
 
   python -m installer --destdir="$pkgdir" "dist/$pkgname-$pkgver-py3-none-any.whl"
 

@@ -82,3 +82,15 @@ web = [
     "cryptography",
     "requests-unixsocket",  # required by unix socket support
 ]
+
+[tool.flit.sdist]
+include = [
+    "AUTHORS",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "package",
+    "web.png",
+]
+exclude = [
+    "package/archlinux",
+]

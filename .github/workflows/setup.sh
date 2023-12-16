@@ -6,33 +6,33 @@ set -ex
 [[ $1 = "minimal" ]] && MINIMAL_INSTALL=1
 
 # install dependencies
-echo -e '[arcanisrepo]\nServer = http://repo.arcanis.me/$arch\nSigLevel = Never' | tee -a /etc/pacman.conf
+echo -e '[arcanisrepo]\nServer = https://repo.arcanis.me/$arch\nSigLevel = Never' | tee -a /etc/pacman.conf
 # refresh the image
-pacman --noconfirm -Syu
+pacman -Syu --noconfirm
 # main dependencies
-pacman --noconfirm -Sy base-devel devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo python-systemd sudo
+pacman -Sy --noconfirm devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo python-systemd sudo
 # make dependencies
-pacman --noconfirm -Sy python-build python-flit python-installer python-wheel
+pacman -Sy --noconfirm python-build python-flit python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # VCS support
-    pacman --noconfirm -Sy breezy darcs mercurial subversion
+    pacman -Sy --noconfirm breezy darcs mercurial subversion
     # web server
-    pacman --noconfirm -Sy python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
+    pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features
-    pacman --noconfirm -Sy gnupg python-boto3 rsync
+    pacman -Sy --noconfirm gnupg python-boto3 rsync
 fi
 # FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 
 # create fresh tarball
-make VERSION=1.0.0 archlinux  # well, it does not really matter which version we will put here
+tox -e archive
 # run makepkg
-mv ahriman-*-src.tar.xz package/archlinux
+mv dist/ahriman-*.tar.gz package/archlinux
 chmod +777 package/archlinux  # because fuck you that's why
 cd package/archlinux
 sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
-pacman --noconfirm -U ahriman-1.0.0-1-any.pkg.tar.zst
+sudo -u nobody -- makepkg --packagelist | pacman -U --noconfirm -
 # create machine-id which is required by build tools
 systemd-machine-id-setup
 
