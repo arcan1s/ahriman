@@ -83,7 +83,7 @@ The ``context`` also implements collection methods such as ``__iter__`` and ``__
 Trigger example
 ---------------
 
-Lets consider example of reporting trigger (e.g. `slack <https://slack.com/>`_, which provides easy HTTP API for integration triggers).
+Lets consider example of reporting trigger (e.g. `slack <https://slack.com/>`__, which provides easy HTTP API for integration triggers).
 
 In order to post message to slack we will need a specific trigger url (something like ``https://hooks.slack.com/services/company_id/trigger_id``), channel (e.g. ``#archrepo``) and username (``repo-bot``).
 
@@ -139,4 +139,4 @@ After that run application as usual and receive notification in your slack chann
 Trigger configuration schema
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Triggers can expose their configuration schema. It can be achieved by implementing ``CONFIGURATION_SCHEMA`` class variable according to `cerberus <https://docs.python-cerberus.org/>`_ documentation. For more details and examples, please refer to built-in triggers implementations.
+Triggers can expose their configuration schema. It can be achieved by implementing ``CONFIGURATION_SCHEMA`` class variable according to `cerberus <https://docs.python-cerberus.org/>`__ documentation. For more details and examples, please refer to built-in triggers implementations.

@@ -34,7 +34,7 @@ There is special command which can be used in order to validate current configur
 
    ahriman service-config-validate --exit-code
 
-This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`_, e.g.:
+This command will print found errors, based on `cerberus <https://docs.python-cerberus.org/>`__, e.g.:
 
 .. code-block:: shell
 
@@ -155,6 +155,8 @@ For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will 
 
 During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
 
+This feature can be also used to build packages which are not listed in AUR, the example of feature use can be found `here <https://github.com/arcan1s/ahriman/tree/master/recipes/pull>`__.
+
 How to push updated PKGBUILDs to remote repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -168,7 +170,7 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
    [gitremote]
    push_url = https://github.com/username/repository
 
-Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`_ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
+Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`__ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
 
 How to change PKGBUILDs before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -502,10 +504,12 @@ Non-x86_64 architecture setup
 
 The following section describes how to setup ahriman with architecture different from x86_64, as example i686. For most cases you have base repository available, e.g. archlinux32 repositories for i686 architecture; in case if base repository is not available, steps are a bit different, however, idea remains the same.
 
+The example of setup with docker compose can be found `here <https://github.com/arcan1s/ahriman/tree/master/recipes/i686>`__.
+
 Physical server setup
 ^^^^^^^^^^^^^^^^^^^^^
 
-In this example we are going to use files and packages which are provided by official repositories of the used architecture. Note, that versions might be different, thus you need to find correct versions on the distribution web site, e.g. `archlinux32 packages <https://www.archlinux32.org/packages/>`_.
+In this example we are going to use files and packages which are provided by official repositories of the used architecture. Note, that versions might be different, thus you need to find correct versions on the distribution web site, e.g. `archlinux32 packages <https://www.archlinux32.org/packages/>`__.
 
 #.
    First, considering having base Arch Linux system, we need to install keyring for the specified repositories, e.g.:
@@ -710,7 +714,7 @@ How to sync to Github releases
 #. 
    Create a repository.
 #. 
-   `Create API key <https://github.com/settings/tokens>`_ with scope ``public_repo``.
+   `Create API key <https://github.com/settings/tokens>`__ with scope ``public_repo``.
 #. 
    Configure the service as following:
 
@@ -790,7 +794,7 @@ How to post build report to telegram
       yay -S --asdeps python-jinja
 
 #. 
-   Register bot in telegram. You can do it by talking with `@BotFather <https://t.me/botfather>`_. For more details please refer to `official documentation <https://core.telegram.org/bots>`_.
+   Register bot in telegram. You can do it by talking with `@BotFather <https://t.me/botfather>`__. For more details please refer to `official documentation <https://core.telegram.org/bots>`__.
 
 #. 
    Optionally (if you want to post message in chat):
@@ -800,7 +804,7 @@ How to post build report to telegram
    #. Make your channel public
 
 #. 
-   Get chat id if you want to use by numerical id or just use id prefixed with ``@`` (e.g. ``@ahriman``). If you are not using chat the chat id is your user id. If you don't want to make channel public you can use `this guide <https://stackoverflow.com/a/33862907>`_.
+   Get chat id if you want to use by numerical id or just use id prefixed with ``@`` (e.g. ``@ahriman``). If you are not using chat the chat id is your user id. If you don't want to make channel public you can use `this guide <https://stackoverflow.com/a/33862907>`__.
 
 #. 
    Configure the service:
@@ -815,7 +819,7 @@ How to post build report to telegram
       chat_id = @ahriman
       link_path = http://example.com/aur-clone/x86_64
 
-   ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`_, ``chat_id`` is the value retrieved from previous step.
+   ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`__, ``chat_id`` is the value retrieved from previous step.
 
 If you did everything fine you should receive the message with the next update. Quick credentials check can be done by using the following command:
 
@@ -1009,6 +1013,8 @@ Command to run worker node:
 
 The command above will successfully build ``ahriman`` package, upload it on master node and, finally, will update master node repository.
 
+Check proof-of-concept setup `here <https://github.com/arcan1s/ahriman/tree/master/recipes/distributed-manual>`__.
+
 Addition of new package and repository update
 """""""""""""""""""""""""""""""""""""""""""""
 
@@ -1122,6 +1128,8 @@ Command to run worker nodes (considering there will be two workers, one is on ``
 
 Unlike the previous setup, it doesn't require to mount repository root for ``worker`` nodes, because ``worker`` nodes don't use it anyway.
 
+Check proof-of-concept setup `here <https://github.com/arcan1s/ahriman/tree/master/recipes/distributed>`__.
+
 Addition of new package, package removal, repository update
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -1171,7 +1179,7 @@ The application provides special plugin which generates keyring package. This pl
 
    where ``aur-clone`` is your repository name.
 
-This plugin might have some issues, in case of any of them, kindly create `new issue <https://github.com/arcan1s/ahriman/issues/new/choose>`_.
+This plugin might have some issues, in case of any of them, kindly create `new issue <https://github.com/arcan1s/ahriman/issues/new/choose>`__.
 
 Generate mirrorlist package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1377,21 +1385,34 @@ The service provides several commands aim to do easy repository backup and resto
 
       sudo -u ahriman ahriman repo-rebuild --from-database
 
+Use cases
+---------
+
+There is collection of some specific recipes which can be found in `the repository <https://github.com/arcan1s/ahriman/tree/master/recipes>`__.
+
+Most of them can be run (``AHRIMAN_PASSWORD`` environment variable is required in the most setups) as simple as:
+
+.. code-block:: shell
+
+   AHRIMAN_PASSWORD=demo docker compose up
+
+Note, however, they are just an examples of specific configuration for specific cases and they are never intended to be used as is in real environment.
+
 Other topics
 ------------
 
 How does it differ from %another-manager%?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Short answer - I do not know. Also for some references credits to `Alad <https://github.com/AladW>`_, he `did <https://wiki.archlinux.org/title/User:Alad/Local_repo_tools>`_ really good investigation of existing alternatives.
+Short answer - I do not know. Also for some references credits to `Alad <https://github.com/AladW>`__, he `did <https://wiki.archlinux.org/title/User:Alad/Local_repo_tools>`__ really good investigation of existing alternatives.
 
-`arch-repo-manager <https://github.com/Martchus/arch-repo-manager>`_
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+`arch-repo-manager <https://github.com/Martchus/arch-repo-manager>`__
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Looks actually pretty good, in case if I would find it, I would probably didn't start this project, most of features (like web interface or additional helpers) are already implemented or planned to be. However, this project seems to be at early alpha stage (as for Nov 2022), written in C++ (not pro or con) and misses code documentation.
 
-`archrepo2 <https://github.com/lilydjwg/archrepo2>`_
-""""""""""""""""""""""""""""""""""""""""""""""""""""
+`archrepo2 <https://github.com/lilydjwg/archrepo2>`__
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Don't know, haven't tried it. But it lacks of documentation at least.
 
@@ -1400,8 +1421,8 @@ Don't know, haven't tried it. But it lacks of documentation at least.
 * ``archrepo2`` actively uses direct shell calls and ``yaourt`` components.
 * ``archrepo2`` has constantly running process instead of timer process (it is not pro or con).
 
-`repoctl <https://github.com/cassava/repoctl>`_
-"""""""""""""""""""""""""""""""""""""""""""""""
+`repoctl <https://github.com/cassava/repoctl>`__
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 * ``ahriman`` has web interface.
 * ``repoctl`` does not have reporting feature.
@@ -1412,13 +1433,13 @@ Don't know, haven't tried it. But it lacks of documentation at least.
 * ``repoctl`` is able to store old packages.
 * Ability to host repository from same command in ``repoctl`` vs external services (e.g. nginx) in ``ahriman``.
 
-`repod <https://gitlab.archlinux.org/archlinux/repod>`_
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+`repod <https://gitlab.archlinux.org/archlinux/repod>`__
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Official tool provided by distribution, has clean logic, but it is just a helper for ``repo-add``, e.g. it doesn't work with AUR and all packages builds have to be handled separately.
 
-`repo-scripts <https://github.com/arcan1s/repo-scripts>`_
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+`repo-scripts <https://github.com/arcan1s/repo-scripts>`__
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Though originally I've created ahriman by trying to improve the project, it still lacks a lot of features:
 
@@ -1430,8 +1451,8 @@ Though originally I've created ahriman by trying to improve the project, it stil
 
 ...and so on. ``repo-scripts`` also has bad architecture and bad quality code and uses out-of-dated ``yaourt`` and ``package-query``.
 
-`toolbox <https://github.com/chaotic-aur/toolbox>`_
-"""""""""""""""""""""""""""""""""""""""""""""""""""
+`toolbox <https://github.com/chaotic-aur/toolbox>`__
+""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 It is automation tools for ``repoctl`` mentioned above. Except for using shell it looks pretty cool and also offers some additional features like patches, remote synchronization (isn't it?) and reporting.
 
@@ -1450,7 +1471,7 @@ You can also ask to forward logs to ``stderr``, just set ``--log-handler`` flag,
 
    ahriman --log-handler console ...
 
-You can even configure logging as you wish, but kindly refer to python ``logging`` module `configuration <https://docs.python.org/3/library/logging.config.html>`_.
+You can even configure logging as you wish, but kindly refer to python ``logging`` module `configuration <https://docs.python.org/3/library/logging.config.html>`__.
 
 The application uses java concept to log messages, e.g. class ``Application`` imported from ``ahriman.application.application`` package will have logger called ``ahriman.application.application.Application``. In order to e.g. change logger name for whole application package it is possible to change values for ``ahriman.application`` package; thus editing ``ahriman`` logger configuration will change logging for whole application (unless there are overrides for another logger).
 
@@ -1471,9 +1492,9 @@ The application loads web views dynamically, so it is possible relatively easy e
 #. Put file into ``ahriman.web.views`` package.
 #. Restart application.
 
-For more details about implementation and possibilities, kindly refer to module documentation and source code and `aiohttp documentation <https://docs.aiohttp.org/en/stable/>`_.
+For more details about implementation and possibilities, kindly refer to module documentation and source code and `aiohttp documentation <https://docs.aiohttp.org/en/stable/>`__.
 
 I did not find my question
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`Create an issue <https://github.com/arcan1s/ahriman/issues>`_ with type **Question**.
+`Create an issue <https://github.com/arcan1s/ahriman/issues>`__ with type **Question**.
