@@ -1,0 +1,42 @@
+services:
+  backend:
+    image: arcan1s/ahriman:edge
+    privileged: true
+
+    environment:
+      AHRIMAN_DEBUG: yes
+      AHRIMAN_OUTPUT: console
+      AHRIMAN_REPOSITORY: ahriman-demo
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /var/lib/ahriman
+        volume:
+          nocopy: true
+
+    command: repo-daemon
+
+  frontend:
+    image: nginx
+    ports:
+      - 8080:80
+
+    configs:
+      - source: nginx
+        target: /etc/nginx/conf.d/default.conf
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /srv
+        read_only: true
+        volume:
+          nocopy: true
+
+configs:
+  nginx:
+    file: nginx.conf
+
+volumes:
+  repository:

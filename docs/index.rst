@@ -1,7 +1,7 @@
 Welcome to ahriman's documentation!
 ===================================
 
-Wrapper for managing custom repository inspired by `repo-scripts <https://github.com/arcan1s/repo-scripts>`_.
+Wrapper for managing custom repository inspired by `repo-scripts <https://github.com/arcan1s/repo-scripts>`__.
 
 Features
 --------
@@ -20,9 +20,9 @@ Features
 Live demos
 ----------
 
-* `Build status page <https://ahriman-demo.arcanis.me>`_. You can login as ``demo`` user by using ``demo`` password. Note, however, you will not be able to run tasks. `HTTP API documentation <https://ahriman-demo.arcanis.me/api-docs>`_ is also available.
-* `Repository index <https://repo.arcanis.me/x86_64/index.html>`_.
-* `Telegram feed <https://t.me/arcanisrepo>`_.
+* `Build status page <https://ahriman-demo.arcanis.me>`__. You can login as ``demo`` user by using ``demo`` password. Note, however, you will not be able to run tasks. `HTTP API documentation <https://ahriman-demo.arcanis.me/api-docs>`__ is also available.
+* `Repository index <https://repo.arcanis.me/x86_64/index.html>`__.
+* `Telegram feed <https://t.me/arcanisrepo>`__.
 
 Contents
 --------

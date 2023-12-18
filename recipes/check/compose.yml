@@ -1,0 +1,79 @@
+services:
+  backend:
+    image: arcan1s/ahriman:edge
+    privileged: true
+
+    environment:
+      AHRIMAN_DEBUG: yes
+      AHRIMAN_OUTPUT: console
+      AHRIMAN_PASSWORD: ${AHRIMAN_PASSWORD}
+      AHRIMAN_PORT: 8080
+      AHRIMAN_PRESETUP_COMMAND: (cat /run/secrets/password; echo; cat /run/secrets/password) | sudo -u ahriman ahriman user-add demo -R full
+      AHRIMAN_REPOSITORY: ahriman-demo
+      AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman.sock
+
+    configs:
+      - source: service
+        target: /etc/ahriman.ini.d/99-settings.ini
+    secrets:
+      - password
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /var/lib/ahriman
+        volume:
+          nocopy: true
+
+    command: web
+
+  frontend:
+    image: nginx
+    ports:
+      - 8080:80
+
+    configs:
+      - source: nginx
+        target: /etc/nginx/conf.d/default.conf
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /srv
+        read_only: true
+        volume:
+          nocopy: true
+
+  worker:
+    image: arcan1s/ahriman:edge
+    depends_on:
+      - backend
+    privileged: true
+
+    environment:
+      AHRIMAN_DEBUG: yes
+      AHRIMAN_OUTPUT: console
+      AHRIMAN_REPOSITORY: ahriman-demo
+      AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman.sock
+
+    volumes:
+      - type: volume
+        source: repository
+        target: /var/lib/ahriman
+        volume:
+          nocopy: true
+
+    command: repo-daemon --dry-run
+
+configs:
+  nginx:
+    file: nginx.conf
+  service:
+    file: service.ini
+
+secrets:
+  password:
+    environment: AHRIMAN_PASSWORD
+
+volumes:
+  repository:

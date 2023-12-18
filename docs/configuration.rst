@@ -66,7 +66,7 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
 * ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 url-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically expired during restart.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service, integer, optional, default is 7 days.
-* ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`_ name.
+* ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
 * ``oauth_scopes`` - scopes list for OAuth2 provider, which will allow retrieving user email (which is used for checking user permissions), e.g. ``https://www.googleapis.com/auth/userinfo.email`` for ``GoogleClient`` or ``user:email`` for ``GithubClient``, space separated list of strings, required in case if ``oauth`` is used.
 * ``salt`` - additional password hash salt, string, optional.
@@ -181,7 +181,7 @@ Remote git source synchronization settings. Unlike ``Upload`` triggers those tri
 It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
 
 * by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
-* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`_.
+* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`__.
 
 Available options are:
 
@@ -201,7 +201,7 @@ Remote git source synchronization settings. Same as remote pull triggers those t
 It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
 
 * by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
-* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`_.
+* by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`__.
 
 Available options are:
 
@@ -316,9 +316,9 @@ This feature requires GitHub key creation (see below). Section name must be eith
 * ``owner`` - GitHub repository owner, string, required.
 * ``password`` - created GitHub API key. In order to create it do the following:
 
-  #. Go to `settings page <https://github.com/settings/profile>`_.
-  #. Switch to `developers settings <https://github.com/settings/apps>`_.
-  #. Switch to `personal access tokens <https://github.com/settings/tokens>`_.
+  #. Go to `settings page <https://github.com/settings/profile>`__.
+  #. Switch to `developers settings <https://github.com/settings/apps>`__.
+  #. Switch to `personal access tokens <https://github.com/settings/tokens>`__.
   #. Generate new token. Required scope is ``public_repo`` (or ``repo`` for private repository support).
 
 * ``repository`` - GitHub repository name, string, required. Repository must be created before any action and must have active branch (e.g. with readme).
