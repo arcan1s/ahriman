@@ -76,7 +76,7 @@ the ``extra-i686-build`` command will be used for ``i686`` architecture. You can
 How to generate build reports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally you probably like to generate only one report for the specific type, e.g. only one email report. In order to do it you will need to have the following configuration:
+Normally you would probably like to generate only one report for the specific type, e.g. only one email report. In order to do so you will need to have the following configuration:
 
 .. code-block:: ini
 
@@ -155,7 +155,7 @@ For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will 
 
 During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
 
-This feature can be also used to build packages which are not listed in AUR, the example of feature use can be found `here <https://github.com/arcan1s/ahriman/tree/master/recipes/pull>`__.
+This feature can be also used to build packages which are not listed in AUR, the example of the feature use can be found `here <https://github.com/arcan1s/ahriman/tree/master/recipes/pull>`__.
 
 How to push updated PKGBUILDs to remote repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -170,7 +170,7 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
    [gitremote]
    push_url = https://github.com/username/repository
 
-Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for Github you can generate tokens `here <https://github.com/settings/tokens>`__ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
+Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for GitHub you can generate tokens `here <https://github.com/settings/tokens>`__ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
 
 How to change PKGBUILDs before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -191,8 +191,10 @@ Alternatively you can create full-diff patches, which are calculated by using ``
 
 #.
    Clone sources from AUR.
+
 #.
    Make changes you would like to (e.g. edit ``PKGBUILD``, add external patches).
+
 #.
    Run command
 
@@ -213,11 +215,11 @@ The ``--variable`` argument accepts variables in shell like format: quotation an
 How to build package from official repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-So it is the same as adding any other package, but due to restrictions you must specify source explicitly, e.g.:
+It is the same as adding any other package, but due to restrictions you must specify source explicitly, e.g.:
 
 .. code-block:: shell
 
-   sudo -u ahriman ahriman package-add pacman -s repository
+   sudo -u ahriman ahriman package-add pacman --source repository
 
 This feature is heavily depends on local pacman cache. In order to use this feature it is recommended to either run ``pacman -Sy`` before the interaction or use internal application cache with ``--refresh`` flag.
 
@@ -242,7 +244,7 @@ Normally the service handles VCS packages correctly, however it requires additio
 How to review changes before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this scenario, the update process must be separated to several stages. First, it is required to check updates:
+In this scenario, the update process must be separated into several stages. First, it is required to check updates:
 
 .. code-block:: shell
 
@@ -274,7 +276,7 @@ Remove commands also remove any package files (patches, caches etc).
 How to sign repository
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Repository sign feature is available in several configurations. The recommended way is just to sign repository database file by single key instead of trying to sign each package. However, the steps are pretty same, just configuration is a bit differ. For more details about options kindly refer to :doc:`configuration reference <configuration>`.
+Repository sign feature is available in several configurations. The recommended way is just to sign repository database file by single key instead of trying to sign each package. However, the steps are pretty same, just configuration is a bit different. For more details about options kindly refer to :doc:`configuration reference <configuration>`.
 
 #.
    First you would need to create the key on your local machine:
@@ -286,10 +288,10 @@ Repository sign feature is available in several configurations. The recommended 
    This command will prompt you for several questions. Most of them may be left default, but you will need to fill real name and email address with some data. Because at the moment the service doesn't support passphrases, it must be left blank.
 
 #.
-   The command above will generate key and print its hash, something like ``8BE91E5A773FB48AC05CC1EDBED105AED6246B39``. Copy it.
+   The command above will generate key and print its fingerprint, something like ``8BE91E5A773FB48AC05CC1EDBED105AED6246B39``. Copy it.
 
 #.
-   Export your private key by using the hash above:
+   Export your private key by using the fingerprint above:
 
    .. code-block:: shell
 
@@ -387,13 +389,15 @@ Example of the status page configuration is the following (status service is usi
        }
    }
 
+Some more examples can be found in configuration `recipes <https://github.com/arcan1s/ahriman/tree/master/recipes>`__.
+
 Docker image
 ------------
 
 We provide official images which can be found under:
 
 * docker registry ``arcan1s/ahriman``;
-* ghcr.io registry ``ghcr.io/arcan1s/ahriman``;
+* ghcr.io registry ``ghcr.io/arcan1s/ahriman``.
 
 These images are totally identical.
 
@@ -417,7 +421,7 @@ The action can be specified during run, e.g.:
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest package-add ahriman --now
 
-For more details please refer to docker FAQ.
+For more details please refer to the docker FAQ.
 
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
@@ -440,7 +444,7 @@ The following environment variables are supported:
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
-* ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set validate service configuration
+* ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set (default) validate service configuration.
 
 You can pass any of these variables by using ``-e`` argument, e.g.:
 
@@ -457,7 +461,7 @@ There is special ``repo-daemon`` subcommand which emulates systemd timer and wil
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest repo-daemon
 
-This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag.
+This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag. Chech also `examples <https://github.com/arcan1s/ahriman/tree/master/recipes/daemon>`__.
 
 Web service setup
 ^^^^^^^^^^^^^^^^^
@@ -484,6 +488,8 @@ Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network t
 
    docker run --privileged --net=host -e AHRIMAN_PORT=8080 -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
+Simple server with authentication can be found in `examples <https://github.com/arcan1s/ahriman/tree/master/recipes/web>`__ too.
+
 Mutli-repository web service
 """"""""""""""""""""""""""""
 
@@ -498,6 +504,8 @@ In order to create configuration for additional repositories, the ``AHRIMAN_POST
 The command above will also create configuration for the repository named ``aur-clone-v2``.
 
 Note, however, that the command above is only required in case if the service is going to be used to run subprocesses. Otherwise, everything else (web interface, status, etc) will be handled as usual.
+
+Configuration `example <https://github.com/arcan1s/ahriman/tree/master/recipes/multirepo>`__.
 
 Non-x86_64 architecture setup
 -----------------------------
@@ -614,8 +622,8 @@ There are several choices:
 
        server {
            location / {
-               root /var/lib/ahriman/repository/;
                autoindex on;
+               root /var/lib/ahriman/repository/;
            }
        }
 
@@ -630,7 +638,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to Github (``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to GitHub (``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
 
 How to sync to S3
 ^^^^^^^^^^^^^^^^^
@@ -643,10 +651,10 @@ How to sync to S3
       pacman -S python-boto3
 
 #. 
-   Create a bucket.
+   Create a bucket (e.g. ``repository``).
 
 #. 
-   Create user with write access to the bucket:
+   Create an user with write access to the bucket:
 
    .. code-block::
 
@@ -698,7 +706,7 @@ In order to configure S3 on custom domain with SSL (and some other features, lik
 
 #. Configure S3 as described above.
 #. In bucket properties, enable static website hosting with hosting type "Host a static website".
-#. Go to AWS Certificate Manager and create public ceritificate on your domain. Validate domain as suggested.
+#. Go to AWS Certificate Manager and create public certificate on your domain. Validate domain as suggested.
 #. Go to CloudFront and create distribution. The following settings are required:
 
    * Origin domain choose S3 bucket.
@@ -708,14 +716,16 @@ In order to configure S3 on custom domain with SSL (and some other features, lik
 
 #. Point DNS record to CloudFront address.
 
-How to sync to Github releases
+How to sync to GitHub releases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
    Create a repository.
-#. 
+
+#.
    `Create API key <https://github.com/settings/tokens>`__ with scope ``public_repo``.
-#. 
+
+#.
    Configure the service as following:
 
    .. code-block:: ini
@@ -794,7 +804,7 @@ How to post build report to telegram
       yay -S --asdeps python-jinja
 
 #. 
-   Register bot in telegram. You can do it by talking with `@BotFather <https://t.me/botfather>`__. For more details please refer to `official documentation <https://core.telegram.org/bots>`__.
+   Register bot in telegram. You can do it by starting chat with `@BotFather <https://t.me/botfather>`__. For more details please refer to `official documentation <https://core.telegram.org/bots>`__.
 
 #. 
    Optionally (if you want to post message in chat):
@@ -825,9 +835,9 @@ If you did everything fine you should receive the message with the next update. 
 
 .. code-block:: shell
 
-   curl 'https://api.telegram.org/bot${CHAT_ID}/sendMessage?chat_id=${API_KEY}&text=hello'
+   curl 'https://api.telegram.org/bot{api_key}/sendMessage?chat_id={chat_id}&text=hello'
 
-(replace ``${CHAT_ID}`` and ``${API_KEY}`` with the values from configuration).
+(replace ``{chat_id}`` and ``{api_key}`` with the values from configuration).
 
 Distributed builds
 ------------------
@@ -878,6 +888,8 @@ Worker nodes configuration
 
    * Worker #1: ``A``.
    * Worker #2: ``B`` and ``C``.
+
+   Hint: ``repo-tree`` subcommand provides ``--partitions`` argument.
 
 #.
    Each worker must be configured to upload files to master node:
@@ -950,7 +962,7 @@ You can sign packages on worker nodes and then signatures will be synced to mast
 
 Note, however, that in this case, signatures will not be validated on master node and just will be copied to repository tree.
 
-If you would like to sign only database files (aka repository sign), it has to be configured on master node only as usual, e.g.:
+If you would like to sign only database files (aka repository sign), it has to be configured only on master node as usual, e.g.:
 
 .. code-block:: ini
 
@@ -966,7 +978,7 @@ Master node config (``master.ini``) as:
 .. code-block:: ini
 
    [auth]
-   target = mapping
+   target = configuration
 
    [web]
    enable_archive_upload = yes
@@ -1003,7 +1015,7 @@ The user ``worker-user`` has been created additionally. Worker node config (``wo
    [build]
    triggers = ahriman.core.gitremote.RemotePullTrigger ahriman.core.upload.UploadTrigger ahriman.core.report.ReportTrigger ahriman.core.gitremote.RemotePushTrigger
 
-The address above (``http://172.17.0.1:8080``) is something available for worker container.
+The address above (``http://172.17.0.1:8080``) is somewhat available for worker container.
 
 Command to run worker node:
 
@@ -1070,7 +1082,7 @@ In this example, all instances are run on the same machine with address ``172.17
 .. code-block:: ini
 
    [auth]
-   target = mapping
+   target = configuration
 
    [status]
    username = builder-user
@@ -1094,7 +1106,7 @@ Worker nodes (applicable for all workers) config (``worker.ini``) as:
 .. code-block:: ini
 
    [auth]
-   target = mapping
+   target = configuration
 
    [status]
    address = http://172.17.0.1:8080
@@ -1126,21 +1138,21 @@ Command to run worker nodes (considering there will be two workers, one is on ``
    docker run --privileged -p 8081:8081 -e AHRIMAN_PORT=8081 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
    docker run --privileged -p 8082:8082 -e AHRIMAN_PORT=8082 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
 
-Unlike the previous setup, it doesn't require to mount repository root for ``worker`` nodes, because ``worker`` nodes don't use it anyway.
+Unlike the previous setup, it doesn't require to mount repository root for ``worker`` nodes, because they don't use it anyway.
 
 Check proof-of-concept setup `here <https://github.com/arcan1s/ahriman/tree/master/recipes/distributed>`__.
 
 Addition of new package, package removal, repository update
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-In all scenarios, update process must be run only on ``master`` node. Unlike the setup described above, automatic update must be enabled only for ``master`` node also.
+In all scenarios, update process must be run only on ``master`` node. Unlike the manually distributed packages described above, automatic update must be enabled only for ``master`` node.
 
 Known limitations
 """""""""""""""""
 
 * Workers don't support local packages. However, it is possible to build custom packages by providing sources by using ``ahriman.core.gitremote.RemotePullTrigger`` trigger.
 * No dynamic nodes discovery. In case if one of worker nodes is unavailable, the build process will fail.
-* No pkgrel bump on conflicts. Well, it works, however, it isn't guaranteed.
+* No pkgrel bump on conflicts.
 * The identical user must be created for all workers. However, the ``master`` node user can be different from this one.
 
 Maintenance packages
@@ -1252,7 +1264,7 @@ How to enable basic authorization
       yay -S --asdeps python-aiohttp-security python-aiohttp-session python-cryptography
 
 #. 
-   Configure the service to enable authorization (``salt`` can be generated as any random string and optional):
+   Configure the service to enable authorization:
 
    .. code-block:: ini
 
@@ -1260,17 +1272,17 @@ How to enable basic authorization
       target = configuration
       salt = somerandomstring
 
-   The ``salt`` parameter is optional, but recommended.
+   The ``salt`` parameter is optional, but recommended, and can be set to any (random) string.
 
 #.
-   In order to provide access for reporting from application instances you can (recommended way) use unix sockets by configuring the following (note, that it requires ``python-requests-unixsocket`` package to be installed):
+   In order to provide access for reporting from application instances you can (the recommended way) use unix sockets by the following configuration (note, that it requires ``python-requests-unixsocket`` package to be installed):
 
    .. code-block:: ini
 
       [web]
       unix_socket = /var/lib/ahriman/ahriman-web.sock
 
-   This socket path must be available for web service instance and must be available for application instances (e.g. in case if you are using docker container, see above, you need to be sure that the socket is passed to the root filesystem).
+   This socket path must be available for web service instance and must be available for all application instances (e.g. in case if you are using docker container - see above - you need to make sure that the socket is passed to the root filesystem).
 
    By the way, unix socket variable will be automatically set in case if ``--web-unix-socket`` argument is supplied to the ``setup`` subcommand.
 
@@ -1303,7 +1315,8 @@ How to enable OAuth authorization
 
 #. 
    Create OAuth web application, download its ``client_id`` and ``client_secret``.
-#. 
+
+#.
    Guess what? Install dependencies:
 
    .. code-block:: shell
@@ -1388,7 +1401,7 @@ The service provides several commands aim to do easy repository backup and resto
 Use cases
 ---------
 
-There is collection of some specific recipes which can be found in `the repository <https://github.com/arcan1s/ahriman/tree/master/recipes>`__.
+There is a collection of some specific recipes which can be found in `the repository <https://github.com/arcan1s/ahriman/tree/master/recipes>`__.
 
 Most of them can be run (``AHRIMAN_PASSWORD`` environment variable is required in the most setups) as simple as:
 
@@ -1409,7 +1422,7 @@ Short answer - I do not know. Also for some references credits to `Alad <https:/
 `arch-repo-manager <https://github.com/Martchus/arch-repo-manager>`__
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Looks actually pretty good, in case if I would find it, I would probably didn't start this project, most of features (like web interface or additional helpers) are already implemented or planned to be. However, this project seems to be at early alpha stage (as for Nov 2022), written in C++ (not pro or con) and misses code documentation.
+Looks actually pretty good, in case if I would find it, I would probably didn't start this project; the most of features (like web interface or additional helpers) are already implemented or planned to be. However, this project seems to be at early alpha stage (as for Nov 2022), written in C++ (not pro or con) and misses documentation.
 
 `archrepo2 <https://github.com/lilydjwg/archrepo2>`__
 """""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -44,7 +44,7 @@ Again, the most checks can be performed by `tox` command, though some additional
   
         Returns:
             int: result with
-                long description
+            long description
   
         Raises:
             RuntimeError: a local function error occurs

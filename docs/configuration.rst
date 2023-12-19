@@ -39,7 +39,7 @@ It will check current settings on common errors and compare configuration with k
 
 Base configuration settings.
 
-* ``apply_migrations`` - perform migrations on application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations automatically.
+* ``apply_migrations`` - perform migrations on application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
 * ``database`` - path to SQLite database, string, required.
 * ``include`` - path to directory with configuration files overrides, string, optional.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
@@ -50,7 +50,7 @@ Base configuration settings.
 libalpm and AUR related configuration. Group name can refer to architecture, e.g. ``alpm:x86_64`` can be used for x86_64 architecture specific settings.
 
 * ``database`` - path to pacman system database cache, string, required.
-* ``mirror`` - package database mirror used by pacman for syncronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
+* ``mirror`` - package database mirror used by pacman for synchronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
 * ``repositories`` - list of pacman repositories, space separated list of strings, required.
 * ``root`` - root for alpm library, string, required.
 * ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands).
@@ -64,14 +64,14 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``allow_read_only`` - allow requesting status APIs without authorization, boolean, required.
 * ``client_id`` - OAuth2 application client ID, string, required in case if ``oauth`` is used.
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
-* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 url-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically expired during restart.
-* ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service, integer, optional, default is 7 days.
+* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 url-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
+* ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service in seconds, integer, optional, default is 7 days.
 * ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
 * ``oauth_scopes`` - scopes list for OAuth2 provider, which will allow retrieving user email (which is used for checking user permissions), e.g. ``https://www.googleapis.com/auth/userinfo.email`` for ``GoogleClient`` or ``user:email`` for ``GithubClient``, space separated list of strings, required in case if ``oauth`` is used.
 * ``salt`` - additional password hash salt, string, optional.
 
-Authorized users are stored inside internal database, if any of external provides are used the password field for non-service users must be empty. 
+Authorized users are stored inside internal database, if any of external providers (e.g. ``oauth``) are used, the password field for non-service users must be empty.
 
 ``build:*`` groups
 ------------------
@@ -83,9 +83,9 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``ignore_packages`` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
 * ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
-* ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of mention.
+* ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of definition.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
-* ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default ``604800``.
+* ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default is 7 days.
 * ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable url, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node.
 
 ``repository`` group
@@ -118,7 +118,7 @@ Reporting to web service related settings. In most cases there is fallback to we
 ``web`` group
 -------------
 
-Web server settings. If any of ``host``/``port`` is not set, web integration will be disabled. This feature requires ``aiohttp`` libraries to be installed.
+Web server settings. This feature requires ``aiohttp`` libraries to be installed.
 
 * ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
 * ``debug`` - enable debug toolbar, boolean, optional, default ``no``.

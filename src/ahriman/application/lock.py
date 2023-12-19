@@ -135,12 +135,12 @@ class Lock(LazyLogging):
         """
         default workflow is the following:
 
-            1. Check user UID
-            2. Check if there is lock file
-            3. Check web status watcher status
-            4. Wait for lock file to be free
-            5. Create lock file and directory tree
-            6. Report to status page if enabled
+            #. Check user UID
+            #. Check if there is lock file
+            #. Check web status watcher status
+            #. Wait for lock file to be free
+            #. Create lock file and directory tree
+            #. Report to status page if enabled
 
         Returns:
             Self: always instance of self

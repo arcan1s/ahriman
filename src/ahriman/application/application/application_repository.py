@@ -51,7 +51,7 @@ class ApplicationRepository(ApplicationProperties):
 
     def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """
-        run all clean methods. Warning: some functions might not be available under non-root
+        run all clean methods. Warning: some functions might not be available for non-root user
 
         Args:
             cache(bool): clear directory with package caches
@@ -142,7 +142,11 @@ class ApplicationRepository(ApplicationProperties):
     def update(self, updates: Iterable[Package], packagers: Packagers | None = None, *,
                bump_pkgrel: bool = False) -> Result:
         """
-        run package updates
+        run package updates. This method will separate update in the several steps:
+
+            #. Check already built packages.
+            #. Construct builder instance.
+            #. Delegate build process to the builder instance (either remote or local).
 
         Args:
             updates(Iterable[Package]): list of packages to update

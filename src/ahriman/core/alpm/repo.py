@@ -76,7 +76,7 @@ class Repo(LazyLogging):
 
     def init(self) -> None:
         """
-        create empty repository database
+        create empty repository database. It just calls add with empty arguments
         """
         check_output("repo-add", *self.sign_args, str(self.repo_path),
                      cwd=self.paths.repository, logger=self.logger, user=self.uid)
