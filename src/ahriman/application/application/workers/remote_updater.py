@@ -126,7 +126,7 @@ class RemoteUpdater(Updater):
             Result: update result
         """
         payload = {
-            "increment": bump_pkgrel,
+            "increment": False,  # force disable increment because it doesn't work yet
             "packager": packagers.default if packagers is not None else None,
             "packages": [package.base for package in updates],
             "patches": [],  # might be used later

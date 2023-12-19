@@ -109,7 +109,8 @@ class Application(ApplicationPackages, ApplicationRepository):
 
     def with_dependencies(self, packages: list[Package], *, process_dependencies: bool) -> list[Package]:
         """
-        add missing dependencies to list of packages
+        add missing dependencies to list of packages. This will extract known packages, check dependencies of
+        the supplied packages and add packages which are not presented in the list of known packages.
 
         Args:
             packages(list[Package]): list of source packages of which dependencies have to be processed
@@ -118,6 +119,14 @@ class Application(ApplicationPackages, ApplicationRepository):
         Returns:
             list[Package]: updated packages list. Packager for dependencies will be copied from
             original package
+
+        Examples:
+            In the most cases, in order to avoid build failure, it is required to add missing packages, which can be
+            done by calling::
+
+                >>> application = ...
+                >>> packages = application.with_dependencies(packages, process_dependencies=True)
+                >>> application.print_updates(packages, log_fn=print)
         """
         def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources

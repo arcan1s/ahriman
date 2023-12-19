@@ -32,7 +32,7 @@ class Remote(SyncHttpClient):
 
             >>> from ahriman.core.alpm.remote import AUR, Official
             >>>
-            >>> package = AUR.info("ahriman", pacman=pacman)
+            >>> package = AUR.info("ahriman")
             >>> search_result = Official.multisearch("pacman", "manager", pacman=pacman)
 
         Differnece between :func:`search()` and :func:`multisearch()` is that :func:`search()` passes all arguments to

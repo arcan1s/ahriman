@@ -12,7 +12,7 @@ Depending on the goal the package can be used in different ways. Nevertheless, i
    from ahriman.models.repository_id import RepositoryId
 
    repository_id = RepositoryId("x86_64", "aur-clone")
-   configuration = Configuration.from_path(Path("/etc/ahriman.ini"), architecture)
+   configuration = Configuration.from_path(Path("/etc/ahriman.ini"), repository_id)
    database = SQLite.load(configuration)
 
 At this point there are ``configuration`` and ``database`` instances which can be used later at any time anywhere, e.g.

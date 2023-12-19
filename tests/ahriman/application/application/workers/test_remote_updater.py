@@ -75,10 +75,9 @@ def test_update(remote_updater: RemoteUpdater, package_ahriman: Package, mocker:
     request_mock.assert_called_once_with("POST", remote_updater._update_url(worker),
                                          params=remote_updater.repository_id.query(),
                                          json={
-                                             "increment": True,
+                                             "increment": False,
                                              "packager": "username",
                                              "packages": [package_ahriman.base],
                                              "patches": [],
                                              "refresh": True,
-    }
-    )
+    })
