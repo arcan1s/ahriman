@@ -76,7 +76,6 @@ web = [
     "aiohttp-apispec",
     "aiohttp_cors",
     "aiohttp_jinja2",
-    "aiohttp_debugtoolbar",
     "aiohttp_session",
     "aiohttp_security",
     "cryptography",

@@ -297,22 +297,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "empty": False,
                 "is_url": ["http", "https"],
             },
-            "debug": {
-                "type": "boolean",
-                "coerce": "boolean",
-            },
-            "debug_check_host": {
-                "type": "boolean",
-                "coerce": "boolean",
-            },
-            "debug_allowed_hosts": {
-                "type": "list",
-                "coerce": "list",
-                "schema": {
-                    "type": "string",
-                    "empty": False,
-                },
-            },
             "enable_archive_upload": {
                 "type": "boolean",
                 "coerce": "boolean",

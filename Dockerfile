@@ -36,7 +36,7 @@ RUN pacman -Sy --noconfirm --asdeps devtools git pyalpm python-cerberus python-i
     pacman -Sy --noconfirm --asdeps python-build python-flit python-installer python-wheel && \
     pacman -Sy --noconfirm --asdeps breezy git mercurial python-aiohttp python-aiohttp-cors python-boto3 python-cryptography python-jinja python-requests-unixsocket python-systemd rsync subversion && \
     runuser -u build -- install-aur-package python-aioauth-client python-aiohttp-apispec-git python-aiohttp-jinja2  \
-                                            python-aiohttp-debugtoolbar python-aiohttp-session python-aiohttp-security
+                                            python-aiohttp-session python-aiohttp-security
 
 ## FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 COPY "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
