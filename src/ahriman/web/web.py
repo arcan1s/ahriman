@@ -171,16 +171,6 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     application.logger.info("setup process spawner")
     application["spawn"] = spawner
 
-    # disable debug panel as it is not compatible with python 3.11 at the moment
-    # https://github.com/aio-libs/aiohttp-debugtoolbar/issues/477
-    # application.logger.info("setup debug panel")
-    # debug_enabled = configuration.getboolean("web", "debug", fallback=False)
-    # if debug_enabled:
-    #     import aiohttp_debugtoolbar  # type: ignore[import-untyped]
-    #     aiohttp_debugtoolbar.setup(application,
-    #                                hosts=configuration.getlist("web", "debug_allowed_hosts", fallback=[]),
-    #                                check_host=configuration.getboolean("web", "debug_check_host", fallback=False))
-
     application.logger.info("setup authorization")
     validator = application["validator"] = Auth.load(configuration, database)
     if validator.enabled:

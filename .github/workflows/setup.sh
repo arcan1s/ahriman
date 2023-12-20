@@ -18,7 +18,7 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     # VCS support
     pacman -Sy --noconfirm breezy darcs mercurial subversion
     # web server
-    pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-debugtoolbar python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
+    pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features
     pacman -Sy --noconfirm gnupg python-boto3 rsync
 fi

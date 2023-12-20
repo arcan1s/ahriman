@@ -122,22 +122,6 @@ def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture
     )
 
 
-@pytest.mark.skip(reason="https://github.com/aio-libs/aiohttp-debugtoolbar/issues/477")
-def test_run_with_debug(application_with_debug: Application, mocker: MockerFixture) -> None:
-    """
-    must run application with enabled debug panel
-    """
-    port = 8080
-    application_with_debug["configuration"].set_option("web", "port", str(port))
-    run_application_mock = mocker.patch("ahriman.web.web.run_app")
-
-    run_server(application_with_debug)
-    run_application_mock.assert_called_once_with(
-        application_with_debug, host="127.0.0.1", port=port, sock=None, handle_signals=True,
-        access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
-    )
-
-
 def test_run_with_socket(application: Application, mocker: MockerFixture) -> None:
     """
     must run application
