@@ -139,6 +139,18 @@ TL;DR
 
 Before using this command you will need to create local directory, put ``PKGBUILD`` there and generate ``.SRCINFO`` by using ``makepkg --printsrcinfo > .SRCINFO`` command. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
 
+How to copy package from another repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As simple as add package from archive. Considering case when you would like to copy package ``package`` with version ``ver-rel`` from repository ``source-repository`` to ``target-respository`` (same architecture), the command will be following:
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman -r target-repository package-add /var/lib/ahriman/repository/source-repository/x86_64/package-ver-rel-x86_64.pkg.tar.zst
+
+In addition, you can remove source package as usual later.
+
+This feature in particular useful if for managing multiple repositories like ``[testing]`` and ``[extra]``.
 
 How to fetch PKGBUILDs from remote repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
