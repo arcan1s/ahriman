@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman import __version__
 from ahriman.web.apispec import _info, _security, _servers, setup_apispec
+from ahriman.web.keys import ConfigurationKey
 
 
 def test_info() -> None:
@@ -36,7 +37,7 @@ def test_servers_address(application: Application) -> None:
     """
     must generate servers definitions with address
     """
-    application["configuration"].set_option("web", "address", "https://example.com")
+    application[ConfigurationKey].set_option("web", "address", "https://example.com")
     servers = _servers(application)
     assert servers == [{"url": "https://example.com"}]
 

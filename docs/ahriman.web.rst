@@ -30,6 +30,14 @@ ahriman.web.cors module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.keys module
+-----------------------
+
+.. automodule:: ahriman.web.keys
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.routes module
 -------------------------
 

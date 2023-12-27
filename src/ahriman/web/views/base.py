@@ -29,6 +29,7 @@ from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
+from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey
 
 
 T = TypeVar("T", str, list[str])
@@ -54,8 +55,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Configuration: configuration instance
         """
-        configuration: Configuration = self.request.app["configuration"]
-        return configuration
+        return self.request.app[ConfigurationKey]
 
     @property
     def services(self) -> dict[RepositoryId, Watcher]:
@@ -65,8 +65,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             dict[RepositoryId, Watcher]: map of loaded watchers per known repository
         """
-        watchers: dict[RepositoryId, Watcher] = self.request.app["watcher"]
-        return watchers
+        return self.request.app[WatcherKey]
 
     @property
     def sign(self) -> GPG:
@@ -86,8 +85,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Spawn: external process spawner instance
         """
-        spawner: Spawn = self.request.app["spawn"]
-        return spawner
+        return self.request.app[SpawnKey]
 
     @property
     def validator(self) -> Auth:
@@ -97,8 +95,7 @@ class BaseView(View, CorsViewMixin):
         Returns:
             Auth: authorization service instance
         """
-        validator: Auth = self.request.app["validator"]
-        return validator
+        return self.request.app[AuthKey]
 
     @classmethod
     async def get_permission(cls, request: Request) -> UserAccess:
