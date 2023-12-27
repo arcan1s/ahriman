@@ -155,9 +155,11 @@ _shtab_ahriman_daemon_options=(
   {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command (default\: False)]"
+  {--increment,--no-increment}"[increment package release (pkgrel) on duplicate (default\: True)]:increment:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
   {--partitions,--no-partitions}"[instead of updating whole repository, split updates into chunks (default\: True)]:partitions:"
+  {-u,--username}"[build as user (default\: None)]:username:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )
@@ -363,9 +365,11 @@ _shtab_ahriman_repo_daemon_options=(
   {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   "--dry-run[just perform check for updates, same as check command (default\: False)]"
+  {--increment,--no-increment}"[increment package release (pkgrel) on duplicate (default\: True)]:increment:"
   {--local,--no-local}"[enable or disable checking of local packages for updates (default\: True)]:local:"
   {--manual,--no-manual}"[include or exclude manual updates (default\: True)]:manual:"
   {--partitions,--no-partitions}"[instead of updating whole repository, split updates into chunks (default\: True)]:partitions:"
+  {-u,--username}"[build as user (default\: None)]:username:"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )

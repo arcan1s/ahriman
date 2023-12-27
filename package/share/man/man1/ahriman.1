@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2023\-12\-26" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2023\-12\-27" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -484,8 +484,9 @@ create package which contains list of available mirrors as set by configuration.
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
 usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes]
-                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-\-local | \-\-no\-local]
-                           [\-\-manual | \-\-no\-manual] [\-\-partitions | \-\-no\-partitions] [\-\-vcs | \-\-no\-vcs] [\-y]
+                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-\-increment | \-\-no\-increment]
+                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-\-partitions | \-\-no\-partitions]
+                           [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
 
 start process which periodically will run update process
 
@@ -511,6 +512,10 @@ process missing package dependencies
 just perform check for updates, same as check command
 
 .TP
+\fB\-\-increment\fR, \fB\-\-no\-increment\fR
+increment package release (pkgrel) on duplicate
+
+.TP
 \fB\-\-local\fR, \fB\-\-no\-local\fR
 enable or disable checking of local packages for updates
 
@@ -521,6 +526,10 @@ include or exclude manual updates
 .TP
 \fB\-\-partitions\fR, \fB\-\-no\-partitions\fR
 instead of updating whole repository, split updates into chunks
+
+.TP
+\fB\-u\fR \fI\,USERNAME\/\fR, \fB\-\-username\fR \fI\,USERNAME\/\fR
+build as user
 
 .TP
 \fB\-\-vcs\fR, \fB\-\-no\-vcs\fR

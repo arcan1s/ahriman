@@ -317,7 +317,8 @@ def _set_package_changes_remove_parser(root: SubParserAction) -> argparse.Argume
                              description="remove the package changes stored remotely",
                              formatter_class=_formatter)
     parser.add_argument("package", help="package base")
-    parser.set_defaults(handler=handlers.Change, action=Action.Remove, lock=None, quiet=True, report=False, unsafe=True)
+    parser.set_defaults(handler=handlers.Change, action=Action.Remove, exit_code=False, lock=None, quiet=True,
+                        report=False, unsafe=True)
     return parser
 
 
@@ -428,8 +429,8 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                          "it must end with ()")
     parser.add_argument("patch", help="path to file which contains function or variable value. If not set, "
                                       "the value will be read from stdin", type=Path, nargs="?")
-    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", lock=None, report=False,
-                        repository="")
+    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", exit_code=False, lock=None,
+                        report=False, repository="")
     return parser
 
 
@@ -471,8 +472,8 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                  "to remove only specified PKGBUILD variables. In case if not set, "
                                                  "it will remove all patches related to the package",
                         action="append")
-    parser.set_defaults(handler=handlers.Patch, action=Action.Remove, architecture="", lock=None, report=False,
-                        repository="")
+    parser.set_defaults(handler=handlers.Patch, action=Action.Remove, architecture="", exit_code=False, lock=None,
+                        report=False, repository="")
     return parser
 
 
@@ -496,8 +497,8 @@ def _set_patch_set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("package", help="path to directory with changed files for patch addition/update", type=Path)
     parser.add_argument("-t", "--track", help="files which has to be tracked", action="append",
                         default=["*.diff", "*.patch"])
-    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", lock=None, report=False,
-                        repository="", variable=None)
+    parser.set_defaults(handler=handlers.Patch, action=Action.Update, architecture="", exit_code=False, lock=None,
+                        report=False, repository="", variable=None)
     return parser
 
 
@@ -542,8 +543,8 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
                         action="count", default=False)
-    parser.set_defaults(handler=handlers.Update, dependencies=False, dry_run=True, aur=True, local=True, manual=False,
-                        username=None)
+    parser.set_defaults(handler=handlers.Update, aur=True, dependencies=False, dry_run=True, increment=False,
+                        local=True, manual=False, username=None)
     return parser
 
 
@@ -1073,8 +1074,8 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                                  "which is in particular must be used for OAuth2 authorization type.")
     parser.add_argument("-R", "--role", help="user access level",
                         type=UserAccess, choices=enum_values(UserAccess), default=UserAccess.Read)
-    parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture="", lock=None, quiet=True,
-                        report=False, repository="")
+    parser.set_defaults(handler=handlers.Users, action=Action.Update, architecture="", exit_code=False, lock=None,
+                        quiet=True, report=False, repository="")
     return parser
 
 
@@ -1113,8 +1114,8 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="remove user from the user mapping and update the configuration",
                              formatter_class=_formatter)
     parser.add_argument("username", help="username for web service")
-    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture="", lock=None, quiet=True,
-                        report=False, repository="")
+    parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture="", exit_code=False, lock=None,
+                        quiet=True, report=False, repository="")
     return parser
 
 
