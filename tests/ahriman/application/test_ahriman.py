@@ -272,11 +272,12 @@ def test_subparsers_package_add_option_variable_multiple(parser: argparse.Argume
 
 def test_subparsers_package_changes(parser: argparse.ArgumentParser) -> None:
     """
-    package-changes command must imply action, lock, quiet, report and unsafe
+    package-changes command must imply action, exit code, lock, quiet, report and unsafe
     """
     args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-changes", "ahriman"])
     assert args.action == Action.List
     assert args.architecture == "x86_64"
+    assert not args.exit_code
     assert args.lock is None
     assert args.quiet
     assert not args.report
@@ -296,6 +297,15 @@ def test_subparsers_package_changes_remove(parser: argparse.ArgumentParser) -> N
     assert not args.report
     assert args.repository == "repo"
     assert args.unsafe
+
+
+def test_subparsers_package_changes_remove_package_changes(parser: argparse.ArgumentParser) -> None:
+    """
+    package-changes-remove must have same keys as package-changes
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-changes-remove", "ahriman"])
+    reference_args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-changes", "ahriman"])
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_package_remove_option_architecture(parser: argparse.ArgumentParser) -> None:
@@ -369,13 +379,24 @@ def test_subparsers_package_status_update_option_status(parser: argparse.Argumen
     assert isinstance(args.status, BuildStatusEnum)
 
 
+def test_subparsers_package_status_update_package_status_remove(parser: argparse.ArgumentParser) -> None:
+    """
+    package-status-update must have same keys as package-status-remove
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-status-update"])
+    reference_args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-status-remove", "ahriman"])
+    del args.status
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_patch_add(parser: argparse.ArgumentParser) -> None:
     """
-    patch-add command must imply action, architecture list, lock, report and repository
+    patch-add command must imply action, architecture list, exit code, lock, report and repository
     """
     args = parser.parse_args(["patch-add", "ahriman", "version"])
     assert args.action == Action.Update
     assert args.architecture == ""
+    assert not args.exit_code
     assert args.lock is None
     assert not args.report
     assert args.repository == ""
@@ -442,13 +463,24 @@ def test_subparsers_patch_list_option_variable_multiple(parser: argparse.Argumen
     assert args.variable == ["var1", "var2"]
 
 
+def test_subparsers_patch_list_patch_add(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-list must have same keys as patch-add
+    """
+    args = parser.parse_args(["patch-list", "ahriman"])
+    reference_args = parser.parse_args(["patch-add", "ahriman", "version"])
+    del reference_args.patch
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_patch_remove(parser: argparse.ArgumentParser) -> None:
     """
-    patch-remove command must imply action, architecture list, lock, report and repository
+    patch-remove command must imply action, architecture list, exit code, lock, report and repository
     """
     args = parser.parse_args(["patch-remove", "ahriman"])
     assert args.action == Action.Remove
     assert args.architecture == ""
+    assert not args.exit_code
     assert args.lock is None
     assert not args.report
     assert args.repository == ""
@@ -486,13 +518,24 @@ def test_subparsers_patch_remove_option_variable_multiple(parser: argparse.Argum
     assert args.variable == ["var1", "var2"]
 
 
+def test_subparsers_patch_remove_patch_add(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-remove must have same keys as patch-add
+    """
+    args = parser.parse_args(["patch-remove", "ahriman"])
+    reference_args = parser.parse_args(["patch-add", "ahriman", "version"])
+    del reference_args.patch
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_patch_set_add(parser: argparse.ArgumentParser) -> None:
     """
-    patch-set-add command must imply action, architecture list, lock, report, repository and variable
+    patch-set-add command must imply action, architecture list, exit code, lock, report, repository and variable
     """
     args = parser.parse_args(["patch-set-add", "ahriman"])
     assert args.action == Action.Update
     assert args.architecture == ""
+    assert not args.exit_code
     assert args.lock is None
     assert not args.report
     assert args.repository == ""
@@ -531,6 +574,16 @@ def test_subparsers_patch_set_add_option_track(parser: argparse.ArgumentParser) 
     assert args.track == ["*.diff", "*.patch", "*.py"]
 
 
+def test_subparsers_patch_set_add_patch_add(parser: argparse.ArgumentParser) -> None:
+    """
+    patch-set-add must have same keys as patch-add
+    """
+    args = parser.parse_args(["patch-set-add", "ahriman"])
+    reference_args = parser.parse_args(["patch-add", "ahriman", "version"])
+    del reference_args.patch, args.track
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_repo_backup(parser: argparse.ArgumentParser) -> None:
     """
     repo-backup command must imply architecture list, lock, report, repository and unsafe
@@ -561,12 +614,14 @@ def test_subparsers_repo_backup_option_repository(parser: argparse.ArgumentParse
 
 def test_subparsers_repo_check(parser: argparse.ArgumentParser) -> None:
     """
-    repo-check command must imply dependencies, dry-run, aur, manual and username
+    repo-check command must imply aur, dependencies, dry-run, increment, local, manual and username
     """
     args = parser.parse_args(["repo-check"])
+    assert args.aur
     assert not args.dependencies
     assert args.dry_run
-    assert args.aur
+    assert not args.increment
+    assert args.local
     assert not args.manual
     assert args.username is None
 
@@ -603,6 +658,15 @@ def test_subparsers_repo_check_option_refresh(parser: argparse.ArgumentParser) -
     assert args.refresh == 2
 
 
+def test_subparsers_repo_check_repo_update(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-check must have same keys as repo-update
+    """
+    args = parser.parse_args(["repo-check"])
+    reference_args = parser.parse_args(["repo-update"])
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_repo_create_keyring(parser: argparse.ArgumentParser) -> None:
     """
     repo-create-keyring command must imply trigger
@@ -631,6 +695,15 @@ def test_subparsers_repo_create_keyring_option_repository(parser: argparse.Argum
     assert args.repository == "repo"
 
 
+def test_subparsers_repo_create_keyring_repo_triggers(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-create-keyring must have same keys as repo-triggers
+    """
+    args = parser.parse_args(["repo-create-keyring"])
+    reference_args = parser.parse_args(["repo-triggers"])
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_repo_create_mirrorlist(parser: argparse.ArgumentParser) -> None:
     """
     repo-create-mirrorlist command must imply trigger
@@ -657,6 +730,15 @@ def test_subparsers_repo_create_mirrorlist_option_repository(parser: argparse.Ar
     assert args.repository is None
     args = parser.parse_args(["-r", "repo", "repo-create-mirrorlist"])
     assert args.repository == "repo"
+
+
+def test_subparsers_repo_create_mirrorlist_repo_triggers(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-create-mirrorlist must have same keys as repo-triggers
+    """
+    args = parser.parse_args(["repo-create-mirrorlist"])
+    reference_args = parser.parse_args(["repo-triggers"])
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_repo_daemon(parser: argparse.ArgumentParser) -> None:
@@ -688,6 +770,16 @@ def test_subparsers_repo_daemon_option_interval(parser: argparse.ArgumentParser)
     assert isinstance(args.interval, int)
     args = parser.parse_args(["repo-daemon", "--interval", "10"])
     assert isinstance(args.interval, int)
+
+
+def test_subparsers_repo_daemon_repo_update(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-create-keyring must have same keys as repo-triggers
+    """
+    args = parser.parse_args(["repo-daemon"])
+    reference_args = parser.parse_args(["repo-update"])
+    del args.interval, args.partitions
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_repo_rebuild_option_architecture(parser: argparse.ArgumentParser) -> None:
@@ -782,6 +874,15 @@ def test_subparsers_repo_report_option_repository(parser: argparse.ArgumentParse
     assert args.repository == "repo"
 
 
+def test_subparsers_repo_report_repo_triggers(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-report must have same keys as repo-triggers
+    """
+    args = parser.parse_args(["repo-report"])
+    reference_args = parser.parse_args(["repo-triggers"])
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_repo_restore(parser: argparse.ArgumentParser) -> None:
     """
     repo-restore command must imply architecture list, lock, report, repository and unsafe
@@ -855,6 +956,15 @@ def test_subparsers_repo_status_update_option_status(parser: argparse.ArgumentPa
     assert isinstance(args.status, BuildStatusEnum)
 
 
+def test_subparsers_repo_status_update_package_status_update(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-status-update must have same keys as package-status-update
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-status-update"])
+    reference_args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-status-update"])
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_repo_sync(parser: argparse.ArgumentParser) -> None:
     """
     repo-sync command must imply trigger
@@ -881,6 +991,15 @@ def test_subparsers_repo_sync_option_repository(parser: argparse.ArgumentParser)
     assert args.repository is None
     args = parser.parse_args(["-r", "repo", "repo-sync"])
     assert args.repository == "repo"
+
+
+def test_subparsers_repo_sync_repo_triggers(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-sync must have same keys as repo-triggers
+    """
+    args = parser.parse_args(["repo-sync"])
+    reference_args = parser.parse_args(["repo-triggers"])
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_repo_tree(parser: argparse.ArgumentParser) -> None:
@@ -1203,11 +1322,12 @@ def test_subparsers_service_tree_migrate(parser: argparse.ArgumentParser) -> Non
 
 def test_subparsers_user_add(parser: argparse.ArgumentParser) -> None:
     """
-    user-add command must imply action, architecture, lock, quiet, report and repository
+    user-add command must imply action, architecture, exit code, lock, quiet, report and repository
     """
     args = parser.parse_args(["user-add", "username"])
     assert args.action == Action.Update
     assert args.architecture == ""
+    assert not args.exit_code
     assert args.lock is None
     assert args.quiet
     assert not args.report
@@ -1278,13 +1398,24 @@ def test_subparsers_user_list_option_role(parser: argparse.ArgumentParser) -> No
     assert isinstance(args.role, UserAccess)
 
 
+def test_subparsers_user_list_user_add(parser: argparse.ArgumentParser) -> None:
+    """
+    user-list must have same keys as user-add
+    """
+    args = parser.parse_args(["user-list"])
+    reference_args = parser.parse_args(["user-add", "username"])
+    del reference_args.key, reference_args.packager, reference_args.password
+    assert dir(args) == dir(reference_args)
+
+
 def test_subparsers_user_remove(parser: argparse.ArgumentParser) -> None:
     """
-    user-remove command must imply action, architecture, lock, quiet, report and repository
+    user-remove command must imply action, architecture, exit code, lock, quiet, report and repository
     """
     args = parser.parse_args(["user-remove", "username"])
     assert args.action == Action.Remove
     assert args.architecture == ""
+    assert not args.exit_code
     assert args.lock is None
     assert args.quiet
     assert not args.report
@@ -1305,6 +1436,16 @@ def test_subparsers_user_remove_option_repository(parser: argparse.ArgumentParse
     """
     args = parser.parse_args(["-r", "repo", "user-remove", "username"])
     assert args.repository == ""
+
+
+def test_subparsers_user_remove_user_add(parser: argparse.ArgumentParser) -> None:
+    """
+    user-list must have same keys as user-add
+    """
+    args = parser.parse_args(["user-remove", "username"])
+    reference_args = parser.parse_args(["user-add", "username"])
+    del reference_args.key, reference_args.packager, reference_args.password, reference_args.role
+    assert dir(args) == dir(reference_args)
 
 
 def test_subparsers_web(parser: argparse.ArgumentParser) -> None:

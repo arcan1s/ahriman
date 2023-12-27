@@ -22,6 +22,7 @@ import argparse
 from ahriman.application.application import Application
 from ahriman.application.application.updates_iterator import FixedUpdatesIterator, UpdatesIterator
 from ahriman.application.handlers import Handler
+from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -43,8 +44,6 @@ class Daemon(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        from ahriman.application.handlers import Update
-
         application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
         if args.partitions:
             iterator = UpdatesIterator(application, args.interval)
