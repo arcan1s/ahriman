@@ -607,16 +607,22 @@ def _set_repo_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("--dependencies", help="process missing package dependencies",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--dry-run", help="just perform check for updates, same as check command", action="store_true")
+    parser.add_argument("--increment", help="increment package release (pkgrel) on duplicate",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--local", help="enable or disable checking of local packages for updates",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--manual", help="include or exclude manual updates",
                         action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--partitions", help="instead of updating whole repository, split updates into chunks",
+                        action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("-u", "--username", help="build as user", default=extract_user())
     parser.add_argument("--vcs", help="fetch actual version of VCS packages",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
                         action="count", default=False)
-    parser.set_defaults(handler=handlers.Daemon, exit_code=False, package=[])
+    parser.set_defaults(handler=handlers.Daemon, exit_code=False,
+                        lock=Path(tempfile.gettempdir()) / "ahriman-daemon.lock", package=[])
     return parser
 
 

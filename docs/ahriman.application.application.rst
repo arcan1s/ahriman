@@ -44,6 +44,14 @@ ahriman.application.application.application\_repository module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.application.updates\_iterator module
+--------------------------------------------------------
+
+.. automodule:: ahriman.application.application.updates_iterator
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

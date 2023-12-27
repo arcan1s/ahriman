@@ -12,6 +12,14 @@ ahriman.web.views.v1.status.changes module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.status.info module
+---------------------------------------
+
+.. automodule:: ahriman.web.views.v1.status.info
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.status.logs module
 ---------------------------------------
 
