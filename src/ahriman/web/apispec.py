@@ -23,7 +23,7 @@ from aiohttp.web import Application
 from typing import Any
 
 from ahriman import __version__
-from ahriman.core.configuration import Configuration
+from ahriman.web.keys import ConfigurationKey
 
 
 __all__ = ["setup_apispec"]
@@ -89,7 +89,7 @@ def _servers(application: Application) -> list[dict[str, Any]]:
     Returns:
         list[dict[str, Any]]: list (actually only one) of defined web urls
     """
-    configuration: Configuration = application["configuration"]
+    configuration = application[ConfigurationKey]
     address = configuration.get("web", "address", fallback=None)
     if not address:
         host = configuration.get("web", "host")

@@ -12,6 +12,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+from ahriman.web.keys import AuthKey
 from ahriman.web.middlewares.auth_handler import _AuthorizationPolicy, _auth_handler, _cookie_secret_key, setup_auth
 
 
@@ -192,5 +193,5 @@ def test_setup_auth(application_with_auth: Application, configuration: Configura
     """
     setup_mock = mocker.patch("aiohttp_security.setup")
     application = setup_auth(application_with_auth, configuration, auth)
-    assert application.get("validator") is not None
+    assert application.get(AuthKey) is not None
     setup_mock.assert_called_once_with(application_with_auth, pytest.helpers.anyvar(int), pytest.helpers.anyvar(int))

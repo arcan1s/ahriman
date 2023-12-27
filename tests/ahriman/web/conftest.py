@@ -16,6 +16,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.spawn import Spawn
 from ahriman.models.user import User
+from ahriman.web.keys import AuthKey
 from ahriman.web.web import setup_server
 
 
@@ -159,7 +160,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     _, repository_id = configuration.check_loaded()
     application = setup_server(configuration, spawner, [repository_id])
 
-    generated = user.hash_password(application["validator"].salt)
+    generated = user.hash_password(application[AuthKey].salt)
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=generated)
 
     return application
@@ -245,5 +246,5 @@ def client_with_oauth_auth(application_with_auth: Application, event_loop: BaseE
         TestClient: web client test instance
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
-    application_with_auth["validator"] = MagicMock(spec=OAuth)
+    application_with_auth[AuthKey] = MagicMock(spec=OAuth)
     return event_loop.run_until_complete(aiohttp_client(application_with_auth))

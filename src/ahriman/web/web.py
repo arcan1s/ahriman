@@ -34,6 +34,7 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec import setup_apispec
 from ahriman.web.cors import setup_cors
+from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
@@ -97,7 +98,7 @@ async def _on_startup(application: Application) -> None:
     application.logger.info("server started")
 
     try:
-        for watcher in application["watcher"].values():
+        for watcher in application[WatcherKey].values():
             watcher.load()
     except Exception:
         message = "could not load packages"
@@ -114,7 +115,7 @@ def run_server(application: Application) -> None:
     """
     application.logger.info("start server")
 
-    configuration: Configuration = application["configuration"]
+    configuration = application[ConfigurationKey]
     host = configuration.get("web", "host")
     port = configuration.getint("web", "port")
     unix_socket = _create_socket(configuration, application)
@@ -156,7 +157,7 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     aiohttp_jinja2.setup(application, trim_blocks=True, lstrip_blocks=True, autoescape=True, loader=loader)
 
     application.logger.info("setup configuration")
-    application["configuration"] = configuration
+    application[ConfigurationKey] = configuration
 
     application.logger.info("setup watchers")
     if not repositories:
@@ -166,13 +167,13 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     for repository_id in repositories:
         application.logger.info("load repository %s", repository_id)
         watchers[repository_id] = Watcher(repository_id, database)
-    application["watcher"] = watchers
+    application[WatcherKey] = watchers
 
     application.logger.info("setup process spawner")
-    application["spawn"] = spawner
+    application[SpawnKey] = spawner
 
     application.logger.info("setup authorization")
-    validator = application["validator"] = Auth.load(configuration, database)
+    validator = application[AuthKey] = Auth.load(configuration, database)
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth
         setup_auth(application, configuration, validator)

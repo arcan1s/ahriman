@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
+from ahriman.web.keys import WatcherKey
 from ahriman.web.views.base import BaseView
 
 
@@ -172,9 +173,9 @@ def test_service(base: BaseView) -> None:
     must return service for repository
     """
     repository_id = RepositoryId("i686", "repo")
-    base.request.app["watcher"] = {
+    base.request.app[WatcherKey] = {
         repository_id: watcher
-        for watcher in base.request.app["watcher"].values()
+        for watcher in base.request.app[WatcherKey].values()
     }
 
     assert base.service(repository_id) == base.services[repository_id]
