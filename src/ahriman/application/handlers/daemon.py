@@ -18,8 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import threading
 
+from ahriman.application.application import Application
+from ahriman.application.application.updates_iterator import FixedUpdatesIterator, UpdatesIterator
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
@@ -44,9 +45,15 @@ class Daemon(Handler):
         """
         from ahriman.application.handlers import Update
 
-        event = threading.Event()
-        try:
-            while not event.wait(args.interval):
-                Update.run(args, repository_id, configuration, report=report)
-        except KeyboardInterrupt:
-            pass  # normal exit
+        application = Application(repository_id, configuration, report=report, refresh_pacman_database=args.refresh)
+        if args.partitions:
+            iterator = UpdatesIterator(application, args.interval)
+        else:
+            iterator = FixedUpdatesIterator(application, args.interval)
+
+        for packages in iterator:
+            if packages is None:
+                continue  # nothing to check case
+
+            args.package = packages
+            Update.run(args, repository_id, configuration, report=report)

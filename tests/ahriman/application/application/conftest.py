@@ -2,9 +2,11 @@ import pytest
 
 from pytest_mock import MockerFixture
 
+from ahriman.application.application import Application
 from ahriman.application.application.application_packages import ApplicationPackages
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.application.application.application_repository import ApplicationRepository
+from ahriman.application.application.updates_iterator import FixedUpdatesIterator, UpdatesIterator
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
@@ -71,3 +73,31 @@ def application_repository(configuration: Configuration, database: SQLite, repos
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     _, repository_id = configuration.check_loaded()
     return ApplicationRepository(repository_id, configuration, report=False)
+
+
+@pytest.fixture
+def fixed_updates_iterator(application: Application) -> FixedUpdatesIterator:
+    """
+    fixture for fixed updates iterator
+
+    Args:
+        application(Application): application fixture
+
+    Returns:
+        FixedUpdatesIterator: fixed updates iterator test instance
+    """
+    return FixedUpdatesIterator(application, 1)
+
+
+@pytest.fixture
+def updates_iterator(application: Application) -> UpdatesIterator:
+    """
+    fixture for chunk bases updates iterator
+
+    Args:
+        application(Application): application fixture
+
+    Returns:
+        UpdatesIterator: updates iterator test instance
+    """
+    return UpdatesIterator(application, 1)
