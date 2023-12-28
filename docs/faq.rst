@@ -25,6 +25,15 @@ Long answer
 
 The idea is to install the package as usual, create working directory tree, create configuration for ``sudo`` and ``devtools``. Detailed description of the setup instruction can be found :doc:`here <setup>`.
 
+Run as daemon
+"""""""""""""
+
+The alternative way (though not recommended) is to run service instead of timer:
+
+.. code-block:: shell
+
+   systemctl enable --now ahriman-daemon@x86_64-aur-clone
+
 How to validate settings
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -473,7 +482,7 @@ There is special ``repo-daemon`` subcommand which emulates systemd timer and wil
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest repo-daemon
 
-This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag. Chech also `examples <https://github.com/arcan1s/ahriman/tree/master/recipes/daemon>`__.
+This command uses same rules as ``repo-update``, thus, e.g. requires ``--privileged`` flag. Check also `examples <https://github.com/arcan1s/ahriman/tree/master/recipes/daemon>`__.
 
 Web service setup
 ^^^^^^^^^^^^^^^^^
