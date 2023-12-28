@@ -276,8 +276,8 @@ class Tree:
         unprocessed = sorted(self.leaves, key=lambda leaf: leaf.package.base)
         while unprocessed:
             # pick one and append it to the most free partition and build chunk
-            leaf = unprocessed.pop()
-            chunk = [leaf]
+            first_leaf = unprocessed.pop()
+            chunk = [first_leaf]
 
             while True:  # python doesn't allow to use walrus operator to unpack tuples
                 # get packages which depend on packages in chunk

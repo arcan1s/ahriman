@@ -565,6 +565,7 @@ def watcher(repository_id: RepositoryId, database: SQLite, repository: Repositor
     Args:
         repository_id(RepositoryId): repository identifier fixture
         database(SQLite): database fixture
+        repository(Repository): repository fixture
 
     Returns:
         Watcher: package status watcher test instance

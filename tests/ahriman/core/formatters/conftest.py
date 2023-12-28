@@ -145,7 +145,7 @@ def update_printer(package_ahriman: Package) -> UpdatePrinter:
         package_ahriman(Package): package fixture
 
     Returns:
-        UpdatePrinter: udpate printer test instance
+        UpdatePrinter: update printer test instance
     """
     return UpdatePrinter(package_ahriman, None)
 

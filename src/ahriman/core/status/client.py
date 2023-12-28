@@ -41,7 +41,7 @@ class Client:
         load client from settings
 
         Args:
-            repository_id(RepositoryId): repository unqiue identifier
+            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
 

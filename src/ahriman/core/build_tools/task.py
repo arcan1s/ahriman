@@ -38,7 +38,7 @@ class Task(LazyLogging):
         archbuild_flags(list[str]): command flags for archbuild command
         architecture(str): repository architecture
         build_command(str): build command
-        makechroootpkg_flags(list[str]): command flags for makechrootpkg command
+        makechrootpkg_flags(list[str]): command flags for makechrootpkg command
         makepkg_flags(list[str]): command flags for makepkg command
         package(Package): package definitions
         paths(RepositoryPaths): repository paths instance

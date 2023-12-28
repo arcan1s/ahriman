@@ -510,7 +510,7 @@ def test_head(sources: Sources, mocker: MockerFixture) -> None:
     local = Path("local")
 
     assert sources.head(local) == "sha"
-    check_output_mock.assert_called_once_with("git", "rev-parse", "HEAD", cwd=local)
+    check_output_mock.assert_called_once_with("git", "rev-parse", "HEAD", cwd=local, logger=sources.logger)
 
 
 def test_head_specific(sources: Sources, mocker: MockerFixture) -> None:
@@ -521,7 +521,7 @@ def test_head_specific(sources: Sources, mocker: MockerFixture) -> None:
     local = Path("local")
 
     assert sources.head(local, "master") == "sha"
-    check_output_mock.assert_called_once_with("git", "rev-parse", "master", cwd=local)
+    check_output_mock.assert_called_once_with("git", "rev-parse", "master", cwd=local, logger=sources.logger)
 
 
 def test_move(sources: Sources, mocker: MockerFixture) -> None:

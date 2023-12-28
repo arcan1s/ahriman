@@ -344,7 +344,7 @@ class Sources(LazyLogging):
             str: HEAD commit hash
         """
         # we might want to parse git files instead though
-        return check_output("git", "rev-parse", ref_name, cwd=sources_dir)
+        return check_output("git", "rev-parse", ref_name, cwd=sources_dir, logger=self.logger)
 
     def move(self, pkgbuild_dir: Path, sources_dir: Path) -> None:
         """
