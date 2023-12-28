@@ -96,7 +96,7 @@ All subcommands are divided into several groups depending on the role they are d
 * ``aur`` (``aur-search``) group is for AUR operations.
 * ``help`` (e.g. ``help``) are system commands.
 * ``package`` subcommands (e.g. ``package-add``) allow to perform single package actions.
-* ``patch`` subcommands (e.g. ``pacth-list``) are the special case of ``package`` subcommands introduced in order to control patches for packages.
+* ``patch`` subcommands (e.g. ``patch-list``) are the special case of ``package`` subcommands introduced in order to control patches for packages.
 * ``repo`` subcommands (e.g. ``repo-check``) usually perform actions on whole repository.
 * ``service`` subcommands (e.g. ``service-setup``) perform actions which are related to whole service managing: create repository, show configuration.
 * ``user`` subcommands (``user-add``) are intended for user management.

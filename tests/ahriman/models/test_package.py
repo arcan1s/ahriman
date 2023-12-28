@@ -320,7 +320,7 @@ def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> N
     assert list(Package.local_files(Path("path"))) == []
 
 
-def test_local_files_error(mocker: MockerFixture, resource_path_root: Path) -> None:
+def test_local_files_error(mocker: MockerFixture) -> None:
     """
     must raise exception on package parsing for local sources
     """

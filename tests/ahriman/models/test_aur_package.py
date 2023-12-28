@@ -54,8 +54,7 @@ def test_from_json_2(aur_package_ahriman: AURPackage, mocker: MockerFixture) -> 
     assert AURPackage.from_json(asdict(aur_package_ahriman)) == aur_package_ahriman
 
 
-def test_from_pacman(pyalpm_package_ahriman: pyalpm.Package, aur_package_ahriman: AURPackage,
-                     resource_path_root: Path) -> None:
+def test_from_pacman(pyalpm_package_ahriman: pyalpm.Package, aur_package_ahriman: AURPackage) -> None:
     """
     must load package from repository database
     """

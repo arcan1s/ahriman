@@ -15,6 +15,7 @@ from ahriman.core.util import check_output, check_user, dataclass_view, enum_val
     srcinfo_property, srcinfo_property_list, trim_package, unquote, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -150,11 +151,11 @@ def test_check_output_empty_line(mocker: MockerFixture) -> None:
     logger_mock.assert_has_calls([MockCall(""), MockCall("hello")])
 
 
-def test_check_user(mocker: MockerFixture) -> None:
+def test_check_user(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must check user correctly
     """
-    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    paths = RepositoryPaths(Path.cwd(), repository_id)
     mocker.patch("os.getuid", return_value=paths.root_owner[0])
     check_user(paths, unsafe=False)
 
@@ -167,22 +168,22 @@ def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: Mock
     check_user(repository_paths, unsafe=False)
 
 
-def test_check_user_exception(mocker: MockerFixture) -> None:
+def test_check_user_exception(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must raise exception if user differs
     """
-    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    paths = RepositoryPaths(Path.cwd(), repository_id)
     mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
 
     with pytest.raises(UnsafeRunError):
         check_user(paths, unsafe=False)
 
 
-def test_check_user_unsafe(mocker: MockerFixture) -> None:
+def test_check_user_unsafe(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must skip check if unsafe flag is set
     """
-    paths = RepositoryPaths(Path.cwd(), "x86_64")
+    paths = RepositoryPaths(Path.cwd(), repository_id)
     mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
     check_user(paths, unsafe=True)
 

@@ -170,7 +170,7 @@ class Handler:
         # extract repository names first
         if (from_args := args.repository) is not None:
             repositories: Iterable[str] = [from_args]
-        elif (from_filesystem := RepositoryPaths.known_repositories(root)):
+        elif from_filesystem := RepositoryPaths.known_repositories(root):
             repositories = from_filesystem
         else:  # try to read configuration now
             repositories = [configuration.get("repository", "name")]

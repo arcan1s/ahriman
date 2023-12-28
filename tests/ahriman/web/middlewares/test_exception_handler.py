@@ -139,7 +139,7 @@ async def test_exception_handler_head() -> None:
 
 async def test_exception_handler_method_not_allowed() -> None:
     """
-    must handle not allowed methodss
+    must handle not allowed methods
     """
     request = pytest.helpers.request("", "", "POST")
     request_handler = AsyncMock(side_effect=HTTPMethodNotAllowed("POST", ["GET"]))

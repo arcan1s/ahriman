@@ -545,7 +545,7 @@ In this example we are going to use files and packages which are provided by off
 
    .. code-block:: shell
 
-      wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
+      wget https://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
       pacman -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
@@ -553,7 +553,7 @@ In this example we are going to use files and packages which are provided by off
 
    .. code-block:: shell
 
-      wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst
+      wget https://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst
       pacman -U devtools-20221208-1.2-any.pkg.tar.zst
 
    Alternatively, you can create your own ``makepkg`` configuration and save it as ``/usr/share/devtools/makepkg.conf.d/i686.conf``.
@@ -563,7 +563,7 @@ In this example we are going to use files and packages which are provided by off
 
    .. code-block:: shell
 
-      ahriman -a i686 service-setup --mirror 'http://de.mirror.archlinux32.org/$arch/$repo'--no-multilib ...
+      ahriman -a i686 service-setup --mirror 'https://de.mirror.archlinux32.org/$arch/$repo'--no-multilib ...
 
    In addition to usual options, you need to specify the following options:
 
@@ -598,8 +598,8 @@ There are two possible ways to achieve same setup, by using docker container. Th
    .. code-block:: dockerfile
 
       RUN pacman --noconfirm -Sy wget
-      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
-      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
+      RUN wget https://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
+      RUN wget https://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
    At that point you should have full ``Dockerfile`` like:
@@ -611,8 +611,8 @@ There are two possible ways to achieve same setup, by using docker container. Th
       RUN pacman-key --init
 
       RUN pacman --noconfirm -Sy wget
-      RUN wget http://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
-      RUN wget http://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
+      RUN wget https://pool.mirror.archlinux32.org/i686/extra/devtools-20221208-1.2-any.pkg.tar.zst && pacman --noconfirm -U devtools-20221208-1.2-any.pkg.tar.zst
+      RUN wget https://pool.mirror.archlinux32.org/i686/core/archlinux32-keyring-20230705-1.0-any.pkg.tar.zst && pacman --noconfirm -U archlinux32-keyring-20230705-1.0-any.pkg.tar.zst
 
 #.
    After that you can build you own container, e.g.:
@@ -626,7 +626,7 @@ There are two possible ways to achieve same setup, by using docker container. Th
 
    .. code-block:: shell
 
-      docker run --privileged -p 8080:8080 -e AHRIMAN_ARCHITECTURE=i686 -e AHRIMAN_PACMAN_MIRROR='http://de.mirror.archlinux32.org/$arch/$repo' -e AHRIMAN_MULTILIB= ahriman-i686:latest
+      docker run --privileged -p 8080:8080 -e AHRIMAN_ARCHITECTURE=i686 -e AHRIMAN_PACMAN_MIRROR='https://de.mirror.archlinux32.org/$arch/$repo' -e AHRIMAN_MULTILIB= ahriman-i686:latest
 
 Remote synchronization
 ----------------------

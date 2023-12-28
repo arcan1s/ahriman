@@ -1,6 +1,4 @@
 import argparse
-import configparser
-
 import pytest
 
 from pytest_mock import MockerFixture

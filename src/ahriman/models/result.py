@@ -46,7 +46,7 @@ class Result:
         default constructor
 
         Args:
-            addded(Iterable[Package] | None, optional): initial list of successfully added packages
+            added(Iterable[Package] | None, optional): initial list of successfully added packages
                 (Default value = None)
             updated(Iterable[Package] | None, optional): initial list of successfully updated packages
                 (Default value = None)

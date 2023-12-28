@@ -37,7 +37,9 @@ def test_load_trigger(trigger_loader: TriggerLoader, configuration: Configuratio
     """
     must load trigger
     """
-    loaded = trigger_loader.load_trigger("ahriman.core.report.ReportTrigger", "x86_64", configuration)
+    _, repository_id = configuration.check_loaded()
+
+    loaded = trigger_loader.load_trigger("ahriman.core.report.ReportTrigger", repository_id, configuration)
     assert loaded
     assert isinstance(loaded, ReportTrigger)
 

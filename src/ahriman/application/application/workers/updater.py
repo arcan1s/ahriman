@@ -34,9 +34,6 @@ from ahriman.models.worker import Worker
 class Updater(LazyLogging):
     """
     updater handler interface
-
-    Attributes:
-        split_method(Callable[[Iterable[Package]], list[list[Package]]]): method to split packages into chunks
     """
 
     @staticmethod
