@@ -39,6 +39,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     setup_mock = mocker.patch("ahriman.web.web.setup_server")
     run_mock = mocker.patch("ahriman.web.web.run_server")
     start_mock = mocker.patch("ahriman.core.spawn.Spawn.start")
+    trigger_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.load")
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")
     join_mock = mocker.patch("ahriman.core.spawn.Spawn.join")
     _, repository_id = configuration.check_loaded()
@@ -48,6 +49,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     setup_mock.assert_called_once_with(configuration, pytest.helpers.anyvar(int), [repository_id])
     run_mock.assert_called_once_with(pytest.helpers.anyvar(int))
     start_mock.assert_called_once_with()
+    trigger_mock.assert_called_once_with(repository_id, configuration)
+    trigger_mock().on_start.assert_called_once_with()
     stop_mock.assert_called_once_with()
     join_mock.assert_called_once_with()
 

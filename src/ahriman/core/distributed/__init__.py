@@ -17,12 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.database.operations.operations import Operations
-
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.changes_operations import ChangesOperations
-from ahriman.core.database.operations.logs_operations import LogsOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
-from ahriman.core.database.operations.workers_operations import WorkersOperations
+from ahriman.core.distributed.worker_loader_trigger import WorkerLoaderTrigger
+from ahriman.core.distributed.worker_register_trigger import WorkerRegisterTrigger
+from ahriman.core.distributed.worker_trigger import WorkerTrigger
+from ahriman.core.distributed.worker_unregister_trigger import WorkerUnregisterTrigger

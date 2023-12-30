@@ -18,7 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass, field
+from typing import Any
 from urllib.parse import urlparse
+
+from ahriman.core.util import dataclass_view
 
 
 @dataclass(frozen=True)
@@ -39,3 +42,12 @@ class Worker:
         update identifier based on settings
         """
         object.__setattr__(self, "identifier", self.identifier or urlparse(self.address).netloc)
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json patch view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return dataclass_view(self)

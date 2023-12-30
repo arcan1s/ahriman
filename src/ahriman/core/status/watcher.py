@@ -26,6 +26,7 @@ from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
+from ahriman.models.worker import Worker
 
 
 class Watcher(LazyLogging):
@@ -223,3 +224,30 @@ class Watcher(LazyLogging):
             status(BuildStatusEnum): new service status
         """
         self.status = BuildStatus(status)
+
+    def workers_get(self) -> list[Worker]:
+        """
+        retrieve registered remote workers
+
+        Returns:
+            list[Worker]: list of currently available workers
+        """
+        return self.database.workers_get()
+
+    def workers_remove(self, identifier: str | None = None) -> None:
+        """
+        unregister remote worker
+
+        Args:
+            identifier(str | None, optional): remote worker identifier if any (Default value = None)
+        """
+        self.database.workers_remove(identifier)
+
+    def workers_update(self, worker: Worker) -> None:
+        """
+        register or update remote worker
+
+        Args:
+            worker(Worker): worker to register
+        """
+        self.database.workers_insert(worker)
