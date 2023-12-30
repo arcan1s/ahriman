@@ -8,4 +8,4 @@
 6. All updates from worker instances are uploaded to the web service.
 7. Repository is available at `http://localhost:8080/repo`.
 
-Note, in this configuration, workers are spawned in replicated mode, thus the backend accesses them in round-robin-like manner.
+In this example, worker list is automatically defined based on the addresses they reported. 

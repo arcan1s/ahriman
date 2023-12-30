@@ -80,6 +80,7 @@ def test_register(distributed_system: DistributedSystem, mocker: MockerFixture) 
     """
     must register service
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     mocker.patch("pathlib.Path.is_file", return_value=False)
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     write_mock = mocker.patch("pathlib.Path.write_text")
@@ -95,6 +96,7 @@ def test_register_skip(distributed_system: DistributedSystem, mocker: MockerFixt
     """
     must skip service registration if it doesn't owe the identifier
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     mocker.patch("pathlib.Path.is_file", return_value=True)
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     write_mock = mocker.patch("pathlib.Path.write_text")
@@ -109,6 +111,7 @@ def test_register_force(distributed_system: DistributedSystem, mocker: MockerFix
     """
     must register service even if it doesn't owe the identifier if force is supplied
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     mocker.patch("pathlib.Path.is_file", return_value=True)
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     write_mock = mocker.patch("pathlib.Path.write_text")
@@ -124,6 +127,7 @@ def test_unregister(distributed_system: DistributedSystem, mocker: MockerFixture
     """
     must unregister service
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     remove_mock = mocker.patch("pathlib.Path.unlink")
     distributed_system._owe_identifier = True
@@ -138,6 +142,7 @@ def test_unregister_skip(distributed_system: DistributedSystem, mocker: MockerFi
     """
     must skip service removal if it doesn't owe the identifier
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     remove_mock = mocker.patch("pathlib.Path.unlink")
 
@@ -150,6 +155,7 @@ def test_unregister_force(distributed_system: DistributedSystem, mocker: MockerF
     """
     must remove service even if it doesn't owe the identifier if force is supplied
     """
+    mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.load_identifier", return_value="id")
     run_mock = mocker.patch("ahriman.core.distributed.distributed_system.DistributedSystem.make_request")
     remove_mock = mocker.patch("pathlib.Path.unlink")
 

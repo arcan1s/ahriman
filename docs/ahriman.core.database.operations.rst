@@ -60,6 +60,14 @@ ahriman.core.database.operations.patch\_operations module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.operations.workers\_operations module
+-----------------------------------------------------------
+
+.. automodule:: ahriman.core.database.operations.workers_operations
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

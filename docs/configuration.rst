@@ -86,7 +86,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of definition.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default is 7 days.
-* ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable url, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node.
+* ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable url, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node. There is also special trigger which loads this value based on the list of the discovered nodes.
 
 ``repository`` group
 --------------------
@@ -352,3 +352,12 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 * ``object_path`` - path prefix for stored objects, string, optional. If none set, the prefix as in repository tree will be used.
 * ``region`` - bucket region (e.g. ``eu-central-1``), string, required.
 * ``secret_key`` - AWS secret access key, string, required.
+
+``worker`` group
+----------------
+
+This section controls settings for ``ahriman.core.distributed.WorkerTrigger`` plugin.
+
+* ``address`` - address of the instance, string, required. Must be reachable for the master instance.
+* ``identifier`` - unique identifier of the instance, string, optional. If none set, the random uuid will be generated on each run automatically.
+* ``identifier_path`` - path to lock file, string, optional, default is ``/tmp/ahriman-worker-identifier``.

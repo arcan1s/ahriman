@@ -1168,6 +1168,11 @@ Addition of new package, package removal, repository update
 
 In all scenarios, update process must be run only on ``master`` node. Unlike the manually distributed packages described above, automatic update must be enabled only for ``master`` node.
 
+Automatic worker nodes discovery
+""""""""""""""""""""""""""""""""
+
+Instead of setting ``build.workers`` option it is also possible to configure services to load worker list dynamically. To do so, the ``ahriman.core.distributed.WorkerLoaderTrigger`` and ``ahriman.core.distributed.WorkerTrigger`` must be used for ``master`` and ``worker`` nodes repsectively. See recipes for more details.
+
 Known limitations
 """""""""""""""""
 
