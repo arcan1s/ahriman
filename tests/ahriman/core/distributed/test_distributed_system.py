@@ -159,7 +159,7 @@ def test_unregister_force(distributed_system: DistributedSystem, mocker: MockerF
     remove_mock.assert_called_once_with(missing_ok=True)
 
 
-def test_workers_get(distributed_system: DistributedSystem, mocker: MockerFixture) -> None:
+def test_workers(distributed_system: DistributedSystem, mocker: MockerFixture) -> None:
     """
     must return available remote workers
     """
@@ -174,3 +174,19 @@ def test_workers_get(distributed_system: DistributedSystem, mocker: MockerFixtur
     result = distributed_system.workers()
     requests_mock.assert_called_once_with("GET", distributed_system._workers_url())
     assert result == [worker]
+
+
+def test_workers_failed(distributed_system: DistributedSystem, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during worker extraction
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    distributed_system.workers()
+
+
+def test_workers_failed_http_error(distributed_system: DistributedSystem, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during worker extraction
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    distributed_system.workers()

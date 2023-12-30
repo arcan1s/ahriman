@@ -33,5 +33,8 @@ class WorkerLoaderTrigger(DistributedSystem):
             return  # there is manually set option
 
         workers = [worker.address for worker in self.workers()]
+        if not workers:
+            return
+
         self.logger.info("load workers %s", workers)
         self.configuration.set_option("build", "workers", " ".join(workers))

@@ -32,3 +32,16 @@ def test_on_start_skip(configuration: Configuration, mocker: MockerFixture) -> N
     trigger = WorkerLoaderTrigger(repository_id, configuration)
     trigger.on_start()
     run_mock.assert_not_called()
+
+
+def test_on_start_empty_list(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must do not set anything if workers are not available
+    """
+    configuration.set_option("status", "address", "http://localhost:8081")
+    mocker.patch("ahriman.core.distributed.WorkerLoaderTrigger.workers", return_value=[])
+    _, repository_id = configuration.check_loaded()
+
+    trigger = WorkerLoaderTrigger(repository_id, configuration)
+    trigger.on_start()
+    assert not configuration.has_option("build", "workers")

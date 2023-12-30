@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import contextlib
 import tempfile
 import uuid
 
 from pathlib import Path
+from functools import cached_property
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
@@ -36,7 +38,6 @@ class DistributedSystem(Trigger, WebClient):
 
     Attributes:
         identifier_path(Path): path to cached worker identifier
-        worker(Worker): unique self identifier
     """
 
     CONFIGURATION_SCHEMA: ConfigurationSchema = {
@@ -77,8 +78,17 @@ class DistributedSystem(Trigger, WebClient):
             section, "identifier_path", fallback=Path(tempfile.gettempdir()) / "ahriman-worker-identifier")
         self._owe_identifier = False
 
-        identifier = self.load_identifier(configuration, section)
-        self.worker = Worker(configuration.get(section, "address"), identifier=identifier)
+    @cached_property
+    def worker(self) -> Worker:
+        """
+        load and set worker. Lazy property loaded because it is not always required
+
+        Returns:
+            Worker: unique self worker identifier
+        """
+        section = next(iter(self.configuration_sections(self.configuration)))
+        identifier = self.load_identifier(self.configuration, section)
+        return Worker(self.configuration.get(section, "address"), identifier=identifier)
 
     @classmethod
     def configuration_sections(cls, configuration: Configuration) -> list[str]:
@@ -161,10 +171,13 @@ class DistributedSystem(Trigger, WebClient):
         Returns:
             list[Worker]: currently registered workers
         """
-        response = self.make_request("GET", self._workers_url())
-        response_json = response.json()
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._workers_url())
+            response_json = response.json()
 
-        return [
-            Worker(worker["address"], identifier=worker["identifier"])
-            for worker in response_json
-        ]
+            return [
+                Worker(worker["address"], identifier=worker["identifier"])
+                for worker in response_json
+            ]
+
+        return []
