@@ -359,5 +359,5 @@ Requires ``boto3`` library to be installed. Section name must be either ``s3`` (
 This section controls settings for ``ahriman.core.distributed.WorkerTrigger`` plugin.
 
 * ``address`` - address of the instance, string, required. Must be reachable for the master instance.
-* ``identifier`` - unique identifier of the instance, string, optional. If none set, the random uuid will be generated on each run automatically.
-* ``identifier_path`` - path to lock file, string, optional, default is ``/tmp/ahriman-worker-identifier``.
+* ``identifier`` - unique identifier of the instance, string, optional.
+* ``time_to_live`` - amount of time which remote worker will be considered alive in seconds, integer, optional, default is ``60``. The ping interval will be set automatically equal this value divided by 4.

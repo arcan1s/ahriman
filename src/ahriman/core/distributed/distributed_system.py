@@ -18,10 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import contextlib
-import tempfile
-import uuid
 
-from pathlib import Path
 from functools import cached_property
 
 from ahriman.core.configuration import Configuration
@@ -35,9 +32,6 @@ from ahriman.models.worker import Worker
 class DistributedSystem(Trigger, WebClient):
     """
     simple class to (un)register itself as a distributed worker
-
-    Attributes:
-        identifier_path(Path): path to cached worker identifier
     """
 
     CONFIGURATION_SCHEMA: ConfigurationSchema = {
@@ -54,9 +48,10 @@ class DistributedSystem(Trigger, WebClient):
                     "type": "string",
                     "empty": False,
                 },
-                "identifier_path": {
-                    "type": "path",
-                    "coerce": "absolute_path",
+                "time_to_live": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
                 },
             },
         },
@@ -73,11 +68,6 @@ class DistributedSystem(Trigger, WebClient):
         Trigger.__init__(self, repository_id, configuration)
         WebClient.__init__(self, repository_id, configuration)
 
-        section = next(iter(self.configuration_sections(configuration)))
-        self.identifier_path = configuration.getpath(
-            section, "identifier_path", fallback=Path(tempfile.gettempdir()) / "ahriman-worker-identifier")
-        self._owe_identifier = False
-
     @cached_property
     def worker(self) -> Worker:
         """
@@ -87,8 +77,10 @@ class DistributedSystem(Trigger, WebClient):
             Worker: unique self worker identifier
         """
         section = next(iter(self.configuration_sections(self.configuration)))
-        identifier = self.load_identifier(self.configuration, section)
-        return Worker(self.configuration.get(section, "address"), identifier=identifier)
+
+        address = self.configuration.get(section, "address")
+        identifier = self.configuration.get(section, "identifier", fallback="")
+        return Worker(address, identifier=identifier)
 
     @classmethod
     def configuration_sections(cls, configuration: Configuration) -> list[str]:
@@ -103,66 +95,21 @@ class DistributedSystem(Trigger, WebClient):
         """
         return list(cls.CONFIGURATION_SCHEMA.keys())
 
-    def _workers_url(self, identifier: str = "") -> str:
+    def _workers_url(self) -> str:
         """
         workers url generator
 
-        Args:
-            identifier(str, optional): worker identifier (Default value = "")
-
         Returns:
-            str: full url of web service for specific worker
+            str: full url of web service for workers
         """
-        suffix = f"/{identifier}" if identifier else ""
-        return f"{self.address}/api/v1/distributed{suffix}"
+        return f"{self.address}/api/v1/distributed"
 
-    def load_identifier(self, configuration: Configuration, section: str) -> str:
-        """
-        load identifier from filesystem if available or from configuration otherwise. If cache file is available,
-        the method will read from it. Otherwise, it will try to read it from configuration. And, finally, if no
-        identifier set, it will generate uuid
-
-        Args:
-            configuration(Configuration): configuration instance
-            section(str): settings section name
-
-        Returns:
-            str: unique worker identifier
-        """
-        if self.identifier_path.is_file():  # load cached value
-            return self.identifier_path.read_text(encoding="utf8")
-        return configuration.get(section, "identifier", fallback=str(uuid.uuid4()))
-
-    def register(self, force: bool = False) -> None:
+    def register(self) -> None:
         """
         register itself in remote system
-
-        Args:
-            force(bool, optional): register worker even if it has been already registered before (Default value = False)
         """
-        if self.identifier_path.is_file() and not force:
-            return  # there is already registered identifier
-
-        self.make_request("POST", self._workers_url(), json=self.worker.view())
-        # save identifier
-        self.identifier_path.write_text(self.worker.identifier, encoding="utf8")
-        self._owe_identifier = True
-        self.logger.info("registered instance %s at %s", self.worker, self.address)
-
-    def unregister(self, force: bool = False) -> None:
-        """
-        unregister itself in remote system
-
-        Args:
-            force(bool, optional): unregister worker even if it has been registered in another process
-                (Default value = False)
-        """
-        if not self._owe_identifier and not force:
-            return  # we do not owe this identifier
-
-        self.make_request("DELETE", self._workers_url(self.worker.identifier))
-        self.identifier_path.unlink(missing_ok=True)
-        self.logger.info("unregistered instance %s at %s", self.worker, self.address)
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._workers_url(), json=self.worker.view())
 
     def workers(self) -> list[Worker]:
         """

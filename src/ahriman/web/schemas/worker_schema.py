@@ -17,12 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import fields
-
-from ahriman.web.schemas.worker_id_schema import WorkerIdSchema
+from marshmallow import Schema, fields
 
 
-class WorkerSchema(WorkerIdSchema):
+class WorkerSchema(Schema):
     """
     request and response schema for workers
     """
@@ -30,4 +28,8 @@ class WorkerSchema(WorkerIdSchema):
     address = fields.String(required=True, metadata={
         "description": "Worker address",
         "example": "http://localhost:8081",
+    })
+    identifier = fields.String(required=True, metadata={
+        "description": "Worker unique identifier",
+        "example": "42f03a62-48f7-46b7-af40-dacc720e92fa",
     })

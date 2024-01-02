@@ -68,9 +68,6 @@ async def test_post(client: TestClient) -> None:
     response = await client.post("/api/v1/distributed", json=payload)
     assert response.status == 204
 
-    response = await client.get(f"/api/v1/distributed/{worker.identifier}")
-    assert response.ok
-
 
 async def test_post_exception(client: TestClient) -> None:
     """

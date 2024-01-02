@@ -25,4 +25,3 @@ from ahriman.core.database.operations.changes_operations import ChangesOperation
 from ahriman.core.database.operations.logs_operations import LogsOperations
 from ahriman.core.database.operations.package_operations import PackageOperations
 from ahriman.core.database.operations.patch_operations import PatchOperations
-from ahriman.core.database.operations.workers_operations import WorkersOperations

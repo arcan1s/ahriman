@@ -135,8 +135,6 @@ def _parser() -> argparse.ArgumentParser:
     _set_service_setup_parser(subparsers)
     _set_service_shell_parser(subparsers)
     _set_service_tree_migrate_parser(subparsers)
-    _set_service_worker_register_parser(subparsers)
-    _set_service_worker_unregister_parser(subparsers)
     _set_user_add_parser(subparsers)
     _set_user_list_parser(subparsers)
     _set_user_remove_parser(subparsers)
@@ -1051,40 +1049,6 @@ def _set_service_tree_migrate_parser(root: SubParserAction) -> argparse.Argument
     parser = root.add_parser("service-tree-migrate", help="migrate repository tree",
                              description="migrate repository tree between versions", formatter_class=_formatter)
     parser.set_defaults(handler=handlers.TreeMigrate, lock=None, quiet=True, report=False)
-    return parser
-
-
-def _set_service_worker_register_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for remote worker registration subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("service-worker-register", help="register itself as worker",
-                             description="call remote service registering itself as available worker",
-                             formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.distributed.WorkerRegisterTrigger"])
-    return parser
-
-
-def _set_service_worker_unregister_parser(root: SubParserAction) -> argparse.ArgumentParser:
-    """
-    add parser for remote worker removal subcommand
-
-    Args:
-        root(SubParserAction): subparsers for the commands
-
-    Returns:
-        argparse.ArgumentParser: created argument parser
-    """
-    parser = root.add_parser("service-worker-unregister", help="unregister itself as worker",
-                             description="call remote service removing itself from list of available workers",
-                             formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.distributed.WorkerUnregisterTrigger"])
     return parser
 
 

@@ -10,7 +10,6 @@ from ahriman.models.changes import Changes
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
-from ahriman.models.worker import Worker
 
 
 def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -228,40 +227,3 @@ def test_status_update(watcher: Watcher) -> None:
     """
     watcher.status_update(BuildStatusEnum.Success)
     assert watcher.status.status == BuildStatusEnum.Success
-
-
-def test_workers_get(watcher: Watcher, mocker: MockerFixture) -> None:
-    """
-    must retrieve workers
-    """
-    worker = Worker("remote")
-    worker_mock = mocker.patch("ahriman.core.database.SQLite.workers_get", return_value=[worker])
-
-    assert watcher.workers_get() == [worker]
-    worker_mock.assert_called_once_with()
-
-
-def test_workers_remove(watcher: Watcher, mocker: MockerFixture) -> None:
-    """
-    must remove workers
-    """
-    identifier = "identifier"
-    worker_mock = mocker.patch("ahriman.core.database.SQLite.workers_remove")
-
-    watcher.workers_remove(identifier)
-    watcher.workers_remove()
-    worker_mock.assert_has_calls([
-        MockCall(identifier),
-        MockCall(None),
-    ])
-
-
-def test_workers_update(watcher: Watcher, mocker: MockerFixture) -> None:
-    """
-    must update workers
-    """
-    worker = Worker("remote")
-    worker_mock = mocker.patch("ahriman.core.database.SQLite.workers_insert")
-
-    watcher.workers_update(worker)
-    worker_mock.assert_called_once_with(worker)

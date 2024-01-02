@@ -21,6 +21,7 @@ from aiohttp.web import AppKey
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.distributed import WorkersCache
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
@@ -31,6 +32,7 @@ __all__ = [
     "ConfigurationKey",
     "SpawnKey",
     "WatcherKey",
+    "WorkersKey",
 ]
 
 
@@ -38,3 +40,4 @@ AuthKey = AppKey("validator", Auth)
 ConfigurationKey = AppKey("configuration", Configuration)
 SpawnKey = AppKey("spawn", Spawn)
 WatcherKey = AppKey("watcher", dict[RepositoryId, Watcher])
+WorkersKey = AppKey("workers", WorkersCache)

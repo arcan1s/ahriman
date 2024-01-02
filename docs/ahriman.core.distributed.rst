@@ -20,14 +20,6 @@ ahriman.core.distributed.worker\_loader\_trigger module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.core.distributed.worker\_register\_trigger module
----------------------------------------------------------
-
-.. automodule:: ahriman.core.distributed.worker_register_trigger
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.core.distributed.worker\_trigger module
 -----------------------------------------------
 
@@ -36,10 +28,10 @@ ahriman.core.distributed.worker\_trigger module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.core.distributed.worker\_unregister\_trigger module
------------------------------------------------------------
+ahriman.core.distributed.workers\_cache module
+----------------------------------------------
 
-.. automodule:: ahriman.core.distributed.worker_unregister_trigger
+.. automodule:: ahriman.core.distributed.workers_cache
    :members:
    :no-undoc-members:
    :show-inheritance:

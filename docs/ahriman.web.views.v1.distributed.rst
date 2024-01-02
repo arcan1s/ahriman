@@ -4,14 +4,6 @@ ahriman.web.views.v1.distributed package
 Submodules
 ----------
 
-ahriman.web.views.v1.distributed.worker module
-----------------------------------------------
-
-.. automodule:: ahriman.web.views.v1.distributed.worker
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.web.views.v1.distributed.workers module
 -----------------------------------------------
 

@@ -65,8 +65,6 @@ _shtab_ahriman_commands() {
     "service-setup:create initial service configuration, requires root"
     "service-shell:drop into python shell"
     "service-tree-migrate:migrate repository tree between versions"
-    "service-worker-register:call remote service registering itself as available worker"
-    "service-worker-unregister:call remote service removing itself from list of available workers"
     "setup:create initial service configuration, requires root"
     "shell:drop into python shell"
     "sign:(re-)sign packages and repository database according to current settings"
@@ -554,14 +552,6 @@ _shtab_ahriman_service_tree_migrate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
 
-_shtab_ahriman_service_worker_register_options=(
-  "(- : *)"{-h,--help}"[show this help message and exit]"
-)
-
-_shtab_ahriman_service_worker_unregister_options=(
-  "(- : *)"{-h,--help}"[show this help message and exit]"
-)
-
 _shtab_ahriman_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
@@ -727,8 +717,6 @@ _shtab_ahriman() {
         service-setup) _arguments -C -s $_shtab_ahriman_service_setup_options ;;
         service-shell) _arguments -C -s $_shtab_ahriman_service_shell_options ;;
         service-tree-migrate) _arguments -C -s $_shtab_ahriman_service_tree_migrate_options ;;
-        service-worker-register) _arguments -C -s $_shtab_ahriman_service_worker_register_options ;;
-        service-worker-unregister) _arguments -C -s $_shtab_ahriman_service_worker_unregister_options ;;
         setup) _arguments -C -s $_shtab_ahriman_setup_options ;;
         shell) _arguments -C -s $_shtab_ahriman_shell_options ;;
         sign) _arguments -C -s $_shtab_ahriman_sign_options ;;

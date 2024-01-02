@@ -18,6 +18,5 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.distributed.worker_loader_trigger import WorkerLoaderTrigger
-from ahriman.core.distributed.worker_register_trigger import WorkerRegisterTrigger
 from ahriman.core.distributed.worker_trigger import WorkerTrigger
-from ahriman.core.distributed.worker_unregister_trigger import WorkerUnregisterTrigger
+from ahriman.core.distributed.workers_cache import WorkersCache

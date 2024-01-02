@@ -61,7 +61,7 @@ class WorkersView(BaseView):
         Raises:
             HTTPNoContent: on success response
         """
-        self.service().workers_remove()
+        self.workers.workers_remove()
 
         raise HTTPNoContent
 
@@ -85,7 +85,7 @@ class WorkersView(BaseView):
         Returns:
             Response: 200 with workers list on success
         """
-        workers = self.service().workers_get()
+        workers = self.workers.workers
 
         comparator: Callable[[Worker], str] = lambda item: item.identifier
         response = [worker.view() for worker in sorted(workers, key=comparator)]
@@ -121,6 +121,6 @@ class WorkersView(BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().workers_update(worker)
+        self.workers.workers_update(worker)
 
         raise HTTPNoContent

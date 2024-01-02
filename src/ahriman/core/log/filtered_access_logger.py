@@ -27,14 +27,30 @@ class FilteredAccessLogger(AccessLogger):
     access logger implementation with log filter enabled
 
     Attributes:
+        DISTRIBUTED_PATH_REGEX(str): (class attribute) regex used for distributed system uri
+        HEALTH_PATH_REGEX(re.Pattern): (class attribute) regex for health check endpoint
         LOG_PATH_REGEX(re.Pattern): (class attribute) regex for logs uri
-        LOG_PATPROCESS_PATH_REGEXH_REGEX(re.Pattern): (class attribute) regex for process uri
+        PROCESS_PATH_REGEX(re.Pattern): (class attribute) regex for process uri
     """
 
+    DISTRIBUTED_PATH_REGEX = "/api/v1/distributed"
     HEALTH_PATH_REGEX = "/api/v1/info"
     LOG_PATH_REGEX = re.compile(r"^/api/v1/packages/[^/]+/logs$")
     # technically process id is uuid, but we might change it later
     PROCESS_PATH_REGEX = re.compile(r"^/api/v1/service/process/[^/]+$")
+
+    @staticmethod
+    def is_distributed_post(request: BaseRequest) -> bool:
+        """
+        check if the request is for distributed services ping
+
+        Args:
+            request(BaseRequest): http reqeust descriptor
+
+        Returns:
+            bool: True in case if request is distributed service ping endpoint and False otherwise
+        """
+        return request.method == "POST" and FilteredAccessLogger.DISTRIBUTED_PATH_REGEX == request.path
 
     @staticmethod
     def is_info_get(request: BaseRequest) -> bool:
@@ -84,7 +100,8 @@ class FilteredAccessLogger(AccessLogger):
             response(StreamResponse): streaming response object
             time(float): log record timestamp
         """
-        if self.is_info_get(request) \
+        if self.is_distributed_post(request) \
+                or self.is_info_get(request) \
                 or self.is_logs_post(request) \
                 or self.is_process_get(request):
             return
