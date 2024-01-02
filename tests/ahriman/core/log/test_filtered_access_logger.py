@@ -4,6 +4,25 @@ from unittest.mock import MagicMock
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 
 
+def is_info_get() -> None:
+    """
+    must correctly define health check request
+    """
+    request = MagicMock()
+
+    request.method = "GET"
+    request.path = "/api/v1/info"
+    assert FilteredAccessLogger.is_info_get(request)
+
+    request.method = "POST"
+    request.path = "/api/v1/info"
+    assert not FilteredAccessLogger.is_info_get(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/infos"
+    assert not FilteredAccessLogger.is_info_get(request)
+
+
 def test_is_logs_post() -> None:
     """
     must correctly define if request belongs to logs posting
