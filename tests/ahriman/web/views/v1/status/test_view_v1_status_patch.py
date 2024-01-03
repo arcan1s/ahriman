@@ -79,3 +79,16 @@ async def test_get_not_found(client: TestClient, package_ahriman: Package) -> No
     response = await client.get(f"/api/v1/packages/{package_ahriman.base}/patches/random")
     assert response.status == 404
     assert not response_schema.validate(await response.json())
+
+
+async def test_get_patch_not_found(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must return not found for missing patch
+    """
+    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    response_schema = pytest.helpers.schema_response(PatchView.get, code=404)
+
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/patches/random")
+    assert response.status == 404
+    assert not response_schema.validate(await response.json())

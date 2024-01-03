@@ -19,8 +19,9 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PatchSchema
@@ -49,6 +50,7 @@ class PatchesView(StatusViewGuard, BaseView):
             200: {"description": "Success response", "schema": PatchSchema(many=True)},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
+            404: {"description": "Package base is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -66,7 +68,10 @@ class PatchesView(StatusViewGuard, BaseView):
             HTTPNotFound: if package base is unknown
         """
         package_base = self.request.match_info["package"]
-        patches = self.service().patches_get(package_base, None)
+        try:
+            patches = self.service().patches_get(package_base, None)
+        except UnknownPackageError:
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
         response = [patch.view() for patch in patches]
         return json_response(response)

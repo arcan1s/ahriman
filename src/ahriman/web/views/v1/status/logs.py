@@ -103,9 +103,9 @@ class LogsView(StatusViewGuard, BaseView):
 
         try:
             _, status = self.service().package_get(package_base)
+            logs = self.service().logs_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
-        logs = self.service().logs_get(package_base)
 
         response = {
             "package_base": package_base,
