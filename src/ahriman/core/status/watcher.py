@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from threading import Lock
+
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
@@ -34,8 +36,6 @@ class Watcher(LazyLogging):
 
     Attributes:
         database(SQLite): database instance
-        known(dict[str, tuple[Package, BuildStatus]]): list of known packages. For the most cases :attr:`packages`
-            should be used instead
         repository_id(RepositoryId): repository unique identifier
         status(BuildStatus): daemon status
     """
@@ -51,7 +51,8 @@ class Watcher(LazyLogging):
         self.repository_id = repository_id
         self.database = database
 
-        self.known: dict[str, tuple[Package, BuildStatus]] = {}
+        self._lock = Lock()
+        self._known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
 
         # special variables for updating logs
@@ -65,15 +66,18 @@ class Watcher(LazyLogging):
         Returns:
             list[tuple[Package, BuildStatus]]: list of packages together with their statuses
         """
-        return list(self.known.values())
+        with self._lock:
+            return list(self._known.values())
 
     def load(self) -> None:
         """
         load packages from local database
         """
-        self.known = {}  # reset state
-        for package, status in self.database.packages_get(self.repository_id):
-            self.known[package.base] = (package, status)
+        with self._lock:
+            self._known = {
+                package.base: (package, status)
+                for package, status in self.database.packages_get(self.repository_id)
+            }
 
     def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
         """
@@ -87,6 +91,7 @@ class Watcher(LazyLogging):
         Returns:
             list[tuple[float, str]]: package logs
         """
+        self.package_get(package_base)
         return self.database.logs_get(package_base, limit, offset, self.repository_id)
 
     def logs_remove(self, package_base: str, version: str | None) -> None:
@@ -123,12 +128,8 @@ class Watcher(LazyLogging):
 
         Returns:
             Changes: package changes if available
-
-        Raises:
-            UnknownPackageError: if no package found
         """
-        if package_base not in self.known:
-            raise UnknownPackageError(package_base)
+        self.package_get(package_base)
         return self.database.changes_get(package_base, self.repository_id)
 
     def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
@@ -145,7 +146,8 @@ class Watcher(LazyLogging):
             UnknownPackageError: if no package found
         """
         try:
-            return self.known[package_base]
+            with self._lock:
+                return self._known[package_base]
         except KeyError:
             raise UnknownPackageError(package_base) from None
 
@@ -156,7 +158,8 @@ class Watcher(LazyLogging):
         Args:
             package_base(str): package base
         """
-        self.known.pop(package_base, None)
+        with self._lock:
+            self._known.pop(package_base, None)
         self.database.package_remove(package_base, self.repository_id)
         self.logs_remove(package_base, None)
 
@@ -168,17 +171,12 @@ class Watcher(LazyLogging):
             package_base(str): package base to update
             status(BuildStatusEnum): new build status
             package(Package | None): optional package description. In case if not set current properties will be used
-
-        Raises:
-            UnknownPackageError: if no package found
         """
         if package is None:
-            try:
-                package, _ = self.known[package_base]
-            except KeyError:
-                raise UnknownPackageError(package_base) from None
+            package, _ = self.package_get(package_base)
         full_status = BuildStatus(status)
-        self.known[package_base] = (package, full_status)
+        with self._lock:
+            self._known[package_base] = (package, full_status)
         self.database.package_update(package, full_status, self.repository_id)
 
     def patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
@@ -192,6 +190,7 @@ class Watcher(LazyLogging):
         Returns:
             list[PkgbuildPatch]: list of patches which are stored for the package
         """
+        self.package_get(package_base)
         variables = [variable] if variable is not None else None
         return self.database.patches_list(package_base, variables).get(package_base, [])
 

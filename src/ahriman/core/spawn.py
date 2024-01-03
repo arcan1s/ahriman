@@ -57,7 +57,7 @@ class Spawn(Thread, LazyLogging):
         self.args_parser = args_parser
         self.command_arguments = command_arguments
 
-        self.lock = Lock()
+        self._lock = Lock()
         self.active: dict[str, Process] = {}
         # stupid pylint does not know that it is possible
         self.queue: Queue[ProcessStatus | None] = Queue()  # pylint: disable=unsubscriptable-object
@@ -141,7 +141,7 @@ class Spawn(Thread, LazyLogging):
                           daemon=True)
         process.start()
 
-        with self.lock:
+        with self._lock:
             self.active[process_id] = process
         return process_id
 
@@ -155,7 +155,7 @@ class Spawn(Thread, LazyLogging):
         Returns:
             bool: True in case if process still counts as active and False otherwise
         """
-        with self.lock:
+        with self._lock:
             return process_id in self.active
 
     def key_import(self, key: str, server: str | None) -> str:
@@ -273,7 +273,7 @@ class Spawn(Thread, LazyLogging):
             self.logger.info("process %s has been terminated with status %s, consumed time %ss",
                              terminated.process_id, terminated.status, terminated.consumed_time / 1000)
 
-            with self.lock:
+            with self._lock:
                 process = self.active.pop(terminated.process_id, None)
 
             if process is not None:

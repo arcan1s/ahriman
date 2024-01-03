@@ -19,6 +19,8 @@
 #
 import time
 
+from threading import Lock
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.models.worker import Worker
@@ -40,6 +42,7 @@ class WorkersCache(LazyLogging):
             configuration(Configuration): configuration instance
         """
         self.time_to_live = configuration.getint("worker", "time_to_live", fallback=60)
+        self._lock = Lock()
         self._workers: dict[str, tuple[Worker, float]] = {}
 
     @property
@@ -51,17 +54,19 @@ class WorkersCache(LazyLogging):
             list[Worker]: list of currently registered workers which have been seen not earlier than :attr:`time_to_live`
         """
         valid_from = time.monotonic() - self.time_to_live
-        return [
-            worker
-            for worker, last_seen in self._workers.values()
-            if last_seen > valid_from
-        ]
+        with self._lock:
+            return [
+                worker
+                for worker, last_seen in self._workers.values()
+                if last_seen > valid_from
+            ]
 
     def workers_remove(self) -> None:
         """
         remove all workers from the cache
         """
-        self._workers = {}
+        with self._lock:
+            self._workers = {}
 
     def workers_update(self, worker: Worker) -> None:
         """
@@ -70,4 +75,5 @@ class WorkersCache(LazyLogging):
         Args:
             worker(Worker): worker to register
         """
-        self._workers[worker.identifier] = (worker, time.monotonic())
+        with self._lock:
+            self._workers[worker.identifier] = (worker, time.monotonic())

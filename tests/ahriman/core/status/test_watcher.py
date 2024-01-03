@@ -21,7 +21,7 @@ def test_load(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture)
 
     watcher.load()
     cache_mock.assert_called_once_with(watcher.repository_id)
-    package, status = watcher.known[package_ahriman.base]
+    package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Unknown
 
@@ -32,10 +32,10 @@ def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
     """
     status = BuildStatus(BuildStatusEnum.Success)
     mocker.patch("ahriman.core.database.SQLite.packages_get", return_value=[(package_ahriman, status)])
-    watcher.known = {package_ahriman.base: (package_ahriman, status)}
+    watcher._known = {package_ahriman.base: (package_ahriman, status)}
 
     watcher.load()
-    _, status = watcher.known[package_ahriman.base]
+    _, status = watcher._known[package_ahriman.base]
     assert status.status == BuildStatusEnum.Success
 
 
@@ -43,9 +43,19 @@ def test_logs_get(watcher: Watcher, package_ahriman: Package, mocker: MockerFixt
     """
     must return package logs
     """
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_get")
+
     watcher.logs_get(package_ahriman.base, 1, 2)
     logs_mock.assert_called_once_with(package_ahriman.base, 1, 2, watcher.repository_id)
+
+
+def test_logs_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
+    """
+    must raise UnknownPackageError on logs in case of unknown package
+    """
+    with pytest.raises(UnknownPackageError):
+        watcher.logs_get(package_ahriman.base)
 
 
 def test_logs_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -94,7 +104,7 @@ def test_package_changes_get(watcher: Watcher, package_ahriman: Package, mocker:
     must return package changes
     """
     get_mock = mocker.patch("ahriman.core.database.SQLite.changes_get", return_value=Changes("sha"))
-    watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     assert watcher.package_changes_get(package_ahriman.base) == Changes("sha")
     get_mock.assert_called_once_with(package_ahriman.base, watcher.repository_id)
@@ -102,7 +112,7 @@ def test_package_changes_get(watcher: Watcher, package_ahriman: Package, mocker:
 
 def test_package_changes_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
     """
-    must raise UnknownPackageError in case of unknown package
+    must raise UnknownPackageError on changes in case of unknown package
     """
     with pytest.raises(UnknownPackageError):
         watcher.package_changes_get(package_ahriman.base)
@@ -112,7 +122,7 @@ def test_package_get(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must return package status
     """
-    watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
     package, status = watcher.package_get(package_ahriman.base)
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Unknown
@@ -132,10 +142,10 @@ def test_package_remove(watcher: Watcher, package_ahriman: Package, mocker: Mock
     """
     cache_mock = mocker.patch("ahriman.core.database.SQLite.package_remove")
     logs_mock = mocker.patch("ahriman.core.status.watcher.Watcher.logs_remove")
-    watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.package_remove(package_ahriman.base)
-    assert not watcher.known
+    assert not watcher._known
     cache_mock.assert_called_once_with(package_ahriman.base, watcher.repository_id)
     logs_mock.assert_called_once_with(package_ahriman.base, None)
 
@@ -158,7 +168,7 @@ def test_package_update(watcher: Watcher, package_ahriman: Package, mocker: Mock
 
     watcher.package_update(package_ahriman.base, BuildStatusEnum.Unknown, package_ahriman)
     cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int), watcher.repository_id)
-    package, status = watcher.known[package_ahriman.base]
+    package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Unknown
 
@@ -168,11 +178,11 @@ def test_package_update_ping(watcher: Watcher, package_ahriman: Package, mocker:
     must update package status only for known package
     """
     cache_mock = mocker.patch("ahriman.core.database.SQLite.package_update")
-    watcher.known = {package_ahriman.base: (package_ahriman, BuildStatus())}
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.package_update(package_ahriman.base, BuildStatusEnum.Success, None)
     cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int), watcher.repository_id)
-    package, status = watcher.known[package_ahriman.base]
+    package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Success
 
@@ -189,6 +199,7 @@ def test_patches_get(watcher: Watcher, package_ahriman: Package, mocker: MockerF
     """
     must return patches for the package
     """
+    watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
     patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_list")
 
     watcher.patches_get(package_ahriman.base, None)
@@ -199,6 +210,14 @@ def test_patches_get(watcher: Watcher, package_ahriman: Package, mocker: MockerF
         MockCall(package_ahriman.base, ["var"]),
         MockCall().get(package_ahriman.base, []),
     ])
+
+
+def test_patches_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
+    """
+    must raise UnknownPackageError on patches in case of unknown package
+    """
+    with pytest.raises(UnknownPackageError):
+        watcher.patches_get(package_ahriman.base, None)
 
 
 def test_patches_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
