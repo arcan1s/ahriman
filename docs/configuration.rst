@@ -111,7 +111,7 @@ Reporting to web service related settings. In most cases there is fallback to we
 * ``enabled`` - enable reporting to web service, boolean, optional, default ``yes`` for backward compatibility.
 * ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and url encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
-* ``suppress_http_log_errors`` - suppress http log errors, boolean, optional, default ``no``. If set to ``yes``, any http log errors (e.g. if web server is not available, but http logging is enabled) will be suppressed.
+* ``suppress_http_log_errors`` - suppress HTTP log errors, boolean, optional, default ``no``. If set to ``yes``, any HTTP log errors (e.g. if web server is not available, but HTTP logging is enabled) will be suppressed.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 * ``username`` - username to authorize in web service in order to update service status, string, required in case if authorization enabled.
 
