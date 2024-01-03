@@ -29,7 +29,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.distributed import WorkersCache
 from ahriman.core.exceptions import InitializeError
-from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
@@ -122,7 +121,7 @@ def run_server(application: Application) -> None:
     unix_socket = _create_socket(configuration, application)
 
     run_app(application, host=host, port=port, sock=unix_socket, handle_signals=True,
-            access_log=logging.getLogger("http"), access_log_class=FilteredAccessLogger)
+            access_log=logging.getLogger("http"))
 
 
 def setup_server(configuration: Configuration, spawner: Spawn, repositories: list[RepositoryId]) -> Application:

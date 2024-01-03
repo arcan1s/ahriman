@@ -4,14 +4,6 @@ ahriman.core.log package
 Submodules
 ----------
 
-ahriman.core.log.filtered\_access\_logger module
-------------------------------------------------
-
-.. automodule:: ahriman.core.log.filtered_access_logger
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.core.log.http\_log\_handler module
 ------------------------------------------
 

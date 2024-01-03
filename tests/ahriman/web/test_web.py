@@ -7,7 +7,6 @@ from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import InitializeError
-from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.web.keys import ConfigurationKey
@@ -104,7 +103,7 @@ def test_run(application: Application, mocker: MockerFixture) -> None:
     run_server(application)
     run_application_mock.assert_called_once_with(
         application, host="127.0.0.1", port=port, sock=None, handle_signals=True,
-        access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
+        access_log=pytest.helpers.anyvar(int),
     )
 
 
@@ -119,7 +118,7 @@ def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture
     run_server(application_with_auth)
     run_application_mock.assert_called_once_with(
         application_with_auth, host="127.0.0.1", port=port, sock=None, handle_signals=True,
-        access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
+        access_log=pytest.helpers.anyvar(int),
     )
 
 
@@ -136,7 +135,7 @@ def test_run_with_socket(application: Application, mocker: MockerFixture) -> Non
     socket_mock.assert_called_once_with(application[ConfigurationKey], application)
     run_application_mock.assert_called_once_with(
         application, host="127.0.0.1", port=port, sock=42, handle_signals=True,
-        access_log=pytest.helpers.anyvar(int), access_log_class=FilteredAccessLogger
+        access_log=pytest.helpers.anyvar(int),
     )
 
 
