@@ -94,7 +94,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url for web service for logs
         """
-        return f"{self.address}/api/v1/packages/{package_base}/changes"
+        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/changes"
 
     def _logs_url(self, package_base: str) -> str:
         """
@@ -106,7 +106,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url for web service for logs
         """
-        return f"{self.address}/api/v1/packages/{package_base}/logs"
+        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/logs"
 
     def _package_url(self, package_base: str = "") -> str:
         """
@@ -118,7 +118,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url of web service for specific package base
         """
-        suffix = f"/{package_base}" if package_base else ""
+        suffix = f"/{urlencode(package_base)}" if package_base else ""
         return f"{self.address}/api/v1/packages{suffix}"
 
     def _status_url(self) -> str:
