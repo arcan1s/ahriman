@@ -118,7 +118,6 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url of web service for specific package base
         """
-        # in case if unix socket is used we need to normalize url
         suffix = f"/{package_base}" if package_base else ""
         return f"{self.address}/api/v1/packages{suffix}"
 

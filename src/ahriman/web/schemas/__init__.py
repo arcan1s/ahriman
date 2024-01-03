@@ -47,5 +47,6 @@ from ahriman.web.schemas.remote_schema import RemoteSchema
 from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.search_schema import SearchSchema
 from ahriman.web.schemas.status_schema import StatusSchema
-from ahriman.web.schemas.versioned_log_schema import VersionedLogSchema
 from ahriman.web.schemas.update_flags_schema import UpdateFlagsSchema
+from ahriman.web.schemas.versioned_log_schema import VersionedLogSchema
+from ahriman.web.schemas.worker_schema import WorkerSchema

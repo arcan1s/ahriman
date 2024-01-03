@@ -24,12 +24,13 @@ from typing import TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
+from ahriman.core.distributed import WorkersCache
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey
+from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
 
 
 T = TypeVar("T", str, list[str])
@@ -96,6 +97,16 @@ class BaseView(View, CorsViewMixin):
             Auth: authorization service instance
         """
         return self.request.app[AuthKey]
+
+    @property
+    def workers(self) -> WorkersCache:
+        """
+        get workers cache instance
+
+        Returns:
+            WorkersCache: workers service
+        """
+        return self.request.app[WorkersKey]
 
     @classmethod
     async def get_permission(cls, request: Request) -> UserAccess:

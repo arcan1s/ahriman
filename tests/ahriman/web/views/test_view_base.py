@@ -50,9 +50,16 @@ def test_spawn(base: BaseView) -> None:
 
 def test_validator(base: BaseView) -> None:
     """
-    must return service
+    must return validator service
     """
     assert base.validator
+
+
+def test_workers(base: BaseView) -> None:
+    """
+    must return worker service
+    """
+    assert base.workers
 
 
 async def test_get_permission(base: BaseView) -> None:

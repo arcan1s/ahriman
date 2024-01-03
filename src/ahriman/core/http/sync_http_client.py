@@ -47,8 +47,8 @@ class SyncHttpClient(LazyLogging):
         default constructor
 
         Args:
-            configuration(Configuration | None): configuration instance (Default value = None)
-            section(str, optional): settings section name (Default value = None)
+            configuration(Configuration | None, optional): configuration instance (Default value = None)
+            section(str | None, optional): settings section name (Default value = None)
             suppress_errors(bool, optional): suppress logging of request errors (Default value = False)
         """
         if configuration is None:

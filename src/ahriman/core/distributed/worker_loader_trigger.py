@@ -17,27 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp.web import AppKey
-
-from ahriman.core.auth import Auth
-from ahriman.core.configuration import Configuration
-from ahriman.core.distributed import WorkersCache
-from ahriman.core.spawn import Spawn
-from ahriman.core.status.watcher import Watcher
-from ahriman.models.repository_id import RepositoryId
+from ahriman.core.distributed.distributed_system import DistributedSystem
 
 
-__all__ = [
-    "AuthKey",
-    "ConfigurationKey",
-    "SpawnKey",
-    "WatcherKey",
-    "WorkersKey",
-]
+class WorkerLoaderTrigger(DistributedSystem):
+    """
+    remote worker processor trigger (server side)
+    """
 
+    def on_start(self) -> None:
+        """
+        trigger action which will be called at the start of the application
+        """
+        if self.configuration.has_option("build", "workers"):
+            return  # there is manually set option
 
-AuthKey = AppKey("validator", Auth)
-ConfigurationKey = AppKey("configuration", Configuration)
-SpawnKey = AppKey("spawn", Spawn)
-WatcherKey = AppKey("watcher", dict[RepositoryId, Watcher])
-WorkersKey = AppKey("workers", WorkersCache)
+        workers = [worker.address for worker in self.workers()]
+        if not workers:
+            return
+
+        self.logger.info("load workers %s", workers)
+        self.configuration.set_option("build", "workers", " ".join(workers))

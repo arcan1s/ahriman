@@ -77,6 +77,10 @@ services:
       interval: 10s
       start_period: 30s
 
+    depends_on:
+      backend:
+        condition: service_healthy
+
     command: web
 
 configs:

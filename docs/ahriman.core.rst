@@ -12,6 +12,7 @@ Subpackages
    ahriman.core.build_tools
    ahriman.core.configuration
    ahriman.core.database
+   ahriman.core.distributed
    ahriman.core.formatters
    ahriman.core.gitremote
    ahriman.core.http

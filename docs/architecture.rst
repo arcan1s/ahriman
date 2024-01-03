@@ -37,6 +37,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
 * ``ahriman.core.configuration`` contains extension for standard ``configparser`` library and some validation related classes.
 * ``ahriman.core.database`` is everything for database, including data and schema migrations.
+* ``ahriman.core.distributed`` package with triggers and helpers for distributed build system.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
 * ``ahriman.core.http`` package provides HTTP clients which can be used later by other classes.
