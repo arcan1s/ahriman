@@ -12,7 +12,6 @@ from ahriman.models.changes import Changes
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
-from ahriman.models.worker import Worker
 
 
 def test_parse_address(configuration: Configuration) -> None:
@@ -39,6 +38,7 @@ def test_changes_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
     assert web_client._changes_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._changes_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/changes")
+    assert web_client._changes_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name/changes")
 
 
 def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
@@ -47,6 +47,7 @@ def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
     assert web_client._logs_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._logs_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/logs")
+    assert web_client._logs_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name/logs")
 
 
 def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
@@ -58,6 +59,7 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
 
     assert web_client._package_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._package_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}")
+    assert web_client._package_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name")
 
 
 def test_status_url(web_client: WebClient) -> None:
