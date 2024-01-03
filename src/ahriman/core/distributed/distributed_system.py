@@ -51,7 +51,7 @@ class DistributedSystem(Trigger, WebClient):
                 "time_to_live": {
                     "type": "integer",
                     "coerce": "integer",
-                    "min": 0,
+                    "min": 1,
                 },
             },
         },

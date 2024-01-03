@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from threading import Timer
+from collections import deque
+from threading import Lock, Timer
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.distributed.distributed_system import DistributedSystem
@@ -30,7 +31,6 @@ class WorkerTrigger(DistributedSystem):
 
     Attributes:
         ping_interval(float): interval to call remote service in seconds, defined as ``worker.time_to_live / 4``
-        timer(Timer): timer object
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
@@ -45,26 +45,47 @@ class WorkerTrigger(DistributedSystem):
 
         section = next(iter(self.configuration_sections(configuration)))
         self.ping_interval = configuration.getint(section, "time_to_live", fallback=60) / 4.0
-        self.timer = Timer(self.ping_interval, self.ping)
+
+        self._lock = Lock()
+        self._timers: deque[Timer] = deque()  # because python doesn't have atomics
+
+    def create_timer(self) -> None:
+        """
+        create timer object and put it to queue
+        """
+        timer = Timer(self.ping_interval, self.ping)
+        timer.start()
+        self._timers.append(timer)
 
     def on_start(self) -> None:
         """
         trigger action which will be called at the start of the application
         """
-        self.logger.info("registering instance %s at %s", self.worker, self.address)
-        self.timer.start()
+        self.logger.info("registering instance %s in %s", self.worker, self.address)
+        with self._lock:
+            self.create_timer()
 
     def on_stop(self) -> None:
         """
         trigger action which will be called before the stop of the application
         """
-        self.logger.info("removing instance %s at %s", self.worker, self.address)
-        self.timer.cancel()
+        self.logger.info("removing instance %s in %s", self.worker, self.address)
+        with self._lock:
+            current_timers = self._timers.copy()  # will be used later
+            self._timers.clear()  # clear timer list
+
+        for timer in current_timers:
+            timer.cancel()  # cancel remaining timers
 
     def ping(self) -> None:
         """
         register itself as alive worker and update the timer
         """
-        self.register()
-        self.timer = Timer(self.ping_interval, self.ping)
-        self.timer.start()
+        with self._lock:
+            if not self._timers:  # make sure that there is related specific timer
+                return
+
+            self._timers.popleft()  # pop first timer
+
+            self.register()
+            self.create_timer()

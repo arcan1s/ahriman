@@ -1,52 +1,66 @@
+from threading import Timer
+
 from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.distributed import WorkerTrigger
 
 
-def test_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_create_timer(worker_trigger: WorkerTrigger) -> None:
+    """
+    must create a timer and put it to queue
+    """
+    worker_trigger.create_timer()
+
+    timer = worker_trigger._timers.popleft()
+    assert timer.function == worker_trigger.ping
+    timer.cancel()
+
+
+def test_on_start(worker_trigger: WorkerTrigger, mocker: MockerFixture) -> None:
     """
     must register itself as worker
     """
-    configuration.set_option("status", "address", "http://localhost:8081")
-    run_mock = mocker.patch("threading.Timer.start")
-    _, repository_id = configuration.check_loaded()
-
-    WorkerTrigger(repository_id, configuration).on_start()
+    run_mock = mocker.patch("ahriman.core.distributed.WorkerTrigger.create_timer")
+    worker_trigger.on_start()
     run_mock.assert_called_once_with()
 
 
-def test_on_stop(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_on_stop(worker_trigger: WorkerTrigger, mocker: MockerFixture) -> None:
     """
     must unregister itself as worker
     """
-    configuration.set_option("status", "address", "http://localhost:8081")
     run_mock = mocker.patch("threading.Timer.cancel")
-    _, repository_id = configuration.check_loaded()
+    worker_trigger._timers.append(Timer(1, print))  # doesn't matter
 
-    WorkerTrigger(repository_id, configuration).on_stop()
+    worker_trigger.on_stop()
     run_mock.assert_called_once_with()
 
 
-def test_on_stop_empty_timer(configuration: Configuration) -> None:
+def test_on_stop_empty_timer(worker_trigger: WorkerTrigger) -> None:
     """
     must do not fail if no timer was started
     """
-    configuration.set_option("status", "address", "http://localhost:8081")
-    _, repository_id = configuration.check_loaded()
-
-    WorkerTrigger(repository_id, configuration).on_stop()
+    worker_trigger.on_stop()
 
 
-def test_ping(configuration: Configuration, mocker: MockerFixture) -> None:
+def test_ping(worker_trigger: WorkerTrigger, mocker: MockerFixture) -> None:
     """
     must correctly process timer action
     """
-    configuration.set_option("status", "address", "http://localhost:8081")
     run_mock = mocker.patch("ahriman.core.distributed.WorkerTrigger.register")
     timer_mock = mocker.patch("threading.Timer.start")
-    _, repository_id = configuration.check_loaded()
+    worker_trigger._timers.append(Timer(1, print))  # doesn't matter
 
-    WorkerTrigger(repository_id, configuration).ping()
+    worker_trigger.ping()
     run_mock.assert_called_once_with()
     timer_mock.assert_called_once_with()
+
+
+def test_ping_empty_queue(worker_trigger: WorkerTrigger, mocker: MockerFixture) -> None:
+    """
+    must do nothing in case of empty queue
+    """
+    run_mock = mocker.patch("ahriman.core.distributed.WorkerTrigger.register")
+    worker_trigger.ping()
+    run_mock.assert_not_called()
