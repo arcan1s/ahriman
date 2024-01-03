@@ -14,6 +14,16 @@ Built-in triggers
 
 For the configuration details and settings explanation kindly refer to the :doc:`documentation <configuration>`.
 
+``ahriman.core.distributed.WorkerLoaderTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Special trigger to be used to load workers from database on the start of the application rather than configuration. If the option is already set, it will skip processing.
+
+``ahriman.core.distributed.WorkerTrigger``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Another trigger for the distributed system, which registers itself as remote worker, calling remote service periodically.
+
 ``ahriman.core.gitremote.RemotePullTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

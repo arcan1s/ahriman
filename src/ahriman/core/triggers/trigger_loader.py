@@ -262,6 +262,6 @@ class TriggerLoader(LazyLogging):
         run triggers before the application exit
         """
         self.logger.debug("executing triggers on stop")
-        for trigger in self.triggers:
+        for trigger in reversed(self.triggers):
             with self.__execute_trigger(trigger):
                 trigger.on_stop()

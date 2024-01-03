@@ -27,6 +27,7 @@ from aiohttp.web import Application, normalize_path_middleware, run_app
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.distributed import WorkersCache
 from ahriman.core.exceptions import InitializeError
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 from ahriman.core.spawn import Spawn
@@ -34,7 +35,7 @@ from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec import setup_apispec
 from ahriman.web.cors import setup_cors
-from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey
+from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
 from ahriman.web.middlewares.exception_handler import exception_handler
 from ahriman.web.routes import setup_routes
 
@@ -159,7 +160,8 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     application.logger.info("setup configuration")
     application[ConfigurationKey] = configuration
 
-    application.logger.info("setup watchers")
+    application.logger.info("setup services")
+    # package cache
     if not repositories:
         raise InitializeError("No repositories configured, exiting")
     database = SQLite.load(configuration)
@@ -168,8 +170,9 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
         application.logger.info("load repository %s", repository_id)
         watchers[repository_id] = Watcher(repository_id, database)
     application[WatcherKey] = watchers
-
-    application.logger.info("setup process spawner")
+    # workers cache
+    application[WorkersKey] = WorkersCache(configuration)
+    # process spawner
     application[SpawnKey] = spawner
 
     application.logger.info("setup authorization")

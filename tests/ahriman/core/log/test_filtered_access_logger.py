@@ -4,6 +4,44 @@ from unittest.mock import MagicMock
 from ahriman.core.log.filtered_access_logger import FilteredAccessLogger
 
 
+def test_is_distributed_post() -> None:
+    """
+    must correctly define distributed services ping request
+    """
+    request = MagicMock()
+
+    request.method = "POST"
+    request.path = "/api/v1/distributed"
+    assert FilteredAccessLogger.is_distributed_post(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/distributed"
+    assert not FilteredAccessLogger.is_distributed_post(request)
+
+    request.method = "POST"
+    request.path = "/api/v1/distributed/path"
+    assert not FilteredAccessLogger.is_distributed_post(request)
+
+
+def test_is_info_get() -> None:
+    """
+    must correctly define health check request
+    """
+    request = MagicMock()
+
+    request.method = "GET"
+    request.path = "/api/v1/info"
+    assert FilteredAccessLogger.is_info_get(request)
+
+    request.method = "POST"
+    request.path = "/api/v1/info"
+    assert not FilteredAccessLogger.is_info_get(request)
+
+    request.method = "GET"
+    request.path = "/api/v1/infos"
+    assert not FilteredAccessLogger.is_info_get(request)
+
+
 def test_is_logs_post() -> None:
     """
     must correctly define if request belongs to logs posting

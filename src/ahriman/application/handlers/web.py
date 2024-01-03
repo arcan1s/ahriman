@@ -24,6 +24,7 @@ from collections.abc import Generator
 from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
+from ahriman.core.triggers import TriggerLoader
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -53,13 +54,16 @@ class Web(Handler):
         spawner = Spawn(args.parser(), list(spawner_args))
         spawner.start()
 
+        triggers = TriggerLoader.load(repository_id, configuration)
+        triggers.on_start()
+
         dummy_args = argparse.Namespace(
             architecture=None,
             configuration=args.configuration,
             repository=None,
             repository_id=None,
         )
-        repositories = cls.repositories_extract(dummy_args)
+        repositories = Web.repositories_extract(dummy_args)
         application = setup_server(configuration, spawner, repositories)
         run_server(application)
 

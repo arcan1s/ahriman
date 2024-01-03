@@ -260,6 +260,14 @@ ahriman.web.schemas.versioned\_log\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.worker\_schema module
+-----------------------------------------
+
+.. automodule:: ahriman.web.schemas.worker_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

@@ -79,6 +79,7 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("s3")
     assert schema.pop("telegram")
     assert schema.pop("upload")
+    assert schema.pop("worker")
 
     assert schema == CONFIGURATION_SCHEMA
 
