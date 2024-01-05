@@ -20,8 +20,8 @@
 import aiohttp_apispec  # type: ignore[import-untyped]
 import itertools
 
-from collections.abc import Callable
 from aiohttp.web import HTTPNoContent, Response, json_response
+from collections.abc import Callable
 
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package

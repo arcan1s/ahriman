@@ -20,7 +20,7 @@
 from collections import defaultdict
 from sqlite3 import Connection
 
-from ahriman.core.database.operations import Operations
+from ahriman.core.database.operations.operations import Operations
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 

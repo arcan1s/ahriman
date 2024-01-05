@@ -23,7 +23,7 @@ import pwd
 from pathlib import Path
 from tarfile import TarFile
 
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.models.repository_id import RepositoryId

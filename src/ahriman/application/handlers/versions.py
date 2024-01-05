@@ -25,7 +25,7 @@ from collections.abc import Generator
 from importlib import metadata
 
 from ahriman import __version__
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import VersionPrinter
 from ahriman.models.repository_id import RepositoryId

@@ -1,16 +1,15 @@
 import pytest
 
-from asyncio import BaseEventLoop
-from aiohttp.web import Application, Resource, UrlMappingMatchInfo
 from aiohttp.test_utils import TestClient
+from aiohttp.web import Application, Resource, UrlMappingMatchInfo
+from asyncio import BaseEventLoop
 from collections.abc import Awaitable, Callable
 from marshmallow import Schema
 from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import MagicMock, Mock
 
-import ahriman.core.auth.helpers
-
+from ahriman.core.auth import helpers
 from ahriman.core.auth.oauth import OAuth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -130,7 +129,7 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
+    mocker.patch.object(helpers, "_has_aiohttp_security", False)
     _, repository_id = configuration.check_loaded()
 
     return setup_server(configuration, spawner, [repository_id])
@@ -156,7 +155,7 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", True)
+    mocker.patch.object(helpers, "_has_aiohttp_security", True)
     _, repository_id = configuration.check_loaded()
     application = setup_server(configuration, spawner, [repository_id])
 
@@ -185,7 +184,7 @@ def application_with_debug(configuration: Configuration, spawner: Spawn, databas
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(ahriman.core.auth.helpers, "_has_aiohttp_security", False)
+    mocker.patch.object(helpers, "_has_aiohttp_security", False)
     _, repository_id = configuration.check_loaded()
 
     return setup_server(configuration, spawner, [repository_id])

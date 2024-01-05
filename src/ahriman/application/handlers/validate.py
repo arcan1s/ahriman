@@ -22,7 +22,7 @@ import copy
 
 from typing import Any
 
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA, ConfigurationSchema
 from ahriman.core.configuration.validator import Validator

@@ -26,7 +26,7 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, StatusSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, RepositoryIdSchema, StatusSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 

@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
+from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 

@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter, TreePrinter
 from ahriman.core.tree import Tree

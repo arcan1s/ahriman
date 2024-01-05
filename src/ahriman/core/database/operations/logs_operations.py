@@ -19,7 +19,7 @@
 #
 from sqlite3 import Connection
 
-from ahriman.core.database.operations import Operations
+from ahriman.core.database.operations.operations import Operations
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.repository_id import RepositoryId
 

@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote import Official
+from ahriman.core.alpm.remote.official import Official
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.aur_package import AURPackage
 
