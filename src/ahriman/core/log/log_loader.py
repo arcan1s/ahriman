@@ -40,7 +40,7 @@ class LogLoader:
 
     DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
     DEFAULT_LOG_LEVEL = logging.DEBUG
-    DEFAULT_SYSLOG_DEVICE = Path("/dev") / "log"
+    DEFAULT_SYSLOG_DEVICE = Path("/") / "dev" / "log"
 
     @staticmethod
     def handler(selected: LogHandler | None) -> LogHandler:
