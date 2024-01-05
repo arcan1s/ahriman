@@ -49,7 +49,7 @@ Generator for keyring package. This trigger will extract keys from local keychai
 ``ahriman.core.support.MirrorlistTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Simple generator for mirrorlist package, based on the urls which were set by configuration. This trigger will generate sources including PKGBUILD, which can be used later for package building.
+Simple generator for mirrorlist package, based on the URLs which were set by configuration. This trigger will generate sources including PKGBUILD, which can be used later for package building.
 
 ``ahriman.core.upload.UploadTrigger``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +95,7 @@ Trigger example
 
 Lets consider example of reporting trigger (e.g. `slack <https://slack.com/>`__, which provides easy HTTP API for integration triggers).
 
-In order to post message to slack we will need a specific trigger url (something like ``https://hooks.slack.com/services/company_id/trigger_id``), channel (e.g. ``#archrepo``) and username (``repo-bot``).
+In order to post message to slack we will need a specific trigger URL (something like ``https://hooks.slack.com/services/company_id/trigger_id``), channel (e.g. ``#archrepo``) and username (``repo-bot``).
 
 As it has been mentioned, our trigger must derive from specific class:
 
