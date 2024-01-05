@@ -39,9 +39,9 @@ It will check current settings on common errors and compare configuration with k
 
 Base configuration settings.
 
-* ``apply_migrations`` - perform migrations on application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
-* ``database`` - path to SQLite database, string, required.
-* ``include`` - path to directory with configuration files overrides, string, optional.
+* ``apply_migrations`` - perform database migrations on the application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
+* ``database`` - path to the application SQLite database, string, required.
+* ``include`` - path to directory with configuration files overrides, string, optional. Files will be read in alphabetical order.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 
 ``alpm:*`` groups
@@ -51,9 +51,9 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 
 * ``database`` - path to pacman system database cache, string, required.
 * ``mirror`` - package database mirror used by pacman for synchronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
-* ``repositories`` - list of pacman repositories, space separated list of strings, required.
-* ``root`` - root for alpm library, string, required.
-* ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands).
+* ``repositories`` - list of pacman repositories, used for package search, space separated list of strings, required.
+* ``root`` - root for alpm library, string, required. In the most cases it must point to the system root.
+* ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands). If set to ``no``, databases must be synchronized manually.
 
 ``auth`` group
 --------------
@@ -64,7 +64,7 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``allow_read_only`` - allow requesting status APIs without authorization, boolean, required.
 * ``client_id`` - OAuth2 application client ID, string, required in case if ``oauth`` is used.
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
-* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 URL-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
+* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 bytes URL-safe base64-encoded and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service in seconds, integer, optional, default is 7 days.
 * ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
@@ -148,7 +148,7 @@ Keyring generator plugin
 * ``homepage`` - URL to homepage location if any, string, optional.
 * ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
 * ``package`` - keyring package name, string, optional, default is ``repo-keyring``, where ``repo`` is the repository name.
-* ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the ``key_*`` options from ``sign`` group will be used.
+* ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the user keys from database will be used.
 * ``revoked`` - list of revoked packagers keys, space separated list of strings, optional.
 * ``trusted`` - list of master keys, space separated list of strings, optional, if not set, the ``key`` option from ``sign`` group will be used.
 
