@@ -29,7 +29,7 @@ def test_load_archives(package_ahriman: Package, package_python_schedule: Packag
     assert len(packages) == 2
     assert {package.base for package in packages} == {package_ahriman.base, package_python_schedule.base}
 
-    archives = sum([list(package.packages.keys()) for package in packages], start=[])
+    archives = sum((list(package.packages.keys()) for package in packages), start=[])
     assert len(archives) == 3
     expected = set(package_ahriman.packages.keys())
     expected.update(package_python_schedule.packages.keys())

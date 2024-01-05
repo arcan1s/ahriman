@@ -156,7 +156,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
 
 
 def test_configuration_create_ahriman_no_multilib(args: argparse.Namespace, configuration: Configuration,
-                                                  repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+                                                  mocker: MockerFixture) -> None:
     """
     must create configuration for the service without multilib repository
     """

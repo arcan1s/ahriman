@@ -19,7 +19,7 @@ def test_migrate(connection: Connection, configuration: Configuration, mocker: M
     run_mock.assert_called_once_with()
 
 
-def test_migration(migrations: Migrations, connection: Connection) -> None:
+def test_migration(migrations: Migrations) -> None:
     """
     must perform single migration
     """

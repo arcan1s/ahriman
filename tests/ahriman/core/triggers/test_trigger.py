@@ -56,7 +56,7 @@ def test_configuration_schema_empty(configuration: Configuration) -> None:
     assert ReportTrigger.configuration_schema(repository_id, None) == ReportTrigger.CONFIGURATION_SCHEMA
 
 
-def test_configuration_schema_variables(configuration: Configuration) -> None:
+def test_configuration_schema_variables() -> None:
     """
     must return empty schema
     """

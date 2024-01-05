@@ -47,7 +47,7 @@ def test_iter(updates_iterator: UpdatesIterator) -> None:
     """
     must return self as iterator
     """
-    assert updates_iterator.__iter__() == updates_iterator
+    assert iter(updates_iterator) == updates_iterator
 
 
 def test_next(updates_iterator: UpdatesIterator, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -58,7 +58,7 @@ def test_next(updates_iterator: UpdatesIterator, package_ahriman: Package, mocke
                  side_effect=[([package_ahriman.base], 2), (None, 2), StopIteration])
     sleep_mock = mocker.patch("time.sleep")
 
-    updates = [packages for packages in updates_iterator]
+    updates = list(updates_iterator)
     assert updates == [[package_ahriman.base], None]
     sleep_mock.assert_has_calls([MockCall(0.5), MockCall(0.5)])
 

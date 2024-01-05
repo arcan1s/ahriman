@@ -73,7 +73,7 @@ def request(application: Application, path: str, method: str, params: Any = None
         request_mock.match_info = UrlMappingMatchInfo({}, route_mock)
 
     extra = extra or {}
-    request_mock.get_extra_info.side_effect = lambda key: extra.get(key)
+    request_mock.get_extra_info.side_effect = extra.get
 
     return request_mock
 
@@ -167,14 +167,13 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
 
 
 @pytest.fixture
-def application_with_debug(configuration: Configuration, user: User, spawner: Spawn, database: SQLite,
+def application_with_debug(configuration: Configuration, spawner: Spawn, database: SQLite,
                            mocker: MockerFixture) -> Application:
     """
     application fixture with debug enabled
 
     Args:
         configuration(Configuration): configuration fixture
-        user(User): user descriptor fixture
         spawner(Spawn): spawner fixture
         database(SQLite): database fixture
         mocker(MockerFixture): mocker object

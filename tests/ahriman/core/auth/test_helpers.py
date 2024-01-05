@@ -1,9 +1,9 @@
 import importlib
 import sys
 
-import ahriman.core.auth.helpers as helpers
-
 from pytest_mock import MockerFixture
+
+from ahriman.core.auth import helpers
 
 
 def test_import_aiohttp_security() -> None:

@@ -24,7 +24,7 @@ async def test_authorized_userid(authorization_policy: _AuthorizationPolicy, use
     assert await authorization_policy.authorized_userid(user.username) == user.username
 
 
-async def test_authorized_userid_unknown(authorization_policy: _AuthorizationPolicy, user: User) -> None:
+async def test_authorized_userid_unknown(authorization_policy: _AuthorizationPolicy) -> None:
     """
     must not allow unknown user id for authorization
     """
@@ -51,7 +51,7 @@ async def test_permits(authorization_policy: _AuthorizationPolicy, user: User) -
     ])
 
 
-async def test_auth_handler_unix_socket(client_with_auth: TestClient, mocker: MockerFixture) -> None:
+async def test_auth_handler_unix_socket(mocker: MockerFixture) -> None:
     """
     must allow calls via unix sockets
     """

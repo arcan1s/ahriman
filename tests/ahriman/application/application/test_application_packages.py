@@ -100,7 +100,7 @@ def test_add_local_cache(application_packages: ApplicationPackages, package_ahri
     """
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     mocker.patch("pathlib.Path.is_dir", autospec=True,
-                 side_effect=lambda p: True if p.is_relative_to(application_packages.repository.paths.cache) else False)
+                 side_effect=lambda p: p.is_relative_to(application_packages.repository.paths.cache))
     init_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.init")
     copytree_mock = mocker.patch("shutil.copytree")
     build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_insert")
