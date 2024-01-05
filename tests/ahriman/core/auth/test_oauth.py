@@ -75,6 +75,17 @@ async def test_get_oauth_username(oauth: OAuth, mocker: MockerFixture) -> None:
     assert email == "email"
 
 
+async def test_get_oauth_username_empty_email(oauth: OAuth, mocker: MockerFixture) -> None:
+    """
+    must read username if email is not available
+    """
+    mocker.patch("aioauth_client.GoogleClient.get_access_token", return_value=("token", ""))
+    mocker.patch("aioauth_client.GoogleClient.user_info", return_value=(aioauth_client.User(username="username"), ""))
+
+    username = await oauth.get_oauth_username("code")
+    assert username == "username"
+
+
 async def test_get_oauth_username_exception_1(oauth: OAuth, mocker: MockerFixture) -> None:
     """
     must return None in case of OAuth request error (get_access_token)
