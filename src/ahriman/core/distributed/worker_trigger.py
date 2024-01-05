@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections import deque
 from threading import Lock, Timer
 
 from ahriman.core.configuration import Configuration
@@ -47,15 +46,14 @@ class WorkerTrigger(DistributedSystem):
         self.ping_interval = configuration.getint(section, "time_to_live", fallback=60) / 4.0
 
         self._lock = Lock()
-        self._timers: deque[Timer] = deque()  # because python doesn't have atomics
+        self._timer: Timer | None = None
 
     def create_timer(self) -> None:
         """
         create timer object and put it to queue
         """
-        timer = Timer(self.ping_interval, self.ping)
-        timer.start()
-        self._timers.append(timer)
+        self._timer = Timer(self.ping_interval, self.ping)
+        self._timer.start()
 
     def on_start(self) -> None:
         """
@@ -71,21 +69,19 @@ class WorkerTrigger(DistributedSystem):
         """
         self.logger.info("removing instance %s in %s", self.worker, self.address)
         with self._lock:
-            current_timers = self._timers.copy()  # will be used later
-            self._timers.clear()  # clear timer list
+            if self._timer is None:
+                return
 
-        for timer in current_timers:
-            timer.cancel()  # cancel remaining timers
+            self._timer.cancel()  # cancel remaining timers
+            self._timer = None  # reset state
 
     def ping(self) -> None:
         """
         register itself as alive worker and update the timer
         """
         with self._lock:
-            if not self._timers:  # make sure that there is related specific timer
+            if self._timer is None:  # no active timer set, exit loop
                 return
-
-            self._timers.popleft()  # pop first timer
 
             self.register()
             self.create_timer()
