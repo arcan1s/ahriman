@@ -19,8 +19,8 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from collections.abc import Callable
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from collections.abc import Callable
 
 from ahriman.models.user_access import UserAccess
 from ahriman.models.worker import Worker

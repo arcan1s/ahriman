@@ -21,7 +21,7 @@ import argparse
 
 from ahriman.application.application import Application
 from ahriman.application.application.updates_iterator import FixedUpdatesIterator, UpdatesIterator
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.application.handlers.update import Update
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId

@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.configuration import Configuration
-from ahriman.core.triggers import Trigger
 from ahriman.core.report.report import Report
+from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result

@@ -22,7 +22,7 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, UpdateFlagsSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, RepositoryIdSchema, UpdateFlagsSchema
 from ahriman.web.views.base import BaseView
 
 

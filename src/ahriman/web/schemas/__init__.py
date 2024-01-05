@@ -35,7 +35,7 @@ from ahriman.web.schemas.package_names_schema import PackageNamesSchema
 from ahriman.web.schemas.package_patch_schema import PackagePatchSchema
 from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchema
 from ahriman.web.schemas.package_schema import PackageSchema
-from ahriman.web.schemas.package_status_schema import PackageStatusSimplifiedSchema, PackageStatusSchema
+from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
 from ahriman.web.schemas.pagination_schema import PaginationSchema
 from ahriman.web.schemas.patch_name_schema import PatchNameSchema
 from ahriman.web.schemas.patch_schema import PatchSchema

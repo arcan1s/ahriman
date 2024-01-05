@@ -19,10 +19,10 @@
 #
 import argparse
 
-from dataclasses import fields
 from collections.abc import Callable, Iterable
+from dataclasses import fields
 
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError

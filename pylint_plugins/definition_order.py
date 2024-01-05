@@ -25,19 +25,19 @@ from pylint.lint import PyLinter
 from typing import Any
 
 
-class MethodTypeOrder(StrEnum):
+class MethodType(StrEnum):
     """
     method type enumeration
 
     Attributes:
-        Class(MethodTypeOrder): (class attribute) class method
-        Delete(MethodTypeOrder): (class attribute) destructor-like methods
-        Init(MethodTypeOrder): (class attribute) initialization method
-        Magic(MethodTypeOrder): (class attribute) other magical methods
-        New(MethodTypeOrder): (class attribute) constructor method
-        Normal(MethodTypeOrder): (class attribute) usual method
-        Property(MethodTypeOrder): (class attribute) property method
-        Static(MethodTypeOrder): (class attribute) static method
+        Class(MethodType): (class attribute) class method
+        Delete(MethodType): (class attribute) destructor-like methods
+        Init(MethodType): (class attribute) initialization method
+        Magic(MethodType): (class attribute) other magical methods
+        New(MethodType): (class attribute) constructor method
+        Normal(MethodType): (class attribute) usual method
+        Property(MethodType): (class attribute) property method
+        Static(MethodType): (class attribute) static method
     """
 
     Class = "classmethod"
@@ -59,20 +59,20 @@ class DefinitionOrder(BaseRawFileChecker):
     """
 
     DECORATED_METHODS_ORDER = {
-        "cached_property": MethodTypeOrder.Property,
-        "classmethod": MethodTypeOrder.Class,
-        "property": MethodTypeOrder.Property,
-        "staticmethod": MethodTypeOrder.Static,
+        "cached_property": MethodType.Property,
+        "classmethod": MethodType.Class,
+        "property": MethodType.Property,
+        "staticmethod": MethodType.Static,
     }
 
-    name = "method-ordering"
     msgs = {
         "W6001": (
             "Invalid method order %s, expected %s",
             "methods-out-of-order",
             "Methods are defined out of recommended order.",
-        )
+        ),
     }
+    name = "method-ordering"
     options = (
         (
             "method-type-order",
@@ -114,7 +114,7 @@ class DefinitionOrder(BaseRawFileChecker):
         return list(filter(is_defined_function, source))
 
     @staticmethod
-    def resolve_type(function: nodes.FunctionDef) -> MethodTypeOrder:
+    def resolve_type(function: nodes.FunctionDef) -> MethodType:
         """
         resolve type of the function
 
@@ -122,15 +122,15 @@ class DefinitionOrder(BaseRawFileChecker):
             function(nodes.FunctionDef): function definition
 
         Returns:
-            MethodTypeOrder: resolved function type
+            MethodType: resolved function type
         """
         # init methods
         if function.name in ("__init__", "__post_init__"):
-            return MethodTypeOrder.Init
+            return MethodType.Init
         if function.name in ("__new__",):
-            return MethodTypeOrder.New
+            return MethodType.New
         if function.name in ("__del__",):
-            return MethodTypeOrder.Delete
+            return MethodType.Delete
 
         # decorated methods
         decorators = []
@@ -142,10 +142,10 @@ class DefinitionOrder(BaseRawFileChecker):
 
         # magic methods
         if function.name.startswith("__") and function.name.endswith("__"):
-            return MethodTypeOrder.Magic
+            return MethodType.Magic
 
         # normal method
-        return MethodTypeOrder.Normal
+        return MethodType.Normal
 
     def check_class(self, clazz: nodes.ClassDef) -> None:
         """
@@ -184,7 +184,7 @@ class DefinitionOrder(BaseRawFileChecker):
         try:
             function_type_index = self.linter.config.method_type_order.index(function_type)
         except ValueError:
-            function_type_index = 10  # not in the list
+            function_type_index = len(self.linter.config.method_type_order)  # not in the list
 
         return function_type_index, function.name
 

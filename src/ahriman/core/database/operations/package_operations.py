@@ -20,7 +20,7 @@
 from collections.abc import Generator, Iterable
 from sqlite3 import Connection
 
-from ahriman.core.database.operations import Operations
+from ahriman.core.database.operations.operations import Operations
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription

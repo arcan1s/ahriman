@@ -1,8 +1,8 @@
 import pytest
 
-from multidict import MultiDict
 from aiohttp.test_utils import TestClient
 from aiohttp.web import HTTPBadRequest, HTTPNotFound
+from multidict import MultiDict
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 

@@ -24,7 +24,7 @@ from pwd import getpwuid
 from urllib.parse import quote_plus as urlencode
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.models.repository_id import RepositoryId

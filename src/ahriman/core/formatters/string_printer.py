@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.formatters import Printer
+from ahriman.core.formatters.printer import Printer
 
 
 class StringPrinter(Printer):

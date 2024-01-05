@@ -1,7 +1,7 @@
 import pytest
 
-from sqlite3 import Connection
 from pytest_mock import MockerFixture
+from sqlite3 import Connection
 from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration

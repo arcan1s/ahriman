@@ -20,7 +20,7 @@
 from typing import Any
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.alpm.remote import Remote
+from ahriman.core.alpm.remote.remote import Remote
 from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
 from ahriman.models.aur_package import AURPackage
 

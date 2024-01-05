@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from secrets import token_urlsafe as generate_password
 from dataclasses import dataclass, replace
 from passlib.hash import sha512_crypt
+from secrets import token_urlsafe as generate_password
 from typing import Self
 
 from ahriman.models.user_access import UserAccess

@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import PatchPrinter

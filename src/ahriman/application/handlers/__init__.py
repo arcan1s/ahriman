@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.application.handlers.handler import Handler
-
 from ahriman.application.handlers.add import Add
 from ahriman.application.handlers.backup import Backup
 from ahriman.application.handlers.change import Change
 from ahriman.application.handlers.clean import Clean
 from ahriman.application.handlers.daemon import Daemon
 from ahriman.application.handlers.dump import Dump
+from ahriman.application.handlers.handler import Handler
 from ahriman.application.handlers.help import Help
 from ahriman.application.handlers.key_import import KeyImport
 from ahriman.application.handlers.patch import Patch
