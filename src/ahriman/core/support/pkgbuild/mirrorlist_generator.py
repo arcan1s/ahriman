@@ -51,7 +51,7 @@ class MirrorlistGenerator(PkgbuildGenerator):
         # configuration fields
         self.servers = configuration.getlist(section, "servers")
         self.path = configuration.getpath(
-            section, "path", fallback=Path("/etc") / "pacman.d" / f"{repository_id.name}-mirrorlist")
+            section, "path", fallback=Path("/") / "etc" / "pacman.d" / f"{repository_id.name}-mirrorlist")
         self.path = self.path.relative_to("/")  # in pkgbuild we are always operating with relative to / path
         # pkgbuild description fields
         self.pkgbuild_pkgname = configuration.get(section, "package", fallback=f"{repository_id.name}-mirrorlist")

@@ -71,7 +71,7 @@ def _parser() -> argparse.ArgumentParser:
                                      fromfile_prefix_chars="@", formatter_class=_formatter)
     parser.add_argument("-a", "--architecture", help="filter by target architecture")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
-                        default=Path("/etc") / "ahriman.ini")
+                        default=Path("/") / "etc" / "ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
     parser.add_argument("-l", "--lock", help="lock file", type=Path,
                         default=Path(tempfile.gettempdir()) / "ahriman.lock")
@@ -999,7 +999,7 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
-                        type=Path, default=Path("/usr") / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
+                        type=Path, default=Path("/") / "usr" / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
     parser.add_argument("--generate-salt", help="generate salt for user passwords",
                         action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--makeflags-jobs", help="append MAKEFLAGS variable with parallelism set to number of cores",
