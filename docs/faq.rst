@@ -174,7 +174,7 @@ For that purpose you could use ``RemotePullTrigger`` trigger. To do so you will 
    [gitremote]
    pull_url = https://github.com/username/repository
 
-During the next application run it will fetch repository from the specified url and will try to find packages there which can be used as local sources.
+During the next application run it will fetch repository from the specified URL and will try to find packages there which can be used as local sources.
 
 This feature can be also used to build packages which are not listed in AUR, the example of the feature use can be found `here <https://github.com/arcan1s/ahriman/tree/master/recipes/pull>`__.
 
@@ -191,7 +191,7 @@ For that purpose you'd need to use another trigger called ``RemotePushTrigger``.
    [gitremote]
    push_url = https://github.com/username/repository
 
-Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for GitHub you can generate tokens `here <https://github.com/settings/tokens>`__ with scope ``public_repo``). Authorization can be supplied by using authorization part of the url, e.g. ``https://key:token@github.com/username/repository``.
+Unlike ``RemotePullTrigger`` trigger, the ``RemotePushTrigger`` more likely will require authorization. It is highly recommended to use application tokens for that instead of using your password (e.g. for GitHub you can generate tokens `here <https://github.com/settings/tokens>`__ with scope ``public_repo``). Authorization can be supplied by using authorization part of the URL, e.g. ``https://key:token@github.com/username/repository``.
 
 How to change PKGBUILDs before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -461,7 +461,7 @@ The following environment variables are supported:
 * ``AHRIMAN_POSTSETUP_COMMAND`` - if set, the command which will be called (as root) after the setup command, but before any other actions.
 * ``AHRIMAN_PRESETUP_COMMAND`` - if set, the command which will be called (as root) right before the setup command.
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
-* ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository url. Useful if you would like to download packages from remote instead of local filesystem.
+* ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository URL. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.

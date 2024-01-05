@@ -64,7 +64,7 @@ Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` libr
 * ``allow_read_only`` - allow requesting status APIs without authorization, boolean, required.
 * ``client_id`` - OAuth2 application client ID, string, required in case if ``oauth`` is used.
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
-* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 url-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
+* ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 URL-safe base64-encoded bytes and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service in seconds, integer, optional, default is 7 days.
 * ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
@@ -86,7 +86,7 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of definition.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default is 7 days.
-* ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable url, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node. There is also special trigger which loads this value based on the list of the discovered nodes.
+* ``workers`` - list of worker nodes addresses used for build process, space separated list of strings, optional. Each worker address must be valid and reachable URL, e.g. ``https://10.0.0.1:8080``. If none set, the build process will be run on the current node. There is also special trigger which loads this value based on the list of the discovered nodes.
 
 ``repository`` group
 --------------------
@@ -109,7 +109,7 @@ Settings for signing packages or repository. Group name can refer to architectur
 Reporting to web service related settings. In most cases there is fallback to web section settings.
 
 * ``enabled`` - enable reporting to web service, boolean, optional, default ``yes`` for backward compatibility.
-* ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and url encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
+* ``address`` - remote web service address with protocol, string, optional. In case of websocket, the ``http+unix`` scheme and URL encoded address (e.g. ``%2Fvar%2Flib%2Fahriman`` for ``/var/lib/ahriman``) must be used, e.g. ``http+unix://%2Fvar%2Flib%2Fahriman%2Fsocket``. In case if none set, it will be guessed from ``web`` section.
 * ``password`` - password to authorize in web service in order to update service status, string, required in case if authorization enabled.
 * ``suppress_http_log_errors`` - suppress HTTP log errors, boolean, optional, default ``no``. If set to ``yes``, any HTTP log errors (e.g. if web server is not available, but HTTP logging is enabled) will be suppressed.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
@@ -123,7 +123,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
 * ``enable_archive_upload`` - allow to upload packages via HTTP (i.e. call of ``/api/v1/service/upload`` uri), boolean, optional, default ``no``.
 * ``host`` - host to bind, string, optional.
-* ``index_url`` - full url of the repository index page, string, optional.
+* ``index_url`` - full URL of the repository index page, string, optional.
 * ``max_body_size`` - max body size in bytes to be validated for archive upload, integer, optional. If not set, validation will be disabled.
 * ``port`` - port to bind, integer, optional.
 * ``service_only`` - disable status routes (including logs), boolean, optional, default ``no``.
@@ -145,7 +145,7 @@ Keyring generator plugin
 
 * ``type`` - type of the generator, string, optional, must be set to ``keyring-generator`` if exists.
 * ``description`` - keyring package description, string, optional, default is ``repo PGP keyring``, where ``repo`` is the repository name.
-* ``homepage`` - url to homepage location if any, string, optional.
+* ``homepage`` - URL to homepage location if any, string, optional.
 * ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
 * ``package`` - keyring package name, string, optional, default is ``repo-keyring``, where ``repo`` is the repository name.
 * ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the ``key_*`` options from ``sign`` group will be used.
@@ -164,7 +164,7 @@ Mirrorlist generator plugin
 
 * ``type`` - type of the generator, string, optional, must be set to ``mirrorlist-generator`` if exists.
 * ``description`` - mirrorlist package description, string, optional, default is ``repo mirror list for use by pacman``, where ``repo`` is the repository name.
-* ``homepage`` - url to homepage location if any, string, optional.
+* ``homepage`` - URL to homepage location if any, string, optional.
 * ``license`` - list of licenses which are applied to this package, space separated list of strings, optional, default is ``Unlicense``.
 * ``package`` - mirrorlist package name, string, optional, default is ``repo-mirrorlist``, where ``repo`` is the repository name.
 * ``path`` - absolute path to generated mirrorlist file, string, optional, default is ``/etc/pacman.d/repo-mirrorlist``, where ``repo`` is the repository name.
@@ -175,7 +175,7 @@ Mirrorlist generator plugin
 
 Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - fetch from remote repository PKGBUILDs before updating process.
 
-It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
+It supports authorization; to do so you'd need to prefix the URL with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
 
 * by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
 * by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`__.
@@ -187,7 +187,7 @@ Available options are:
 Remote pull trigger
 ^^^^^^^^^^^^^^^^^^^
 
-* ``pull_url`` - url of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
+* ``pull_url`` - URL of the remote repository from which PKGBUILDs can be pulled before build process, string, required.
 * ``pull_branch`` - branch of the remote repository from which PKGBUILDs can be pulled before build process, string, optional, default is ``master``.
 
 ``remote-push`` group
@@ -195,7 +195,7 @@ Remote pull trigger
 
 Remote git source synchronization settings. Same as remote pull triggers those triggers are used for PKGBUILD synchronization - push updated PKGBUILDs to the remote repository after build process.
 
-It supports authorization; to do so you'd need to prefix the url with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
+It supports authorization; to do so you'd need to prefix the URL with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
 
 * by SSH key: generate SSH key as ``ahriman`` user and put public part of it to the repository keys.
 * by git credentials helper: consult with the `related man page <https://git-scm.com/docs/gitcredentials>`__.
@@ -209,7 +209,7 @@ Remote push trigger
 
 * ``commit_email`` - git commit email, string, optional, default is ``ahriman@localhost``.
 * ``commit_user`` - git commit user, string, optional, default is ``ahriman``.
-* ``push_url`` - url of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
+* ``push_url`` - URL of the remote repository to which PKGBUILDs should be pushed after build process, string, required.
 * ``push_branch`` - branch of the remote repository to which PKGBUILDs should be pushed after build process, string, optional, default is ``master``.
 
 ``report`` group
