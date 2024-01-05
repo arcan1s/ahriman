@@ -558,14 +558,13 @@ def user() -> User:
 
 
 @pytest.fixture
-def watcher(repository_id: RepositoryId, database: SQLite, repository: Repository) -> Watcher:
+def watcher(repository_id: RepositoryId, database: SQLite) -> Watcher:
     """
     package status watcher fixture
 
     Args:
         repository_id(RepositoryId): repository identifier fixture
         database(SQLite): database fixture
-        repository(Repository): repository fixture
 
     Returns:
         Watcher: package status watcher test instance

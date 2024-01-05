@@ -249,7 +249,7 @@ def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path
     }
 
 
-def test_from_build_failed(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_from_build_failed(mocker: MockerFixture) -> None:
     """
     must raise exception if there are errors during srcinfo load
     """
@@ -317,7 +317,7 @@ def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> N
     mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
-    assert list(Package.local_files(Path("path"))) == []
+    assert not list(Package.local_files(Path("path")))
 
 
 def test_local_files_error(mocker: MockerFixture) -> None:
@@ -342,7 +342,7 @@ def test_local_files_schema(mocker: MockerFixture, resource_path_root: Path) -> 
     mocker.patch("ahriman.models.package.check_output", return_value="")
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
-    assert list(Package.local_files(Path("path"))) == []
+    assert not list(Package.local_files(Path("path")))
 
 
 def test_local_files_with_install(mocker: MockerFixture, resource_path_root: Path) -> None:

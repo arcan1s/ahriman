@@ -78,7 +78,7 @@ def test_from_repo(aur_package_akonadi: AURPackage, resource_path_root: Path) ->
     assert AURPackage.from_repo(model) == aur_package_akonadi
 
 
-def test_convert(aur_package_ahriman: AURPackage, resource_path_root: Path) -> None:
+def test_convert(resource_path_root: Path) -> None:
     """
     must convert fields to snakecase and also apply converters
     """

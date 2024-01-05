@@ -22,10 +22,7 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     patch2 = PkgbuildPatch("key", "value")
     local = Path("local")
 
-    mocker.patch(
-        "pathlib.Path.is_file",
-        autospec=True,
-        side_effect=lambda p: True if p == Path(".gitignore") else False)
+    mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p == Path(".gitignore"))
     glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path(".git"), Path(".gitignore")])
     rmtree_mock = mocker.patch("shutil.rmtree")
     unlink_mock = mocker.patch("pathlib.Path.unlink")

@@ -147,7 +147,7 @@ def test_on_result_exception(trigger_loader: TriggerLoader, package_ahriman: Pac
     log_mock.assert_called_once()
 
 
-def test_on_start(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_on_start(trigger_loader: TriggerLoader, mocker: MockerFixture) -> None:
     """
     must run triggers on start
     """
@@ -187,7 +187,7 @@ def test_on_stop_without_on_start(configuration: Configuration, mocker: MockerFi
     on_stop_mock.assert_not_called()
 
 
-def test_on_stop(trigger_loader: TriggerLoader, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_on_stop(trigger_loader: TriggerLoader, mocker: MockerFixture) -> None:
     """
     must run triggers on stop
     """

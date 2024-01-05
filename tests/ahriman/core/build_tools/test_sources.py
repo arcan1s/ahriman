@@ -27,7 +27,7 @@ def test_changes(mocker: MockerFixture) -> None:
     diff_mock.assert_called_once_with(local, last_commit_sha)
 
 
-def test_changes_skip(package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_changes_skip(mocker: MockerFixture) -> None:
     """
     must return none in case if commit sha is not available
     """

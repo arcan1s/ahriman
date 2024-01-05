@@ -48,7 +48,7 @@ def test_multisearch_single(aur_package_ahriman: AURPackage, pacman: Pacman, moc
     search_mock.assert_called_once_with("ahriman", pacman=pacman)
 
 
-def test_remote_git_url(remote: Remote, pacman: Pacman) -> None:
+def test_remote_git_url(remote: Remote) -> None:
     """
     must raise NotImplemented for missing remote git url
     """
@@ -56,7 +56,7 @@ def test_remote_git_url(remote: Remote, pacman: Pacman) -> None:
         remote.remote_git_url("package", "repositorys")
 
 
-def test_remote_web_url(remote: Remote, pacman: Pacman) -> None:
+def test_remote_web_url(remote: Remote) -> None:
     """
     must raise NotImplemented for missing remote web url
     """
