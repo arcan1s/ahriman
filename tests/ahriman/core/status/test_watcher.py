@@ -212,14 +212,6 @@ def test_patches_get(watcher: Watcher, package_ahriman: Package, mocker: MockerF
     ])
 
 
-def test_patches_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
-    """
-    must raise UnknownPackageError on patches in case of unknown package
-    """
-    with pytest.raises(UnknownPackageError):
-        watcher.patches_get(package_ahriman.base, None)
-
-
 def test_patches_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove patches for the package

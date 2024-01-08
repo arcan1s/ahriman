@@ -21,7 +21,6 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 
 from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, PatchNameSchema, PatchSchema
 from ahriman.web.views.base import BaseView
@@ -76,7 +75,7 @@ class PatchView(StatusViewGuard, BaseView):
             200: {"description": "Success response", "schema": PatchSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base and/or patch name are unknown", "schema": ErrorSchema},
+            404: {"description": "Patch name is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [GET_PERMISSION]}],
@@ -91,15 +90,12 @@ class PatchView(StatusViewGuard, BaseView):
             Response: 200 with package patch on success
 
         Raises:
-            HTTPNotFound: if package base is unknown
+            HTTPNotFound: if package patch is unknown
         """
         package_base = self.request.match_info["package"]
         variable = self.request.match_info["patch"]
 
-        try:
-            patches = self.service().patches_get(package_base, variable)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        patches = self.service().patches_get(package_base, variable)
 
         selected = next((patch for patch in patches if patch.key == variable), None)
         if selected is None:

@@ -190,7 +190,8 @@ class Watcher(LazyLogging):
         Returns:
             list[PkgbuildPatch]: list of patches which are stored for the package
         """
-        self.package_get(package_base)
+        # patches are package base based, we don't know (and don't differentiate) to which package does them belong
+        # so here we skip checking if package exists or not
         variables = [variable] if variable is not None else None
         return self.database.patches_list(package_base, variables).get(package_base, [])
 
