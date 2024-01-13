@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   ahriman.web.views.v2.status
+   ahriman.web.views.v2.packages
 
 Module contents
 ---------------

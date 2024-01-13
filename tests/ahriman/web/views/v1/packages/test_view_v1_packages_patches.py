@@ -6,7 +6,7 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1.status.patches import PatchesView
+from ahriman.web.views.v1.packages.patches import PatchesView
 
 
 async def test_get_permission() -> None:

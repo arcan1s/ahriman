@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    ahriman.web.views.v1.distributed
+   ahriman.web.views.v1.packages
    ahriman.web.views.v1.service
    ahriman.web.views.v1.status
    ahriman.web.views.v1.user
