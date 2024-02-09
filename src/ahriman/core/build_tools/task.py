@@ -107,7 +107,10 @@ class Task(LazyLogging):
             logger=self.logger,
             environment=environment,
         ).splitlines()
-        return [Path(package) for package in packages]
+        # some dirty magic here
+        # the filter is applied in order to make sure that result will only contain packages which were actually built
+        # e.g. in some cases packagelist command produces debug packages which were not actually built
+        return list(filter(lambda path: path.is_file(), map(Path, packages)))
 
     def init(self, sources_dir: Path, database: SQLite, local_version: str | None) -> str | None:
         """
