@@ -23,7 +23,7 @@ import tarfile
 from collections.abc import Generator, Iterable
 from functools import cached_property
 from pathlib import Path
-from pyalpm import DB, Handle, Package, SIG_PACKAGE  # type: ignore[import-not-found]
+from pyalpm import DB, Handle, Package, SIG_DATABASE_OPTIONAL, SIG_PACKAGE_OPTIONAL  # type: ignore[import-not-found]
 from string import Template
 
 from ahriman.core.alpm.pacman_database import PacmanDatabase
@@ -32,7 +32,6 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.util import trim_package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Pacman(LazyLogging):
@@ -43,6 +42,7 @@ class Pacman(LazyLogging):
         configuration(Configuration): configuration instance
         refresh_database(PacmanSynchronization): synchronize local cache to remote
         repository_id(RepositoryId): repository unique identifier
+        repository_path(RepositoryPaths): repository paths instance
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
@@ -57,6 +57,7 @@ class Pacman(LazyLogging):
         """
         self.configuration = configuration
         self.repository_id = repository_id
+        self.repository_paths = configuration.repository_paths
 
         self.refresh_database = refresh_database
 
@@ -82,23 +83,25 @@ class Pacman(LazyLogging):
         """
         pacman_root = self.configuration.getpath("alpm", "database")
         use_ahriman_cache = self.configuration.getboolean("alpm", "use_ahriman_cache")
-        paths = self.configuration.repository_paths
 
-        database_path = paths.pacman if use_ahriman_cache else pacman_root
+        database_path = self.repository_paths.pacman if use_ahriman_cache else pacman_root
         root = self.configuration.getpath("alpm", "root")
         handle = Handle(str(root), str(database_path))
 
         for repository in self.configuration.getlist("alpm", "repositories"):
             database = self.database_init(handle, repository, self.repository_id.architecture)
-            self.database_copy(handle, database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
+            self.database_copy(handle, database, pacman_root, use_ahriman_cache=use_ahriman_cache)
+
+        # install repository database too
+        local_database = self.database_init(handle, self.repository_id.name, self.repository_id.architecture)
+        self.database_copy(handle, local_database, pacman_root, use_ahriman_cache=use_ahriman_cache)
 
         if use_ahriman_cache and refresh_database:
             self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
 
         return handle
 
-    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
-                      use_ahriman_cache: bool) -> None:
+    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, *, use_ahriman_cache: bool) -> None:
         """
         copy database from the operating system root to the ahriman local home
 
@@ -106,7 +109,6 @@ class Pacman(LazyLogging):
             handle(Handle): pacman handle which will be used for database copying
             database(DB): pacman database instance to be copied
             pacman_root(Path): operating system pacman root
-            paths(RepositoryPaths): repository paths instance
             use_ahriman_cache(bool): use local ahriman cache instead of system one
         """
         def repository_database(root: Path) -> Path:
@@ -128,7 +130,7 @@ class Pacman(LazyLogging):
             return  # database for some reason deos not exist
         self.logger.info("copy pacman database from operating system root to ahriman's home")
         shutil.copy(src, dst)
-        paths.chown(dst)
+        self.repository_paths.chown(dst)
 
     def database_init(self, handle: Handle, repository: str, architecture: str) -> DB:
         """
@@ -143,15 +145,21 @@ class Pacman(LazyLogging):
             DB: loaded pacman database instance
         """
         self.logger.info("loading pacman database %s", repository)
-        database: DB = handle.register_syncdb(repository, SIG_PACKAGE)
+        database: DB = handle.register_syncdb(repository, SIG_DATABASE_OPTIONAL | SIG_PACKAGE_OPTIONAL)
 
-        mirror = self.configuration.get("alpm", "mirror")
-        # replace variables in mirror address
-        variables = {
-            "arch": architecture,
-            "repo": repository,
-        }
-        database.servers = [Template(mirror).safe_substitute(variables)]
+        if repository != self.repository_id.name:
+            mirror = self.configuration.get("alpm", "mirror")
+            # replace variables in mirror address
+            variables = {
+                "arch": architecture,
+                "repo": repository,
+            }
+            server = Template(mirror).safe_substitute(variables)
+        else:
+            # special case, same database, use local storage instead
+            server = f"file://{self.repository_paths.repository}"
+
+        database.servers = [server]
 
         return database
 
@@ -180,7 +188,6 @@ class Pacman(LazyLogging):
             dict[str, set[Path]]: map of package name to its list of files
         """
         packages = packages or []
-        repository_paths = self.configuration.repository_paths
 
         def extract(tar: tarfile.TarFile) -> Generator[tuple[str, set[Path]], None, None]:
             for descriptor in filter(lambda info: info.path.endswith("/files"), tar.getmembers()):
@@ -196,7 +203,7 @@ class Pacman(LazyLogging):
 
         result: dict[str, set[Path]] = {}
         for database in self.handle.get_syncdbs():
-            database_file = repository_paths.pacman / "sync" / f"{database.name}.files.tar.gz"
+            database_file = self.repository_paths.pacman / "sync" / f"{database.name}.files.tar.gz"
             if not database_file.is_file():
                 continue  # no database file found
             with tarfile.open(database_file, "r:gz") as archive:

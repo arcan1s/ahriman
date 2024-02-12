@@ -8,6 +8,15 @@ from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.exceptions import PacmanError
 
 
+def test_copy(pacman_database: PacmanDatabase, mocker: MockerFixture) -> None:
+    """
+    must copy loca database file
+    """
+    copy_mock = mocker.patch("shutil.copy")
+    pacman_database.copy(Path("remote"), Path("local"))
+    copy_mock.assert_called_once_with(Path("remote"), Path("local"))
+
+
 def test_download(pacman_database: PacmanDatabase, mocker: MockerFixture) -> None:
     """
     must download database by remote url
@@ -161,6 +170,26 @@ def test_sync_files_force(pacman_database: PacmanDatabase, mocker: MockerFixture
     pacman_database.sync_files(force=True)
     download_mock.assert_called_once_with(
         "https://geo.mirror.pkgbuild.com/core/os/x86_64/core.files.tar.gz", pytest.helpers.anyvar(int))
+
+
+def test_sync_files_local(pacman_database: PacmanDatabase, mocker: MockerFixture) -> None:
+    """
+    must copy local files instead of downloading them
+    """
+    pacman_database.database.servers = ["file:///var"]
+    copy_mock = mocker.patch("ahriman.core.alpm.pacman_database.PacmanDatabase.copy")
+
+    pacman_database.sync_files(force=False)
+    copy_mock.assert_called_once_with(Path("/var/core.files.tar.gz"), pytest.helpers.anyvar(int))
+
+
+def test_sync_files_unknown_source(pacman_database: PacmanDatabase) -> None:
+    """
+    must raise an exception in case if server scheme is unsupported
+    """
+    pacman_database.database.servers = ["some random string"]
+    with pytest.raises(PacmanError):
+        pacman_database.sync_files(force=False)
 
 
 def test_sync_packages(pacman_database: PacmanDatabase) -> None:

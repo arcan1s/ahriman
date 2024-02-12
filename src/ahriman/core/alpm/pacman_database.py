@@ -18,10 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import os
+import shutil
 
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from pyalpm import DB  # type: ignore[import-not-found]
+from urllib.parse import urlparse
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import PacmanError
@@ -56,6 +58,16 @@ class PacmanDatabase(SyncHttpClient):
         self.repository_paths = configuration.repository_paths
 
         self.sync_files_database = configuration.getboolean("alpm", "sync_files_database")
+
+    def copy(self, remote_path: Path, local_path: Path) -> None:
+        """
+        copy local database file
+
+        Args:
+            remote_path(Path): path to source (remote) file
+            local_path(Path): path to locally stored file
+        """
+        shutil.copy(remote_path, local_path)
 
     def download(self, url: str, local_path: Path) -> None:
         """
@@ -131,11 +143,22 @@ class PacmanDatabase(SyncHttpClient):
         filename = f"{self.database.name}.files.tar.gz"
         url = f"{server}/{filename}"
 
+        remote_uri = urlparse(url)
         local_path = Path(self.repository_paths.pacman / "sync" / filename)
-        if not force and not self.is_outdated(url, local_path):
-            return
 
-        self.download(url, local_path)
+        match remote_uri.scheme:
+            case "http" | "https":
+                if not force and not self.is_outdated(url, local_path):
+                    return
+
+                self.download(url, local_path)
+
+            case "file":
+                # just copy file as it is relatively cheap operation, no need to check timestamps
+                self.copy(Path(remote_uri.path), local_path)
+
+            case other:
+                raise PacmanError(f"Unknown or unsupported URL scheme {other}")
 
     def sync_packages(self, *, force: bool) -> None:
         """

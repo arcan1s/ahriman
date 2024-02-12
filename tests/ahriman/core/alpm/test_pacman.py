@@ -49,7 +49,7 @@ def test_init_with_local_cache_forced(configuration: Configuration, mocker: Mock
         sync_mock.assert_called_once_with(pytest.helpers.anyvar(int), force=True)
 
 
-def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_database_copy(pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must copy database from root
     """
@@ -63,13 +63,13 @@ def test_database_copy(pacman: Pacman, repository_paths: RepositoryPaths, mocker
     copy_mock = mocker.patch("shutil.copy")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
 
-    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, use_ahriman_cache=True)
     mkdir_mock.assert_called_once_with(mode=0o755, exist_ok=True)
     copy_mock.assert_called_once_with(path / "sync" / "core.db", dst_path)
     chown_mock.assert_called_once_with(dst_path)
 
 
-def test_database_copy_skip(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_database_copy_skip(pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must do not copy database from root if local cache is disabled
     """
@@ -80,11 +80,11 @@ def test_database_copy_skip(pacman: Pacman, repository_paths: RepositoryPaths, m
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=False)
+    pacman.database_copy(pacman.handle, database, path, use_ahriman_cache=False)
     copy_mock.assert_not_called()
 
 
-def test_database_copy_no_directory(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_database_copy_no_directory(pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must do not copy database if local cache already exists
     """
@@ -95,11 +95,11 @@ def test_database_copy_no_directory(pacman: Pacman, repository_paths: Repository
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda p: p.is_relative_to(path))
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
-def test_database_copy_no_root_file(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_database_copy_no_root_file(pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must do not copy database if no repository file exists in filesystem
     """
@@ -110,11 +110,11 @@ def test_database_copy_no_root_file(pacman: Pacman, repository_paths: Repository
     mocker.patch("pathlib.Path.is_file", return_value=False)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(pacman.handle, database, path, repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, path, use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
-def test_database_copy_database_exist(pacman: Pacman, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_database_copy_database_exist(pacman: Pacman, mocker: MockerFixture) -> None:
     """
     must do not copy database if local cache already exists
     """
@@ -124,7 +124,7 @@ def test_database_copy_database_exist(pacman: Pacman, repository_paths: Reposito
     mocker.patch("pathlib.Path.is_file", return_value=True)
     copy_mock = mocker.patch("shutil.copy")
 
-    pacman.database_copy(pacman.handle, database, Path("root"), repository_paths, use_ahriman_cache=True)
+    pacman.database_copy(pacman.handle, database, Path("root"), use_ahriman_cache=True)
     copy_mock.assert_not_called()
 
 
@@ -134,6 +134,15 @@ def test_database_init(pacman: Pacman, configuration: Configuration) -> None:
     """
     database = pacman.database_init(pacman.handle, "testing", "x86_64")
     assert database.servers == ["https://geo.mirror.pkgbuild.com/testing/os/x86_64"]
+
+
+def test_database_init_local(pacman: Pacman, configuration: Configuration) -> None:
+    """
+    must set file protocol for local databases
+    """
+    _, repository_id = configuration.check_loaded()
+    database = pacman.database_init(MagicMock(), repository_id.name, repository_id.architecture)
+    assert database.servers == [f"file://{configuration.repository_paths.repository}"]
 
 
 def test_database_sync(pacman: Pacman, mocker: MockerFixture) -> None:
