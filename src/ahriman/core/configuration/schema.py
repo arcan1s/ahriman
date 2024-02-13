@@ -89,6 +89,11 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "path_exists": True,
                 "path_type": "dir",
             },
+            "sync_files_database": {
+                "type": "boolean",
+                "coerce": "boolean",
+                "required": True,
+            },
             "use_ahriman_cache": {
                 "type": "boolean",
                 "coerce": "boolean",

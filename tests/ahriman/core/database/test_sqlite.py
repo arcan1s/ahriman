@@ -33,3 +33,21 @@ def test_init_skip_migration(database: SQLite, configuration: Configuration, moc
 
     database.init(configuration)
     migrate_schema_mock.assert_not_called()
+
+
+def test_package_clear(database: SQLite, mocker: MockerFixture) -> None:
+    """
+    must clear package data
+    """
+    build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
+    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
+    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
+    changes_mock = mocker.patch("ahriman.core.database.SQLite.changes_remove")
+    dependencies_mock = mocker.patch("ahriman.core.database.SQLite.dependencies_remove")
+
+    database.package_clear("package")
+    build_queue_mock.assert_called_once_with("package")
+    patches_mock.assert_called_once_with("package", [])
+    logs_mock.assert_called_once_with("package", None)
+    changes_mock.assert_called_once_with("package")
+    dependencies_mock.assert_called_once_with("package")

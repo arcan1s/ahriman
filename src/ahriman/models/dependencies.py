@@ -17,10 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.changes_operations import ChangesOperations
-from ahriman.core.database.operations.dependencies_operations import DependenciesOperations
-from ahriman.core.database.operations.logs_operations import LogsOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+@dataclass(frozen=True)
+class Dependencies:
+    """
+    package paths dependencies
+
+    Attributes:
+        package_base(str): package base
+        paths(dict[Path, list[str]]): map of the paths used by this package to set of packages in which they were found
+    """
+
+    package_base: str
+    paths: dict[Path, list[str]] = field(default_factory=dict)

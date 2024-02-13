@@ -62,10 +62,13 @@ class Application(ApplicationPackages, ApplicationRepository):
         """
         known_packages: set[str] = set()
         # local set
+        # this action is not really needed in case if ``alpm.use_ahriman_cache`` set to yes, because pacman
+        # will eventually contain all the local packages
         for base in self.repository.packages():
             for package, properties in base.packages.items():
                 known_packages.add(package)
                 known_packages.update(properties.provides)
+        # known pacman databases
         known_packages.update(self.repository.pacman.packages())
         return known_packages
 

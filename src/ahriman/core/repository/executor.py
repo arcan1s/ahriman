@@ -29,6 +29,7 @@ from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.util import safe_filename
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
+from ahriman.models.package_archive import PackageArchive
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result
@@ -77,6 +78,10 @@ class Executor(PackageInfo, Cleaner):
                     last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
                     # clear changes and update commit hash
                     self.reporter.package_changes_set(single.base, Changes(last_commit_sha))
+                    # update dependencies list
+                    dependencies = PackageArchive(self.paths.build_directory, single).depends_on()
+                    self.database.dependencies_insert(dependencies)
+                    # update result set
                     result.add_updated(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
@@ -98,10 +103,7 @@ class Executor(PackageInfo, Cleaner):
         def remove_base(package_base: str) -> None:
             try:
                 self.paths.tree_clear(package_base)  # remove all internal files
-                self.database.build_queue_clear(package_base)
-                self.database.patches_remove(package_base, [])
-                self.database.logs_remove(package_base, None)
-                self.database.changes_remove(package_base)
+                self.database.package_clear(package_base)
                 self.reporter.package_remove(package_base)  # we only update status page in case of base removal
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)

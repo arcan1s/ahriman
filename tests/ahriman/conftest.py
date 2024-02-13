@@ -451,6 +451,7 @@ def passwd() -> MagicMock:
     """
     passwd = MagicMock()
     passwd.pw_dir = "home"
+    passwd.pw_name = "ahriman"
     return passwd
 
 

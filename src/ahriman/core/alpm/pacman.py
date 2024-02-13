@@ -18,24 +18,31 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import shutil
+import tarfile
 
-from collections.abc import Callable, Generator
+from collections.abc import Generator, Iterable
 from functools import cached_property
 from pathlib import Path
-from pyalpm import DB, Handle, Package, SIG_PACKAGE, error as PyalpmError  # type: ignore[import-not-found]
+from pyalpm import DB, Handle, Package, SIG_DATABASE_OPTIONAL, SIG_PACKAGE_OPTIONAL  # type: ignore[import-not-found]
 from string import Template
 
+from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import trim_package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 class Pacman(LazyLogging):
     """
     alpm wrapper
+
+    Attributes:
+        configuration(Configuration): configuration instance
+        refresh_database(PacmanSynchronization): synchronize local cache to remote
+        repository_id(RepositoryId): repository unique identifier
+        repository_path(RepositoryPaths): repository paths instance
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
@@ -48,8 +55,11 @@ class Pacman(LazyLogging):
             configuration(Configuration): configuration instance
             refresh_database(PacmanSynchronization): synchronize local cache to remote
         """
-        self.__create_handle_fn: Callable[[], Handle] = lambda: self.__create_handle(
-            repository_id, configuration, refresh_database=refresh_database)
+        self.configuration = configuration
+        self.repository_id = repository_id
+        self.repository_paths = configuration.repository_paths
+
+        self.refresh_database = refresh_database
 
     @cached_property
     def handle(self) -> Handle:
@@ -59,40 +69,39 @@ class Pacman(LazyLogging):
         Returns:
             Handle: generated pyalpm handle instance
         """
-        return self.__create_handle_fn()
+        return self.__create_handle(refresh_database=self.refresh_database)
 
-    def __create_handle(self, repository_id: RepositoryId, configuration: Configuration, *,
-                        refresh_database: PacmanSynchronization) -> Handle:
+    def __create_handle(self, *, refresh_database: PacmanSynchronization) -> Handle:
         """
         create lazy handle function
 
         Args:
-            repository_id(RepositoryId): repository unique identifier
-            configuration(Configuration): configuration instance
             refresh_database(PacmanSynchronization): synchronize local cache to remote
 
         Returns:
             Handle: fully initialized pacman handle
         """
-        root = configuration.getpath("alpm", "root")
-        pacman_root = configuration.getpath("alpm", "database")
-        use_ahriman_cache = configuration.getboolean("alpm", "use_ahriman_cache")
-        mirror = configuration.get("alpm", "mirror")
-        paths = configuration.repository_paths
-        database_path = paths.pacman if use_ahriman_cache else pacman_root
+        pacman_root = self.configuration.getpath("alpm", "database")
+        use_ahriman_cache = self.configuration.getboolean("alpm", "use_ahriman_cache")
 
+        database_path = self.repository_paths.pacman if use_ahriman_cache else pacman_root
+        root = self.configuration.getpath("alpm", "root")
         handle = Handle(str(root), str(database_path))
-        for repository in configuration.getlist("alpm", "repositories"):
-            database = self.database_init(handle, repository, mirror, repository_id.architecture)
-            self.database_copy(handle, database, pacman_root, paths, use_ahriman_cache=use_ahriman_cache)
+
+        for repository in self.configuration.getlist("alpm", "repositories"):
+            database = self.database_init(handle, repository, self.repository_id.architecture)
+            self.database_copy(handle, database, pacman_root, use_ahriman_cache=use_ahriman_cache)
+
+        # install repository database too
+        local_database = self.database_init(handle, self.repository_id.name, self.repository_id.architecture)
+        self.database_copy(handle, local_database, pacman_root, use_ahriman_cache=use_ahriman_cache)
 
         if use_ahriman_cache and refresh_database:
             self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
 
         return handle
 
-    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, paths: RepositoryPaths, *,
-                      use_ahriman_cache: bool) -> None:
+    def database_copy(self, handle: Handle, database: DB, pacman_root: Path, *, use_ahriman_cache: bool) -> None:
         """
         copy database from the operating system root to the ahriman local home
 
@@ -100,7 +109,6 @@ class Pacman(LazyLogging):
             handle(Handle): pacman handle which will be used for database copying
             database(DB): pacman database instance to be copied
             pacman_root(Path): operating system pacman root
-            paths(RepositoryPaths): repository paths instance
             use_ahriman_cache(bool): use local ahriman cache instead of system one
         """
         def repository_database(root: Path) -> Path:
@@ -122,30 +130,36 @@ class Pacman(LazyLogging):
             return  # database for some reason deos not exist
         self.logger.info("copy pacman database from operating system root to ahriman's home")
         shutil.copy(src, dst)
-        paths.chown(dst)
+        self.repository_paths.chown(dst)
 
-    def database_init(self, handle: Handle, repository: str, mirror: str, architecture: str) -> DB:
+    def database_init(self, handle: Handle, repository: str, architecture: str) -> DB:
         """
         create database instance from pacman handler and set its properties
 
         Args:
             handle(Handle): pacman handle which will be used for database initializing
             repository(str): pacman repository name (e.g. core)
-            mirror(str): arch linux mirror url
             architecture(str): repository architecture
 
         Returns:
             DB: loaded pacman database instance
         """
         self.logger.info("loading pacman database %s", repository)
-        database: DB = handle.register_syncdb(repository, SIG_PACKAGE)
+        database: DB = handle.register_syncdb(repository, SIG_DATABASE_OPTIONAL | SIG_PACKAGE_OPTIONAL)
 
-        # replace variables in mirror address
-        variables = {
-            "arch": architecture,
-            "repo": repository,
-        }
-        database.servers = [Template(mirror).safe_substitute(variables)]
+        if repository != self.repository_id.name:
+            mirror = self.configuration.get("alpm", "mirror")
+            # replace variables in mirror address
+            variables = {
+                "arch": architecture,
+                "repo": repository,
+            }
+            server = Template(mirror).safe_substitute(variables)
+        else:
+            # special case, same database, use local storage instead
+            server = f"file://{self.repository_paths.repository}"
+
+        database.servers = [server]
 
         return database
 
@@ -160,13 +174,44 @@ class Pacman(LazyLogging):
         self.logger.info("refresh ahriman's home pacman database (force refresh %s)", force)
         transaction = handle.init_transaction()
         for database in handle.get_syncdbs():
-            try:
-                database.update(force)
-            except PyalpmError:
-                self.logger.exception("exception during update %s", database.name)
+            PacmanDatabase(database, self.configuration).sync(force=force)
         transaction.release()
 
-    def package_get(self, package_name: str) -> Generator[Package, None, None]:
+    def files(self, packages: Iterable[str] | None = None) -> dict[str, set[Path]]:
+        """
+        extract list of known packages from the databases
+
+        Args:
+            packages(Iterable[str] | None, optional): filter by package names (Default value = None)
+
+        Returns:
+            dict[str, set[Path]]: map of package name to its list of files
+        """
+        packages = packages or []
+
+        def extract(tar: tarfile.TarFile) -> Generator[tuple[str, set[Path]], None, None]:
+            for descriptor in filter(lambda info: info.path.endswith("/files"), tar.getmembers()):
+                package, *_ = str(Path(descriptor.path).parent).rsplit("-", 2)
+                if packages and package not in packages:
+                    continue  # skip unused packages
+                content = tar.extractfile(descriptor)
+                if content is None:
+                    continue
+                files = {Path(filename.decode("utf8").rstrip()) for filename in content.readlines()}
+
+                yield package, files
+
+        result: dict[str, set[Path]] = {}
+        for database in self.handle.get_syncdbs():
+            database_file = self.repository_paths.pacman / "sync" / f"{database.name}.files.tar.gz"
+            if not database_file.is_file():
+                continue  # no database file found
+            with tarfile.open(database_file, "r:gz") as archive:
+                result.update(extract(archive))
+
+        return result
+
+    def package(self, package_name: str) -> Generator[Package, None, None]:
         """
         retrieve list of the packages from the repository by name
 
