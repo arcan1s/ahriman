@@ -30,7 +30,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args = _default_args(args)
     tarfile = MagicMock()
     extract_mock = tarfile.__enter__.return_value = MagicMock()
-    mocker.patch("tarfile.TarFile.__new__", return_value=tarfile)
+    mocker.patch("ahriman.application.handlers.restore.tarfile.open", return_value=tarfile)
 
     _, repository_id = configuration.check_loaded()
     Restore.run(args, repository_id, configuration, report=False)

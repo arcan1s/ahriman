@@ -64,7 +64,7 @@ class ChangesOperations(Operations):
 
     def changes_insert(self, package_base: str, changes: Changes, repository_id: RepositoryId | None = None) -> None:
         """
-        insert packages to build queue
+        insert package changes
 
         Args:
             package_base(str): package base to insert

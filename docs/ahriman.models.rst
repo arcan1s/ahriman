@@ -60,6 +60,14 @@ ahriman.models.counters module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.dependencies module
+----------------------------------
+
+.. automodule:: ahriman.models.dependencies
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.internal\_status module
 --------------------------------------
 
@@ -104,6 +112,14 @@ ahriman.models.package module
 -----------------------------
 
 .. automodule:: ahriman.models.package
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.models.package\_archive module
+--------------------------------------
+
+.. automodule:: ahriman.models.package_archive
    :members:
    :no-undoc-members:
    :show-inheritance:

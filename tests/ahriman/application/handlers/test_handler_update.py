@@ -25,6 +25,7 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     """
     args.aur = True
     args.changes = True
+    args.check_files = True
     args.package = []
     args.dependencies = True
     args.dry_run = False
@@ -61,7 +62,8 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     application_mock.assert_called_once_with([package_ahriman],
                                              Packagers(args.username, {package_ahriman.base: "packager"}),
                                              bump_pkgrel=args.increment)
-    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
+    updates_mock.assert_called_once_with(
+        args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
     changes_mock.assert_not_called()
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, False)
@@ -122,7 +124,8 @@ def test_run_dry_run(args: argparse.Namespace, package_ahriman: Package, configu
 
     _, repository_id = configuration.check_loaded()
     Update.run(args, repository_id, configuration, report=False)
-    updates_mock.assert_called_once_with(args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs)
+    updates_mock.assert_called_once_with(
+        args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
     application_mock.assert_not_called()
     changes_mock.assert_called_once_with([package_ahriman])
     check_mock.assert_called_once_with(False, pytest.helpers.anyvar(int))

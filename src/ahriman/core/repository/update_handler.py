@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections.abc import Iterable
+from pathlib import Path
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
@@ -55,16 +56,12 @@ class UpdateHandler(PackageInfo, Cleaner):
                     continue
             raise UnknownPackageError(package.base)
 
-        local_versions = {package.base: package.version for package in self.packages()}
-
         result: list[Package] = []
-        for local in self.packages():
-            with self.in_package_context(local.base, local_versions.get(local.base)):
+        for local in self.packages(filter_packages):
+            with self.in_package_context(local.base, local.version):
                 if not local.remote.is_remote:
                     continue  # avoid checking local packages
                 if local.base in self.ignore_list:
-                    continue
-                if filter_packages and local.base not in filter_packages:
                     continue
 
                 try:
@@ -79,6 +76,47 @@ class UpdateHandler(PackageInfo, Cleaner):
                 except Exception:
                     self.reporter.set_failed(local.base)
                     self.logger.exception("could not load remote package %s", local.base)
+
+        return result
+
+    def updates_dependencies(self, filter_packages: Iterable[str]) -> list[Package]:
+        """
+        check packages which ae required to be rebuilt based on dynamic dependencies (e.g. linking, modules paths, etc.)
+
+        Args:
+            filter_packages(Iterable[str]): do not check every package just specified in the list
+
+        Returns:
+            list[Package]: list of packages for which there is breaking linking
+        """
+        def extract_files(lookup_packages: Iterable[str]) -> dict[Path, set[str]]:
+            database_files = self.pacman.files(lookup_packages)
+            files: dict[Path, set[str]] = {}
+            for package_name, package_files in database_files.items():  # invert map
+                for package_file in package_files:
+                    files.setdefault(package_file, set()).add(package_name)
+
+            return files
+
+        dependencies = {dependency.package_base: dependency for dependency in self.database.dependencies_get()}
+
+        result: list[Package] = []
+        for package in self.packages(filter_packages):
+            if package.base not in dependencies:
+                continue  # skip check if no package dependencies found
+
+            required = dependencies[package.base].paths
+            required_packages = {dep for dep_packages in required.values() for dep in dep_packages}
+            filesystem = extract_files(required_packages)
+
+            for path, packages in required.items():
+                found = filesystem.get(path, set())
+                if found.intersection(packages):
+                    continue
+
+                # there are no packages found in filesystem with the same paths
+                result.append(package)
+                break
 
         return result
 

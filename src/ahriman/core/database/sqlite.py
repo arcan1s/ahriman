@@ -25,12 +25,19 @@ from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
-from ahriman.core.database.operations import AuthOperations, BuildOperations, ChangesOperations, LogsOperations, \
-    PackageOperations, PatchOperations
+from ahriman.core.database.operations import AuthOperations, BuildOperations, ChangesOperations, \
+    DependenciesOperations, LogsOperations, PackageOperations, PatchOperations
 
 
 # pylint: disable=too-many-ancestors
-class SQLite(AuthOperations, BuildOperations, ChangesOperations, LogsOperations, PackageOperations, PatchOperations):
+class SQLite(
+        AuthOperations,
+        BuildOperations,
+        ChangesOperations,
+        DependenciesOperations,
+        LogsOperations,
+        PackageOperations,
+        PatchOperations):
     """
     wrapper for sqlite3 database
 
@@ -94,3 +101,21 @@ class SQLite(AuthOperations, BuildOperations, ChangesOperations, LogsOperations,
         if configuration.getboolean("settings", "apply_migrations", fallback=True):
             self.with_connection(lambda connection: Migrations.migrate(connection, configuration))
         paths.chown(self.path)
+
+    def package_clear(self, package_base: str) -> None:
+        """
+        completely remove package from all tables
+
+        Args:
+            package_base(str): package base to remove
+
+        Examples:
+            This method completely removes the package from all tables and must be used, e.g. on package removal::
+
+            >>> database.package_clear("ahriman")
+        """
+        self.build_queue_clear(package_base)
+        self.patches_remove(package_base, [])
+        self.logs_remove(package_base, None)
+        self.changes_remove(package_base)
+        self.dependencies_remove(package_base)

@@ -6,6 +6,7 @@ from typing import Any
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.update_handler import UpdateHandler
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -16,12 +17,14 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     """
     must provide updates with status updates
     """
-    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    packages_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
+                                 return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_pending")
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
+    packages_mock.assert_called_once_with([])
     status_client_mock.assert_called_once_with(package_ahriman.base)
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.paths,
@@ -70,17 +73,17 @@ def test_updates_aur_local(update_handler: UpdateHandler, package_ahriman: Packa
     package_load_mock.assert_not_called()
 
 
-def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Package, package_python_schedule: Package,
-                            mocker: MockerFixture) -> None:
+def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must provide updates only for filtered packages
     """
-    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
-                 return_value=[package_ahriman, package_python_schedule])
+    packages_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
+                                 return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
 
     assert update_handler.updates_aur([package_ahriman.base], vcs=True) == [package_ahriman]
+    packages_mock.assert_called_once_with([package_ahriman.base])
     package_load_mock.assert_called_once_with(package_ahriman.base, None)
 
 
@@ -131,7 +134,7 @@ def test_updates_aur_load_by_package(update_handler: UpdateHandler, package_pyth
     assert update_handler.updates_aur([], vcs=True) == [package_python_schedule]
 
 
-def test_updates_load_by_package_aur_failed(update_handler: UpdateHandler, package_ahriman: Package,
+def test_updates_aur_load_by_package_failed(update_handler: UpdateHandler, package_ahriman: Package,
                                             mocker: MockerFixture) -> None:
     """
     must update status via client for failed load
@@ -141,6 +144,56 @@ def test_updates_load_by_package_aur_failed(update_handler: UpdateHandler, packa
     mocker.patch("ahriman.core.status.client.Client.set_failed")
 
     update_handler.updates_aur([], vcs=True)
+
+
+def test_updates_dependencies(update_handler: UpdateHandler, package_ahriman: Package, package_python_schedule: Package,
+                              mocker: MockerFixture) -> None:
+    """
+    must define updates with broken dependencies
+    """
+    packages_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
+                                 return_value=[package_ahriman, package_python_schedule])
+    dependencies = [
+        Dependencies(package_ahriman.base, {Path("usr/lib/python3.11/site-packages"): ["python"]}),
+        Dependencies(package_python_schedule.base, {Path("usr/lib/python3.12/site-packages"): ["python"]}),
+    ]
+    mocker.patch("ahriman.core.database.SQLite.dependencies_get", return_value=dependencies)
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.files",
+                 return_value={"python": {Path("usr/lib/python3.12/site-packages")}})
+
+    assert update_handler.updates_dependencies(["filter"]) == [package_ahriman]
+    packages_mock.assert_called_once_with(["filter"])
+
+
+def test_updates_dependencies_skip_unknown(update_handler: UpdateHandler, package_ahriman: Package,
+                                           mocker: MockerFixture) -> None:
+    """
+    must skip unknown package dependencies
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.core.database.SQLite.dependencies_get", return_value=[])
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.files",
+                 return_value={"python": {Path("usr/lib/python3.12/site-packages")}})
+
+    assert update_handler.updates_dependencies(["filter"]) == []
+
+
+def test_updates_dependencies_partial(update_handler: UpdateHandler, package_ahriman: Package,
+                                      mocker: MockerFixture) -> None:
+    """
+    must skip broken dependencies update if at least one package provides file
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    dependencies = [
+        Dependencies(package_ahriman.base, {Path("usr"): ["filesystem", "python"]}),
+    ]
+    mocker.patch("ahriman.core.database.SQLite.dependencies_get", return_value=dependencies)
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.files", return_value={
+        "filesystem": {Path("usr")},
+        "python": {Path("usr")},
+    })
+
+    assert update_handler.updates_dependencies(["filter"]) == []
 
 
 def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:

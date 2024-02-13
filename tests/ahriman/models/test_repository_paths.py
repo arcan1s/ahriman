@@ -282,17 +282,18 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         prop
         for prop in dir(repository_paths)
         if not prop.startswith("_")
+        and prop not in (
+            "build_directory",
+            "logger_name",
+            "logger",
+            "repository_id",
+            "root",
+            "root_owner",
+        )
         and not callable(getattr(repository_paths, prop))
-        and prop not in ("logger_name",
-                         "logger",
-                         "repository_id",
-                         "root",
-                         "root_owner")
     }
     mkdir_mock = mocker.patch("pathlib.Path.mkdir")
     chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
-
-    print(paths)
 
     repository_paths.tree_create()
     mkdir_mock.assert_has_calls([MockCall(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)

@@ -24,6 +24,7 @@ from collections.abc import Generator
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
+from pwd import getpwuid
 
 from ahriman.core.exceptions import PathError
 from ahriman.core.log import LazyLogging
@@ -82,6 +83,17 @@ class RepositoryPaths(LazyLogging):
                 self.logger.warning("using legacy per architecture tree")
                 return Path(self.repository_id.architecture)  # legacy tree suffix
         return Path(self.repository_id.name) / self.repository_id.architecture
+
+    @property
+    def build_directory(self) -> Path:
+        """
+        same as :attr:`chroot`, but exactly build chroot
+
+        Returns:
+            Path: path to directory in which build process is run
+        """
+        uid, _ = self.owner(self.root)
+        return self.chroot / f"{self.repository_id.name}-{self.repository_id.architecture}" / getpwuid(uid).pw_name
 
     @property
     def cache(self) -> Path:

@@ -55,7 +55,7 @@ class Add(Handler):
         if not args.now:
             return
 
-        packages = application.updates(args.package, aur=False, local=False, manual=True, vcs=False)
+        packages = application.updates(args.package, aur=False, local=False, manual=True, vcs=False, check_files=False)
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
         packagers = Packagers(args.username, {package.base: package.packager for package in packages})
 

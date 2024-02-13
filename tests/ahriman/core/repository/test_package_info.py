@@ -96,15 +96,28 @@ def test_package_changes_skip(package_info: PackageInfo, package_ahriman: Packag
     changes_mock.assert_not_called()
 
 
-def test_packages(package_info: PackageInfo, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_packages(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+                  mocker: MockerFixture) -> None:
     """
     must return repository packages
     """
-    mocker.patch("pathlib.Path.iterdir", return_value=[package_ahriman])
-    load_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
-    package_info.packages()
+    mocker.patch("pathlib.Path.iterdir")
+    load_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives",
+                             return_value=[package_ahriman, package_python_schedule])
+    assert package_info.packages() == [package_ahriman, package_python_schedule]
     # it uses filter object, so we cannot verify argument list =/
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+
+
+def test_packages_filter(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+                         mocker: MockerFixture) -> None:
+    """
+    must filter result by bases
+    """
+    mocker.patch("pathlib.Path.iterdir")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives",
+                 return_value=[package_ahriman, package_python_schedule])
+    assert package_info.packages([package_ahriman.base]) == [package_ahriman]
 
 
 def test_packages_built(package_info: PackageInfo, mocker: MockerFixture) -> None:

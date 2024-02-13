@@ -91,10 +91,7 @@ class ApplicationRepository(ApplicationProperties):
             packages(Iterable[str]): only sign specified packages
         """
         # copy to prebuilt directory
-        for package in self.repository.packages():
-            # no one requested this package
-            if packages and package.base not in packages:
-                continue
+        for package in self.repository.packages(packages):
             for archive in package.packages.values():
                 if archive.filepath is None:
                     self.logger.warning("filepath is empty for %s", package.base)
@@ -179,7 +176,7 @@ class ApplicationRepository(ApplicationProperties):
         return result
 
     def updates(self, filter_packages: Iterable[str], *,
-                aur: bool, local: bool, manual: bool, vcs: bool) -> list[Package]:
+                aur: bool, local: bool, manual: bool, vcs: bool, check_files: bool) -> list[Package]:
         """
         get list of packages to run update process
 
@@ -189,6 +186,7 @@ class ApplicationRepository(ApplicationProperties):
             local(bool): enable or disable checking of local packages for updates
             manual(bool): include or exclude manual updates
             vcs(bool): enable or disable checking of VCS packages
+            check_files(bool): check for broken dependencies
 
         Returns:
             list[Package]: list of out-of-dated packages
@@ -201,5 +199,7 @@ class ApplicationRepository(ApplicationProperties):
             updates.update({package.base: package for package in self.repository.updates_local(vcs=vcs)})
         if manual:
             updates.update({package.base: package for package in self.repository.updates_manual()})
+        if check_files:
+            updates.update({package.base: package for package in self.repository.updates_dependencies(filter_packages)})
 
         return [package for _, package in sorted(updates.items())]

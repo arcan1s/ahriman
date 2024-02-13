@@ -38,7 +38,7 @@ class SyncHttpClient(LazyLogging):
     Attributes:
         auth(tuple[str, str] | None): HTTP basic auth object if set
         suppress_errors(bool): suppress logging of request errors
-        timeout(int): HTTP request timeout in seconds
+        timeout(int | None): HTTP request timeout in seconds
     """
 
     def __init__(self, configuration: Configuration | None = None, section: str | None = None, *,
@@ -60,7 +60,7 @@ class SyncHttpClient(LazyLogging):
         password = configuration.get(section, "password", fallback=None)
         self.auth = (username, password) if username and password else None
 
-        self.timeout = configuration.getint(section, "timeout", fallback=30)
+        self.timeout: int | None = configuration.getint(section, "timeout", fallback=30)
         self.suppress_errors = suppress_errors
 
     @cached_property
@@ -90,25 +90,27 @@ class SyncHttpClient(LazyLogging):
         result: str = exception.response.text if exception.response is not None else ""
         return result
 
-    def make_request(self, method: Literal["DELETE", "GET", "POST", "PUT"], url: str, *,
+    def make_request(self, method: Literal["DELETE", "GET", "HEAD", "POST", "PUT"], url: str, *,
                      headers: dict[str, str] | None = None,
                      params: list[tuple[str, str]] | None = None,
                      data: Any | None = None,
                      json: dict[str, Any] | None = None,
                      files: dict[str, MultipartType] | None = None,
+                     stream: bool | None = None,
                      session: requests.Session | None = None,
                      suppress_errors: bool | None = None) -> requests.Response:
         """
         perform request with specified parameters
 
         Args:
-            method(Literal["DELETE", "GET", "POST", "PUT"]): HTTP method to call
+            method(Literal["DELETE", "GET", "HEAD", "POST", "PUT"]): HTTP method to call
             url(str): remote url to call
             headers(dict[str, str] | None, optional): request headers (Default value = None)
             params(list[tuple[str, str]] | None, optional): request query parameters (Default value = None)
             data(Any | None, optional): request raw data parameters (Default value = None)
             json(dict[str, Any] | None, optional): request json parameters (Default value = None)
             files(dict[str, MultipartType] | None, optional): multipart upload (Default value = None)
+            stream(bool | None, optional): handle response as stream (Default value = None)
             session(requests.Session | None, optional): session object if any (Default value = None)
             suppress_errors(bool | None, optional): suppress logging errors (e.g. if no web server available). If none
                 set, the instance-wide value will be used (Default value = None)
@@ -124,7 +126,7 @@ class SyncHttpClient(LazyLogging):
 
         try:
             response = session.request(method, url, params=params, data=data, headers=headers, files=files, json=json,
-                                       auth=self.auth, timeout=self.timeout)
+                                       stream=stream, auth=self.auth, timeout=self.timeout)
             response.raise_for_status()
             return response
         except requests.HTTPError as ex:

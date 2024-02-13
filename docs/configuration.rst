@@ -53,6 +53,7 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 * ``mirror`` - package database mirror used by pacman for synchronization, string, required. This option supports standard pacman substitutions with ``$arch`` and ``$repo``. Note that the mentioned mirror should contain all repositories which are set by ``alpm.repositories`` option.
 * ``repositories`` - list of pacman repositories, used for package search, space separated list of strings, required.
 * ``root`` - root for alpm library, string, required. In the most cases it must point to the system root.
+* ``sync_files_database`` - download files database from mirror, boolean, required.
 * ``use_ahriman_cache`` - use local pacman package cache instead of system one, boolean, required. With this option enabled you might want to refresh database periodically (available as additional flag for some subcommands). If set to ``no``, databases must be synchronized manually.
 
 ``auth`` group

@@ -108,6 +108,14 @@ ahriman.core.database.migrations.m012\_last\_commit\_sha module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m013\_dependencies module
+----------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m013_dependencies
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
