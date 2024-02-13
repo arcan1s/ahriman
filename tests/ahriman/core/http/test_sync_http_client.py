@@ -82,34 +82,40 @@ def test_make_request(mocker: MockerFixture) -> None:
 
     auth = client.auth = ("username", "password")
     assert client.make_request("GET", "url9") is not None
+    client.auth = None
+
+    assert client.make_request("GET", "url10", stream=True) is not None
 
     request_mock.assert_has_calls([
         MockCall("GET", "url1", params=None, data=None, headers=None, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("GET", "url2", params=[("param", "value")], data=None, headers=None, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("POST", "url3", params=None, data=None, headers=None, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("POST", "url4", params=None, data=None, headers=None, files=None, json={"param": "value"},
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("POST", "url5", params=None, data={"param": "value"}, headers=None, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("POST", "url6", params=None, data=None, headers=None, files={"file": "tuple"}, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("DELETE", "url7", params=None, data=None, headers=None, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("GET", "url8", params=None, data=None, headers={"user-agent": "ua"}, files=None, json=None,
-                 auth=None, timeout=client.timeout),
+                 stream=None, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
         MockCall("GET", "url9", params=None, data=None, headers=None, files=None, json=None,
-                 auth=auth, timeout=client.timeout),
+                 stream=None, auth=auth, timeout=client.timeout),
+        MockCall().raise_for_status(),
+        MockCall("GET", "url10", params=None, data=None, headers=None, files=None, json=None,
+                 stream=True, auth=None, timeout=client.timeout),
         MockCall().raise_for_status(),
     ])
 
@@ -151,4 +157,4 @@ def test_make_request_session() -> None:
     client.make_request("GET", "url", session=session_mock)
     session_mock.request.assert_called_once_with(
         "GET", "url", params=None, data=None, headers=None, files=None, json=None,
-        auth=None, timeout=client.timeout)
+        stream=None, auth=None, timeout=client.timeout)

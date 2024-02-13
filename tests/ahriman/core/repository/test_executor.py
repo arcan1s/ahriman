@@ -2,28 +2,37 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from typing import Any
 from unittest.mock import call as MockCall
 
 from ahriman.core.repository.executor import Executor
 from ahriman.models.changes import Changes
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.user import User
 
 
-def test_process_build(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any, mocker: MockerFixture) -> None:
     """
     must run build process
     """
+    dependencies = Dependencies(package_ahriman.base)
+    mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.set_building")
     commit_sha_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
+    depends_on_mock = mocker.patch("ahriman.models.package_archive.PackageArchive.depends_on",
+                                   return_value=dependencies)
+    dependencies_mock = mocker.patch("ahriman.core.database.SQLite.dependencies_insert")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
+    depends_on_mock.assert_called_once_with()
+    dependencies_mock.assert_called_once_with(dependencies)
     # must move files (once)
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
@@ -70,10 +79,7 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     tree_clear_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
     repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    build_queue_mock = mocker.patch("ahriman.core.database.SQLite.build_queue_clear")
-    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
-    logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
-    commit_sha_mock = mocker.patch("ahriman.core.database.SQLite.changes_remove")
+    database_mock = mocker.patch("ahriman.core.database.SQLite.package_clear")
     status_client_mock = mocker.patch("ahriman.core.status.client.Client.package_remove")
 
     executor.process_remove([package_ahriman.base])
@@ -82,11 +88,8 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
         package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
     # must update status and remove package files
     tree_clear_mock.assert_called_once_with(package_ahriman.base)
-    build_queue_mock.assert_called_once_with(package_ahriman.base)
-    patches_mock.assert_called_once_with(package_ahriman.base, [])
-    logs_mock.assert_called_once_with(package_ahriman.base, None)
+    database_mock.assert_called_once_with(package_ahriman.base)
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    commit_sha_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_remove_with_debug(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
