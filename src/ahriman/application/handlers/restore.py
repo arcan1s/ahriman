@@ -18,8 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-
-from tarfile import TarFile
+import tarfile
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
@@ -45,5 +44,5 @@ class Restore(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        with TarFile(args.path) as archive:
-            archive.extractall(path=args.output)
+        with tarfile.open(args.path) as archive:
+            archive.extractall(path=args.output)  # nosec

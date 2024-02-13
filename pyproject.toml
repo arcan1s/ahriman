@@ -20,6 +20,7 @@ dependencies = [
     "cerberus",
     "inflection",
     "passlib",
+    "pyelftools",
     "requests",
     "srcinfo",
 ]

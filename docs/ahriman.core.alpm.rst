@@ -20,6 +20,14 @@ ahriman.core.alpm.pacman module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.alpm.pacman\_database module
+-----------------------------------------
+
+.. automodule:: ahriman.core.alpm.pacman_database
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.alpm.repo module
 -----------------------------
 

@@ -18,10 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import pwd
+import tarfile
 
 from pathlib import Path
-from tarfile import TarFile
+from pwd import getpwuid
 
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
@@ -49,7 +49,7 @@ class Backup(Handler):
             report(bool): force enable or disable reporting
         """
         backup_paths = Backup.get_paths(configuration)
-        with TarFile(args.path, mode="w") as archive:  # well we don't actually use compression
+        with tarfile.open(args.path, mode="w") as archive:  # well we don't actually use compression
             for backup_path in backup_paths:
                 archive.add(backup_path)
 
@@ -77,7 +77,7 @@ class Backup(Handler):
 
         # gnupg home with imported keys
         uid, _ = repository_paths.root_owner
-        system_user = pwd.getpwuid(uid)
+        system_user = getpwuid(uid)
         gnupg_home = Path(system_user.pw_dir) / ".gnupg"
         if gnupg_home.is_dir():
             paths.add(gnupg_home)

@@ -31,7 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     mocker.patch("ahriman.application.handlers.Backup.get_paths", return_value=[Path("path")])
     tarfile = MagicMock()
     add_mock = tarfile.__enter__.return_value = MagicMock()
-    mocker.patch("tarfile.TarFile.__new__", return_value=tarfile)
+    mocker.patch("ahriman.application.handlers.backup.tarfile.open", return_value=tarfile)
 
     _, repository_id = configuration.check_loaded()
     Backup.run(args, repository_id, configuration, report=False)
@@ -45,7 +45,7 @@ def test_get_paths(configuration: Configuration, mocker: MockerFixture) -> None:
     # gnupg export mock
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
-    getpwuid_mock = mocker.patch("pwd.getpwuid", return_value=MagicMock())
+    getpwuid_mock = mocker.patch("ahriman.application.handlers.backup.getpwuid", return_value=MagicMock())
     # well database does not exist so we override it
     database_mock = mocker.patch("ahriman.core.database.SQLite.database_path", return_value=configuration.path)
 
