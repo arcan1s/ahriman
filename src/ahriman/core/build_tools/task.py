@@ -38,6 +38,7 @@ class Task(LazyLogging):
         archbuild_flags(list[str]): command flags for archbuild command
         architecture(str): repository architecture
         build_command(str): build command
+        include_debug_packages(bool): whether to include debug packages or not
         makechrootpkg_flags(list[str]): command flags for makechrootpkg command
         makepkg_flags(list[str]): command flags for makepkg command
         package(Package): package definitions
@@ -63,6 +64,7 @@ class Task(LazyLogging):
 
         self.archbuild_flags = configuration.getlist("build", "archbuild_flags", fallback=[])
         self.build_command = configuration.get("build", "build_command")
+        self.include_debug_packages = configuration.getboolean("build", "include_debug_packages", fallback=True)
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
@@ -99,9 +101,11 @@ class Task(LazyLogging):
             environment=environment,
         )
 
-        # well it is not actually correct, but we can deal with it
+        package_list_command = ["makepkg", "--packagelist"]
+        if not self.include_debug_packages:
+            package_list_command.append("OPTIONS=(!debug)")  # disable debug flag manually
         packages = check_output(
-            "makepkg", "--packagelist",
+            *package_list_command,
             exception=BuildError.from_process(self.package.base),
             cwd=sources_dir,
             logger=self.logger,

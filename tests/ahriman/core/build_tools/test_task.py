@@ -1,5 +1,8 @@
+import pytest
+
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.core.build_tools.task import Task
 from ahriman.core.database import SQLite
@@ -9,9 +12,83 @@ def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must build package
     """
+    local = Path("local")
     check_output_mock = mocker.patch("ahriman.core.build_tools.task.check_output")
-    task_ahriman.build(Path("ahriman"))
-    check_output_mock.assert_called()
+
+    task_ahriman.build(local)
+    check_output_mock.assert_has_calls([
+        MockCall(
+            "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            user=task_ahriman.uid,
+            environment={},
+        ),
+        MockCall(
+            "makepkg", "--packagelist",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            environment={},
+        ),
+    ])
+
+
+def test_build_environment(task_ahriman: Task, mocker: MockerFixture) -> None:
+    """
+    must build package with environment variables set
+    """
+    local = Path("local")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.task.check_output")
+    environment = {"variable": "value"}
+
+    task_ahriman.build(local, **environment, empty=None)
+    check_output_mock.assert_has_calls([
+        MockCall(
+            "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            user=task_ahriman.uid,
+            environment=environment,
+        ),
+        MockCall(
+            "makepkg", "--packagelist",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            environment=environment,
+        ),
+    ])
+
+
+def test_build_no_debug(task_ahriman: Task, mocker: MockerFixture) -> None:
+    """
+    must filter debug packages from result
+    """
+    local = Path("local")
+    check_output_mock = mocker.patch("ahriman.core.build_tools.task.check_output")
+    task_ahriman.include_debug_packages = False
+
+    task_ahriman.build(local)
+    check_output_mock.assert_has_calls([
+        MockCall(
+            "extra-x86_64-build", "-r", str(task_ahriman.paths.chroot), "--", "--", "--skippgpcheck",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            user=task_ahriman.uid,
+            environment={},
+        ),
+        MockCall(
+            "makepkg", "--packagelist", "OPTIONS=(!debug)",
+            exception=pytest.helpers.anyvar(int),
+            cwd=local,
+            logger=task_ahriman.logger,
+            environment={},
+        ),
+    ])
 
 
 def test_init(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
