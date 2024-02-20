@@ -176,6 +176,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                     "empty": False,
                 },
             },
+            "include_debug_packages": {
+                "type": "boolean",
+                "coerce": "boolean",
+            },
             "makepkg_flags": {
                 "type": "list",
                 "coerce": "list",
