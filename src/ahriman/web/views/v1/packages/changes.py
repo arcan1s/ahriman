@@ -113,7 +113,6 @@ class ChangesView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         changes = Changes(last_commit_sha, change)
-        repository_id = self.repository_id()
-        self.service(repository_id).database.changes_insert(package_base, changes, repository_id)
+        self.service().client.package_changes_set(package_base, changes)
 
         raise HTTPNoContent

@@ -56,7 +56,7 @@ class StatusUpdate(Handler):
                     if (local := next((package for package in packages if package.base == base), None)) is not None:
                         client.package_add(local, args.status)
                     else:
-                        client.package_update(base, args.status)
+                        client.package_set(base, args.status)
             case Action.Update:
                 # update service status
                 client.status_update(args.status)

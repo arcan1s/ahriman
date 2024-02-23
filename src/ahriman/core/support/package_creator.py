@@ -68,4 +68,6 @@ class PackageCreator:
         database: SQLite = ctx.get(ContextKey("database", SQLite))
         _, repository_id = self.configuration.check_loaded()
         package = Package.from_build(local_path, repository_id.architecture, None)
-        database.package_update(package, BuildStatus())
+
+        database.package_update(package)
+        database.status_update(package.base, BuildStatus())

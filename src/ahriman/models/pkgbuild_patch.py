@@ -19,11 +19,11 @@
 #
 import shlex
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Self
 
-from ahriman.core.util import dataclass_view, unquote
+from ahriman.core.util import dataclass_view, filter_json, unquote
 
 
 @dataclass(frozen=True)
@@ -89,6 +89,21 @@ class PkgbuildPatch:
             value = unquote(raw_value)
 
         return cls(key, value)
+
+    @classmethod
+    def from_json(cls, dump: dict[str, Any]) -> Self:
+        """
+        construct patch descriptor from the json dump
+
+        Args:
+            dump(dict[str, Any]): json dump body
+
+        Returns:
+            Self: patch object
+        """
+        # filter to only known fields
+        known_fields = [pair.name for pair in fields(cls)]
+        return cls(**filter_json(dump, known_fields))
 
     def serialize(self) -> str:
         """

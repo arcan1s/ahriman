@@ -19,15 +19,15 @@
 #
 from threading import Lock
 
-from ahriman.core.database import SQLite
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
+from ahriman.core.status.client import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
-from ahriman.models.repository_id import RepositoryId
 
 
 class Watcher(LazyLogging):
@@ -35,21 +35,18 @@ class Watcher(LazyLogging):
     package status watcher
 
     Attributes:
-        database(SQLite): database instance
-        repository_id(RepositoryId): repository unique identifier
+        client(Client): reporter instance
         status(BuildStatus): daemon status
     """
 
-    def __init__(self, repository_id: RepositoryId, database: SQLite) -> None:
+    def __init__(self, client: Client) -> None:
         """
         default constructor
 
         Args:
-            repository_id(RepositoryId): repository unique identifier
-            database(SQLite): database instance
+            client(Client): reporter instance
         """
-        self.repository_id = repository_id
-        self.database = database
+        self.client = client
 
         self._lock = Lock()
         self._known: dict[str, tuple[Package, BuildStatus]] = {}
@@ -76,7 +73,7 @@ class Watcher(LazyLogging):
         with self._lock:
             self._known = {
                 package.base: (package, status)
-                for package, status in self.database.packages_get(self.repository_id)
+                for package, status in self.client.package_get(None)
             }
 
     def logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
@@ -91,8 +88,8 @@ class Watcher(LazyLogging):
         Returns:
             list[tuple[float, str]]: package logs
         """
-        self.package_get(package_base)
-        return self.database.logs_get(package_base, limit, offset, self.repository_id)
+        _ = self.package_get(package_base)
+        return self.client.package_logs_get(package_base, limit, offset)
 
     def logs_remove(self, package_base: str, version: str | None) -> None:
         """
@@ -100,24 +97,24 @@ class Watcher(LazyLogging):
 
         Args:
             package_base(str): package base
-            version(str): package versio
+            version(str): package version
         """
-        self.database.logs_remove(package_base, version, self.repository_id)
+        self.client.package_logs_remove(package_base, version)
 
-    def logs_update(self, log_record_id: LogRecordId, created: float, record: str) -> None:
+    def logs_update(self, log_record_id: LogRecordId, created: float, message: str) -> None:
         """
         make new log record into database
 
         Args:
             log_record_id(LogRecordId): log record id
             created(float): log created timestamp
-            record(str): log record
+            message(str): log message
         """
         if self._last_log_record_id != log_record_id:
             # there is new log record, so we remove old ones
             self.logs_remove(log_record_id.package_base, log_record_id.version)
         self._last_log_record_id = log_record_id
-        self.database.logs_insert(log_record_id, created, record, self.repository_id)
+        self.client.package_logs_add(log_record_id, created, message)
 
     def package_changes_get(self, package_base: str) -> Changes:
         """
@@ -129,8 +126,24 @@ class Watcher(LazyLogging):
         Returns:
             Changes: package changes if available
         """
-        self.package_get(package_base)
-        return self.database.changes_get(package_base, self.repository_id)
+        _ = self.package_get(package_base)
+        return self.client.package_changes_get(package_base)
+
+    def package_dependencies_get(self, package_base: str) -> Dependencies:
+        """
+        retrieve package dependencies
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            Dependencies: package dependencies if available
+        """
+        _ = self.package_get(package_base)
+        try:
+            return next(iter(self.client.package_dependencies_get(package_base)))
+        except StopIteration:
+            return Dependencies(package_base)
 
     def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
@@ -160,7 +173,7 @@ class Watcher(LazyLogging):
         """
         with self._lock:
             self._known.pop(package_base, None)
-        self.database.package_remove(package_base, self.repository_id)
+        self.client.package_remove(package_base)
         self.logs_remove(package_base, None)
 
     def package_update(self, package_base: str, status: BuildStatusEnum, package: Package | None) -> None:
@@ -174,10 +187,9 @@ class Watcher(LazyLogging):
         """
         if package is None:
             package, _ = self.package_get(package_base)
-        full_status = BuildStatus(status)
         with self._lock:
-            self._known[package_base] = (package, full_status)
-        self.database.package_update(package, full_status, self.repository_id)
+            self._known[package_base] = (package, BuildStatus(status))
+        self.client.package_set(package_base, status)
 
     def patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
         """
@@ -192,8 +204,7 @@ class Watcher(LazyLogging):
         """
         # patches are package base based, we don't know (and don't differentiate) to which package does them belong
         # so here we skip checking if package exists or not
-        variables = [variable] if variable is not None else None
-        return self.database.patches_list(package_base, variables).get(package_base, [])
+        return self.client.package_patches_get(package_base, variable)
 
     def patches_remove(self, package_base: str, variable: str) -> None:
         """
@@ -203,7 +214,7 @@ class Watcher(LazyLogging):
             package_base(str): package base
             variable(str): patch variable name
         """
-        self.database.patches_remove(package_base, [variable])
+        self.client.package_patches_remove(package_base, variable)
 
     def patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
         """
@@ -213,7 +224,7 @@ class Watcher(LazyLogging):
             package_base(str): package base
             patch(PkgbuildPatch): package patch
         """
-        self.database.patches_insert(package_base, [patch])
+        self.client.package_patches_add(package_base, patch)
 
     def status_update(self, status: BuildStatusEnum) -> None:
         """

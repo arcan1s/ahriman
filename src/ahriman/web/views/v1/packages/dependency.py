@@ -22,64 +22,32 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
-from ahriman.core.util import pretty_datetime
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchema, PackageNameSchema, PackageVersionSchema, \
-    RepositoryIdSchema, VersionedLogSchema
+from ahriman.web.schemas import AuthSchema, DependenciesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class LogsView(StatusViewGuard, BaseView):
+class DependencyView(StatusViewGuard, BaseView):
     """
-    package logs web view
+    package dependencies web view
 
     Attributes:
-        DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
     GET_PERMISSION = UserAccess.Reporter
-    ROUTES = ["/api/v1/packages/{package}/logs"]
+    POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/packages/{package}/dependencies"]
 
     @aiohttp_apispec.docs(
         tags=["Packages"],
-        summary="Delete package logs",
-        description="Delete all logs which belong to the specified package",
+        summary="Get package dependencies",
+        description="Retrieve package implicit dependencies",
         responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [DELETE_PERMISSION]}],
-    )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(PackageVersionSchema)
-    async def delete(self) -> None:
-        """
-        delete package logs
-
-        Raises:
-            HTTPNoContent: on success response
-        """
-        package_base = self.request.match_info["package"]
-        version = self.request.query.get("version")
-        self.service().logs_remove(package_base, version)
-
-        raise HTTPNoContent
-
-    @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Get package logs",
-        description="Retrieve all package logs and the last package status",
-        responses={
-            200: {"description": "Success response", "schema": LogsSchema},
+            200: {"description": "Success response", "schema": DependenciesSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
             404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
@@ -92,10 +60,10 @@ class LogsView(StatusViewGuard, BaseView):
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
-        get last package logs
+        get package dependencies
 
         Returns:
-            Response: 200 with package logs on success
+            Response: 200 with package implicit dependencies on success
 
         Raises:
             HTTPNotFound: if package base is unknown
@@ -103,22 +71,16 @@ class LogsView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            _, status = self.service().package_get(package_base)
-            logs = self.service().logs_get(package_base)
+            dependencies = self.service().package_dependencies_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
-        response = {
-            "package_base": package_base,
-            "status": status.view(),
-            "logs": "\n".join(f"[{pretty_datetime(created)}] {message}" for created, message in logs)
-        }
-        return json_response(response)
+        return json_response(dependencies.view())
 
     @aiohttp_apispec.docs(
         tags=["Packages"],
-        summary="Add package logs",
-        description="Insert new package log record",
+        summary="Update package dependencies",
+        description="Set package implicit dependencies",
         responses={
             204: {"description": "Success response"},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
@@ -131,10 +93,11 @@ class LogsView(StatusViewGuard, BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.json_schema(VersionedLogSchema)
+    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
+    @aiohttp_apispec.json_schema(DependenciesSchema)
     async def post(self) -> None:
         """
-        create new package log record
+        insert new package dependencies
 
         Raises:
             HTTPBadRequest: if bad data is supplied
@@ -144,12 +107,11 @@ class LogsView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            created = data["created"]
-            record = data["message"]
-            version = data["version"]
+            data["package_base"] = package_base  # read from path instead of object
+            dependencies = Dependencies.from_json(data)
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().logs_update(LogRecordId(package_base, version), created, record)
+        self.service().client.package_dependencies_set(dependencies)
 
         raise HTTPNoContent
