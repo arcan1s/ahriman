@@ -12,7 +12,7 @@ pacman -Syu --noconfirm
 # main dependencies
 pacman -Sy --noconfirm devtools git pyalpm python-cerberus python-inflection python-passlib python-requests python-srcinfo python-systemd sudo
 # make dependencies
-pacman -Sy --noconfirm python-build python-flit python-installer python-tox python-wheel
+pacman -Sy --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # VCS support
@@ -36,6 +36,9 @@ sudo -u nobody -- makepkg --packagelist | grep -v -- -debug- | pacman -U --nocon
 # create machine-id which is required by build tools
 systemd-machine-id-setup
 
+# remove unused dependencies
+pacman -Qdtq | pacman -Rscn --noconfirm -
+
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
@@ -50,7 +53,7 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     WEB_PID=$!
 fi
 # add the first package
-sudo -u ahriman -- ahriman package-add --now ahriman
+sudo -u ahriman -- ahriman --log-handler console package-add --now ahriman
 # check if package was actually installed
 test -n "$(find "/var/lib/ahriman/repository/github/x86_64" -name "ahriman*pkg*")"
 # run package check
