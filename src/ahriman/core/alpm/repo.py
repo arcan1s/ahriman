@@ -68,7 +68,7 @@ class Repo(LazyLogging):
             path(Path): path to archive to add
         """
         check_output(
-            "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
+            "repo-add", *self.sign_args, "--remove", str(self.repo_path), str(path),
             exception=BuildError.from_process(path.name),
             cwd=self.paths.repository,
             logger=self.logger,
@@ -78,8 +78,13 @@ class Repo(LazyLogging):
         """
         create empty repository database. It just calls add with empty arguments
         """
-        check_output("repo-add", *self.sign_args, str(self.repo_path),
-                     cwd=self.paths.repository, logger=self.logger, user=self.uid)
+        # since pacman-6.1.0 repo-add doesn't create empty database in case if no packages supplied
+        # this code creates empty files instead
+        if self.repo_path.exists():
+            return  # database is already created, skip this part
+
+        self.repo_path.touch(exist_ok=True)
+        (self.paths.repository / f"{self.name}.db").symlink_to(self.repo_path)
 
     def remove(self, package: str, filename: Path) -> None:
         """
