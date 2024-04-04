@@ -72,26 +72,6 @@
     const packageInfoModal = $("#package-info-modal");
     const packageInfoModalHeader = $("#package-info-modal-header");
     const packageInfo = $("#package-info");
-    packageInfoModal.on("hidden.bs.modal", () => {
-        packageInfoAurUrl.empty();
-        packageInfoDepends.empty();
-        packageInfoGroups.empty();
-        packageInfoLicenses.empty();
-        packageInfoPackager.empty();
-        packageInfoPackages.empty();
-        packageInfoUpstreamUrl.empty();
-        packageInfoVersion.empty();
-
-        packageInfoVariablesBlock.attr("hidden", true);
-        packageInfoVariablesDiv.empty();
-
-        packageInfoLogsInput.empty();
-        packageInfoChangesInput.empty();
-
-        packageInfoModal.trigger("reset");
-
-        hideInfoControls(true);
-    });
 
     const packageInfoLogsInput = $("#package-info-logs-input");
     const packageInfoLogsCopyButton = $("#package-info-logs-copy-button");
@@ -309,4 +289,27 @@
 
         if (isPackageBaseSet) packageInfoModal.modal("show");
     }
+
+    $(() => {
+        packageInfoModal.on("hidden.bs.modal", () => {
+            packageInfoAurUrl.empty();
+            packageInfoDepends.empty();
+            packageInfoGroups.empty();
+            packageInfoLicenses.empty();
+            packageInfoPackager.empty();
+            packageInfoPackages.empty();
+            packageInfoUpstreamUrl.empty();
+            packageInfoVersion.empty();
+
+            packageInfoVariablesBlock.attr("hidden", true);
+            packageInfoVariablesDiv.empty();
+
+            packageInfoLogsInput.empty();
+            packageInfoChangesInput.empty();
+
+            packageInfoModal.trigger("reset");
+
+            hideInfoControls(true);
+        });
+    });
 </script>

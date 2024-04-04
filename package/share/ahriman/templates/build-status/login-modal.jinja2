@@ -36,9 +36,6 @@
 <script>
     const loginModal = $("#login-modal");
     const loginForm = $("#login-form");
-    loginModal.on("hidden.bs.modal", () => {
-        loginForm.trigger("reset");
-    });
 
     const loginPasswordInput = $("#login-password");
     const loginUsernameInput = $("#login-username");
@@ -77,4 +74,10 @@
             showHidePasswordButton.addClass("bi-eye");
         }
     }
+
+    $(() => {
+        loginModal.on("hidden.bs.modal", () => {
+            loginForm.trigger("reset");
+        });
+    });
 </script>

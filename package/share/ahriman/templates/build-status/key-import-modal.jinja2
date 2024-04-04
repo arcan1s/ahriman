@@ -38,10 +38,6 @@
 <script>
     const keyImportModal = $("#key-import-modal");
     const keyImportForm = $("#key-import-form");
-    keyImportModal.on("hidden.bs.modal", () => {
-        keyImportBodyInput.text("");
-        keyImportForm.trigger("reset");
-    });
 
     const keyImportBodyInput = $("#key-import-body-input");
     const keyImportCopyButton = $("#key-import-copy-button");
@@ -90,4 +86,11 @@
             });
         }
     }
+
+    $(() => {
+        keyImportModal.on("hidden.bs.modal", () => {
+            keyImportBodyInput.text("");
+            keyImportForm.trigger("reset");
+        });
+    });
 </script>
