@@ -736,4 +736,12 @@ _shtab_ahriman() {
 
 
 typeset -A opt_args
-_shtab_ahriman "$@"
+
+if [[ $zsh_eval_context[-1] == eval ]]; then
+  # eval/source/. command, register function for later
+  compdef _shtab_ahriman -N ahriman
+else
+  # autoload from fpath, call function directly
+  _shtab_ahriman "$@"
+fi
+
