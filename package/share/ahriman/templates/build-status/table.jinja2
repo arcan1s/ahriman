@@ -9,46 +9,8 @@
     const packageInfoUpdateButton = $("#package-info-update-button");
 
     let repository = null;
-    $("#repositories a").on("click", (event) => {
-        const element = event.target;
-        repository = {
-            architecture: element.dataset.architecture,
-            repository: element.dataset.repository,
-        };
-        packageUpdateButton.html(`<i class="bi bi-play"></i> update<span class="d-none d-sm-inline"> ${safe(repository.repository)} (${safe(repository.architecture)})</span>`);
-        $(`#${element.id}`).tab("show");
-        reload();
-    });
 
     const table = $("#packages");
-    table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", () => {
-        packageRemoveButton.prop("disabled", !table.bootstrapTable("getSelections").length);
-    });
-    table.on("click-row.bs.table", (self, data, row, cell) => {
-        if (0 === cell || "base" === cell) {
-            const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
-            table.bootstrapTable(method, {field: "id", values: [data.id]});
-        } else showPackageInfo(data.id);
-    });
-    table.on("created-controls.bs.table", () => {
-        const pickerInput = $(".bootstrap-table-filter-control-timestamp");
-        pickerInput.daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                cancelLabel: "Clear",
-            },
-        });
-
-        pickerInput.on("apply.daterangepicker", (event, picker) => {
-            pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
-            table.bootstrapTable("triggerSearch");
-        });
-
-        pickerInput.on("cancel.daterangepicker", () => {
-            pickerInput.val("");
-            table.bootstrapTable("triggerSearch");
-        });
-    });
 
     const statusBadge = $("#badge-status");
     const versionBadge = $("#badge-version");
@@ -221,6 +183,46 @@
     }
 
     $(() => {
+        $("#repositories a").on("click", event => {
+            const element = event.target;
+            repository = {
+                architecture: element.dataset.architecture,
+                repository: element.dataset.repository,
+            };
+            packageUpdateButton.html(`<i class="bi bi-play"></i> update<span class="d-none d-sm-inline"> ${safe(repository.repository)} (${safe(repository.architecture)})</span>`);
+            $(`#${element.id}`).tab("show");
+            reload();
+        });
+
+        table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", () => {
+            packageRemoveButton.prop("disabled", !table.bootstrapTable("getSelections").length);
+        });
+        table.on("click-row.bs.table", (self, data, row, cell) => {
+            if (0 === cell || "base" === cell) {
+                const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
+                table.bootstrapTable(method, {field: "id", values: [data.id]});
+            } else showPackageInfo(data.id);
+        });
+        table.on("created-controls.bs.table", () => {
+            const pickerInput = $(".bootstrap-table-filter-control-timestamp");
+            pickerInput.daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: "Clear",
+                },
+            });
+
+            pickerInput.on("apply.daterangepicker", (event, picker) => {
+                pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
+                table.bootstrapTable("triggerSearch");
+            });
+
+            pickerInput.on("cancel.daterangepicker", () => {
+                pickerInput.val("");
+                table.bootstrapTable("triggerSearch");
+            });
+        });
+
         table.bootstrapTable({});
         statusBadge.popover();
         selectRepository();

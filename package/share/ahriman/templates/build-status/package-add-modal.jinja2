@@ -43,41 +43,10 @@
 <script>
     const packageAddModal = $("#package-add-modal");
     const packageAddForm = $("#package-add-form");
-    packageAddModal.on("shown.bs.modal", () => {
-        $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
-    });
-    packageAddModal.on("hidden.bs.modal", () => {
-        packageAddVariablesDiv.empty();
-        packageAddForm.trigger("reset");
-    });
 
     const packageAddInput = $("#package-add-input");
     const packageAddRepositoryInput = $("#package-add-repository-input");
     const packageAddKnownPackagesList = $("#package-add-known-packages-dlist");
-    packageAddInput.keyup(() => {
-        clearTimeout(packageAddInput.data("timeout"));
-        packageAddInput.data("timeout", setTimeout($.proxy(() => {
-            const value = packageAddInput.val();
-
-            if (value.length >= 3) {
-                $.ajax({
-                    url: "/api/v1/service/search",
-                    data: {"for": value},
-                    type: "GET",
-                    dataType: "json",
-                    success: response => {
-                        const options = response.map(pkg => {
-                            const option = document.createElement("option");
-                            option.value = pkg.package;
-                            option.innerText = `${pkg.package} (${pkg.description})`;
-                            return option;
-                        });
-                        packageAddKnownPackagesList.empty().append(options);
-                    },
-                });
-            }
-        }, this), 500));
-    });
 
     const packageAddVariablesDiv = $("#package-add-variables-div");
 
@@ -156,4 +125,39 @@
             doPackageAction("/api/v1/service/request", [packages], repository, onSuccess, onFailure, patches);
         }
     }
+
+    $(() => {
+        packageAddModal.on("shown.bs.modal", () => {
+            $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
+        });
+        packageAddModal.on("hidden.bs.modal", () => {
+            packageAddVariablesDiv.empty();
+            packageAddForm.trigger("reset");
+        });
+
+        packageAddInput.keyup(() => {
+            clearTimeout(packageAddInput.data("timeout"));
+            packageAddInput.data("timeout", setTimeout($.proxy(() => {
+                const value = packageAddInput.val();
+
+                if (value.length >= 3) {
+                    $.ajax({
+                        url: "/api/v1/service/search",
+                        data: {"for": value},
+                        type: "GET",
+                        dataType: "json",
+                        success: response => {
+                            const options = response.map(pkg => {
+                                const option = document.createElement("option");
+                                option.value = pkg.package;
+                                option.innerText = `${pkg.package} (${pkg.description})`;
+                                return option;
+                            });
+                            packageAddKnownPackagesList.empty().append(options);
+                        },
+                    });
+                }
+            }, this), 500));
+        });
+    });
 </script>

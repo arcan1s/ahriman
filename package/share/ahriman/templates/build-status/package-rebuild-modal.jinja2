@@ -35,11 +35,6 @@
 <script>
     const packageRebuildModal = $("#package-rebuild-modal");
     const packageRebuildForm = $("#package-rebuild-form");
-    packageRebuildModal.on("shown.bs.modal", () => {
-        $(`#package-rebuild-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
-
-    });
-    packageRebuildModal.on("hidden.bs.modal", () => { packageRebuildForm.trigger("reset"); });
 
     const packageRebuildDependencyInput = $("#package-rebuild-dependency-input");
     const packageRebuildRepositoryInput = $("#package-rebuild-repository-input");
@@ -54,4 +49,12 @@
             doPackageAction("/api/v1/service/rebuild", [packages], repository, onSuccess, onFailure);
         }
     }
+
+    $(() => {
+        packageRebuildModal.on("shown.bs.modal", () => {
+            $(`#package-rebuild-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
+
+        });
+        packageRebuildModal.on("hidden.bs.modal", () => { packageRebuildForm.trigger("reset"); });
+    });
 </script>

@@ -102,25 +102,6 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
 
         <script>
             const table = $("#packages");
-            table.on("created-controls.bs.table", () => {
-                const pickerInput = $(".bootstrap-table-filter-control-timestamp");
-                pickerInput.daterangepicker({
-                    autoUpdateInput: false,
-                    locale: {
-                        cancelLabel: "Clear",
-                    },
-                });
-
-                pickerInput.on("apply.daterangepicker", (event, picker) => {
-                    pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
-                    table.bootstrapTable("triggerSearch");
-                });
-
-                pickerInput.on("cancel.daterangepicker", () => {
-                    pickerInput.val("");
-                    table.bootstrapTable("triggerSearch");
-                });
-            });
 
             const pacmanConf = $("#pacman-conf");
             const pacmanConfCopyButton = $("#copy-btn");
@@ -141,6 +122,28 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
             function filterListLicenses() {
                 return extractDataList(table.bootstrapTable("getData"), "licenses");
             }
+
+            $(() => {
+                table.on("created-controls.bs.table", () => {
+                    const pickerInput = $(".bootstrap-table-filter-control-timestamp");
+                    pickerInput.daterangepicker({
+                        autoUpdateInput: false,
+                        locale: {
+                            cancelLabel: "Clear",
+                        },
+                    });
+
+                    pickerInput.on("apply.daterangepicker", (event, picker) => {
+                        pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
+                        table.bootstrapTable("triggerSearch");
+                    });
+
+                    pickerInput.on("cancel.daterangepicker", () => {
+                        pickerInput.val("");
+                        table.bootstrapTable("triggerSearch");
+                    });
+                });
+            });
         </script>
 
     </body>
