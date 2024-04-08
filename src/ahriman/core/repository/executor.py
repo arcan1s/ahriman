@@ -117,7 +117,8 @@ class Executor(PackageInfo, Cleaner):
 
         # build package list based on user input
         result = Result()
-        requested = set(packages)
+        packages = set(packages)  # remove duplicates
+        requested = packages | {f"{package}-debug" for package in packages}  # append debug packages
         for local in self.packages():
             if local.base in packages or all(package in requested for package in local.packages):
                 packages_to_remove.update({
@@ -136,7 +137,7 @@ class Executor(PackageInfo, Cleaner):
 
         # check for packages which were requested to remove, but weren't found locally
         # it might happen for example, if there were no success build before
-        for unknown in requested:
+        for unknown in packages:
             if unknown in packages_to_remove or unknown in bases_to_remove:
                 continue
             bases_to_remove.append(unknown)
