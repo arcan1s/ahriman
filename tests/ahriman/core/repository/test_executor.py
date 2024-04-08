@@ -89,6 +89,28 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     commit_sha_mock.assert_called_once_with(package_ahriman.base)
 
 
+def test_process_remove_with_debug(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run remove debug packages too
+    """
+    package_ahriman.packages = {
+        package_ahriman.base: package_ahriman.packages[package_ahriman.base],
+        f"{package_ahriman.base}-debug": package_ahriman.packages[package_ahriman.base],
+    }
+    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
+    mocker.patch("ahriman.core.database.SQLite.package_clear")
+    mocker.patch("ahriman.core.status.client.Client.package_remove")
+    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
+
+    executor.process_remove([package_ahriman.base])
+    # must remove via alpm wrapper
+    repo_remove_mock.assert_has_calls([
+        MockCall(package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath),
+        MockCall(f"{package_ahriman.base}-debug", package_ahriman.packages[package_ahriman.base].filepath),
+    ])
+
+
 def test_process_remove_base_multiple(executor: Executor, package_python_schedule: Package,
                                       mocker: MockerFixture) -> None:
     """
