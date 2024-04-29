@@ -183,11 +183,12 @@ post_install() {{
         Returns:
             str: package() function for PKGBUILD
         """
+        # somehow autopep thinks that construction inside contains valid python code and reformats it
         return f"""{{
   install -Dm644 "{Path("$srcdir") / f"{self.name}.gpg"}" "{Path("$pkgdir") / "usr" / "share" / "pacman" / "keyrings" / f"{self.name}.gpg"}"
   install -Dm644 "{Path("$srcdir") / f"{self.name}-revoked"}" "{Path("$pkgdir") / "usr" / "share" / "pacman" / "keyrings" / f"{self.name}-revoked"}"
   install -Dm644 "{Path("$srcdir") / f"{self.name}-trusted"}" "{Path("$pkgdir") / "usr" / "share" / "pacman" / "keyrings" / f"{self.name}-trusted"}"
-}}"""
+}}"""  # nopep8
 
     def sources(self) -> dict[str, Callable[[Path], None]]:
         """

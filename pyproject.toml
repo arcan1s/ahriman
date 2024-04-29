@@ -81,6 +81,7 @@ web = [
     "aiohttp_security",
     "cryptography",
     "requests-unixsocket",  # required by unix socket support
+    "setuptools",  # required by aiohttp-apispec
 ]
 
 [tool.flit.sdist]

@@ -6,7 +6,6 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
-from ahriman.core.util import utcnow
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
@@ -38,7 +37,7 @@ def test_pkgver(pkgbuild_generator: PkgbuildGenerator, mocker: MockerFixture) ->
     must implement default version as current date
     """
     mocker.patch("ahriman.core.support.pkgbuild.pkgbuild_generator.utcnow", return_value=datetime.datetime(2002, 3, 11))
-    assert pkgbuild_generator.pkgver == utcnow().strftime("20020311")
+    assert pkgbuild_generator.pkgver == "20020311"
 
 
 def test_url(pkgbuild_generator: PkgbuildGenerator) -> None:

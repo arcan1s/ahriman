@@ -137,8 +137,8 @@ class AURPackage:
             description=package.desc,
             num_votes=0,
             popularity=0.0,
-            first_submitted=datetime.datetime.utcfromtimestamp(0),
-            last_modified=datetime.datetime.utcfromtimestamp(package.builddate),
+            first_submitted=datetime.datetime.fromtimestamp(0, datetime.UTC),
+            last_modified=datetime.datetime.fromtimestamp(package.builddate, datetime.UTC),
             url_path="",
             url=package.url,
             out_of_date=None,
@@ -175,13 +175,11 @@ class AURPackage:
             description=dump["pkgdesc"],
             num_votes=0,
             popularity=0.0,
-            first_submitted=datetime.datetime.utcfromtimestamp(0),
-            last_modified=datetime.datetime.strptime(dump["last_update"], "%Y-%m-%dT%H:%M:%S.%fZ"),
+            first_submitted=datetime.datetime.fromtimestamp(0, datetime.UTC),
+            last_modified=datetime.datetime.fromisoformat(dump["last_update"]),
             url_path="",
             url=dump["url"],
-            out_of_date=datetime.datetime.strptime(
-                dump["flag_date"],
-                "%Y-%m-%dT%H:%M:%S.%fZ") if dump["flag_date"] is not None else None,
+            out_of_date=datetime.datetime.fromisoformat(dump["flag_date"]) if dump.get("flag_date") else None,
             maintainer=next(iter(dump["maintainers"]), None),
             submitter=None,
             repository=dump["repo"],
@@ -208,9 +206,9 @@ class AURPackage:
         """
         identity_mapper: Callable[[Any], Any] = lambda value: value
         value_mapper: dict[str, Callable[[Any], Any]] = {
-            "out_of_date": lambda value: datetime.datetime.utcfromtimestamp(value) if value is not None else None,
-            "first_submitted": datetime.datetime.utcfromtimestamp,
-            "last_modified": datetime.datetime.utcfromtimestamp,
+            "out_of_date": lambda value: datetime.datetime.fromtimestamp(value, datetime.UTC) if value is not None else None,
+            "first_submitted": lambda value: datetime.datetime.fromtimestamp(value, datetime.UTC),
+            "last_modified": lambda value: datetime.datetime.fromtimestamp(value, datetime.UTC),
         }
 
         result: dict[str, Any] = {}
