@@ -85,7 +85,7 @@ def test_remote_update(remote_call: RemoteCall, mocker: MockerFixture) -> None:
                                              "aur": False,
                                              "local": False,
                                              "manual": True,
-                                         })
+    })
 
 
 def test_remote_wait(remote_call: RemoteCall, mocker: MockerFixture) -> None:

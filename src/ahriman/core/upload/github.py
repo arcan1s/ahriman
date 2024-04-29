@@ -162,7 +162,8 @@ class GitHub(Upload, HttpUpload):
         Returns:
             dict[str, Any] | None: GitHub API release object if release found and None otherwise
         """
-        url = f"https://api.github.com/repos/{self.github_owner}/{self.github_repository}/releases/tags/{self.github_release_tag}"
+        url = f"https://api.github.com/repos/{self.github_owner}/{
+            self.github_repository}/releases/tags/{self.github_release_tag}"
         try:
             response = self.make_request("GET", url)
             release: dict[str, Any] = response.json()

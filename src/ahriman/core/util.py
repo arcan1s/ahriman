@@ -349,7 +349,7 @@ def pretty_datetime(timestamp: datetime.datetime | float | int | None) -> str:
     if timestamp is None:
         return ""
     if isinstance(timestamp, (int, float)):
-        timestamp = datetime.datetime.utcfromtimestamp(timestamp)
+        timestamp = datetime.datetime.fromtimestamp(timestamp, datetime.UTC)
     return timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -505,7 +505,7 @@ def utcnow() -> datetime.datetime:
     Returns:
         datetime.datetime: current time in UTC
     """
-    return datetime.datetime.utcnow()
+    return datetime.datetime.now(datetime.UTC)
 
 
 def walk(directory_path: Path) -> Generator[Path, None, None]:

@@ -106,7 +106,7 @@ class RemoteCall(Report):
                                                 "aur": self.update_aur,
                                                 "local": self.update_local,
                                                 "manual": self.update_manual,
-                                            })
+        })
         response_json = response.json()
 
         process_id: str = response_json["process_id"]

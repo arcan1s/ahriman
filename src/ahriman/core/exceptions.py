@@ -330,5 +330,5 @@ class UnsafeRunError(RuntimeError):
             root_uid(int): ID of the owner of root directory
         """
         RuntimeError.__init__(self, f"Current UID {current_uid} differs from root owner {root_uid}. "
-                                    f"Note that for the most actions it is unsafe to run application as different user."
-                                    f" If you are 100% sure that it must be there try --unsafe option")
+                              f"Note that for the most actions it is unsafe to run application as different user."
+                              f" If you are 100% sure that it must be there try --unsafe option")
