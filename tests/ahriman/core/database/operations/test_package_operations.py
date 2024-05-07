@@ -5,7 +5,7 @@ from sqlite3 import Connection
 from unittest.mock import call as MockCall
 
 from ahriman.core.database import SQLite
-from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -66,14 +66,6 @@ def test_package_update_insert_packages_no_arch(database: SQLite, connection: Co
     connection.executemany(pytest.helpers.anyvar(str, strict=True), [])
 
 
-def test_package_update_insert_status(database: SQLite, connection: Connection, package_ahriman: Package) -> None:
-    """
-    must insert single package status
-    """
-    database._package_update_insert_status(connection, package_ahriman.base, BuildStatus(), database._repository_id)
-    connection.execute(pytest.helpers.anyvar(str, strict=True), pytest.helpers.anyvar(int))
-
-
 def test_packages_get_select_package_bases(database: SQLite, connection: Connection) -> None:
     """
     must select all bases
@@ -131,16 +123,12 @@ def test_package_update(database: SQLite, package_ahriman: Package, mocker: Mock
     """
     must update package status
     """
-    status = BuildStatus()
     insert_base_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_base")
-    insert_status_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_status")
     insert_packages_mock = mocker.patch("ahriman.core.database.SQLite._package_update_insert_packages")
     remove_packages_mock = mocker.patch("ahriman.core.database.SQLite._package_remove_packages")
 
-    database.package_update(package_ahriman, status)
+    database.package_update(package_ahriman)
     insert_base_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman, database._repository_id)
-    insert_status_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.base, status,
-                                               database._repository_id)
     insert_packages_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman,
                                                  database._repository_id)
     remove_packages_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.base,
@@ -168,7 +156,8 @@ def test_package_update_get(database: SQLite, package_ahriman: Package) -> None:
     must insert and retrieve package
     """
     status = BuildStatus()
-    database.package_update(package_ahriman, status)
+    database.package_update(package_ahriman)
+    database.status_update(package_ahriman.base, status)
     assert next((db_package, db_status)
                 for db_package, db_status in database.packages_get()
                 if db_package.base == package_ahriman.base) == (package_ahriman, status)
@@ -179,7 +168,7 @@ def test_package_update_remove_get(database: SQLite, package_ahriman: Package) -
     must insert, remove and retrieve package
     """
     status = BuildStatus()
-    database.package_update(package_ahriman, status)
+    database.package_update(package_ahriman)
     database.package_remove(package_ahriman.base)
     assert not database.packages_get()
 
@@ -188,11 +177,12 @@ def test_package_update_update(database: SQLite, package_ahriman: Package) -> No
     """
     must perform update for existing package
     """
-    database.package_update(package_ahriman, BuildStatus())
-    database.package_update(package_ahriman, BuildStatus(BuildStatusEnum.Failed))
-    assert next(db_status.status
-                for db_package, db_status in database.packages_get()
-                if db_package.base == package_ahriman.base) == BuildStatusEnum.Failed
+    database.package_update(package_ahriman)
+    package_ahriman.version = "1.0.0"
+    database.package_update(package_ahriman)
+    assert next(db_package.version
+                for db_package, _ in database.packages_get()
+                if db_package.base == package_ahriman.base) == package_ahriman.version
 
 
 def test_remote_update_get(database: SQLite, package_ahriman: Package) -> None:
@@ -213,3 +203,14 @@ def test_remote_update_update(database: SQLite, package_ahriman: Package) -> Non
 
     database.package_base_update(package_ahriman)
     assert database.remotes_get()[package_ahriman.base] == remote_source
+
+
+def test_status_update(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert single package status
+    """
+    status = BuildStatus()
+
+    database.package_update(package_ahriman, database._repository_id)
+    database.status_update(package_ahriman.base, status, database._repository_id)
+    assert database.packages_get(database._repository_id) == [(package_ahriman, status)]

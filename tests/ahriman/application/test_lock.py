@@ -64,7 +64,7 @@ def test_check_version(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check version correctly
     """
-    mocker.patch("ahriman.core.status.client.Client.status_get",
+    mocker.patch("ahriman.core.status.Client.status_get",
                  return_value=InternalStatus(status=BuildStatus(), version=__version__))
     logging_mock = mocker.patch("logging.Logger.warning")
 
@@ -76,7 +76,7 @@ def test_check_version_mismatch(lock: Lock, mocker: MockerFixture) -> None:
     """
     must check mismatched version correctly
     """
-    mocker.patch("ahriman.core.status.client.Client.status_get",
+    mocker.patch("ahriman.core.status.Client.status_get",
                  return_value=InternalStatus(status=BuildStatus(), version="version"))
     logging_mock = mocker.patch("logging.Logger.warning")
 
@@ -184,7 +184,7 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     watch_mock = mocker.patch("ahriman.application.lock.Lock.watch")
     clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     create_mock = mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
+    update_status_mock = mocker.patch("ahriman.core.status.Client.status_update")
 
     with lock:
         pass
@@ -203,7 +203,7 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.application.lock.Lock.check_user")
     mocker.patch("ahriman.application.lock.Lock.clear")
     mocker.patch("ahriman.application.lock.Lock.create")
-    update_status_mock = mocker.patch("ahriman.core.status.client.Client.status_update")
+    update_status_mock = mocker.patch("ahriman.core.status.Client.status_update")
 
     with pytest.raises(Exception):
         with lock:

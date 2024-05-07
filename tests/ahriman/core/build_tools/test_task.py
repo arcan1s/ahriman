@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.build_tools.task import Task
-from ahriman.core.database import SQLite
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
 def test_build(task_ahriman: Task, mocker: MockerFixture) -> None:
@@ -91,18 +91,19 @@ def test_build_no_debug(task_ahriman: Task, mocker: MockerFixture) -> None:
     ])
 
 
-def test_init(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
+def test_init(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must copy tree instead of fetch
     """
+    patches = [PkgbuildPatch("hash", "patch")]
     mocker.patch("ahriman.models.package.Package.from_build", return_value=task_ahriman.package)
     load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
 
-    assert task_ahriman.init(Path("ahriman"), database, None) == "sha"
-    load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, [], task_ahriman.paths)
+    assert task_ahriman.init(Path("ahriman"), patches, None) == "sha"
+    load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, patches, task_ahriman.paths)
 
 
-def test_init_bump_pkgrel(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
+def test_init_bump_pkgrel(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must bump pkgrel if it is same as provided
     """
@@ -111,11 +112,11 @@ def test_init_bump_pkgrel(task_ahriman: Task, database: SQLite, mocker: MockerFi
     write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
 
     local = Path("ahriman")
-    assert task_ahriman.init(local, database, task_ahriman.package.version) == "sha"
+    assert task_ahriman.init(local, [], task_ahriman.package.version) == "sha"
     write_mock.assert_called_once_with(local / "PKGBUILD")
 
 
-def test_init_bump_pkgrel_skip(task_ahriman: Task, database: SQLite, mocker: MockerFixture) -> None:
+def test_init_bump_pkgrel_skip(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must keep pkgrel if version is different from provided
     """
@@ -123,5 +124,5 @@ def test_init_bump_pkgrel_skip(task_ahriman: Task, database: SQLite, mocker: Moc
     mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
     write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
 
-    assert task_ahriman.init(Path("ahriman"), database, f"2:{task_ahriman.package.version}") == "sha"
+    assert task_ahriman.init(Path("ahriman"), [], f"2:{task_ahriman.package.version}") == "sha"
     write_mock.assert_not_called()

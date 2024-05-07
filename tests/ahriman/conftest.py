@@ -13,6 +13,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
+from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -274,6 +275,21 @@ def database(configuration: Configuration) -> SQLite:
     database = SQLite.load(configuration)
     yield database
     database.path.unlink()
+
+
+@pytest.fixture
+def local_client(database: SQLite, configuration: Configuration) -> Client:
+    """
+    local status client
+
+    Args:
+        database(SQLite): database fixture
+
+    Returns:
+        Client: local status client test instance
+    """
+    _, repository_id = configuration.check_loaded()
+    return Client.load(repository_id, configuration, database, report=False)
 
 
 @pytest.fixture
@@ -559,15 +575,14 @@ def user() -> User:
 
 
 @pytest.fixture
-def watcher(repository_id: RepositoryId, database: SQLite) -> Watcher:
+def watcher(local_client: Client) -> Watcher:
     """
     package status watcher fixture
 
     Args:
-        repository_id(RepositoryId): repository identifier fixture
-        database(SQLite): database fixture
+        local_client(Client): local status client fixture
 
     Returns:
         Watcher: package status watcher test instance
     """
-    return Watcher(repository_id, database)
+    return Watcher(local_client)

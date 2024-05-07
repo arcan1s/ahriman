@@ -22,6 +22,7 @@ from ahriman.web.schemas.auth_schema import AuthSchema
 from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
 from ahriman.web.schemas.changes_schema import ChangesSchema
 from ahriman.web.schemas.counters_schema import CountersSchema
+from ahriman.web.schemas.dependencies_schema import DependenciesSchema
 from ahriman.web.schemas.error_schema import ErrorSchema
 from ahriman.web.schemas.file_schema import FileSchema
 from ahriman.web.schemas.info_schema import InfoSchema
@@ -36,6 +37,7 @@ from ahriman.web.schemas.package_patch_schema import PackagePatchSchema
 from ahriman.web.schemas.package_properties_schema import PackagePropertiesSchema
 from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.package_status_schema import PackageStatusSchema, PackageStatusSimplifiedSchema
+from ahriman.web.schemas.package_version_schema import PackageVersionSchema
 from ahriman.web.schemas.pagination_schema import PaginationSchema
 from ahriman.web.schemas.patch_name_schema import PatchNameSchema
 from ahriman.web.schemas.patch_schema import PatchSchema

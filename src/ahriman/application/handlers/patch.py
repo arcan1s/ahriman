@@ -116,25 +116,29 @@ class Patch(Handler):
             package_base(str): package base
             patch(PkgbuildPatch): patch descriptor
         """
-        application.database.patches_insert(package_base, [patch])
+        application.reporter.package_patches_update(package_base, patch)
 
     @staticmethod
-    def patch_set_list(application: Application, package_base: str | None, variables: list[str] | None,
+    def patch_set_list(application: Application, package_base: str, variables: list[str] | None,
                        exit_code: bool) -> None:
         """
         list patches available for the package base
 
         Args:
             application(Application): application instance
-            package_base(str | None): package base
+            package_base(str): package base
             variables(list[str] | None): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
         """
-        patches = application.database.patches_list(package_base, variables)
+        patches = []
+        if variables is not None:
+            for variable in variables:
+                patches.extend(application.reporter.package_patches_get(package_base, variable))
+        else:
+            patches = application.reporter.package_patches_get(package_base, variables)
         Patch.check_if_empty(exit_code, not patches)
 
-        for base, patch in patches.items():
-            PatchPrinter(base, patch)(verbose=True, separator=" = ")
+        PatchPrinter(package_base, patches)(verbose=True, separator=" = ")
 
     @staticmethod
     def patch_set_remove(application: Application, package_base: str, variables: list[str] | None) -> None:
@@ -146,4 +150,8 @@ class Patch(Handler):
             package_base(str): package base
             variables(list[str] | None): remove patches only for specified PKGBUILD variables
         """
-        application.database.patches_remove(package_base, variables)
+        if variables is not None:
+            for variable in variables:  # iterate over single variable
+                application.reporter.package_patches_remove(package_base, variable)
+        else:
+            application.reporter.package_patches_remove(package_base, variables)  # just pass as is

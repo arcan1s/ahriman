@@ -190,7 +190,7 @@ def test_files(pacman: Pacman, package_ahriman: Package, mocker: MockerFixture, 
     files = pacman.files()
     assert len(files) == 2
     assert package_ahriman.base in files
-    assert Path("usr/bin/ahriman") in files[package_ahriman.base]
+    assert "usr/bin/ahriman" in files[package_ahriman.base]
     open_mock.assert_called_once_with(pytest.helpers.anyvar(int), "r:gz")
 
 

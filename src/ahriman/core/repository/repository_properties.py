@@ -23,7 +23,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.status.client import Client
+from ahriman.core.status import Client
 from ahriman.core.triggers import TriggerLoader
 from ahriman.models.packagers import Packagers
 from ahriman.models.pacman_synchronization import PacmanSynchronization
@@ -75,7 +75,7 @@ class RepositoryProperties(LazyLogging):
         self.pacman = Pacman(repository_id, configuration, refresh_database=refresh_pacman_database)
         self.sign = GPG(configuration)
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
-        self.reporter = Client.load(repository_id, configuration, report=report)
+        self.reporter = Client.load(repository_id, configuration, database, report=report)
         self.triggers = TriggerLoader.load(repository_id, configuration)
 
     @property

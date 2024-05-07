@@ -17,14 +17,12 @@ def test_changes(application_repository: ApplicationRepository, package_ahriman:
     must generate changes for the packages
     """
     changes = Changes("hash", "change")
-    hashes_mock = mocker.patch("ahriman.core.database.SQLite.hashes_get", return_value={
-        package_ahriman.base: changes.last_commit_sha,
-    })
+    hashes_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get", return_value=changes)
     changes_mock = mocker.patch("ahriman.core.repository.Repository.package_changes", return_value=changes)
-    report_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
+    report_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
 
     application_repository.changes([package_ahriman])
-    hashes_mock.assert_called_once_with()
+    hashes_mock.assert_called_once_with(package_ahriman.base)
     changes_mock.assert_called_once_with(package_ahriman, changes.last_commit_sha)
     report_mock.assert_called_once_with(package_ahriman.base, changes)
 
@@ -34,9 +32,8 @@ def test_changes_skip(application_repository: ApplicationRepository, package_ahr
     """
     must skip change generation if no last commit sha has been found
     """
-    mocker.patch("ahriman.core.database.SQLite.hashes_get", return_value={})
     changes_mock = mocker.patch("ahriman.core.repository.Repository.package_changes")
-    report_mock = mocker.patch("ahriman.core.status.client.Client.package_changes_set")
+    report_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
 
     application_repository.changes([package_ahriman])
     changes_mock.assert_not_called()

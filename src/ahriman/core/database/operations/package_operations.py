@@ -151,34 +151,6 @@ class PackageOperations(Operations):
             package_list)
 
     @staticmethod
-    def _package_update_insert_status(connection: Connection, package_base: str, status: BuildStatus,
-                                      repository_id: RepositoryId) -> None:
-        """
-        insert base package status into table
-
-        Args:
-            connection(Connection): database connection
-            package_base(str): package base name
-            status(BuildStatus): new build status
-            repository_id(RepositoryId): repository unique identifier
-        """
-        connection.execute(
-            """
-            insert into package_statuses
-            (package_base, status, last_updated, repository)
-            values
-            (:package_base, :status, :last_updated, :repository)
-            on conflict (package_base, repository) do update set
-            status = :status, last_updated = :last_updated
-            """,
-            {
-                "package_base": package_base,
-                "status": status.status.value,
-                "last_updated": status.timestamp,
-                "repository": repository_id.id,
-            })
-
-    @staticmethod
     def _packages_get_select_package_bases(connection: Connection, repository_id: RepositoryId) -> dict[str, Package]:
         """
         select package bases from the table
@@ -277,20 +249,18 @@ class PackageOperations(Operations):
 
         return self.with_connection(run, commit=True)
 
-    def package_update(self, package: Package, status: BuildStatus, repository_id: RepositoryId | None = None) -> None:
+    def package_update(self, package: Package, repository_id: RepositoryId | None = None) -> None:
         """
         update package status
 
         Args:
             package(Package): package properties
-            status(BuildStatus): new build status
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
 
         def run(connection: Connection) -> None:
             self._package_update_insert_base(connection, package, repository_id)
-            self._package_update_insert_status(connection, package.base, status, repository_id)
             self._package_update_insert_packages(connection, package, repository_id)
             self._package_remove_packages(connection, package.base, package.packages.keys(), repository_id)
 
@@ -336,3 +306,33 @@ class PackageOperations(Operations):
             package_base: package.remote
             for package_base, package in self.with_connection(run).items()
         }
+
+    def status_update(self, package_base: str, status: BuildStatus, repository_id: RepositoryId | None = None) -> None:
+        """
+        insert base package status into table
+
+        Args:
+            package_base(str): package base name
+            status(BuildStatus): new build status
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+        """
+        repository_id = repository_id or self._repository_id
+
+        def run(connection: Connection) -> None:
+            connection.execute(
+                """
+                insert into package_statuses
+                (package_base, status, last_updated, repository)
+                values
+                (:package_base, :status, :last_updated, :repository)
+                on conflict (package_base, repository) do update set
+                status = :status, last_updated = :last_updated
+                """,
+                {
+                    "package_base": package_base,
+                    "status": status.status.value,
+                    "last_updated": status.timestamp,
+                    "repository": repository_id.id,
+                })
+
+        return self.with_connection(run, commit=True)

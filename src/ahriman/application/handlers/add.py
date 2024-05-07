@@ -50,7 +50,8 @@ class Add(Handler):
         application.add(args.package, args.source, args.username)
         patches = [PkgbuildPatch.from_env(patch) for patch in args.variable] if args.variable is not None else []
         for package in args.package:  # for each requested package insert patch
-            application.database.patches_insert(package, patches)
+            for patch in patches:
+                application.reporter.package_patches_update(package, patch)
 
         if not args.now:
             return

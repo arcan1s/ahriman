@@ -40,6 +40,18 @@ async def test_delete(client: TestClient, package_ahriman: Package, package_pyth
                       json={"created": 42.0, "message": "message", "version": "42"})
     await client.post(f"/api/v1/packages/{package_python_schedule.base}/logs",
                       json={"created": 42.0, "message": "message", "version": "42"})
+    request_schema = pytest.helpers.schema_request(LogsView.delete, location="querystring")
+
+    payload = {}
+    assert not request_schema.validate(payload)
+    payload = {"version": "42"}
+
+    response = await client.delete(f"/api/v1/packages/{package_ahriman.base}/logs", params=payload)
+    assert response.status == 204
+
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/logs")
+    logs = await response.json()
+    assert logs["logs"]
 
     response = await client.delete(f"/api/v1/packages/{package_ahriman.base}/logs")
     assert response.status == 204

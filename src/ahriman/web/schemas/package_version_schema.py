@@ -17,4 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.status.client import Client
+from marshmallow import fields
+
+from ahriman import __version__
+from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
+
+
+class PackageVersionSchema(RepositoryIdSchema):
+    """
+    request package name schema
+    """
+
+    version = fields.String(metadata={
+        "description": "Package version",
+        "example": __version__,
+    })

@@ -17,4 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.status.client import Client
+from marshmallow import Schema, fields
+
+
+class DependenciesSchema(Schema):
+    """
+    request/response package dependencies schema
+    """
+
+    paths = fields.Dict(
+        keys=fields.String(), values=fields.List(fields.String()), required=True, metadata={
+            "description": "Map of filesystem paths to packages which contain this path",
+        })

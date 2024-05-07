@@ -43,15 +43,14 @@ class PackageInfo(RepositoryProperties):
         Returns:
             list[Package]: list of read packages
         """
-        sources = self.database.remotes_get()
-
         result: dict[str, Package] = {}
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
                 local = Package.from_archive(full_path, self.pacman)
-                if (source := sources.get(local.base)) is not None:
-                    local.remote = source
+                remote, _ = next(iter(self.reporter.package_get(local.base)), (None, None))
+                if remote is not None:  # update source with remote
+                    local.remote = remote.remote
 
                 current = result.setdefault(local.base, local)
                 if current.version != local.version:
@@ -78,7 +77,8 @@ class PackageInfo(RepositoryProperties):
         """
         with TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
             dir_path = Path(dir_name)
-            current_commit_sha = Sources.load(dir_path, package, self.database.patches_get(package.base), self.paths)
+            patches = self.reporter.package_patches_get(package.base, None)
+            current_commit_sha = Sources.load(dir_path, package, patches, self.paths)
 
             changes: str | None = None
             if current_commit_sha != last_commit_sha:

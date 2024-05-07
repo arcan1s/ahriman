@@ -22,63 +22,32 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
-from ahriman.models.build_status import BuildStatusEnum
-from ahriman.models.package import Package
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PackageStatusSchema, \
-    PackageStatusSimplifiedSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, DependenciesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class PackageView(StatusViewGuard, BaseView):
+class DependenciesView(StatusViewGuard, BaseView):
     """
-    package base specific web view
+    package dependencies web view
 
     Attributes:
-        DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
-    GET_PERMISSION = UserAccess.Read
-    ROUTES = ["/api/v1/packages/{package}"]
+    GET_PERMISSION = UserAccess.Reporter
+    POST_PERMISSION = UserAccess.Full
+    ROUTES = ["/api/v1/packages/{package}/dependencies"]
 
     @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Delete package",
-        description="Delete package and its status from service",
+        tags=["Build"],
+        summary="Get package dependencies",
+        description="Retrieve package implicit dependencies",
         responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [DELETE_PERMISSION]}],
-    )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    async def delete(self) -> None:
-        """
-        delete package base from status page
-
-        Raises:
-            HTTPNoContent: on success response
-        """
-        package_base = self.request.match_info["package"]
-        self.service().package_remove(package_base)
-
-        raise HTTPNoContent
-
-    @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Get package",
-        description="Retrieve packages and its descriptor",
-        responses={
-            200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
+            200: {"description": "Success response", "schema": DependenciesSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
             404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
@@ -91,35 +60,27 @@ class PackageView(StatusViewGuard, BaseView):
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
-        get current package base status
+        get package dependencies
 
         Returns:
-            Response: 200 with package description on success
+            Response: 200 with package implicit dependencies on success
 
         Raises:
-            HTTPNotFound: if no package was found
+            HTTPNotFound: if package base is unknown
         """
         package_base = self.request.match_info["package"]
-        repository_id = self.repository_id()
 
         try:
-            package, status = self.service(repository_id).package_get(package_base)
+            dependencies = self.service().package_dependencies_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
-        response = [
-            {
-                "package": package.view(),
-                "status": status.view(),
-                "repository": repository_id.view(),
-            }
-        ]
-        return json_response(response)
+        return json_response(dependencies.view())
 
     @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Update package",
-        description="Update package status and set its descriptior optionally",
+        tags=["Build"],
+        summary="Update package dependencies",
+        description="Set package implicit dependencies",
         responses={
             204: {"description": "Success response"},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
@@ -133,10 +94,10 @@ class PackageView(StatusViewGuard, BaseView):
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(PackageStatusSimplifiedSchema)
+    @aiohttp_apispec.json_schema(DependenciesSchema)
     async def post(self) -> None:
         """
-        update package build status
+        insert new package dependencies
 
         Raises:
             HTTPBadRequest: if bad data is supplied
@@ -146,17 +107,14 @@ class PackageView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            package = Package.from_json(data["package"]) if "package" in data else None
-            status = BuildStatusEnum(data["status"])
+            data["package_base"] = package_base  # read from path instead of object
+            dependencies = Dependencies.from_json(data)
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            if package is None:
-                self.service().package_update(package_base, status)
-            else:
-                self.service().package_add(package, status)
+            self.service().package_dependencies_update(package_base, dependencies)
         except UnknownPackageError:
-            raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
         raise HTTPNoContent

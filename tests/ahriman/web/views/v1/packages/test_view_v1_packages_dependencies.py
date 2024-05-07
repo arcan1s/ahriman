@@ -3,10 +3,10 @@ import pytest
 from aiohttp.test_utils import TestClient
 
 from ahriman.models.build_status import BuildStatusEnum
-from ahriman.models.changes import Changes
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.views.v1.packages.changes import ChangesView
+from ahriman.web.views.v1.packages.dependencies import DependenciesView
 
 
 async def test_get_permission() -> None:
@@ -15,71 +15,73 @@ async def test_get_permission() -> None:
     """
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
-        assert await ChangesView.get_permission(request) == UserAccess.Reporter
+        assert await DependenciesView.get_permission(request) == UserAccess.Reporter
     for method in ("POST",):
         request = pytest.helpers.request("", "", method)
-        assert await ChangesView.get_permission(request) == UserAccess.Full
+        assert await DependenciesView.get_permission(request) == UserAccess.Full
 
 
 def test_routes() -> None:
     """
     must return correct routes
     """
-    assert ChangesView.ROUTES == ["/api/v1/packages/{package}/changes"]
+    assert DependenciesView.ROUTES == ["/api/v1/packages/{package}/dependencies"]
 
 
 async def test_get(client: TestClient, package_ahriman: Package) -> None:
     """
-    must get changes for package
+    must get dependencies for package
     """
-    changes = Changes("sha", "change")
+    dependency = Dependencies({"path": ["package"]})
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
-    await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json=changes.view())
-    response_schema = pytest.helpers.schema_response(ChangesView.get)
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/dependencies", json=dependency.view())
+    response_schema = pytest.helpers.schema_response(DependenciesView.get)
 
-    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/changes")
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/dependencies")
     assert response.status == 200
 
-    assert await response.json() == changes.view()
-    assert not response_schema.validate(changes.view())
+    dependencies = await response.json()
+    assert not response_schema.validate(dependencies)
+    assert dependencies == dependency.view()
 
 
 async def test_get_not_found(client: TestClient, package_ahriman: Package) -> None:
     """
     must return not found for missing package
     """
-    response_schema = pytest.helpers.schema_response(ChangesView.get, code=404)
+    response_schema = pytest.helpers.schema_response(DependenciesView.get, code=404)
 
-    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/changes")
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/dependencies")
     assert response.status == 404
     assert not response_schema.validate(await response.json())
 
 
 async def test_post(client: TestClient, package_ahriman: Package) -> None:
     """
-    must update package changes
+    must create dependencies
     """
     await client.post(f"/api/v1/packages/{package_ahriman.base}",
                       json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
-    request_schema = pytest.helpers.schema_request(ChangesView.post)
+    request_schema = pytest.helpers.schema_request(DependenciesView.post)
 
-    changes = Changes("sha", "change")
-    assert not request_schema.validate(changes.view())
-    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json=changes.view())
+    payload = {"paths": {"path": ["package"]}}
+    assert not request_schema.validate(payload)
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/dependencies", json=payload)
     assert response.status == 204
 
-    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/changes")
-    assert await response.json() == changes.view()
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/dependencies")
+    dependencies = await response.json()
+    assert dependencies == payload
 
 
 async def test_post_exception(client: TestClient, package_ahriman: Package) -> None:
     """
     must raise exception on invalid payload
     """
-    response_schema = pytest.helpers.schema_response(ChangesView.post, code=400)
+    response_schema = pytest.helpers.schema_response(DependenciesView.post, code=400)
 
-    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json=[])
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/dependencies", json=[])
     assert response.status == 400
     assert not response_schema.validate(await response.json())
 
@@ -88,8 +90,8 @@ async def test_post_not_found(client: TestClient, package_ahriman: Package) -> N
     """
     must raise exception on unknown package
     """
-    response_schema = pytest.helpers.schema_response(ChangesView.post, code=404)
+    response_schema = pytest.helpers.schema_response(DependenciesView.post, code=404)
 
-    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json={})
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/dependencies", json={})
     assert response.status == 404
     assert not response_schema.validate(await response.json())

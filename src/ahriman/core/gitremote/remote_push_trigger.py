@@ -19,8 +19,8 @@
 #
 from ahriman.core import context
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
 from ahriman.core.gitremote.remote_push import RemotePush
+from ahriman.core.status import Client
 from ahriman.core.triggers import Trigger
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
@@ -110,10 +110,10 @@ class RemotePushTrigger(Trigger):
             GitRemoteError: if database is not set in context
         """
         ctx = context.get()
-        database = ctx.get(SQLite)
+        reporter = ctx.get(Client)
 
         for target in self.targets:
             section, _ = self.configuration.gettype(
                 target, self.repository_id, fallback=self.CONFIGURATION_SCHEMA_FALLBACK)
-            runner = RemotePush(database, self.configuration, section)
+            runner = RemotePush(reporter, self.configuration, section)
             runner.run(result)
