@@ -1,3 +1,6 @@
+import pytest
+import shlex
+
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, call
@@ -46,6 +49,35 @@ def test_from_env() -> None:
     assert PkgbuildPatch.from_env("KEY=VA=LUE") == PkgbuildPatch("KEY", "VA=LUE")
     assert PkgbuildPatch.from_env("KEY=") == PkgbuildPatch("KEY", "")
     assert PkgbuildPatch.from_env("KEY") == PkgbuildPatch("KEY", "")
+
+
+def test_parse() -> None:
+    """
+    must parse string correctly
+    """
+    assert PkgbuildPatch.parse("VALUE") == "VALUE"
+    assert PkgbuildPatch.parse("(ARRAY VALUE)") == ["ARRAY", "VALUE"]
+    assert PkgbuildPatch.parse("""("QU'OUTED" ARRAY VALUE)""") == ["QU'OUTED", "ARRAY", "VALUE"]
+
+
+def test_unquote() -> None:
+    """
+    must remove quotation marks
+    """
+    for source in (
+        "abc",
+        "ab'c",
+        "ab\"c",
+    ):
+        assert PkgbuildPatch.unquote(shlex.quote(source)) == source
+
+
+def test_unquote_error() -> None:
+    """
+    must raise value error on invalid quotation
+    """
+    with pytest.raises(ValueError):
+        PkgbuildPatch.unquote("ab'c")
 
 
 def test_serialize() -> None:

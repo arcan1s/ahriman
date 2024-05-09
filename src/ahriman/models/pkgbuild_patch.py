@@ -21,9 +21,9 @@ import shlex
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Self
+from typing import Any, Generator, Self
 
-from ahriman.core.util import dataclass_view, unquote
+from ahriman.core.util import dataclass_view
 
 
 @dataclass(frozen=True)
@@ -81,14 +81,57 @@ class PkgbuildPatch:
             Self: package properties
         """
         key, *value_parts = variable.split("=", maxsplit=1)
-
         raw_value = next(iter(value_parts), "")  # extract raw value
-        if raw_value.startswith("(") and raw_value.endswith(")"):
-            value: str | list[str] = shlex.split(raw_value[1:-1])  # arrays for poor
-        else:
-            value = unquote(raw_value)
+        return cls(key, cls.parse(raw_value))
 
-        return cls(key, value)
+    @staticmethod
+    def parse(source: str) -> str | list[str]:
+        """
+        parse string value to the PKGBUILD patch value. This method simply takes string, tries to identify it as array
+        or just string and return the respective value. Functions should be processed correctly, however, not guaranteed
+
+        Args:
+            source(str): source string to parse
+
+        Returns:
+            str | list[str]: parsed value either string or list of strings
+        """
+        if source.startswith("(") and source.endswith(")"):
+            return shlex.split(source[1:-1])  # arrays for poor
+        return PkgbuildPatch.unquote(source)
+
+    @staticmethod
+    def unquote(source: str) -> str:
+        """
+        like :func:`shlex.quote()`, but opposite
+
+        Args:
+            source(str): source string to remove quotes
+
+        Returns:
+            str: string with quotes removed
+
+        Raises:
+            ValueError: if no closing quotation
+        """
+
+        def generator() -> Generator[str, None, None]:
+            token = None
+            for char in source:
+                if token is not None:
+                    if char == token:
+                        token = None  # closed quote
+                    else:
+                        yield char  # character inside quotes
+                elif char in ("'", "\""):
+                    token = char  # first quote found
+                else:
+                    yield char  # normal character
+
+            if token is not None:
+                raise ValueError("No closing quotation")
+
+        return "".join(generator())
 
     def serialize(self) -> str:
         """

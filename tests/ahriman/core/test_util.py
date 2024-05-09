@@ -12,7 +12,7 @@ from unittest.mock import call as MockCall
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.util import check_output, check_user, dataclass_view, enum_values, extract_user, filter_json, \
     full_version, minmax, package_like, parse_version, partition, pretty_datetime, pretty_size, safe_filename, \
-    srcinfo_property, srcinfo_property_list, trim_package, unquote, utcnow, walk
+    srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_id import RepositoryId
@@ -443,26 +443,6 @@ def test_trim_package() -> None:
     assert trim_package("package<1") == "package"
     assert trim_package("package<=1") == "package"
     assert trim_package("package: a description") == "package"
-
-
-def test_unquote() -> None:
-    """
-    must remove quotation marks
-    """
-    for source in (
-        "abc",
-        "ab'c",
-        "ab\"c",
-    ):
-        assert unquote(shlex.quote(source)) == source
-
-
-def test_unquote_error() -> None:
-    """
-    must raise value error on invalid quotation
-    """
-    with pytest.raises(ValueError):
-        unquote("ab'c")
 
 
 def test_utcnow() -> None:
