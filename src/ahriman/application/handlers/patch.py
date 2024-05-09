@@ -102,8 +102,9 @@ class Patch(Handler):
             patch = "".join(list(sys.stdin))
         else:
             patch = patch_path.read_text(encoding="utf8")
-        patch = patch.strip()  # remove spaces around the patch
-        return PkgbuildPatch(variable, patch)
+        # remove spaces around the patch and parse to correct type
+        parsed = PkgbuildPatch.parse(patch.strip())
+        return PkgbuildPatch(variable, parsed)
 
     @staticmethod
     def patch_set_create(application: Application, package_base: str, patch: PkgbuildPatch) -> None:

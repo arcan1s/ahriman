@@ -208,6 +208,18 @@ This command will prompt for new value of the PKGBUILD variable ``version``. You
 
    sudo -u ahriman ahriman patch-add ahriman version version.patch
 
+The command also supports arrays, but in this case you need to specify full array, e.g.
+
+.. code-block:: shell
+
+   sudo -u ahriman ahriman patch-add ahriman depends
+
+   Post new function or variable value below. Press Ctrl-D to finish:
+   (python python-aiohttp)
+   ^D
+
+will set depends PKGBUILD variable (exactly) to array ``["python", "python-aiohttp"]``.
+
 Alternatively you can create full-diff patches, which are calculated by using ``git diff`` from current PKGBUILD master branch:
 
 #.

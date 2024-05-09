@@ -56,7 +56,6 @@ __all__ = [
     "srcinfo_property",
     "srcinfo_property_list",
     "trim_package",
-    "unquote",
     "utcnow",
     "walk",
 ]
@@ -464,38 +463,6 @@ def trim_package(package_name: str) -> str:
     for symbol in ("<", "=", ">", ":"):
         package_name = package_name.partition(symbol)[0]
     return package_name
-
-
-def unquote(source: str) -> str:
-    """
-    like :func:`shlex.quote()`, but opposite
-
-    Args:
-        source(str): source string to remove quotes
-
-    Returns:
-        str: string with quotes removed
-
-    Raises:
-        ValueError: if no closing quotation
-    """
-    def generator() -> Generator[str, None, None]:
-        token = None
-        for char in source:
-            if token is not None:
-                if char == token:
-                    token = None  # closed quote
-                else:
-                    yield char  # character inside quotes
-            elif char in ("'", "\""):
-                token = char  # first quote found
-            else:
-                yield char  # normal character
-
-        if token is not None:
-            raise ValueError("No closing quotation")
-
-    return "".join(generator())
 
 
 def utcnow() -> datetime.datetime:

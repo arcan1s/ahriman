@@ -122,11 +122,10 @@ def test_patch_create_from_function(mocker: MockerFixture) -> None:
     """
     must create function patch from file
     """
-    path = Path("local")
     patch = PkgbuildPatch("version", "patch")
     read_mock = mocker.patch("pathlib.Path.read_text", return_value=patch.value)
 
-    assert Patch.patch_create_from_function(patch.key, path) == patch
+    assert Patch.patch_create_from_function(patch.key, Path("local")) == patch
     read_mock.assert_called_once_with(encoding="utf8")
 
 
@@ -146,6 +145,15 @@ def test_patch_create_from_function_strip(mocker: MockerFixture) -> None:
     patch = PkgbuildPatch("version", "This is a patch")
     mocker.patch.object(sys, "stdin", ["\n"] + patch.value.splitlines() + ["\n"])
     assert Patch.patch_create_from_function(patch.key, None) == patch
+
+
+def test_patch_create_from_function_array(mocker: MockerFixture) -> None:
+    """
+    must correctly read array variable
+    """
+    patch = PkgbuildPatch("version", ["array", "patch"])
+    mocker.patch("pathlib.Path.read_text", return_value=f"({" ".join(patch.value)})")
+    assert Patch.patch_create_from_function(patch.key, Path("local")) == patch
 
 
 def test_patch_set_list(application: Application, mocker: MockerFixture) -> None:
