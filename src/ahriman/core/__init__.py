@@ -38,12 +38,12 @@ class _Context:
         """
         self._content: dict[str, Any] = {}
 
-    def get(self, key: ContextKey[T]) -> T:
+    def get(self, key: ContextKey[T] | type[T]) -> T:
         """
         get value for the specified key
 
         Args:
-            key(ContextKey[T]): context key name
+            key(ContextKey[T] | type[T]): context key name
 
         Returns:
             T: value associated with the key
@@ -52,29 +52,37 @@ class _Context:
             KeyError: in case if the specified context variable was not found
             ValueError: in case if type of value is not an instance of specified return type
         """
+        if not isinstance(key, ContextKey):
+            key = ContextKey.from_type(key)
+
         if key.key not in self._content:
             raise KeyError(key.key)
         value = self._content[key.key]
         if not isinstance(value, key.return_type):
             raise ValueError(f"Value {value} is not an instance of {key.return_type}")
+
         return value
 
-    def set(self, key: ContextKey[T], value: T) -> None:
+    def set(self, key: ContextKey[T] | type[T], value: T) -> None:
         """
         set value for the specified key
 
         Args:
-            key(ContextKey[T]): context key name
+            key(ContextKey[T] | type[T]): context key name
             value(T): context value associated with the specified key
 
         Raises:
             KeyError: in case if the specified context variable already exists
             ValueError: in case if type of value is not an instance of specified return type
         """
+        if not isinstance(key, ContextKey):
+            key = ContextKey.from_type(key)
+
         if key.key in self._content:
             raise KeyError(key.key)
         if not isinstance(value, key.return_type):
             raise ValueError(f"Value {value} is not an instance of {key.return_type}")
+
         self._content[key.key] = value
 
     def __iter__(self) -> Iterator[str]:

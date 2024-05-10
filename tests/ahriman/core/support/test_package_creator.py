@@ -4,7 +4,6 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.database import SQLite
 from ahriman.core.support.package_creator import PackageCreator
-from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
@@ -38,5 +37,5 @@ def test_run(package_creator: PackageCreator, database: SQLite, mocker: MockerFi
     init_mock.assert_called_once_with(local_path)
 
     package_mock.assert_called_once_with(local_path, "x86_64", None)
-    database_mock.assert_called_once_with(ContextKey("database", SQLite))
+    database_mock.assert_called_once_with(SQLite)
     insert_mock.assert_called_once_with(package, pytest.helpers.anyvar(int))

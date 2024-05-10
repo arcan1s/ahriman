@@ -3,7 +3,6 @@ from pytest_mock import MockerFixture
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.gitremote import RemotePushTrigger
-from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 from ahriman.models.result import Result
 
@@ -30,5 +29,5 @@ def test_on_result(configuration: Configuration, result: Result, package_ahriman
     trigger = RemotePushTrigger(repository_id, configuration)
 
     trigger.on_result(result, [package_ahriman])
-    database_mock.assert_called_once_with(ContextKey("database", SQLite))
+    database_mock.assert_called_once_with(SQLite)
     run_mock.assert_called_once_with(result)
