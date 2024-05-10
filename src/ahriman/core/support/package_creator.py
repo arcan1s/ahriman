@@ -25,7 +25,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
 from ahriman.models.build_status import BuildStatus
-from ahriman.models.context_key import ContextKey
 from ahriman.models.package import Package
 
 
@@ -65,7 +64,7 @@ class PackageCreator:
 
         # register package
         ctx = context.get()
-        database: SQLite = ctx.get(ContextKey("database", SQLite))
+        database = ctx.get(SQLite)
         _, repository_id = self.configuration.check_loaded()
         package = Package.from_build(local_path, repository_id.architecture, None)
         database.package_update(package, BuildStatus())

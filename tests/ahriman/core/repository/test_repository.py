@@ -6,7 +6,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.sign.gpg import GPG
-from ahriman.models.context_key import ContextKey
 
 
 def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
@@ -29,9 +28,9 @@ def test_set_context(configuration: Configuration, database: SQLite, mocker: Moc
 
     instance = Repository.load(repository_id, configuration, database, report=False)
     set_mock.assert_has_calls([
-        MockCall(ContextKey("database", SQLite), instance.database),
-        MockCall(ContextKey("configuration", Configuration), instance.configuration),
-        MockCall(ContextKey("pacman", Pacman), instance.pacman),
-        MockCall(ContextKey("sign", GPG), instance.sign),
-        MockCall(ContextKey("repository", Repository), instance),
+        MockCall(SQLite, instance.database),
+        MockCall(Configuration, instance.configuration),
+        MockCall(Pacman, instance.pacman),
+        MockCall(GPG, instance.sign),
+        MockCall(Repository, instance),
     ])

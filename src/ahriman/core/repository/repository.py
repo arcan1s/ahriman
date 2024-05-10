@@ -26,7 +26,6 @@ from ahriman.core.database import SQLite
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.sign.gpg import GPG
-from ahriman.models.context_key import ContextKey
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 
@@ -89,11 +88,11 @@ class Repository(Executor, UpdateHandler):
         # directly without loader
         ctx = _Context()
 
-        ctx.set(ContextKey("database", SQLite), self.database)
-        ctx.set(ContextKey("configuration", Configuration), self.configuration)
-        ctx.set(ContextKey("pacman", Pacman), self.pacman)
-        ctx.set(ContextKey("sign", GPG), self.sign)
+        ctx.set(SQLite, self.database)
+        ctx.set(Configuration, self.configuration)
+        ctx.set(Pacman, self.pacman)
+        ctx.set(GPG, self.sign)
 
-        ctx.set(ContextKey("repository", type(self)), self)
+        ctx.set(type(self), self)
 
         context.set(ctx)
