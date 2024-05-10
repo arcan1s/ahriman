@@ -5,7 +5,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.support import KeyringTrigger
-from ahriman.models.context_key import ContextKey
 
 
 def test_configuration_sections(configuration: Configuration) -> None:
@@ -29,5 +28,5 @@ def test_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
 
     trigger = KeyringTrigger(repository_id, configuration)
     trigger.on_start()
-    context_mock.assert_has_calls([MockCall(ContextKey("sign", GPG)), MockCall(ContextKey("database", SQLite))])
+    context_mock.assert_has_calls([MockCall(GPG), MockCall(SQLite)])
     run_mock.assert_called_once_with()

@@ -24,7 +24,6 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.core.support.package_creator import PackageCreator
 from ahriman.core.support.pkgbuild.keyring_generator import KeyringGenerator
 from ahriman.core.triggers import Trigger
-from ahriman.models.context_key import ContextKey
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -134,8 +133,8 @@ class KeyringTrigger(Trigger):
         trigger action which will be called at the start of the application
         """
         ctx = context.get()
-        sign = ctx.get(ContextKey("sign", GPG))
-        database = ctx.get(ContextKey("database", SQLite))
+        sign = ctx.get(GPG)
+        database = ctx.get(SQLite)
 
         for target in self.targets:
             generator = KeyringGenerator(database, sign, self.repository_id, self.configuration, target)

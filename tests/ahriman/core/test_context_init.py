@@ -15,6 +15,18 @@ def test_get_set() -> None:
     assert ctx.get(key) == value
 
 
+def test_get_set_type() -> None:
+    """
+    must set and get variable by type
+    """
+    key, value = int, 42
+    ctx = _Context()
+
+    ctx.set(key, value)
+    assert ctx.get(key) == value
+    assert ctx.get(ContextKey.from_type(int)) == value
+
+
 def test_get_key_exception() -> None:
     """
     must raise KeyError in case if key was not found
