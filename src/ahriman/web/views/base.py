@@ -218,12 +218,13 @@ class BaseView(View, CorsViewMixin):
             return RepositoryId(architecture, name)
         return next(iter(sorted(self.services.keys())))
 
-    def service(self, repository_id: RepositoryId | None = None) -> Watcher:
+    def service(self, repository_id: RepositoryId | None = None, package_base: str | None = None) -> Watcher:
         """
         get status watcher instance
 
         Args:
             repository_id(RepositoryId | None, optional): repository unique identifier (Default value = None)
+            package_base(str | None, optional): package base to validate if exists (Default value = None)
 
         Returns:
             Watcher: build status watcher instance. If no repository provided, it will return the first one
@@ -234,7 +235,7 @@ class BaseView(View, CorsViewMixin):
         if repository_id is None:
             repository_id = self.repository_id()
         try:
-            return self.services[repository_id]
+            return self.services[repository_id](package_base)
         except KeyError:
             raise HTTPNotFound(reason=f"Repository {repository_id.id} is unknown")
 

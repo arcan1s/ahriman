@@ -71,7 +71,7 @@ class DependenciesView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            dependencies = self.service().package_dependencies_get(package_base)
+            dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
@@ -113,7 +113,7 @@ class DependenciesView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            self.service().package_dependencies_update(package_base, dependencies)
+            self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 

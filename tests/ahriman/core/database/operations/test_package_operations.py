@@ -7,8 +7,6 @@ from unittest.mock import call as MockCall
 from ahriman.core.database import SQLite
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
-from ahriman.models.package_source import PackageSource
-from ahriman.models.remote_source import RemoteSource
 
 
 def test_package_remove_package_base(database: SQLite, connection: Connection) -> None:
@@ -183,26 +181,6 @@ def test_package_update_update(database: SQLite, package_ahriman: Package) -> No
     assert next(db_package.version
                 for db_package, _ in database.packages_get()
                 if db_package.base == package_ahriman.base) == package_ahriman.version
-
-
-def test_remote_update_get(database: SQLite, package_ahriman: Package) -> None:
-    """
-    must insert and retrieve package remote
-    """
-    database.package_base_update(package_ahriman)
-    assert database.remotes_get()[package_ahriman.base] == package_ahriman.remote
-
-
-def test_remote_update_update(database: SQLite, package_ahriman: Package) -> None:
-    """
-    must perform package remote update for existing package
-    """
-    database.package_base_update(package_ahriman)
-    remote_source = RemoteSource(source=PackageSource.Repository)
-    package_ahriman.remote = remote_source
-
-    database.package_base_update(package_ahriman)
-    assert database.remotes_get()[package_ahriman.base] == remote_source
 
 
 def test_status_update(database: SQLite, package_ahriman: Package) -> None:

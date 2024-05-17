@@ -71,7 +71,7 @@ class ChangesView(StatusViewGuard, BaseView):
         package_base = self.request.match_info["package"]
 
         try:
-            changes = self.service().package_changes_get(package_base)
+            changes = self.service(package_base=package_base).package_changes_get(package_base)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
@@ -86,7 +86,7 @@ class ChangesView(StatusViewGuard, BaseView):
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
+            404: {"description": "Repository is unknown", "schema": ErrorSchema},
             500: {"description": "Internal server error", "schema": ErrorSchema},
         },
         security=[{"token": [POST_PERMISSION]}],
@@ -113,9 +113,6 @@ class ChangesView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         changes = Changes(last_commit_sha, change)
-        try:
-            self.service().package_changes_update(package_base, changes)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        self.service().package_changes_update(package_base, changes)
 
         raise HTTPNoContent

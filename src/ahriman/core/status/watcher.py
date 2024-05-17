@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Callable
 from threading import Lock
+from typing import Any, Self
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.log import LazyLogging
@@ -88,53 +90,13 @@ class Watcher(LazyLogging):
             self._known[package.base] = (package, BuildStatus(status))
         self.client.package_add(package, status)
 
-    def package_changes_get(self, package_base: str) -> Changes:
-        """
-        retrieve package changes
+    package_changes_get: Callable[[str], Changes]
 
-        Args:
-            package_base(str): package base
+    package_changes_update: Callable[[str, Changes], None]
 
-        Returns:
-            Changes: package changes if available
-        """
-        _ = self.package_get(package_base)
-        return self.client.package_changes_get(package_base)
+    package_dependencies_get: Callable[[str], Dependencies]
 
-    def package_changes_update(self, package_base: str, changes: Changes) -> None:
-        """
-        update package changes
-
-        Args:
-            package_base(str): package base
-            changes(Changes): package changes
-        """
-        _ = self.package_get(package_base)
-        self.client.package_changes_update(package_base, changes)
-
-    def package_dependencies_get(self, package_base: str) -> Dependencies:
-        """
-        retrieve package dependencies
-
-        Args:
-            package_base(str): package base
-
-        Returns:
-            Dependencies: package dependencies if available
-        """
-        _ = self.package_get(package_base)
-        return self.client.package_dependencies_get(package_base)
-
-    def package_dependencies_update(self, package_base: str, dependencies: Dependencies) -> None:
-        """
-        update package dependencies
-
-        Args:
-            package_base(str): package base
-            dependencies(Dependencies): package dependencies
-        """
-        _ = self.package_get(package_base)
-        self.client.package_dependencies_update(package_base, dependencies)
+    package_dependencies_update: Callable[[str, Dependencies], None]
 
     def package_get(self, package_base: str) -> tuple[Package, BuildStatus]:
         """
@@ -155,32 +117,7 @@ class Watcher(LazyLogging):
         except KeyError:
             raise UnknownPackageError(package_base) from None
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
-        """
-        extract logs for the package base
-
-        Args:
-            package_base(str): package base
-            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
-            offset(int, optional): records offset (Default value = 0)
-
-        Returns:
-            list[tuple[float, str]]: package logs
-        """
-        _ = self.package_get(package_base)
-        return self.client.package_logs_get(package_base, limit, offset)
-
-    def package_logs_remove(self, package_base: str, version: str | None) -> None:
-        """
-        remove package related logs
-
-        Args:
-            package_base(str): package base
-            version(str): package version
-        """
-        self.client.package_logs_remove(package_base, version)
-
-    def package_logs_update(self, log_record_id: LogRecordId, created: float, message: str) -> None:
+    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
         """
         make new log record into database
 
@@ -195,40 +132,15 @@ class Watcher(LazyLogging):
         self._last_log_record_id = log_record_id
         self.client.package_logs_add(log_record_id, created, message)
 
-    def package_patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
-        """
-        get patches for the package
+    package_logs_get: Callable[[str, int, int], list[tuple[float, str]]]
 
-        Args:
-            package_base(str): package base
-            variable(str | None): patch variable name if any
+    package_logs_remove: Callable[[str, str | None], None]
 
-        Returns:
-            list[PkgbuildPatch]: list of patches which are stored for the package
-        """
-        # patches are package base based, we don't know (and don't differentiate) to which package does them belong
-        # so here we skip checking if package exists or not
-        return self.client.package_patches_get(package_base, variable)
+    package_patches_get: Callable[[str, str | None], list[PkgbuildPatch]]
 
-    def package_patches_remove(self, package_base: str, variable: str) -> None:
-        """
-        remove package patch
+    package_patches_remove: Callable[[str, str], None]
 
-        Args:
-            package_base(str): package base
-            variable(str): patch variable name
-        """
-        self.client.package_patches_remove(package_base, variable)
-
-    def package_patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
-        """
-        update package patch
-
-        Args:
-            package_base(str): package base
-            patch(PkgbuildPatch): package patch
-        """
-        self.client.package_patches_update(package_base, patch)
+    package_patches_update: Callable[[str, PkgbuildPatch], None]
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -263,3 +175,34 @@ class Watcher(LazyLogging):
             status(BuildStatusEnum): new service status
         """
         self.status = BuildStatus(status)
+
+    def __call__(self, package_base: str | None) -> Self:
+        """
+        extract client for future calls
+
+        Args:
+            package_base(str | None): package base to validate that package exists if applicable
+
+        Returns:
+            Self: instance of self to pass calls to the client
+        """
+        if package_base is not None:
+            _ = self.package_get(package_base)
+        return self
+
+    def __getattr__(self, item: str) -> Any:
+        """
+        proxy methods for reporter client
+
+        Args:
+            item(str): property name:
+
+        Returns:
+            Any: attribute by its name
+
+        Raises:
+            AttributeError: in case if no such attribute found
+        """
+        if (method := getattr(self.client, item, None)) is not None:
+            return method
+        raise AttributeError(f"'{self.__class__.__qualname__}' object has no attribute '{item}'")

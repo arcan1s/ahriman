@@ -218,21 +218,6 @@ class PackageOperations(Operations):
             )
         }
 
-    def package_base_update(self, package: Package, repository_id: RepositoryId | None = None) -> None:
-        """
-        update package base only
-
-        Args:
-            package(Package): package properties
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
-        """
-        repository_id = repository_id or self._repository_id
-
-        def run(connection: Connection) -> None:
-            self._package_update_insert_base(connection, package, repository_id)
-
-        return self.with_connection(run, commit=True)
-
     def package_remove(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """
         remove package from database
@@ -286,26 +271,6 @@ class PackageOperations(Operations):
                 yield package, statuses.get(package_base, BuildStatus())
 
         return self.with_connection(lambda connection: list(run(connection)))
-
-    def remotes_get(self, repository_id: RepositoryId | None = None) -> dict[str, RemoteSource]:
-        """
-        get packages remotes based on current settings
-
-        Args:
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
-
-        Returns:
-            dict[str, RemoteSource]: map of package base to its remote sources
-        """
-        repository_id = repository_id or self._repository_id
-
-        def run(connection: Connection) -> dict[str, Package]:
-            return self._packages_get_select_package_bases(connection, repository_id)
-
-        return {
-            package_base: package.remote
-            for package_base, package in self.with_connection(run).items()
-        }
 
     def status_update(self, package_base: str, status: BuildStatus, repository_id: RepositoryId | None = None) -> None:
         """

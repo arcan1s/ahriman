@@ -82,14 +82,3 @@ async def test_post_exception(client: TestClient, package_ahriman: Package) -> N
     response = await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json=[])
     assert response.status == 400
     assert not response_schema.validate(await response.json())
-
-
-async def test_post_not_found(client: TestClient, package_ahriman: Package) -> None:
-    """
-    must raise exception on unknown package
-    """
-    response_schema = pytest.helpers.schema_response(ChangesView.post, code=404)
-
-    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/changes", json={})
-    assert response.status == 404
-    assert not response_schema.validate(await response.json())
