@@ -78,18 +78,6 @@ class Watcher(LazyLogging):
                 for package, status in self.client.package_get(None)
             }
 
-    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
-        """
-        update package
-
-        Args:
-            package(Package): package description
-            status(BuildStatusEnum): new build status
-        """
-        with self._lock:
-            self._known[package.base] = (package, BuildStatus(status))
-        self.client.package_add(package, status)
-
     package_changes_get: Callable[[str], Changes]
 
     package_changes_update: Callable[[str, Changes], None]
@@ -154,7 +142,7 @@ class Watcher(LazyLogging):
         self.client.package_remove(package_base)
         self.package_logs_remove(package_base, None)
 
-    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
         update package status
 
@@ -165,7 +153,19 @@ class Watcher(LazyLogging):
         package, _ = self.package_get(package_base)
         with self._lock:
             self._known[package_base] = (package, BuildStatus(status))
-        self.client.package_update(package_base, status)
+        self.client.package_status_update(package_base, status)
+
+    def package_update(self, package: Package, status: BuildStatusEnum) -> None:
+        """
+        update package
+
+        Args:
+            package(Package): package description
+            status(BuildStatusEnum): new build status
+        """
+        with self._lock:
+            self._known[package.base] = (package, BuildStatus(status))
+        self.client.package_update(package, status)
 
     def status_update(self, status: BuildStatusEnum) -> None:
         """

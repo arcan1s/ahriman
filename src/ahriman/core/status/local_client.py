@@ -48,17 +48,6 @@ class LocalClient(Client):
         self.database = database
         self.repository_id = repository_id
 
-    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
-        """
-        add new package with status
-
-        Args:
-            package(Package): package properties
-            status(BuildStatusEnum): current package build status
-        """
-        self.database.package_update(package, self.repository_id)
-        self.database.status_update(package.base, BuildStatus(status), self.repository_id)
-
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -197,12 +186,29 @@ class LocalClient(Client):
         """
         self.database.package_clear(package_base)
 
-    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
-        update package build status. Unlike :func:`package_add()` it does not update package properties
+        update package build status. Unlike :func:`package_update()` it does not update package properties
 
         Args:
             package_base(str): package base to update
             status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         self.database.status_update(package_base, BuildStatus(status), self.repository_id)
+
+    def package_update(self, package: Package, status: BuildStatusEnum) -> None:
+        """
+        add new package or update existing one with status
+
+        Args:
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        self.database.package_update(package, self.repository_id)
+        self.database.status_update(package.base, BuildStatus(status), self.repository_id)

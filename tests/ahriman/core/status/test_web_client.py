@@ -97,59 +97,6 @@ def test_status_url(web_client: WebClient) -> None:
     assert web_client._status_url().endswith("/api/v1/status")
 
 
-def test_package_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must process package addition
-    """
-    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
-    payload = pytest.helpers.get_package_status(package_ahriman)
-
-    web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
-                                          params=web_client.repository_id.query(), json=payload)
-
-
-def test_package_add_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during addition
-    """
-    mocker.patch("requests.Session.request", side_effect=Exception())
-    web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-
-
-def test_package_add_failed_http_error(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must suppress HTTP exception happened during addition
-    """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
-    web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-
-
-def test_package_add_failed_suppress(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must suppress any exception happened during addition and don't log
-    """
-    web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
-    logging_mock = mocker.patch("logging.exception")
-
-    web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    logging_mock.assert_not_called()
-
-
-def test_package_add_failed_http_error_suppress(web_client: WebClient, package_ahriman: Package,
-                                                mocker: MockerFixture) -> None:
-    """
-    must suppress HTTP exception happened during addition and don't log
-    """
-    web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
-    logging_mock = mocker.patch("logging.exception")
-
-    web_client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    logging_mock.assert_not_called()
-
-
 def test_package_changes_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must get changes
@@ -785,13 +732,13 @@ def test_package_remove_failed_http_error(web_client: WebClient, package_ahriman
     web_client.package_remove(package_ahriman.base)
 
 
-def test_package_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_status_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must process package update
     """
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
 
-    web_client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query(),
                                           json={
@@ -799,21 +746,75 @@ def test_package_update(web_client: WebClient, package_ahriman: Package, mocker:
     })
 
 
-def test_package_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_status_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must suppress any exception happened during update
     """
     mocker.patch("requests.Session.request", side_effect=Exception())
-    web_client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+
+
+def test_package_status_update_failed_http_error(web_client: WebClient, package_ahriman: Package,
+                                                 mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during update
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+
+
+def test_package_update(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must process package addition
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+    payload = pytest.helpers.get_package_status(package_ahriman)
+
+    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json=payload)
+
+
+def test_package_update_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during addition
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
 
 
 def test_package_update_failed_http_error(web_client: WebClient, package_ahriman: Package,
                                           mocker: MockerFixture) -> None:
     """
-    must suppress HTTP exception happened during update
+    must suppress HTTP exception happened during addition
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
-    web_client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
+    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+
+
+def test_package_update_failed_suppress(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during addition and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    logging_mock.assert_not_called()
+
+
+def test_package_update_failed_http_error_suppress(web_client: WebClient, package_ahriman: Package,
+                                                   mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during addition and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    logging_mock.assert_not_called()
 
 
 def test_status_get(web_client: WebClient, mocker: MockerFixture) -> None:

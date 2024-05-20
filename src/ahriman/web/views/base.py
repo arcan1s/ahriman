@@ -25,6 +25,7 @@ from typing import TypeVar
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.distributed import WorkersCache
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.spawn import Spawn
 from ahriman.core.status.watcher import Watcher
@@ -238,6 +239,8 @@ class BaseView(View, CorsViewMixin):
             return self.services[repository_id](package_base)
         except KeyError:
             raise HTTPNotFound(reason=f"Repository {repository_id.id} is unknown")
+        except UnknownPackageError:
+            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
     async def username(self) -> str | None:
         """

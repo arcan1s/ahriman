@@ -43,14 +43,15 @@ class PackageInfo(RepositoryProperties):
         Returns:
             list[Package]: list of read packages
         """
+        sources = {package.base: package.remote for package, _, in self.reporter.package_get(None)}
+
         result: dict[str, Package] = {}
         # we are iterating over bases, not single packages
         for full_path in packages:
             try:
                 local = Package.from_archive(full_path, self.pacman)
-                remote, _ = next(iter(self.reporter.package_get(local.base)), (None, None))
-                if remote is not None:  # update source with remote
-                    local.remote = remote.remote
+                if (source := sources.get(local.base)) is not None:  # update source with remote
+                    local.remote = source
 
                 current = result.setdefault(local.base, local)
                 if current.version != local.version:

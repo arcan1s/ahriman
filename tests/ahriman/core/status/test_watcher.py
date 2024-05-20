@@ -46,17 +46,6 @@ def test_load_known(watcher: Watcher, package_ahriman: Package, mocker: MockerFi
     assert status.status == BuildStatusEnum.Success
 
 
-def test_package_add(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must add package to cache
-    """
-    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_add")
-
-    watcher.package_add(package_ahriman, BuildStatusEnum.Unknown)
-    assert watcher.packages
-    cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int))
-
-
 def test_package_get(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must return package status
@@ -130,26 +119,37 @@ def test_package_remove_unknown(watcher: Watcher, package_ahriman: Package, mock
     cache_mock.assert_called_once_with(package_ahriman.base)
 
 
-def test_package_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_status_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must update package status only for known package
     """
-    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
+    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
-    watcher.package_update(package_ahriman.base, BuildStatusEnum.Success)
+    watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Success)
     cache_mock.assert_called_once_with(package_ahriman.base, pytest.helpers.anyvar(int))
     package, status = watcher._known[package_ahriman.base]
     assert package == package_ahriman
     assert status.status == BuildStatusEnum.Success
 
 
-def test_package_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
+def test_package_status_update_unknown(watcher: Watcher, package_ahriman: Package) -> None:
     """
     must fail on unknown package status update only
     """
     with pytest.raises(UnknownPackageError):
-        watcher.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
+        watcher.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+
+
+def test_package_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must add package to cache
+    """
+    cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
+
+    watcher.package_update(package_ahriman, BuildStatusEnum.Unknown)
+    assert watcher.packages
+    cache_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(int))
 
 
 def test_status_update(watcher: Watcher) -> None:

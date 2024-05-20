@@ -7,7 +7,6 @@ from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.keys import WatcherKey
@@ -210,7 +209,7 @@ def test_service_package(base: BaseView, repository_id: RepositoryId, mocker: Mo
     must validate that package exists
     """
     mocker.patch("ahriman.web.views.base.BaseView.repository_id", return_value=repository_id)
-    with pytest.raises(UnknownPackageError):
+    with pytest.raises(HTTPNotFound):
         base.service(package_base="base")
 
 

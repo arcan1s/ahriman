@@ -94,14 +94,6 @@ def test_load_web_client_from_legacy_unix_socket(configuration: Configuration, d
     assert isinstance(Client.load(repository_id, configuration, database, report=True), WebClient)
 
 
-def test_package_add(client: Client, package_ahriman: Package) -> None:
-    """
-    must raise not implemented on package addition
-    """
-    with pytest.raises(NotImplementedError):
-        client.package_add(package_ahriman, BuildStatusEnum.Unknown)
-
-
 def test_package_changes_get(client: Client, package_ahriman: Package) -> None:
     """
     must raise not implemented on package changes request
@@ -198,19 +190,27 @@ def test_package_remove(client: Client, package_ahriman: Package) -> None:
         client.package_remove(package_ahriman.base)
 
 
-def test_package_update(client: Client, package_ahriman: Package) -> None:
+def test_package_status_update(client: Client, package_ahriman: Package) -> None:
     """
     must raise not implemented on package update
     """
     with pytest.raises(NotImplementedError):
-        client.package_update(package_ahriman.base, BuildStatusEnum.Unknown)
+        client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
+
+
+def test_package_update(client: Client, package_ahriman: Package) -> None:
+    """
+    must raise not implemented on package addition
+    """
+    with pytest.raises(NotImplementedError):
+        client.package_update(package_ahriman, BuildStatusEnum.Unknown)
 
 
 def test_set_building(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must set building status to the package
     """
-    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    update_mock = mocker.patch("ahriman.core.status.Client.package_status_update")
     client.set_building(package_ahriman.base)
 
     update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Building)
@@ -220,7 +220,7 @@ def test_set_failed(client: Client, package_ahriman: Package, mocker: MockerFixt
     """
     must set failed status to the package
     """
-    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    update_mock = mocker.patch("ahriman.core.status.Client.package_status_update")
     client.set_failed(package_ahriman.base)
 
     update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Failed)
@@ -230,7 +230,7 @@ def test_set_pending(client: Client, package_ahriman: Package, mocker: MockerFix
     """
     must set building status to the package
     """
-    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    update_mock = mocker.patch("ahriman.core.status.Client.package_status_update")
     client.set_pending(package_ahriman.base)
 
     update_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Pending)
@@ -240,7 +240,7 @@ def test_set_success(client: Client, package_ahriman: Package, mocker: MockerFix
     """
     must set success status to the package
     """
-    add_mock = mocker.patch("ahriman.core.status.Client.package_add")
+    add_mock = mocker.patch("ahriman.core.status.Client.package_update")
     client.set_success(package_ahriman)
 
     add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Success)
@@ -250,7 +250,7 @@ def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFix
     """
     must add new package with unknown status
     """
-    add_mock = mocker.patch("ahriman.core.status.Client.package_add")
+    add_mock = mocker.patch("ahriman.core.status.Client.package_update")
     client.set_unknown(package_ahriman)
 
     add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Unknown)

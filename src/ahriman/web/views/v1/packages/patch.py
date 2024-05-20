@@ -63,6 +63,7 @@ class PatchView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
         variable = self.request.match_info["patch"]
+
         self.service().package_patches_remove(package_base, variable)
 
         raise HTTPNoContent

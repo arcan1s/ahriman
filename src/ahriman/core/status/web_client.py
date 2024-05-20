@@ -157,22 +157,6 @@ class WebClient(Client, SyncAhrimanClient):
         """
         return f"{self.address}/api/v1/status"
 
-    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
-        """
-        add new package with status
-
-        Args:
-            package(Package): package properties
-            status(BuildStatusEnum): current package build status
-        """
-        payload = {
-            "status": status.value,
-            "package": package.view()
-        }
-        with contextlib.suppress(Exception):
-            self.make_request("POST", self._package_url(package.base),
-                              params=self.repository_id.query(), json=payload)
-
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -365,17 +349,39 @@ class WebClient(Client, SyncAhrimanClient):
         with contextlib.suppress(Exception):
             self.make_request("DELETE", self._package_url(package_base), params=self.repository_id.query())
 
-    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
-        update package build status. Unlike :func:`package_add()` it does not update package properties
+        update package build status. Unlike :func:`package_update()` it does not update package properties
 
         Args:
             package_base(str): package base to update
             status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         payload = {"status": status.value}
         with contextlib.suppress(Exception):
             self.make_request("POST", self._package_url(package_base),
+                              params=self.repository_id.query(), json=payload)
+
+    def package_update(self, package: Package, status: BuildStatusEnum) -> None:
+        """
+        add new package or update existing one with status
+
+        Args:
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        payload = {
+            "status": status.value,
+            "package": package.view(),
+        }
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package.base),
                               params=self.repository_id.query(), json=payload)
 
     def status_get(self) -> InternalStatus:

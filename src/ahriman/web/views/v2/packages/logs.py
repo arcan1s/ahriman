@@ -19,9 +19,8 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPNotFound, Response, json_response
+from aiohttp.web import Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
@@ -68,10 +67,8 @@ class LogsView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
         limit, offset = self.page()
-        try:
-            logs = self.service(package_base=package_base).package_logs_get(package_base, limit, offset)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+
+        logs = self.service(package_base=package_base).package_logs_get(package_base, limit, offset)
 
         response = [
             {

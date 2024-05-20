@@ -19,9 +19,8 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, DependenciesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
@@ -70,10 +69,7 @@ class DependenciesView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
 
-        try:
-            dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
 
         return json_response(dependencies.view())
 
@@ -112,9 +108,6 @@ class DependenciesView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        try:
-            self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
 
         raise HTTPNoContent

@@ -12,18 +12,6 @@ from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
-def test_package_add(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must process package addition
-    """
-    package_mock = mocker.patch("ahriman.core.database.SQLite.package_update")
-    status_mock = mocker.patch("ahriman.core.database.SQLite.status_update")
-
-    local_client.package_add(package_ahriman, BuildStatusEnum.Success)
-    package_mock.assert_called_once_with(package_ahriman, local_client.repository_id)
-    status_mock.assert_called_once_with(package_ahriman.base, pytest.helpers.anyvar(int), local_client.repository_id)
-
-
 def test_package_changes_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must retrieve package changes
@@ -173,10 +161,22 @@ def test_package_remove(local_client: LocalClient, package_ahriman: Package, moc
     package_mock.assert_called_once_with(package_ahriman.base)
 
 
-def test_package_update(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+def test_package_status_update(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must update package status
     """
     status_mock = mocker.patch("ahriman.core.database.SQLite.status_update")
-    local_client.package_update(package_ahriman.base, BuildStatusEnum.Success)
+    local_client.package_status_update(package_ahriman.base, BuildStatusEnum.Success)
+    status_mock.assert_called_once_with(package_ahriman.base, pytest.helpers.anyvar(int), local_client.repository_id)
+
+
+def test_package_update(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must process package addition
+    """
+    package_mock = mocker.patch("ahriman.core.database.SQLite.package_update")
+    status_mock = mocker.patch("ahriman.core.database.SQLite.status_update")
+
+    local_client.package_update(package_ahriman, BuildStatusEnum.Success)
+    package_mock.assert_called_once_with(package_ahriman, local_client.repository_id)
     status_mock.assert_called_once_with(package_ahriman.base, pytest.helpers.anyvar(int), local_client.repository_id)

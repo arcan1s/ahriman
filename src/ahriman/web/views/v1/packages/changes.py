@@ -19,9 +19,8 @@
 #
 import aiohttp_apispec  # type: ignore[import-untyped]
 
-from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
-from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.changes import Changes
 from ahriman.models.user_access import UserAccess
 from ahriman.web.schemas import AuthSchema, ChangesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
@@ -70,10 +69,7 @@ class ChangesView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
 
-        try:
-            changes = self.service(package_base=package_base).package_changes_get(package_base)
-        except UnknownPackageError:
-            raise HTTPNotFound(reason=f"Package {package_base} is unknown")
+        changes = self.service(package_base=package_base).package_changes_get(package_base)
 
         return json_response(changes.view())
 
