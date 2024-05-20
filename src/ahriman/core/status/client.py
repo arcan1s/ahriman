@@ -278,7 +278,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.package_status_update(package_base, BuildStatusEnum.Building)
+        self.package_status_update(package_base, BuildStatusEnum.Building)
 
     def set_failed(self, package_base: str) -> None:
         """
@@ -287,7 +287,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.package_status_update(package_base, BuildStatusEnum.Failed)
+        self.package_status_update(package_base, BuildStatusEnum.Failed)
 
     def set_pending(self, package_base: str) -> None:
         """
@@ -296,7 +296,7 @@ class Client:
         Args:
             package_base(str): package base to update
         """
-        return self.package_status_update(package_base, BuildStatusEnum.Pending)
+        self.package_status_update(package_base, BuildStatusEnum.Pending)
 
     def set_success(self, package: Package) -> None:
         """
@@ -305,16 +305,19 @@ class Client:
         Args:
             package(Package): current package properties
         """
-        return self.package_update(package, BuildStatusEnum.Success)
+        self.package_update(package, BuildStatusEnum.Success)
 
     def set_unknown(self, package: Package) -> None:
         """
-        set package status to unknown
+        set package status to unknown. Unlike other methods, this method also checks if package is known,
+        and - in case if it is - it silently skips updatd
 
         Args:
             package(Package): current package properties
         """
-        return self.package_update(package, BuildStatusEnum.Unknown)
+        if self.package_get(package.base):
+            return  # skip update in case if package is already known
+        self.package_update(package, BuildStatusEnum.Unknown)
 
     def status_get(self) -> InternalStatus:
         """

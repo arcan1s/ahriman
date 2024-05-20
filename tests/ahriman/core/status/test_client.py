@@ -240,20 +240,32 @@ def test_set_success(client: Client, package_ahriman: Package, mocker: MockerFix
     """
     must set success status to the package
     """
-    add_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
     client.set_success(package_ahriman)
 
-    add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Success)
+    update_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Success)
 
 
 def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must add new package with unknown status
     """
-    add_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    mocker.patch("ahriman.core.status.Client.package_get", return_value=[])
+    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
     client.set_unknown(package_ahriman)
 
-    add_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Unknown)
+    update_mock.assert_called_once_with(package_ahriman, BuildStatusEnum.Unknown)
+
+
+def test_set_unknown_skip(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip unknown status update in case if pacakge is already known
+    """
+    mocker.patch("ahriman.core.status.Client.package_get", return_value=[(package_ahriman, None)])
+    update_mock = mocker.patch("ahriman.core.status.Client.package_update")
+    client.set_unknown(package_ahriman)
+
+    update_mock.assert_not_called()
 
 
 def test_status_get(client: Client) -> None:
