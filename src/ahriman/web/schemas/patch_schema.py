@@ -25,8 +25,8 @@ class PatchSchema(Schema):
     request and response patch schema
     """
 
-    key = fields.String(required=True, metadata={
-        "description": "environment variable name",
+    key = fields.String(metadata={
+        "description": "environment variable name. Required in case if it is not full diff",
     })
     value = fields.String(metadata={
         "description": "environment variable value",

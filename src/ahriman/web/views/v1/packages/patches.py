@@ -96,7 +96,7 @@ class PatchesView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            key = data["key"]
+            key = data.get("key")
             value = data["value"]
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))

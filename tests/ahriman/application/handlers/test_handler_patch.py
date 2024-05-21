@@ -161,12 +161,12 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     must list available patches for the command
     """
     get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
-                            return_value=[PkgbuildPatch(None, "patch")])
+                            return_value=[PkgbuildPatch(None, "patch"), PkgbuildPatch("version", "value")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Patch.patch_set_list(application, "ahriman", ["version"], False)
-    get_mock.assert_called_once_with("ahriman", "version")
+    get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
     check_mock.assert_called_once_with(False, False)
 

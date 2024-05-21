@@ -130,12 +130,11 @@ class Patch(Handler):
             variables(list[str] | None): extract patches only for specified PKGBUILD variables
             exit_code(bool): exit with error on empty search result
         """
-        patches = []
-        if variables is not None:
-            for variable in variables:
-                patches.extend(application.reporter.package_patches_get(package_base, variable))
-        else:
-            patches = application.reporter.package_patches_get(package_base, variables)
+        patches = [
+            patch
+            for patch in application.reporter.package_patches_get(package_base, None)
+            if variables is None or patch.key in variables
+        ]
         Patch.check_if_empty(exit_code, not patches)
 
         PatchPrinter(package_base, patches)(verbose=True, separator=" = ")
@@ -154,4 +153,4 @@ class Patch(Handler):
             for variable in variables:  # iterate over single variable
                 application.reporter.package_patches_remove(package_base, variable)
         else:
-            application.reporter.package_patches_remove(package_base, variables)  # just pass as is
+            application.reporter.package_patches_remove(package_base, None)  # just pass as is
