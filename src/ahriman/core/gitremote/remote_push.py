@@ -25,9 +25,9 @@ from tempfile import TemporaryDirectory
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
 from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.log import LazyLogging
+from ahriman.core.status import Client
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -40,20 +40,20 @@ class RemotePush(LazyLogging):
 
     Attributes:
         commit_author(tuple[str, str] | None): optional commit author in form of git config
-        database(SQLite): database instance
         remote_source(RemoteSource): repository remote source (remote pull url and branch)
+        reporter(Client): reporter client used for additional information retrieval
     """
 
-    def __init__(self, database: SQLite, configuration: Configuration, section: str) -> None:
+    def __init__(self, reporter: Client, configuration: Configuration, section: str) -> None:
         """
         default constructor
 
         Args:
-            database(SQLite): database instance
+            reporter(Client): reporter client
             configuration(Configuration): configuration instance
             section(str): settings section name
         """
-        self.database = database
+        self.reporter = reporter
 
         commit_email = configuration.get(section, "commit_email", fallback="ahriman@localhost")
         commit_user = configuration.get(section, "commit_user", fallback="ahriman")
@@ -92,7 +92,7 @@ class RemotePush(LazyLogging):
             else:
                 shutil.rmtree(git_file)
         # ...copy all patches...
-        for patch in self.database.patches_get(package.base):
+        for patch in self.reporter.package_patches_get(package.base, None):
             filename = f"ahriman-{package.base}.patch" if patch.key is None else f"ahriman-{patch.key}.patch"
             patch.write(package_target_dir / filename)
         # ...and finally return path to the copied directory

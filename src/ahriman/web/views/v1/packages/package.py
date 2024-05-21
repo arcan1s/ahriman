@@ -152,7 +152,10 @@ class PackageView(StatusViewGuard, BaseView):
             raise HTTPBadRequest(reason=str(ex))
 
         try:
-            self.service().package_update(package_base, status, package)
+            if package is None:
+                self.service().package_status_update(package_base, status)
+            else:
+                self.service().package_update(package, status)
         except UnknownPackageError:
             raise HTTPBadRequest(reason=f"Package {package_base} is unknown, but no package body set")
 

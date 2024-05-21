@@ -22,6 +22,7 @@ import logging
 from typing import Self
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.status import Client
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -49,8 +50,6 @@ class HttpLogHandler(logging.Handler):
         # we don't really care about those parameters because they will be handled by the reporter
         logging.Handler.__init__(self)
 
-        # client has to be imported here because of circular imports
-        from ahriman.core.status.client import Client
         self.reporter = Client.load(repository_id, configuration, report=report)
         self.suppress_errors = suppress_errors
 
@@ -92,7 +91,7 @@ class HttpLogHandler(logging.Handler):
             return  # in case if no package base supplied we need just skip log message
 
         try:
-            self.reporter.package_logs(log_record_id, record)
+            self.reporter.package_logs_add(log_record_id, record.created, record.getMessage())
         except Exception:
             if self.suppress_errors:
                 return

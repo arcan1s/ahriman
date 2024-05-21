@@ -177,7 +177,7 @@ class Pacman(LazyLogging):
             PacmanDatabase(database, self.configuration).sync(force=force)
         transaction.release()
 
-    def files(self, packages: Iterable[str] | None = None) -> dict[str, set[Path]]:
+    def files(self, packages: Iterable[str] | None = None) -> dict[str, set[str]]:
         """
         extract list of known packages from the databases
 
@@ -185,11 +185,11 @@ class Pacman(LazyLogging):
             packages(Iterable[str] | None, optional): filter by package names (Default value = None)
 
         Returns:
-            dict[str, set[Path]]: map of package name to its list of files
+            dict[str, set[str]]: map of package name to its list of files
         """
         packages = packages or []
 
-        def extract(tar: tarfile.TarFile) -> Generator[tuple[str, set[Path]], None, None]:
+        def extract(tar: tarfile.TarFile) -> Generator[tuple[str, set[str]], None, None]:
             for descriptor in filter(lambda info: info.path.endswith("/files"), tar.getmembers()):
                 package, *_ = str(Path(descriptor.path).parent).rsplit("-", 2)
                 if packages and package not in packages:
@@ -197,11 +197,11 @@ class Pacman(LazyLogging):
                 content = tar.extractfile(descriptor)
                 if content is None:
                     continue
-                files = {Path(filename.decode("utf8").rstrip()) for filename in content.readlines()}
+                files = {filename.decode("utf8").rstrip() for filename in content.readlines()}
 
                 yield package, files
 
-        result: dict[str, set[Path]] = {}
+        result: dict[str, set[str]] = {}
         for database in self.handle.get_syncdbs():
             database_file = self.repository_paths.pacman / "sync" / f"{database.name}.files.tar.gz"
             if not database_file.is_file():

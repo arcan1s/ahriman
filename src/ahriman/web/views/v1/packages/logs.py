@@ -25,8 +25,8 @@ from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.util import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchema, PackageNameSchema, RepositoryIdSchema, \
-    VersionedLogSchema
+from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchema, PackageNameSchema, PackageVersionSchema, \
+    RepositoryIdSchema, VersionedLogSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -60,7 +60,7 @@ class LogsView(StatusViewGuard, BaseView):
     )
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
+    @aiohttp_apispec.querystring_schema(PackageVersionSchema)
     async def delete(self) -> None:
         """
         delete package logs
@@ -69,7 +69,8 @@ class LogsView(StatusViewGuard, BaseView):
             HTTPNoContent: on success response
         """
         package_base = self.request.match_info["package"]
-        self.service().logs_remove(package_base, None)
+        version = self.request.query.get("version")
+        self.service().package_logs_remove(package_base, version)
 
         raise HTTPNoContent
 
@@ -103,7 +104,7 @@ class LogsView(StatusViewGuard, BaseView):
 
         try:
             _, status = self.service().package_get(package_base)
-            logs = self.service().logs_get(package_base)
+            logs = self.service(package_base=package_base).package_logs_get(package_base, -1, 0)
         except UnknownPackageError:
             raise HTTPNotFound(reason=f"Package {package_base} is unknown")
 
@@ -149,6 +150,6 @@ class LogsView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().logs_update(LogRecordId(package_base, version), created, record)
+        self.service().package_logs_add(LogRecordId(package_base, version), created, record)
 
         raise HTTPNoContent

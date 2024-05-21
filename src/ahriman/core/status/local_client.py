@@ -17,67 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# pylint: disable=too-many-public-methods
-from __future__ import annotations
-
-from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
-from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
 
 
-class Client:
+class LocalClient(Client):
     """
-    base build status reporter client
+    local database handler
+
+    Attributes:
+        database(SQLite): database instance
+        repository_id(RepositoryId): repository unique identifier
     """
 
-    @staticmethod
-    def load(repository_id: RepositoryId, configuration: Configuration, database: SQLite | None = None, *,
-             report: bool = True) -> Client:
+    def __init__(self, repository_id: RepositoryId, database: SQLite) -> None:
         """
-        load client from settings
+        default constructor
 
         Args:
             repository_id(RepositoryId): repository unique identifier
-            configuration(Configuration): configuration instance
-            database(SQLite | None, optional): database instance (Default value = None)
-            report(bool, optional): force enable or disable reporting (Default value = True)
-
-        Returns:
-            Client: client according to current settings
+            database(SQLite): database instance:
         """
-        def make_local_client() -> Client:
-            if database is None:
-                return Client()
-
-            from ahriman.core.status.local_client import LocalClient
-            return LocalClient(repository_id, database)
-
-        if not report:
-            return make_local_client()
-        if not configuration.getboolean("status", "enabled", fallback=True):  # global switch
-            return make_local_client()
-
-        # new-style section
-        address = configuration.get("status", "address", fallback=None)
-        # old-style section
-        legacy_address = configuration.get("web", "address", fallback=None)
-        host = configuration.get("web", "host", fallback=None)
-        port = configuration.getint("web", "port", fallback=None)
-        socket = configuration.get("web", "unix_socket", fallback=None)
-
-        # basically we just check if there is something we can use for interaction with remote server
-        if address or legacy_address or (host and port) or socket:
-            from ahriman.core.status.web_client import WebClient
-            return WebClient(repository_id, configuration)
-
-        return make_local_client()
+        self.database = database
+        self.repository_id = repository_id
 
     def package_changes_get(self, package_base: str) -> Changes:
         """
@@ -88,11 +57,8 @@ class Client:
 
         Returns:
             Changes: package changes if available and empty object otherwise
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        return self.database.changes_get(package_base, self.repository_id)
 
     def package_changes_update(self, package_base: str, changes: Changes) -> None:
         """
@@ -101,11 +67,8 @@ class Client:
         Args:
             package_base(str): package base to update
             changes(Changes): changes descriptor
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.changes_insert(package_base, changes, self.repository_id)
 
     def package_dependencies_get(self, package_base: str) -> Dependencies:
         """
@@ -116,11 +79,8 @@ class Client:
 
         Returns:
             list[Dependencies]: package implicit dependencies if available
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        return self.database.dependencies_get(package_base, self.repository_id).get(package_base, Dependencies())
 
     def package_dependencies_update(self, package_base: str, dependencies: Dependencies) -> None:
         """
@@ -129,11 +89,8 @@ class Client:
         Args:
             package_base(str): package base to update
             dependencies(Dependencies): dependencies descriptor
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.dependencies_insert(package_base, dependencies, self.repository_id)
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
@@ -144,11 +101,11 @@ class Client:
 
         Returns:
             list[tuple[Package, BuildStatus]]: list of current package description and status if it has been found
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        packages = self.database.packages_get(self.repository_id)
+        if package_base is None:
+            return packages
+        return [(package, status) for package, status in packages if package.base == package_base]
 
     def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
         """
@@ -159,7 +116,7 @@ class Client:
             created(float): log created timestamp
             message(str): log message
         """
-        # this method does not raise NotImplementedError because it is actively used as dummy client for http log
+        self.database.logs_insert(log_record_id, created, message, self.repository_id)
 
     def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
         """
@@ -172,11 +129,8 @@ class Client:
 
         Returns:
             list[tuple[float, str]]: package logs
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        return self.database.logs_get(package_base, limit, offset, self.repository_id)
 
     def package_logs_remove(self, package_base: str, version: str | None) -> None:
         """
@@ -185,11 +139,8 @@ class Client:
         Args:
             package_base(str): package base
             version(str | None): package version to remove logs. If None set, all logs will be removed
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.logs_remove(package_base, version, self.repository_id)
 
     def package_patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
         """
@@ -201,11 +152,9 @@ class Client:
 
         Returns:
             list[PkgbuildPatch]: list of patches for the specified package
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        variables = [variable] if variable is not None else None
+        return self.database.patches_list(package_base, variables).get(package_base, [])
 
     def package_patches_remove(self, package_base: str, variable: str | None) -> None:
         """
@@ -214,11 +163,9 @@ class Client:
         Args:
             package_base(str): package base to update
             variable(str | None): patch name. If None set, all patches will be removed
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        variables = [variable] if variable is not None else None
+        self.database.patches_remove(package_base, variables)
 
     def package_patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
         """
@@ -227,11 +174,8 @@ class Client:
         Args:
             package_base(str): package base to update
             patch(PkgbuildPatch): package patch
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.patches_insert(package_base, [patch])
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -239,11 +183,8 @@ class Client:
 
         Args:
             package_base(str): package base to remove
-
-        Raises:
-            NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.package_clear(package_base)
 
     def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
@@ -256,7 +197,7 @@ class Client:
         Raises:
             NotImplementedError: not implemented method
         """
-        raise NotImplementedError
+        self.database.status_update(package_base, BuildStatus(status), self.repository_id)
 
     def package_update(self, package: Package, status: BuildStatusEnum) -> None:
         """
@@ -269,69 +210,5 @@ class Client:
         Raises:
             NotImplementedError: not implemented method
         """
-        raise NotImplementedError
-
-    def set_building(self, package_base: str) -> None:
-        """
-        set package status to building
-
-        Args:
-            package_base(str): package base to update
-        """
-        self.package_status_update(package_base, BuildStatusEnum.Building)
-
-    def set_failed(self, package_base: str) -> None:
-        """
-        set package status to failed
-
-        Args:
-            package_base(str): package base to update
-        """
-        self.package_status_update(package_base, BuildStatusEnum.Failed)
-
-    def set_pending(self, package_base: str) -> None:
-        """
-        set package status to pending
-
-        Args:
-            package_base(str): package base to update
-        """
-        self.package_status_update(package_base, BuildStatusEnum.Pending)
-
-    def set_success(self, package: Package) -> None:
-        """
-        set package status to success
-
-        Args:
-            package(Package): current package properties
-        """
-        self.package_update(package, BuildStatusEnum.Success)
-
-    def set_unknown(self, package: Package) -> None:
-        """
-        set package status to unknown. Unlike other methods, this method also checks if package is known,
-        and - in case if it is - it silently skips updatd
-
-        Args:
-            package(Package): current package properties
-        """
-        if self.package_get(package.base):
-            return  # skip update in case if package is already known
-        self.package_update(package, BuildStatusEnum.Unknown)
-
-    def status_get(self) -> InternalStatus:
-        """
-        get internal service status
-
-        Returns:
-            InternalStatus: current internal (web) service status
-        """
-        return InternalStatus(status=BuildStatus())
-
-    def status_update(self, status: BuildStatusEnum) -> None:
-        """
-        update ahriman status itself
-
-        Args:
-            status(BuildStatusEnum): current ahriman status
-        """
+        self.database.package_update(package, self.repository_id)
+        self.database.status_update(package.base, BuildStatus(status), self.repository_id)

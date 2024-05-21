@@ -6,6 +6,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 from ahriman.core.sign.gpg import GPG
+from ahriman.core.status import Client
 
 
 def test_load(configuration: Configuration, database: SQLite, mocker: MockerFixture) -> None:
@@ -32,5 +33,6 @@ def test_set_context(configuration: Configuration, database: SQLite, mocker: Moc
         MockCall(Configuration, instance.configuration),
         MockCall(Pacman, instance.pacman),
         MockCall(GPG, instance.sign),
+        MockCall(Client, instance.reporter),
         MockCall(Repository, instance),
     ])

@@ -20,14 +20,12 @@
 from marshmallow import Schema, fields
 
 
-class PatchSchema(Schema):
+class DependenciesSchema(Schema):
     """
-    request and response patch schema
+    request/response package dependencies schema
     """
 
-    key = fields.String(metadata={
-        "description": "environment variable name. Required in case if it is not full diff",
-    })
-    value = fields.String(metadata={
-        "description": "environment variable value",
-    })
+    paths = fields.Dict(
+        keys=fields.String(), values=fields.List(fields.String()), required=True, metadata={
+            "description": "Map of filesystem paths to packages which contain this path",
+        })

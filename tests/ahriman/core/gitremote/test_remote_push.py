@@ -5,15 +5,15 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
 from ahriman.core.exceptions import GitRemoteError
 from ahriman.core.gitremote.remote_push import RemotePush
+from ahriman.core.status import Client
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.result import Result
 
 
-def test_package_update(database: SQLite, configuration: Configuration, package_ahriman: Package,
+def test_package_update(local_client: Client, configuration: Configuration, package_ahriman: Package,
                         mocker: MockerFixture) -> None:
     """
     must update single package
@@ -27,9 +27,10 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     rmtree_mock = mocker.patch("shutil.rmtree")
     unlink_mock = mocker.patch("pathlib.Path.unlink")
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
-    patches_mock = mocker.patch("ahriman.core.database.SQLite.patches_get", return_value=[patch1, patch2])
+    patches_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
+                                return_value=[patch1, patch2])
     patches_write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
-    runner = RemotePush(database, configuration, "gitremote")
+    runner = RemotePush(local_client, configuration, "gitremote")
 
     assert runner.package_update(package_ahriman, local) == package_ahriman.base
     glob_mock.assert_called_once_with(".git*")
@@ -39,28 +40,28 @@ def test_package_update(database: SQLite, configuration: Configuration, package_
     ])
     unlink_mock.assert_called_once_with()
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), package_ahriman.remote)
-    patches_mock.assert_called_once_with(package_ahriman.base)
+    patches_mock.assert_called_once_with(package_ahriman.base, None)
     patches_write_mock.assert_has_calls([
         MockCall(local / package_ahriman.base / f"ahriman-{package_ahriman.base}.patch"),
         MockCall(local / package_ahriman.base / f"ahriman-{patch2.key}.patch"),
     ])
 
 
-def test_packages_update(database: SQLite, configuration: Configuration, result: Result, package_ahriman: Package,
+def test_packages_update(local_client: Client, configuration: Configuration, result: Result, package_ahriman: Package,
                          mocker: MockerFixture) -> None:
     """
     must generate packages update
     """
     update_mock = mocker.patch("ahriman.core.gitremote.remote_push.RemotePush.package_update",
                                return_value=[package_ahriman.base])
-    runner = RemotePush(database, configuration, "gitremote")
+    runner = RemotePush(local_client, configuration, "gitremote")
 
     local = Path("local")
     assert list(runner.packages_update(result, local))
     update_mock.assert_called_once_with(package_ahriman, local)
 
 
-def test_run(database: SQLite, configuration: Configuration, result: Result, package_ahriman: Package,
+def test_run(local_client: Client, configuration: Configuration, result: Result, package_ahriman: Package,
              mocker: MockerFixture) -> None:
     """
     must push changes on result
@@ -68,7 +69,7 @@ def test_run(database: SQLite, configuration: Configuration, result: Result, pac
     mocker.patch("ahriman.core.gitremote.remote_push.RemotePush.packages_update", return_value=[package_ahriman.base])
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     push_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.push")
-    runner = RemotePush(database, configuration, "gitremote")
+    runner = RemotePush(local_client, configuration, "gitremote")
 
     runner.run(result)
     fetch_mock.assert_called_once_with(pytest.helpers.anyvar(int), runner.remote_source)
@@ -77,12 +78,12 @@ def test_run(database: SQLite, configuration: Configuration, result: Result, pac
     )
 
 
-def test_run_failed(database: SQLite, configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
+def test_run_failed(local_client: Client, configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
     """
     must reraise exception on error occurred
     """
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
-    runner = RemotePush(database, configuration, "gitremote")
+    runner = RemotePush(local_client, configuration, "gitremote")
 
     with pytest.raises(GitRemoteError):
         runner.run(result)
