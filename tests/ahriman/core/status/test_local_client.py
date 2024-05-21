@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.status.local_client import LocalClient
-from ahriman.models.build_status import BuildStatusEnum, BuildStatus
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.log_record_id import LogRecordId

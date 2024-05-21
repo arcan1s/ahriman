@@ -165,7 +165,6 @@ def test_package_update_remove_get(database: SQLite, package_ahriman: Package) -
     """
     must insert, remove and retrieve package
     """
-    status = BuildStatus()
     database.package_update(package_ahriman)
     database.package_remove(package_ahriman.base)
     assert not database.packages_get()

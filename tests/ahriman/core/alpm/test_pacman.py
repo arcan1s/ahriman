@@ -128,7 +128,7 @@ def test_database_copy_database_exist(pacman: Pacman, mocker: MockerFixture) -> 
     copy_mock.assert_not_called()
 
 
-def test_database_init(pacman: Pacman, configuration: Configuration) -> None:
+def test_database_init(pacman: Pacman) -> None:
     """
     must init database with settings
     """
@@ -184,14 +184,15 @@ def test_files(pacman: Pacman, package_ahriman: Package, mocker: MockerFixture, 
     pacman.handle = handle_mock
     tarball = resource_path_root / "core" / "arcanisrepo.files.tar.gz"
 
-    mocker.patch("pathlib.Path.is_file", return_value=True)
-    open_mock = mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=tarfile.open(tarball, "r:gz"))
+    with tarfile.open(tarball, "r:gz") as fd:
+        mocker.patch("pathlib.Path.is_file", return_value=True)
+        open_mock = mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=fd)
 
-    files = pacman.files()
-    assert len(files) == 2
-    assert package_ahriman.base in files
-    assert "usr/bin/ahriman" in files[package_ahriman.base]
-    open_mock.assert_called_once_with(pytest.helpers.anyvar(int), "r:gz")
+        files = pacman.files()
+        assert len(files) == 2
+        assert package_ahriman.base in files
+        assert "usr/bin/ahriman" in files[package_ahriman.base]
+        open_mock.assert_called_once_with(pytest.helpers.anyvar(int), "r:gz")
 
 
 def test_files_package(pacman: Pacman, package_ahriman: Package, mocker: MockerFixture,
@@ -205,12 +206,13 @@ def test_files_package(pacman: Pacman, package_ahriman: Package, mocker: MockerF
 
     tarball = resource_path_root / "core" / "arcanisrepo.files.tar.gz"
 
-    mocker.patch("pathlib.Path.is_file", return_value=True)
-    mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=tarfile.open(tarball, "r:gz"))
+    with tarfile.open(tarball, "r:gz") as fd:
+        mocker.patch("pathlib.Path.is_file", return_value=True)
+        mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=fd)
 
-    files = pacman.files(package_ahriman.base)
-    assert len(files) == 1
-    assert package_ahriman.base in files
+        files = pacman.files(package_ahriman.base)
+        assert len(files) == 1
+        assert package_ahriman.base in files
 
 
 def test_files_skip(pacman: Pacman, mocker: MockerFixture) -> None:

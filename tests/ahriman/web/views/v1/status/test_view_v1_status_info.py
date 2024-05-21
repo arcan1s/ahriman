@@ -30,7 +30,7 @@ async def test_get(client: TestClient, repository_id: RepositoryId) -> None:
     """
     response_schema = pytest.helpers.schema_response(InfoView.get)
 
-    response = await client.get(f"/api/v1/info")
+    response = await client.get("/api/v1/info")
     assert response.ok
     json = await response.json()
     assert not response_schema.validate(json)

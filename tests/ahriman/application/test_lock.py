@@ -27,7 +27,7 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
 
     with pytest.raises(ValueError):
         args.lock = Path("/")
-        Lock(args, repository_id, configuration).path  # special case
+        assert Lock(args, repository_id, configuration).path  # special case
 
 
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
@@ -205,7 +205,7 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.application.lock.Lock.create")
     update_status_mock = mocker.patch("ahriman.core.status.Client.status_update")
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         with lock:
-            raise Exception()
+            raise ValueError()
     update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Failed)])
