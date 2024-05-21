@@ -68,9 +68,9 @@ def test_in_package_context_failed(database: SQLite, package_ahriman: Package, m
     mocker.patch("ahriman.core.log.LazyLogging._package_logger_set")
     reset_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_reset")
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         with database.in_package_context(package_ahriman.base, ""):
-            raise Exception()
+            raise ValueError()
 
     reset_mock.assert_called_once_with()
 
@@ -81,11 +81,3 @@ def test_logger(database: SQLite) -> None:
     """
     assert database.logger
     assert database.logger.name == "ahriman.core.database.sqlite.SQLite"
-
-
-def test_logger_attribute_error(database: SQLite) -> None:
-    """
-    must raise AttributeError in case if no attribute found
-    """
-    with pytest.raises(AttributeError):
-        database.loggerrrr

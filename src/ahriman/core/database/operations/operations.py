@@ -25,6 +25,7 @@ from typing import Any, TypeVar
 
 from ahriman.core.log import LazyLogging
 from ahriman.models.repository_id import RepositoryId
+from ahriman.models.repository_paths import RepositoryPaths
 
 
 T = TypeVar("T")
@@ -38,7 +39,7 @@ class Operations(LazyLogging):
         path(Path): path to the database file
     """
 
-    def __init__(self, path: Path, repository_id: RepositoryId) -> None:
+    def __init__(self, path: Path, repository_id: RepositoryId, repository_paths: RepositoryPaths) -> None:
         """
         default constructor
 
@@ -48,6 +49,7 @@ class Operations(LazyLogging):
         """
         self.path = path
         self._repository_id = repository_id
+        self._repository_paths = repository_paths
 
     @staticmethod
     def factory(cursor: sqlite3.Cursor, row: tuple[Any, ...]) -> dict[str, Any]:

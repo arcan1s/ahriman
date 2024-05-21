@@ -99,7 +99,7 @@ class PackageArchive:
         """
         dependencies, roots = self.depends_on_paths()
 
-        result: dict[Path, list[str]] = {}
+        result: dict[str, list[str]] = {}
         for package, (directories, files) in self.installed_packages().items():
             if package in self.package.packages:
                 continue  # skip package itself
@@ -108,9 +108,9 @@ class PackageArchive:
             required_by.extend(library for library in files if library.name in dependencies)
 
             for path in required_by:
-                result.setdefault(path, []).append(package)
+                result.setdefault(str(path), []).append(package)
 
-        return Dependencies(self.package.base, result)
+        return Dependencies(result)
 
     def depends_on_paths(self) -> tuple[set[str], set[Path]]:
         """

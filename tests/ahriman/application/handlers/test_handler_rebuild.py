@@ -185,7 +185,7 @@ def test_extract_packages_by_status(application: Application, mocker: MockerFixt
         ("package2", BuildStatus(BuildStatusEnum.Failed)),
     ])
     assert Rebuild.extract_packages(application, BuildStatusEnum.Failed, from_database=True) == ["package2"]
-    packages_mock.assert_called_once_with()
+    packages_mock.assert_called_once_with(application.repository_id)
 
 
 def test_extract_packages_from_database(application: Application, mocker: MockerFixture) -> None:
@@ -194,4 +194,4 @@ def test_extract_packages_from_database(application: Application, mocker: Mocker
     """
     packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
     Rebuild.extract_packages(application, None, from_database=True)
-    packages_mock.assert_called_once_with()
+    packages_mock.assert_called_once_with(application.repository_id)

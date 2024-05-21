@@ -161,8 +161,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                     package = Package.from_aur(package_name, username)
                 with_dependencies[package.base] = package
 
-                # register package in local database
-                self.database.package_base_update(package)
+                # register package in the database
                 self.repository.reporter.set_unknown(package)
 
         return list(with_dependencies.values())

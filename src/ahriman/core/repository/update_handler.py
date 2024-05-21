@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections.abc import Iterable
-from pathlib import Path
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
@@ -89,27 +88,25 @@ class UpdateHandler(PackageInfo, Cleaner):
         Returns:
             list[Package]: list of packages for which there is breaking linking
         """
-        def extract_files(lookup_packages: Iterable[str]) -> dict[Path, set[str]]:
+        def extract_files(lookup_packages: Iterable[str]) -> dict[str, set[str]]:
             database_files = self.pacman.files(lookup_packages)
-            files: dict[Path, set[str]] = {}
+            files: dict[str, set[str]] = {}
             for package_name, package_files in database_files.items():  # invert map
                 for package_file in package_files:
                     files.setdefault(package_file, set()).add(package_name)
 
             return files
 
-        dependencies = {dependency.package_base: dependency for dependency in self.database.dependencies_get()}
-
         result: list[Package] = []
         for package in self.packages(filter_packages):
-            if package.base not in dependencies:
+            dependencies = self.reporter.package_dependencies_get(package.base)
+            if not dependencies.paths:
                 continue  # skip check if no package dependencies found
 
-            required = dependencies[package.base].paths
-            required_packages = {dep for dep_packages in required.values() for dep in dep_packages}
+            required_packages = {dep for dep_packages in dependencies.paths.values() for dep in dep_packages}
             filesystem = extract_files(required_packages)
 
-            for path, packages in required.items():
+            for path, packages in dependencies.paths.items():
                 found = filesystem.get(path, set())
                 if found.intersection(packages):
                     continue

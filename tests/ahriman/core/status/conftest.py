@@ -1,7 +1,7 @@
 import pytest
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.status.client import Client
+from ahriman.core.status import Client
 from ahriman.core.status.web_client import WebClient
 
 

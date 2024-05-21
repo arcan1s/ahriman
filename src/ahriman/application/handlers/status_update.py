@@ -51,12 +51,8 @@ class StatusUpdate(Handler):
         match args.action:
             case Action.Update if args.package:
                 # update packages statuses
-                packages = application.repository.packages()
-                for base in args.package:
-                    if (local := next((package for package in packages if package.base == base), None)) is not None:
-                        client.package_add(local, args.status)
-                    else:
-                        client.package_update(base, args.status)
+                for package in args.package:
+                    client.package_update(package, args.status)
             case Action.Update:
                 # update service status
                 client.status_update(args.status)

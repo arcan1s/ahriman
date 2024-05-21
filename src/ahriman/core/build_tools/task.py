@@ -21,7 +21,6 @@ from pathlib import Path
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
 from ahriman.core.exceptions import BuildError
 from ahriman.core.log import LazyLogging
 from ahriman.core.util import check_output
@@ -116,20 +115,20 @@ class Task(LazyLogging):
         # e.g. in some cases packagelist command produces debug packages which were not actually built
         return list(filter(lambda path: path.is_file(), map(Path, packages)))
 
-    def init(self, sources_dir: Path, database: SQLite, local_version: str | None) -> str | None:
+    def init(self, sources_dir: Path, patches: list[PkgbuildPatch], local_version: str | None) -> str | None:
         """
         fetch package from git
 
         Args:
             sources_dir(Path): local path to fetch
-            database(SQLite): database instance
+            patches(list[PkgbuildPatch]): list of patches for the package
             local_version(str | None): local version of the package. If set and equal to current version, it will
                 automatically bump pkgrel
 
         Returns:
             str | None: current commit sha if available
         """
-        last_commit_sha = Sources.load(sources_dir, self.package, database.patches_get(self.package.base), self.paths)
+        last_commit_sha = Sources.load(sources_dir, self.package, patches, self.paths)
         if local_version is None:
             return last_commit_sha  # there is no local package or pkgrel increment is disabled
 

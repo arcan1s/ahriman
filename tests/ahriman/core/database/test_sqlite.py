@@ -44,6 +44,7 @@ def test_package_clear(database: SQLite, mocker: MockerFixture) -> None:
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
     changes_mock = mocker.patch("ahriman.core.database.SQLite.changes_remove")
     dependencies_mock = mocker.patch("ahriman.core.database.SQLite.dependencies_remove")
+    tree_clear_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
 
     database.package_clear("package")
     build_queue_mock.assert_called_once_with("package")
@@ -51,3 +52,4 @@ def test_package_clear(database: SQLite, mocker: MockerFixture) -> None:
     logs_mock.assert_called_once_with("package", None)
     changes_mock.assert_called_once_with("package")
     dependencies_mock.assert_called_once_with("package")
+    tree_clear_mock.assert_called_once_with("package")

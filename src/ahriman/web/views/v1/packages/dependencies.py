@@ -21,16 +21,16 @@ import aiohttp_apispec  # type: ignore[import-untyped]
 
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
-from ahriman.models.changes import Changes
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ChangesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
+from ahriman.web.schemas import AuthSchema, DependenciesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
-class ChangesView(StatusViewGuard, BaseView):
+class DependenciesView(StatusViewGuard, BaseView):
     """
-    package changes web view
+    package dependencies web view
 
     Attributes:
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
@@ -39,14 +39,14 @@ class ChangesView(StatusViewGuard, BaseView):
 
     GET_PERMISSION = UserAccess.Reporter
     POST_PERMISSION = UserAccess.Full
-    ROUTES = ["/api/v1/packages/{package}/changes"]
+    ROUTES = ["/api/v1/packages/{package}/dependencies"]
 
     @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Get package changes",
-        description="Retrieve package changes since the last build",
+        tags=["Build"],
+        summary="Get package dependencies",
+        description="Retrieve package implicit dependencies",
         responses={
-            200: {"description": "Success response", "schema": ChangesSchema},
+            200: {"description": "Success response", "schema": DependenciesSchema},
             401: {"description": "Authorization required", "schema": ErrorSchema},
             403: {"description": "Access is forbidden", "schema": ErrorSchema},
             404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
@@ -59,24 +59,24 @@ class ChangesView(StatusViewGuard, BaseView):
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
-        get package changes
+        get package dependencies
 
         Returns:
-            Response: 200 with package change on success
+            Response: 200 with package implicit dependencies on success
 
         Raises:
             HTTPNotFound: if package base is unknown
         """
         package_base = self.request.match_info["package"]
 
-        changes = self.service(package_base=package_base).package_changes_get(package_base)
+        dependencies = self.service(package_base=package_base).package_dependencies_get(package_base)
 
-        return json_response(changes.view())
+        return json_response(dependencies.view())
 
     @aiohttp_apispec.docs(
-        tags=["Packages"],
-        summary="Update package changes",
-        description="Update package changes to the new ones",
+        tags=["Build"],
+        summary="Update package dependencies",
+        description="Set package implicit dependencies",
         responses={
             204: {"description": "Success response"},
             400: {"description": "Bad data is supplied", "schema": ErrorSchema},
@@ -90,10 +90,10 @@ class ChangesView(StatusViewGuard, BaseView):
     @aiohttp_apispec.cookies_schema(AuthSchema)
     @aiohttp_apispec.match_info_schema(PackageNameSchema)
     @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(ChangesSchema)
+    @aiohttp_apispec.json_schema(DependenciesSchema)
     async def post(self) -> None:
         """
-        insert new package changes
+        insert new package dependencies
 
         Raises:
             HTTPBadRequest: if bad data is supplied
@@ -103,12 +103,11 @@ class ChangesView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            last_commit_sha = data.get("last_commit_sha")  # empty/null meant removal
-            change = data.get("changes")
+            data["package_base"] = package_base  # read from path instead of object
+            dependencies = Dependencies.from_json(data)
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        changes = Changes(last_commit_sha, change)
-        self.service().package_changes_update(package_base, changes)
+        self.service(package_base=package_base).package_dependencies_update(package_base, dependencies)
 
         raise HTTPNoContent

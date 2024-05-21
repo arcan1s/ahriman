@@ -160,13 +160,28 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     """
     must list available patches for the command
     """
-    get_mock = mocker.patch("ahriman.core.database.SQLite.patches_list",
-                            return_value={"ahriman": PkgbuildPatch(None, "patch")})
+    get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
+                            return_value=[PkgbuildPatch(None, "patch"), PkgbuildPatch("version", "value")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Patch.patch_set_list(application, "ahriman", ["version"], False)
-    get_mock.assert_called_once_with("ahriman", ["version"])
+    get_mock.assert_called_once_with("ahriman", None)
+    print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
+    check_mock.assert_called_once_with(False, False)
+
+
+def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> None:
+    """
+    must list all available patches for the command
+    """
+    get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
+                            return_value=[PkgbuildPatch(None, "patch")])
+    print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+
+    Patch.patch_set_list(application, "ahriman", None, False)
+    get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
     check_mock.assert_called_once_with(False, False)
 
@@ -175,7 +190,7 @@ def test_patch_set_list_empty_exception(application: Application, mocker: Mocker
     """
     must raise ExitCode exception on empty patch list
     """
-    mocker.patch("ahriman.core.database.SQLite.patches_list", return_value={})
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get", return_value={})
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     Patch.patch_set_list(application, "ahriman", [], True)
@@ -186,18 +201,27 @@ def test_patch_set_create(application: Application, package_ahriman: Package, mo
     """
     must create patch set for the package
     """
-    create_mock = mocker.patch("ahriman.core.database.SQLite.patches_insert")
+    create_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_update")
     Patch.patch_set_create(application, package_ahriman.base, PkgbuildPatch("version", package_ahriman.version))
-    create_mock.assert_called_once_with(package_ahriman.base, [PkgbuildPatch("version", package_ahriman.version)])
+    create_mock.assert_called_once_with(package_ahriman.base, PkgbuildPatch("version", package_ahriman.version))
 
 
 def test_patch_set_remove(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove patch set for the package
     """
-    remove_mock = mocker.patch("ahriman.core.database.SQLite.patches_remove")
+    remove_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_remove")
     Patch.patch_set_remove(application, package_ahriman.base, ["version"])
-    remove_mock.assert_called_once_with(package_ahriman.base, ["version"])
+    remove_mock.assert_called_once_with(package_ahriman.base, "version")
+
+
+def test_patch_set_remove_all(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must remove all patches for the package
+    """
+    remove_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_remove")
+    Patch.patch_set_remove(application, package_ahriman.base, None)
+    remove_mock.assert_called_once_with(package_ahriman.base, None)
 
 
 def test_disallow_multi_architecture_run() -> None:

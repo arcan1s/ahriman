@@ -204,6 +204,15 @@ def test_service_not_found(base: BaseView) -> None:
         base.service(RepositoryId("", ""))
 
 
+def test_service_package(base: BaseView, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must validate that package exists
+    """
+    mocker.patch("ahriman.web.views.base.BaseView.repository_id", return_value=repository_id)
+    with pytest.raises(HTTPNotFound):
+        base.service(package_base="base")
+
+
 async def test_username(base: BaseView, mocker: MockerFixture) -> None:
     """
     must return identity of logged-in user

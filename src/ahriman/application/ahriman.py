@@ -446,7 +446,7 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("patch-list", help="list patch sets",
                              description="list available patches for the package", formatter_class=_formatter)
-    parser.add_argument("package", help="package base", nargs="?")
+    parser.add_argument("package", help="package base")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
                         action="append")

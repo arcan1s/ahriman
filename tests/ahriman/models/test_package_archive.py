@@ -65,13 +65,11 @@ def test_depends_on(package_archive_ahriman: PackageArchive, mocker: MockerFixtu
     ))
 
     result = package_archive_ahriman.depends_on()
-    assert result.package_base == package_archive_ahriman.package.base
     assert result.paths == {
-        Path("package1") / "file1": ["package1"],
-        Path("package2") / "file3": ["package2"],
-        Path("package2") / "dir4": ["package2"],
-        Path("package2") / "file3": ["package2"],
-        Path("usr") / "dir2": ["package1", "package2"]
+        "package1/file1": ["package1"],
+        "package2/file3": ["package2"],
+        "package2/dir4": ["package2"],
+        "usr/dir2": ["package1", "package2"]
     }
 
 

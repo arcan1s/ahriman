@@ -53,13 +53,3 @@ def test_changes_insert_remove_full(database: SQLite, package_ahriman: Package,
     assert database.changes_get(package_python_schedule.base).changes is None
     assert database.changes_get(
         package_ahriman.base, RepositoryId("i686", database._repository_id.name)).changes == "change2"
-
-
-def test_hashes_get(database: SQLite, package_ahriman: Package, package_python_schedule: Package) -> None:
-    """
-    must return non-empty hashes for packages
-    """
-    database.changes_insert(package_ahriman.base, Changes("sha1", "change1"))
-    database.changes_insert(package_python_schedule.base, Changes())
-
-    assert database.hashes_get() == {package_ahriman.base: "sha1"}

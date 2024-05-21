@@ -60,4 +60,4 @@ def test_lt_invalid() -> None:
     must raise ValueError if other is not valid repository id
     """
     with pytest.raises(ValueError):
-        RepositoryId("x86_64", "a") < 42
+        assert RepositoryId("x86_64", "a") < 42
