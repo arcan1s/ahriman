@@ -58,7 +58,8 @@ class Executor(PackageInfo, Cleaner):
             self.reporter.set_building(package.base)
             task = Task(package, self.configuration, self.architecture, self.paths)
             local_version = local_versions.get(package.base) if bump_pkgrel else None
-            commit_sha = task.init(local_path, self.database, local_version)
+            patches = self.reporter.package_patches_get(package.base, None)
+            commit_sha = task.init(local_path, patches, local_version)
             built = task.build(local_path, PACKAGER=packager_id)
             for src in built:
                 dst = self.paths.packages / src.name
@@ -77,10 +78,10 @@ class Executor(PackageInfo, Cleaner):
                     packager = self.packager(packagers, single.base)
                     last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
                     # clear changes and update commit hash
-                    self.reporter.package_changes_set(single.base, Changes(last_commit_sha))
+                    self.reporter.package_changes_update(single.base, Changes(last_commit_sha))
                     # update dependencies list
                     dependencies = PackageArchive(self.paths.build_directory, single).depends_on()
-                    self.database.dependencies_insert(dependencies)
+                    self.reporter.package_dependencies_update(single.base, dependencies)
                     # update result set
                     result.add_updated(single)
                 except Exception:
@@ -102,9 +103,7 @@ class Executor(PackageInfo, Cleaner):
         """
         def remove_base(package_base: str) -> None:
             try:
-                self.paths.tree_clear(package_base)  # remove all internal files
-                self.database.package_clear(package_base)
-                self.reporter.package_remove(package_base)  # we only update status page in case of base removal
+                self.reporter.package_remove(package_base)
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)
 

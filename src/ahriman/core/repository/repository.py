@@ -26,6 +26,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.repository.executor import Executor
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.core.sign.gpg import GPG
+from ahriman.core.status import Client
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 
@@ -92,6 +93,7 @@ class Repository(Executor, UpdateHandler):
         ctx.set(Configuration, self.configuration)
         ctx.set(Pacman, self.pacman)
         ctx.set(GPG, self.sign)
+        ctx.set(Client, self.reporter)
 
         ctx.set(type(self), self)
 

@@ -18,18 +18,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import contextlib
-import logging
 
 from urllib.parse import quote_plus as urlencode
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncAhrimanClient
-from ahriman.core.status.client import Client
+from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
+from ahriman.models.dependencies import Dependencies
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -92,9 +93,21 @@ class WebClient(Client, SyncAhrimanClient):
             package_base(str): package base
 
         Returns:
-            str: full url for web service for logs
+            str: full url for web service for changes
         """
         return f"{self.address}/api/v1/packages/{urlencode(package_base)}/changes"
+
+    def _dependencies_url(self, package_base: str) -> str:
+        """
+        get url for the dependencies api
+
+        Args:
+            package_base(str): package base
+
+        Returns:
+            str: full url for web service for dependencies
+        """
+        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/dependencies"
 
     def _logs_url(self, package_base: str) -> str:
         """
@@ -110,7 +123,7 @@ class WebClient(Client, SyncAhrimanClient):
 
     def _package_url(self, package_base: str = "") -> str:
         """
-        url generator
+        package url generator
 
         Args:
             package_base(str, optional): package base to generate url (Default value = "")
@@ -121,6 +134,20 @@ class WebClient(Client, SyncAhrimanClient):
         suffix = f"/{urlencode(package_base)}" if package_base else ""
         return f"{self.address}/api/v1/packages{suffix}"
 
+    def _patches_url(self, package_base: str, variable: str = "") -> str:
+        """
+        patches url generator
+
+        Args:
+            package_base(str): package base
+            variable(str, optional): patch variable name to generate url (Default value = "")
+
+        Returns:
+            str: full url of web service for the package patch
+        """
+        suffix = f"/{urlencode(variable)}" if variable else ""
+        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/patches{suffix}"
+
     def _status_url(self) -> str:
         """
         get url for the status api
@@ -129,22 +156,6 @@ class WebClient(Client, SyncAhrimanClient):
             str: full url for web service for status
         """
         return f"{self.address}/api/v1/status"
-
-    def package_add(self, package: Package, status: BuildStatusEnum) -> None:
-        """
-        add new package with status
-
-        Args:
-            package(Package): package properties
-            status(BuildStatusEnum): current package build status
-        """
-        payload = {
-            "status": status.value,
-            "package": package.view()
-        }
-        with contextlib.suppress(Exception):
-            self.make_request("POST", self._package_url(package.base),
-                              params=self.repository_id.query(), json=payload)
 
     def package_changes_get(self, package_base: str) -> Changes:
         """
@@ -165,7 +176,7 @@ class WebClient(Client, SyncAhrimanClient):
 
         return Changes()
 
-    def package_changes_set(self, package_base: str, changes: Changes) -> None:
+    def package_changes_update(self, package_base: str, changes: Changes) -> None:
         """
         update package changes
 
@@ -176,6 +187,37 @@ class WebClient(Client, SyncAhrimanClient):
         with contextlib.suppress(Exception):
             self.make_request("POST", self._changes_url(package_base),
                               params=self.repository_id.query(), json=changes.view())
+
+    def package_dependencies_get(self, package_base: str) -> Dependencies:
+        """
+        get package dependencies
+
+        Args:
+            package_base(str): package base to retrieve
+
+        Returns:
+            list[Dependencies]: package implicit dependencies if available
+        """
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._dependencies_url(package_base),
+                                         params=self.repository_id.query())
+            response_json = response.json()
+
+            return Dependencies.from_json(response_json)
+
+        return Dependencies()
+
+    def package_dependencies_update(self, package_base: str, dependencies: Dependencies) -> None:
+        """
+        update package dependencies
+
+        Args:
+            package_base(str): package base to update
+            dependencies(Dependencies): dependencies descriptor
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._dependencies_url(package_base),
+                              params=self.repository_id.query(), json=dependencies.view())
 
     def package_get(self, package_base: str | None) -> list[tuple[Package, BuildStatus]]:
         """
@@ -199,17 +241,18 @@ class WebClient(Client, SyncAhrimanClient):
 
         return []
 
-    def package_logs(self, log_record_id: LogRecordId, record: logging.LogRecord) -> None:
+    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
         """
         post log record
 
         Args:
             log_record_id(LogRecordId): log record id
-            record(logging.LogRecord): log record to post to api
+            created(float): log created timestamp
+            message(str): log message
         """
         payload = {
-            "created": record.created,
-            "message": record.getMessage(),
+            "created": created,
+            "message": message,
             "version": log_record_id.version,
         }
 
@@ -218,6 +261,83 @@ class WebClient(Client, SyncAhrimanClient):
         # In the other hand, we force to suppress all http logs here to avoid cyclic reporting
         self.make_request("POST", self._logs_url(log_record_id.package_base),
                           params=self.repository_id.query(), json=payload, suppress_errors=True)
+
+    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+        """
+        get package logs
+
+        Args:
+            package_base(str): package base
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
+
+        Returns:
+            list[tuple[float, str]]: package logs
+        """
+        with contextlib.suppress(Exception):
+            query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
+            response = self.make_request("GET", self._logs_url(package_base), params=query)
+            response_json = response.json()
+
+            return [(record["created"], record["message"]) for record in response_json]
+
+        return []
+
+    def package_logs_remove(self, package_base: str, version: str | None) -> None:
+        """
+        remove package logs
+
+        Args:
+            package_base(str): package base
+            version(str | None): package version to remove logs. If None set, all logs will be removed
+        """
+        with contextlib.suppress(Exception):
+            query = self.repository_id.query()
+            if version is not None:
+                query += [("version", version)]
+            self.make_request("DELETE", self._logs_url(package_base), params=query)
+
+    def package_patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
+        """
+        get package patches
+
+        Args:
+            package_base(str): package base to retrieve
+            variable(str | None): optional filter by patch variable
+
+        Returns:
+            list[PkgbuildPatch]: list of patches for the specified package
+        """
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._patches_url(package_base, variable or ""))
+            response_json = response.json()
+
+            patches = response_json if variable is None else [response_json]
+            return [PkgbuildPatch.from_json(patch) for patch in patches]
+
+        return []
+
+    def package_patches_remove(self, package_base: str, variable: str | None) -> None:
+        """
+        remove package patch
+
+        Args:
+            package_base(str): package base to update
+            variable(str | None): patch name. If None set, all patches will be removed
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("DELETE", self._patches_url(package_base, variable or ""))
+
+    def package_patches_update(self, package_base: str, patch: PkgbuildPatch) -> None:
+        """
+        create or update package patch
+
+        Args:
+            package_base(str): package base to update
+            patch(PkgbuildPatch): package patch
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._patches_url(package_base), json=patch.view())
 
     def package_remove(self, package_base: str) -> None:
         """
@@ -229,17 +349,39 @@ class WebClient(Client, SyncAhrimanClient):
         with contextlib.suppress(Exception):
             self.make_request("DELETE", self._package_url(package_base), params=self.repository_id.query())
 
-    def package_update(self, package_base: str, status: BuildStatusEnum) -> None:
+    def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """
-        update package build status. Unlike :func:`package_add()` it does not update package properties
+        update package build status. Unlike :func:`package_update()` it does not update package properties
 
         Args:
             package_base(str): package base to update
             status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
         """
         payload = {"status": status.value}
         with contextlib.suppress(Exception):
             self.make_request("POST", self._package_url(package_base),
+                              params=self.repository_id.query(), json=payload)
+
+    def package_update(self, package: Package, status: BuildStatusEnum) -> None:
+        """
+        add new package or update existing one with status
+
+        Args:
+            package(Package): package properties
+            status(BuildStatusEnum): current package build status
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        payload = {
+            "status": status.value,
+            "package": package.view(),
+        }
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._package_url(package.base),
                               params=self.repository_id.query(), json=payload)
 
     def status_get(self) -> InternalStatus:

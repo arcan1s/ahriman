@@ -62,11 +62,11 @@ def test_run_with_patches(args: argparse.Namespace, configuration: Configuration
     args.variable = ["KEY=VALUE"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.add")
-    application_mock = mocker.patch("ahriman.core.database.SQLite.patches_insert")
+    application_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_update")
 
     _, repository_id = configuration.check_loaded()
     Add.run(args, repository_id, configuration, report=False)
-    application_mock.assert_called_once_with(args.package[0], [PkgbuildPatch("KEY", "VALUE")])
+    application_mock.assert_called_once_with(args.package[0], PkgbuildPatch("KEY", "VALUE"))
 
 
 def test_run_with_updates(args: argparse.Namespace, configuration: Configuration, repository: Repository,

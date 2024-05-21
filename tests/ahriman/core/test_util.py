@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 import pytest
-import shlex
 
 from pathlib import Path
 from pytest_mock import MockerFixture

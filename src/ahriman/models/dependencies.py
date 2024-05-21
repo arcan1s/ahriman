@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass, field, fields
+from typing import Any, Self
+
+from ahriman.core.util import dataclass_view, filter_json
 
 
 @dataclass(frozen=True)
@@ -27,9 +29,31 @@ class Dependencies:
     package paths dependencies
 
     Attributes:
-        package_base(str): package base
-        paths(dict[Path, list[str]]): map of the paths used by this package to set of packages in which they were found
+        paths(dict[str, list[str]]): map of the paths used by this package to set of packages in which they were found
     """
 
-    package_base: str
-    paths: dict[Path, list[str]] = field(default_factory=dict)
+    paths: dict[str, list[str]] = field(default_factory=dict)
+
+    @classmethod
+    def from_json(cls, dump: dict[str, Any]) -> Self:
+        """
+        construct dependencies from the json dump
+
+        Args:
+            dump(dict[str, Any]): json dump body
+
+        Returns:
+            Self: dependencies object
+        """
+        # filter to only known fields
+        known_fields = [pair.name for pair in fields(cls)]
+        return cls(**filter_json(dump, known_fields))
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json dependencies view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return dataclass_view(self)

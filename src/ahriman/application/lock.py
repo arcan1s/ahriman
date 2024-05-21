@@ -27,7 +27,7 @@ from ahriman import __version__
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError
 from ahriman.core.log import LazyLogging
-from ahriman.core.status.client import Client
+from ahriman.core.status import Client
 from ahriman.core.util import check_user
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.repository_id import RepositoryId

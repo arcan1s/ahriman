@@ -21,6 +21,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
 from ahriman.core.repository import Repository
+from ahriman.core.status import Client
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 
@@ -63,3 +64,13 @@ class ApplicationProperties(LazyLogging):
             str: repository architecture
         """
         return self.repository_id.architecture
+
+    @property
+    def reporter(self) -> Client:
+        """
+        instance of the web/database client
+
+        Returns:
+            Client: repository reposter
+        """
+        return self.repository.reporter

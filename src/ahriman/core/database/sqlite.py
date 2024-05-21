@@ -66,7 +66,7 @@ class SQLite(
         path = cls.database_path(configuration)
         _, repository_id = configuration.check_loaded()
 
-        database = cls(path, repository_id)
+        database = cls(path, repository_id, configuration.repository_paths)
         database.init(configuration)
 
         return database
@@ -119,3 +119,6 @@ class SQLite(
         self.logs_remove(package_base, None)
         self.changes_remove(package_base)
         self.dependencies_remove(package_base)
+
+        # remove local cache too
+        self._repository_paths.tree_clear(package_base)

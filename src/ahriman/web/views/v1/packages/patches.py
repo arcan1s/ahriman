@@ -63,7 +63,7 @@ class PatchesView(StatusViewGuard, BaseView):
             Response: 200 with package patches on success
         """
         package_base = self.request.match_info["package"]
-        patches = self.service().patches_get(package_base, None)
+        patches = self.service().package_patches_get(package_base, None)
 
         response = [patch.view() for patch in patches]
         return json_response(response)
@@ -96,11 +96,11 @@ class PatchesView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            key = data["key"]
+            key = data.get("key")
             value = data["value"]
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().patches_update(package_base, PkgbuildPatch(key, value))
+        self.service().package_patches_update(package_base, PkgbuildPatch(key, value))
 
         raise HTTPNoContent

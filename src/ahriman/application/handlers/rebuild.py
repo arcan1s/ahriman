@@ -76,7 +76,7 @@ class Rebuild(Handler):
         if from_database:
             return [
                 package
-                for (package, last_status) in application.database.packages_get()
+                for (package, last_status) in application.reporter.package_get(None)
                 if status is None or last_status.status == status
             ]
 

@@ -39,15 +39,13 @@ class ApplicationRepository(ApplicationProperties):
         Args:
             packages(Iterable[Package]): list of packages to retrieve changes
         """
-        last_commit_hashes = self.database.hashes_get()
-
         for package in packages:
-            last_commit_sha = last_commit_hashes.get(package.base)
+            last_commit_sha = self.reporter.package_changes_get(package.base).last_commit_sha
             if last_commit_sha is None:
                 continue  # skip check in case if we can't calculate diff
 
             changes = self.repository.package_changes(package, last_commit_sha)
-            self.repository.reporter.package_changes_set(package.base, changes)
+            self.repository.reporter.package_changes_update(package.base, changes)
 
     def clean(self, *, cache: bool, chroot: bool, manual: bool, packages: bool, pacman: bool) -> None:
         """

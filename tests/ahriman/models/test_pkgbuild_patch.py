@@ -51,6 +51,14 @@ def test_from_env() -> None:
     assert PkgbuildPatch.from_env("KEY") == PkgbuildPatch("KEY", "")
 
 
+def test_from_json_view() -> None:
+    """
+    must correctly serialize to json
+    """
+    patch = PkgbuildPatch("key", "value")
+    assert PkgbuildPatch.from_json(patch.view()) == patch
+
+
 def test_parse() -> None:
     """
     must parse string correctly
@@ -122,13 +130,6 @@ def test_serialize_list() -> None:
     """
     assert PkgbuildPatch("arch", ["i686", "x86_64"]).serialize() == """arch=(i686 x86_64)"""
     assert PkgbuildPatch("key", ["val'ue", "val\"ue2"]).serialize() == """key=('val'"'"'ue' 'val"ue2')"""
-
-
-def test_view() -> None:
-    """
-    must correctly serialize to json
-    """
-    assert PkgbuildPatch("key", "value").view() == {"key": "key", "value": "value"}
 
 
 def test_write(mocker: MockerFixture) -> None:

@@ -30,6 +30,7 @@ from ahriman.core.database import SQLite
 from ahriman.core.distributed import WorkersCache
 from ahriman.core.exceptions import InitializeError
 from ahriman.core.spawn import Spawn
+from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
 from ahriman.web.apispec import setup_apispec
@@ -167,7 +168,8 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     watchers: dict[RepositoryId, Watcher] = {}
     for repository_id in repositories:
         application.logger.info("load repository %s", repository_id)
-        watchers[repository_id] = Watcher(repository_id, database)
+        client = Client.load(repository_id, configuration, database, report=False)  # explicitly load local client
+        watchers[repository_id] = Watcher(client)
     application[WatcherKey] = watchers
     # workers cache
     application[WorkersKey] = WorkersCache(configuration)

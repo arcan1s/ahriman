@@ -19,12 +19,13 @@
 #
 import shutil
 
+from pathlib import Path
+
 from ahriman.core import context
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
-from ahriman.core.database import SQLite
+from ahriman.core.status import Client
 from ahriman.core.support.pkgbuild.pkgbuild_generator import PkgbuildGenerator
-from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 
 
@@ -48,23 +49,39 @@ class PackageCreator:
         self.configuration = configuration
         self.generator = generator
 
+    def package_create(self, path: Path) -> None:
+        """
+        create package files
+
+        Args:
+            path(Path): path to directory with package files
+        """
+        # clear old tree if any
+        shutil.rmtree(path, ignore_errors=True)
+
+        # create local tree
+        path.mkdir(mode=0o755, parents=True, exist_ok=True)
+        self.generator.write_pkgbuild(path)
+        Sources.init(path)
+
+    def package_register(self, path: Path) -> None:
+        """
+        register package in build worker
+
+        Args:
+            path(Path): path to directory with package files
+        """
+        ctx = context.get()
+        reporter = ctx.get(Client)
+        _, repository_id = self.configuration.check_loaded()
+        package = Package.from_build(path, repository_id.architecture, None)
+
+        reporter.set_unknown(package)
+
     def run(self) -> None:
         """
         create new local package
         """
         local_path = self.configuration.repository_paths.cache_for(self.generator.pkgname)
-
-        # clear old tree if any
-        shutil.rmtree(local_path, ignore_errors=True)
-
-        # create local tree
-        local_path.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.generator.write_pkgbuild(local_path)
-        Sources.init(local_path)
-
-        # register package
-        ctx = context.get()
-        database = ctx.get(SQLite)
-        _, repository_id = self.configuration.check_loaded()
-        package = Package.from_build(local_path, repository_id.architecture, None)
-        database.package_update(package, BuildStatus())
+        self.package_create(local_path)
+        self.package_register(local_path)

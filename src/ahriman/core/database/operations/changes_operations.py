@@ -117,27 +117,3 @@ class ChangesOperations(Operations):
                 })
 
         return self.with_connection(run, commit=True)
-
-    def hashes_get(self, repository_id: RepositoryId | None = None) -> dict[str, str]:
-        """
-        extract last commit hashes if available
-
-        Args:
-            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
-
-        Returns:
-            dict[str, str]: map of package base to its last commit hash
-        """
-
-        repository_id = repository_id or self._repository_id
-
-        def run(connection: Connection) -> dict[str, str]:
-            return {
-                row["package_base"]: row["last_commit_sha"]
-                for row in connection.execute(
-                    """select package_base, last_commit_sha from package_changes where repository = :repository""",
-                    {"repository": repository_id.id}
-                )
-            }
-
-        return self.with_connection(run)
