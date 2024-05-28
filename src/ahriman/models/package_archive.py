@@ -23,8 +23,12 @@ from elftools.elf.elffile import ELFFile
 from pathlib import Path
 from typing import IO
 
+from ahriman.core.alpm.pacman import Pacman
+from ahriman.core.alpm.remote import OfficialSyncdb
+from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.util import walk
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.filesystem_package import FilesystemPackage
 from ahriman.models.package import Package
 
 
@@ -40,6 +44,7 @@ class PackageArchive:
 
     root: Path
     package: Package
+    pacman: Pacman
 
     @staticmethod
     def dynamic_needed(binary_path: Path) -> list[str]:
@@ -90,6 +95,27 @@ class PackageArchive:
 
         return magic_bytes == expected
 
+    def _load_pacman_package(self, path: Path) -> FilesystemPackage:
+        """
+        load pacman package model from path
+
+        Args:
+            path(Path): path to package files database
+
+        Returns:
+            FilesystemPackage: generated pacman package model with empty paths
+        """
+        package_name, *_ = path.parent.name.rsplit("-", 2)
+        try:
+            pacman_package = OfficialSyncdb.info(package_name, pacman=self.pacman)
+            return FilesystemPackage(
+                package_name=package_name,
+                groups=set(pacman_package.groups),
+                dependencies=set(pacman_package.depends),
+            )
+        except UnknownPackageError:
+            return FilesystemPackage(package_name=package_name, groups=set(), dependencies=set())
+
     def depends_on(self) -> Dependencies:
         """
         extract packages and paths which are required for this package
@@ -98,17 +124,35 @@ class PackageArchive:
             Dependencies: map of the package name to set of paths used by this package
         """
         dependencies, roots = self.depends_on_paths()
+        installed_packages = self.installed_packages()
 
-        result: dict[str, list[str]] = {}
-        for package, (directories, files) in self.installed_packages().items():
-            if package in self.package.packages:
+        dependencies_per_path: dict[Path, list[FilesystemPackage]] = {}
+        for package_base, package in installed_packages.items():
+            if package_base in self.package.packages:
                 continue  # skip package itself
 
-            required_by = [directory for directory in directories if directory in roots]
-            required_by.extend(library for library in files if library.name in dependencies)
+            required_by = [directory for directory in package.directories if directory in roots]
+            required_by.extend(library for library in package.files if library.name in dependencies)
 
             for path in required_by:
-                result.setdefault(str(path), []).append(package)
+                dependencies_per_path.setdefault(path, []).append(package)
+
+        # reduce trees
+        result = {}
+        for path, packages in dependencies_per_path.items():
+            package_names = [package.package_name for package in packages]
+            result[str(path)] = [
+                package.package_name
+                for package in packages
+                # if there is any package which is dependency of this package, we can skip it here
+                # also skip packages which didn't pass validation
+                if not package.dependencies.intersection(package_names) and package.is_valid
+            ]
+
+            if str(path) == 'usr/lib/python3.12/site-packages':
+                print(package_names)
+                print(packages)
+                print(result[str(path)])
 
         return Dependencies(result)
 
@@ -130,7 +174,7 @@ class PackageArchive:
 
         return dependencies, roots
 
-    def installed_packages(self) -> dict[str, tuple[list[Path], list[Path]]]:
+    def installed_packages(self) -> dict[str, FilesystemPackage]:
         """
         extract list of the installed packages and their content
 
@@ -142,9 +186,8 @@ class PackageArchive:
 
         pacman_local_files = self.root / "var" / "lib" / "pacman" / "local"
         for path in filter(lambda fn: fn.name == "files", walk(pacman_local_files)):
-            package, *_ = path.parent.name.rsplit("-", 2)
+            package = self._load_pacman_package(path)
 
-            directories, files = [], []
             is_files = False
             for line in path.read_text(encoding="utf8").splitlines():
                 if not line:  # skip empty lines
@@ -156,10 +199,10 @@ class PackageArchive:
 
                 entry = Path(line)
                 if line.endswith("/"):  # simple check if it is directory
-                    directories.append(entry)
+                    package.directories.append(entry)
                 else:
-                    files.append(entry)
+                    package.files.append(entry)
 
-            result[package] = directories, files
+            result[package.package_name] = package
 
         return result
