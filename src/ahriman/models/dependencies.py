@@ -34,6 +34,13 @@ class Dependencies:
 
     paths: dict[str, list[str]] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        """
+        remove empty paths
+        """
+        paths = {path: packages for path, packages in self.paths.items() if packages}
+        object.__setattr__(self, "paths", paths)
+
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
         """
