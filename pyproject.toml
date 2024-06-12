@@ -81,7 +81,7 @@ web = [
     "aiohttp_session",
     "aiohttp_security",
     "cryptography",
-    "requests-unixsocket",  # required by unix socket support
+    "requests-unixsocket2",  # required by unix socket support
     "setuptools",  # required by aiohttp-apispec
 ]
 
