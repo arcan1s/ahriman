@@ -1313,7 +1313,7 @@ How to enable basic authorization
    The ``salt`` parameter is optional, but recommended, and can be set to any (random) string.
 
 #.
-   In order to provide access for reporting from application instances you can (the recommended way) use unix sockets by the following configuration (note, that it requires ``python-requests-unixsocket`` package to be installed):
+   In order to provide access for reporting from application instances you can (the recommended way) use unix sockets by the following configuration (note, that it requires ``python-requests-unixsocket2`` package to be installed):
 
    .. code-block:: ini
 
