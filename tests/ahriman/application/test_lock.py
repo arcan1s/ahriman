@@ -1,10 +1,12 @@
 import argparse
+import fcntl
+import os
 import pytest
-import tempfile
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import call as MockCall
+from tempfile import NamedTemporaryFile
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman import __version__
 from ahriman.application.lock import Lock
@@ -22,12 +24,100 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
 
     assert Lock(args, repository_id, configuration).path is None
 
-    args.lock = Path("/run/ahriman.lock")
-    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_x86_64-aur-clone.lock")
+    args.lock = Path("/run/ahriman.pid")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_x86_64-aur-clone.pid")
+
+    args.lock = Path("ahriman.pid")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman/ahriman_x86_64-aur-clone.pid")
 
     with pytest.raises(ValueError):
         args.lock = Path("/")
         assert Lock(args, repository_id, configuration).path  # special case
+
+
+def test_perform_lock(mocker: MockerFixture) -> None:
+    """
+    must lock file with fcntl
+    """
+    flock_mock = mocker.patch("fcntl.flock")
+    assert Lock.perform_lock(1)
+    flock_mock.assert_called_once_with(1, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def test_perform_lock_exception(mocker: MockerFixture) -> None:
+    """
+    must return False on OSError
+    """
+    mocker.patch("fcntl.flock", side_effect=OSError)
+    assert not Lock.perform_lock(1)
+
+
+def test_open(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must open file
+    """
+    open_mock = mocker.patch("pathlib.Path.open")
+    lock.path = Path("ahriman.pid")
+
+    lock._open()
+    open_mock.assert_called_once_with("a+")
+
+
+def test_open_skip(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip file opening if path is not set
+    """
+    open_mock = mocker.patch("pathlib.Path.open")
+    lock._open()
+    open_mock.assert_not_called()
+
+
+def test_watch(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must check if lock file exists
+    """
+    lock._pid_file = MagicMock()
+    lock._pid_file.fileno.return_value = 1
+    wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
+
+    lock._watch()
+    wait_mock.assert_called_once_with(lock.perform_lock, 1)
+
+
+def test_watch_skip(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip watch on empty path
+    """
+    mocker.patch("ahriman.application.lock.Lock.perform_lock", return_value=True)
+    lock._watch()
+
+
+def test_write(lock: Lock) -> None:
+    """
+    must write PID to lock file
+    """
+    with NamedTemporaryFile("a+") as pid_file:
+        lock._pid_file = pid_file
+        lock._write()
+
+        assert int(lock._pid_file.readline()) == os.getpid()
+
+
+def test_write_skip(lock: Lock) -> None:
+    """
+    must skip write to file if no path set
+    """
+    lock._write()
+
+
+def test_write_locked(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must raise DuplicateRunError if cannot lock file
+    """
+    mocker.patch("ahriman.application.lock.Lock.perform_lock", return_value=False)
+    with pytest.raises(DuplicateRunError):
+        lock._pid_file = MagicMock()
+        lock._write()
 
 
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
@@ -88,7 +178,7 @@ def test_clear(lock: Lock) -> None:
     """
     must remove lock file
     """
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
+    lock.path = Path("ahriman-test.pid")
     lock.path.touch()
 
     lock.clear()
@@ -99,7 +189,7 @@ def test_clear_missing(lock: Lock) -> None:
     """
     must not fail on lock removal if file is missing
     """
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
+    lock.path = Path("ahriman-test.pid")
     lock.clear()
 
 
@@ -112,67 +202,52 @@ def test_clear_skip(lock: Lock, mocker: MockerFixture) -> None:
     unlink_mock.assert_not_called()
 
 
-def test_create(lock: Lock) -> None:
+def test_clear_close(lock: Lock) -> None:
     """
-    must create lock
+    must close pid file if opened
     """
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
-
-    lock.create()
-    assert lock.path.is_file()
-    lock.path.unlink()
+    close_mock = lock._pid_file = MagicMock()
+    lock.clear()
+    close_mock.close.assert_called_once_with()
 
 
-def test_create_exception(lock: Lock) -> None:
+def test_clear_close_exception(lock: Lock) -> None:
     """
-    must raise exception if file already exists
+    must suppress IO exception on file closure
     """
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
-    lock.path.touch()
-
-    with pytest.raises(DuplicateRunError):
-        lock.create()
-    lock.path.unlink()
+    close_mock = lock._pid_file = MagicMock()
+    close_mock.close.side_effect = IOError()
+    lock.clear()
 
 
-def test_create_skip(lock: Lock, mocker: MockerFixture) -> None:
+def test_lock(lock: Lock, mocker: MockerFixture) -> None:
     """
-    must skip creating if no file set
+    must perform lock correctly
     """
-    touch_mock = mocker.patch("pathlib.Path.touch")
-    lock.create()
-    touch_mock.assert_not_called()
+    clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
+    open_mock = mocker.patch("ahriman.application.lock.Lock._open")
+    watch_mock = mocker.patch("ahriman.application.lock.Lock._watch")
+    write_mock = mocker.patch("ahriman.application.lock.Lock._write")
+
+    lock.lock()
+    clear_mock.assert_not_called()
+    open_mock.assert_called_once_with()
+    watch_mock.assert_called_once_with()
+    write_mock.assert_called_once_with()
 
 
-def test_create_unsafe(lock: Lock) -> None:
+def test_lock_clear(lock: Lock, mocker: MockerFixture) -> None:
     """
-    must not raise exception if force flag set
+    must clear lock file before lock if force flag is set
     """
+    mocker.patch("ahriman.application.lock.Lock._open")
+    mocker.patch("ahriman.application.lock.Lock._watch")
+    mocker.patch("ahriman.application.lock.Lock._write")
+    clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     lock.force = True
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
-    lock.path.touch()
 
-    lock.create()
-    lock.path.unlink()
-
-
-def test_watch(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must check if lock file exists
-    """
-    wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
-    lock.path = Path(tempfile.gettempdir()) / "ahriman-test.lock"
-
-    lock.watch()
-    wait_mock.assert_called_once_with(lock.path.is_file)
-
-
-def test_watch_skip(lock: Lock, mocker: MockerFixture) -> None:
-    """
-    must skip watch on empty path
-    """
-    mocker.patch("pathlib.Path.is_file", return_value=True)
-    lock.watch()
+    lock.lock()
+    clear_mock.assert_called_once_with()
 
 
 def test_enter(lock: Lock, mocker: MockerFixture) -> None:
@@ -181,18 +256,14 @@ def test_enter(lock: Lock, mocker: MockerFixture) -> None:
     """
     check_user_mock = mocker.patch("ahriman.application.lock.Lock.check_user")
     check_version_mock = mocker.patch("ahriman.application.lock.Lock.check_version")
-    watch_mock = mocker.patch("ahriman.application.lock.Lock.watch")
-    clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
-    create_mock = mocker.patch("ahriman.application.lock.Lock.create")
+    lock_mock = mocker.patch("ahriman.application.lock.Lock.lock")
     update_status_mock = mocker.patch("ahriman.core.status.Client.status_update")
 
     with lock:
         pass
     check_user_mock.assert_called_once_with()
-    clear_mock.assert_called_once_with()
-    create_mock.assert_called_once_with()
     check_version_mock.assert_called_once_with()
-    watch_mock.assert_called_once_with()
+    lock_mock.assert_called_once_with()
     update_status_mock.assert_has_calls([MockCall(BuildStatusEnum.Building), MockCall(BuildStatusEnum.Success)])
 
 
@@ -202,7 +273,7 @@ def test_exit_with_exception(lock: Lock, mocker: MockerFixture) -> None:
     """
     mocker.patch("ahriman.application.lock.Lock.check_user")
     mocker.patch("ahriman.application.lock.Lock.clear")
-    mocker.patch("ahriman.application.lock.Lock.create")
+    mocker.patch("ahriman.application.lock.Lock.lock")
     update_status_mock = mocker.patch("ahriman.core.status.Client.status_update")
 
     with pytest.raises(ValueError):
