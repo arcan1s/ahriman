@@ -1097,9 +1097,10 @@ def test_subparsers_repo_update_option_refresh(parser: argparse.ArgumentParser) 
 
 def test_subparsers_service_clean(parser: argparse.ArgumentParser) -> None:
     """
-    service-clean command must imply quiet and unsafe
+    service-clean command must imply lock, quiet and unsafe
     """
     args = parser.parse_args(["service-clean"])
+    assert args.lock is None
     assert args.quiet
     assert args.unsafe
 
