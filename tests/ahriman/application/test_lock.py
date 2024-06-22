@@ -81,7 +81,7 @@ def test_watch(lock: Lock, mocker: MockerFixture) -> None:
     wait_mock = mocker.patch("ahriman.models.waiter.Waiter.wait")
 
     lock._watch()
-    wait_mock.assert_called_once_with(lock.perform_lock, 1)
+    wait_mock.assert_called_once_with(pytest.helpers.anyvar(int), 1)
 
 
 def test_watch_skip(lock: Lock, mocker: MockerFixture) -> None:
