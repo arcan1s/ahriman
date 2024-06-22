@@ -475,7 +475,7 @@ The following environment variables are supported:
 * ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
 * ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository URL. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
-* ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/tmp``.
+* ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/run/ahriman``.
 * ``AHRIMAN_USER`` - ahriman user, usually must not be overwritten, default is ``ahriman``.
 * ``AHRIMAN_VALIDATE_CONFIGURATION`` - if set (default) validate service configuration.
 
@@ -1318,7 +1318,7 @@ How to enable basic authorization
    .. code-block:: ini
 
       [web]
-      unix_socket = /var/lib/ahriman/ahriman-web.sock
+      unix_socket = /run/ahriman/ahriman-web.sock
 
    This socket path must be available for web service instance and must be available for all application instances (e.g. in case if you are using docker container - see above - you need to make sure that the socket is passed to the root filesystem).
 

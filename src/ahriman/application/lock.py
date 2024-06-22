@@ -125,7 +125,7 @@ class Lock(LazyLogging):
             return
 
         waiter = Waiter(self.wait_timeout)
-        waiter.wait(self.perform_lock, self._pid_file.fileno())
+        waiter.wait(lambda fd: not self.perform_lock(fd), self._pid_file.fileno())
 
     def _write(self) -> None:
         """
@@ -139,7 +139,7 @@ class Lock(LazyLogging):
         if not self.perform_lock(self._pid_file.fileno()):
             raise DuplicateRunError
 
-        self._pid_file.seek(0)  # reset bytes
+        self._pid_file.seek(0)  # reset position and remove file content if any
         self._pid_file.truncate()
 
         self._pid_file.write(str(os.getpid()))  # write current pid
