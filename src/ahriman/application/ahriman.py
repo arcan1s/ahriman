@@ -19,7 +19,6 @@
 #
 # pylint: disable=too-many-lines
 import argparse
-import tempfile
 
 from pathlib import Path
 from typing import TypeVar
@@ -73,8 +72,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
                         default=Path("/") / "etc" / "ahriman.ini")
     parser.add_argument("--force", help="force run, remove file lock", action="store_true")
-    parser.add_argument("-l", "--lock", help="lock file", type=Path,
-                        default=Path(tempfile.gettempdir()) / "ahriman.lock")
+    parser.add_argument("-l", "--lock", help="lock file", type=Path, default=Path("ahriman.pid"))
     parser.add_argument("--log-handler", help="explicit log handler specification. If none set, the handler will be "
                                               "guessed from environment",
                         type=LogHandler, choices=enum_values(LogHandler))
@@ -628,8 +626,7 @@ def _set_repo_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
                                                 "-yy to force refresh even if up to date",
                         action="count", default=False)
-    parser.set_defaults(handler=handlers.Daemon, exit_code=False,
-                        lock=Path(tempfile.gettempdir()) / "ahriman-daemon.lock", package=[])
+    parser.set_defaults(handler=handlers.Daemon, exit_code=False, lock=Path("ahriman-daemon.pid"), package=[])
     return parser
 
 
@@ -880,7 +877,7 @@ def _set_service_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
                         action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--pacman", help="clear directory with pacman local database cache",
                         action=argparse.BooleanOptionalAction, default=False)
-    parser.set_defaults(handler=handlers.Clean, quiet=True, unsafe=True)
+    parser.set_defaults(handler=handlers.Clean, lock=None, quiet=True, unsafe=True)
     return parser
 
 
@@ -1139,8 +1136,8 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("web", help="web server", description="start web server", formatter_class=_formatter)
-    parser.set_defaults(handler=handlers.Web, architecture="", lock=Path(tempfile.gettempdir()) / "ahriman-web.lock",
-                        report=False, repository="", parser=_parser)
+    parser.set_defaults(handler=handlers.Web, architecture="", lock=Path("ahriman-web.pid"), report=False,
+                        repository="", parser=_parser)
     return parser
 
 
