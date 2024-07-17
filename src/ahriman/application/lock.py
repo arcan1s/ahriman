@@ -18,7 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
+import fcntl
+import os
 
+from io import TextIOWrapper
 from pathlib import Path
 from types import TracebackType
 from typing import Literal, Self
@@ -36,7 +39,7 @@ from ahriman.models.waiter import Waiter
 
 class Lock(LazyLogging):
     """
-    wrapper for application lock file
+    wrapper for application lock file. Credits for idea to https://github.com/bmhatfield/python-pidfile.git
 
     Attributes:
         force(bool): remove lock file on start if any
@@ -70,8 +73,13 @@ class Lock(LazyLogging):
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
         """
-        self.path: Path | None = \
-            args.lock.with_stem(f"{args.lock.stem}_{repository_id.id}") if args.lock is not None else None
+        self.path: Path | None = None
+        if args.lock is not None:
+            self.path = args.lock.with_stem(f"{args.lock.stem}_{repository_id.id}")
+            if not self.path.is_absolute():
+                # prepend full path to the lock file
+                self.path = Path("/") / "run" / "ahriman" / self.path
+        self._pid_file: TextIOWrapper | None = None
 
         self.force: bool = args.force
         self.unsafe: bool = args.unsafe
@@ -79,6 +87,72 @@ class Lock(LazyLogging):
 
         self.paths = configuration.repository_paths
         self.reporter = Client.load(repository_id, configuration, report=args.report)
+
+    @staticmethod
+    def perform_lock(fd: int) -> bool:
+        """
+        perform file lock
+
+        Args:
+            fd(int): file descriptor:
+
+        Returns:
+            bool: True in case if file is locked and False otherwise
+        """
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            return False
+
+        return True
+
+    def _open(self) -> None:
+        """
+        create lock file
+        """
+        if self.path is None:
+            return
+        self._pid_file = self.path.open("a+")
+
+    def _watch(self) -> bool:
+        """
+        watch until lock disappear
+
+        Returns:
+            bool: True in case if file is locked and False otherwise
+        """
+        # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
+        # race conditions because multiple processes will be notified at the same time. Secondly, it is good library,
+        # but platform-specific, and we only need to check if file exists
+        if self._pid_file is None:
+            return False
+
+        waiter = Waiter(self.wait_timeout)
+        return bool(waiter.wait(lambda fd: not self.perform_lock(fd), self._pid_file.fileno()))
+
+    def _write(self, *, is_locked: bool = False) -> None:
+        """
+        write pid to the lock file
+
+        Args:
+            is_locked(bool, optional): indicates if file was already locked or not (Default value = False)
+
+        Raises:
+            DuplicateRunError: if it cannot lock PID file
+        """
+        if self._pid_file is None:
+            return
+        if not is_locked:
+            if not self.perform_lock(self._pid_file.fileno()):
+                raise DuplicateRunError
+
+        self._pid_file.seek(0)  # reset position and remove file content if any
+        self._pid_file.truncate()
+
+        self._pid_file.write(str(os.getpid()))  # write current pid
+        self._pid_file.flush()  # flush data to disk
+
+        self._pid_file.seek(0)  # reset position again
 
     def check_user(self) -> None:
         """
@@ -100,46 +174,33 @@ class Lock(LazyLogging):
         """
         remove lock file
         """
-        if self.path is None:
-            return
-        self.path.unlink(missing_ok=True)
+        if self._pid_file is not None:  # close file descriptor
+            try:
+                self._pid_file.close()
+            except IOError:
+                pass  # suppress any IO errors occur
+        if self.path is not None:  # remove lock file
+            self.path.unlink(missing_ok=True)
 
-    def create(self) -> None:
+    def lock(self) -> None:
         """
-        create lock file
-
-        Raises:
-            DuplicateRunError: if lock exists and no force flag supplied
+        create pid file
         """
-        if self.path is None:
-            return
-        try:
-            self.path.touch(exist_ok=self.force)
-        except FileExistsError:
-            raise DuplicateRunError from None
-
-    def watch(self) -> None:
-        """
-        watch until lock disappear
-        """
-        # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
-        # race conditions because multiple processes will be notified in the same time. Secondly, it is good library,
-        # but platform-specific, and we only need to check if file exists
-        if self.path is None:
-            return
-
-        waiter = Waiter(self.wait_timeout)
-        waiter.wait(self.path.is_file)
+        if self.force:  # remove lock if force flag is set
+            self.clear()
+        self._open()
+        is_locked = self._watch()
+        self._write(is_locked=is_locked)
 
     def __enter__(self) -> Self:
         """
         default workflow is the following:
 
             #. Check user UID
-            #. Check if there is lock file
             #. Check web status watcher status
+            #. Open lock file
             #. Wait for lock file to be free
-            #. Create lock file and directory tree
+            #. Write current PID to the lock file
             #. Report to status page if enabled
 
         Returns:
@@ -147,8 +208,7 @@ class Lock(LazyLogging):
         """
         self.check_user()
         self.check_version()
-        self.watch()
-        self.create()
+        self.lock()
         self.reporter.status_update(BuildStatusEnum.Building)
         return self
 
