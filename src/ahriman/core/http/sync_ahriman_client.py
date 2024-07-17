@@ -46,8 +46,8 @@ class SyncAhrimanClient(SyncHttpClient):
             request.Session: created session object
         """
         if urlparse(self.address).scheme == "http+unix":
-            import requests_unixsocket  # type: ignore[import-untyped]
-            session: requests.Session = requests_unixsocket.Session()
+            import requests_unixsocket
+            session: requests.Session = requests_unixsocket.Session()  # type: ignore[no-untyped-call]
             session.headers["User-Agent"] = f"ahriman/{__version__}"
             return session
 
