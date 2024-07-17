@@ -114,30 +114,37 @@ class Lock(LazyLogging):
             return
         self._pid_file = self.path.open("a+")
 
-    def _watch(self) -> None:
+    def _watch(self) -> bool:
         """
         watch until lock disappear
+
+        Returns:
+            bool: True in case if file is locked and False otherwise
         """
         # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
         # race conditions because multiple processes will be notified at the same time. Secondly, it is good library,
         # but platform-specific, and we only need to check if file exists
         if self._pid_file is None:
-            return
+            return False
 
         waiter = Waiter(self.wait_timeout)
-        waiter.wait(lambda fd: not self.perform_lock(fd), self._pid_file.fileno())
+        return bool(waiter.wait(lambda fd: not self.perform_lock(fd), self._pid_file.fileno()))
 
-    def _write(self) -> None:
+    def _write(self, *, is_locked: bool = False) -> None:
         """
         write pid to the lock file
+
+        Args:
+            is_locked(bool, optional): indicates if file was already locked or not (Default value = False)
 
         Raises:
             DuplicateRunError: if it cannot lock PID file
         """
         if self._pid_file is None:
             return
-        if not self.perform_lock(self._pid_file.fileno()):
-            raise DuplicateRunError
+        if not is_locked:
+            if not self.perform_lock(self._pid_file.fileno()):
+                raise DuplicateRunError
 
         self._pid_file.seek(0)  # reset position and remove file content if any
         self._pid_file.truncate()
@@ -182,8 +189,8 @@ class Lock(LazyLogging):
         if self.force:  # remove lock if force flag is set
             self.clear()
         self._open()
-        self._watch()
-        self._write()
+        is_locked = self._watch()
+        self._write(is_locked=is_locked)
 
     def __enter__(self) -> Self:
         """

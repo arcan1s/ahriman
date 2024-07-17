@@ -98,7 +98,7 @@ def test_write(lock: Lock) -> None:
     """
     with NamedTemporaryFile("a+") as pid_file:
         lock._pid_file = pid_file
-        lock._write()
+        lock._write(is_locked=False)
 
         assert int(lock._pid_file.readline()) == os.getpid()
 
@@ -107,7 +107,7 @@ def test_write_skip(lock: Lock) -> None:
     """
     must skip write to file if no path set
     """
-    lock._write()
+    lock._write(is_locked=False)
 
 
 def test_write_locked(lock: Lock, mocker: MockerFixture) -> None:
@@ -117,7 +117,18 @@ def test_write_locked(lock: Lock, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.application.lock.Lock.perform_lock", return_value=False)
     with pytest.raises(DuplicateRunError):
         lock._pid_file = MagicMock()
-        lock._write()
+        lock._write(is_locked=False)
+
+
+def test_write_locked_before(lock: Lock, mocker: MockerFixture) -> None:
+    """
+    must skip lock in case if file was locked before
+    """
+    lock_mock = mocker.patch("ahriman.application.lock.Lock.perform_lock")
+    lock._pid_file = MagicMock()
+
+    lock._write(is_locked=True)
+    lock_mock.assert_not_called()
 
 
 def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
@@ -226,14 +237,14 @@ def test_lock(lock: Lock, mocker: MockerFixture) -> None:
     """
     clear_mock = mocker.patch("ahriman.application.lock.Lock.clear")
     open_mock = mocker.patch("ahriman.application.lock.Lock._open")
-    watch_mock = mocker.patch("ahriman.application.lock.Lock._watch")
+    watch_mock = mocker.patch("ahriman.application.lock.Lock._watch", return_value=True)
     write_mock = mocker.patch("ahriman.application.lock.Lock._write")
 
     lock.lock()
     clear_mock.assert_not_called()
     open_mock.assert_called_once_with()
     watch_mock.assert_called_once_with()
-    write_mock.assert_called_once_with()
+    write_mock.assert_called_once_with(is_locked=True)
 
 
 def test_lock_clear(lock: Lock, mocker: MockerFixture) -> None:
