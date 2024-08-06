@@ -57,6 +57,7 @@ class AURPackage:
         provides(list[str]): list of packages which this package provides
         license(list[str]): list of package licenses
         keywords(list[str]): list of package keywords
+        groups(list[str]): list of package groups
 
     Examples:
         Mainly this class must be used from class methods instead of default :func:`__init__()`::
@@ -100,6 +101,7 @@ class AURPackage:
     provides: list[str] = field(default_factory=list)
     license: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
+    groups: list[str] = field(default_factory=list)
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -153,6 +155,7 @@ class AURPackage:
             provides=package.provides,
             license=package.licenses,
             keywords=[],
+            groups=package.groups,
         )
 
     @classmethod
@@ -191,6 +194,7 @@ class AURPackage:
             provides=dump["provides"],
             license=dump["licenses"],
             keywords=[],
+            groups=dump["groups"],
         )
 
     @staticmethod
