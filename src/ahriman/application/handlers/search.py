@@ -43,7 +43,7 @@ class Search(Handler):
     SORT_FIELDS = {
         field.name
         for field in fields(AURPackage)
-        if field.default_factory is not list  # type: ignore[comparison-overlap]
+        if field.default_factory is not list
     }
 
     @classmethod
