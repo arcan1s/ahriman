@@ -6,10 +6,12 @@ from unittest.mock import MagicMock, PropertyMock
 from pytest_mock import MockerFixture
 
 from ahriman import __version__
+from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
+from ahriman.models.filesystem_package import FilesystemPackage
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.package_archive import PackageArchive
@@ -47,6 +49,17 @@ def counters() -> Counters:
 
 
 @pytest.fixture
+def filesystem_package() -> FilesystemPackage:
+    """
+    filesystem_package fixture
+
+    Returns:
+        FilesystemPackage: filesystem package test instance
+    """
+    return FilesystemPackage(package_name="package", depends={"dependency"}, opt_depends={"optional"})
+
+
+@pytest.fixture
 def internal_status(counters: Counters) -> InternalStatus:
     """
     internal status fixture
@@ -65,7 +78,7 @@ def internal_status(counters: Counters) -> InternalStatus:
 
 
 @pytest.fixture
-def package_archive_ahriman(package_ahriman: Package, repository_paths: RepositoryPaths,
+def package_archive_ahriman(package_ahriman: Package, repository_paths: RepositoryPaths, pacman: Pacman,
                             passwd: Any, mocker: MockerFixture) -> PackageArchive:
     """
     package archive fixture
@@ -73,6 +86,7 @@ def package_archive_ahriman(package_ahriman: Package, repository_paths: Reposito
     Args:
         package_ahriman(Package): package test instance
         repository_paths(RepositoryPaths): repository paths test instance
+        pacman(Pacman): pacman test instance
         passwd(Any): passwd structure test instance
         mocker(MockerFixture): mocker object
 
@@ -80,7 +94,7 @@ def package_archive_ahriman(package_ahriman: Package, repository_paths: Reposito
         PackageArchive: package archive test instance
     """
     mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
-    return PackageArchive(repository_paths.build_directory, package_ahriman)
+    return PackageArchive(repository_paths.build_directory, package_ahriman, pacman)
 
 
 @pytest.fixture
@@ -150,6 +164,7 @@ def pyalpm_package_ahriman(aur_package_ahriman: AURPackage) -> MagicMock:
     type(mock).provides = PropertyMock(return_value=aur_package_ahriman.provides)
     type(mock).version = PropertyMock(return_value=aur_package_ahriman.version)
     type(mock).url = PropertyMock(return_value=aur_package_ahriman.url)
+    type(mock).groups = PropertyMock(return_value=aur_package_ahriman.groups)
 
     return mock
 

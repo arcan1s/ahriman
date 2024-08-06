@@ -30,7 +30,7 @@ def test_package_logger_set_reset(database: SQLite) -> None:
     database._package_logger_reset()
     record = logging.makeLogRecord({})
     with pytest.raises(AttributeError):
-        record.package_id
+        assert record.package_id
 
 
 def test_in_package_context(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:

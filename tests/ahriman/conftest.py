@@ -181,6 +181,7 @@ def aur_package_ahriman() -> AURPackage:
         provides=[],
         license=["GPL3"],
         keywords=[],
+        groups=[],
     )
 
 
@@ -228,6 +229,7 @@ def aur_package_akonadi() -> AURPackage:
         provides=[],
         license=["LGPL"],
         keywords=[],
+        groups=[],
     )
 
 
@@ -397,7 +399,8 @@ def package_description_ahriman() -> PackageDescription:
         groups=[],
         installed_size=4200000,
         licenses=["GPL3"],
-        url="https://github.com/arcan1s/ahriman")
+        url="https://github.com/arcan1s/ahriman",
+    )
 
 
 @pytest.fixture
@@ -418,7 +421,8 @@ def package_description_python_schedule() -> PackageDescription:
         groups=[],
         installed_size=4200001,
         licenses=["MIT"],
-        url="https://github.com/dbader/schedule")
+        url="https://github.com/dbader/schedule",
+    )
 
 
 @pytest.fixture
@@ -439,7 +443,8 @@ def package_description_python2_schedule() -> PackageDescription:
         groups=[],
         installed_size=4200002,
         licenses=["MIT"],
-        url="https://github.com/dbader/schedule")
+        url="https://github.com/dbader/schedule",
+    )
 
 
 @pytest.fixture
