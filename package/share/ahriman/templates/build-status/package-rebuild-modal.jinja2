@@ -50,11 +50,11 @@
         }
     }
 
-    $(() => {
-        packageRebuildModal.on("shown.bs.modal", () => {
+    $(_ => {
+        packageRebuildModal.on("shown.bs.modal", _ => {
             $(`#package-rebuild-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
 
         });
-        packageRebuildModal.on("hidden.bs.modal", () => { packageRebuildForm.trigger("reset"); });
+        packageRebuildModal.on("hidden.bs.modal", _ => { packageRebuildForm.trigger("reset"); });
     });
 </script>

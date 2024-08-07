@@ -192,6 +192,7 @@ Idea is to add package to a build queue from which it will be handled automatica
 
 * If supplied argument is file, then application moves the file to the directory with built packages. Same rule applies for directory, but in this case it copies every package-like file from the specified directory.
 * If supplied argument is directory and there is ``PKGBUILD`` file there, it will be treated as local package. In this case it will queue this package to build and copy source files (``PKGBUILD`` and ``.SRCINFO``) to caches.
+* If supplied argument looks like URL (i.e. it has scheme - e.g. ``http://`` which is neither ``data`` nor ``file``), it tries to download the package from the specified remote source.
 * If supplied argument is not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
 
 This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR. Also official repositories calls are hidden behind explicit source definition.
@@ -206,10 +207,20 @@ Remove packages
 
 This flow removes package from filesystem, updates repository database and also runs synchronization and reporting methods.
 
+Check outdated packages
+^^^^^^^^^^^^^^^^^^^^^^^
+
+There are few ways for packages to be marked as out-of-date and hence requiring rebuild. Those are following:
+
+#. User requested update of the package. It can be caused by calling ``package-add`` subcommand (or ``package-update`` with arguments).
+#. The most common way for packages to be marked as out-of-dated is that the version in AUR (or the official repositories) is newer than in the repository.
+#. In addition to the above, if package is named as VCS (e.g. has suffix ``-git``) and the last update was more than specified threshold ago, the service will also try to fetch sources and check if the revision is newer than the built one.
+#. In addition, there is ability to check if the dependencies of the package have been updated (e.g. if linked library has been renamed or the modules directory - e.g. in case of python and ruby packages - has been changed). And if so, the package will be marked as out-of-dated as well.
+
 Update packages
 ^^^^^^^^^^^^^^^
 
-This feature is divided into to the following stages: check AUR for updates and run rebuild for required packages. Whereas check does not do anything except for check itself, update flow is the following:
+This feature is divided into to the following stages: check AUR for updates and run rebuild for required packages. The package update flow is the following:
 
 #. Process every built package first. Those packages are usually added manually.
 #. Run sync and report methods.
@@ -258,6 +269,23 @@ The application is able to automatically bump package release (``pkgrel``) durin
 #. Extract ``pkgrel`` value.
 #. If it has ``major.minor`` notation (e.g. ``1.1``), then increment last part by 1, e.g. ``1.1 -> 1.2``, ``1.0.1 -> 1.0.2``.
 #. If ``pkgrel`` is a number (e.g. ``1``), then append 1 to the end of the string, e.g. ``1 -> 1.1``.
+
+Implicit dependencies resolution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the depends/optional/make/check depends lists the server also handles implicit dependencies. After success build, the application traverse through the build tree and finds
+
+* Libraries to which the binaries (ELF-files) are linked. To do so, the ``NEEDED`` section of the ELF-files are read.
+* Directories which contains files of the package, but do not belong to this package. This case covers, for example, python and ruby submodules.
+
+Having the initial dependencies tree, the application is looking for packages which contains those (both files and directories) paths and creates the initial packages list. After that, the packages list is reduced in the following way:
+
+* If the entry (i.e. file or directory) belongs to the package which is in base group, it will be removed.
+* If there is a package which depends on the another package which provide the same entry, the package will be removed.
+* After that, if there is a package which *optionally* depends on the another package in the remaining list, the package will be removed.
+* And finally, if there is any path, which is the child of the entry, and it contains the same package, the package from the smaller entry will be removed.
+
+All those implicit dependencies are stored in the database and extracted on each check. In case if any of the repository packages doesn't contain any entry anymore (e.g. so version has been changed or modules directory has been changed), the dependent package will be marked as out-of-dated.
 
 Core functions reference
 ------------------------
