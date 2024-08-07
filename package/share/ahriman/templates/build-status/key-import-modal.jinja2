@@ -87,8 +87,8 @@
         }
     }
 
-    $(() => {
-        keyImportModal.on("hidden.bs.modal", () => {
+    $(_ => {
+        keyImportModal.on("hidden.bs.modal", _ => {
             keyImportBodyInput.text("");
             keyImportForm.trigger("reset");
         });

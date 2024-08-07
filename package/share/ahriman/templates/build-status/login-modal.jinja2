@@ -53,10 +53,13 @@
                 contentType: "application/json",
                 success: _ => {
                     loginModal.modal("hide");
-                    showSuccess("Logged in", `Successfully logged in as ${username}`, () => location.href = "/");
+                    showSuccess("Logged in", `Successfully logged in as ${username}`, _ => location.href = "/");
                 },
                 error: (jqXHR, _, errorThrown) => {
-                    const message = _ => `Could not login as ${username}`;
+                    const message = _ =>
+                        username === "admin" && password === "admin"
+                            ? "You've entered a password for user \"root\", did you make a typo in username?"
+                            : `Could not login as ${username}`;
                     showFailure("Login error", message, jqXHR, errorThrown);
                 },
             });
@@ -75,8 +78,8 @@
         }
     }
 
-    $(() => {
-        loginModal.on("hidden.bs.modal", () => {
+    $(_ => {
+        loginModal.on("hidden.bs.modal", _ => {
             loginForm.trigger("reset");
         });
     });

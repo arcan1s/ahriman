@@ -21,7 +21,7 @@
 
         alertPlaceholder.append(wrapper);
         const toast = new bootstrap.Toast(wrapper);
-        wrapper.addEventListener("hidden.bs.toast", () => {
+        wrapper.addEventListener("hidden.bs.toast", _ => {
             wrapper.remove();  // bootstrap doesn't remove elements
             (action || reload)();
         });

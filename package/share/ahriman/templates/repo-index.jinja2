@@ -123,8 +123,8 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
                 return extractDataList(table.bootstrapTable("getData"), "licenses");
             }
 
-            $(() => {
-                table.on("created-controls.bs.table", () => {
+            $(_ => {
+                table.on("created-controls.bs.table", _ => {
                     const pickerInput = $(".bootstrap-table-filter-control-timestamp");
                     pickerInput.daterangepicker({
                         autoUpdateInput: false,
@@ -138,7 +138,7 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
                         table.bootstrapTable("triggerSearch");
                     });
 
-                    pickerInput.on("cancel.daterangepicker", () => {
+                    pickerInput.on("cancel.daterangepicker", _ => {
                         pickerInput.val("");
                         table.bootstrapTable("triggerSearch");
                     });
