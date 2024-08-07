@@ -182,7 +182,7 @@
         return {classes: cellClass(value)};
     }
 
-    $(() => {
+    $(_ => {
         $("#repositories a").on("click", event => {
             const element = event.target;
             repository = {
@@ -194,7 +194,7 @@
             reload();
         });
 
-        table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", () => {
+        table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", _ => {
             packageRemoveButton.prop("disabled", !table.bootstrapTable("getSelections").length);
         });
         table.on("click-row.bs.table", (self, data, row, cell) => {
@@ -203,7 +203,7 @@
                 table.bootstrapTable(method, {field: "id", values: [data.id]});
             } else showPackageInfo(data.id);
         });
-        table.on("created-controls.bs.table", () => {
+        table.on("created-controls.bs.table", _ => {
             const pickerInput = $(".bootstrap-table-filter-control-timestamp");
             pickerInput.daterangepicker({
                 autoUpdateInput: false,
@@ -217,7 +217,7 @@
                 table.bootstrapTable("triggerSearch");
             });
 
-            pickerInput.on("cancel.daterangepicker", () => {
+            pickerInput.on("cancel.daterangepicker", _ => {
                 pickerInput.val("");
                 table.bootstrapTable("triggerSearch");
             });

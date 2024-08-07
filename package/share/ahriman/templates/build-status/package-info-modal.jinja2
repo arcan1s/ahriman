@@ -290,8 +290,8 @@
         if (isPackageBaseSet) packageInfoModal.modal("show");
     }
 
-    $(() => {
-        packageInfoModal.on("hidden.bs.modal", () => {
+    $(_ => {
+        packageInfoModal.on("hidden.bs.modal", _ => {
             packageInfoAurUrl.empty();
             packageInfoDepends.empty();
             packageInfoGroups.empty();

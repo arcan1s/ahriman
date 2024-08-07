@@ -126,18 +126,18 @@
         }
     }
 
-    $(() => {
-        packageAddModal.on("shown.bs.modal", () => {
+    $(_ => {
+        packageAddModal.on("shown.bs.modal", _ => {
             $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
         });
-        packageAddModal.on("hidden.bs.modal", () => {
+        packageAddModal.on("hidden.bs.modal", _ => {
             packageAddVariablesDiv.empty();
             packageAddForm.trigger("reset");
         });
 
-        packageAddInput.keyup(() => {
+        packageAddInput.keyup(_ => {
             clearTimeout(packageAddInput.data("timeout"));
-            packageAddInput.data("timeout", setTimeout($.proxy(() => {
+            packageAddInput.data("timeout", setTimeout($.proxy(_ => {
                 const value = packageAddInput.val();
 
                 if (value.length >= 3) {
