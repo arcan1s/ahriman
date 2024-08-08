@@ -197,7 +197,9 @@ class Pacman(LazyLogging):
                 content = tar.extractfile(descriptor)
                 if content is None:
                     continue
-                files = {filename.decode("utf8").rstrip() for filename in content.readlines()}
+                # this is just array of files, however, the directories are with trailing slash,
+                # which previously has been removed by the conversion to ``pathlib.Path``
+                files = {filename.decode("utf8").rstrip().removesuffix("/") for filename in content.readlines()}
 
                 yield package, files
 
