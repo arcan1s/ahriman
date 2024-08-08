@@ -280,6 +280,7 @@ In addition to the depends/optional/make/check depends lists the server also han
 
 Having the initial dependencies tree, the application is looking for packages which contains those (both files and directories) paths and creates the initial packages list. After that, the packages list is reduced in the following way:
 
+* From any leaf exclude the package itself and possible debug packages.
 * If the entry (i.e. file or directory) belongs to the package which is in base group, it will be removed.
 * If there is a package which depends on the another package which provide the same entry, the package will be removed.
 * After that, if there is a package which *optionally* depends on the another package in the remaining list, the package will be removed.

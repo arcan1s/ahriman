@@ -126,12 +126,14 @@ class PackageArchive:
         """
         dependencies, roots = self.depends_on_paths()
         installed_packages = self.installed_packages()
+        # build list of packages, which contains both the package itself and (possible) debug packages
+        packages = list(self.package.packages) + [f"{package}-debug" for package in self.package.packages]
 
         # build initial map of file path -> packages containing this path
         # in fact, keys will contain all libraries the package linked to and all directories it contains
         dependencies_per_path: dict[Path, list[FilesystemPackage]] = {}
         for package_base, package in installed_packages.items():
-            if package_base in self.package.packages:
+            if package_base in packages:
                 continue  # skip package itself
 
             required_by = [directory for directory in package.directories if directory in roots]
