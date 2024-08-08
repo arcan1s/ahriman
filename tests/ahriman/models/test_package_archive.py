@@ -188,10 +188,11 @@ def test_depends_on_paths(package_archive_ahriman: PackageArchive, mocker: Mocke
     """
     must correctly extract dependencies
     """
-    package_dir = package_archive_ahriman.root / "build" / package_archive_ahriman.package.base / "pkg"
+    package_dir = package_archive_ahriman.root / "build" / \
+        package_archive_ahriman.package.base / "pkg" / package_archive_ahriman.package.base
     dynamic_mock = mocker.patch("ahriman.models.package_archive.PackageArchive.dynamic_needed", return_value=["lib"])
     walk_mock = mocker.patch("ahriman.models.package_archive.walk", return_value=[
-        package_dir / package_archive_ahriman.package.base / "root" / "file",
+        package_dir / "root" / "file",
         Path("directory"),
     ])
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=lambda path: path != Path("directory"))
@@ -199,7 +200,7 @@ def test_depends_on_paths(package_archive_ahriman: PackageArchive, mocker: Mocke
     dependencies, roots = package_archive_ahriman.depends_on_paths()
     assert dependencies == {"lib"}
     assert roots == {Path("root")}
-    dynamic_mock.assert_called_once_with(package_dir / package_archive_ahriman.package.base / "root" / "file")
+    dynamic_mock.assert_called_once_with(package_dir / "root" / "file")
     walk_mock.assert_called_once_with(package_dir)
 
 

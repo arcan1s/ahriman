@@ -207,11 +207,12 @@ class PackageArchive:
         dependencies = set()
         roots: set[Path] = set()
 
-        package_dir = self.root / "build" / self.package.base / "pkg"
-        for path in filter(lambda p: p.is_file(), walk(package_dir)):
-            dependencies.update(PackageArchive.dynamic_needed(path))
-            filesystem_path = Path(*path.relative_to(package_dir).parts[1:])
-            roots.update(filesystem_path.parents[:-1])  # last element is always . because paths are relative
+        for package in self.package.packages:
+            package_dir = self.root / "build" / self.package.base / "pkg" / package
+            for path in filter(lambda p: p.is_file(), walk(package_dir)):
+                dependencies.update(PackageArchive.dynamic_needed(path))
+                filesystem_path = Path(*path.relative_to(package_dir).parts)
+                roots.update(filesystem_path.parents[:-1])  # last element is always . because paths are relative
 
         return dependencies, roots
 
