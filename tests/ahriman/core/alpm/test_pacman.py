@@ -1,3 +1,4 @@
+import pyalpm
 import pytest
 import tarfile
 
@@ -175,31 +176,12 @@ def test_database_sync_forced(pacman: Pacman, mocker: MockerFixture) -> None:
     sync_mock.assert_called_once_with(force=True)
 
 
-def test_files(pacman: Pacman, package_ahriman: Package, mocker: MockerFixture, resource_path_root: Path) -> None:
-    """
-    must load files from databases
-    """
-    handle_mock = MagicMock()
-    handle_mock.get_syncdbs.return_value = [MagicMock()]
-    pacman.handle = handle_mock
-    tarball = resource_path_root / "core" / "arcanisrepo.files.tar.gz"
-
-    with tarfile.open(tarball, "r:gz") as fd:
-        mocker.patch("pathlib.Path.is_file", return_value=True)
-        open_mock = mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=fd)
-
-        files = pacman.files()
-        assert len(files) == 2
-        assert package_ahriman.base in files
-        assert "usr/bin/ahriman" in files[package_ahriman.base]
-        open_mock.assert_called_once_with(pytest.helpers.anyvar(int), "r:gz")
-
-
-def test_files_package(pacman: Pacman, package_ahriman: Package, mocker: MockerFixture,
-                       resource_path_root: Path) -> None:
+def test_files_package(pacman: Pacman, package_ahriman: Package, pyalpm_package_ahriman: pyalpm.Package,
+                       mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must load files only for the specified package
     """
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.package", return_value=[pyalpm_package_ahriman])
     handle_mock = MagicMock()
     handle_mock.get_syncdbs.return_value = [MagicMock()]
     pacman.handle = handle_mock
@@ -210,34 +192,35 @@ def test_files_package(pacman: Pacman, package_ahriman: Package, mocker: MockerF
         mocker.patch("pathlib.Path.is_file", return_value=True)
         mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=fd)
 
-        files = pacman.files(package_ahriman.base)
+        files = pacman.files([package_ahriman.base])
         assert len(files) == 1
         assert package_ahriman.base in files
 
 
-def test_files_skip(pacman: Pacman, mocker: MockerFixture) -> None:
+def test_files_skip(pacman: Pacman, pyalpm_package_ahriman: pyalpm.Package, mocker: MockerFixture) -> None:
     """
     must return empty list if no database found
     """
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.package", return_value=[pyalpm_package_ahriman])
     handle_mock = MagicMock()
     handle_mock.get_syncdbs.return_value = [MagicMock()]
     pacman.handle = handle_mock
 
     mocker.patch("pathlib.Path.is_file", return_value=False)
 
-    assert not pacman.files()
+    assert not pacman.files([pyalpm_package_ahriman.name])
 
 
-def test_files_no_content(pacman: Pacman, mocker: MockerFixture) -> None:
+def test_files_no_content(pacman: Pacman, pyalpm_package_ahriman: pyalpm.Package, mocker: MockerFixture) -> None:
     """
     must skip package if no content can be loaded
     """
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.package", return_value=[pyalpm_package_ahriman])
     handle_mock = MagicMock()
     handle_mock.get_syncdbs.return_value = [MagicMock()]
     pacman.handle = handle_mock
 
     tar_mock = MagicMock()
-    tar_mock.getmembers.return_value = [MagicMock()]
     tar_mock.extractfile.return_value = None
 
     open_mock = MagicMock()
@@ -246,7 +229,28 @@ def test_files_no_content(pacman: Pacman, mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.is_file", return_value=True)
     mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=open_mock)
 
-    assert not pacman.files()
+    assert not pacman.files([pyalpm_package_ahriman.name])
+
+
+def test_files_no_entry(pacman: Pacman, pyalpm_package_ahriman: pyalpm.Package, mocker: MockerFixture) -> None:
+    """
+    must skip package if it wasn't found in the archive
+    """
+    mocker.patch("ahriman.core.alpm.pacman.Pacman.package", return_value=[pyalpm_package_ahriman])
+    handle_mock = MagicMock()
+    handle_mock.get_syncdbs.return_value = [MagicMock()]
+    pacman.handle = handle_mock
+
+    tar_mock = MagicMock()
+    tar_mock.extractfile.side_effect = KeyError()
+
+    open_mock = MagicMock()
+    open_mock.__enter__.return_value = tar_mock
+
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    mocker.patch("ahriman.core.alpm.pacman.tarfile.open", return_value=open_mock)
+
+    assert not pacman.files([pyalpm_package_ahriman.name])
 
 
 def test_package(pacman: Pacman) -> None:
