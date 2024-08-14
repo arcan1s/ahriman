@@ -21,6 +21,7 @@ import aiohttp_security
 import socket
 import types
 
+from aiohttp.typedefs import Middleware
 from aiohttp.web import Application, Request, StaticResource, StreamResponse, middleware
 from aiohttp_session import setup as setup_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
@@ -30,7 +31,7 @@ from enum import Enum
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.models.user_access import UserAccess
-from ahriman.web.middlewares import HandlerType, MiddlewareType
+from ahriman.web.middlewares import HandlerType
 
 
 __all__ = ["setup_auth"]
@@ -84,7 +85,7 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
         return await self.validator.verify_access(identity, permission, context)
 
 
-def _auth_handler(allow_read_only: bool) -> MiddlewareType:
+def _auth_handler(allow_read_only: bool) -> Middleware:
     """
     authorization and authentication middleware
 
@@ -92,7 +93,7 @@ def _auth_handler(allow_read_only: bool) -> MiddlewareType:
         allow_read_only: allow
 
     Returns:
-        MiddlewareType: built middleware
+        Middleware: built middleware
     """
     @middleware
     async def handle(request: Request, handler: HandlerType) -> StreamResponse:
