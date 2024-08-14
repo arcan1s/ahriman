@@ -20,10 +20,11 @@
 import aiohttp_jinja2
 import logging
 
+from aiohttp.typedefs import Middleware
 from aiohttp.web import HTTPClientError, HTTPException, HTTPMethodNotAllowed, HTTPNoContent, HTTPServerError, \
     HTTPUnauthorized, Request, StreamResponse, json_response, middleware
 
-from ahriman.web.middlewares import HandlerType, MiddlewareType
+from ahriman.web.middlewares import HandlerType
 
 
 __all__ = ["exception_handler"]
@@ -43,7 +44,7 @@ def _is_templated_unauthorized(request: Request) -> bool:
         and "application/json" not in request.headers.getall("accept", [])
 
 
-def exception_handler(logger: logging.Logger) -> MiddlewareType:
+def exception_handler(logger: logging.Logger) -> Middleware:
     """
     exception handler middleware. Just log any exception (except for client ones)
 
@@ -51,7 +52,7 @@ def exception_handler(logger: logging.Logger) -> MiddlewareType:
         logger(logging.Logger): class logger
 
     Returns:
-        MiddlewareType: built middleware
+        Middleware: built middleware
 
     Raises:
         HTTPNoContent: OPTIONS method response

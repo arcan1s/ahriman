@@ -22,4 +22,3 @@ from collections.abc import Awaitable, Callable
 
 
 HandlerType = Callable[[Request], Awaitable[StreamResponse]]
-MiddlewareType = Callable[[Request, HandlerType], Awaitable[StreamResponse]]
