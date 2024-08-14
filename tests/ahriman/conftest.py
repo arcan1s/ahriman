@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any, TypeVar
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR
@@ -474,6 +474,41 @@ def passwd() -> MagicMock:
     passwd.pw_dir = "home"
     passwd.pw_name = "ahriman"
     return passwd
+
+
+@pytest.fixture
+def pyalpm_package_ahriman(aur_package_ahriman: AURPackage) -> MagicMock:
+    """
+    mock object for pyalpm package
+
+    Args:
+        aur_package_ahriman(AURPackage): package fixture
+
+    Returns:
+        MagicMock: pyalpm package mock
+    """
+    mock = MagicMock()
+    db = type(mock).db = MagicMock()
+
+    type(mock).base = PropertyMock(return_value=aur_package_ahriman.package_base)
+    type(mock).builddate = PropertyMock(
+        return_value=aur_package_ahriman.last_modified.replace(tzinfo=datetime.timezone.utc).timestamp())
+    type(mock).conflicts = PropertyMock(return_value=aur_package_ahriman.conflicts)
+    type(db).name = PropertyMock(return_value="aur")
+    type(mock).depends = PropertyMock(return_value=aur_package_ahriman.depends)
+    type(mock).desc = PropertyMock(return_value=aur_package_ahriman.description)
+    type(mock).licenses = PropertyMock(return_value=aur_package_ahriman.license)
+    type(mock).makedepends = PropertyMock(return_value=aur_package_ahriman.make_depends)
+    type(mock).name = PropertyMock(return_value=aur_package_ahriman.name)
+    type(mock).optdepends = PropertyMock(return_value=aur_package_ahriman.opt_depends)
+    type(mock).checkdepends = PropertyMock(return_value=aur_package_ahriman.check_depends)
+    type(mock).packager = PropertyMock(return_value="packager")
+    type(mock).provides = PropertyMock(return_value=aur_package_ahriman.provides)
+    type(mock).version = PropertyMock(return_value=aur_package_ahriman.version)
+    type(mock).url = PropertyMock(return_value=aur_package_ahriman.url)
+    type(mock).groups = PropertyMock(return_value=aur_package_ahriman.groups)
+
+    return mock
 
 
 @pytest.fixture

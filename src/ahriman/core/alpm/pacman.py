@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import itertools
 import shutil
 import tarfile
 
@@ -177,39 +178,48 @@ class Pacman(LazyLogging):
             PacmanDatabase(database, self.configuration).sync(force=force)
         transaction.release()
 
-    def files(self, packages: Iterable[str] | None = None) -> dict[str, set[str]]:
+    def files(self, packages: Iterable[str]) -> dict[str, set[str]]:
         """
         extract list of known packages from the databases
 
         Args:
-            packages(Iterable[str] | None, optional): filter by package names (Default value = None)
+            packages(Iterable[str]): filter by package names
 
         Returns:
             dict[str, set[str]]: map of package name to its list of files
         """
-        packages = packages or []
-
-        def extract(tar: tarfile.TarFile) -> Generator[tuple[str, set[str]], None, None]:
-            for descriptor in filter(lambda info: info.path.endswith("/files"), tar.getmembers()):
-                package, *_ = str(Path(descriptor.path).parent).rsplit("-", 2)
-                if packages and package not in packages:
-                    continue  # skip unused packages
-                content = tar.extractfile(descriptor)
+        def extract(tar: tarfile.TarFile, package_names: dict[str, str]) -> Generator[tuple[str, set[str]], None, None]:
+            for package_name, version in package_names.items():
+                path = Path(f"{package_name}-{version}") / "files"
+                try:
+                    content = tar.extractfile(str(path))
+                except KeyError:
+                    # in case if database and its files has been desync somehow, the extractfile will raise
+                    # KeyError because the entry doesn't exist
+                    content = None
                 if content is None:
                     continue
+
                 # this is just array of files, however, the directories are with trailing slash,
                 # which previously has been removed by the conversion to ``pathlib.Path``
                 files = {filename.decode("utf8").rstrip().removesuffix("/") for filename in content.readlines()}
+                yield package_name, files
 
-                yield package, files
+        # sort is required for the following group by operation
+        descriptors = sorted(
+            (package for package_name in packages for package in self.package(package_name)),
+            key=lambda package: package.db.name
+        )
 
         result: dict[str, set[str]] = {}
-        for database in self.handle.get_syncdbs():
-            database_file = self.repository_paths.pacman / "sync" / f"{database.name}.files.tar.gz"
+        for database_name, pacman_packages in itertools.groupby(descriptors, lambda package: package.db.name):
+            database_file = self.repository_paths.pacman / "sync" / f"{database_name}.files.tar.gz"
             if not database_file.is_file():
                 continue  # no database file found
+
+            package_names = {package.name: package.version for package in pacman_packages}
             with tarfile.open(database_file, "r:gz") as archive:
-                result.update(extract(archive))
+                result.update(extract(archive, package_names))
 
         return result
 
