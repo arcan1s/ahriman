@@ -25,7 +25,7 @@ from dataclasses import dataclass, field, fields
 from pyalpm import Package  # type: ignore[import-not-found]
 from typing import Any, Self
 
-from ahriman.core.util import filter_json, full_version
+from ahriman.core.utils import filter_json, full_version
 
 
 @dataclass(frozen=True, kw_only=True)

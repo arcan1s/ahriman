@@ -23,7 +23,7 @@ from enum import StrEnum
 from pathlib import Path
 from urllib.parse import urlparse
 
-from ahriman.core.util import package_like
+from ahriman.core.utils import package_like
 from ahriman.models.repository_paths import RepositoryPaths
 
 

@@ -34,7 +34,7 @@ from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
 from ahriman.core.exceptions import PackageInfoError
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, dataclass_view, full_version, parse_version, srcinfo_property_list, utcnow
+from ahriman.core.utils import check_output, dataclass_view, full_version, parse_version, srcinfo_property_list, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -539,20 +539,23 @@ class Package(LazyLogging):
         result: int = vercmp(self.version, remote_version)
         return result < 0
 
-    def next_pkgrel(self, local_version: str) -> str | None:
+    def next_pkgrel(self, local_version: str | None) -> str | None:
         """
         generate next pkgrel variable. The package release will be incremented if ``local_version`` is more or equal to
         the :attr:`version`; in this case the function will return new pkgrel value, otherwise ``None`` will be
         returned
 
         Args:
-            local_version(str): locally stored package version
+            local_version(str | None): locally stored package version if available
 
         Returns:
             str | None: new generated package release version if any. In case if the release contains dot (e.g. 1.2),
                 the minor part will be incremented by 1. If the release does not contain major.minor notation, the minor
                 version equals to 1 will be appended
         """
+        if local_version is None:
+            return None  # local version not found, keep upstream pkgrel
+
         epoch, pkgver, _ = parse_version(self.version)
         local_epoch, local_pkgver, local_pkgrel = parse_version(local_version)
 

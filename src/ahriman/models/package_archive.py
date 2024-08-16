@@ -26,7 +26,7 @@ from typing import IO
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import OfficialSyncdb
 from ahriman.core.exceptions import UnknownPackageError
-from ahriman.core.util import walk
+from ahriman.core.utils import walk
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.filesystem_package import FilesystemPackage
 from ahriman.models.package import Package

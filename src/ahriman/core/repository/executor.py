@@ -26,7 +26,7 @@ from tempfile import TemporaryDirectory
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.util import safe_filename
+from ahriman.core.utils import safe_filename
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.package_archive import PackageArchive

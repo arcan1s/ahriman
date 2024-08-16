@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Self
 
 from ahriman.core.exceptions import InitializeError
-from ahriman.core.util import dataclass_view, filter_json
+from ahriman.core.utils import dataclass_view, filter_json
 from ahriman.models.package_source import PackageSource
 
 

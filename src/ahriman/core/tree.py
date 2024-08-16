@@ -23,7 +23,7 @@ from collections.abc import Iterable
 from functools import partial
 
 from ahriman.core.exceptions import PartitionError
-from ahriman.core.util import minmax, partition
+from ahriman.core.utils import minmax, partition
 from ahriman.models.package import Package
 
 

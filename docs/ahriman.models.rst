@@ -68,6 +68,14 @@ ahriman.models.dependencies module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.filesystem\_package module
+-----------------------------------------
+
+.. automodule:: ahriman.models.filesystem_package
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.internal\_status module
 --------------------------------------
 

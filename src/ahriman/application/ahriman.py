@@ -25,7 +25,7 @@ from typing import TypeVar
 
 from ahriman import __version__
 from ahriman.application import handlers
-from ahriman.core.util import enum_values, extract_user
+from ahriman.core.utils import enum_values, extract_user
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.log_handler import LogHandler

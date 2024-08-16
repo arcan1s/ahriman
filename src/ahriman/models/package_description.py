@@ -22,7 +22,7 @@ from pathlib import Path
 from pyalpm import Package  # type: ignore[import-not-found]
 from typing import Any, Self
 
-from ahriman.core.util import dataclass_view, filter_json, trim_package
+from ahriman.core.utils import dataclass_view, filter_json, trim_package
 from ahriman.models.aur_package import AURPackage
 
 

@@ -21,7 +21,7 @@ from sqlite3 import Connection
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
-from ahriman.core.util import package_like
+from ahriman.core.utils import package_like
 from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 

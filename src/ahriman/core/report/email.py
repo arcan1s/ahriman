@@ -25,7 +25,7 @@ from email.mime.text import MIMEText
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
-from ahriman.core.util import pretty_datetime, utcnow
+from ahriman.core.utils import pretty_datetime, utcnow
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result

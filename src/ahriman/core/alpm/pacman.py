@@ -30,7 +30,7 @@ from string import Template
 from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import trim_package
+from ahriman.core.utils import trim_package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 

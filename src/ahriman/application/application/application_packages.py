@@ -27,7 +27,7 @@ from typing import Any
 from ahriman.application.application.application_properties import ApplicationProperties
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
-from ahriman.core.util import package_like
+from ahriman.core.utils import package_like
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.result import Result

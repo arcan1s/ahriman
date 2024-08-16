@@ -12,6 +12,14 @@ ahriman.core.status.client module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.status.local\_client module
+----------------------------------------
+
+.. automodule:: ahriman.core.status.local_client
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.status.watcher module
 ----------------------------------
 
