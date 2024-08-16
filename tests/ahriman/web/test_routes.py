@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 from types import ModuleType
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.util import walk
+from ahriman.core.utils import walk
 from ahriman.web.routes import _dynamic_routes, _module, _modules, setup_routes
 
 

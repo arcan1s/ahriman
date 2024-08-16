@@ -23,7 +23,7 @@ from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, Generator, Self
 
-from ahriman.core.util import dataclass_view, filter_json
+from ahriman.core.utils import dataclass_view, filter_json
 
 
 @dataclass(frozen=True)

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.exceptions import PackageInfoError
-from ahriman.core.util import utcnow
+from ahriman.core.utils import utcnow
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
@@ -525,6 +525,8 @@ def test_next_pkgrel(package_ahriman: Package) -> None:
 
     package_ahriman.version = "1.0.0-2"
     assert package_ahriman.next_pkgrel("1.0.0-1.1") is None
+
+    assert package_ahriman.next_pkgrel(None) is None
 
 
 def test_build_status_pretty_print(package_ahriman: Package) -> None:

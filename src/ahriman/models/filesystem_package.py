@@ -23,7 +23,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ahriman.core.util import trim_package
+from ahriman.core.utils import trim_package
 
 
 @dataclass(frozen=True, kw_only=True)

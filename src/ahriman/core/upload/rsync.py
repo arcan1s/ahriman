@@ -21,7 +21,7 @@ from pathlib import Path
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
-from ahriman.core.util import check_output
+from ahriman.core.utils import check_output
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 

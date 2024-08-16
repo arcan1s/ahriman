@@ -24,7 +24,7 @@ from pathlib import Path
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.util import pretty_datetime, pretty_size
+from ahriman.core.utils import pretty_datetime, pretty_size
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 from ahriman.models.sign_settings import SignSettings

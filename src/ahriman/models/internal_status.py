@@ -20,7 +20,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Self
 
-from ahriman.core.util import dataclass_view
+from ahriman.core.utils import dataclass_view
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
 

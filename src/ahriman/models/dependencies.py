@@ -20,7 +20,7 @@
 from dataclasses import dataclass, field, fields
 from typing import Any, Self
 
-from ahriman.core.util import dataclass_view, filter_json
+from ahriman.core.utils import dataclass_view, filter_json
 
 
 @dataclass(frozen=True)

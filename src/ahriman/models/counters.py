@@ -20,7 +20,7 @@
 from dataclasses import dataclass, fields
 from typing import Any, Self
 
-from ahriman.core.util import filter_json
+from ahriman.core.utils import filter_json
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 

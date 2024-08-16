@@ -44,6 +44,14 @@ ahriman.web.schemas.counters\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.dependencies\_schema module
+-----------------------------------------------
+
+.. automodule:: ahriman.web.schemas.dependencies_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.error\_schema module
 ----------------------------------------
 
@@ -152,6 +160,14 @@ ahriman.web.schemas.package\_status\_schema module
 --------------------------------------------------
 
 .. automodule:: ahriman.web.schemas.package_status_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.package\_version\_schema module
+---------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.package_version_schema
    :members:
    :no-undoc-members:
    :show-inheritance:

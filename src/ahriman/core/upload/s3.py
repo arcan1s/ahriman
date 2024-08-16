@@ -26,7 +26,7 @@ from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.upload.upload import Upload
-from ahriman.core.util import walk
+from ahriman.core.utils import walk
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 

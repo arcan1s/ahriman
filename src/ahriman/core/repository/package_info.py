@@ -23,7 +23,7 @@ from tempfile import TemporaryDirectory
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.repository.repository_properties import RepositoryProperties
-from ahriman.core.util import package_like
+from ahriman.core.utils import package_like
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 

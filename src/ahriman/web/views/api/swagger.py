@@ -20,7 +20,7 @@
 from aiohttp.web import Response, json_response
 from collections.abc import Callable
 
-from ahriman.core.util import partition
+from ahriman.core.utils import partition
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.base import BaseView
 

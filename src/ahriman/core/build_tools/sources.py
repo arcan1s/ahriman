@@ -23,7 +23,7 @@ from pathlib import Path
 
 from ahriman.core.exceptions import CalledProcessError
 from ahriman.core.log import LazyLogging
-from ahriman.core.util import check_output, utcnow, walk
+from ahriman.core.utils import check_output, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.remote_source import RemoteSource

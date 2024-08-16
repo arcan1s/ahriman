@@ -77,7 +77,7 @@ def test_load_trigger_class_package_not_trigger(trigger_loader: TriggerLoader) -
     must raise InvalidExtension if imported module is not a type
     """
     with pytest.raises(ExtensionError):
-        trigger_loader.load_trigger_class("ahriman.core.util.check_output")
+        trigger_loader.load_trigger_class("ahriman.core.utils.check_output")
 
 
 def test_load_trigger_class_package_is_not_trigger(trigger_loader: TriggerLoader) -> None:

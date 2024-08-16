@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ahriman.core.util import walk
+from ahriman.core.utils import walk
 
 
 def test_test_coverage() -> None:

@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from urllib.parse import urlparse
 
-from ahriman.core.util import dataclass_view
+from ahriman.core.utils import dataclass_view
 
 
 @dataclass(frozen=True)

@@ -21,7 +21,7 @@ from dataclasses import dataclass, field, fields
 from enum import StrEnum
 from typing import Any, Self
 
-from ahriman.core.util import filter_json, pretty_datetime, utcnow
+from ahriman.core.utils import filter_json, pretty_datetime, utcnow
 
 
 class BuildStatusEnum(StrEnum):

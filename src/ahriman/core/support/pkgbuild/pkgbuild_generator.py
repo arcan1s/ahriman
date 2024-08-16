@@ -23,7 +23,7 @@ import itertools
 from collections.abc import Callable, Generator
 from pathlib import Path
 
-from ahriman.core.util import utcnow
+from ahriman.core.utils import utcnow
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 

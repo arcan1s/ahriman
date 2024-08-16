@@ -12,6 +12,14 @@ ahriman.web.views.v1.packages.changes module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.packages.dependencies module
+-------------------------------------------------
+
+.. automodule:: ahriman.web.views.v1.packages.dependencies
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.packages.logs module
 -----------------------------------------
 

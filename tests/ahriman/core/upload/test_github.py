@@ -132,7 +132,7 @@ def test_get_local_files(github: GitHub, resource_path_root: Path, mocker: Mocke
     """
     must get all local files recursively
     """
-    walk_mock = mocker.patch("ahriman.core.util.walk")
+    walk_mock = mocker.patch("ahriman.core.utils.walk")
     github.get_local_files(resource_path_root)
     walk_mock.assert_called()
 

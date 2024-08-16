@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.utils import full_version, parse_version
 from ahriman.models.package import Package
 from ahriman.models.property import Property
 
@@ -41,7 +42,7 @@ class UpdatePrinter(StringPrinter):
         """
         StringPrinter.__init__(self, remote.base)
         self.package = remote
-        self.local_version = local_version or "N/A"
+        self.local_version = local_version
 
     def properties(self) -> list[Property]:
         """
@@ -50,4 +51,9 @@ class UpdatePrinter(StringPrinter):
         Returns:
             list[Property]: list of content properties
         """
-        return [Property(self.local_version, self.package.version, is_required=True)]
+        if (pkgrel := self.package.next_pkgrel(self.local_version)) is not None:
+            epoch, pkgver, _ = parse_version(self.package.version)
+            effective_new_version = full_version(epoch, pkgver, pkgrel)
+        else:
+            effective_new_version = self.package.version
+        return [Property(self.local_version or "N/A", effective_new_version, is_required=True)]
