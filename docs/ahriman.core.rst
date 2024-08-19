@@ -52,6 +52,14 @@ ahriman.core.tree module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.util module
+------------------------
+
+.. automodule:: ahriman.core.util
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.utils module
 -------------------------
 

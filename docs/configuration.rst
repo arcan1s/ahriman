@@ -61,15 +61,17 @@ libalpm and AUR related configuration. Group name can refer to architecture, e.g
 
 Base authorization settings. ``OAuth`` provider requires ``aioauth-client`` library to be installed.
 
-* ``target`` - specifies authorization provider, string, optional, default ``disabled``. Allowed values are ``disabled``, ``configuration``, ``oauth``.
+* ``target`` - specifies authorization provider, string, optional, default ``disabled``. Allowed values are ``disabled``, ``configuration``, ``oauth``, ``pam``.
 * ``allow_read_only`` - allow requesting status APIs without authorization, boolean, required.
 * ``client_id`` - OAuth2 application client ID, string, required in case if ``oauth`` is used.
 * ``client_secret`` - OAuth2 application client secret key, string, required in case if ``oauth`` is used.
 * ``cookie_secret_key`` - secret key which will be used for cookies encryption, string, optional. It must be 32 bytes URL-safe base64-encoded and can be generated as following ``base64.urlsafe_b64encode(os.urandom(32)).decode("utf8")``. If not set, it will be generated automatically; note, however, that in this case, all sessions will be automatically invalidated during the service restart.
+* ``full_access_group`` - name of the secondary group (e.g. ``wheel``) to be used as admin group in the service, string, required in case if ``pam`` is used.
 * ``max_age`` - parameter which controls both cookie expiration and token expiration inside the service in seconds, integer, optional, default is 7 days.
 * ``oauth_icon`` - OAuth2 login button icon, string, optional, default is ``google``. Must be valid `Bootstrap icon <https://icons.getbootstrap.com/>`__ name.
 * ``oauth_provider`` - OAuth2 provider class name as is in ``aioauth-client`` (e.g. ``GoogleClient``, ``GithubClient`` etc), string, required in case if ``oauth`` is used.
 * ``oauth_scopes`` - scopes list for OAuth2 provider, which will allow retrieving user email (which is used for checking user permissions), e.g. ``https://www.googleapis.com/auth/userinfo.email`` for ``GoogleClient`` or ``user:email`` for ``GithubClient``, space separated list of strings, required in case if ``oauth`` is used.
+* ``permit_root_login`` - allow login as root user, boolean, optional, default ``no``.
 * ``salt`` - additional password hash salt, string, optional.
 
 Authorized users are stored inside internal database, if any of external providers (e.g. ``oauth``) are used, the password field for non-service users must be empty.

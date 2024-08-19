@@ -81,15 +81,18 @@ class Auth(LazyLogging):
             case AuthSettings.OAuth:
                 from ahriman.core.auth.oauth import OAuth
                 return OAuth(configuration, database)
+            case AuthSettings.PAM:
+                from ahriman.core.auth.pam import PAM
+                return PAM(configuration, database)
             case _:
                 return Auth(configuration)
 
-    async def check_credentials(self, username: str | None, password: str | None) -> bool:
+    async def check_credentials(self, username: str, password: str | None) -> bool:
         """
         validate user password
 
         Args:
-            username(str | None): username
+            username(str): username
             password(str | None): entered password
 
         Returns:
@@ -98,12 +101,12 @@ class Auth(LazyLogging):
         del username, password
         return True
 
-    async def known_username(self, username: str | None) -> bool:
+    async def known_username(self, username: str) -> bool:
         """
         check if user is known
 
         Args:
-            username(str | None): username
+            username(str): username
 
         Returns:
             bool: True in case if user is known and can be authorized and False otherwise

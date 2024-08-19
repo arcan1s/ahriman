@@ -48,18 +48,18 @@ class Mapping(Auth):
         self.database = database
         self.salt = configuration.get("auth", "salt", fallback="")
 
-    async def check_credentials(self, username: str | None, password: str | None) -> bool:
+    async def check_credentials(self, username: str, password: str | None) -> bool:
         """
         validate user password
 
         Args:
-            username(str | None): username
+            username(str): username
             password(str | None): entered password
 
         Returns:
             bool: True in case if password matches, False otherwise
         """
-        if username is None or password is None:
+        if password is None:
             return False  # invalid data supplied
         user = self.get_user(username)
         return user is not None and user.check_credentials(password, self.salt)
@@ -76,12 +76,12 @@ class Mapping(Auth):
         """
         return self.database.user_get(username)
 
-    async def known_username(self, username: str | None) -> bool:
+    async def known_username(self, username: str) -> bool:
         """
         check if user is known
 
         Args:
-            username(str | None): username
+            username(str): username
 
         Returns:
             bool: True in case if user is known and can be authorized and False otherwise

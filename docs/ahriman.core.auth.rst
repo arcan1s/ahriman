@@ -36,6 +36,14 @@ ahriman.core.auth.oauth module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.auth.pam module
+----------------------------
+
+.. automodule:: ahriman.core.auth.pam
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
