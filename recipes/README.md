@@ -12,6 +12,7 @@ Collection of the examples of docker compose configuration files, which covers s
 * [Index](index): repository with index page generator enabled.
 * [Multi repo](multirepo): run web service with two separated repositories.
 * [OAuth](oauth): web service with OAuth (GitHub provider) authentication enabled.
+* [PAM](pam): web service with PAM authentication enabled.
 * [Pull](pull): normal service, but in addition with pulling packages from another source (e.g. GitHub repository).
 * [Sign](sign): create repository with database signing.
 * [Web](web): simple web service with authentication enabled.

@@ -1348,6 +1348,19 @@ How to enable basic authorization
 #.
    Restart web service ``systemctl restart ahriman-web``.
 
+Using PAM authentication
+""""""""""""""""""""""""
+
+There is also ability to allow system users to log in. To do so, the following configuration have to be set:
+
+.. code-block:: ini
+
+   [auth]
+   target = pam
+   full_access_group = wheel
+
+With this setup, every user (except root) will be able to log in by using system password. If user belongs to the ``wheel`` group, the full access will be automatically granted. It is also possible to manually add, block user or change user rights via usual user management process.
+
 How to enable OAuth authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

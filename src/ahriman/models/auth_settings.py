@@ -30,11 +30,13 @@ class AuthSettings(StrEnum):
         Disabled(AuthSettings): (class attribute) authorization is disabled
         Configuration(AuthSettings): (class attribute) configuration based authorization
         OAuth(AuthSettings): (class attribute) OAuth based provider
+        PAM(AuthSettings): (class attribute) PAM based provider
     """
 
     Disabled = "disabled"
     Configuration = "configuration"
     OAuth = "oauth2"
+    PAM = "pam"
 
     @property
     def is_enabled(self) -> bool:
@@ -62,5 +64,7 @@ class AuthSettings(StrEnum):
                 return AuthSettings.Configuration
             case "oauth" | "oauth2":
                 return AuthSettings.OAuth
+            case "pam":
+                return AuthSettings.PAM
             case _:
                 return AuthSettings.Disabled

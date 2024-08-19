@@ -26,6 +26,9 @@ def test_from_option_valid() -> None:
     assert AuthSettings.from_option("mapping") == AuthSettings.Configuration
     assert AuthSettings.from_option("MAPPing") == AuthSettings.Configuration
 
+    assert AuthSettings.from_option("pam") == AuthSettings.PAM
+    assert AuthSettings.from_option("PAM") == AuthSettings.PAM
+
 
 def test_is_enabled() -> None:
     """

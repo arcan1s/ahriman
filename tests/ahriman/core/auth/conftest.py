@@ -2,6 +2,7 @@ import pytest
 
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.auth.oauth import OAuth
+from ahriman.core.auth.pam import PAM
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 
@@ -35,3 +36,19 @@ def oauth(configuration: Configuration, database: SQLite) -> OAuth:
     """
     configuration.set("web", "address", "https://example.com")
     return OAuth(configuration, database)
+
+
+@pytest.fixture
+def pam(configuration: Configuration, database: SQLite) -> PAM:
+    """
+    PAM provider fixture
+
+    Args:
+        configuration(Configuration): configuration fixture
+        database(SQLite): database fixture
+
+    Returns:
+        PAM: PAM service instance
+    """
+    configuration.set_option("auth", "full_access_group", "wheel")
+    return PAM(configuration, database)

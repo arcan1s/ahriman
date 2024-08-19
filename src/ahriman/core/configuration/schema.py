@@ -115,6 +115,7 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                         "oauth_provider",
                         "oauth_scopes",
                     ]},
+                    {"allowed": ["pam"], "dependencies": ["full_access_group"]},
                 ],
             },
             "allow_read_only": {
@@ -135,6 +136,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "minlength": 32,
                 "maxlength": 64,  # we cannot verify maxlength, because base64 representation might be longer than bytes
             },
+            "full_access_group": {
+                "type": "string",
+                "empty": False,
+            },
             "max_age": {
                 "type": "integer",
                 "coerce": "integer",
@@ -151,6 +156,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "oauth_scopes": {
                 "type": "string",
                 "empty": False,
+            },
+            "permit_root_login": {
+                "type": "boolean",
+                "coerce": "boolean",
             },
             "salt": {
                 "type": "string",

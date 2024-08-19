@@ -21,9 +21,7 @@ async def test_check_credentials_empty(mapping: Mapping) -> None:
     """
     must reject on empty credentials
     """
-    assert not await mapping.check_credentials(None, "")
     assert not await mapping.check_credentials("", None)
-    assert not await mapping.check_credentials(None, None)
 
 
 async def test_check_credentials_unknown(mapping: Mapping, user: User) -> None:
@@ -66,9 +64,8 @@ async def test_known_username(mapping: Mapping, user: User, mocker: MockerFixtur
 
 async def test_known_username_unknown(mapping: Mapping, user: User, mocker: MockerFixture) -> None:
     """
-    must not allow only known users
+    must not allow unknown users
     """
-    assert not await mapping.known_username(None)
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=None)
     assert not await mapping.known_username(user.password)
 

@@ -1,6 +1,7 @@
 from ahriman.core.auth import Auth
 from ahriman.core.auth.mapping import Mapping
 from ahriman.core.auth.oauth import OAuth
+from ahriman.core.auth.pam import PAM
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.models.user import User
@@ -51,14 +52,22 @@ def test_load_oauth(configuration: Configuration, database: SQLite) -> None:
     assert isinstance(auth, OAuth)
 
 
+def test_load_pam(configuration: Configuration, database: SQLite) -> None:
+    """
+    must load pam validator if option set
+    """
+    configuration.set_option("auth", "target", "pam")
+    configuration.set_option("auth", "full_access_group", "wheel")
+    auth = Auth.load(configuration, database)
+    assert isinstance(auth, PAM)
+
+
 async def test_check_credentials(auth: Auth, user: User) -> None:
     """
     must pass any credentials
     """
     assert await auth.check_credentials(user.username, user.password)
-    assert await auth.check_credentials(None, "")
     assert await auth.check_credentials("", None)
-    assert await auth.check_credentials(None, None)
 
 
 async def test_known_username(auth: Auth, user: User) -> None:
