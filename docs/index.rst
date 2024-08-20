@@ -33,7 +33,7 @@ Contents
    setup
    configuration
    command-line
-   faq
+   faq/index
    migration
    architecture
    advanced-usage
