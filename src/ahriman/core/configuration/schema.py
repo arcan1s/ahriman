@@ -169,12 +169,28 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
     "build": {
         "type": "dict",
         "schema": {
+            "allowed_scan_paths": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                },
+            },
             "archbuild_flags": {
                 "type": "list",
                 "coerce": "list",
                 "schema": {
                     "type": "string",
                     "empty": False,
+                },
+            },
+            "blacklisted_scan_paths": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "path",
+                    "coerce": "absolute_path",
                 },
             },
             "build_command": {

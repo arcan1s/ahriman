@@ -134,8 +134,10 @@ def test_refine_dependencies(package_archive_ahriman: PackageArchive, mocker: Mo
 
     path1 = Path("usr") / "lib" / "python3.12"
     path2 = path1 / "site-packages"
-    path3 = Path("etc")
-    path4 = Path("var") / "lib" / "whatever"
+    path3 = Path("usr") / "lib" / "path"
+    path4 = Path("usr") / "lib" / "whatever"
+    path5 = Path("usr") / "share" / "applications"
+    path6 = Path("etc")
 
     package1 = FilesystemPackage(package_name="package1", depends={"package5"}, opt_depends={"package2"})
     package2 = FilesystemPackage(package_name="package2", depends={"package1"}, opt_depends=set())
@@ -149,6 +151,8 @@ def test_refine_dependencies(package_archive_ahriman: PackageArchive, mocker: Mo
         path2: [package1, package2, package3, package5],
         path3: [package1, package4],
         path4: [package1],
+        path5: [package1],
+        path6: [package1],
     }) == {
         path1: [package6],
         path2: [package1, package5],

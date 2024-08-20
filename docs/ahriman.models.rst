@@ -228,6 +228,14 @@ ahriman.models.result module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.scan\_paths module
+---------------------------------
+
+.. automodule:: ahriman.models.scan_paths
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.sign\_settings module
 ------------------------------------
 

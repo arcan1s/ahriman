@@ -7,6 +7,7 @@ from pytest_mock import MockerFixture
 from ahriman import __version__
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR
+from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.filesystem_package import FilesystemPackage
@@ -17,6 +18,7 @@ from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.scan_paths import ScanPaths
 
 
 @pytest.fixture
@@ -77,7 +79,7 @@ def internal_status(counters: Counters) -> InternalStatus:
 
 @pytest.fixture
 def package_archive_ahriman(package_ahriman: Package, repository_paths: RepositoryPaths, pacman: Pacman,
-                            passwd: Any, mocker: MockerFixture) -> PackageArchive:
+                            scan_paths: ScanPaths, passwd: Any, mocker: MockerFixture) -> PackageArchive:
     """
     package archive fixture
 
@@ -85,6 +87,7 @@ def package_archive_ahriman(package_ahriman: Package, repository_paths: Reposito
         package_ahriman(Package): package test instance
         repository_paths(RepositoryPaths): repository paths test instance
         pacman(Pacman): pacman test instance
+        scan_paths(ScanPaths): scan paths test instance
         passwd(Any): passwd structure test instance
         mocker(MockerFixture): mocker object
 
@@ -92,7 +95,7 @@ def package_archive_ahriman(package_ahriman: Package, repository_paths: Reposito
         PackageArchive: package archive test instance
     """
     mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
-    return PackageArchive(repository_paths.build_directory, package_ahriman, pacman)
+    return PackageArchive(repository_paths.build_directory, package_ahriman, pacman, scan_paths)
 
 
 @pytest.fixture
@@ -158,3 +161,20 @@ def pyalpm_package_description_ahriman(package_description_ahriman: PackageDescr
     type(mock).provides = PropertyMock(return_value=package_description_ahriman.provides)
     type(mock).url = PropertyMock(return_value=package_description_ahriman.url)
     return mock
+
+
+@pytest.fixture
+def scan_paths(configuration: Configuration) -> ScanPaths:
+    """
+    scan paths fixture
+
+    Args:
+        configuration(Configuration): configuration test instance
+
+    Returns:
+        ScanPaths: scan paths test instance
+    """
+    return ScanPaths(
+        allowed_paths=configuration.getpathlist("build", "allowed_scan_paths"),
+        blacklisted_paths=configuration.getpathlist("build", "blacklisted_scan_paths"),
+    )

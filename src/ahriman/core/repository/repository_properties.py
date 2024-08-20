@@ -29,6 +29,7 @@ from ahriman.models.packagers import Packagers
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.scan_paths import ScanPaths
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -46,6 +47,7 @@ class RepositoryProperties(LazyLogging):
         repo(Repo): repo commands wrapper instance
         reporter(Client): build status reporter instance
         repository_id(RepositoryId): repository unique identifier
+        scan_paths(ScanPaths): scan paths for the implicit dependencies
         sign(GPG): GPG wrapper instance
         triggers(TriggerLoader): triggers holder
         vcs_allowed_age(int): maximal age of the VCS packages before they will be checked
@@ -77,6 +79,11 @@ class RepositoryProperties(LazyLogging):
         self.repo = Repo(self.name, self.paths, self.sign.repository_sign_args)
         self.reporter = Client.load(repository_id, configuration, database, report=report)
         self.triggers = TriggerLoader.load(repository_id, configuration)
+
+        self.scan_paths = ScanPaths(
+            allowed_paths=configuration.getpathlist("build", "allowed_scan_paths", fallback=[]),
+            blacklisted_paths=configuration.getpathlist("build", "blacklisted_scan_paths", fallback=[]),
+        )
 
     @property
     def architecture(self) -> str:

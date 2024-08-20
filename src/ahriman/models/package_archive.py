@@ -30,6 +30,7 @@ from ahriman.core.utils import walk
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.filesystem_package import FilesystemPackage
 from ahriman.models.package import Package
+from ahriman.models.scan_paths import ScanPaths
 
 
 @dataclass
@@ -39,13 +40,15 @@ class PackageArchive:
 
     Attributes:
         package(Package): package descriptor
-        root(Path): path to root filesystem
         pacman(Pacman): alpm wrapper instance
+        root(Path): path to root filesystem
+        scan_paths(ScanPaths): scan paths holder
     """
 
     root: Path
     package: Package
     pacman: Pacman
+    scan_paths: ScanPaths
 
     @staticmethod
     def dynamic_needed(binary_path: Path) -> list[str]:
@@ -163,6 +166,10 @@ class PackageArchive:
         for path, packages in reversed(sorted(source.items())):
             # skip if this path belongs to the one of the base packages
             if any(package.package_name in base_packages for package in packages):
+                continue
+
+            # check path against the black/white listed
+            if not self.scan_paths.is_allowed(path):
                 continue
 
             # remove explicit dependencies

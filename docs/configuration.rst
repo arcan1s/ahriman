@@ -81,7 +81,9 @@ Authorized users are stored inside internal database, if any of external provide
 
 Build related configuration. Group name can refer to architecture, e.g. ``build:x86_64`` can be used for x86_64 architecture specific settings.
 
+* ``allowed_scan_paths`` - paths to be used for implicit dependencies scan, scape separated list of paths, optional.
 * ``archbuild_flags`` - additional flags passed to ``archbuild`` command, space separated list of strings, optional.
+* ``blacklisted_scan_paths`` - paths to be excluded for implicit dependencies scan, scape separated list of paths, optional. Normally all elements of this option must be child paths of any of ``allowed_scan_paths`` element.
 * ``build_command`` - default build command, string, required.
 * ``ignore_packages`` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
 * ``include_debug_packages`` - distribute debug packages, boolean, optional, default ``yes``.
@@ -132,7 +134,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``port`` - port to bind, integer, optional.
 * ``service_only`` - disable status routes (including logs), boolean, optional, default ``no``.
 * ``static_path`` - path to directory with static files, string, required.
-* ``templates`` - path to templates directories, space separated list of strings, required.
+* ``templates`` - path to templates directories, space separated list of paths, required.
 * ``unix_socket`` - path to the listening unix socket, string, optional. If set, server will create the socket on the specified address which can (and will) be used by application. Note, that unlike usual host/port configuration, unix socket allows to perform requests without authorization.
 * ``unix_socket_unsafe`` - set unsafe (o+w) permissions to unix socket, boolean, optional, default ``yes``. This option is enabled by default, because it is supposed that unix socket is created in safe environment (only web service is supposed to be used in unsafe), but it can be disabled by configuration.
 * ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.
@@ -254,7 +256,7 @@ Section name must be either ``email`` (plus optional architecture name, e.g. ``e
 * ``ssl`` - SSL mode for SMTP connection, one of ``ssl``, ``starttls``, ``disabled``, optional, default ``disabled``.
 * ``template`` - Jinja2 template name, string, required.
 * ``template_full`` - Jinja2 template name for full package description index, string, optional.
-* ``templates`` - path to templates directories, space separated list of strings, required.
+* ``templates`` - path to templates directories, space separated list of paths, required.
 * ``user`` - SMTP user to authenticate, string, optional.
 
 ``html`` type
@@ -267,7 +269,7 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``link_path`` - prefix for HTML links, string, required.
 * ``path`` - path to html report file, string, required.
 * ``template`` - Jinja2 template name, string, required.
-* ``templates`` - path to templates directories, space separated list of strings, required.
+* ``templates`` - path to templates directories, space separated list of paths, required.
 
 ``remote-call`` type
 ^^^^^^^^^^^^^^^^^^^^
@@ -292,7 +294,7 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``link_path`` - prefix for HTML links, string, required.
 * ``template`` - Jinja2 template name, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
-* ``templates`` - path to templates directories, space separated list of strings, required.
+* ``templates`` - path to templates directories, space separated list of paths, required.
 * ``timeout`` - HTTP request timeout in seconds, integer, optional, default is ``30``.
 
 ``upload`` group
