@@ -80,7 +80,8 @@ class Executor(PackageInfo, Cleaner):
                     # clear changes and update commit hash
                     self.reporter.package_changes_update(single.base, Changes(last_commit_sha))
                     # update dependencies list
-                    dependencies = PackageArchive(self.paths.build_directory, single, self.pacman).depends_on()
+                    package_archive = PackageArchive(self.paths.build_directory, single, self.pacman, self.scan_paths)
+                    dependencies = package_archive.depends_on()
                     self.reporter.package_dependencies_update(single.base, dependencies)
                     # update result set
                     result.add_updated(single)

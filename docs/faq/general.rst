@@ -370,7 +370,16 @@ TL;DR
 
 You can even rebuild the whole repository (which is particular useful in case if you would like to change packager) if you do not supply ``--depends-on`` option. This action will automatically increment ``pkgrel`` value; in case if you don't want to, the ``--no-increment`` option has to be supplied.
 
-However, note that you do not need to rebuild repository in case if you just changed signing option, just use ``repo-sign`` command instead. 
+However, note that you do not need to rebuild repository in case if you just changed signing option, just use ``repo-sign`` command instead.
+
+Automated broken dependencies detection
+"""""""""""""""""""""""""""""""""""""""
+
+After the success build the application extracts all linked libraries and used directories and stores them in database. During the check process, the application extracts pacman databases and checks if file names have been changed (e.g. new python release caused ``/usr/lib/python3.x`` directory renaming to ``/usr/lib/python3.y`` or soname for a linked library has been changed). In case if broken dependencies have been detected, the package will be added to the rebuild queue.
+
+In order to disable this check completely, the ``--no-check-files`` flag can be used.
+
+In addition, there is possibility to control paths which will be used for checking, by using options ``build.allowed_scan_paths`` and ``build.blacklisted_scan_paths``. Leaving ``build.allowed_scan_paths`` blank will effectively disable any check too.
 
 How to install built packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
