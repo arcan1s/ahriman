@@ -33,7 +33,7 @@ Every available option is described in the [documentation](https://ahriman.readt
 
 The application provides reasonable defaults which allow to use it out-of-box; however additional steps (like configuring build toolchain and sudoers) are recommended and can be easily achieved by following install instructions.
 
-## [FAQ](https://ahriman.readthedocs.io/en/stable/faq.html)
+## [FAQ](https://ahriman.readthedocs.io/en/stable/faq/index.html)
 
 ## Live demos
 
