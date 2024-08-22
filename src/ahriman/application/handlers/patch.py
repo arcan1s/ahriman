@@ -98,6 +98,7 @@ class Patch(Handler):
             PkgbuildPatch: created patch for the PKGBUILD function
         """
         if patch_path is None:
+            # pylint: disable=bad-builtin
             print("Post new function or variable value below. Press Ctrl-D to finish:", file=sys.stderr)
             patch = "".join(list(sys.stdin))
         else:

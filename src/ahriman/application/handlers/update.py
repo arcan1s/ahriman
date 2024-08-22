@@ -77,5 +77,5 @@ class Update(Handler):
             Callable[[str], None]: in case if dry_run is set it will return print, logger otherwise
         """
         def inner(line: str) -> None:
-            return print(line) if dry_run else application.logger.info(line)
+            return print(line) if dry_run else application.logger.info(line)  # pylint: disable=bad-builtin
         return inner
