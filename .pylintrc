@@ -82,6 +82,7 @@ limit-inference-results=100
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
 load-plugins=pylint.extensions.docparams,
+             pylint.extensions.bad_builtin,
              definition_order,
              import_order,
 
@@ -130,6 +131,8 @@ attr-naming-style=snake_case
 # style. If left empty, attribute names will be checked with the set naming
 # style.
 #attr-rgx=
+
+bad-functions=print,
 
 # Bad variable names which should always be refused, separated by a comma.
 bad-names=foo,
