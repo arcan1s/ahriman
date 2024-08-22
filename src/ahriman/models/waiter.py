@@ -67,7 +67,7 @@ class WaiterTaskFinished(WaiterResult):
         indicates whether the waiter completed with success or not
 
         Returns:
-            Literal[True]: always False
+            Literal[True]: always ``True``
         """
         return True
 
@@ -82,7 +82,7 @@ class WaiterTimedOut(WaiterResult):
         indicates whether the waiter completed with success or not
 
         Returns:
-            Literal[False]: always False
+            Literal[False]: always ``False``
         """
         return False
 
@@ -108,7 +108,7 @@ class Waiter:
         check if timer is out
 
         Returns:
-            bool: True in case current monotonic time is more than :attr:`start_time` and :attr:`wait_timeout`
+            bool: ``True`` in case current monotonic time is more than :attr:`start_time` and :attr:`wait_timeout`
             doesn't equal to 0
         """
         since_start = time.monotonic() - self.start_time
@@ -124,7 +124,7 @@ class Waiter:
             **kwargs(Params.kwargs): keyword arguments for check call
 
         Returns:
-            WaiterResult: consumed time in seconds
+            WaiterResult: waiter result object
         """
         while not (timed_out := self.is_timed_out()) and in_progress(*args, **kwargs):
             time.sleep(self.interval)
