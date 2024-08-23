@@ -86,7 +86,7 @@ _shtab_ahriman_options=(
   {-a,--architecture}"[filter by target architecture (default\: None)]:architecture:"
   {-c,--configuration}"[configuration path (default\: \/etc\/ahriman.ini)]:configuration:"
   "--force[force run, remove file lock (default\: False)]"
-  {-l,--lock}"[lock file (default\: \/tmp\/ahriman.lock)]:lock:"
+  {-l,--lock}"[lock file (default\: ahriman.pid)]:lock:"
   "--log-handler[explicit log handler specification. If none set, the handler will be guessed from environment (default\: None)]:log_handler:(console syslog journald)"
   {-q,--quiet}"[force disable any logging (default\: False)]"
   {--report,--no-report}"[force enable or disable reporting to web service (default\: True)]:report:"
@@ -280,7 +280,7 @@ _shtab_ahriman_patch_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   "*"{-v,--variable}"[if set, show only patches for specified PKGBUILD variables (default\: None)]:variable:"
-  ":package base (default\: None):"
+  ":package base:"
 )
 
 _shtab_ahriman_patch_remove_options=(
