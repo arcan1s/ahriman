@@ -7,9 +7,30 @@ from ahriman.core.status.local_client import LocalClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+
+
+def test_event_add(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must add new event
+    """
+    event_mock = mocker.patch("ahriman.core.database.SQLite.event_insert")
+    event = Event(EventType.PackageUpdated, package_ahriman.base)
+
+    local_client.event_add(event)
+    event_mock.assert_called_once_with(event, local_client.repository_id)
+
+
+def test_event_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must retrieve events
+    """
+    event_mock = mocker.patch("ahriman.core.database.SQLite.event_get")
+    local_client.event_get(EventType.PackageUpdated, package_ahriman.base, 1, 2)
+    event_mock.assert_called_once_with(EventType.PackageUpdated, package_ahriman.base, 1, 2, local_client.repository_id)
 
 
 def test_package_changes_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:

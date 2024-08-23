@@ -17,11 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core.database.operations.auth_operations import AuthOperations
-from ahriman.core.database.operations.build_operations import BuildOperations
-from ahriman.core.database.operations.changes_operations import ChangesOperations
-from ahriman.core.database.operations.dependencies_operations import DependenciesOperations
-from ahriman.core.database.operations.event_operations import EventOperations
-from ahriman.core.database.operations.logs_operations import LogsOperations
-from ahriman.core.database.operations.package_operations import PackageOperations
-from ahriman.core.database.operations.patch_operations import PatchOperations
+__all__ = ["steps"]
+
+
+steps = [
+    """
+    create table auditlog (
+        created integer not null,
+        repository text not null,
+        event text not null,
+        object_id text not null,
+        message text,
+        data json
+    )
+    """,
+    """
+    create index auditlog_created_repository_event_object_id
+    on auditlog (created, repository, event, object_id)
+    """,
+]

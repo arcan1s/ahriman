@@ -39,7 +39,7 @@ class DependenciesOperations(Operations):
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Returns:
-            Dependencies: changes for the package base if available
+            Dependencies: dependencies for the package base if available
         """
         repository_id = repository_id or self._repository_id
 

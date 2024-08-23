@@ -24,6 +24,8 @@ from ahriman.web.schemas.changes_schema import ChangesSchema
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.dependencies_schema import DependenciesSchema
 from ahriman.web.schemas.error_schema import ErrorSchema
+from ahriman.web.schemas.event_schema import EventSchema
+from ahriman.web.schemas.event_search_schema import EventSearchSchema
 from ahriman.web.schemas.file_schema import FileSchema
 from ahriman.web.schemas.info_schema import InfoSchema
 from ahriman.web.schemas.internal_status_schema import InternalStatusSchema
