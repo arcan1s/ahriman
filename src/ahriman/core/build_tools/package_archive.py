@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass
 from elftools.elf.dynamic import DynamicSection
 from elftools.elf.elffile import ELFFile
 from pathlib import Path
@@ -33,7 +32,6 @@ from ahriman.models.package import Package
 from ahriman.models.scan_paths import ScanPaths
 
 
-@dataclass
 class PackageArchive:
     """
     helper for package archives
@@ -45,10 +43,20 @@ class PackageArchive:
         scan_paths(ScanPaths): scan paths holder
     """
 
-    root: Path
-    package: Package
-    pacman: Pacman
-    scan_paths: ScanPaths
+    def __init__(self, root: Path, package: Package, pacman: Pacman, scan_paths: ScanPaths) -> None:
+        """
+        default constructor
+
+        Args:
+            root(Path): path to root filesystem
+            package(Package): package descriptor
+            pacman(Pacman): alpm wrapper instance
+            scan_paths(ScanPaths): scan paths holder
+        """
+        self.root = root
+        self.package = package
+        self.pacman = pacman
+        self.scan_paths = scan_paths
 
     @staticmethod
     def dynamic_needed(binary_path: Path) -> list[str]:

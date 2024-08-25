@@ -17,29 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import re
+
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class ScanPaths:
     """
     paths used for scan filesystem
 
     Attributes:
-        allowed_paths(list[Path]): list of whitelisted paths
-        blacklisted_paths(list[Path]): list of paths to be skipped from scan
+        paths(list[str]): list of regular expressions to be used to match paths
     """
 
-    allowed_paths: list[Path]
-    blacklisted_paths: list[Path]
+    paths: list[str]
 
-    def __post_init__(self) -> None:
+    @cached_property
+    def patterns(self) -> list[re.Pattern[str]]:
         """
-        compute relative to / paths
+        compiled regular expressions
+
+        Returns:
+            list[re.Pattern]: a list of compiled regular expressions
         """
-        object.__setattr__(self, "allowed_paths", [path.relative_to("/") for path in self.allowed_paths])
-        object.__setattr__(self, "blacklisted_paths", [path.relative_to("/") for path in self.blacklisted_paths])
+        return [re.compile(path) for path in self.paths]
 
     def is_allowed(self, path: Path) -> bool:
         """
@@ -49,10 +53,7 @@ class ScanPaths:
             path(Path): path to be checked
 
         Returns:
-            bool: ``True`` in case if :attr:`allowed_paths` contains element which is parent for the path and
-            :attr:`blacklisted_paths` doesn't and ``False`` otherwise
+            bool: ``True`` in case if :attr:`paths` contains at least one element to which the path is matched
+            and ``False`` otherwise
         """
-        if any(path.is_relative_to(blacklisted) for blacklisted in self.blacklisted_paths):
-            return False  # path is blacklisted
-        # check if we actually have to check this path
-        return any(path.is_relative_to(allowed) for allowed in self.allowed_paths)
+        return any(pattern.match(str(path)) for pattern in self.patterns)

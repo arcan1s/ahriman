@@ -80,10 +80,7 @@ class RepositoryProperties(LazyLogging):
         self.reporter = Client.load(repository_id, configuration, database, report=report)
         self.triggers = TriggerLoader.load(repository_id, configuration)
 
-        self.scan_paths = ScanPaths(
-            allowed_paths=configuration.getpathlist("build", "allowed_scan_paths", fallback=[]),
-            blacklisted_paths=configuration.getpathlist("build", "blacklisted_scan_paths", fallback=[]),
-        )
+        self.scan_paths = ScanPaths(configuration.getlist("build", "scan_paths", fallback=[]))
 
     @property
     def architecture(self) -> str:

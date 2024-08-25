@@ -25,6 +25,7 @@ from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.result import Result
+from ahriman.models.scan_paths import ScanPaths
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
@@ -585,6 +586,20 @@ def result(package_ahriman: Package) -> Result:
     result = Result()
     result.add_updated(package_ahriman)
     return result
+
+
+@pytest.fixture
+def scan_paths(configuration: Configuration) -> ScanPaths:
+    """
+    scan paths fixture
+
+    Args:
+        configuration(Configuration): configuration test instance
+
+    Returns:
+        ScanPaths: scan paths test instance
+    """
+    return ScanPaths(configuration.getlist("build", "scan_paths", fallback=[]))
 
 
 @pytest.fixture
