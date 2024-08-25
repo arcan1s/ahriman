@@ -81,14 +81,13 @@ Authorized users are stored inside internal database, if any of external provide
 
 Build related configuration. Group name can refer to architecture, e.g. ``build:x86_64`` can be used for x86_64 architecture specific settings.
 
-* ``allowed_scan_paths`` - paths to be used for implicit dependencies scan, scape separated list of paths, optional.
 * ``archbuild_flags`` - additional flags passed to ``archbuild`` command, space separated list of strings, optional.
-* ``blacklisted_scan_paths`` - paths to be excluded for implicit dependencies scan, scape separated list of paths, optional. Normally all elements of this option must be child paths of any of ``allowed_scan_paths`` element.
 * ``build_command`` - default build command, string, required.
 * ``ignore_packages`` - list packages to ignore during a regular update (manual update will still work), space separated list of strings, optional.
 * ``include_debug_packages`` - distribute debug packages, boolean, optional, default ``yes``.
 * ``makepkg_flags`` - additional flags passed to ``makepkg`` command, space separated list of strings, optional.
 * ``makechrootpkg_flags`` - additional flags passed to ``makechrootpkg`` command, space separated list of strings, optional.
+* ``scan_paths`` - paths to be used for implicit dependencies scan, space separated list of strings, optional. If any of those paths is matched against the path, it will be added to the allowed list.
 * ``triggers`` - list of ``ahriman.core.triggers.Trigger`` class implementation (e.g. ``ahriman.core.report.ReportTrigger ahriman.core.upload.UploadTrigger``) which will be loaded and run at the end of processing, space separated list of strings, optional. You can also specify triggers by their paths, e.g. ``/usr/lib/python3.10/site-packages/ahriman/core/report/report.py.ReportTrigger``. Triggers are run in the order of definition.
 * ``triggers_known`` - optional list of ``ahriman.core.triggers.Trigger`` class implementations which are not run automatically and used only for trigger discovery and configuration validation.
 * ``vcs_allowed_age`` - maximal age in seconds of the VCS packages before their version will be updated with its remote source, integer, optional, default is 7 days.

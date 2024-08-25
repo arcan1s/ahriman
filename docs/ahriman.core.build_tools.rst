@@ -4,6 +4,14 @@ ahriman.core.build\_tools package
 Submodules
 ----------
 
+ahriman.core.build\_tools.package\_archive module
+-------------------------------------------------
+
+.. automodule:: ahriman.core.build_tools.package_archive
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.build\_tools.sources module
 ----------------------------------------
 

@@ -23,13 +23,13 @@ from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.utils import safe_filename
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
-from ahriman.models.package_archive import PackageArchive
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.packagers import Packagers
 from ahriman.models.result import Result

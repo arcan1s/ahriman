@@ -3,16 +3,16 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, PropertyMock
 
+from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.models.filesystem_package import FilesystemPackage
-from ahriman.models.package_archive import PackageArchive
 
 
 def test_dynamic_needed(mocker: MockerFixture) -> None:
     """
     must correctly define list of dynamically linked libraries
     """
-    mocker.patch("ahriman.models.package_archive.PackageArchive.is_elf", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.is_elf", return_value=True)
 
     linked = PackageArchive.dynamic_needed(Path(".tox") / "tests" / "bin" / "python")
     assert linked
@@ -24,7 +24,7 @@ def test_dynamic_needed_not_elf(mocker: MockerFixture) -> None:
     """
     must skip checking if not an elf file
     """
-    mocker.patch("ahriman.models.package_archive.PackageArchive.is_elf", return_value=False)
+    mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.is_elf", return_value=False)
     assert not PackageArchive.dynamic_needed(Path(".tox") / "tests" / "bin" / "python")
 
 
@@ -32,7 +32,7 @@ def test_dynamic_needed_no_section(mocker: MockerFixture) -> None:
     """
     must skip checking if there was no dynamic section found
     """
-    mocker.patch("ahriman.models.package_archive.PackageArchive.is_elf", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.is_elf", return_value=True)
     mocker.patch("elftools.elf.elffile.ELFFile.iter_sections", return_value=[])
     assert not PackageArchive.dynamic_needed(Path(".tox") / "tests" / "bin" / "python")
 
@@ -109,8 +109,8 @@ def test_raw_dependencies_packages(package_archive_ahriman: PackageArchive, mock
             files=[Path("package2") / "file4", Path("package2") / "file3"],
         ),
     }
-    mocker.patch("ahriman.models.package_archive.PackageArchive.installed_packages", return_value=packages)
-    mocker.patch("ahriman.models.package_archive.PackageArchive.depends_on_paths", return_value=(
+    mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.installed_packages", return_value=packages)
+    mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on_paths", return_value=(
         {"file1", "file3"},
         {Path("usr") / "dir2", Path("dir3"), Path("package2") / "dir4"},
     ))
@@ -165,17 +165,19 @@ def test_depends_on(package_archive_ahriman: PackageArchive, mocker: MockerFixtu
     """
     must extract packages and files which are dependencies for the package
     """
-    raw_mock = mocker.patch("ahriman.models.package_archive.PackageArchive._raw_dependencies_packages",
+    raw_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive._raw_dependencies_packages",
                             return_value="1")
-    refined_mock = mocker.patch("ahriman.models.package_archive.PackageArchive._refine_dependencies", return_value={
-        Path("package1") / "file1": [FilesystemPackage(package_name="package1", depends=set(), opt_depends=set())],
-        Path("package2") / "file3": [FilesystemPackage(package_name="package2", depends=set(), opt_depends=set())],
-        Path("package2") / "dir4": [FilesystemPackage(package_name="package2", depends=set(), opt_depends=set())],
-        Path("usr") / "dir2": [
-            FilesystemPackage(package_name="package1", depends=set(), opt_depends=set()),
-            FilesystemPackage(package_name="package2", depends=set(), opt_depends=set()),
-        ],
-    })
+    refined_mock = mocker.patch(
+        "ahriman.core.build_tools.package_archive.PackageArchive._refine_dependencies", return_value={
+            Path("package1") / "file1": [FilesystemPackage(package_name="package1", depends=set(), opt_depends=set())],
+            Path("package2") / "file3": [FilesystemPackage(package_name="package2", depends=set(), opt_depends=set())],
+            Path("package2") / "dir4": [FilesystemPackage(package_name="package2", depends=set(), opt_depends=set())],
+            Path("usr") / "dir2": [
+                FilesystemPackage(package_name="package1", depends=set(), opt_depends=set()),
+                FilesystemPackage(package_name="package2", depends=set(), opt_depends=set()),
+            ],
+        }
+    )
 
     result = package_archive_ahriman.depends_on()
     raw_mock.assert_called_once_with()
@@ -194,8 +196,9 @@ def test_depends_on_paths(package_archive_ahriman: PackageArchive, mocker: Mocke
     """
     package_dir = package_archive_ahriman.root / "build" / \
         package_archive_ahriman.package.base / "pkg" / package_archive_ahriman.package.base
-    dynamic_mock = mocker.patch("ahriman.models.package_archive.PackageArchive.dynamic_needed", return_value=["lib"])
-    walk_mock = mocker.patch("ahriman.models.package_archive.walk", return_value=[
+    dynamic_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.dynamic_needed",
+                                return_value=["lib"])
+    walk_mock = mocker.patch("ahriman.core.build_tools.package_archive.walk", return_value=[
         package_dir / "root" / "file",
         Path("directory"),
     ])
@@ -213,7 +216,7 @@ def test_installed_packages(package_archive_ahriman: PackageArchive, mocker: Moc
     """
     must load list of installed packages and their files
     """
-    walk_mock = mocker.patch("ahriman.models.package_archive.walk", return_value=[
+    walk_mock = mocker.patch("ahriman.core.build_tools.package_archive.walk", return_value=[
         Path("ahriman-2.13.3-1") / "desc",
         Path("ahriman-2.13.3-1") / "files",
     ])
