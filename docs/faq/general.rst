@@ -379,7 +379,7 @@ After the success build the application extracts all linked libraries and used d
 
 In order to disable this check completely, the ``--no-check-files`` flag can be used.
 
-In addition, there is possibility to control paths which will be used for checking, by using options ``build.allowed_scan_paths`` and ``build.blacklisted_scan_paths``. Leaving ``build.allowed_scan_paths`` blank will effectively disable any check too.
+In addition, there is possibility to control paths which will be used for checking, by using option ``build.scan_paths``, which supports regular expressions. Leaving ``build.scan_paths`` blank will effectively disable any check too.
 
 How to install built packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -124,14 +124,6 @@ ahriman.models.package module
    :no-undoc-members:
    :show-inheritance:
 
-ahriman.models.package\_archive module
---------------------------------------
-
-.. automodule:: ahriman.models.package_archive
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
 ahriman.models.package\_description module
 ------------------------------------------
 

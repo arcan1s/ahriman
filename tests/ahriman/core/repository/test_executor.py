@@ -24,7 +24,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
     commit_sha_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
-    depends_on_mock = mocker.patch("ahriman.models.package_archive.PackageArchive.depends_on",
+    depends_on_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on",
                                    return_value=Dependencies())
     dependencies_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_dependencies_update")
 

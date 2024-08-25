@@ -2,7 +2,7 @@
 
 [![tests status](https://github.com/arcan1s/ahriman/actions/workflows/tests.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/tests.yml)
 [![setup status](https://github.com/arcan1s/ahriman/actions/workflows/setup.yml/badge.svg)](https://github.com/arcan1s/ahriman/actions/workflows/setup.yml)
-[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/arcan1s/ahriman?label=Docker%20image)](https://hub.docker.com/r/arcan1s/ahriman)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/arcan1s/ahriman?label=Docker%20image&sort=semver)](https://hub.docker.com/r/arcan1s/ahriman)
 [![CodeFactor](https://www.codefactor.io/repository/github/arcan1s/ahriman/badge)](https://www.codefactor.io/repository/github/arcan1s/ahriman)
 [![Documentation Status](https://readthedocs.org/projects/ahriman/badge/?version=latest)](https://ahriman.readthedocs.io)
 
