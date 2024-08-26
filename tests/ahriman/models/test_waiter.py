@@ -1,5 +1,4 @@
 import pytest
-import time
 
 from ahriman.models.waiter import Waiter, WaiterResult, WaiterTaskFinished, WaiterTimedOut
 
@@ -37,17 +36,17 @@ def test_is_timed_out() -> None:
     """
     must correctly check if timer runs out
     """
-    assert Waiter(-1).is_timed_out()
-    assert Waiter(1, start_time=time.monotonic() - 10.0).is_timed_out()
-    assert not Waiter(1, start_time=time.monotonic() + 10.0).is_timed_out()
+    assert Waiter(-1).is_timed_out(0.0)
+    assert Waiter(1).is_timed_out(42.0)
+    assert not Waiter(1).is_timed_out(0.42)
 
 
 def test_is_timed_out_infinite() -> None:
     """
     must treat 0 wait timeout as infinite
     """
-    assert not Waiter(0).is_timed_out()
-    assert not Waiter(0, start_time=time.monotonic() - 10.0).is_timed_out()
+    assert not Waiter(0).is_timed_out(0.0)
+    assert not Waiter(0).is_timed_out(-1.0)
 
 
 def test_wait() -> None:
