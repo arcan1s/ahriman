@@ -59,7 +59,7 @@ class Lock(LazyLogging):
             >>> configuration = Configuration()
             >>> try:
             >>>     with Lock(args, RepositoryId("x86_64", "aur-clone"), configuration):
-            >>>         perform_actions()
+            >>>         do_something()
             >>> except Exception as exception:
             >>>     handle_exceptions(exception)
     """

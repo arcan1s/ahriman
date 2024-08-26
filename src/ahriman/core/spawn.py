@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 import argparse
-import time
 import uuid
 
 from collections.abc import Callable, Iterable
@@ -28,6 +27,7 @@ from multiprocessing import Process, Queue
 from threading import Lock, Thread
 
 from ahriman.core.log import LazyLogging
+from ahriman.models.metrics_timer import MetricsTimer
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.process_status import ProcessStatus
 from ahriman.models.repository_id import RepositoryId
@@ -90,11 +90,9 @@ class Spawn(Thread, LazyLogging):
             process_id(str): process unique identifier
             queue(Queue[ProcessStatus | None]): output queue
         """
-        start_time = time.monotonic()
-        result = callback(args, repository_id)
-        stop_time = time.monotonic()
-
-        consumed_time = int(1000 * (stop_time - start_time))
+        with MetricsTimer() as timer:
+            result = callback(args, repository_id)
+            consumed_time = timer.elapsed
 
         queue.put(ProcessStatus(process_id, result, consumed_time))
 
@@ -271,7 +269,7 @@ class Spawn(Thread, LazyLogging):
         """
         for terminated in iter(self.queue.get, None):
             self.logger.info("process %s has been terminated with status %s, consumed time %ss",
-                             terminated.process_id, terminated.status, terminated.consumed_time / 1000)
+                             terminated.process_id, terminated.status, terminated.consumed_time)
 
             with self._lock:
                 process = self.active.pop(terminated.process_id, None)

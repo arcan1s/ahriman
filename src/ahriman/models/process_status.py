@@ -28,9 +28,9 @@ class ProcessStatus:
     Attributes:
         process_id(str): unique process identifier
         status(bool): process exit code status
-        consumed_time(int): consumed time in ms
+        consumed_time(float): consumed time in seconds
     """
 
     process_id: str
     status: bool
-    consumed_time: int
+    consumed_time: float
