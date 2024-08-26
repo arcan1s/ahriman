@@ -78,7 +78,7 @@ class RemoteCall(Report):
             process_id(str): remote process id
 
         Returns:
-            bool: True in case if remote process is alive and False otherwise
+            bool: ``True`` in case if remote process is alive and ``False`` otherwise
         """
         try:
             response = self.client.make_request("GET", f"{self.client.address}/api/v1/service/process/{process_id}")

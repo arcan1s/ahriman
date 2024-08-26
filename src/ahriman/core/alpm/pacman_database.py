@@ -102,7 +102,7 @@ class PacmanDatabase(SyncHttpClient):
             local_path(Path): path to locally stored file
 
         Returns:
-            bool: True in case if remote file is newer than local file
+            bool: ``True`` in case if remote file is newer than local file
 
         Raises:
             PacmanError: in case if no last-modified header was found

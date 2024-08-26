@@ -57,7 +57,7 @@ class ChangesPrinter(Printer):
         generate entry title from content
 
         Returns:
-            str | None: content title if it can be generated and None otherwise
+            str | None: content title if it can be generated and ``None`` otherwise
         """
         if self.changes.is_empty:
             return None

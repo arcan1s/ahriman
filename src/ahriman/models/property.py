@@ -29,7 +29,7 @@ class Property:
     Attributes:
         name(str): name of the property
         value(Any): property value
-        is_required(bool): if set to True then this property is required
+        is_required(bool): if set to ``True`` then this property is required
         indent(int): property indentation level
     """
 

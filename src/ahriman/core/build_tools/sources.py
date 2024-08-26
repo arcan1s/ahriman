@@ -138,7 +138,7 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to git repository
 
         Returns:
-            bool: True in case if there is any remote and false otherwise
+            bool: ``True`` in case if there is any remote and false otherwise
         """
         instance = Sources()
         remotes = check_output(*instance.git(), "remote", cwd=sources_dir, logger=instance.logger)
@@ -261,7 +261,7 @@ class Sources(LazyLogging):
             commit_author(tuple[str, str] | None, optional): optional commit author if any (Default value = None)
 
         Returns:
-            bool: True in case if changes have been committed and False otherwise
+            bool: ``True`` in case if changes have been committed and ``False`` otherwise
         """
         if not self.has_changes(sources_dir):
             return False  # nothing to commit
@@ -351,7 +351,7 @@ class Sources(LazyLogging):
             sources_dir(Path): local path to git repository
 
         Returns:
-            bool: True if there are uncommitted changes and False otherwise
+            bool: ``True`` if there are uncommitted changes and ``False`` otherwise
         """
         # there is --exit-code argument to diff, however, there might be other process errors
         changes = check_output(*self.git(), "diff", "--cached", "--name-only", cwd=sources_dir, logger=self.logger)

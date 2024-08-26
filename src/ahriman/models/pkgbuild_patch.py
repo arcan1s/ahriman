@@ -55,7 +55,7 @@ class PkgbuildPatch:
         parse key and define whether it function or not
 
         Returns:
-            bool: True in case if key ends with parentheses and False otherwise
+            bool: ``True`` in case if key ends with parentheses and ``False`` otherwise
         """
         return self.key is not None and self.key.endswith("()")
 
@@ -65,7 +65,7 @@ class PkgbuildPatch:
         check if patch is full diff one or just single-variable patch
 
         Returns:
-            bool: True in case key set and False otherwise
+            bool: ``True`` in case key set and ``False`` otherwise
         """
         return self.key is None
 

@@ -82,7 +82,7 @@ class Result:
         get if build result is empty or not
 
         Returns:
-            bool: True in case if success list is empty and False otherwise
+            bool: ``True`` in case if success list is empty and ``False`` otherwise
         """
         return not self._added and not self._updated
 
@@ -191,7 +191,7 @@ class Result:
             other(Any): other object instance
 
         Returns:
-            bool: True if the other object is the same and False otherwise
+            bool: ``True`` if the other object is the same and ``False`` otherwise
         """
         if not isinstance(other, Result):
             return False

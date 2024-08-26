@@ -160,7 +160,7 @@ class GitHub(Upload, HttpUpload):
         get release object if any
 
         Returns:
-            dict[str, Any] | None: GitHub API release object if release found and None otherwise
+            dict[str, Any] | None: GitHub API release object if release found and ``None`` otherwise
         """
         url = f"https://api.github.com/repos/{self.github_owner}/{
             self.github_repository}/releases/tags/{self.github_release_tag}"

@@ -32,7 +32,7 @@ class BuildPrinter(StringPrinter):
 
         Args:
             package(Package): built package
-            is_success(bool): True in case if build has success status and False otherwise
+            is_success(bool): ``True`` in case if build has success status and ``False`` otherwise
             use_utf(bool): use utf instead of normal symbols
         """
         StringPrinter.__init__(self, f"{self.sign(is_success, use_utf)} {package.base}")
@@ -43,7 +43,7 @@ class BuildPrinter(StringPrinter):
         generate sign according to settings
 
         Args:
-            is_success(bool): True in case if build has success status and False otherwise
+            is_success(bool): ``True`` in case if build has success status and ``False`` otherwise
             use_utf(bool): use utf instead of normal symbols
 
         Returns:

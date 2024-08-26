@@ -158,7 +158,7 @@ class Package(LazyLogging):
         get VCS flag based on the package base
 
         Returns:
-            bool: True in case if package base looks like VCS package and False otherwise
+            bool: ``True`` in case if package base looks like VCS package and ``False`` otherwise
         """
         return self.base.endswith("-bzr") \
             or self.base.endswith("-csv")\
@@ -504,7 +504,7 @@ class Package(LazyLogging):
             timestamp(float | int): timestamp to check build date against
 
         Returns:
-            bool: True in case if package was built after the specified date and False otherwise. In case if build date
+            bool: ``True`` in case if package was built after the specified date and ``False`` otherwise. In case if build date
             is not set by any of packages, it returns False
         """
         return any(
@@ -528,7 +528,7 @@ class Package(LazyLogging):
                 (Default value = True)
 
         Returns:
-            bool: True if the package is out-of-dated and False otherwise
+            bool: ``True`` if the package is out-of-dated and ``False`` otherwise
         """
         min_vcs_build_date = utcnow().timestamp() - vcs_allowed_age
         if calculate_version and not self.is_newer_than(min_vcs_build_date):
