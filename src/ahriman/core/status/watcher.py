@@ -27,6 +27,7 @@ from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -67,6 +68,10 @@ class Watcher(LazyLogging):
         """
         with self._lock:
             return list(self._known.values())
+
+    event_add: Callable[[Event], None]
+
+    event_get: Callable[[str | EventType | None, str | None, int, int], list[Event]]
 
     def load(self) -> None:
         """

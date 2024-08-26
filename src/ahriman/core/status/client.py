@@ -25,6 +25,7 @@ from ahriman.core.database import SQLite
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -78,6 +79,37 @@ class Client:
             return WebClient(repository_id, configuration)
 
         return make_local_client()
+
+    def event_add(self, event: Event) -> None:
+        """
+        create new event
+
+        Args:
+            event(Event): audit log event
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
+
+    def event_get(self, event: str | EventType | None, object_id: str | None,
+                  limit: int = -1, offset: int = 0) -> list[Event]:
+        """
+        retrieve list of events
+
+        Args:
+            event(str | EventType | None): filter by event type
+            object_id(str | None): filter by event object
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
+
+        Returns:
+            list[Event]: list of audit log events
+
+        Raises:
+            NotImplementedError: not implemented method
+        """
+        raise NotImplementedError
 
     def package_changes_get(self, package_base: str) -> Changes:
         """

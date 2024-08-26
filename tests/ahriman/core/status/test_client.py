@@ -11,6 +11,7 @@ from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -92,6 +93,22 @@ def test_load_web_client_from_legacy_unix_socket(configuration: Configuration, d
     configuration.set_option("web", "unix_socket", "/var/lib/ahriman/ahriman-web.sock")
     _, repository_id = configuration.check_loaded()
     assert isinstance(Client.load(repository_id, configuration, database, report=True), WebClient)
+
+
+def test_event_add(client: Client) -> None:
+    """
+    must raise not implemented on event insertion
+    """
+    with pytest.raises(NotImplementedError):
+        client.event_add(Event("", ""))
+
+
+def test_event_get(client: Client) -> None:
+    """
+    must raise not implemented on events request
+    """
+    with pytest.raises(NotImplementedError):
+        client.event_get(None, None)
 
 
 def test_package_changes_get(client: Client, package_ahriman: Package) -> None:
