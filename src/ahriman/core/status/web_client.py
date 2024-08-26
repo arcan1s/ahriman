@@ -27,6 +27,7 @@ from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -109,6 +110,15 @@ class WebClient(Client, SyncAhrimanClient):
         """
         return f"{self.address}/api/v1/packages/{urlencode(package_base)}/dependencies"
 
+    def _events_url(self) -> str:
+        """
+        get url for the events api
+
+        Returns:
+            str: full url for web service for events
+        """
+        return f"{self.address}/api/v1/events"
+
     def _logs_url(self, package_base: str) -> str:
         """
         get url for the logs api
@@ -156,6 +166,44 @@ class WebClient(Client, SyncAhrimanClient):
             str: full url for web service for status
         """
         return f"{self.address}/api/v1/status"
+
+    def event_add(self, event: Event) -> None:
+        """
+        create new event
+
+        Args:
+            event(Event): audit log event
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", self._events_url(), params=self.repository_id.query(), json=event.view())
+
+    def event_get(self, event: str | EventType | None, object_id: str | None,
+                  limit: int = -1, offset: int = 0) -> list[Event]:
+        """
+        retrieve list of events
+
+        Args:
+            event(str | EventType | None): filter by event type
+            object_id(str | None): filter by event object
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
+
+        Returns:
+            list[Event]: list of audit log events
+        """
+        query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
+        if event is not None:
+            query.append(("event", str(event)))
+        if object_id is not None:
+            query.append(("object_id", object_id))
+
+        with contextlib.suppress(Exception):
+            response = self.make_request("GET", self._events_url(), params=query)
+            response_json = response.json()
+
+            return [Event.from_json(event) for event in response_json]
+
+        return []
 
     def package_changes_get(self, package_base: str) -> Changes:
         """
@@ -274,8 +322,9 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             list[tuple[float, str]]: package logs
         """
+        query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
+
         with contextlib.suppress(Exception):
-            query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
             response = self.make_request("GET", self._logs_url(package_base), params=query)
             response_json = response.json()
 
@@ -291,10 +340,11 @@ class WebClient(Client, SyncAhrimanClient):
             package_base(str): package base
             version(str | None): package version to remove logs. If None set, all logs will be removed
         """
+        query = self.repository_id.query()
+        if version is not None:
+            query += [("version", version)]
+
         with contextlib.suppress(Exception):
-            query = self.repository_id.query()
-            if version is not None:
-                query += [("version", version)]
             self.make_request("DELETE", self._logs_url(package_base), params=query)
 
     def package_patches_get(self, package_base: str, variable: str | None) -> list[PkgbuildPatch]:
@@ -361,6 +411,7 @@ class WebClient(Client, SyncAhrimanClient):
             NotImplementedError: not implemented method
         """
         payload = {"status": status.value}
+
         with contextlib.suppress(Exception):
             self.make_request("POST", self._package_url(package_base),
                               params=self.repository_id.query(), json=payload)
@@ -380,6 +431,7 @@ class WebClient(Client, SyncAhrimanClient):
             "status": status.value,
             "package": package.view(),
         }
+
         with contextlib.suppress(Exception):
             self.make_request("POST", self._package_url(package.base),
                               params=self.repository_id.query(), json=payload)
@@ -407,5 +459,6 @@ class WebClient(Client, SyncAhrimanClient):
             status(BuildStatusEnum): current ahriman status
         """
         payload = {"status": status.value}
+
         with contextlib.suppress(Exception):
             self.make_request("POST", self._status_url(), params=self.repository_id.query(), json=payload)

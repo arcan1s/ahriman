@@ -10,6 +10,7 @@ from ahriman.core.status.web_client import WebClient
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
@@ -54,18 +55,12 @@ def test_dependencies_url(web_client: WebClient, package_ahriman: Package) -> No
         "/api/v1/packages/some%2Fpackage%25name/dependencies")
 
 
-def test__patches_url(web_client: WebClient, package_ahriman: Package) -> None:
+def test_event_url(web_client: WebClient) -> None:
     """
-    must generate changes url correctly
+    must generate audit log url correctly
     """
-    assert web_client._patches_url(package_ahriman.base).startswith(web_client.address)
-    assert web_client._patches_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/patches")
-    assert web_client._patches_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name/patches")
-
-    assert web_client._patches_url(package_ahriman.base, "var").endswith(
-        f"/api/v1/packages/{package_ahriman.base}/patches/var")
-    assert web_client._patches_url(package_ahriman.base, "some/variable%name").endswith(
-        f"/api/v1/packages/{package_ahriman.base}/patches/some%2Fvariable%25name")
+    assert web_client._events_url().startswith(web_client.address)
+    assert web_client._events_url().endswith("/api/v1/events")
 
 
 def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
@@ -89,12 +84,155 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     assert web_client._package_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name")
 
 
+def test_patches_url(web_client: WebClient, package_ahriman: Package) -> None:
+    """
+    must generate changes url correctly
+    """
+    assert web_client._patches_url(package_ahriman.base).startswith(web_client.address)
+    assert web_client._patches_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/patches")
+    assert web_client._patches_url("some/package%name").endswith("/api/v1/packages/some%2Fpackage%25name/patches")
+
+    assert web_client._patches_url(package_ahriman.base, "var").endswith(
+        f"/api/v1/packages/{package_ahriman.base}/patches/var")
+    assert web_client._patches_url(package_ahriman.base, "some/variable%name").endswith(
+        f"/api/v1/packages/{package_ahriman.base}/patches/some%2Fvariable%25name")
+
+
 def test_status_url(web_client: WebClient) -> None:
     """
     must generate package status url correctly
     """
     assert web_client._status_url().startswith(web_client.address)
     assert web_client._status_url().endswith("/api/v1/status")
+
+
+def test_event_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must create event
+    """
+    event = Event(EventType.PackageUpdated, package_ahriman.base)
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+
+    web_client.event_add(event)
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query(), json=event.view())
+
+
+def test_event_add_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events creation
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.event_add(Event("", ""))
+
+
+def test_event_add_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during events creation
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.event_add(Event("", ""))
+
+
+def test_event_add_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events creaton and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.event_add(Event("", ""))
+    logging_mock.assert_not_called()
+
+
+def test_event_add_failed_http_error_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during events creation and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.event_add(Event("", ""))
+    logging_mock.assert_not_called()
+
+
+def test_event_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must get events
+    """
+    event = Event(EventType.PackageUpdated, package_ahriman.base)
+    response_obj = requests.Response()
+    response_obj._content = json.dumps([event.view()]).encode("utf8")
+    response_obj.status_code = 200
+
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
+
+    result = web_client.event_get(None, None)
+    requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [("limit", "-1"), ("offset", "0")])
+    assert result == [event]
+
+
+def test_event_get_filter(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must get events with filter
+    """
+    response_obj = requests.Response()
+    response_obj._content = json.dumps(Event("", "").view()).encode("utf8")
+    response_obj.status_code = 200
+
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
+
+    web_client.event_get("event", "object", 1, 2)
+    requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [
+                                              ("limit", "1"),
+                                              ("offset", "2"),
+                                              ("event", "event"),
+                                              ("object_id", "object"),
+    ])
+
+
+def test_event_get_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events fetch
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.event_get(None, None)
+
+
+def test_event_get_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during events fetch
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.event_get(None, None)
+
+
+def test_event_get_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during events fetch and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.event_get(None, None)
+    logging_mock.assert_not_called()
+
+
+def test_event_get_failed_http_error_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during events fetch and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.event_get(None, None)
+    logging_mock.assert_not_called()
 
 
 def test_package_changes_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
