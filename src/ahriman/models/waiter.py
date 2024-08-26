@@ -23,6 +23,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Literal, ParamSpec
 
+from ahriman.models.metrics_timer import MetricsTimer
+
 
 Params = ParamSpec("Params")
 
@@ -94,25 +96,25 @@ class Waiter:
 
     Attributes:
         interval(float): interval in seconds between checks
-        start_time(float): monotonic time of the waiter start. More likely must not be assigned explicitly
         wait_timeout(float): timeout in seconds to wait for. Negative value will result in immediate exit. Zero value
     means infinite timeout
     """
 
     wait_timeout: float
-    start_time: float = field(default_factory=time.monotonic, kw_only=True)
     interval: float = field(default=10, kw_only=True)
 
-    def is_timed_out(self) -> bool:
+    def is_timed_out(self, elapsed: float) -> bool:
         """
         check if timer is out
+
+        Attributes:
+            elapsed(float): elapsed time in seconds
 
         Returns:
             bool: ``True`` in case current monotonic time is more than :attr:`start_time` and :attr:`wait_timeout`
             doesn't equal to 0
         """
-        since_start = time.monotonic() - self.start_time
-        return self.wait_timeout != 0 and since_start > self.wait_timeout
+        return self.wait_timeout != 0 and elapsed > self.wait_timeout
 
     def wait(self, in_progress: Callable[Params, bool], *args: Params.args, **kwargs: Params.kwargs) -> WaiterResult:
         """
@@ -126,9 +128,10 @@ class Waiter:
         Returns:
             WaiterResult: waiter result object
         """
-        while not (timed_out := self.is_timed_out()) and in_progress(*args, **kwargs):
-            time.sleep(self.interval)
-        took = time.monotonic() - self.start_time
+        with MetricsTimer() as timer:
+            while not (timed_out := self.is_timed_out(timer.elapsed)) and in_progress(*args, **kwargs):
+                time.sleep(self.interval)
+            took = timer.elapsed
 
         if timed_out:
             return WaiterTimedOut(took)
