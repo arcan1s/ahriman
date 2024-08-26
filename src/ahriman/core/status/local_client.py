@@ -22,6 +22,7 @@ from ahriman.core.status import Client
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import Event, EventType
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -47,6 +48,31 @@ class LocalClient(Client):
         """
         self.database = database
         self.repository_id = repository_id
+
+    def event_add(self, event: Event) -> None:
+        """
+        create new event
+
+        Args:
+            event(Event): audit log event
+        """
+        self.database.event_insert(event, self.repository_id)
+
+    def event_get(self, event: str | EventType | None, object_id: str | None,
+                  limit: int = -1, offset: int = 0) -> list[Event]:
+        """
+        retrieve list of events
+
+        Args:
+            event(str | EventType | None): filter by event type
+            object_id(str | None): filter by event object
+            limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
+            offset(int, optional): records offset (Default value = 0)
+
+        Returns:
+            list[Event]: list of audit log events
+        """
+        return self.database.event_get(event, object_id, limit, offset, self.repository_id)
 
     def package_changes_get(self, package_base: str) -> Changes:
         """

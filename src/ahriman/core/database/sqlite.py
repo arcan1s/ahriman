@@ -26,7 +26,7 @@ from typing import Self
 from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
 from ahriman.core.database.operations import AuthOperations, BuildOperations, ChangesOperations, \
-    DependenciesOperations, LogsOperations, PackageOperations, PatchOperations
+    DependenciesOperations, EventOperations, LogsOperations, PackageOperations, PatchOperations
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -36,6 +36,7 @@ class SQLite(
         BuildOperations,
         ChangesOperations,
         DependenciesOperations,
+        EventOperations,
         LogsOperations,
         PackageOperations,
         PatchOperations):
