@@ -57,7 +57,7 @@ class Mapping(Auth):
             password(str | None): entered password
 
         Returns:
-            bool: True in case if password matches, False otherwise
+            bool: ``True`` in case if password matches, ``False`` otherwise
         """
         if password is None:
             return False  # invalid data supplied
@@ -72,7 +72,7 @@ class Mapping(Auth):
             username(str): username
 
         Returns:
-            User | None: user descriptor if username is known and None otherwise
+            User | None: user descriptor if username is known and ``None`` otherwise
         """
         return self.database.user_get(username)
 
@@ -84,7 +84,7 @@ class Mapping(Auth):
             username(str): username
 
         Returns:
-            bool: True in case if user is known and can be authorized and False otherwise
+            bool: ``True`` in case if user is known and can be authorized and ``False`` otherwise
         """
         return username is not None and self.get_user(username) is not None
 
@@ -98,7 +98,7 @@ class Mapping(Auth):
             context(str | None): URI request path
 
         Returns:
-            bool: True in case if user is allowed to do this request and False otherwise
+            bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
         user = self.get_user(username)
         return user is not None and user.verify_access(required)

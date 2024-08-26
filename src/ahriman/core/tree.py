@@ -64,7 +64,7 @@ class Leaf:
             packages(Iterable[Leaf]): list of known leaves
 
         Returns:
-            bool: True in case if package is dependency of others and False otherwise
+            bool: ``True`` in case if package is dependency of others and ``False`` otherwise
         """
         for leaf in packages:
             if leaf.dependencies.intersection(self.items):
@@ -79,7 +79,7 @@ class Leaf:
             packages(Iterable[Leaf]): list of known leaves
 
         Returns:
-            bool: True if any of packages is dependency of the leaf, False otherwise
+            bool: ``True`` if any of packages is dependency of the leaf, ``False`` otherwise
         """
         for leaf in packages:
             if self.dependencies.intersection(leaf.items):

@@ -247,7 +247,7 @@ class BaseView(View, CorsViewMixin):
         extract username from request if any
 
         Returns:
-            str | None: authorized username if any and None otherwise (e.g. if authorization is disabled)
+            str | None: authorized username if any and ``None`` otherwise (e.g. if authorization is disabled)
         """
         try:  # try to read from payload
             data: dict[str, str] = await self.request.json()  # technically it is not, but we only need str here

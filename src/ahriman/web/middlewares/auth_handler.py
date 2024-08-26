@@ -63,7 +63,7 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
             identity(str): username
 
         Returns:
-            str | None: user identity (username) in case if user exists and None otherwise
+            str | None: user identity (username) in case if user exists and ``None`` otherwise
         """
         return identity if await self.validator.known_username(identity) else None
 
@@ -77,7 +77,7 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
             context(str | None, optional): URI request path (Default value = None)
 
         Returns:
-            bool: True in case if user is allowed to perform this request and False otherwise
+            bool: ``True`` in case if user is allowed to perform this request and ``False`` otherwise
         """
         # some methods for type checking and parent class compatibility
         if identity is None or not isinstance(permission, UserAccess):

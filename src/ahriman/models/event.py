@@ -29,11 +29,15 @@ class EventType(StrEnum):
     predefined event types
 
     Attributes:
+        PackageOutdated(EventType): (class attribute) package has been marked as out-of-date
         PackageRemoved(EventType): (class attribute) package has been removed
+        PackageUpdateFailed(EventType): (class attribute) package update has been failed
         PackageUpdated(EventType): (class attribute) package has been updated
     """
 
+    PackageOutdated = "package-outdated"
     PackageRemoved = "package-removed"
+    PackageUpdateFailed = "package-update-failed"
     PackageUpdated = "package-updated"
 
 
@@ -58,11 +62,10 @@ class Event:
 
     def __post_init__(self) -> None:
         """
-        replace null data to empty dictionary
+        convert event type to enum if it is a well-known event type
         """
         if self.event in EventType:
             object.__setattr__(self, "event", EventType(self.event))
-        object.__setattr__(self, "data", self.data or {})
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:

@@ -3,9 +3,9 @@ from ahriman.models.event import Event, EventType
 
 def test_post_init() -> None:
     """
-    must remove replace empty dictionary
+    must replace event type for known types
     """
-    assert Event("", "").data == {}
+    assert Event("random", "")
     assert isinstance(Event(str(EventType.PackageUpdated), "").event, EventType)
 
 

@@ -38,8 +38,8 @@ class JinjaTemplate:
 
         * homepage - link to homepage, string, optional
         * link_path - prefix fo packages to download, string, required
-        * has_package_signed - True in case if package sign enabled, False otherwise, required
-        * has_repo_signed - True in case if repository database sign enabled, False otherwise, required
+        * has_package_signed - ``True`` in case if package sign enabled, ``False`` otherwise, required
+        * has_repo_signed - ``True`` in case if repository database sign enabled, ``False`` otherwise, required
         * packages - sorted list of packages properties, required
             * architecture, string
             * archive_size, pretty printed size, string

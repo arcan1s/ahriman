@@ -57,7 +57,7 @@ class RemoteSource:
         check if source is remote
 
         Returns:
-            bool: True in case if package is well-known remote source (e.g. AUR) and False otherwise
+            bool: ``True`` in case if package is well-known remote source (e.g. AUR) and ``False`` otherwise
         """
         return self.source in (PackageSource.AUR, PackageSource.Repository)
 

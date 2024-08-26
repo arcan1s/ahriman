@@ -79,7 +79,7 @@ class PAM(Mapping):
             password(str | None): entered password
 
         Returns:
-            bool: True in case if password matches, False otherwise
+            bool: ``True`` in case if password matches, ``False`` otherwise
         """
         if password is None:
             return False  # invalid data supplied
@@ -101,7 +101,7 @@ class PAM(Mapping):
             username(str): username
 
         Returns:
-            bool: True in case if user is known and can be authorized and False otherwise
+            bool: ``True`` in case if user is known and can be authorized and ``False`` otherwise
         """
         try:
             _ = getpwnam(username)
@@ -119,7 +119,7 @@ class PAM(Mapping):
             context(str | None): URI request path
 
         Returns:
-            bool: True in case if user is allowed to do this request and False otherwise
+            bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
         # this method is basically inverted, first we check overrides in database and then fallback to the PAM logic
         if (user := self.get_user(username)) is not None:

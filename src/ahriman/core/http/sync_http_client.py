@@ -85,7 +85,7 @@ class SyncHttpClient(LazyLogging):
             exception(requests.RequestException): exception raised
 
         Returns:
-            str: text of the response if it is not None and empty string otherwise
+            str: text of the response if it is not ``None`` and empty string otherwise
         """
         result: str = exception.response.text if exception.response is not None else ""
         return result

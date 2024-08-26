@@ -97,7 +97,7 @@ class Lock(LazyLogging):
             fd(int): file descriptor:
 
         Returns:
-            bool: True in case if file is locked and False otherwise
+            bool: ``True`` in case if file is locked and ``False`` otherwise
         """
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -119,7 +119,7 @@ class Lock(LazyLogging):
         watch until lock disappear
 
         Returns:
-            bool: True in case if file is locked and False otherwise
+            bool: ``True`` in case if file is locked and ``False`` otherwise
         """
         # there are reasons why we are not using inotify here. First of all, if we would use it, it would bring to
         # race conditions because multiple processes will be notified at the same time. Secondly, it is good library,
@@ -223,7 +223,7 @@ class Lock(LazyLogging):
             exc_tb(TracebackType): exception traceback if any
 
         Returns:
-            Literal[False]: always False (do not suppress any exception)
+            Literal[False]: always ``False`` (do not suppress any exception)
         """
         self.clear()
         status = BuildStatusEnum.Success if exc_val is None else BuildStatusEnum.Failed

@@ -225,8 +225,8 @@ def extract_user() -> str | None:
     extract user from system environment
 
     Returns:
-        str | None: SUDO_USER in case if set and USER otherwise. It can return None in case if environment has been
-    cleared before application start
+        str | None: SUDO_USER in case if set and USER otherwise. It can return ``None`` in case if environment has been
+        cleared before application start
     """
     return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
 
@@ -295,7 +295,7 @@ def package_like(filename: Path) -> bool:
         filename(Path): name of file to check
 
     Returns:
-        bool: True in case if name contains ``.pkg.`` and not signature, False otherwise
+        bool: ``True`` in case if name contains ``.pkg.`` and not signature, ``False`` otherwise
     """
     name = filename.name
     return not name.startswith(".") and ".pkg." in name and not name.endswith(".sig")

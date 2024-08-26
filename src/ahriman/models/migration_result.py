@@ -41,7 +41,7 @@ class MigrationResult:
         check migration and check if there are pending migrations
 
         Returns:
-            bool: True in case if it requires migrations and False otherwise
+            bool: ``True`` in case if it requires migrations and ``False`` otherwise
         """
         self.validate()
         return self.new_version > self.old_version

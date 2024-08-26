@@ -96,7 +96,7 @@ class Auth(LazyLogging):
             password(str | None): entered password
 
         Returns:
-            bool: True in case if password matches, False otherwise
+            bool: ``True`` in case if password matches, ``False`` otherwise
         """
         del username, password
         return True
@@ -109,7 +109,7 @@ class Auth(LazyLogging):
             username(str): username
 
         Returns:
-            bool: True in case if user is known and can be authorized and False otherwise
+            bool: ``True`` in case if user is known and can be authorized and ``False`` otherwise
         """
         del username
         return True
@@ -124,7 +124,7 @@ class Auth(LazyLogging):
             context(str | None): URI request path
 
         Returns:
-            bool: True in case if user is allowed to do this request and False otherwise
+            bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
         del username, required, context
         return True
