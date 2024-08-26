@@ -74,7 +74,7 @@ class Operations(LazyLogging):
 
         Args:
             query(Callable[[Connection], T]): function to be called with connection
-            commit(bool, optional): if True commit() will be called on success (Default value = False)
+            commit(bool, optional): if ``True`` commit() will be called on success (Default value = False)
 
         Returns:
             T: result of the ``query`` call

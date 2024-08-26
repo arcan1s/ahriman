@@ -72,7 +72,7 @@ class Spawn(Thread, LazyLogging):
             value(bool): command line argument value
 
         Returns:
-            str: if ``value`` is True, then returns positive flag and negative otherwise
+            str: if ``value`` is ``True``, then returns positive flag and negative otherwise
         """
         return name if value else f"no-{name}"
 
@@ -153,7 +153,7 @@ class Spawn(Thread, LazyLogging):
             process_id(str): process id to be checked as returned by :func:`_spawn_process()`
 
         Returns:
-            bool: True in case if process still counts as active and False otherwise
+            bool: ``True`` in case if process still counts as active and ``False`` otherwise
         """
         with self._lock:
             return process_id in self.active

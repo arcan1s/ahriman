@@ -38,7 +38,7 @@ async def authorized_userid(*args: Any, **kwargs: Any) -> Any:
         **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
-        Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.authorized_userid(*args, **kwargs)  # pylint: disable=no-value-for-parameter
@@ -54,7 +54,7 @@ async def check_authorized(*args: Any, **kwargs: Any) -> Any:
         **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
-        Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.check_authorized(*args, **kwargs)  # pylint: disable=no-value-for-parameter
@@ -70,7 +70,7 @@ async def forget(*args: Any, **kwargs: Any) -> Any:
         **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
-        Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.forget(*args, **kwargs)  # pylint: disable=no-value-for-parameter
@@ -86,7 +86,7 @@ async def remember(*args: Any, **kwargs: Any) -> Any:
         **kwargs(Any): named argument list as provided by authorized_userid function
 
     Returns:
-        Any: None in case if no aiohttp_security module found and function call otherwise
+        Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
     if _has_aiohttp_security:
         return await aiohttp_security.remember(*args, **kwargs)  # pylint: disable=no-value-for-parameter

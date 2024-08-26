@@ -338,7 +338,7 @@ class WebClient(Client, SyncAhrimanClient):
 
         Args:
             package_base(str): package base
-            version(str | None): package version to remove logs. If None set, all logs will be removed
+            version(str | None): package version to remove logs. If ``None`` is set, all logs will be removed
         """
         query = self.repository_id.query()
         if version is not None:
@@ -373,7 +373,7 @@ class WebClient(Client, SyncAhrimanClient):
 
         Args:
             package_base(str): package base to update
-            variable(str | None): patch name. If None set, all patches will be removed
+            variable(str | None): patch name. If ``None`` is set, all patches will be removed
         """
         with contextlib.suppress(Exception):
             self.make_request("DELETE", self._patches_url(package_base, variable or ""))

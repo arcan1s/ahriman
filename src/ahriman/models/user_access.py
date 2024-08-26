@@ -47,7 +47,7 @@ class UserAccess(StrEnum):
             other(UserAccess): other permission to compare
 
         Returns:
-            bool: True in case if current permission allows the operation and False otherwise
+            bool: ``True`` in case if current permission allows the operation and ``False`` otherwise
         """
         for member in UserAccess:
             if member == other:

@@ -59,7 +59,7 @@ class Handler:
             repository_id(RepositoryId): repository unique identifier
 
         Returns:
-            bool: True on success, False otherwise
+            bool: ``True`` on success, ``False`` otherwise
         """
         try:
             configuration = Configuration.from_path(args.configuration, repository_id)
@@ -129,7 +129,7 @@ class Handler:
         check condition and flag and raise ExitCode exception in case if it is enabled and condition match
 
         Args:
-            enabled(bool): if False no check will be performed
+            enabled(bool): if ``False`` no check will be performed
             predicate(bool): indicates condition on which exception should be thrown
 
         Raises:

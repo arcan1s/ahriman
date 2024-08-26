@@ -55,7 +55,7 @@ class RepositoryId:
         check if all data is supplied for the loading
 
         Returns:
-            bool: True in case if architecture or name are not set and False otherwise
+            bool: ``True`` in case if architecture or name are not set and ``False`` otherwise
         """
         return not self.architecture or not self.name
 
@@ -88,7 +88,7 @@ class RepositoryId:
             other(Any): other object to compare
 
         Returns:
-            bool: True in case if this is less than other and False otherwise
+            bool: ``True`` in case if this is less than other and ``False`` otherwise
 
         Raises:
             TypeError: if other is different from RepositoryId type

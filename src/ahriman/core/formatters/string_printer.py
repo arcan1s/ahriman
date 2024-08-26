@@ -42,6 +42,6 @@ class StringPrinter(Printer):
         generate entry title from content
 
         Returns:
-            str | None: content title if it can be generated and None otherwise
+            str | None: content title if it can be generated and ``None`` otherwise
         """
         return self.content

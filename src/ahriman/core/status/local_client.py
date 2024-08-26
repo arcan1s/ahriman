@@ -164,7 +164,7 @@ class LocalClient(Client):
 
         Args:
             package_base(str): package base
-            version(str | None): package version to remove logs. If None set, all logs will be removed
+            version(str | None): package version to remove logs. If ``None`` is set, all logs will be removed
         """
         self.database.logs_remove(package_base, version, self.repository_id)
 
@@ -188,7 +188,7 @@ class LocalClient(Client):
 
         Args:
             package_base(str): package base to update
-            variable(str | None): patch name. If None set, all patches will be removed
+            variable(str | None): patch name. If ``None`` is set, all patches will be removed
         """
         variables = [variable] if variable is not None else None
         self.database.patches_remove(package_base, variables)

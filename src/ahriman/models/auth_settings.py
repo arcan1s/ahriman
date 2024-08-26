@@ -44,7 +44,7 @@ class AuthSettings(StrEnum):
         get enabled flag
 
         Returns:
-            bool: False in case if authorization is disabled and True otherwise
+            bool: ``False`` in case if authorization is disabled and ``True`` otherwise
         """
         return self != AuthSettings.Disabled
 

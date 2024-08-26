@@ -149,7 +149,7 @@ class Validator(RootValidator):
         check if paths exists
 
         Args:
-            constraint(bool): True in case if path must exist and False otherwise
+            constraint(bool): ``True`` in case if path must exist and ``False`` otherwise
             field(str): field name to be checked
             value(Path): value to be checked
 

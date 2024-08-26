@@ -98,7 +98,7 @@ class User:
             salt(str): salt for hashed password
 
         Returns:
-            bool: True in case if password matches, False otherwise
+            bool: ``True`` in case if password matches, ``False`` otherwise
         """
         try:
             verified: bool = self._HASHER.verify(password + salt, self.password)
@@ -131,7 +131,7 @@ class User:
             required(UserAccess): required access level
 
         Returns:
-            bool: True in case if user is allowed to do this request and False otherwise
+            bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
         return self.access.permits(required)
 
