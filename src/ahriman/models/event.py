@@ -17,11 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass, field, fields
 from enum import StrEnum
 from typing import Any, Self
 
-from ahriman.core.utils import dataclass_view, filter_json, utcnow
+from ahriman.core.utils import utcnow
 
 
 class EventType(StrEnum):
@@ -41,7 +40,6 @@ class EventType(StrEnum):
     PackageUpdated = "package-updated"
 
 
-@dataclass(frozen=True)
 class Event:
     """
     audit log event
@@ -54,18 +52,24 @@ class Event:
         object_id(str): object identifier
     """
 
-    event: str | EventType
-    object_id: str
-    message: str | None = None
-    data: dict[str, Any] = field(default_factory=dict)
-    created: int = field(default_factory=lambda: int(utcnow().timestamp()))
+    def __init__(self, event: str | EventType, object_id: str, message: str | None = None, created: int | None = None,
+                 **kwargs: Any):
+        """
+        default constructor
 
-    def __post_init__(self) -> None:
+        Args:
+            event(str | EventType): event type
+            object_id(str): object identifier
+            message(str | None): event message if available
+            created(int | None, optional): event timestamp (Default value = None)
+            **kwargs(Any): event metadata
         """
-        convert event type to enum if it is a well-known event type
-        """
-        if self.event in EventType:
-            object.__setattr__(self, "event", EventType(self.event))
+        self.event = EventType(event) if event in EventType else event
+        self.object_id = object_id
+        self.created = created or int(utcnow().timestamp())
+
+        self.message = message
+        self.data = kwargs
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -78,9 +82,25 @@ class Event:
         Returns:
             Self: dependencies object
         """
-        # filter to only known fields
-        known_fields = [pair.name for pair in fields(cls)]
-        return cls(**filter_json(dump, known_fields))
+        return cls(
+            event=dump["event"],
+            object_id=dump["object_id"],
+            message=dump.get("message"),
+            created=dump.get("created"),
+            **dump.get("data", {}),
+        )
+
+    def get(self, key: str) -> Any:
+        """
+        get a property
+
+        Args:
+            key(str): key to lookup in data
+
+        Returns:
+            Any: metadata property if available or ``None`` otherwise
+        """
+        return self.data.get(key)
 
     def view(self) -> dict[str, Any]:
         """
@@ -89,4 +109,32 @@ class Event:
         Returns:
             dict[str, Any]: json-friendly dictionary
         """
-        return dataclass_view(self)
+        dump = {
+            "event": self.event,
+            "object_id": self.object_id,
+            "created": self.created,
+        }
+        if self.message is not None:
+            dump["message"] = self.message
+        if self.data:
+            dump["data"] = self.data
+
+        return dump
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        check if other is the same object
+
+        Args:
+            other(Any): other object instance
+
+        Returns:
+            bool: ``True`` if the other object is the same and ``False`` otherwise
+        """
+        if not isinstance(other, Event):
+            return False
+        return self.event == other.event \
+            and self.object_id == other.object_id \
+            and self.message == other.message \
+            and self.created == other.created \
+            and self.data == other.data

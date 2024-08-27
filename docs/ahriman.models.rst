@@ -68,6 +68,14 @@ ahriman.models.dependencies module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.event module
+---------------------------
+
+.. automodule:: ahriman.models.event
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.filesystem\_package module
 -----------------------------------------
 
@@ -96,6 +104,14 @@ ahriman.models.log\_record\_id module
 -------------------------------------
 
 .. automodule:: ahriman.models.log_record_id
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.models.metrics\_timer module
+------------------------------------
+
+.. automodule:: ahriman.models.metrics_timer
    :members:
    :no-undoc-members:
    :show-inheritance:

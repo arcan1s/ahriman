@@ -27,7 +27,7 @@ async def test_get(client: TestClient) -> None:
     """
     must return all events
     """
-    event1 = Event("event1", "object1", "message", {"key": "value"})
+    event1 = Event("event1", "object1", "message", key="value")
     event2 = Event("event2", "object2")
     await client.post("/api/v1/events", json=event1.view())
     await client.post("/api/v1/events", json=event2.view())
@@ -46,7 +46,7 @@ async def test_get_with_pagination(client: TestClient) -> None:
     """
     must get events with pagination
     """
-    event1 = Event("event1", "object1", "message", {"key": "value"})
+    event1 = Event("event1", "object1", "message", key="value")
     event2 = Event("event2", "object2")
     await client.post("/api/v1/events", json=event1.view())
     await client.post("/api/v1/events", json=event2.view())
@@ -83,7 +83,7 @@ async def test_post(client: TestClient) -> None:
     """
     must create event
     """
-    event = Event("event1", "object1", "message", {"key": "value"})
+    event = Event("event1", "object1", "message", key="value")
     request_schema = pytest.helpers.schema_request(EventsView.post)
 
     payload = event.view()
