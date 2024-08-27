@@ -8,7 +8,7 @@ def test_event_insert_get(database: SQLite, package_ahriman: Package) -> None:
     """
     must insert and get event
     """
-    event = Event(EventType.PackageUpdated, package_ahriman.base, "Updated", {"key": "value"})
+    event = Event(EventType.PackageUpdated, package_ahriman.base, "Updated", key="value")
     database.event_insert(event)
     assert database.event_get() == [event]
 
