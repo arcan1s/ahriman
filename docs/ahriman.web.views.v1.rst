@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   ahriman.web.views.v1.auditlog
    ahriman.web.views.v1.distributed
    ahriman.web.views.v1.packages
    ahriman.web.views.v1.service

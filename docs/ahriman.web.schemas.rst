@@ -60,6 +60,22 @@ ahriman.web.schemas.error\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.event\_schema module
+----------------------------------------
+
+.. automodule:: ahriman.web.schemas.event_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.web.schemas.event\_search\_schema module
+------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.event_search_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.file\_schema module
 ---------------------------------------
 

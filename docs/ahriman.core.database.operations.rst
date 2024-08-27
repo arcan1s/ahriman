@@ -36,6 +36,14 @@ ahriman.core.database.operations.dependencies\_operations module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.operations.event\_operations module
+---------------------------------------------------------
+
+.. automodule:: ahriman.core.database.operations.event_operations
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.database.operations.logs\_operations module
 --------------------------------------------------------
 

@@ -116,6 +116,14 @@ ahriman.core.database.migrations.m013\_dependencies module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m014\_auditlog module
+------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m014_auditlog
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

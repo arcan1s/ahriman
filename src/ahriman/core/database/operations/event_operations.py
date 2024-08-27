@@ -48,13 +48,8 @@ class EventOperations(Operations):
 
         def run(connection: Connection) -> list[Event]:
             return [
-                Event(
-                    event=row["event"],
-                    object_id=row["object_id"],
-                    message=row["message"],
-                    data=row["data"],
-                    created=row["created"],
-                ) for row in connection.execute(
+                Event.from_json(row)
+                for row in connection.execute(
                     """
                     select created, event, object_id, message, data from auditlog
                     where (:event is null or event = :event)
