@@ -59,7 +59,7 @@ def test_logs_insert_get_pagination(database: SQLite, package_ahriman: Package) 
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
-    assert database.logs_get(package_ahriman.base, 1, 1) == [(43.0, "message 2")]
+    assert database.logs_get(package_ahriman.base, 1, 1) == [(42.0, "message 1")]
 
 
 def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> None:

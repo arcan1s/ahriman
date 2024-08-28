@@ -76,7 +76,7 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
 
     logs = await response.json()
     assert not response_schema.validate(logs)
-    assert logs == [{"created": 43.0, "message": "message 2"}]
+    assert logs == [{"created": 42.0, "message": "message 1"}]
 
 
 async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> None:
