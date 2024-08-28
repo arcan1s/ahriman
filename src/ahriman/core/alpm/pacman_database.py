@@ -59,7 +59,8 @@ class PacmanDatabase(SyncHttpClient):
 
         self.sync_files_database = configuration.getboolean("alpm", "sync_files_database")
 
-    def copy(self, remote_path: Path, local_path: Path) -> None:
+    @staticmethod
+    def copy(remote_path: Path, local_path: Path) -> None:
         """
         copy local database file
 
