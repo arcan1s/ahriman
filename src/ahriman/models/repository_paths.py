@@ -85,7 +85,7 @@ class RepositoryPaths(LazyLogging):
         return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
-    def build_directory(self) -> Path:
+    def build_root(self) -> Path:
         """
         same as :attr:`chroot`, but exactly build chroot
 

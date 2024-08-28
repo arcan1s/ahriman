@@ -283,7 +283,7 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         for prop in dir(repository_paths)
         if not prop.startswith("_")
         and prop not in (
-            "build_directory",
+            "build_root",
             "logger_name",
             "logger",
             "repository_id",
