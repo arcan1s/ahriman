@@ -50,9 +50,11 @@ class LogsOperations(Operations):
                 (row["created"], row["record"])
                 for row in connection.execute(
                     """
-                    select created, record from logs
-                    where package_base = :package_base and repository = :repository
-                    order by created limit :limit offset :offset
+                    select created, record from (
+                        select * from logs
+                        where package_base = :package_base and repository = :repository
+                        order by created desc limit :limit offset :offset
+                    ) order by created asc
                     """,
                     {
                         "package_base": package_base,

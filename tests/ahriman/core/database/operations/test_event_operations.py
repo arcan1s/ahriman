@@ -37,4 +37,4 @@ def test_event_insert_get_pagination(database: SQLite) -> None:
     """
     database.event_insert(Event("1", "1"))
     database.event_insert(Event("2", "2"))
-    assert all(event.event == "2" for event in database.event_get(limit=1, offset=1))
+    assert all(event.event == "1" for event in database.event_get(limit=1, offset=1))

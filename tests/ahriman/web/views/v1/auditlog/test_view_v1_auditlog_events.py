@@ -39,7 +39,7 @@ async def test_get(client: TestClient) -> None:
     assert not response_schema.validate(json, many=True)
 
     events = [Event.from_json(event) for event in json]
-    assert events == [event1, event2]
+    assert events == [event2, event1]
 
 
 async def test_get_with_pagination(client: TestClient) -> None:
@@ -61,7 +61,7 @@ async def test_get_with_pagination(client: TestClient) -> None:
     json = await response.json()
     assert not response_schema.validate(json, many=True)
 
-    assert [Event.from_json(event) for event in json] == [event2]
+    assert [Event.from_json(event) for event in json] == [event1]
 
 
 async def test_get_bad_request(client: TestClient) -> None:
