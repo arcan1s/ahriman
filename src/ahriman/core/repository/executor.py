@@ -29,6 +29,7 @@ from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.core.utils import safe_filename
 from ahriman.models.changes import Changes
+from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.packagers import Packagers
@@ -75,16 +76,17 @@ class Executor(PackageInfo, Cleaner):
             with self.in_package_context(single.base, local_versions.get(single.base)), \
                     TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
-                    packager = self.packager(packagers, single.base)
-                    last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
-                    # clear changes and update commit hash
-                    self.reporter.package_changes_update(single.base, Changes(last_commit_sha))
-                    # update dependencies list
-                    package_archive = PackageArchive(self.paths.build_directory, single, self.pacman, self.scan_paths)
-                    dependencies = package_archive.depends_on()
-                    self.reporter.package_dependencies_update(single.base, dependencies)
-                    # update result set
-                    result.add_updated(single)
+                    with self.in_event(single.base, EventType.PackageUpdated, failure=EventType.PackageUpdateFailed):
+                        packager = self.packager(packagers, single.base)
+                        last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
+                        # clear changes and update commit hash
+                        self.reporter.package_changes_update(single.base, Changes(last_commit_sha))
+                        # update dependencies list
+                        package_archive = PackageArchive(self.paths.build_root, single, self.pacman, self.scan_paths)
+                        dependencies = package_archive.depends_on()
+                        self.reporter.package_dependencies_update(single.base, dependencies)
+                        # update result set
+                        result.add_updated(single)
                 except Exception:
                     self.reporter.set_failed(single.base)
                     result.add_failed(single)
@@ -104,7 +106,8 @@ class Executor(PackageInfo, Cleaner):
         """
         def remove_base(package_base: str) -> None:
             try:
-                self.reporter.package_remove(package_base)
+                with self.in_event(package_base, EventType.PackageRemoved):
+                    self.reporter.package_remove(package_base)
             except Exception:
                 self.logger.exception("could not remove base %s", package_base)
 

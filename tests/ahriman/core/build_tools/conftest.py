@@ -29,7 +29,7 @@ def package_archive_ahriman(package_ahriman: Package, repository_paths: Reposito
         PackageArchive: package archive test instance
     """
     mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
-    return PackageArchive(repository_paths.build_directory, package_ahriman, pacman, scan_paths)
+    return PackageArchive(repository_paths.build_root, package_ahriman, pacman, scan_paths)
 
 
 @pytest.fixture
