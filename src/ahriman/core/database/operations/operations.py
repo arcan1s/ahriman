@@ -46,10 +46,21 @@ class Operations(LazyLogging):
         Args:
             path(Path): path to the database file
             repository_id(RepositoryId): repository unique identifier
+            repository_paths(RepositoryPaths): repository paths
         """
         self.path = path
         self._repository_id = repository_id
         self._repository_paths = repository_paths
+
+    @property
+    def logger_name(self) -> str:
+        """
+        extract logger name for the class
+
+        Returns:
+            str: logger name override
+        """
+        return "sql"
 
     @staticmethod
     def factory(cursor: sqlite3.Cursor, row: tuple[Any, ...]) -> dict[str, Any]:
@@ -80,6 +91,7 @@ class Operations(LazyLogging):
             T: result of the ``query`` call
         """
         with sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES) as connection:
+            connection.set_trace_callback(self.logger.debug)
             connection.row_factory = self.factory
             result = query(connection)
             if commit:

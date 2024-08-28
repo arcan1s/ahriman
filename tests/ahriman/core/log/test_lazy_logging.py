@@ -4,17 +4,19 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.core.alpm.repo import Repo
+from ahriman.core.build_tools.task import Task
 from ahriman.core.database import SQLite
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
-def test_logger_name(database: SQLite, repo: Repo) -> None:
+def test_logger_name(database: SQLite, repo: Repo, task_ahriman: Task) -> None:
     """
     must correctly generate logger name
     """
-    assert database.logger_name == "ahriman.core.database.sqlite.SQLite"
+    assert database.logger_name == "sql"
     assert repo.logger_name == "ahriman.core.alpm.repo.Repo"
+    assert task_ahriman.logger_name == "ahriman.core.build_tools.task.Task"
 
 
 def test_package_logger_set_reset(database: SQLite) -> None:
@@ -75,9 +77,12 @@ def test_in_package_context_failed(database: SQLite, package_ahriman: Package, m
     reset_mock.assert_called_once_with()
 
 
-def test_logger(database: SQLite) -> None:
+def test_logger(database: SQLite, repo: Repo) -> None:
     """
     must set logger attribute
     """
     assert database.logger
-    assert database.logger.name == "ahriman.core.database.sqlite.SQLite"
+    assert database.logger.name == "sql"
+
+    assert repo.logger
+    assert repo.logger.name == "ahriman.core.alpm.repo.Repo"
