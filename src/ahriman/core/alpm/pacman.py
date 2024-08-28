@@ -43,7 +43,7 @@ class Pacman(LazyLogging):
         configuration(Configuration): configuration instance
         refresh_database(PacmanSynchronization): synchronize local cache to remote
         repository_id(RepositoryId): repository unique identifier
-        repository_path(RepositoryPaths): repository paths instance
+        repository_paths(RepositoryPaths): repository paths instance
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
@@ -188,8 +188,8 @@ class Pacman(LazyLogging):
         Returns:
             dict[str, set[str]]: map of package name to its list of files
         """
-        def extract(tar: tarfile.TarFile, package_names: dict[str, str]) -> Generator[tuple[str, set[str]], None, None]:
-            for package_name, version in package_names.items():
+        def extract(tar: tarfile.TarFile, versions: dict[str, str]) -> Generator[tuple[str, set[str]], None, None]:
+            for package_name, version in versions.items():
                 path = Path(f"{package_name}-{version}") / "files"
                 try:
                     content = tar.extractfile(str(path))

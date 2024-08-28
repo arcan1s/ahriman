@@ -342,7 +342,7 @@ class Client:
     def set_unknown(self, package: Package) -> None:
         """
         set package status to unknown. Unlike other methods, this method also checks if package is known,
-        and - in case if it is - it silently skips updatd
+        and - in case if it is - it silently skips update
 
         Args:
             package(Package): current package properties

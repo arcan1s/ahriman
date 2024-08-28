@@ -113,7 +113,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: full patch to devtools chroot directory
         """
-        # for the chroot directory devtools will create own tree, and we don"t have to specify architecture here
+        # for the chroot directory devtools will create own tree, and we don't have to specify architecture here
         return self.root / "chroot" / self.repository_id.name
 
     @property

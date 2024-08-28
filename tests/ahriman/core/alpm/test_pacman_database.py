@@ -8,12 +8,12 @@ from ahriman.core.alpm.pacman_database import PacmanDatabase
 from ahriman.core.exceptions import PacmanError
 
 
-def test_copy(pacman_database: PacmanDatabase, mocker: MockerFixture) -> None:
+def test_copy(mocker: MockerFixture) -> None:
     """
     must copy loca database file
     """
     copy_mock = mocker.patch("shutil.copy")
-    pacman_database.copy(Path("remote"), Path("local"))
+    PacmanDatabase.copy(Path("remote"), Path("local"))
     copy_mock.assert_called_once_with(Path("remote"), Path("local"))
 
 
