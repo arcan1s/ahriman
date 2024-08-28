@@ -51,11 +51,13 @@ class EventOperations(Operations):
                 Event.from_json(row)
                 for row in connection.execute(
                     """
-                    select created, event, object_id, message, data from auditlog
-                    where (:event is null or event = :event)
-                      and (:object_id is null or object_id = :object_id)
-                      and repository = :repository
-                      order by created limit :limit offset :offset
+                    select created, event, object_id, message, data from (
+                        select * from auditlog
+                        where (:event is null or event = :event)
+                          and (:object_id is null or object_id = :object_id)
+                          and repository = :repository
+                        order by created desc limit :limit offset :offset
+                    ) order by created asc
                     """,
                     {
                         "event": event,
