@@ -7,6 +7,7 @@ from typing import Any
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.update_handler import UpdateHandler
 from ahriman.models.dependencies import Dependencies
+from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -21,11 +22,14 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
                                  return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     packages_mock.assert_called_once_with([])
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.paths,
         vcs_allowed_age=update_handler.vcs_allowed_age,
@@ -42,9 +46,12 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
 
 
 def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Package,
@@ -153,6 +160,8 @@ def test_updates_dependencies(update_handler: UpdateHandler, package_ahriman: Pa
     """
     packages_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
                                  return_value=[package_ahriman, package_python_schedule])
+    status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
     dependencies = {
         package_ahriman.base: Dependencies({"usr/lib/python3.11/site-packages": ["python"]}),
         package_python_schedule.base: Dependencies({"usr/lib/python3.12/site-packages": ["python"]}),
@@ -164,6 +173,9 @@ def test_updates_dependencies(update_handler: UpdateHandler, package_ahriman: Pa
 
     assert update_handler.updates_dependencies(["filter"]) == [package_ahriman]
     packages_mock.assert_called_once_with(["filter"])
+    status_client_mock.assert_called_once_with(package_ahriman.base)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
 
 
 def test_updates_dependencies_skip_unknown(update_handler: UpdateHandler, package_ahriman: Package,
@@ -205,12 +217,15 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
     package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
 
     assert update_handler.updates_local(vcs=True) == [package_ahriman]
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), pytest.helpers.anyvar(int))
     package_load_mock.assert_called_once_with(Path(package_ahriman.base), "x86_64", None)
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
         package_ahriman, update_handler.paths,
         vcs_allowed_age=update_handler.vcs_allowed_age,
@@ -281,9 +296,12 @@ def test_updates_manual_status_known(update_handler: UpdateHandler, package_ahri
     mocker.patch("ahriman.core.database.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
 
     update_handler.updates_manual()
     status_client_mock.assert_called_once_with(package_ahriman.base)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
 
 
 def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ahriman: Package,
@@ -294,9 +312,12 @@ def test_updates_manual_status_unknown(update_handler: UpdateHandler, package_ah
     mocker.patch("ahriman.core.database.SQLite.build_queue_get", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_unknown")
+    event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
 
     update_handler.updates_manual()
     status_client_mock.assert_called_once_with(package_ahriman)
+    event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
+                                       pytest.helpers.anyvar(str, True))
 
 
 def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahriman: Package,

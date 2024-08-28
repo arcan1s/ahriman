@@ -12,6 +12,14 @@ ahriman.core.repository.cleaner module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.repository.event\_logger module
+--------------------------------------------
+
+.. automodule:: ahriman.core.repository.event_logger
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.repository.executor module
 ---------------------------------------
 

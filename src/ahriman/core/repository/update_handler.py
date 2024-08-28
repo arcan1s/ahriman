@@ -23,6 +23,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
+from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.remote_source import RemoteSource
@@ -71,6 +72,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                             vcs_allowed_age=self.vcs_allowed_age,
                             calculate_version=vcs):
                         self.reporter.set_pending(local.base)
+                        self.event(local.base, EventType.PackageOutdated, "Remote version is newer than local")
                         result.append(remote)
                 except Exception:
                     self.reporter.set_failed(local.base)
@@ -98,8 +100,8 @@ class UpdateHandler(PackageInfo, Cleaner):
             return files
 
         result: list[Package] = []
-        for package in self.packages(filter_packages):
-            dependencies = self.reporter.package_dependencies_get(package.base)
+        for local in self.packages(filter_packages):
+            dependencies = self.reporter.package_dependencies_get(local.base)
             if not dependencies.paths:
                 continue  # skip check if no package dependencies found
 
@@ -112,7 +114,10 @@ class UpdateHandler(PackageInfo, Cleaner):
                     continue
 
                 # there are no packages found in filesystem with the same paths
-                result.append(package)
+                self.reporter.set_pending(local.base)
+                self.event(local.base, EventType.PackageOutdated, "Implicit dependencies are broken")
+                result.append(local)
+
                 break
 
         return result
@@ -153,6 +158,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                                          vcs_allowed_age=self.vcs_allowed_age,
                                          calculate_version=vcs):
                         self.reporter.set_pending(local.base)
+                        self.event(local.base, EventType.PackageOutdated, "Locally pulled sources are outdated")
                         result.append(remote)
                 except Exception:
                     self.logger.exception("could not process package at %s", cache_dir)
@@ -176,6 +182,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     self.reporter.set_unknown(local)
                 else:
                     self.reporter.set_pending(local.base)
+                self.event(local.base, EventType.PackageOutdated, "Manual update is requested")
         except Exception:
             self.logger.exception("could not load packages from database")
         self.clear_queue()

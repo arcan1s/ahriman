@@ -22,6 +22,7 @@ from ahriman.core.alpm.repo import Repo
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.log import LazyLogging
+from ahriman.core.repository.event_logger import EventLogger
 from ahriman.core.sign.gpg import GPG
 from ahriman.core.status import Client
 from ahriman.core.triggers import TriggerLoader
@@ -34,7 +35,7 @@ from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
 
 
-class RepositoryProperties(LazyLogging):
+class RepositoryProperties(EventLogger, LazyLogging):
     """
     repository internal objects holder
 

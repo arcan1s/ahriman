@@ -39,14 +39,15 @@ class Upload(LazyLogging):
 
     Examples:
         These classes provide the way to upload packages to remote sources as it is described in their implementations.
-        Basic flow includes class instantiating by using the :func:`load` method and then calling the :func:`run` method
-        which wraps any internal exceptions into the :exc:`ahriman.core.exceptions.SynchronizationError` exception::
+        Basic flow includes class instantiating by using the :func:`load()` method and then calling the :func:`run()`
+        method which wraps any internal exceptions into the :exc:`ahriman.core.exceptions.SynchronizationError`
+        exception::
 
             >>> configuration = Configuration()
             >>> upload = Upload.load(RepositoryId("x86_64", "aur-clone"), configuration, "s3")
             >>> upload.run(configuration.repository_paths.repository, [])
 
-        Or in case if direct access to exception is required, the :func:`sync` method can be used::
+        Or in case if direct access to exception is required, the :func:`sync()` method can be used::
 
             >>> try:
             >>>     upload.sync(configuration.repository_paths.repository, [])
