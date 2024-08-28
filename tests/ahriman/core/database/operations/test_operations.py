@@ -6,6 +6,13 @@ from unittest.mock import MagicMock
 from ahriman.core.database import SQLite
 
 
+def test_logger_name(database: SQLite) -> None:
+    """
+    must return correct logger name
+    """
+    assert database.logger_name == "sql"
+
+
 def test_factory(database: SQLite) -> None:
     """
     must convert response to dictionary
@@ -24,6 +31,7 @@ def test_with_connection(database: SQLite, mocker: MockerFixture) -> None:
 
     database.with_connection(lambda conn: conn.execute("select 1"))
     connect_mock.assert_called_once_with(database.path, detect_types=sqlite3.PARSE_DECLTYPES)
+    connection_mock.__enter__().set_trace_callback.assert_called_once_with(database.logger.debug)
     connection_mock.__enter__().commit.assert_not_called()
 
 
