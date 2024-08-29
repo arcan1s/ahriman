@@ -120,8 +120,7 @@ class Application(ApplicationPackages, ApplicationRepository):
             process_dependencies(bool): if no set, dependencies will not be processed
 
         Returns:
-            list[Package]: updated packages list. Packager for dependencies will be copied from
-            original package
+            list[Package]: updated packages list. Packager for dependencies will be copied from the original package
 
         Examples:
             In the most cases, in order to avoid build failure, it is required to add missing packages, which can be

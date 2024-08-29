@@ -60,6 +60,14 @@ ahriman.core.report.report\_trigger module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.report.rss module
+------------------------------
+
+.. automodule:: ahriman.core.report.rss
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.report.telegram module
 -----------------------------------
 
