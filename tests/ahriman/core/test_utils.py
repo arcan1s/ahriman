@@ -489,6 +489,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "web" / "templates" / "email-index.jinja2",
         resource_path_root / "web" / "templates" / "error.jinja2",
         resource_path_root / "web" / "templates" / "repo-index.jinja2",
+        resource_path_root / "web" / "templates" / "rss.jinja2",
         resource_path_root / "web" / "templates" / "shell",
         resource_path_root / "web" / "templates" / "telegram-index.jinja2",
     ])

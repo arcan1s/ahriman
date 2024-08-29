@@ -171,7 +171,7 @@ class PackageArchive:
 
         result: dict[Path, list[FilesystemPackage]] = {}
         # sort items from children directories to root
-        for path, packages in reversed(sorted(source.items())):
+        for path, packages in sorted(source.items(), reverse=True):
             # skip if this path belongs to the one of the base packages
             if any(package.package_name in base_packages for package in packages):
                 continue

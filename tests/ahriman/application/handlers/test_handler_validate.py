@@ -75,6 +75,7 @@ def test_schema(configuration: Configuration) -> None:
     assert schema.pop("remote-push")
     assert schema.pop("remote-service")
     assert schema.pop("report")
+    assert schema.pop("rss")
     assert schema.pop("rsync")
     assert schema.pop("s3")
     assert schema.pop("telegram")

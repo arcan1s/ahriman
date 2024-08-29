@@ -3,6 +3,7 @@ import pytest
 from ahriman.core.configuration import Configuration
 from ahriman.core.report.email import Email
 from ahriman.core.report.remote_call import RemoteCall
+from ahriman.core.report.rss import RSS
 from ahriman.core.report.telegram import Telegram
 
 
@@ -15,7 +16,7 @@ def email(configuration: Configuration) -> Email:
         configuration(Configuration): configuration fixture
 
     Returns:
-        RemoteCall: email trigger test instance
+        Email: email trigger test instance
     """
     _, repository_id = configuration.check_loaded()
     return Email(repository_id, configuration, "email")
@@ -39,6 +40,21 @@ def remote_call(configuration: Configuration) -> RemoteCall:
 
 
 @pytest.fixture
+def rss(configuration: Configuration) -> RSS:
+    """
+    fixture for rss trigger
+
+    Args:
+        configuration(Configuration): configuration fixture
+
+    Returns:
+        RSS: rss trigger test instance
+    """
+    _, repository_id = configuration.check_loaded()
+    return RSS(repository_id, configuration, "rss")
+
+
+@pytest.fixture
 def telegram(configuration: Configuration) -> Telegram:
     """
     fixture for telegram trigger
@@ -47,7 +63,7 @@ def telegram(configuration: Configuration) -> Telegram:
         configuration(Configuration): configuration fixture
 
     Returns:
-        RemoteCall: telegram trigger test instance
+        Telegram: telegram trigger test instance
     """
     _, repository_id = configuration.check_loaded()
     return Telegram(repository_id, configuration, "telegram")
