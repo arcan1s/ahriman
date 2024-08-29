@@ -36,6 +36,7 @@ Again, the most checks can be performed by `tox` command, though some additional
   
         Notes:
             Very important note about this function
+            Probably multi-line
   
         Args:
             argument(str): an argument. This argument has
@@ -70,6 +71,7 @@ Again, the most checks can be performed by `tox` command, though some additional
         Attributes:
             CLAZZ_ATTRIBUTE(int): (class attribute) a brand-new class attribute
             instance_attribute(str): an instance attribute
+                with the long description
   
         Examples:
             Very informative class usage example, e.g.::

@@ -97,7 +97,7 @@ class Waiter:
     Attributes:
         interval(float): interval in seconds between checks
         wait_timeout(float): timeout in seconds to wait for. Negative value will result in immediate exit. Zero value
-    means infinite timeout
+            means infinite timeout
     """
 
     wait_timeout: float
