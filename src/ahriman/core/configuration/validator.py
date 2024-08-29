@@ -35,8 +35,9 @@ class Validator(RootValidator):
         configuration(Configuration): configuration instance
     """
 
-    types_mapping = RootValidator.types_mapping.copy()
-    types_mapping["path"] = TypeDefinition("path", (Path,), ())
+    types_mapping = RootValidator.types_mapping | {
+        "path": TypeDefinition("path", (Path,), ()),
+    }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
