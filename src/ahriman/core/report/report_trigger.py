@@ -116,6 +116,11 @@ class ReportTrigger(Trigger):
                     "required": True,
                     "empty": False,
                 },
+                "rss_url": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": ["http", "https"],
+                },
                 "sender": {
                     "type": "string",
                     "required": True,
@@ -187,6 +192,11 @@ class ReportTrigger(Trigger):
                     "coerce": "absolute_path",
                     "required": True,
                 },
+                "rss_url": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": ["http", "https"],
+                },
                 "template": {
                     "type": "string",
                     "excludes": ["template_path"],
@@ -242,6 +252,11 @@ class ReportTrigger(Trigger):
                     "required": True,
                     "empty": False,
                     "is_url": [],
+                },
+                "rss_url": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": ["http", "https"],
                 },
                 "template": {
                     "type": "string",
@@ -304,7 +319,67 @@ class ReportTrigger(Trigger):
                     "coerce": "integer",
                 },
             },
-        }
+        },
+        "rss": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["rss"],
+                },
+                "homepage": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": ["http", "https"],
+                },
+                "link_path": {
+                    "type": "string",
+                    "required": True,
+                    "empty": False,
+                    "is_url": [],
+                },
+                "max_entries": {
+                    "type": "integer",
+                    "coerce": "integer",
+                },
+                "path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "required": True,
+                },
+                "rss_url": {
+                    "type": "string",
+                    "empty": False,
+                    "is_url": ["http", "https"],
+                },
+                "template": {
+                    "type": "string",
+                    "excludes": ["template_path"],
+                    "dependencies": ["templates"],
+                    "required": True,
+                    "empty": False,
+                },
+                "template_path": {
+                    "type": "path",
+                    "coerce": "absolute_path",
+                    "excludes": ["template"],
+                    "required": True,
+                    "path_exists": True,
+                    "path_type": "file",
+                },
+                "templates": {
+                    "type": "list",
+                    "coerce": "list",
+                    "schema": {
+                        "type": "path",
+                        "coerce": "absolute_path",
+                        "path_exists": True,
+                        "path_type": "dir",
+                    },
+                    "empty": False,
+                },
+            },
+        },
     }
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:

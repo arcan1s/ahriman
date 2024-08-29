@@ -32,6 +32,7 @@ class ReportSettings(StrEnum):
         Email(ReportSettings): (class attribute) email report generation
         Console(ReportSettings): (class attribute) print result to console
         Telegram(ReportSettings): (class attribute) markdown report to telegram channel
+        RSS(ReportSettings): (class attribute) RSS report generation
         RemoteCall(ReportSettings): (class attribute) remote ahriman server call
     """
 
@@ -40,10 +41,11 @@ class ReportSettings(StrEnum):
     Email = "email"
     Console = "console"
     Telegram = "telegram"
+    RSS = "rss"
     RemoteCall = "remote-call"
 
     @staticmethod
-    def from_option(value: str) -> ReportSettings:
+    def from_option(value: str) -> ReportSettings:  # pylint: disable=too-many-return-statements
         """
         construct value from configuration
 
@@ -62,6 +64,8 @@ class ReportSettings(StrEnum):
                 return ReportSettings.Console
             case "telegram":
                 return ReportSettings.Telegram
+            case "rss":
+                return ReportSettings.RSS
             case "ahriman" | "remote-call":
                 return ReportSettings.RemoteCall
             case _:
