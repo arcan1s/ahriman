@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ repository }}: Recent package updates</title>
+        {% if homepage is not none %}
+            <link>{{ homepage }}</link>
+        {% endif %}
+        <description>Recently updated packages in the {{ repository }}.</description>
+        {% if rss_url is not none %}
+            <atom:link href="{{ rss_url }}" rel="self"/>
+        {% endif %}
+        <language>en-us</language>
+        <lastBuildDate>{{ last_update }}</lastBuildDate>
+
+        {% for package in packages %}
+            <item>
+                <title>{{ package.name }} {{ package.version }} {{ package.architecture }}</title>
+                <link>{{ link_path }}/{{ package.filename }}</link>
+                <description>{{ package.description }}</description>
+                <pubDate>{{ package.build_date }}</pubDate>
+                <guid isPermaLink="false">{{ package.tag }}</guid>
+                <category>{{ repository }}</category>
+                <category>{{ package.architecture }}</category>
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

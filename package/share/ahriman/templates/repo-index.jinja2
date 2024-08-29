@@ -7,6 +7,10 @@
 
         {% include "utils/style.jinja2" %}
         {% include "user-style.jinja2" ignore missing %}
+
+        {% if rss_url is not none %}
+            <link rel="alternate" href="{{ rss_url }}" type="application/rss+xml">
+        {% endif %}
     </head>
 
     <body>

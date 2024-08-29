@@ -78,6 +78,17 @@ def test_report_remote_call(configuration: Configuration, result: Result, mocker
     report_mock.assert_called_once_with([], result)
 
 
+def test_report_rss(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
+    """
+    must instantiate rss trigger
+    """
+    report_mock = mocker.patch("ahriman.core.report.rss.RSS.generate")
+    _, repository_id = configuration.check_loaded()
+
+    Report.load(repository_id, configuration, "rss").run(result, [])
+    report_mock.assert_called_once_with([], result)
+
+
 def test_report_telegram(configuration: Configuration, result: Result, mocker: MockerFixture) -> None:
     """
     must generate telegram report

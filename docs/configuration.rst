@@ -251,6 +251,7 @@ Section name must be either ``email`` (plus optional architecture name, e.g. ``e
 * ``password`` - SMTP password to authenticate, string, optional.
 * ``port`` - SMTP port for sending emails, integer, required.
 * ``receivers`` - SMTP receiver addresses, space separated list of strings, required.
+* ``rss_url`` - link to RSS feed, string, optional.
 * ``sender`` - SMTP sender address, string, required.
 * ``ssl`` - SSL mode for SMTP connection, one of ``ssl``, ``starttls``, ``disabled``, optional, default ``disabled``.
 * ``template`` - Jinja2 template name, string, required.
@@ -266,7 +267,8 @@ Section name must be either ``html`` (plus optional architecture name, e.g. ``ht
 * ``type`` - type of the report, string, optional, must be set to ``html`` if exists.
 * ``homepage`` - link to homepage, string, optional.
 * ``link_path`` - prefix for HTML links, string, required.
-* ``path`` - path to html report file, string, required.
+* ``path`` - path to HTML report file, string, required.
+* ``rss_url`` - link to RSS feed, string, optional.
 * ``template`` - Jinja2 template name, string, required.
 * ``templates`` - path to templates directories, space separated list of paths, required.
 
@@ -281,6 +283,20 @@ Section name must be either ``remote-call`` (plus optional architecture name, e.
 * ``manual`` - update manually built packages, boolean, optional, default ``no``.
 * ``wait_timeout`` - maximum amount of time in seconds to be waited before remote process will be terminated, integer, optional, default ``-1``.
 
+``rss`` type
+^^^^^^^^^^^^
+
+Section name must be either ``rss`` (plus optional architecture name, e.g. ``rss:x86_64``) or random name with ``type`` set.
+
+* ``type`` - type of the report, string, optional, must be set to ``rss`` if exists.
+* ``homepage`` - link to homepage, string, optional.
+* ``link_path`` - prefix for HTML links, string, required.
+* ``max_entries`` - maximal amount of entries to be included to the report, negative means no limit, integer, optional, default ``-1``.
+* ``path`` - path to generated RSS file, string, required.
+* ``rss_url`` - link to RSS feed, string, optional.
+* ``template`` - Jinja2 template name, string, required.
+* ``templates`` - path to templates directories, space separated list of paths, required.
+
 ``telegram`` type
 ^^^^^^^^^^^^^^^^^
 
@@ -291,6 +307,7 @@ Section name must be either ``telegram`` (plus optional architecture name, e.g. 
 * ``chat_id`` - telegram chat id, either string with ``@`` or integer value, required.
 * ``homepage`` - link to homepage, string, optional.
 * ``link_path`` - prefix for HTML links, string, required.
+* ``rss_url`` - link to RSS feed, string, optional.
 * ``template`` - Jinja2 template name, string, required.
 * ``template_type`` - ``parse_mode`` to be passed to telegram API, one of ``MarkdownV2``, ``HTML``, ``Markdown``, string, optional, default ``HTML``.
 * ``templates`` - path to templates directories, space separated list of paths, required.

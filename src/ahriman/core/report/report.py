@@ -66,7 +66,7 @@ class Report(LazyLogging):
         self.configuration = configuration
 
     @staticmethod
-    def load(repository_id: RepositoryId, configuration: Configuration, target: str) -> Report:
+    def load(repository_id: RepositoryId, configuration: Configuration, target: str) -> Report:  # pylint: disable=too-many-return-statements
         """
         load client from settings
 
@@ -92,6 +92,9 @@ class Report(LazyLogging):
             case ReportSettings.Telegram:
                 from ahriman.core.report.telegram import Telegram
                 return Telegram(repository_id, configuration, section)
+            case ReportSettings.RSS:
+                from ahriman.core.report.rss import RSS
+                return RSS(repository_id, configuration, section)
             case ReportSettings.RemoteCall:
                 from ahriman.core.report.remote_call import RemoteCall
                 return RemoteCall(repository_id, configuration, section)
