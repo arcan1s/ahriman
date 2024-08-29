@@ -161,10 +161,10 @@ class Package(LazyLogging):
             bool: ``True`` in case if package base looks like VCS package and ``False`` otherwise
         """
         return self.base.endswith("-bzr") \
-            or self.base.endswith("-csv")\
-            or self.base.endswith("-darcs")\
-            or self.base.endswith("-git")\
-            or self.base.endswith("-hg")\
+            or self.base.endswith("-csv") \
+            or self.base.endswith("-darcs") \
+            or self.base.endswith("-git") \
+            or self.base.endswith("-hg") \
             or self.base.endswith("-svn")
 
     @property
@@ -358,7 +358,7 @@ class Package(LazyLogging):
 
         Yields:
             Path: list of paths of files which belong to the package and distributed together with this tarball.
-                All paths are relative to the ``path``
+            All paths are relative to the ``path``
 
         Raises:
             PackageInfoError: if there are parsing errors
@@ -504,8 +504,8 @@ class Package(LazyLogging):
             timestamp(float | int): timestamp to check build date against
 
         Returns:
-            bool: ``True`` in case if package was built after the specified date and ``False`` otherwise. In case if build date
-            is not set by any of packages, it returns False
+            bool: ``True`` in case if package was built after the specified date and ``False`` otherwise.
+            In case if build date is not set by any of packages, it returns False
         """
         return any(
             package.build_date > timestamp
@@ -550,8 +550,8 @@ class Package(LazyLogging):
 
         Returns:
             str | None: new generated package release version if any. In case if the release contains dot (e.g. 1.2),
-                the minor part will be incremented by 1. If the release does not contain major.minor notation, the minor
-                version equals to 1 will be appended
+            the minor part will be incremented by 1. If the release does not contain major.minor notation, the minor
+            version equals to 1 will be appended
         """
         if local_version is None:
             return None  # local version not found, keep upstream pkgrel

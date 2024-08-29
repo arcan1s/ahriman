@@ -236,7 +236,7 @@ class PackageArchive:
         extract list of the installed packages and their content
 
         Returns:
-            dict[str, FilesystemPackage]; map of package name to list of directories and files contained
+            dict[str, FilesystemPackage]: map of package name to list of directories and files contained
             by this package
         """
         result = {}
