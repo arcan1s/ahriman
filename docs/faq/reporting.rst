@@ -47,7 +47,7 @@ How to generate index page for S3
       target = html
 
       [html]
-      path = /var/lib/ahriman/repository/aur-clone/x86_64/index.html
+      path = ${repository:root}/repository/aur-clone/x86_64/index.html
       link_path = http://example.com/aur-clone/x86_64
 
 After these steps ``index.html`` file will be automatically synced to S3.

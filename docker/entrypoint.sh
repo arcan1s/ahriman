@@ -8,9 +8,6 @@ cat <<EOF > "/etc/ahriman.ini.d/00-docker.ini"
 [repository]
 root = $AHRIMAN_REPOSITORY_ROOT
 
-[settings]
-database = $AHRIMAN_REPOSITORY_ROOT/ahriman.db
-
 [web]
 host = $AHRIMAN_HOST
 

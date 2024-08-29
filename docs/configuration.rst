@@ -17,14 +17,33 @@ There are two variable types which have been added to default ones, they are pat
 
 Path values, except for casting to ``pathlib.Path`` type, will be also expanded to absolute paths relative to the configuration path. E.g. if path is set to ``ahriman.ini.d/logging.ini`` and root configuration path is ``/etc/ahriman.ini``, the value will be expanded to ``/etc/ahriman.ini.d/logging.ini``. In order to disable path expand, use the full path, e.g. ``/etc/ahriman.ini.d/logging.ini``.
 
-Configuration allows string interpolation from environment variables, e.g.:
+Configuration allows string interpolation from the same configuration file, e.g.:
+
+.. code-block:: ini
+
+   [section]
+   key = ${anoher_key}
+   another_key = value
+
+will read value for the ``section.key`` option from ``section.another_key``. In case if the cross-section reference is required, the ``${section:another_key}`` notation must be used. It also allows string interpolation from environment variables, e.g.:
 
 .. code-block:: ini
 
    [section]
    key = $SECRET
 
-will try to read value from ``SECRET`` environment variable. In case if the required environment variable wasn't found, it will keep original value (i.e. ``$SECRET`` in the example). Dollar sign can be set as ``$$``.
+will try to read value from ``SECRET`` environment variable. In case if the required environment variable wasn't found, it will keep original value (i.e. ``$SECRET`` in the example). Dollar sign can be set as ``$$``. All those interpolations will be applied in succession and - expected to be - recursively, e.g. the following configuration:
+
+.. code-block:: ini
+
+   [section1]
+   key = ${section2:key}
+
+   [section2]
+   key = ${home}
+   home = $HOME
+
+will eventually lead ``section1.key`` option to be set to the value of ``HOME`` environment variable (if available).
 
 There is also additional subcommand which will allow to validate configuration and print found errors. In order to do so, run ``service-config-validate`` subcommand, e.g.:
 

@@ -292,7 +292,7 @@ Worker nodes (applicable for all workers) config (``worker.ini``) as:
 
 Command to run worker nodes (considering there will be two workers, one is on ``8081`` port and other is on ``8082``):
 
-.. code-block:: ini
+.. code-block:: shell
 
    docker run --privileged -p 8081:8081 -e AHRIMAN_PORT=8081 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
    docker run --privileged -p 8082:8082 -e AHRIMAN_PORT=8082 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
