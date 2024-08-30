@@ -45,8 +45,9 @@
 
                 <nav>
                     <div class="nav nav-tabs" role="tablist">
-                        <button id="package-info-logs-button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#package-info-logs" type="button" role="tab" aria-controls="package-info-logs" aria-selected="true"><h3>Build logs</h3></button>
-                        <button id="package-info-changes-button" class="nav-link" data-bs-toggle="tab" data-bs-target="#package-info-changes" type="button" role="tab" aria-controls="package-info-changes" aria-selected="false"><h3>Changes</h3></button>
+                        <button id="package-info-logs-button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#package-info-logs" type="button" role="tab" aria-controls="package-info-logs" aria-selected="true">Build logs</button>
+                        <button id="package-info-changes-button" class="nav-link" data-bs-toggle="tab" data-bs-target="#package-info-changes" type="button" role="tab" aria-controls="package-info-changes" aria-selected="false">Changes</button>
+                        <button id="package-info-events-button" class="nav-link" data-bs-toggle="tab" data-bs-target="#package-info-events" type="button" role="tab" aria-controls="package-info-events" aria-selected="false">Events</button>
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
@@ -55,6 +56,23 @@
                     </div>
                     <div id="package-info-changes" class="tab-pane fade" role="tabpanel" aria-labelledby="package-info-changes-button" tabindex="0">
                         <pre class="language-diff"><code id="package-info-changes-input" class="pre-scrollable language-diff"></code><button id="package-info-changes-copy-button" type="button" class="btn language-diff" onclick="copyChanges()"><i class="bi bi-clipboard"></i> copy</button></pre>
+                    </div>
+                    <div id="package-info-events" class="tab-pane fade" role="tabpanel" aria-labelledby="package-info-events-button" tabindex="0">
+                        <canvas id="package-info-events-update-chart"></canvas>
+                        <table id="package-info-events-table"
+                               data-classes="table table-hover"
+                               data-sortable="true"
+                               data-sort-name="timestamp"
+                               data-sort-order="desc"
+                               data-toggle="table">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th data-align="right" data-field="timestamp">date</th>
+                                    <th data-field="event">event</th>
+                                    <th data-field="message">description</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -79,6 +97,10 @@
     const packageInfoChangesInput = $("#package-info-changes-input");
     const packageInfoChangesCopyButton = $("#package-info-changes-copy-button");
 
+    const packageInfoEventsTable = $("#package-info-events-table");
+    const packageInfoEventsUpdateChartCanvas = document.getElementById("package-info-events-update-chart");
+    let packageInfoEventsUpdateChart = null;
+
     const packageInfoAurUrl = $("#package-info-aur-url");
     const packageInfoDepends = $("#package-info-depends");
     const packageInfoGroups = $("#package-info-groups");
@@ -90,6 +112,13 @@
 
     const packageInfoVariablesBlock = $("#package-info-variables-block");
     const packageInfoVariablesDiv = $("#package-info-variables-div");
+
+    function clearChart() {
+        if (packageInfoEventsUpdateChart) {
+            packageInfoEventsUpdateChart.data = {};
+            packageInfoEventsUpdateChart.update();
+        }
+    }
 
     async function copyChanges() {
         const changes = packageInfoChangesInput.text();
@@ -104,6 +133,11 @@
     function hideInfoControls(hidden) {
         packageInfoRemoveButton.attr("hidden", hidden);
         packageInfoUpdateButton.attr("hidden", hidden);
+    }
+
+    function highlight(element) {
+        delete element.dataset.highlighted;
+        hljs.highlightElement(element);
     }
 
     function insertVariable(packageBase, variable) {
@@ -159,7 +193,51 @@
             success: response => {
                 const changes = response.changes;
                 packageInfoChangesInput.text(changes || "");
-                packageInfoChangesInput.map((_, el) => hljs.highlightElement(el));
+                packageInfoChangesInput.map((_, el) => highlight(el));
+            },
+            error: onFailure,
+        });
+    }
+
+    function loadEvents(packageBase, onFailure) {
+        packageInfoEventsTable.bootstrapTable("showLoading");
+        clearChart();
+
+        $.ajax({
+            url: `/api/v1/events`,
+            data: {
+                architecture: repository.architecture,
+                repository: repository.repository,
+                object_id: packageBase,
+                limit: 30,
+            },
+            type: "GET",
+            dataType: "json",
+            success: response => {
+                const events = response.map(event => {
+                    return {
+                        timestamp: new Date(1000 * event.created).toISOStringShort(),
+                        event: event.event,
+                        message: event.message || "",
+                    };
+                });
+
+                if (packageInfoEventsUpdateChart) {
+                    const chart = response.filter(event => event.event === "package-updated");
+                    packageInfoEventsUpdateChart.config.data = {
+                        labels: chart.map(event => new Date(1000 * event.created).toISOStringShort()),
+                        datasets: [{
+                            label: "update duration, s",
+                            data: chart.map(event => event.data.took),
+                            cubicInterpolationMode: "monotone",
+                            tension: 0.4,
+                        }],
+                    };
+                    packageInfoEventsUpdateChart.update();
+                }
+
+                packageInfoEventsTable.bootstrapTable("load", events);
+                packageInfoEventsTable.bootstrapTable("hideLoading");
             },
             error: onFailure,
         });
@@ -179,7 +257,7 @@
                     return `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`;
                 });
                 packageInfoLogsInput.text(logs.join("\n"));
-                packageInfoLogsInput.map((_, el) => hljs.highlightElement(el));
+                packageInfoLogsInput.map((_, el) => highlight(el));
             },
             error: onFailure,
         });
@@ -285,12 +363,21 @@
         loadPackage(packageBase, onFailure);
         loadPatches(packageBase, onFailure);
         loadLogs(packageBase, onFailure);
-        loadChanges(packageBase, onFailure)
+        loadChanges(packageBase, onFailure);
+        loadEvents(packageBase, onFailure);
 
         if (isPackageBaseSet) packageInfoModal.modal("show");
     }
 
     $(_ => {
+        packageInfoEventsUpdateChart = new Chart(packageInfoEventsUpdateChartCanvas, {
+            type: "line",
+            data: {},
+            options: {
+                responsive: true,
+            },
+        });
+
         packageInfoModal.on("hidden.bs.modal", _ => {
             packageInfoAurUrl.empty();
             packageInfoDepends.empty();
@@ -306,6 +393,8 @@
 
             packageInfoLogsInput.empty();
             packageInfoChangesInput.empty();
+            packageInfoEventsTable.bootstrapTable("load", []);
+            clearChart();
 
             packageInfoModal.trigger("reset");
 
