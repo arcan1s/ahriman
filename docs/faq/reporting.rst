@@ -28,8 +28,8 @@ How to report by email
       sender = me@example.com
       user = me@example.com
 
-How to generate index page for S3
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to generate index page
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #.
    Install dependencies:
@@ -50,7 +50,27 @@ How to generate index page for S3
       path = ${repository:root}/repository/aur-clone/x86_64/index.html
       link_path = http://example.com/aur-clone/x86_64
 
-After these steps ``index.html`` file will be automatically synced to S3.
+Having this configuration, the generated ``index.html`` will be also automatically synced to remote services (e.g. S3).
+
+How to generate RSS feed for index page
+"""""""""""""""""""""""""""""""""""""""
+
+In addition to previous steps, the following configuration is required:
+
+.. code-block:: ini
+
+   [report]
+   target = html rss
+
+   [html]
+   rss_url = ${html:link_path}/rss.xml
+
+   [rss]
+   link_path = ${html:link_path}
+   path = ${repository:root}/repository/ahriman-demo/x86_64/rss.xml
+   rss_url = ${html:link_path}/rss.xml
+
+With the appended configuration, the service fill also generate ``rss.xml``, link it to generated ``index.html`` and put it together.
 
 How to post build report to telegram
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
