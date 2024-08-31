@@ -40,3 +40,5 @@ The application provides reasonable defaults which allow to use it out-of-box; h
 * [Build status page](https://ahriman-demo.arcanis.me). You can log in as `demo` user by using `demo` password. However, you will not be able to run tasks. [HTTP API documentation](https://ahriman-demo.arcanis.me/api-docs) is also available.
 * [Repository index](https://repo.arcanis.me/arcanisrepo/x86_64/).
 * [Telegram feed](https://t.me/arcanisrepo).
+
+Do you have any success story? You can [share it](https://github.com/arcan1s/ahriman/issues/new?template=04-discussion.md)!
