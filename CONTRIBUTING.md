@@ -134,7 +134,7 @@ Again, the most checks can be performed by `tox` command, though some additional
 * For any path interactions `pathlib.Path` must be used.
 * Configuration interactions must go through `ahriman.core.configuration.Configuration` class instance.
 * In case if class load requires some actions, it is recommended to create class method which can be used for class instantiating.
-* The code must follow the exception safety, unless it is explicitly asked by end user. It means that most exceptions must be handled and printed to log, no other actions must be done (e.g. raising another exception).
+* The most (expected) exceptions must be handled and printed to log, allowing service to continue work. However, fatal and (in some cases) unexpected exceptions may lead to the application termination.
 * Exceptions without parameters should be raised without parentheses, e.g.:
 
     ```python
