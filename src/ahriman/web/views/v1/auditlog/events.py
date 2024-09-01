@@ -64,8 +64,16 @@ class EventsView(BaseView):
         limit, offset = self.page()
         event = self.request.query.get("event") or None
         object_id = self.request.query.get("object_id") or None
+        try:
+            from_date = to_date = None
+            if (value := self.request.query.get("from_date")) is not None:
+                from_date = int(value)
+            if (value := self.request.query.get("to_date")) is not None:
+                to_date = int(value)
+        except ValueError as ex:
+            raise HTTPBadRequest(reason=str(ex))
 
-        events = self.service().event_get(event, object_id, limit, offset)
+        events = self.service().event_get(event, object_id, from_date, to_date, limit, offset)
         response = [event.view() for event in events]
 
         return json_response(response)

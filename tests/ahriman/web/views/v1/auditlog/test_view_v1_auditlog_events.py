@@ -51,7 +51,6 @@ async def test_get_with_pagination(client: TestClient) -> None:
     await client.post("/api/v1/events", json=event1.view())
     await client.post("/api/v1/events", json=event2.view())
     request_schema = pytest.helpers.schema_request(EventsView.get, location="querystring")
-    response_schema = pytest.helpers.schema_response(EventsView.get)
 
     payload = {"limit": 1, "offset": 1}
     assert not request_schema.validate(payload)
@@ -59,8 +58,25 @@ async def test_get_with_pagination(client: TestClient) -> None:
     assert response.status == 200
 
     json = await response.json()
-    assert not response_schema.validate(json, many=True)
+    assert [Event.from_json(event) for event in json] == [event1]
 
+
+async def test_get_with_filter(client: TestClient) -> None:
+    """
+    must get events with filter by creation date
+    """
+    event1 = Event("event1", "object1", "message", key="value", created=1)
+    event2 = Event("event2", "object2", created=2)
+    await client.post("/api/v1/events", json=event1.view())
+    await client.post("/api/v1/events", json=event2.view())
+    request_schema = pytest.helpers.schema_request(EventsView.get, location="querystring")
+
+    payload = {"from_date": 1, "to_date": 2}
+    assert not request_schema.validate(payload)
+    response = await client.get("/api/v1/events", params=payload)
+    assert response.status == 200
+
+    json = await response.json()
     assert [Event.from_json(event) for event in json] == [event1]
 
 
@@ -75,6 +91,14 @@ async def test_get_bad_request(client: TestClient) -> None:
     assert not response_schema.validate(await response.json())
 
     response = await client.get("/api/v1/events", params={"offset": "offset"})
+    assert response.status == 400
+    assert not response_schema.validate(await response.json())
+
+    response = await client.get("/api/v1/events", params={"from_date": "from_date"})
+    assert response.status == 400
+    assert not response_schema.validate(await response.json())
+
+    response = await client.get("/api/v1/events", params={"to_date": "to_date"})
     assert response.status == 400
     assert not response_schema.validate(await response.json())
 

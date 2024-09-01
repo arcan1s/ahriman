@@ -36,3 +36,11 @@ class EventSearchSchema(PaginationSchema):
         "description": "Event object identifier",
         "example": "ahriman",
     })
+    from_date = fields.Integer(metadata={
+        "description": "Minimal creation timestamp, inclusive",
+        "example": 1680537091,
+    })
+    to_date = fields.Integer(metadata={
+        "description": "Maximal creation timestamp, exclusive",
+        "example": 1680537091,
+    })
