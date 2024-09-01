@@ -59,6 +59,7 @@ class LocalClient(Client):
         self.database.event_insert(event, self.repository_id)
 
     def event_get(self, event: str | EventType | None, object_id: str | None,
+                  from_date: int | None = None, to_date: int | None = None,
                   limit: int = -1, offset: int = 0) -> list[Event]:
         """
         retrieve list of events
@@ -66,13 +67,15 @@ class LocalClient(Client):
         Args:
             event(str | EventType | None): filter by event type
             object_id(str | None): filter by event object
+            from_date(int | None, optional): minimal creation date, inclusive (Default value = None)
+            to_date(int | None, optional): maximal creation date, exclusive (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
             list[Event]: list of audit log events
         """
-        return self.database.event_get(event, object_id, limit, offset, self.repository_id)
+        return self.database.event_get(event, object_id, from_date, to_date, limit, offset, self.repository_id)
 
     def package_changes_get(self, package_base: str) -> Changes:
         """

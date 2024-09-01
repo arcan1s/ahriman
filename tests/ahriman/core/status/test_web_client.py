@@ -185,13 +185,35 @@ def test_event_get_filter(web_client: WebClient, mocker: MockerFixture) -> None:
 
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
 
-    web_client.event_get("event", "object", 1, 2)
+    web_client.event_get("event", "object", limit=1, offset=2)
     requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query() + [
                                               ("limit", "1"),
                                               ("offset", "2"),
                                               ("event", "event"),
                                               ("object_id", "object"),
+    ])
+
+
+def test_event_get_filter_from_to(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must get events with filter by creation date
+    """
+    response_obj = requests.Response()
+    response_obj._content = json.dumps(Event("", "").view()).encode("utf8")
+    response_obj.status_code = 200
+
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
+
+    web_client.event_get("event", "object", from_date=1, to_date=2)
+    requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [
+                                              ("limit", "-1"),
+                                              ("offset", "0"),
+                                              ("event", "event"),
+                                              ("object_id", "object"),
+                                              ("from_date", "1"),
+                                              ("to_date", "2"),
     ])
 
 

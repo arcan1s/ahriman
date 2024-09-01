@@ -29,8 +29,9 @@ def test_event_get(local_client: LocalClient, package_ahriman: Package, mocker: 
     must retrieve events
     """
     event_mock = mocker.patch("ahriman.core.database.SQLite.event_get")
-    local_client.event_get(EventType.PackageUpdated, package_ahriman.base, 1, 2)
-    event_mock.assert_called_once_with(EventType.PackageUpdated, package_ahriman.base, 1, 2, local_client.repository_id)
+    local_client.event_get(EventType.PackageUpdated, package_ahriman.base, from_date=10, to_date=20, limit=1, offset=2)
+    event_mock.assert_called_once_with(EventType.PackageUpdated, package_ahriman.base, 10, 20, 1, 2,
+                                       local_client.repository_id)
 
 
 def test_package_changes_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
