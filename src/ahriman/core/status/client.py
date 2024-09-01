@@ -93,6 +93,7 @@ class Client:
         raise NotImplementedError
 
     def event_get(self, event: str | EventType | None, object_id: str | None,
+                  from_date: int | None = None, to_date: int | None = None,
                   limit: int = -1, offset: int = 0) -> list[Event]:
         """
         retrieve list of events
@@ -100,6 +101,8 @@ class Client:
         Args:
             event(str | EventType | None): filter by event type
             object_id(str | None): filter by event object
+            from_date(int | None, optional): minimal creation date, inclusive (Default value = None)
+            to_date(int | None, optional): maximal creation date, exclusive (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 

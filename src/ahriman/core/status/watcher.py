@@ -71,7 +71,7 @@ class Watcher(LazyLogging):
 
     event_add: Callable[[Event], None]
 
-    event_get: Callable[[str | EventType | None, str | None, int, int], list[Event]]
+    event_get: Callable[[str | EventType | None, str | None, int | None, int | None, int, int], list[Event]]
 
     def load(self) -> None:
         """

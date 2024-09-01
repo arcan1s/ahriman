@@ -158,7 +158,7 @@ class BaseView(View, CorsViewMixin):
             value = extractor(key)
             if not value:
                 raise KeyError(key)
-        except Exception:
+        except (KeyError, ValueError):
             raise KeyError(f"Key {key} is missing or empty") from None
         return value
 
@@ -194,7 +194,7 @@ class BaseView(View, CorsViewMixin):
         try:
             limit = int(self.request.query.get("limit", default=-1))
             offset = int(self.request.query.get("offset", default=0))
-        except Exception as ex:
+        except ValueError as ex:
             raise HTTPBadRequest(reason=str(ex))
 
         # some checks
