@@ -20,7 +20,7 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     # web server
     pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features
-    pacman -Sy --noconfirm gnupg python-boto3 rsync
+    pacman -Sy --noconfirm gnupg python-boto3 python-matplotlib rsync
 fi
 # FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"

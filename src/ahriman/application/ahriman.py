@@ -28,6 +28,7 @@ from ahriman.application import handlers
 from ahriman.core.utils import enum_values, extract_user
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.event import EventType
 from ahriman.models.log_handler import LogHandler
 from ahriman.models.package_source import PackageSource
 from ahriman.models.sign_settings import SignSettings
@@ -119,6 +120,7 @@ def _parser() -> argparse.ArgumentParser:
     _set_repo_report_parser(subparsers)
     _set_repo_restore_parser(subparsers)
     _set_repo_sign_parser(subparsers)
+    _set_repo_statistics_parser(subparsers)
     _set_repo_status_update_parser(subparsers)
     _set_repo_sync_parser(subparsers)
     _set_repo_tree_parser(subparsers)
@@ -732,6 +734,30 @@ def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              formatter_class=_formatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
     parser.set_defaults(handler=handlers.Sign)
+    return parser
+
+
+def _set_repo_statistics_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for repository statistics subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("repo-statistics", help="repository statistics",
+                             description="fetch repository statistics", formatter_class=_formatter)
+    parser.add_argument("package", help="fetch only events for the specified package", nargs="?")
+    parser.add_argument("--chart", help="create updates chart and save it to the specified path", type=Path)
+    parser.add_argument("-e", "--event", help="event type filter",
+                        type=EventType, choices=enum_values(EventType), default=EventType.PackageUpdated)
+    parser.add_argument("--from-date", help="only fetch events which are newer than the date")
+    parser.add_argument("--limit", help="limit response by specified amount of events", type=int, default=-1)
+    parser.add_argument("--offset", help="skip specified amount of events", type=int, default=0)
+    parser.add_argument("--to-date", help="only fetch events which are older than the date")
+    parser.set_defaults(handler=handlers.Statistics, lock=None, quiet=True, report=False, unsafe=True)
     return parser
 
 

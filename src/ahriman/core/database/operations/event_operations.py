@@ -30,7 +30,7 @@ class EventOperations(Operations):
     """
 
     def event_get(self, event: str | EventType | None = None, object_id: str | None = None,
-                  from_date: int | None = None, to_date: int | None = None,
+                  from_date: int | float | None = None, to_date: int | float | None = None,
                   limit: int = -1, offset: int = 0, repository_id: RepositoryId | None = None) -> list[Event]:
         """
         get list of events with filters applied
@@ -38,8 +38,8 @@ class EventOperations(Operations):
         Args:
             event(str | EventType | None, optional): filter by event type (Default value = None)
             object_id(str | None, optional): filter by event object (Default value = None)
-            from_date(int | None, optional): minimal creation date, inclusive (Default value = None)
-            to_date(int | None, optional): maximal creation date, exclusive (Default value = None)
+            from_date(int | float | None, optional): minimal creation date, inclusive (Default value = None)
+            to_date(int | float | None, optional): maximal creation date, exclusive (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
