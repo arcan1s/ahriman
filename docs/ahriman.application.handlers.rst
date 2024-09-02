@@ -172,6 +172,14 @@ ahriman.application.handlers.sign module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.statistics module
+----------------------------------------------
+
+.. automodule:: ahriman.application.handlers.statistics
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.status module
 ------------------------------------------
 

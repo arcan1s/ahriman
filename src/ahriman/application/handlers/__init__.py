@@ -38,6 +38,7 @@ from ahriman.application.handlers.service_updates import ServiceUpdates
 from ahriman.application.handlers.setup import Setup
 from ahriman.application.handlers.shell import Shell
 from ahriman.application.handlers.sign import Sign
+from ahriman.application.handlers.statistics import Statistics
 from ahriman.application.handlers.status import Status
 from ahriman.application.handlers.status_update import StatusUpdate
 from ahriman.application.handlers.structure import Structure

@@ -9,6 +9,7 @@ from ahriman.application.handlers import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.event import EventType
 from ahriman.models.log_handler import LogHandler
 from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user_access import UserAccess
@@ -931,11 +932,73 @@ def test_subparsers_repo_sign_option_repository(parser: argparse.ArgumentParser)
     assert args.repository == "repo"
 
 
+def test_subparsers_repo_statistics(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must imply lock, quiet, report and unsafe
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics"])
+    assert args.architecture == "x86_64"
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == "repo"
+    assert args.unsafe
+
+
+def test_subparsers_repo_statistics_option_event(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must convert event option to EventType instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics"])
+    assert isinstance(args.event, EventType)
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics", "--event", "package-removed"])
+    assert isinstance(args.event, EventType)
+
+
+def test_subparsers_repo_statistics_option_package(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must parse optional package argument
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics"])
+    assert args.package is None
+
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics", "package"])
+    assert args.package == "package"
+
+
+def test_subparsers_repo_statistics_option_chart(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must convert chart option to Path instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics", "--chart", "path"])
+    assert isinstance(args.chart, Path)
+
+
+def test_subparsers_repo_statistics_option_limit(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must convert chart option to Path instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics"])
+    assert isinstance(args.limit, int)
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics", "--limit", "42"])
+    assert isinstance(args.limit, int)
+
+
+def test_subparsers_repo_statistics_option_offset(parser: argparse.ArgumentParser) -> None:
+    """
+    repo-statistics command must convert chart option to Path instance
+    """
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics"])
+    assert isinstance(args.offset, int)
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-statistics", "--offset", "42"])
+    assert isinstance(args.offset, int)
+
+
 def test_subparsers_repo_status_update(parser: argparse.ArgumentParser) -> None:
     """
-    re[p-status-update command must imply action, lock, quiet, report, package and unsafe
+    repo-status-update command must imply action, lock, quiet, report, package and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-status-update"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "repo-status-update"])
     assert args.architecture == "x86_64"
     assert args.action == Action.Update
     assert args.lock is None

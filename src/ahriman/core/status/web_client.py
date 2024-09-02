@@ -178,7 +178,7 @@ class WebClient(Client, SyncAhrimanClient):
             self.make_request("POST", self._events_url(), params=self.repository_id.query(), json=event.view())
 
     def event_get(self, event: str | EventType | None, object_id: str | None,
-                  from_date: int | None = None, to_date: int | None = None,
+                  from_date: int | float | None = None, to_date: int | float | None = None,
                   limit: int = -1, offset: int = 0) -> list[Event]:
         """
         retrieve list of events
@@ -186,8 +186,8 @@ class WebClient(Client, SyncAhrimanClient):
         Args:
             event(str | EventType | None): filter by event type
             object_id(str | None): filter by event object
-            from_date(int | None, optional): minimal creation date, inclusive (Default value = None)
-            to_date(int | None, optional): maximal creation date, exclusive (Default value = None)
+            from_date(int | float | None, optional): minimal creation date, inclusive (Default value = None)
+            to_date(int | float | None, optional): maximal creation date, exclusive (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 
