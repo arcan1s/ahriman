@@ -2,9 +2,23 @@ import pytest
 
 from pathlib import Path
 
-from ahriman.core.formatters import AurPrinter, ChangesPrinter, ConfigurationPathsPrinter, ConfigurationPrinter, \
-    PackagePrinter, PatchPrinter, RepositoryPrinter, StatusPrinter, StringPrinter, TreePrinter, UpdatePrinter, \
-    UserPrinter, ValidationPrinter, VersionPrinter
+from ahriman.core.formatters import \
+    AurPrinter, \
+    ChangesPrinter, \
+    ConfigurationPathsPrinter, \
+    ConfigurationPrinter, \
+    EventStatsPrinter, \
+    PackagePrinter, \
+    PackageStatsPrinter, \
+    PatchPrinter, \
+    RepositoryPrinter, \
+    StatusPrinter, \
+    StringPrinter, \
+    TreePrinter, \
+    UpdatePrinter, \
+    UserPrinter, \
+    ValidationPrinter, \
+    VersionPrinter
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.changes import Changes
@@ -62,6 +76,17 @@ def configuration_printer() -> ConfigurationPrinter:
 
 
 @pytest.fixture
+def event_stats_printer() -> EventStatsPrinter:
+    """
+    fixture for event stats printer
+
+    Returns:
+        EventStatsPrinter: event stats printer test instance
+    """
+    return EventStatsPrinter("event", [5, 2, 7, 9, 8, 0, 4, 1, 6, 3])
+
+
+@pytest.fixture
 def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
     """
     fixture for package printer
@@ -73,6 +98,21 @@ def package_ahriman_printer(package_ahriman: Package) -> PackagePrinter:
         PackagePrinter: package printer test instance
     """
     return PackagePrinter(package_ahriman, BuildStatus())
+
+
+@pytest.fixture
+def package_stats_printer(package_ahriman: Package, package_python_schedule: Package) -> PackageStatsPrinter:
+    """
+    fixture for package stats printer
+
+    Args:
+        package_ahriman(Package): package fixture
+        package_python_schedule(Package): schedule package fixture
+
+    Returns:
+        PackageStatsPrinter: package stats printer test instance
+    """
+    return PackageStatsPrinter({package_ahriman.base: 4, package_python_schedule.base: 5})
 
 
 @pytest.fixture

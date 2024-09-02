@@ -44,10 +44,26 @@ ahriman.core.formatters.configuration\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.event\_stats\_printer module
+----------------------------------------------------
+
+.. automodule:: ahriman.core.formatters.event_stats_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.package\_printer module
 -----------------------------------------------
 
 .. automodule:: ahriman.core.formatters.package_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.core.formatters.package\_stats\_printer module
+------------------------------------------------------
+
+.. automodule:: ahriman.core.formatters.package_stats_printer
    :members:
    :no-undoc-members:
    :show-inheritance:
