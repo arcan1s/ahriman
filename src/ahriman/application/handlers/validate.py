@@ -25,7 +25,6 @@ from typing import Any
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA, ConfigurationSchema
-from ahriman.core.configuration.validator import Validator
 from ahriman.core.exceptions import ExtensionError
 from ahriman.core.formatters import ValidationPrinter
 from ahriman.core.triggers import TriggerLoader
@@ -51,6 +50,8 @@ class Validate(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
+        from ahriman.core.configuration.validator import Validator
+
         schema = Validate.schema(repository_id, configuration)
         validator = Validator(configuration=configuration, schema=schema)
 

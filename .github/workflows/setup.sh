@@ -10,7 +10,7 @@ echo -e '[arcanisrepo]\nServer = https://repo.arcanis.me/$arch\nSigLevel = Never
 # refresh the image
 pacman -Syu --noconfirm
 # main dependencies
-pacman -Sy --noconfirm devtools git pyalpm python-cerberus python-inflection python-passlib python-pyelftools python-requests python-srcinfo python-systemd sudo
+pacman -Sy --noconfirm devtools git pyalpm python-inflection python-passlib python-pyelftools python-requests python-srcinfo python-systemd sudo
 # make dependencies
 pacman -Sy --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
 # optional dependencies
@@ -20,7 +20,7 @@ if [[ -z $MINIMAL_INSTALL ]]; then
     # web server
     pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features
-    pacman -Sy --noconfirm gnupg python-boto3 python-matplotlib rsync
+    pacman -Sy --noconfirm gnupg python-boto3 python-cerberus python-matplotlib rsync
 fi
 # FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
@@ -42,12 +42,12 @@ pacman -Qdtq | pacman -Rscn --noconfirm -
 # initial setup command as root
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
-# validate configuration
-ahriman service-config-validate --exit-code
 # enable services
 systemctl enable ahriman-web
 systemctl enable ahriman@x86_64-github.timer
 if [[ -z $MINIMAL_INSTALL ]]; then
+    # validate configuration
+    ahriman service-config-validate --exit-code
     # run web service (detached)
     sudo -u ahriman -- ahriman web &
     WEB_PID=$!
