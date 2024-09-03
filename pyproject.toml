@@ -17,7 +17,6 @@ authors = [
 ]
 
 dependencies = [
-    "cerberus",
     "inflection",
     "passlib",
     "pyelftools",
@@ -73,6 +72,9 @@ tests = [
     "pytest-mock",
     "pytest-resource-path",
     "pytest-spec",
+]
+validator = [
+    "cerberus",
 ]
 web = [
     "Jinja2",

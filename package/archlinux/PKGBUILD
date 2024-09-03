@@ -7,7 +7,7 @@ pkgdesc="ArcH linux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-cerberus' 'python-inflection' 'python-passlib' 'python-pyelftools' 'python-requests' 'python-srcinfo')
+depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-inflection' 'python-passlib' 'python-pyelftools' 'python-requests' 'python-srcinfo')
 makedepends=('python-build' 'python-flit' 'python-installer' 'python-wheel')
 optdepends=('breezy: -bzr packages support'
             'darcs: -darcs packages support'
@@ -20,6 +20,7 @@ optdepends=('breezy: -bzr packages support'
             'python-aiohttp-security: web server with authorization'
             'python-aiohttp-session: web server with authorization'
             'python-boto3: sync to s3'
+            'python-cerberus: configuration validator'
             'python-cryptography: web server with authorization'
             'python-matplotlib: usage statistics chart'
             'python-requests-unixsocket2: client report to web server by unix socket'

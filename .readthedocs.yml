@@ -12,6 +12,7 @@ python:
       extra_requirements:
         - docs
         - s3
+        - validator
         - web
 
 formats:
