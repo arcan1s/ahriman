@@ -7,8 +7,15 @@ def test_id() -> None:
     """
     must correctly generate id
     """
-    assert RepositoryId("", "").id == ""
     assert RepositoryId("arch", "repo").id == "arch-repo"
+
+
+def test_id_empty() -> None:
+    """
+    must raise exception on empty identifier
+    """
+    with pytest.raises(ValueError):
+        assert RepositoryId("", "").id
 
 
 def test_is_empty() -> None:

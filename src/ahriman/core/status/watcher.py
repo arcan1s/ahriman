@@ -140,7 +140,6 @@ class Watcher(LazyLogging):
         with self._lock:
             self._known.pop(package_base, None)
         self.client.package_remove(package_base)
-        self.package_logs_remove(package_base, None)
 
     def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """

@@ -41,9 +41,12 @@ class RepositoryId:
 
         Returns:
             str: unique id for this repository
+
+        Raises:
+            ValueError: if repository identifier is empty
         """
         if self.is_empty:
-            return ""
+            raise ValueError("Repository ID is called on empty repository identifier")
         return f"{self.architecture}-{self.name}"  # basically the same as used for command line
 
     @property

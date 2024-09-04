@@ -201,7 +201,7 @@ def test_service_not_found(base: BaseView) -> None:
     must raise HTTPNotFound if no repository found
     """
     with pytest.raises(HTTPNotFound):
-        base.service(RepositoryId("", ""))
+        base.service(RepositoryId("repo", "arch"))
 
 
 def test_service_package(base: BaseView, repository_id: RepositoryId, mocker: MockerFixture) -> None:

@@ -101,13 +101,11 @@ def test_package_remove(watcher: Watcher, package_ahriman: Package, mocker: Mock
     must remove package base
     """
     cache_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
-    logs_mock = mocker.patch("ahriman.core.status.watcher.Watcher.package_logs_remove", create=True)
     watcher._known = {package_ahriman.base: (package_ahriman, BuildStatus())}
 
     watcher.package_remove(package_ahriman.base)
     assert not watcher._known
     cache_mock.assert_called_once_with(package_ahriman.base)
-    logs_mock.assert_called_once_with(package_ahriman.base, None)
 
 
 def test_package_remove_unknown(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:

@@ -14,6 +14,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import DuplicateRunError, UnsafeRunError
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.repository_id import RepositoryId
 
 
 def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
@@ -29,6 +30,8 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
 
     args.lock = Path("ahriman.pid")
     assert Lock(args, repository_id, configuration).path == Path("/run/ahriman/ahriman_x86_64-aur-clone.pid")
+
+    assert Lock(args, RepositoryId("", ""), configuration).path == Path("/run/ahriman/ahriman.pid")
 
     with pytest.raises(ValueError):
         args.lock = Path("/")

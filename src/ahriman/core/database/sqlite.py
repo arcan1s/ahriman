@@ -27,6 +27,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.database.migrations import Migrations
 from ahriman.core.database.operations import AuthOperations, BuildOperations, ChangesOperations, \
     DependenciesOperations, LogsOperations, PackageOperations, PatchOperations
+from ahriman.models.repository_id import RepositoryId
 
 
 # pylint: disable=too-many-ancestors
@@ -102,23 +103,26 @@ class SQLite(
             self.with_connection(lambda connection: Migrations.migrate(connection, configuration))
         paths.chown(self.path)
 
-    def package_clear(self, package_base: str) -> None:
+    def package_clear(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """
         completely remove package from all tables
 
         Args:
             package_base(str): package base to remove
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Examples:
             This method completely removes the package from all tables and must be used, e.g. on package removal::
 
             >>> database.package_clear("ahriman")
         """
-        self.build_queue_clear(package_base)
-        self.patches_remove(package_base, [])
-        self.logs_remove(package_base, None)
-        self.changes_remove(package_base)
-        self.dependencies_remove(package_base)
+        self.build_queue_clear(package_base, repository_id)
+        self.patches_remove(package_base, None)
+        self.logs_remove(package_base, None, repository_id)
+        self.changes_remove(package_base, repository_id)
+        self.dependencies_remove(package_base, repository_id)
+
+        self.package_remove(package_base, repository_id)
 
         # remove local cache too
         self._repository_paths.tree_clear(package_base)
