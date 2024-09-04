@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.models.repository_id import RepositoryId
 
 
 def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
@@ -35,7 +36,7 @@ def test_init_skip_migration(database: SQLite, configuration: Configuration, moc
     migrate_schema_mock.assert_not_called()
 
 
-def test_package_clear(database: SQLite, mocker: MockerFixture) -> None:
+def test_package_clear(database: SQLite, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must clear package data
     """
@@ -44,12 +45,14 @@ def test_package_clear(database: SQLite, mocker: MockerFixture) -> None:
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_remove")
     changes_mock = mocker.patch("ahriman.core.database.SQLite.changes_remove")
     dependencies_mock = mocker.patch("ahriman.core.database.SQLite.dependencies_remove")
+    package_mock = mocker.patch("ahriman.core.database.SQLite.package_remove")
     tree_clear_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_clear")
 
-    database.package_clear("package")
-    build_queue_mock.assert_called_once_with("package")
-    patches_mock.assert_called_once_with("package", [])
-    logs_mock.assert_called_once_with("package", None)
-    changes_mock.assert_called_once_with("package")
-    dependencies_mock.assert_called_once_with("package")
+    database.package_clear("package", repository_id)
+    build_queue_mock.assert_called_once_with("package", repository_id)
+    patches_mock.assert_called_once_with("package", None)
+    logs_mock.assert_called_once_with("package", None, repository_id)
+    changes_mock.assert_called_once_with("package", repository_id)
+    dependencies_mock.assert_called_once_with("package", repository_id)
+    package_mock.assert_called_once_with("package", repository_id)
     tree_clear_mock.assert_called_once_with("package")

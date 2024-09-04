@@ -184,7 +184,7 @@ class LocalClient(Client):
         Args:
             package_base(str): package base to remove
         """
-        self.database.package_clear(package_base)
+        self.database.package_clear(package_base, self.repository_id)
 
     def package_status_update(self, package_base: str, status: BuildStatusEnum) -> None:
         """

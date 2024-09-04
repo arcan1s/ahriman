@@ -75,7 +75,9 @@ class Lock(LazyLogging):
         """
         self.path: Path | None = None
         if args.lock is not None:
-            self.path = args.lock.with_stem(f"{args.lock.stem}_{repository_id.id}")
+            self.path = args.lock
+            if not repository_id.is_empty:
+                self.path = self.path.with_stem(f"{args.lock.stem}_{repository_id.id}")
             if not self.path.is_absolute():
                 # prepend full path to the lock file
                 self.path = Path("/") / "run" / "ahriman" / self.path

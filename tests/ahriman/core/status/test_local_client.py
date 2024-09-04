@@ -158,7 +158,7 @@ def test_package_remove(local_client: LocalClient, package_ahriman: Package, moc
     """
     package_mock = mocker.patch("ahriman.core.database.SQLite.package_clear")
     local_client.package_remove(package_ahriman.base)
-    package_mock.assert_called_once_with(package_ahriman.base)
+    package_mock.assert_called_once_with(package_ahriman.base, local_client.repository_id)
 
 
 def test_package_status_update(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
