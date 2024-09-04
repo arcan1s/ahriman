@@ -37,7 +37,7 @@
         try {
             details = JSON.parse(error.text).error; // execution handler json error response
         } catch (_) {
-            details = error.text ?? error;
+            details = error.text ?? error.message ?? error;
         }
         createAlert(title, description(details), "text-bg-danger");
     }
