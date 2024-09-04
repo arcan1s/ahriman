@@ -58,7 +58,7 @@
                         <pre class="language-diff"><code id="package-info-changes-input" class="pre-scrollable language-diff"></code><button id="package-info-changes-copy-button" type="button" class="btn language-diff" onclick="copyChanges()"><i class="bi bi-clipboard"></i> copy</button></pre>
                     </div>
                     <div id="package-info-events" class="tab-pane fade" role="tabpanel" aria-labelledby="package-info-events-button" tabindex="0">
-                        <canvas id="package-info-events-update-chart"></canvas>
+                        <canvas id="package-info-events-update-chart" hidden></canvas>
                         <table id="package-info-events-table"
                                data-classes="table table-hover"
                                data-sortable="true"
@@ -77,8 +77,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal" hidden><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
-                <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal" hidden><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
+                {% if not auth.enabled or auth.username is not none %}
+                    <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
+                    <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
+                {% endif %}
                 <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span></button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i><span class="d-none d-sm-inline"> close</span></button>
             </div>
@@ -87,33 +89,35 @@
 </div>
 
 <script>
-    const packageInfoModal = $("#package-info-modal");
-    const packageInfoModalHeader = $("#package-info-modal-header");
-    const packageInfo = $("#package-info");
+    const packageInfoModal = document.getElementById("package-info-modal");
+    const packageInfoModalHeader = document.getElementById("package-info-modal-header");
+    const packageInfo = document.getElementById("package-info");
 
-    const packageInfoLogsInput = $("#package-info-logs-input");
-    const packageInfoLogsCopyButton = $("#package-info-logs-copy-button");
+    const packageInfoLogsInput = document.getElementById("package-info-logs-input");
+    const packageInfoLogsCopyButton = document.getElementById("package-info-logs-copy-button");
 
-    const packageInfoChangesInput = $("#package-info-changes-input");
-    const packageInfoChangesCopyButton = $("#package-info-changes-copy-button");
+    const packageInfoChangesInput = document.getElementById("package-info-changes-input");
+    const packageInfoChangesCopyButton = document.getElementById("package-info-changes-copy-button");
 
-    const packageInfoEventsTable = $("#package-info-events-table");
+    // so far bootstrap-table only operates with jquery elements
+    const packageInfoEventsTable = $(document.getElementById("package-info-events-table"));
     const packageInfoEventsUpdateChartCanvas = document.getElementById("package-info-events-update-chart");
     let packageInfoEventsUpdateChart = null;
 
-    const packageInfoAurUrl = $("#package-info-aur-url");
-    const packageInfoDepends = $("#package-info-depends");
-    const packageInfoGroups = $("#package-info-groups");
-    const packageInfoLicenses = $("#package-info-licenses");
-    const packageInfoPackager = $("#package-info-packager");
-    const packageInfoPackages = $("#package-info-packages");
-    const packageInfoUpstreamUrl = $("#package-info-upstream-url");
-    const packageInfoVersion = $("#package-info-version");
+    const packageInfoAurUrl = document.getElementById("package-info-aur-url");
+    const packageInfoDepends = document.getElementById("package-info-depends");
+    const packageInfoGroups = document.getElementById("package-info-groups");
+    const packageInfoLicenses = document.getElementById("package-info-licenses");
+    const packageInfoPackager = document.getElementById("package-info-packager");
+    const packageInfoPackages = document.getElementById("package-info-packages");
+    const packageInfoUpstreamUrl = document.getElementById("package-info-upstream-url");
+    const packageInfoVersion = document.getElementById("package-info-version");
 
-    const packageInfoVariablesBlock = $("#package-info-variables-block");
-    const packageInfoVariablesDiv = $("#package-info-variables-div");
+    const packageInfoVariablesBlock = document.getElementById("package-info-variables-block");
+    const packageInfoVariablesDiv = document.getElementById("package-info-variables-div");
 
     function clearChart() {
+        packageInfoEventsUpdateChartCanvas.hidden = true;
         if (packageInfoEventsUpdateChart) {
             packageInfoEventsUpdateChart.data = {};
             packageInfoEventsUpdateChart.update();
@@ -121,18 +125,13 @@
     }
 
     async function copyChanges() {
-        const changes = packageInfoChangesInput.text();
+        const changes = packageInfoChangesInput.textContent;
         await copyToClipboard(changes, packageInfoChangesCopyButton);
     }
 
     async function copyLogs() {
-        const logs = packageInfoLogsInput.text();
+        const logs = packageInfoLogsInput.textContent;
         await copyToClipboard(logs, packageInfoLogsCopyButton);
-    }
-
-    function hideInfoControls(hidden) {
-        packageInfoRemoveButton.attr("hidden", hidden);
-        packageInfoUpdateButton.attr("hidden", hidden);
     }
 
     function highlight(element) {
@@ -164,12 +163,13 @@
         variableButtonRemove.classList.add("btn-outline-danger");
         variableButtonRemove.innerHTML = "<i class=\"bi bi-trash\"></i>";
         variableButtonRemove.onclick = _ => {
-            $.ajax({
-                url: `/api/v1/packages/${packageBase}/patches/${variable.key}`,
-                type: "DELETE",
-                dataType: "json",
-                success: _ => variableInput.remove(),
-            });
+            makeRequest(
+                `/api/v1/packages/${packageBase}/patches/${variable.key}`,
+                {
+                    method: "DELETE",
+                },
+                _ => variableInput.remove(),
+            );
         };
 
         // bring them together
@@ -178,52 +178,57 @@
         variableInput.appendChild(variableValueInput);
         variableInput.appendChild(variableButtonRemove);
 
-        packageInfoVariablesDiv.append(variableInput);
+        packageInfoVariablesDiv.appendChild(variableInput);
     }
 
     function loadChanges(packageBase, onFailure) {
-        $.ajax({
-            url: `/api/v1/packages/${packageBase}/changes`,
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
+        makeRequest(
+            `/api/v1/packages/${packageBase}/changes`,
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                const changes = response.changes;
-                packageInfoChangesInput.text(changes || "");
-                packageInfoChangesInput.map((_, el) => highlight(el));
+            data => {
+                const changes = data.changes;
+                packageInfoChangesInput.textContent = changes ?? "";
+                highlight(packageInfoChangesInput);
             },
-            error: onFailure,
-        });
+            onFailure,
+        );
     }
 
     function loadEvents(packageBase, onFailure) {
         packageInfoEventsTable.bootstrapTable("showLoading");
         clearChart();
 
-        $.ajax({
-            url: `/api/v1/events`,
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
-                object_id: packageBase,
-                limit: 30,
+        makeRequest(
+            "/api/v1/events",
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                    object_id: packageBase,
+                    limit: 30,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                const events = response.map(event => {
+            data => {
+                const events = data.map(event => {
                     return {
                         timestamp: new Date(1000 * event.created).toISOStringShort(),
                         event: event.event,
                         message: event.message || "",
                     };
                 });
+                const chart = data.filter(event => event.event === "package-updated");
+
+                packageInfoEventsTable.bootstrapTable("load", events);
+                packageInfoEventsTable.bootstrapTable("hideLoading");
 
                 if (packageInfoEventsUpdateChart) {
-                    const chart = response.filter(event => event.event === "package-updated");
                     packageInfoEventsUpdateChart.config.data = {
                         labels: chart.map(event => new Date(1000 * event.created).toISOStringShort()),
                         datasets: [{
@@ -235,32 +240,31 @@
                     };
                     packageInfoEventsUpdateChart.update();
                 }
-
-                packageInfoEventsTable.bootstrapTable("load", events);
-                packageInfoEventsTable.bootstrapTable("hideLoading");
+                packageInfoEventsUpdateChartCanvas.hidden = !chart.length;
             },
-            error: onFailure,
-        });
+            onFailure,
+        );
     }
 
     function loadLogs(packageBase, onFailure) {
-        $.ajax({
-            url: `/api/v2/packages/${packageBase}/logs`,
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
+        makeRequest(
+            `/api/v2/packages/${packageBase}/logs`,
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                const logs = response.map(log_record => {
+            data => {
+                const logs = data.map(log_record => {
                     return `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`;
                 });
-                packageInfoLogsInput.text(logs.join("\n"));
-                packageInfoLogsInput.map((_, el) => highlight(el));
+                packageInfoLogsInput.textContent = logs.join("\n");
+                highlight(packageInfoLogsInput);
             },
-            error: onFailure,
-        });
+            onFailure,
+        );
     }
 
     function loadPackage(packageBase, onFailure) {
@@ -272,16 +276,17 @@
             return ["bg-secondary", "text-white"];
         };
 
-        $.ajax({
-            url: `/api/v1/packages/${packageBase}`,
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
+        makeRequest(
+            `/api/v1/packages/${packageBase}`,
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                const description = response.find(Boolean);
+            data => {
+                const description = data.find(Boolean);
                 const packages = Object.keys(description.package.packages);
                 const aurUrl = description.package.remote.web_url;
                 const upstreamUrls = Array.from(
@@ -291,72 +296,71 @@
                     )
                 ).sort();
 
-                packageInfo.text(`${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`);
+                packageInfo.textContent = `${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`;
 
-                packageInfoModalHeader.removeClass();
-                packageInfoModalHeader.addClass("modal-header");
-                headerClass(description.status.status).forEach(clz => packageInfoModalHeader.addClass(clz));
+                packageInfoModalHeader.classList.remove(...packageInfoModalHeader.classList);
+                packageInfoModalHeader.classList.add("modal-header");
+                headerClass(description.status.status).forEach(clz => packageInfoModalHeader.classList.add(clz));
 
-                packageInfoAurUrl.html(aurUrl ? safeLink(aurUrl, aurUrl, "AUR link").outerHTML : "");
-                packageInfoDepends.html(listToTable(
+                packageInfoAurUrl.innerHTML = aurUrl ? safeLink(aurUrl, aurUrl, "AUR link").outerHTML : "";
+                packageInfoDepends.innerHTML = listToTable(
                     Object.values(description.package.packages)
                         .reduce((accumulator, currentValue) => {
                             return accumulator.concat(currentValue.depends.filter(v => packages.indexOf(v) === -1))
                                 .concat(currentValue.make_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (make)`))
                                 .concat(currentValue.opt_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (optional)`));
                         }, [])
-                ));
-                packageInfoGroups.html(listToTable(extractListProperties(description.package, "groups")));
-                packageInfoLicenses.html(listToTable(extractListProperties(description.package, "licenses")));
-                packageInfoPackager.text(description.package.packager);
-                packageInfoPackages.html(listToTable(packages));
-                packageInfoUpstreamUrl.html(upstreamUrls.map(url => safeLink(url, url, "upstream link").outerHTML).join("<br>"));
-                packageInfoVersion.text(description.package.version);
-
-                hideInfoControls(false);
+                );
+                packageInfoGroups.innerHTML = listToTable(extractListProperties(description.package, "groups"));
+                packageInfoLicenses.innerHTML = listToTable(extractListProperties(description.package, "licenses"));
+                packageInfoPackager.textContent = description.package.packager;
+                packageInfoPackages.innerHTML = listToTable(packages);
+                packageInfoUpstreamUrl.innerHTML = upstreamUrls.map(url => safeLink(url, url, "upstream link").outerHTML).join("<br>");
+                packageInfoVersion.textContent = description.package.version;
             },
-            error: (jqXHR, _, errorThrown) => {
-                hideInfoControls(true);
-                onFailure(jqXHR, null, errorThrown);
-            },
-        });
+            onFailure,
+        );
     }
 
     function loadPatches(packageBase, onFailure) {
-        $.ajax({
-            url: `/api/v1/packages/${packageBase}/patches`,
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                packageInfoVariablesDiv.empty();
-                response.map(patch => insertVariable(packageBase, patch));
-                packageInfoVariablesBlock.attr("hidden", response.length === 0);
+        makeRequest(
+            `/api/v1/packages/${packageBase}/patches`,
+            {
+                convert: response => response.json(),
             },
-            error: onFailure,
-        });
+            data => {
+                packageInfoVariablesDiv.replaceChildren();
+                data.map(patch => insertVariable(packageBase, patch));
+                packageInfoVariablesBlock.hidden = !data.length;
+            },
+            onFailure,
+        );
     }
 
     function packageInfoRemove() {
-        const packageBase = packageInfoModal.data("package");
-        if (packageBase) return packagesRemove([packageBase]);
+        const packageBase = packageInfoModal.package;
+        packagesRemove([packageBase]);
     }
 
     function packageInfoUpdate() {
-        const packageBase = packageInfoModal.data("package");
-        if (packageBase) return packagesAdd(packageBase, [], repository);
+        const packageBase = packageInfoModal.package;
+        packagesAdd(packageBase, [], repository);
     }
 
     function showPackageInfo(packageBase) {
         const isPackageBaseSet = packageBase !== undefined;
-        if (isPackageBaseSet)
-            packageInfoModal.data("package", packageBase); // set package base as currently used
-        else
-            packageBase = packageInfoModal.data("package"); // read package base from the current window attribute
+        if (isPackageBaseSet) {
+            // set package base as currently used
+            packageInfoModal.package = packageBase;
+        } else {
+            // read package base from the current window attribute
+            packageBase = packageInfoModal.package;
+        }
 
-        const onFailure = (jqXHR, _, errorThrown) => {
+        const onFailure = error => {
             if (isPackageBaseSet) {
-                const message = error => `Could not load package ${packageBase} info: ${error}`;
-                showFailure("Load failure", message, jqXHR, errorThrown);
+                const message = details => `Could not load package ${packageBase} info: ${details}`;
+                showFailure("Load failure", message, error);
             }
         };
 
@@ -366,10 +370,12 @@
         loadChanges(packageBase, onFailure);
         loadEvents(packageBase, onFailure);
 
-        if (isPackageBaseSet) packageInfoModal.modal("show");
+        if (isPackageBaseSet) {
+            bootstrap.Modal.getOrCreateInstance(packageInfoModal).show();
+        }
     }
 
-    $(_ => {
+    ready(_ => {
         packageInfoEventsUpdateChart = new Chart(packageInfoEventsUpdateChartCanvas, {
             type: "line",
             data: {},
@@ -378,27 +384,23 @@
             },
         });
 
-        packageInfoModal.on("hidden.bs.modal", _ => {
-            packageInfoAurUrl.empty();
-            packageInfoDepends.empty();
-            packageInfoGroups.empty();
-            packageInfoLicenses.empty();
-            packageInfoPackager.empty();
-            packageInfoPackages.empty();
-            packageInfoUpstreamUrl.empty();
-            packageInfoVersion.empty();
+        packageInfoModal.addEventListener("hidden.bs.modal", _ => {
+            packageInfoAurUrl.textContent = "";
+            packageInfoDepends.textContent = "";
+            packageInfoGroups.textContent = "";
+            packageInfoLicenses.textContent = "";
+            packageInfoPackager.textContent = "";
+            packageInfoPackages.textContent = "";
+            packageInfoUpstreamUrl.textContent = "";
+            packageInfoVersion.textContent = "";
 
-            packageInfoVariablesBlock.attr("hidden", true);
-            packageInfoVariablesDiv.empty();
+            packageInfoVariablesBlock.hidden = true;
+            packageInfoVariablesDiv.replaceChildren();
 
-            packageInfoLogsInput.empty();
-            packageInfoChangesInput.empty();
+            packageInfoLogsInput.textContent = "";
+            packageInfoChangesInput.textContent = "";
             packageInfoEventsTable.bootstrapTable("load", []);
             clearChart();
-
-            packageInfoModal.trigger("reset");
-
-            hideInfoControls(true);
         });
     });
 </script>

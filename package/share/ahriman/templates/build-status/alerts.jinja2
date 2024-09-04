@@ -1,12 +1,12 @@
 <script>
-    const alertPlaceholder = $("#alert-placeholder");
+    const alertPlaceholder = document.getElementById("alert-placeholder");
 
     function createAlert(title, message, clz, action, id) {
-        if (!id) id = $.md5(title + message); // MD5 id from the content
-        if (alertPlaceholder.find(`#${id}`).length > 0) return; // check if there are duplicates
+        id ??= md5(title + message); // MD5 id from the content
+        if (alertPlaceholder.querySelector(`#alert-${id}`)) return; // check if there are duplicates
 
         const wrapper = document.createElement("div");
-        wrapper.id = id;
+        wrapper.id = `alert-${id}`;
         wrapper.classList.add("toast", clz);
         wrapper.role = "alert";
         wrapper.ariaLive = "assertive";
@@ -23,7 +23,7 @@
         body.innerText = message;
         wrapper.appendChild(body);
 
-        alertPlaceholder.append(wrapper);
+        alertPlaceholder.appendChild(wrapper);
         const toast = new bootstrap.Toast(wrapper);
         wrapper.addEventListener("hidden.bs.toast", _ => {
             wrapper.remove();  // bootstrap doesn't remove elements
@@ -32,12 +32,12 @@
         toast.show();
     }
 
-    function showFailure(title, description, jqXHR, errorThrown) {
+    function showFailure(title, description, error) {
         let details;
         try {
-            details = $.parseJSON(jqXHR.responseText).error; // execution handler json error response
+            details = JSON.parse(error.text).error; // execution handler json error response
         } catch (_) {
-            details = errorThrown;
+            details = error.text ?? error;
         }
         createAlert(title, description(details), "text-bg-danger");
     }

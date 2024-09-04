@@ -1,39 +1,34 @@
 <script>
-    const keyImportButton = $("#key-import-button");
-    const packageAddButton = $("#package-add-button");
-    const packageRebuildButton = $("#package-rebuild-button");
-    const packageRemoveButton = $("#package-remove-button");
-    const packageUpdateButton = $("#package-update-button");
-
-    const packageInfoRemoveButton = $("#package-info-remove-button");
-    const packageInfoUpdateButton = $("#package-info-update-button");
+    const packageRemoveButton = document.getElementById("package-remove-button");
+    const packageUpdateButton = document.getElementById("package-update-button");
 
     let repository = null;
 
-    const table = $("#packages");
+    // so far bootstrap-table only operates with jquery elements
+    const table = $(document.getElementById("packages"));
 
-    const statusBadge = $("#badge-status");
-    const versionBadge = $("#badge-version");
+    const statusBadge = document.getElementById("badge-status");
+    const versionBadge = document.getElementById("badge-version");
 
     function doPackageAction(uri, packages, repository, successText, failureText, data) {
-        const queryParams = $.param({
-            architecture: repository.architecture,
-            repository: repository.repository,
-        }); // it will never be empty btw
-
-        $.ajax({
-            url: `${uri}?${queryParams}`,
-            data: JSON.stringify(Object.assign({}, {packages: packages}, data || {})),
-            type: "POST",
-            contentType: "application/json",
-            success: _ => {
+        makeRequest(
+            uri,
+            {
+                method: "POST",
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                json: Object.assign({}, {packages: packages}, data || {}),
+            },
+            _ => {
                 const message = successText(packages.join(", "));
                 showSuccess("Success", message);
             },
-            error: (jqXHR, _, errorThrown) => {
-                showFailure("Action failed", failureText, jqXHR, errorThrown);
+            error => {
+                showFailure("Action failed", failureText, error);
             },
-        });
+        );
     }
 
     function filterListGroups() {
@@ -49,23 +44,15 @@
     }
 
     function getRepositorySelector(selector) {
-        const selected = selector.find(":selected");
+        const selected = selector.options[selector.selectedIndex];
         return {
-            architecture: selected.data("architecture"),
-            repository: selected.data("repository"),
+            architecture: selected.getAttribute("data-architecture"),
+            repository: selected.getAttribute("data-repository"),
         };
     }
 
     function getSelection() {
         return table.bootstrapTable("getSelections").map(row => row.id);
-    }
-
-    function hideControls(hidden) {
-        keyImportButton.attr("hidden", hidden);
-        packageAddButton.attr("hidden", hidden);
-        packageRebuildButton.attr("hidden", hidden);
-        packageRemoveButton.attr("hidden", hidden);
-        packageUpdateButton.attr("hidden", hidden);
     }
 
     function packagesRemove(packages) {
@@ -97,16 +84,17 @@
             return "btn-outline-secondary";
         };
 
-        $.ajax({
-            url: "/api/v1/packages",
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
+        makeRequest(
+            "/api/v1/packages",
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                const payload = response.map(description => {
+            data => {
+                const payload = data.map(description => {
                     const package_base = description.package.base;
                     const web_url = description.package.remote.web_url;
                     return {
@@ -125,10 +113,9 @@
                 table.bootstrapTable("load", payload);
                 table.bootstrapTable("uncheckAll");
                 table.bootstrapTable("hideLoading");
-                hideControls(false);
             },
-            error: (jqXHR, _, errorThrown) => {
-                if ((jqXHR.status === 401) || (jqXHR.status === 403)) {
+            error => {
+                if ((error.status === 401) || (error.status === 403)) {
                     // authorization error
                     const text = "In order to see statuses you must login first.";
                     table.find("tr.unauthorized").remove();
@@ -136,39 +123,39 @@
                     table.bootstrapTable("hideLoading");
                 } else {
                     // other errors
-                    const message = error => `Could not load list of packages: ${error}`;
-                    showFailure("Load failure", message, jqXHR, errorThrown);
+                    const message = details => `Could not load list of packages: ${details}`;
+                    showFailure("Load failure", message, error);
                 }
-                hideControls(true);
             },
-        });
+        );
 
-        $.ajax({
-            url: "/api/v1/status",
-            data: {
-                architecture: repository.architecture,
-                repository: repository.repository,
+        makeRequest(
+            "/api/v1/status",
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
             },
-            type: "GET",
-            dataType: "json",
-            success: response => {
-                versionBadge.html(`<i class="bi bi-github"></i> ahriman ${safe(response.version)}`);
+            data => {
+                versionBadge.innerHTML = `<i class="bi bi-github"></i> ahriman ${safe(data.version)}`;
 
-                statusBadge
-                    .popover("dispose")
-                    .attr("data-bs-content", `${response.status.status} at ${new Date(1000 * response.status.timestamp).toISOStringShort()}`)
-                    .popover();
-                statusBadge.removeClass();
-                statusBadge.addClass("btn");
-                statusBadge.addClass(badgeClass(response.status.status));
+                statusBadge.classList.remove(...statusBadge.classList);
+                statusBadge.classList.add("btn");
+                statusBadge.classList.add(badgeClass(data.status.status));
+
+                const popover = bootstrap.Popover.getOrCreateInstance(statusBadge);
+                popover.dispose();
+                statusBadge.dataset.bsContent = `${data.status.status} at ${new Date(1000 * data.status.timestamp).toISOStringShort()}`;
+                bootstrap.Popover.getOrCreateInstance(statusBadge);
             },
-        });
+        );
     }
 
     function selectRepository() {
         const fragment = window.location.hash.replace("#", "") || "{{ repositories[0].id }}";
-        const element = $(`#${fragment}-link`);
-        element.click();
+        document.getElementById(`${fragment}-link`).click();
     }
 
     function statusFormat(value) {
@@ -182,20 +169,25 @@
         return {classes: cellClass(value)};
     }
 
-    $(_ => {
-        $("#repositories a").on("click", event => {
-            const element = event.target;
-            repository = {
-                architecture: element.dataset.architecture,
-                repository: element.dataset.repository,
+    ready(_ => {
+        document.querySelectorAll("#repositories a").forEach(element => {
+            element.onclick = _ => {
+                repository = {
+                    architecture: element.dataset.architecture,
+                    repository: element.dataset.repository,
+                };
+                if (packageUpdateButton) {
+                    packageUpdateButton.innerHTML = `<i class="bi bi-play"></i> update<span class="d-none d-sm-inline"> ${safe(repository.repository)} (${safe(repository.architecture)})</span>`;
+                }
+                bootstrap.Tab.getOrCreateInstance(document.getElementById(element.id)).show();
+                reload();
             };
-            packageUpdateButton.html(`<i class="bi bi-play"></i> update<span class="d-none d-sm-inline"> ${safe(repository.repository)} (${safe(repository.architecture)})</span>`);
-            $(`#${element.id}`).tab("show");
-            reload();
         });
 
         table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", _ => {
-            packageRemoveButton.prop("disabled", !table.bootstrapTable("getSelections").length);
+            if (packageRemoveButton) {
+                packageRemoveButton.disabled = !table.bootstrapTable("getSelections").length;
+            }
         });
         table.on("click-row.bs.table", (self, data, row, cell) => {
             if (0 === cell || "base" === cell) {
@@ -204,26 +196,38 @@
             } else showPackageInfo(data.id);
         });
         table.on("created-controls.bs.table", _ => {
-            const pickerInput = $(".bootstrap-table-filter-control-timestamp");
-            pickerInput.daterangepicker({
-                autoUpdateInput: false,
+            new easepick.create({
+                element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
+                css: [
+                    "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                ],
+                grid: 2,
+                calendars: 2,
+                autoApply: false,
                 locale: {
-                    cancelLabel: "Clear",
+                    cancel: "Clear",
                 },
-            });
-
-            pickerInput.on("apply.daterangepicker", (event, picker) => {
-                pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
-                table.bootstrapTable("triggerSearch");
-            });
-
-            pickerInput.on("cancel.daterangepicker", _ => {
-                pickerInput.val("");
-                table.bootstrapTable("triggerSearch");
+                RangePlugin: {
+                    tooltip: false,
+                },
+                plugins: [
+                    "RangePlugin",
+                ],
+                setup: picker => {
+                    picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
+                    // replace "Cancel" behaviour to "Clear"
+                    picker.onClickCancelButton = element => {
+                        if (picker.isCancelButton(element)) {
+                            picker.clear();
+                            picker.hide();
+                            table.bootstrapTable("triggerSearch");
+                        }
+                    };
+                },
             });
         });
 
-        statusBadge.popover();
+        bootstrap.Popover.getOrCreateInstance(statusBadge);
         selectRepository();
     });
 </script>

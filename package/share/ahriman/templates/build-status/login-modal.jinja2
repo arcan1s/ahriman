@@ -34,53 +34,57 @@
 </div>
 
 <script>
-    const loginModal = $("#login-modal");
-    const loginForm = $("#login-form");
+    const loginModal = document.getElementById("login-modal");
+    const loginForm = document.getElementById("login-form");
 
-    const loginPasswordInput = $("#login-password");
-    const loginUsernameInput = $("#login-username");
-    const showHidePasswordButton = $("#login-show-hide-password-button");
+    const loginPasswordInput = document.getElementById("login-password");
+    const loginUsernameInput = document.getElementById("login-username");
+    const showHidePasswordButton = document.getElementById("login-show-hide-password-button");
 
     function login() {
-        const password = loginPasswordInput.val();
-        const username = loginUsernameInput.val();
+        const password = loginPasswordInput.value;
+        const username = loginUsernameInput.value;
 
         if (username && password) {
-            $.ajax({
-                url: "/api/v1/login",
-                data: JSON.stringify({username: username, password: password}),
-                type: "POST",
-                contentType: "application/json",
-                success: _ => {
-                    loginModal.modal("hide");
+            makeRequest(
+                "/api/v1/login",
+                {
+                    method: "POST",
+                    json: {
+                        username: username,
+                        password: password,
+                    },
+                },
+                _ => {
+                    bootstrap.Modal.getOrCreateInstance(loginModal).hide();
                     showSuccess("Logged in", `Successfully logged in as ${username}`, _ => location.href = "/");
                 },
-                error: (jqXHR, _, errorThrown) => {
+                error => {
                     const message = _ =>
                         username === "admin" && password === "admin"
                             ? "You've entered a password for user \"root\", did you make a typo in username?"
                             : `Could not login as ${username}`;
-                    showFailure("Login error", message, jqXHR, errorThrown);
+                    showFailure("Login error", message, error);
                 },
-            });
+            );
         }
     }
 
     function showPassword() {
-        if (loginPasswordInput.attr("type") === "password") {
-            loginPasswordInput.attr("type", "text");
-            showHidePasswordButton.removeClass("bi-eye");
-            showHidePasswordButton.addClass("bi-eye-slash");
+        if (loginPasswordInput.getAttribute("type") === "password") {
+            loginPasswordInput.setAttribute("type", "text");
+            showHidePasswordButton.classList.remove("bi-eye");
+            showHidePasswordButton.classList.add("bi-eye-slash");
         } else {
-            loginPasswordInput.attr("type", "password");
-            showHidePasswordButton.removeClass("bi-eye-slash");
-            showHidePasswordButton.addClass("bi-eye");
+            loginPasswordInput.setAttribute("type", "password");
+            showHidePasswordButton.classList.remove("bi-eye-slash");
+            showHidePasswordButton.classList.add("bi-eye");
         }
     }
 
-    $(_ => {
-        loginModal.on("hidden.bs.modal", _ => {
-            loginForm.trigger("reset");
+    ready(_ => {
+        loginModal.addEventListener("hidden.bs.modal", _ => {
+            loginForm.reset();
         });
     });
 </script>
