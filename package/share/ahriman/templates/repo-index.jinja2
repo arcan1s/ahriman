@@ -105,13 +105,13 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
         </div>
 
         <script>
-            const table = $("#packages");
+            const table = $(document.getElementById("packages"));
 
-            const pacmanConf = $("#pacman-conf");
-            const pacmanConfCopyButton = $("#copy-btn");
+            const pacmanConf = document.getElementById("pacman-conf");
+            const pacmanConfCopyButton = document.getElementById("copy-btn");
 
             async function copyPacmanConf() {
-                const conf = pacmanConf.text();
+                const conf = pacmanConf.textContent;
                 await copyToClipboard(conf, pacmanConfCopyButton);
             }
 
@@ -127,24 +127,36 @@ SigLevel = Database{% if has_repo_signed %}Required{% else %}Never{% endif %} Pa
                 return extractDataList(table.bootstrapTable("getData"), "licenses");
             }
 
-            $(_ => {
+            ready(_ => {
                 table.on("created-controls.bs.table", _ => {
-                    const pickerInput = $(".bootstrap-table-filter-control-timestamp");
-                    pickerInput.daterangepicker({
-                        autoUpdateInput: false,
+                    new easepick.create({
+                        element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
+                        css: [
+                            "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                        ],
+                        grid: 2,
+                        calendars: 2,
+                        autoApply: false,
                         locale: {
-                            cancelLabel: "Clear",
+                            cancel: "Clear",
                         },
-                    });
-
-                    pickerInput.on("apply.daterangepicker", (event, picker) => {
-                        pickerInput.val(`${picker.startDate.format("YYYY-MM-DD")} - ${picker.endDate.format("YYYY-MM-DD")}`);
-                        table.bootstrapTable("triggerSearch");
-                    });
-
-                    pickerInput.on("cancel.daterangepicker", _ => {
-                        pickerInput.val("");
-                        table.bootstrapTable("triggerSearch");
+                        RangePlugin: {
+                            tooltip: false,
+                        },
+                        plugins: [
+                            "RangePlugin",
+                        ],
+                        setup: picker => {
+                            picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
+                            // replace "Cancel" behaviour to "Clear"
+                            picker.onClickCancelButton = element => {
+                                if (picker.isCancelButton(element)) {
+                                    picker.clear();
+                                    picker.hide();
+                                    table.bootstrapTable("triggerSearch");
+                                }
+                            };
+                        },
                     });
                 });
             });

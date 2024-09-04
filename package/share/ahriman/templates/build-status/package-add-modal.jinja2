@@ -41,14 +41,14 @@
 </div>
 
 <script>
-    const packageAddModal = $("#package-add-modal");
-    const packageAddForm = $("#package-add-form");
+    const packageAddModal = document.getElementById("package-add-modal");
+    const packageAddForm = document.getElementById("package-add-form");
 
-    const packageAddInput = $("#package-add-input");
-    const packageAddRepositoryInput = $("#package-add-repository-input");
-    const packageAddKnownPackagesList = $("#package-add-known-packages-dlist");
+    const packageAddInput = document.getElementById("package-add-input");
+    const packageAddRepositoryInput = document.getElementById("package-add-repository-input");
+    const packageAddKnownPackagesList = document.getElementById("package-add-known-packages-dlist");
 
-    const packageAddVariablesDiv = $("#package-add-variables-div");
+    const packageAddVariablesDiv = document.getElementById("package-add-variables-div");
 
     function packageAddVariableInputCreate() {
         const variableInput = document.createElement("div");
@@ -78,7 +78,7 @@
         variableButtonRemove.classList.add("btn");
         variableButtonRemove.classList.add("btn-outline-danger");
         variableButtonRemove.innerHTML = "<i class=\"bi bi-trash\"></i>";
-        variableButtonRemove.onclick = _ => { return variableInput.remove(); };
+        variableButtonRemove.onclick = _ => { variableInput.remove(); };
 
         // bring them together
         variableInput.appendChild(variableNameInput);
@@ -86,27 +86,26 @@
         variableInput.appendChild(variableValueInput);
         variableInput.appendChild(variableButtonRemove);
 
-        packageAddVariablesDiv.append(variableInput);
+        packageAddVariablesDiv.appendChild(variableInput);
     }
 
     function patchesParse() {
-        const patches = packageAddVariablesDiv.find(".package-add-variable").map((_, element) => {
-            const richElement = $(element);
+        const patches = Array.from(packageAddVariablesDiv.getElementsByClassName("package-add-variable")).map(element => {
             return {
-                key: richElement.find(".package-add-variable-name").val(),
-                value: richElement.find(".package-add-variable-value").val(),
+                key: element.querySelector(".package-add-variable-name").value,
+                value: element.querySelector(".package-add-variable-value").value,
             };
-        }).filter((_, patch) => patch.key).get();
+        }).filter(patch => patch.key);
         return {patches: patches};
     }
 
     function packagesAdd(packages, patches, repository) {
-        packages = packages ?? packageAddInput.val();
+        packages = packages ?? packageAddInput.value;
         patches = patches ?? patchesParse();
         repository = repository ?? getRepositorySelector(packageAddRepositoryInput);
 
         if (packages) {
-            packageAddModal.modal("hide");
+            bootstrap.Modal.getOrCreateInstance(packageAddModal).hide();
             const onSuccess = update => `Packages ${update} have been added`;
             const onFailure = error => `Package addition failed: ${error}`;
             doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure, patches);
@@ -114,50 +113,54 @@
     }
 
     function packagesRequest(packages, patches) {
-        packages = packages ?? packageAddInput.val();
+        packages = packages ?? packageAddInput.value;
         patches = patches ?? patchesParse();
         const repository = getRepositorySelector(packageAddRepositoryInput);
 
         if (packages) {
-            packageAddModal.modal("hide");
+            bootstrap.Modal.getOrCreateInstance(packageAddModal).hide();
             const onSuccess = update => `Packages ${update} have been requested`;
             const onFailure = error => `Package request failed: ${error}`;
             doPackageAction("/api/v1/service/request", [packages], repository, onSuccess, onFailure, patches);
         }
     }
 
-    $(_ => {
-        packageAddModal.on("shown.bs.modal", _ => {
-            $(`#package-add-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
+    ready(_ => {
+        packageAddModal.addEventListener("shown.bs.modal", _ => {
+            const option = packageAddRepositoryInput.querySelector(`option[value="${repository.architecture}-${repository.repository}"]`);
+            option.selected = "selected";
         });
-        packageAddModal.on("hidden.bs.modal", _ => {
-            packageAddVariablesDiv.empty();
-            packageAddForm.trigger("reset");
+        packageAddModal.addEventListener("hidden.bs.modal", _ => {
+            packageAddVariablesDiv.replaceChildren();
+            packageAddForm.reset();
         });
 
-        packageAddInput.keyup(_ => {
-            clearTimeout(packageAddInput.data("timeout"));
-            packageAddInput.data("timeout", setTimeout($.proxy(_ => {
-                const value = packageAddInput.val();
+        packageAddInput.addEventListener("keyup", _ => {
+            clearTimeout(packageAddInput.requestTimeout);
+            packageAddInput.requestTimeout = setTimeout(_ => {
+                const value = packageAddInput.value;
 
                 if (value.length >= 3) {
-                    $.ajax({
-                        url: "/api/v1/service/search",
-                        data: {"for": value},
-                        type: "GET",
-                        dataType: "json",
-                        success: response => {
-                            const options = response.map(pkg => {
+                    makeRequest(
+                        "/api/v1/service/search",
+                        {
+                            query: {
+                                for: value,
+                            },
+                            convert: response => response.json(),
+                        },
+                        data => {
+                            const options = data.map(pkg => {
                                 const option = document.createElement("option");
                                 option.value = pkg.package;
                                 option.innerText = `${pkg.package} (${pkg.description})`;
                                 return option;
                             });
-                            packageAddKnownPackagesList.empty().append(options);
+                            packageAddKnownPackagesList.replaceChildren(...options);
                         },
-                    });
+                    );
                 }
-            }, this), 500));
+            }, 500);
         });
     });
 </script>

@@ -44,28 +44,28 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <button id="package-add-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal" hidden>
+                            <button id="package-add-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-add-modal">
                                 <i class="bi bi-plus"></i> add
                             </button>
                         </li>
                         <li>
-                            <button id="package-update-button" class="btn dropdown-item" onclick="packagesUpdate()" hidden>
+                            <button id="package-update-button" class="btn dropdown-item" onclick="packagesUpdate()">
                                 <i class="bi bi-play"></i> update
                             </button>
                         </li>
                         <li>
-                            <button id="package-rebuild-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal" hidden>
+                            <button id="package-rebuild-button" class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#package-rebuild-modal">
                                 <i class="bi bi-arrow-clockwise"></i> rebuild
                             </button>
                         </li>
                         <li>
-                            <button id="package-remove-button" class="btn dropdown-item" onclick="packagesRemove()" disabled hidden>
+                            <button id="package-remove-button" class="btn dropdown-item" onclick="packagesRemove()" disabled>
                                 <i class="bi bi-trash"></i> remove
                             </button>
                         </li>
                     </ul>
 
-                    <button id="key-import-button" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal" hidden>
+                    <button id="key-import-button" type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#key-import-modal">
                         <i class="bi bi-key"></i><span class="d-none d-sm-inline"> import key</span>
                     </button>
                 {% endif %}
