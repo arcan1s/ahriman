@@ -36,61 +36,69 @@
 </div>
 
 <script>
-    const keyImportModal = $("#key-import-modal");
-    const keyImportForm = $("#key-import-form");
+    const keyImportModal = document.getElementById("key-import-modal");
+    const keyImportForm = document.getElementById("key-import-form");
 
-    const keyImportBodyInput = $("#key-import-body-input");
-    const keyImportCopyButton = $("#key-import-copy-button");
+    const keyImportBodyInput = document.getElementById("key-import-body-input");
+    const keyImportCopyButton = document.getElementById("key-import-copy-button");
 
-    const keyImportFingerprintInput = $("#key-import-fingerprint-input");
-    const keyImportServerInput = $("#key-import-server-input");
+    const keyImportFingerprintInput = document.getElementById("key-import-fingerprint-input");
+    const keyImportServerInput = document.getElementById("key-import-server-input");
 
     async function copyPgpKey() {
-        const logs = keyImportBodyInput.text();
-        await copyToClipboard(logs, keyImportCopyButton);
+        const key = keyImportBodyInput.textContent;
+        await copyToClipboard(key, keyImportCopyButton);
     }
 
     function fetchPgpKey() {
-        const key = keyImportFingerprintInput.val();
-        const server = keyImportServerInput.val();
+        const key = keyImportFingerprintInput.value;
+        const server = keyImportServerInput.value;
 
         if (key && server) {
-            $.ajax({
-                url: "/api/v1/service/pgp",
-                data: {"key": key, "server": server},
-                type: "GET",
-                dataType: "json",
-                success: response => { keyImportBodyInput.text(response.key); },
-            });
+            makeRequest(
+                "/api/v1/service/pgp",
+                {
+                    query: {
+                        key: key,
+                        server: server,
+                    },
+                    convert: response => response.json(),
+                },
+                data => { keyImportBodyInput.textContent = data.key; },
+            );
         }
     }
 
     function importPgpKey() {
-        const key = keyImportFingerprintInput.val();
-        const server = keyImportServerInput.val();
+        const key = keyImportFingerprintInput.value;
+        const server = keyImportServerInput.value;
 
         if (key && server) {
-            $.ajax({
-                url: "/api/v1/service/pgp",
-                data: JSON.stringify({key: key, server: server}),
-                type: "POST",
-                contentType: "application/json",
-                success: _ => {
-                    keyImportModal.modal("hide");
+            makeRequest(
+                "/api/v1/service/pgp",
+                {
+                    method: "POST",
+                    json: {
+                        key: key,
+                        server: server,
+                    },
+                },
+                _ => {
+                    bootstrap.Modal.getOrCreateInstance(keyImportModal).hide();
                     showSuccess("Success", `Key ${key} has been imported`);
                 },
-                error: (jqXHR, _, errorThrown) => {
+                error => {
                     const message = _ => `Could not import key ${key} from ${server}`;
-                    showFailure("Action failed", message, jqXHR, errorThrown);
+                    showFailure("Action failed", message, error);
                 },
-            });
+            );
         }
     }
 
-    $(_ => {
-        keyImportModal.on("hidden.bs.modal", _ => {
-            keyImportBodyInput.text("");
-            keyImportForm.trigger("reset");
+    ready(_ => {
+        keyImportModal.addEventListener("hidden.bs.modal", _ => {
+            keyImportBodyInput.textContent = "";
+            keyImportForm.reset();
         });
     });
 </script>

@@ -33,28 +33,31 @@
 </div>
 
 <script>
-    const packageRebuildModal = $("#package-rebuild-modal");
-    const packageRebuildForm = $("#package-rebuild-form");
+    const packageRebuildModal = document.getElementById("package-rebuild-modal");
+    const packageRebuildForm = document.getElementById("package-rebuild-form");
 
-    const packageRebuildDependencyInput = $("#package-rebuild-dependency-input");
-    const packageRebuildRepositoryInput = $("#package-rebuild-repository-input");
+    const packageRebuildDependencyInput = document.getElementById("package-rebuild-dependency-input");
+    const packageRebuildRepositoryInput = document.getElementById("package-rebuild-repository-input");
 
     function packagesRebuild() {
-        const packages = packageRebuildDependencyInput.val();
+        const packages = packageRebuildDependencyInput.value;
         const repository = getRepositorySelector(packageRebuildRepositoryInput);
         if (packages) {
-            packageRebuildModal.modal("hide");
+            bootstrap.Modal.getOrCreateInstance(packageRebuildModal).hide();
             const onSuccess = update => `Repository rebuild has been run for packages which depend on ${update}`;
             const onFailure = error => `Repository rebuild failed: ${error}`;
             doPackageAction("/api/v1/service/rebuild", [packages], repository, onSuccess, onFailure);
         }
     }
 
-    $(_ => {
-        packageRebuildModal.on("shown.bs.modal", _ => {
-            $(`#package-rebuild-repository-input option[value="${repository.architecture}-${repository.repository}"]`).prop("selected", true);
+    ready(_ => {
+        packageRebuildModal.addEventListener("shown.bs.modal", _ => {
+            const option = packageRebuildRepositoryInput.querySelector(`option[value="${repository.architecture}-${repository.repository}"]`);
+            option.selected = "selected";
 
         });
-        packageRebuildModal.on("hidden.bs.modal", _ => { packageRebuildForm.trigger("reset"); });
+        packageRebuildModal.addEventListener("hidden.bs.modal", _ => {
+            packageRebuildForm.reset();
+        });
     });
 </script>
