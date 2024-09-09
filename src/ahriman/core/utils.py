@@ -27,7 +27,7 @@ import re
 import selectors
 import subprocess
 
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Mapping
 from dataclasses import asdict
 from enum import Enum
 from pathlib import Path
@@ -407,7 +407,7 @@ def safe_filename(source: str) -> str:
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
 
 
-def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[str, Any], *,
+def srcinfo_property(key: str, srcinfo: Mapping[str, Any], package_srcinfo: Mapping[str, Any], *,
                      default: Any = None) -> Any:
     """
     extract property from SRCINFO. This method extracts property from package if this property is presented in
@@ -416,8 +416,8 @@ def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[st
 
     Args:
         key(str): key to extract
-        srcinfo(dict[str, Any]): root structure of SRCINFO
-        package_srcinfo(dict[str, Any]): package specific SRCINFO
+        srcinfo(Mapping[str, Any]): root structure of SRCINFO
+        package_srcinfo(Mapping[str, Any]): package specific SRCINFO
         default(Any, optional): the default value for the specified key (Default value = None)
 
     Returns:
@@ -426,7 +426,7 @@ def srcinfo_property(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[st
     return package_srcinfo.get(key) or srcinfo.get(key) or default
 
 
-def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: dict[str, Any], *,
+def srcinfo_property_list(key: str, srcinfo: Mapping[str, Any], package_srcinfo: Mapping[str, Any], *,
                           architecture: str | None = None) -> list[Any]:
     """
     extract list property from SRCINFO. Unlike :func:`srcinfo_property()` it supposes that default return value is
@@ -435,8 +435,8 @@ def srcinfo_property_list(key: str, srcinfo: dict[str, Any], package_srcinfo: di
 
     Args:
         key(str): key to extract
-        srcinfo(dict[str, Any]): root structure of SRCINFO
-        package_srcinfo(dict[str, Any]): package specific SRCINFO
+        srcinfo(Mapping[str, Any]): root structure of SRCINFO
+        package_srcinfo(Mapping[str, Any]): package specific SRCINFO
         architecture(str | None, optional): package architecture if set (Default value = None)
 
     Returns:

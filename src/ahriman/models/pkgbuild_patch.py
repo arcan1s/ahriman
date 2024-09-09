@@ -21,6 +21,7 @@ import shlex
 
 from dataclasses import dataclass, fields
 from pathlib import Path
+from string import Template
 from typing import Any, Generator, Self
 
 from ahriman.core.utils import dataclass_view, filter_json
@@ -166,6 +167,20 @@ class PkgbuildPatch:
         if self.is_function:
             return f"{self.key} {self.value}"  # no quoting enabled here
         return f"""{self.key}={PkgbuildPatch.quote(self.value)}"""
+
+    def substitute(self, variables: dict[str, str]) -> str | list[str]:
+        """
+        substitute variables into the value
+
+        Args:
+            variables(dict[str, str]): map of variables available for usage
+
+        Returns:
+            str | list[str]: substituted value. All unknown variables will remain the same
+        """
+        if isinstance(self.value, str):
+            return Template(self.value).safe_substitute(variables)
+        return [Template(value).safe_substitute(variables) for value in self.value]
 
     def view(self) -> dict[str, Any]:
         """

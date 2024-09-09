@@ -37,6 +37,7 @@ from ahriman.core.log import LazyLogging
 from ahriman.core.utils import check_output, dataclass_view, full_version, parse_version, srcinfo_property_list, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -255,25 +256,23 @@ class Package(LazyLogging):
 
         Returns:
             Self: package properties
-
-        Raises:
-            PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
 
         packages = {
             package: PackageDescription(
-                depends=srcinfo_property_list("depends", srcinfo, properties, architecture=architecture),
-                make_depends=srcinfo_property_list("makedepends", srcinfo, properties, architecture=architecture),
-                opt_depends=srcinfo_property_list("optdepends", srcinfo, properties, architecture=architecture),
-                check_depends=srcinfo_property_list("checkdepends", srcinfo, properties, architecture=architecture),
+                depends=srcinfo_property_list("depends", pkgbuild, properties, architecture=architecture),
+                make_depends=srcinfo_property_list("makedepends", pkgbuild, properties, architecture=architecture),
+                opt_depends=srcinfo_property_list("optdepends", pkgbuild, properties, architecture=architecture),
+                check_depends=srcinfo_property_list("checkdepends", pkgbuild, properties, architecture=architecture),
             )
-            for package, properties in srcinfo["packages"].items()
+            for package, properties in pkgbuild.packages().items()
         }
-        version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+        version = full_version(
+            pkgbuild.get_as("epoch", str, default=None),
+            pkgbuild.get_as("pkgver", str),
+            pkgbuild.get_as("pkgrel", str),
+        )
 
         remote = RemoteSource(
             source=PackageSource.Local,
@@ -284,7 +283,7 @@ class Package(LazyLogging):
         )
 
         return cls(
-            base=srcinfo["pkgbase"],
+            base=pkgbuild.get_as("pkgbase", str),
             version=version,
             remote=remote,
             packages=packages,
@@ -363,16 +362,12 @@ class Package(LazyLogging):
         Raises:
             PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
-
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
         # we could use arch property, but for consistency it is better to call special method
         architectures = Package.supported_architectures(path)
 
         for architecture in architectures:
-            for source in srcinfo_property_list("source", srcinfo, {}, architecture=architecture):
+            for source in srcinfo_property_list("source", pkgbuild, {}, architecture=architecture):
                 if "::" in source:
                     _, source = source.split("::", 1)  # in case if filename is specified, remove it
 
@@ -383,7 +378,7 @@ class Package(LazyLogging):
 
                 yield Path(source)
 
-        if (install := srcinfo.get("install", None)) is not None:
+        if isinstance(install := pkgbuild.get("install"), str):  # well, in reality it is either None or str
             yield Path(install)
 
     @staticmethod
@@ -396,15 +391,9 @@ class Package(LazyLogging):
 
         Returns:
             set[str]: list of package supported architectures
-
-        Raises:
-            PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
-        return set(srcinfo.get("arch", []))
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
+        return set(pkgbuild.get("arch", []))
 
     def _package_list_property(self, extractor: Callable[[PackageDescription], list[str]]) -> list[str]:
         """
