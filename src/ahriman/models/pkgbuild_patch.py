@@ -176,7 +176,8 @@ class PkgbuildPatch:
             variables(dict[str, str]): map of variables available for usage
 
         Returns:
-            str | list[str]: substituted value. All unknown variables will remain the same
+            str | list[str]: substituted value. All unknown variables will remain as links to their values.
+            This function doesn't support recursive substitution
         """
         if isinstance(self.value, str):
             return Template(self.value).safe_substitute(variables)

@@ -65,10 +65,10 @@ class Pkgbuild(Mapping[str, str | list[str]]):
 
     fields: dict[str, PkgbuildPatch]
 
-    _ARRAY_ASSIGNMENT_REGEX = re.compile(r"^(?P<key>\w+)=$")
-    _STRING_ASSIGNMENT_REGEX = re.compile(r"^(?P<key>\w+)=(?P<value>.+)$")
-    # in addition functions can have dash to usual assignment
-    _FUNCTION_DECLARATION_REGEX = re.compile(r"^(?P<key>[\w-]+)$")
+    _ARRAY_ASSIGNMENT = re.compile(r"^(?P<key>\w+)=$")
+    _STRING_ASSIGNMENT = re.compile(r"^(?P<key>\w+)=(?P<value>.+)$")
+    # in addition, functions can have dash to usual assignment
+    _FUNCTION_DECLARATION = re.compile(r"^(?P<key>[\w-]+)$")
 
     @property
     def variables(self) -> dict[str, str]:
@@ -201,20 +201,20 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             StopIteration: if iteration reaches the end of the file'
         """
         # simple assignment rule
-        if (match := Pkgbuild._STRING_ASSIGNMENT_REGEX.match(token)) is not None:
+        if (match := Pkgbuild._STRING_ASSIGNMENT.match(token)) is not None:
             key = match.group("key")
             value = match.group("value")
             return key, PkgbuildPatch(key, value)
 
         match parser.get_token():
             # array processing. Arrays will be sent as "key=", "(", values, ")"
-            case PkgbuildToken.ArrayStarts if (match := Pkgbuild._ARRAY_ASSIGNMENT_REGEX.match(token)) is not None:
+            case PkgbuildToken.ArrayStarts if (match := Pkgbuild._ARRAY_ASSIGNMENT.match(token)) is not None:
                 key = match.group("key")
                 value = Pkgbuild._parse_array(parser)
                 return key, PkgbuildPatch(key, value)
 
             # functions processing. Function will be sent as "name", "()", "{", body, "}"
-            case PkgbuildToken.FunctionDeclaration if Pkgbuild._FUNCTION_DECLARATION_REGEX.match(token):
+            case PkgbuildToken.FunctionDeclaration if Pkgbuild._FUNCTION_DECLARATION.match(token):
                 key = f"{token}{PkgbuildToken.FunctionDeclaration}"
                 value = Pkgbuild._parse_function(parser)
                 return token, PkgbuildPatch(key, value)  # this is not mistake, assign to token without ()
@@ -234,7 +234,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         Args:
             key(str): key name
             return_type(type[T]): return type, either ``str`` or ``list[str]``
-            default(U): default value to return if no key found
+            default(U, optional): default value to return if no key found
 
         Returns:
             T | U: value associated with key or default value if no value found and fallback is provided
