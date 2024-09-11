@@ -227,13 +227,12 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             case None:
                 raise StopIteration
 
-    def get_as(self, key: str, return_type: type[T], **kwargs: T | U) -> T | U:
+    def get_as(self, key: str, **kwargs: T | U) -> T | U:
         """
         type guard for getting value by key
 
         Args:
             key(str): key name
-            return_type(type[T]): return type, either ``str`` or ``list[str]``
             default(U, optional): default value to return if no key found
 
         Returns:
@@ -242,8 +241,6 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         Raises:
             KeyError: if no key found and no default has been provided
         """
-        del return_type
-
         if key not in self:
             if "default" in kwargs:
                 return kwargs["default"]
@@ -262,7 +259,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
 
         def io(package_name: str) -> IO[str]:
             # try to read package specific function and fallback to default otherwise
-            content = self.get_as(f"package_{package_name}", str, default=None) or self.get_as("package", str)
+            content = self.get_as(f"package_{package_name}", default=None) or self.get_as("package")
             return StringIO(content)
 
         return {package: self.from_io(io(package)) for package in packages}

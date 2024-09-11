@@ -267,9 +267,9 @@ class Package(LazyLogging):
             for package, properties in pkgbuild.packages().items()
         }
         version = full_version(
-            pkgbuild.get_as("epoch", str, default=None),
-            pkgbuild.get_as("pkgver", str),
-            pkgbuild.get_as("pkgrel", str),
+            pkgbuild.get_as("epoch", default=None),
+            pkgbuild.get_as("pkgver"),
+            pkgbuild.get_as("pkgrel"),
         )
 
         remote = RemoteSource(
@@ -281,7 +281,7 @@ class Package(LazyLogging):
         )
 
         return cls(
-            base=pkgbuild.get_as("pkgbase", str),
+            base=pkgbuild.get_as("pkgbase"),
             version=version,
             remote=remote,
             packages=packages,
@@ -440,9 +440,9 @@ class Package(LazyLogging):
             pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
 
             return full_version(
-                pkgbuild.get_as("epoch", str, default=None),
-                pkgbuild.get_as("pkgver", str),
-                pkgbuild.get_as("pkgrel", str),
+                pkgbuild.get_as("epoch", default=None),
+                pkgbuild.get_as("pkgver"),
+                pkgbuild.get_as("pkgrel"),
             )
         except Exception:
             self.logger.exception("cannot determine version of VCS package")
