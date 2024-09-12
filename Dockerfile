@@ -31,7 +31,6 @@ RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build && \
     echo "build ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/build"
 COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
-## darcs is not installed by reasons, because it requires a lot haskell packages which dramatically increase image size
 RUN pacman -Sy --noconfirm --asdeps \
         devtools \
         git \
@@ -50,9 +49,7 @@ RUN pacman -Sy --noconfirm --asdeps \
         python-wheel \
         && \
     pacman -Sy --noconfirm --asdeps \
-        breezy \
         git \
-        mercurial \
         python-aiohttp \
         python-boto3 \
         python-cerberus \
@@ -61,7 +58,6 @@ RUN pacman -Sy --noconfirm --asdeps \
         python-matplotlib \
         python-systemd \
         rsync \
-        subversion \
         && \
     runuser -u build -- install-aur-package \
         python-aioauth-client \

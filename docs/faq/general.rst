@@ -265,11 +265,7 @@ TL;DR
 How to update VCS packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally the service handles VCS packages correctly, however it requires additional dependencies:
-
-.. code-block:: shell
-
-   pacman -S breezy darcs mercurial subversion
+Normally the service handles VCS packages correctly. The version is updated in clean chroot, no additional actions are required.
 
 How to review changes before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

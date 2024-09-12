@@ -15,8 +15,6 @@ pacman -S --noconfirm devtools git pyalpm python-inflection python-passlib pytho
 pacman -S --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
-    # VCS support
-    pacman -S --noconfirm breezy darcs mercurial subversion
     # web server
     pacman -S --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features

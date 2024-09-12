@@ -9,10 +9,7 @@ url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
 depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-inflection' 'python-passlib' 'python-pyelftools' 'python-requests' 'python-srcinfo')
 makedepends=('python-build' 'python-flit' 'python-installer' 'python-wheel')
-optdepends=('breezy: -bzr packages support'
-            'darcs: -darcs packages support'
-            'mercurial: -hg packages support'
-            'python-aioauth-client: web server with OAuth2 authorization'
+optdepends=('python-aioauth-client: web server with OAuth2 authorization'
             'python-aiohttp: web server'
             'python-aiohttp-apispec>=3.0.0: web server'
             'python-aiohttp-cors: web server'
@@ -26,8 +23,7 @@ optdepends=('breezy: -bzr packages support'
             'python-requests-unixsocket2: client report to web server by unix socket'
             'python-jinja: html report generation'
             'python-systemd: journal support'
-            'rsync: sync by using rsync'
-            'subversion: -svn packages support')
+            'rsync: sync by using rsync')
 source=("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
         'ahriman.sysusers'
         'ahriman.tmpfiles')
