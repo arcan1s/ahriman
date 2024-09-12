@@ -96,12 +96,13 @@ class Task(LazyLogging):
             if self.include_debug_packages or not package.name.startswith(debug_package_prefix)
         ]
 
-    def build(self, sources_dir: Path, **kwargs: str | None) -> list[Path]:
+    def build(self, sources_dir: Path, *, dry_run: bool = False, **kwargs: str | None) -> list[Path]:
         """
         run package build
 
         Args:
             sources_dir(Path): path to where sources are
+            dry_run(bool, optional): do not perform build itself (Default value = False)
             **kwargs(str | None): environment variables to be passed to build processes
 
         Returns:
@@ -111,6 +112,8 @@ class Task(LazyLogging):
         command.extend(self.archbuild_flags)
         command.extend(["--"] + self.makechrootpkg_flags)
         command.extend(["--"] + self.makepkg_flags)
+        if dry_run:
+            command.extend(["--nobuild"])
         self.logger.info("using %s for %s", command, self.package.base)
 
         environment: dict[str, str] = {
@@ -157,25 +160,3 @@ class Task(LazyLogging):
             patch.write(sources_dir / "PKGBUILD")
 
         return last_commit_sha
-
-    def setup(self, sources_dir: Path) -> None:
-        """
-        setup chroot environment without building package itself. This function, in particular, useful in case if it is
-        required to refresh pkgver to the actual value without package building
-
-        Args:
-            sources_dir(Path): path to where sources are
-        """
-        command = [self.build_command, "-r", str(self.paths.chroot)]
-        command.extend(self.archbuild_flags)
-        command.extend(["--"] + self.makechrootpkg_flags)
-        command.extend(["--"] + self.makepkg_flags + ["--nobuild"])
-        self.logger.info("using %s for %s", command, self.package.base)
-
-        check_output(
-            *command,
-            exception=BuildError.from_process(self.package.base),
-            cwd=sources_dir,
-            logger=self.logger,
-            user=self.uid,
-        )

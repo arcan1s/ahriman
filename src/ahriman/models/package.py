@@ -435,7 +435,7 @@ class Package(LazyLogging):
         try:
             # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
             task.init(paths.cache_for(self.base), [], None)
-            task.setup(paths.cache_for(self.base))
+            task.build(paths.cache_for(self.base), dry_run=False)
 
             pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
 

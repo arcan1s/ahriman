@@ -39,11 +39,11 @@ class PkgbuildToken(StrEnum):
     well-known tokens dictionary
 
     Attributes:
-        ArrayStarts(PkgbuildToken): (class attribute) array starts token
         ArrayEnds(PkgbuildToken): (class attribute) array ends token
+        ArrayStarts(PkgbuildToken): (class attribute) array starts token
         FunctionDeclaration(PkgbuildToken): (class attribute) function declaration token
-        FunctionStarts(PkgbuildToken): (class attribute) function starts token
         FunctionEnds(PkgbuildToken): (class attribute) function ends token
+        FunctionStarts(PkgbuildToken): (class attribute) function starts token
     """
 
     ArrayStarts = "("
@@ -113,6 +113,10 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         fields = {}
 
         parser = shlex.shlex(stream, posix=True, punctuation_chars=True)
+        # ignore substitution and extend bash symbols
+        parser.wordchars += "${}#:+"
+        # in case of default behaviour, it will ignore, for example, segment part of url outside of quotes
+        parser.commenters = ""
         while token := parser.get_token():
             try:
                 key, value = cls._parse_token(token, parser)
@@ -180,7 +184,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             raise ValueError("Function body wasn't found")
 
         # read the specified interval from source stream
-        io.seek(start_position - 1)  # start from the previous symbol ({)
+        io.seek(start_position - 1)  # start from the previous symbol ("{")
         content = io.read(end_position - start_position + 1)
 
         return content
@@ -198,7 +202,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             tuple[str, PkgbuildPatch]: extracted a pair of key and its value
 
         Raises:
-            StopIteration: if iteration reaches the end of the file'
+            StopIteration: if iteration reaches the end of the file
         """
         # simple assignment rule
         if (match := Pkgbuild._STRING_ASSIGNMENT.match(token)) is not None:
@@ -218,6 +222,14 @@ class Pkgbuild(Mapping[str, str | list[str]]):
                 key = f"{token}{PkgbuildToken.FunctionDeclaration}"
                 value = Pkgbuild._parse_function(parser)
                 return token, PkgbuildPatch(key, value)  # this is not mistake, assign to token without ()
+
+            # special function case, where "(" and ")" are separated tokens, e.g. "pkgver ( )"
+            case PkgbuildToken.ArrayStarts if Pkgbuild._FUNCTION_DECLARATION.match(token):
+                next_token = parser.get_token()
+                if next_token == PkgbuildToken.ArrayEnds:  # replace closing bracket with "()"
+                    next_token = PkgbuildToken.FunctionDeclaration
+                parser.push_token(next_token)  # type: ignore[arg-type]
+                return Pkgbuild._parse_token(token, parser)
 
             # some random token received without continuation, lets guess it is empty assignment (i.e. key=)
             case other if other is not None:
