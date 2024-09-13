@@ -31,8 +31,7 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
                                        pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
-        package_ahriman, update_handler.paths,
-        vcs_allowed_age=update_handler.vcs_allowed_age,
+        package_ahriman, update_handler.configuration,
         calculate_version=True)
 
 
@@ -119,8 +118,7 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
 
     assert not update_handler.updates_aur([], vcs=False)
     package_is_outdated_mock.assert_called_once_with(
-        package_ahriman, update_handler.paths,
-        vcs_allowed_age=update_handler.vcs_allowed_age,
+        package_ahriman, update_handler.configuration,
         calculate_version=False)
 
 
@@ -228,8 +226,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     event_mock.assert_called_once_with(package_ahriman.base, EventType.PackageOutdated,
                                        pytest.helpers.anyvar(str, True))
     package_is_outdated_mock.assert_called_once_with(
-        package_ahriman, update_handler.paths,
-        vcs_allowed_age=update_handler.vcs_allowed_age,
+        package_ahriman, update_handler.configuration,
         calculate_version=True)
 
 
@@ -247,8 +244,7 @@ def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman
 
     assert not update_handler.updates_local(vcs=False)
     package_is_outdated_mock.assert_called_once_with(
-        package_ahriman, update_handler.paths,
-        vcs_allowed_age=update_handler.vcs_allowed_age,
+        package_ahriman, update_handler.configuration,
         calculate_version=False)
 
 

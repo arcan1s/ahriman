@@ -120,6 +120,12 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             except StopIteration:
                 break
 
+        # pkgbase is optional field, the pkgname must be used instead if not set
+        # however, pkgname is not presented is "package()" functions which we are parsing here too,
+        # thus, in our terms, it is optional too
+        if "pkgbase" not in fields:
+            fields["pkgbase"] = fields.get("pkgname")
+
         return cls({key: value for key, value in fields.items() if key})
 
     @staticmethod
@@ -281,8 +287,9 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         if value is None and not key.endswith(PkgbuildToken.FunctionDeclaration):
             value = self.fields.get(f"{key}{PkgbuildToken.FunctionDeclaration}")
         # if we still didn't find anything, we fall back to empty value (just like shell)
+        # to avoid recursion here, we can just drop from the method
         if value is None:
-            value = PkgbuildPatch(key, "")
+            return ""
 
         return value.substitute(self.variables)
 

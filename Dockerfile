@@ -39,7 +39,6 @@ RUN pacman -Sy --noconfirm --asdeps \
         python-passlib \
         python-pyelftools \
         python-requests \
-        python-srcinfo \
         && \
     pacman -Sy --noconfirm --asdeps \
         base-devel \

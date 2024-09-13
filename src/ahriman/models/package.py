@@ -277,7 +277,7 @@ class Package(LazyLogging):
         )
 
         return cls(
-            base=pkgbuild.get_as("pkgbase"),
+            base=pkgbuild.pkgbase,
             version=version,
             remote=remote,
             packages=packages,
@@ -372,7 +372,7 @@ class Package(LazyLogging):
 
                 yield Path(source)
 
-        if isinstance(install := pkgbuild.get("install"), str):  # well, in reality it is either None or str
+        if install := pkgbuild.get("install"):
             yield Path(install)
 
     @staticmethod
@@ -431,7 +431,7 @@ class Package(LazyLogging):
         try:
             # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
             task.init(paths.cache_for(self.base), [], None)
-            task.build(paths.cache_for(self.base), dry_run=False)
+            task.build(paths.cache_for(self.base), dry_run=True)
 
             pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
 
