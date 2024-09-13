@@ -172,6 +172,14 @@ ahriman.models.pacman\_synchronization module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.pkgbuild module
+------------------------------
+
+.. automodule:: ahriman.models.pkgbuild
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.pkgbuild\_patch module
 -------------------------------------
 
