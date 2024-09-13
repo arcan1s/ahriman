@@ -25,13 +25,9 @@ from dataclasses import dataclass
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
-from typing import IO, Self, TypeVar, cast
+from typing import Any, IO, Self
 
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
-
-
-T = TypeVar("T", str, list[str])
-U = TypeVar("U", str, list[str], None)
 
 
 class PkgbuildToken(StrEnum):
@@ -119,12 +115,12 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         parser.commenters = ""
         while token := parser.get_token():
             try:
-                key, value = cls._parse_token(token, parser)
-                fields[key] = value
+                patch = cls._parse_token(token, parser)
+                fields[patch.key] = patch
             except StopIteration:
                 break
 
-        return cls(fields)
+        return cls({key: value for key, value in fields.items() if key})
 
     @staticmethod
     def _parse_array(parser: shlex.shlex) -> list[str]:
@@ -175,7 +171,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         while token := parser.get_token():
             match token:
                 case PkgbuildToken.FunctionStarts:
-                    start_position = io.tell()
+                    start_position = io.tell() - 1
                 case PkgbuildToken.FunctionEnds:
                     end_position = io.tell()
                     break
@@ -184,13 +180,13 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             raise ValueError("Function body wasn't found")
 
         # read the specified interval from source stream
-        io.seek(start_position - 1)  # start from the previous symbol ("{")
-        content = io.read(end_position - start_position + 1)
+        io.seek(start_position - 1)  # start from the previous symbol
+        content = io.read(end_position - start_position)
 
         return content
 
     @staticmethod
-    def _parse_token(token: str, parser: shlex.shlex) -> tuple[str, PkgbuildPatch]:
+    def _parse_token(token: str, parser: shlex.shlex) -> PkgbuildPatch:
         """
         parse single token to the PKGBUILD field
 
@@ -199,7 +195,7 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             parser(shlex.shlex): shell parser instance
 
         Returns:
-            tuple[str, PkgbuildPatch]: extracted a pair of key and its value
+            PkgbuildPatch: extracted a PKGBUILD node
 
         Raises:
             StopIteration: if iteration reaches the end of the file
@@ -208,20 +204,20 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         if (match := Pkgbuild._STRING_ASSIGNMENT.match(token)) is not None:
             key = match.group("key")
             value = match.group("value")
-            return key, PkgbuildPatch(key, value)
+            return PkgbuildPatch(key, value)
 
         match parser.get_token():
             # array processing. Arrays will be sent as "key=", "(", values, ")"
             case PkgbuildToken.ArrayStarts if (match := Pkgbuild._ARRAY_ASSIGNMENT.match(token)) is not None:
                 key = match.group("key")
                 value = Pkgbuild._parse_array(parser)
-                return key, PkgbuildPatch(key, value)
+                return PkgbuildPatch(key, value)
 
             # functions processing. Function will be sent as "name", "()", "{", body, "}"
             case PkgbuildToken.FunctionDeclaration if Pkgbuild._FUNCTION_DECLARATION.match(token):
                 key = f"{token}{PkgbuildToken.FunctionDeclaration}"
                 value = Pkgbuild._parse_function(parser)
-                return token, PkgbuildPatch(key, value)  # this is not mistake, assign to token without ()
+                return PkgbuildPatch(key, value)  # this is not mistake, assign to token without ()
 
             # special function case, where "(" and ")" are separated tokens, e.g. "pkgver ( )"
             case PkgbuildToken.ArrayStarts if Pkgbuild._FUNCTION_DECLARATION.match(token):
@@ -239,27 +235,6 @@ class Pkgbuild(Mapping[str, str | list[str]]):
             case None:
                 raise StopIteration
 
-    def get_as(self, key: str, **kwargs: T | U) -> T | U:
-        """
-        type guard for getting value by key
-
-        Args:
-            key(str): key name
-            default(U, optional): default value to return if no key found
-
-        Returns:
-            T | U: value associated with key or default value if no value found and fallback is provided
-
-        Raises:
-            KeyError: if no key found and no default has been provided
-        """
-        if key not in self:
-            if "default" in kwargs:
-                return kwargs["default"]
-            raise KeyError(key)
-
-        return cast(T, self[key])
-
     def packages(self) -> dict[str, Self]:
         """
         extract properties from internal package functions
@@ -271,14 +246,29 @@ class Pkgbuild(Mapping[str, str | list[str]]):
 
         def io(package_name: str) -> IO[str]:
             # try to read package specific function and fallback to default otherwise
-            content = self.get_as(f"package_{package_name}", default=None) or self.get_as("package")
+            # content = self.get_as(f"package_{package_name}") or self.get_as("package")
+            content = getattr(self, f"package_{package_name}") or self.package
             return StringIO(content)
 
         return {package: self.from_io(io(package)) for package in packages}
 
+    def __getattr__(self, item: str) -> Any:
+        """
+        proxy method for PKGBUILD properties
+
+        Args:
+            item(str): property name
+
+        Returns:
+            Any: attribute by its name
+        """
+        return self[item]
+
     def __getitem__(self, key: str) -> str | list[str]:
         """
-        get the field of the PKGBUILD
+        get the field of the PKGBUILD. This method tries to get exact key value if possible; if none found, it tries to
+        fetch function with the same name. And, finally, it returns empty value if nothing found, so this function never
+        raises an ``KeyError``.exception``
 
         Args:
             key(str): key name
@@ -286,7 +276,15 @@ class Pkgbuild(Mapping[str, str | list[str]]):
         Returns:
             str | list[str]: value by the key
         """
-        return self.fields[key].substitute(self.variables)
+        value = self.fields.get(key)
+        # if the key wasn't found and user didn't ask for function explicitly, we can try to get by function name
+        if value is None and not key.endswith(PkgbuildToken.FunctionDeclaration):
+            value = self.fields.get(f"{key}{PkgbuildToken.FunctionDeclaration}")
+        # if we still didn't find anything, we fall back to empty value (just like shell)
+        if value is None:
+            value = PkgbuildPatch(key, "")
+
+        return value.substitute(self.variables)
 
     def __iter__(self) -> Iterator[str]:
         """
