@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 

@@ -73,7 +73,7 @@ class Pkgbuild(Mapping[str, Any]):
         parse PKGBUILD from input stream
 
         Args:
-            stream: IO[str]: input stream containing PKGBUILD content
+            stream(IO[str]): input stream containing PKGBUILD content
 
         Returns:
             Self: constructed instance of self

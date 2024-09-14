@@ -473,6 +473,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "package_jellyfin-ffmpeg6-bin_pkgbuild",
         resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild",
         resource_path_root / "models" / "package_yay_pkgbuild",
+        resource_path_root / "models" / "pkgbuild",
         resource_path_root / "web" / "templates" / "build-status" / "alerts.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "key-import-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "login-modal.jinja2",

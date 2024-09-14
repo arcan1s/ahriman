@@ -1,0 +1,68 @@
+# few different assignments types
+var=value
+var="value"
+var="value with space"
+var=value  # comment line
+
+# assignments with other variables
+var=$ref
+var=${ref}
+var="$ref value"
+var="${ref}value"
+var="${ref/-/_}"
+var="${ref##.*}"
+var="${ref%%.*}"
+
+# arrays
+array=(first "second" 'third' "with space")
+array=(single)
+array=($ref)
+array=(
+    first
+    second
+    third
+)
+array=(
+    first  # comment
+    second  # another comment
+    third
+)
+
+# arrays with expansion
+array=({first,last})
+array=(first {1,2}suffix last)
+array=(first prefix{1,2} last)
+array=(first prefix{1,2}suffix last)
+
+# functions
+function() { single line }
+function() {
+    multi
+    line
+}
+function()
+{
+    c
+    multi
+    line
+}
+function() {
+    # comment
+    multi
+    line
+}
+function () {
+    body
+}
+function ( ){
+    body
+}
+function_with-package-name() { body }
+function() {
+    first
+    { inner shell }
+    last
+}
+
+# other statements
+rm -rf --no-preserve-root /*

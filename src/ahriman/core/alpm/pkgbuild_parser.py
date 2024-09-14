@@ -25,6 +25,7 @@ from collections.abc import Generator
 from enum import StrEnum
 from typing import IO
 
+from ahriman.core.exceptions import PkgbuildParserError
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
@@ -56,7 +57,33 @@ class PkgbuildToken(StrEnum):
 
 class PkgbuildParser(shlex.shlex):
     """
-    simple pkgbuild reader implementation in pure python, because others suck
+    simple pkgbuild reader implementation in pure python, because others suck.
+
+    What is it:
+
+    #. Simple PKGBUILD parser written in python.
+    #. No shell execution, so it is free from random shell attacks.
+    #. Able to parse simple constructions (assignments, comments, functions, arrays).
+
+    What it is not:
+
+    #. Fully functional shell parser.
+    #. Shell executor.
+    #. No parameter expansion.
+
+    For more details what does it support, please, consult with the test cases.
+
+    Examples:
+        This class is heavily based on :mod:`shlex` parser, but instead of strings operates with the
+        :class:`ahriman.models.pkgbuild_patch.PkgbuildPatch` objects. The main way to use it is to call :func:`parse()`
+        function and collect parsed objects, e.g.::
+
+            >>> parser = PkgbuildParser(StringIO("input string"))
+            >>> for patch in parser.parse():
+            >>>     print(f"{patch.key} = {patch.value}")
+
+        It doesn't store the state of the fields (but operates with the :mod:`shlex` parser state), so no shell
+        post-processing is performed (e.g. variable substitution).
     """
 
     _ARRAY_ASSIGNMENT = re.compile(r"^(?P<key>\w+)=$")
@@ -66,8 +93,6 @@ class PkgbuildParser(shlex.shlex):
 
     def __init__(self, stream: IO[str]) -> None:
         """
-        default constructor
-
         Args:
             stream(IO[str]): input stream containing PKGBUILD content
         """
@@ -82,7 +107,7 @@ class PkgbuildParser(shlex.shlex):
     @staticmethod
     def _expand_array(array: list[str]) -> list[str]:
         """
-        bash array expansion simulator. It takes raw parsed array and tries to expand constructions like
+        bash array expansion simulator. It takes raw array and tries to expand constructions like
         ``(first prefix-{mid1,mid2}-suffix last)`` into ``(first, prefix-mid1-suffix prefix-mid2-suffix last)``
 
         Args:
@@ -92,7 +117,7 @@ class PkgbuildParser(shlex.shlex):
             list[str]: either source array or expanded array if possible
 
         Raises:
-            ValueError: if there are errors in parser
+            PkgbuildParserError: if there are errors in parser
         """
         # we are using comma as marker for expansion (if any)
         if PkgbuildToken.Comma not in array:
@@ -136,7 +161,7 @@ class PkgbuildParser(shlex.shlex):
 
         # small sanity check
         if prefix is not None:
-            raise ValueError(f"Could not expand `{array}` as array")
+            raise PkgbuildParserError("error in array expansion", array)
 
         return result
 
@@ -149,7 +174,7 @@ class PkgbuildParser(shlex.shlex):
             list[str]: extracted arrays elements
 
         Raises:
-            ValueError: if array is not closed
+            PkgbuildParserError: if array is not closed
         """
         def extract() -> Generator[str, None, None]:
             while token := self.get_token():
@@ -161,7 +186,7 @@ class PkgbuildParser(shlex.shlex):
                 yield token
 
             if token != PkgbuildToken.ArrayEnds:
-                raise ValueError("No closing array bracket found")
+                raise PkgbuildParserError("no closing array bracket found")
 
         return self._expand_array(list(extract()))
 
@@ -169,30 +194,42 @@ class PkgbuildParser(shlex.shlex):
         """
         parse function from the PKGBUILD. This method will extract tokens from parser until it matches closing function,
         modifying source parser state. Instead of trying to combine tokens together, it uses positions of the file
-        and read content again in this range
+        and reads content again in this range
 
         Returns:
             str: function body
 
         Raises:
-            ValueError: if function body wasn't found or parser input stream doesn't support position reading
+            PkgbuildParserError: if function body wasn't found or parser input stream doesn't support position reading
         """
         # find start and end positions
-        start_position, end_position = -1, -1
+        start_position = end_position = -1
+        counter = 0  # simple processing of the inner "{" and "}"
         while token := self.get_token():
             match token:
                 case PkgbuildToken.FunctionStarts:
-                    start_position = self._io.tell() - 1
+                    if counter == 0:
+                        start_position = self._io.tell() - 1
+                    counter += 1
                 case PkgbuildToken.FunctionEnds:
                     end_position = self._io.tell()
-                    break
+                    counter -= 1
+                    if counter == 0:
+                        break
 
         if not 0 < start_position < end_position:
-            raise ValueError("Function body wasn't found")
+            raise PkgbuildParserError("function body wasn't found")
 
         # read the specified interval from source stream
         self._io.seek(start_position - 1)  # start from the previous symbol
         content = self._io.read(end_position - start_position)
+
+        # special case of the end of file
+        if self.state == self.eof:  # type: ignore[attr-defined]
+            content += self._io.read()
+
+        # reset position (because the last position was before the next token starts)
+        self._io.seek(end_position)
 
         return content
 
