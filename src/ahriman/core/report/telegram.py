@@ -44,8 +44,6 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance

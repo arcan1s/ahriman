@@ -41,8 +41,6 @@ class Migrations(LazyLogging):
 
     def __init__(self, connection: Connection, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             connection(Connection): database connection
             configuration(Configuration): configuration instance

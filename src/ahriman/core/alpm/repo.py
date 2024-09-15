@@ -38,8 +38,6 @@ class Repo(LazyLogging):
 
     def __init__(self, name: str, paths: RepositoryPaths, sign_args: list[str]) -> None:
         """
-        default constructor
-
         Args:
             name(str): repository name
             paths(RepositoryPaths): repository paths instance

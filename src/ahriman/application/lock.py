@@ -66,8 +66,6 @@ class Lock(LazyLogging):
 
     def __init__(self, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             args(argparse.Namespace): command line args
             repository_id(RepositoryId): repository unique identifier

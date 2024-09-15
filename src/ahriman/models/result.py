@@ -43,8 +43,6 @@ class Result:
     def __init__(self, *, added: Iterable[Package] | None = None, updated: Iterable[Package] | None = None,
                  removed: Iterable[Package] | None = None, failed: Iterable[Package] | None = None) -> None:
         """
-        default constructor
-
         Args:
             added(Iterable[Package] | None, optional): initial list of successfully added packages
                 (Default value = None)

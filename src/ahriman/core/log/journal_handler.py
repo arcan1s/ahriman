@@ -31,8 +31,6 @@ class _JournalHandler(NullHandler):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
-        default constructor
-
         Args:
             *args(Any): positional arguments
             **kwargs(Any): keyword arguments

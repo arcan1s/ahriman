@@ -34,8 +34,6 @@ class UpdatePrinter(StringPrinter):
 
     def __init__(self, remote: Package, local_version: str | None) -> None:
         """
-        default constructor
-
         Args:
             remote(Package): remote (new) package object
             local_version(str | None): local version of the package if any

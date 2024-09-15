@@ -32,8 +32,6 @@ class RepositoryPrinter(StringPrinter):
 
     def __init__(self, repository_id: RepositoryId) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
         """

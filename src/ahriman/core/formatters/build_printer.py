@@ -28,8 +28,6 @@ class BuildPrinter(StringPrinter):
 
     def __init__(self, package: Package, is_success: bool, use_utf: bool) -> None:
         """
-        default constructor
-
         Args:
             package(Package): built package
             is_success(bool): ``True`` in case if build has success status and ``False`` otherwise

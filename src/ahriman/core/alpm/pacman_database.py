@@ -45,8 +45,6 @@ class PacmanDatabase(SyncHttpClient):
 
     def __init__(self, database: DB, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             database(DB): pyalpm database object
             configuration(Configuration): configuration instance

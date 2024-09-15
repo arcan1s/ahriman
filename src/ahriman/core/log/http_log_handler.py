@@ -40,8 +40,6 @@ class HttpLogHandler(logging.Handler):
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
                  report: bool, suppress_errors: bool) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance

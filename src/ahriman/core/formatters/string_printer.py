@@ -30,8 +30,6 @@ class StringPrinter(Printer):
 
     def __init__(self, content: str) -> None:
         """
-        default constructor
-
         Args:
             content(str): any content string
         """

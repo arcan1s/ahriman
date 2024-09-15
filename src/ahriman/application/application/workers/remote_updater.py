@@ -43,8 +43,6 @@ class RemoteUpdater(Updater):
 
     def __init__(self, workers: list[Worker], repository_id: RepositoryId, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             workers(list[Worker]): worker identifiers
             repository_id(RepositoryId): repository unique identifier

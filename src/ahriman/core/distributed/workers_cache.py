@@ -36,8 +36,6 @@ class WorkersCache(LazyLogging):
 
     def __init__(self, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance
         """

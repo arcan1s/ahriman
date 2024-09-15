@@ -38,8 +38,6 @@ class Leaf:
 
     def __init__(self, package: Package) -> None:
         """
-        default constructor
-
         Args:
             package(Package): package properties
         """
@@ -122,8 +120,6 @@ class Tree:
 
     def __init__(self, leaves: list[Leaf]) -> None:
         """
-        default constructor
-
         Args:
             leaves(list[Leaf]): leaves to build the tree
         """

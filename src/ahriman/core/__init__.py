@@ -33,9 +33,7 @@ class _Context:
     """
 
     def __init__(self) -> None:
-        """
-        default constructor. Must not be used directly
-        """
+        """"""
         self._content: dict[str, Any] = {}
 
     def get(self, key: ContextKey[T] | type[T]) -> T:

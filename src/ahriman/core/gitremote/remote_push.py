@@ -46,8 +46,6 @@ class RemotePush(LazyLogging):
 
     def __init__(self, reporter: Client, configuration: Configuration, section: str) -> None:
         """
-        default constructor
-
         Args:
             reporter(Client): reporter client
             configuration(Configuration): configuration instance

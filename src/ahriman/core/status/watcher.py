@@ -44,8 +44,6 @@ class Watcher(LazyLogging):
 
     def __init__(self, client: Client) -> None:
         """
-        default constructor
-
         Args:
             client(Client): reporter instance
         """

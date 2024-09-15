@@ -32,8 +32,6 @@ class TreePrinter(StringPrinter):
 
     def __init__(self, level: int, packages: list[Package]) -> None:
         """
-        default constructor
-
         Args:
             level(int): dependencies tree level
             packages(list[Package]): packages which belong to this level

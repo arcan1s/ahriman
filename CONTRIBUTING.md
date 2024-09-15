@@ -84,14 +84,14 @@ Again, the most checks can be performed by `tox` command, though some additional
   
         def __init__(self, *args: Any, **kwargs: Any) -> None:
             """
-            default constructor
-  
             Args:
                 *args(Any): positional arguments
                 **kwargs(Any): keyword arguments
             """
             self.instance_attribute = ""
     ```
+
+  Note missing comment for the `__init__` method, which is the special case.
 
 * Type annotations are the must, even for local functions. For the function argument `self` (for instance methods) and `cls` (for class methods) should not be annotated.
 * For collection types built-in classes must be used if possible (e.g. `dict` instead of `typing.Dict`, `tuple` instead of `typing.Tuple`). In case if built-in type is not available, but `collections.abc` provides interface, it must be used (e.g. `collections.abc.Awaitable` instead of `typing.Awaitable`, `collections.abc.Iterable` instead of `typing.Iterable`). For union classes, the bar operator (`|`) must be used (e.g. `float | int` instead of `typing.Union[float, int]`), which also includes `typing.Optional` (e.g. `str | None` instead of `Optional[str]`).

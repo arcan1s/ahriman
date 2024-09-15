@@ -34,8 +34,6 @@ class EventStatsPrinter(StringPrinter):
 
     def __init__(self, event_type: str, events: list[float | int]) -> None:
         """
-        default constructor
-
         Args:
             event_type(str): event type used for this statistics
             events(list[float | int]): event values to build statistics

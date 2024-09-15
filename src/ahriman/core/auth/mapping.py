@@ -37,8 +37,6 @@ class Mapping(Auth):
     def __init__(self, configuration: Configuration, database: SQLite,
                  provider: AuthSettings = AuthSettings.Configuration) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance
             database(SQLite): database instance

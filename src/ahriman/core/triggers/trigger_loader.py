@@ -59,9 +59,7 @@ class TriggerLoader(LazyLogging):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         self._on_stop_requested = False
         self.triggers: list[Trigger] = []
 

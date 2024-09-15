@@ -35,8 +35,6 @@ class ValidationPrinter(StringPrinter):
 
     def __init__(self, node: str, errors: list[str | dict[str, Any]]) -> None:
         """
-        default constructor
-
         Args:
             node(str): root level name
             errors(list[str | dict[str, Any]]): validation errors

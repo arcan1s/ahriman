@@ -28,8 +28,6 @@ class StatusPrinter(StringPrinter):
 
     def __init__(self, status: BuildStatus) -> None:
         """
-        default constructor
-
         Args:
             status(BuildStatus): build status
         """

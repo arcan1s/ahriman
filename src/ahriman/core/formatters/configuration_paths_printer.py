@@ -33,8 +33,6 @@ class ConfigurationPathsPrinter(StringPrinter):
 
     def __init__(self, root: Path, includes: list[Path]) -> None:
         """
-        default constructor
-
         Args:
             root(Path): path to root configuration file
             includes(list[Path]): list of include files
