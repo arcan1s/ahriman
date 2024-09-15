@@ -38,8 +38,6 @@ class GPG(SyncHttpClient):
 
     def __init__(self, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance
         """

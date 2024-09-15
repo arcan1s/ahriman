@@ -46,8 +46,6 @@ class Spawn(Thread, LazyLogging):
 
     def __init__(self, args_parser: argparse.ArgumentParser, command_arguments: list[str]) -> None:
         """
-        default constructor
-
         Args:
             args_parser(argparse.ArgumentParser): command line parser for the application
             command_arguments(list[str]): base command line arguments

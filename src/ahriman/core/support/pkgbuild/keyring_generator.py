@@ -47,8 +47,6 @@ class KeyringGenerator(PkgbuildGenerator):
     def __init__(self, database: SQLite, sign: GPG, repository_id: RepositoryId,
                  configuration: Configuration, section: str) -> None:
         """
-        default constructor
-
         Args:
             database(SQLite): database instance
             sign(GPG): GPG wrapper instance

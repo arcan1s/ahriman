@@ -49,8 +49,6 @@ class Pacman(LazyLogging):
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, *,
                  refresh_database: PacmanSynchronization) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance

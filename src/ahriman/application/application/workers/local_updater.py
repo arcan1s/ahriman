@@ -37,8 +37,6 @@ class LocalUpdater(Updater):
 
     def __init__(self, repository: Repository) -> None:
         """
-        default constructor
-
         Args:
             repository(Repository): repository instance
         """

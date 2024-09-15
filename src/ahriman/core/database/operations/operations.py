@@ -41,8 +41,6 @@ class Operations(LazyLogging):
 
     def __init__(self, path: Path, repository_id: RepositoryId, repository_paths: RepositoryPaths) -> None:
         """
-        default constructor
-
         Args:
             path(Path): path to the database file
             repository_id(RepositoryId): repository unique identifier

@@ -32,8 +32,6 @@ class UserPrinter(StringPrinter):
 
     def __init__(self, user: User) -> None:
         """
-        default constructor
-
         Args:
             user(User): user to print
         """

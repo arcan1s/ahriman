@@ -47,8 +47,6 @@ class _AuthorizationPolicy(aiohttp_security.AbstractAuthorizationPolicy):
 
     def __init__(self, validator: Auth) -> None:
         """
-        default constructor
-
         Args:
             validator(Auth): authorization module instance
         """

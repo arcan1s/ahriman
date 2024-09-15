@@ -45,8 +45,6 @@ class PackageArchive:
 
     def __init__(self, root: Path, package: Package, pacman: Pacman, scan_paths: ScanPaths) -> None:
         """
-        default constructor
-
         Args:
             root(Path): path to root filesystem
             package(Package): package descriptor

@@ -71,8 +71,6 @@ class Configuration(configparser.RawConfigParser):
 
     def __init__(self, allow_no_value: bool = False) -> None:
         """
-        default constructor. In the most cases must not be called directly
-
         Args:
             allow_no_value(bool, optional): copies :class:`configparser.RawConfigParser` behaviour. In case if it is set
                 to ``True``, the keys without values will be allowed (Default value = False)

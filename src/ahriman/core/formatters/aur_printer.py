@@ -33,8 +33,6 @@ class AurPrinter(StringPrinter):
 
     def __init__(self, package: AURPackage) -> None:
         """
-        default constructor
-
         Args:
             package(AURPackage): AUR package description
         """

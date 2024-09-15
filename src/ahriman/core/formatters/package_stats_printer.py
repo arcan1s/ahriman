@@ -33,8 +33,6 @@ class PackageStatsPrinter(StringPrinter):
 
     def __init__(self, events: dict[str, int]) -> None:
         """
-        default constructor
-
         Args:
             events(dict[str, int]): map of package to its event frequency
         """

@@ -48,8 +48,6 @@ class Task(LazyLogging):
     def __init__(self, package: Package, configuration: Configuration, architecture: str,
                  paths: RepositoryPaths) -> None:
         """
-        default constructor
-
         Args:
             package(Package): package definitions
             configuration(Configuration): configuration instance

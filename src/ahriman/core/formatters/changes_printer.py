@@ -32,8 +32,6 @@ class ChangesPrinter(Printer):
 
     def __init__(self, changes: Changes) -> None:
         """
-        default constructor
-
         Args:
             changes(Changes): package changes
         """

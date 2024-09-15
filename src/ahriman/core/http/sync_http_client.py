@@ -44,8 +44,6 @@ class SyncHttpClient(LazyLogging):
     def __init__(self, configuration: Configuration | None = None, section: str | None = None, *,
                  suppress_errors: bool = False) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration | None, optional): configuration instance (Default value = None)
             section(str | None, optional): settings section name (Default value = None)

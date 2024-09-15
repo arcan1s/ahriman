@@ -44,9 +44,7 @@ class MetricsTimer:
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         self.start_time: float | None = None
 
     @property

@@ -42,8 +42,6 @@ class ConfigurationPrinter(StringPrinter):
 
     def __init__(self, section: str, values: dict[str, str]) -> None:
         """
-        default constructor
-
         Args:
             section(str): section name
             values(dict[str, str]): configuration values dictionary

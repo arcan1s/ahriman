@@ -33,8 +33,6 @@ class BuildError(RuntimeError):
 
     def __init__(self, package_base: str, stderr: str | None = None) -> None:
         """
-        default constructor
-
         Args:
             package_base(str): package base raised exception
             stderr(str | None, optional): stderr of the process if available (Default value = None)
@@ -67,8 +65,6 @@ class CalledProcessError(subprocess.CalledProcessError):
 
     def __init__(self, status_code: int, process: list[str], stderr: str) -> None:
         """
-        default constructor
-
         Args:
             status_code(int): process return code
             process(list[str]): process argument list
@@ -94,9 +90,7 @@ class DuplicateRunError(RuntimeError):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         RuntimeError.__init__(
             self, "Another application instance is run. This error can be suppressed by using --force flag.")
 
@@ -119,9 +113,7 @@ class GitRemoteError(RuntimeError):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         RuntimeError.__init__(self, "Git remote failed")
 
 
@@ -132,8 +124,6 @@ class InitializeError(RuntimeError):
 
     def __init__(self, details: str) -> None:
         """
-        default constructor
-
         Args:
             details(str): details of the exception
         """
@@ -147,8 +137,6 @@ class MigrationError(RuntimeError):
 
     def __init__(self, details: str) -> None:
         """
-        default constructor
-
         Args:
             details(str): error details
         """
@@ -162,8 +150,6 @@ class MissingArchitectureError(ValueError):
 
     def __init__(self, command: str) -> None:
         """
-        default constructor
-
         Args:
             command(str): command name which throws exception
         """
@@ -177,8 +163,6 @@ class MultipleArchitecturesError(ValueError):
 
     def __init__(self, command: str, repositories: list[RepositoryId] | None = None) -> None:
         """
-        default constructor
-
         Args:
             command(str): command name which throws exception
             repositories(list[RepositoryId] | None, optional): found repository list (Default value = None)
@@ -196,8 +180,6 @@ class OptionError(ValueError):
 
     def __init__(self, value: Any) -> None:
         """
-        default constructor
-
         Args:
             value(Any): option value
         """
@@ -211,8 +193,6 @@ class PackageInfoError(RuntimeError):
 
     def __init__(self, details: Any) -> None:
         """
-        default constructor
-
         Args:
             details(Any): error details
         """
@@ -226,8 +206,6 @@ class PacmanError(RuntimeError):
 
     def __init__(self, details: Any) -> None:
         """
-        default constructor
-
         Args:
             details(Any): error details
         """
@@ -241,8 +219,6 @@ class PathError(ValueError):
 
     def __init__(self, path: Path, root: Path) -> None:
         """
-        default constructor
-
         Args:
             path(Path): path which raised an exception
             root(Path): repository root (i.e. ahriman home)
@@ -257,8 +233,6 @@ class PasswordError(ValueError):
 
     def __init__(self, details: Any) -> None:
         """
-        default constructor
-
         Args:
             details(Any); error details
         """
@@ -272,8 +246,6 @@ class PartitionError(RuntimeError):
 
     def __init__(self, count: int) -> None:
         """
-        default constructor
-
         Args:
             count(int): count of partitions
         """
@@ -286,9 +258,7 @@ class PkgbuildGeneratorError(RuntimeError):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         RuntimeError.__init__(self, "Could not generate package")
 
 
@@ -298,9 +268,7 @@ class ReportError(RuntimeError):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         RuntimeError.__init__(self, "Report failed")
 
 
@@ -310,9 +278,7 @@ class SynchronizationError(RuntimeError):
     """
 
     def __init__(self) -> None:
-        """
-        default constructor
-        """
+        """"""
         RuntimeError.__init__(self, "Sync failed")
 
 
@@ -323,8 +289,6 @@ class UnknownPackageError(ValueError):
 
     def __init__(self, package_base: str) -> None:
         """
-        default constructor
-
         Args:
             package_base(str): package base name
         """
@@ -338,8 +302,6 @@ class UnsafeRunError(RuntimeError):
 
     def __init__(self, current_uid: int, root_uid: int) -> None:
         """
-        default constructor
-
         Args:
             current_uid(int): current user ID
             root_uid(int): ID of the owner of root directory

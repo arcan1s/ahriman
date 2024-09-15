@@ -41,8 +41,6 @@ class Validator(RootValidator):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance used for extraction
             *args(Any): positional arguments to be passed to base validator

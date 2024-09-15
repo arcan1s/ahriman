@@ -59,8 +59,6 @@ class DistributedSystem(Trigger, WebClient):
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance

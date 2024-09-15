@@ -34,8 +34,6 @@ class PackagePrinter(StringPrinter):
 
     def __init__(self, package: Package, status: BuildStatus) -> None:
         """
-        default constructor
-
         Args:
             package(Package): package description
             status(BuildStatus): build status

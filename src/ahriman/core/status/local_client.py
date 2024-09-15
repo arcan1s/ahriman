@@ -40,8 +40,6 @@ class LocalClient(Client):
 
     def __init__(self, repository_id: RepositoryId, database: SQLite) -> None:
         """
-        default constructor
-
         Args:
             repository_id(RepositoryId): repository unique identifier
             database(SQLite): database instance:

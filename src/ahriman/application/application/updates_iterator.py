@@ -49,8 +49,6 @@ class UpdatesIterator(Iterator[list[str] | None]):
 
     def __init__(self, application: Application, interval: int) -> None:
         """
-        default constructor
-
         Args:
             application(Application): application instance
             interval(int): predefined interval for updates

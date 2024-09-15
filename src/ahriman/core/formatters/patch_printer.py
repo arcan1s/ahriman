@@ -32,8 +32,6 @@ class PatchPrinter(StringPrinter):
 
     def __init__(self, package_base: str, patches: list[PkgbuildPatch]) -> None:
         """
-        default constructor
-
         Args:
             package_base(str): package base
             patches(list[PkgbuildPatch]): PKGBUILD patch object

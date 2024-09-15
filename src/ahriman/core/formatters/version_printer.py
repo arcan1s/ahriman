@@ -31,8 +31,6 @@ class VersionPrinter(StringPrinter):
 
     def __init__(self, title: str, packages: dict[str, str]) -> None:
         """
-        default constructor
-
         Args:
             title(str): title of the message
             packages(dict[str, str]): map of package name to its version

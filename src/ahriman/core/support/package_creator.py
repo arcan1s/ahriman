@@ -40,8 +40,6 @@ class PackageCreator:
 
     def __init__(self, configuration: Configuration, generator: PkgbuildGenerator) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance
             generator(PkgbuildGenerator): PKGBUILD generator instance

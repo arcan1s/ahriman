@@ -38,8 +38,6 @@ class Auth(LazyLogging):
 
     def __init__(self, configuration: Configuration, provider: AuthSettings = AuthSettings.Disabled) -> None:
         """
-        default constructor
-
         Args:
             configuration(Configuration): configuration instance
             provider(AuthSettings, optional): authorization type definition (Default value = AuthSettings.Disabled)
