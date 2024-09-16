@@ -270,9 +270,9 @@ class PkgbuildParser(shlex.shlex):
             PkgbuildPatch: extracted a PKGBUILD node
         """
         # simple assignment rule
-        if (match := self._STRING_ASSIGNMENT.match(token)) is not None:
-            key = match.group("key")
-            value = match.group("value")
+        if m := self._STRING_ASSIGNMENT.match(token):
+            key = m.group("key")
+            value = m.group("value")
             yield PkgbuildPatch(key, value)
             return
 
@@ -282,8 +282,8 @@ class PkgbuildParser(shlex.shlex):
 
         match self.get_token():
             # array processing. Arrays will be sent as "key=", "(", values, ")"
-            case PkgbuildToken.ArrayStarts if (match := self._ARRAY_ASSIGNMENT.match(token)) is not None:
-                key = match.group("key")
+            case PkgbuildToken.ArrayStarts if m := self._ARRAY_ASSIGNMENT.match(token):
+                key = m.group("key")
                 value = self._parse_array()
                 yield PkgbuildPatch(key, value)
 

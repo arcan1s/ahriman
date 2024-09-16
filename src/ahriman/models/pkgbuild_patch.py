@@ -21,9 +21,9 @@ import shlex
 
 from dataclasses import dataclass, fields
 from pathlib import Path
-from string import Template
 from typing import Any, Generator, Self
 
+from ahriman.core.configuration.shell_template import ShellTemplate
 from ahriman.core.utils import dataclass_view, filter_json
 
 
@@ -180,8 +180,8 @@ class PkgbuildPatch:
             This function doesn't support recursive substitution
         """
         if isinstance(self.value, str):
-            return Template(self.value).safe_substitute(variables)
-        return [Template(value).safe_substitute(variables) for value in self.value]
+            return ShellTemplate(self.value).shell_substitute(variables)
+        return [ShellTemplate(value).shell_substitute(variables) for value in self.value]
 
     def view(self) -> dict[str, Any]:
         """
