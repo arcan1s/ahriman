@@ -165,6 +165,27 @@ class PkgbuildParser(shlex.shlex):
 
         return result
 
+    def _is_quoted(self) -> bool:
+        """
+        check if the last element was quoted. ``shlex.shlex`` parser doesn't provide information about was the token
+        quoted or not, thus there is no difference between "'#'" (diez in quotes) and "#" (diez without quotes). This
+        method simply rolls back to the last non-space character and check if it is a quotation mark
+
+        Returns:
+            bool: ``True`` if the previous element of the stream is a quote and ``False`` otherwise
+        """
+        current_position = self._io.tell()
+
+        last_char = None
+        for index in range(current_position - 1, -1, -1):
+            self._io.seek(index)
+            last_char = self._io.read(1)
+            if not last_char.isspace():
+                break
+
+        self._io.seek(current_position)  # reset position of the stream
+        return last_char is not None and last_char in self.quotes
+
     def _parse_array(self) -> list[str]:
         """
         parse array from the PKGBUILD. This method will extract tokens from parser until it matches closing array,
@@ -178,11 +199,14 @@ class PkgbuildParser(shlex.shlex):
         """
         def extract() -> Generator[str, None, None]:
             while token := self.get_token():
-                if token == PkgbuildToken.ArrayEnds:
-                    break
-                if token == PkgbuildToken.Comment:
-                    self.instream.readline()
-                    continue
+                match token:
+                    case _ if self._is_quoted():
+                        pass
+                    case PkgbuildToken.ArrayEnds:
+                        break
+                    case PkgbuildToken.Comment:
+                        self.instream.readline()
+                        continue
                 yield token
 
             if token != PkgbuildToken.ArrayEnds:
@@ -207,6 +231,8 @@ class PkgbuildParser(shlex.shlex):
         counter = 0  # simple processing of the inner "{" and "}"
         while token := self.get_token():
             match token:
+                case _ if self._is_quoted():
+                    continue
                 case PkgbuildToken.FunctionStarts:
                     if counter == 0:
                         start_position = self._io.tell() - 1
@@ -226,7 +252,7 @@ class PkgbuildParser(shlex.shlex):
 
         # special case of the end of file
         if self.state == self.eof:  # type: ignore[attr-defined]
-            content += self._io.read()
+            content += self._io.read(1)
 
         # reset position (because the last position was before the next token starts)
         self._io.seek(end_position)

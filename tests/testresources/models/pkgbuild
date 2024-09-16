@@ -34,6 +34,12 @@ array=(first {1,2}suffix last)
 array=(first prefix{1,2} last)
 array=(first prefix{1,2}suffix last)
 
+# arrays with brackets inside
+array=(first "(" second)
+array=(first ")" second)
+array=(first '(' second)
+array=(first ')' second)
+
 # functions
 function() { single line }
 function() {
@@ -62,6 +68,18 @@ function() {
     first
     { inner shell }
     last
+}
+function () {
+    body "{" argument
+}
+function () {
+    body "}" argument
+}
+function () {
+    body '{' argument
+}
+function () {
+    body '}' argument
 }
 
 # other statements

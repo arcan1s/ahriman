@@ -363,7 +363,7 @@ class Package(LazyLogging):
         for architecture in architectures:
             for source in srcinfo_property_list("source", pkgbuild, {}, architecture=architecture):
                 if "::" in source:
-                    _, source = source.split("::", 1)  # in case if filename is specified, remove it
+                    _, source = source.split("::", maxsplit=1)  # in case if filename is specified, remove it
 
                 if urlparse(source).scheme:
                     # basically file schema should use absolute path which is impossible if we are distributing

@@ -68,6 +68,20 @@ def test_parse_array_comment() -> None:
     ])]
 
 
+def test_parse_array_quotes() -> None:
+    """
+    must correctly process quoted brackets
+    """
+    parser = PkgbuildParser(StringIO("""var=(first "(" second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", "(", "second"])]
+
+    parser = PkgbuildParser(StringIO("""var=(first ")" second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
+
+    parser = PkgbuildParser(StringIO("""var=(first ')' second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
+
+
 def test_parse_array_exception() -> None:
     """
     must raise exception if there is no closing bracket
@@ -107,6 +121,26 @@ def test_parse_function_inner_shell() -> None:
     """
     parser = PkgbuildParser(StringIO("var ( ) { { echo hello world } } "))
     assert list(parser.parse()) == [PkgbuildPatch("var()", "{ { echo hello world } }")]
+
+
+def test_parse_function_quotes() -> None:
+    """
+    must parse function with bracket in quotes
+    """
+    parser = PkgbuildParser(StringIO("""var ( ) { echo "hello world {" } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world {" }""")]
+
+    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world "{" } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "{" }""")]
+
+    parser = PkgbuildParser(StringIO("""var ( ) { echo "hello world }" } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo "hello world }" }""")]
+
+    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world "}" } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world "}" }""")]
+
+    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world '}' } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world '}' }""")]
 
 
 def test_parse_function_exception() -> None:
@@ -176,6 +210,10 @@ def test_parse(resource_path_root: Path) -> None:
             PkgbuildPatch("array", ["first", "1suffix", "2suffix", "last"]),
             PkgbuildPatch("array", ["first", "prefix1", "prefix2", "last"]),
             PkgbuildPatch("array", ["first", "prefix1suffix", "prefix2suffix", "last"]),
+            PkgbuildPatch("array", ["first", "(", "second"]),
+            PkgbuildPatch("array", ["first", ")", "second"]),
+            PkgbuildPatch("array", ["first", "(", "second"]),
+            PkgbuildPatch("array", ["first", ")", "second"]),
             PkgbuildPatch("function()", """{ single line }"""),
             PkgbuildPatch("function()", """{
     multi
@@ -202,5 +240,17 @@ def test_parse(resource_path_root: Path) -> None:
     first
     { inner shell }
     last
+}"""),
+            PkgbuildPatch("function()", """{
+    body "{" argument
+}"""),
+            PkgbuildPatch("function()", """{
+    body "}" argument
+}"""),
+            PkgbuildPatch("function()", """{
+    body '{' argument
+}"""),
+            PkgbuildPatch("function()", """{
+    body '}' argument
 }"""),
         ]

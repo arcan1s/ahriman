@@ -47,7 +47,7 @@ class ServiceUpdates(Handler):
             report(bool): force enable or disable reporting
         """
         remote = Package.from_aur("ahriman", None)
-        _, release = remote.version.rsplit("-", 1)  # we don't store pkgrel locally, so we just append it
+        _, release = remote.version.rsplit("-", maxsplit=1)  # we don't store pkgrel locally, so we just append it
         local_version = f"{__version__}-{release}"
 
         # technically we would like to compare versions, but it is fine to raise an exception in case if locally
