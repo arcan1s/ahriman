@@ -8,19 +8,19 @@ set -ex
 # install dependencies
 echo -e '[arcanisrepo]\nServer = https://repo.arcanis.me/$arch\nSigLevel = Never' | tee -a /etc/pacman.conf
 # refresh the image
-pacman -Syu --noconfirm
+pacman -Syyu --noconfirm
 # main dependencies
-pacman -Sy --noconfirm devtools git pyalpm python-inflection python-passlib python-pyelftools python-requests python-srcinfo python-systemd sudo
+pacman -S --noconfirm devtools git pyalpm python-inflection python-passlib python-pyelftools python-requests python-srcinfo python-systemd sudo
 # make dependencies
-pacman -Sy --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
+pacman -S --noconfirm --asdeps base-devel python-build python-flit python-installer python-tox python-wheel
 # optional dependencies
 if [[ -z $MINIMAL_INSTALL ]]; then
     # VCS support
-    pacman -Sy --noconfirm breezy darcs mercurial subversion
+    pacman -S --noconfirm breezy darcs mercurial subversion
     # web server
-    pacman -Sy --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
+    pacman -S --noconfirm python-aioauth-client python-aiohttp python-aiohttp-apispec-git python-aiohttp-cors python-aiohttp-jinja2 python-aiohttp-security python-aiohttp-session python-cryptography python-jinja
     # additional features
-    pacman -Sy --noconfirm gnupg python-boto3 python-cerberus python-matplotlib rsync
+    pacman -S --noconfirm gnupg python-boto3 python-cerberus python-matplotlib rsync
 fi
 # FIXME since 1.0.4 devtools requires dbus to be run, which doesn't work now in container
 cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"

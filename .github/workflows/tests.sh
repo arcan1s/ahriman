@@ -4,7 +4,7 @@
 set -ex
 
 # install dependencies
-pacman --noconfirm -Syu base-devel python-tox
+pacman --noconfirm -Syyu base-devel python-tox
 
 # run test and check targets
 tox

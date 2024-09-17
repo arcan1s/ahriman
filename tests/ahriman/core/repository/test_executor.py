@@ -23,6 +23,8 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
     move_mock = mocker.patch("shutil.move")
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
+    changes_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get",
+                                return_value=Changes("commit", "change"))
     commit_sha_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
     depends_on_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on",
                                    return_value=Dependencies())
@@ -36,7 +38,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
     # must update status
     status_client_mock.assert_called_once_with(package_ahriman.base)
-    commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha"))
+    commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha", "change"))
 
 
 def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
