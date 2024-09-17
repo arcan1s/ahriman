@@ -66,14 +66,14 @@ def test_from_io_empty(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> Non
 
 def test_packages(pkgbuild_ahriman: Pkgbuild) -> None:
     """
-    must correctly generate load package function
+    must correctly load package function
     """
     assert pkgbuild_ahriman.packages() == {pkgbuild_ahriman["pkgbase"]: Pkgbuild({})}
 
 
 def test_packages_multi(resource_path_root: Path) -> None:
     """
-    must correctly generate load list of package functions
+    must correctly load list of package functions
     """
     pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_gcc10_pkgbuild")
     packages = pkgbuild.packages()
@@ -81,6 +81,14 @@ def test_packages_multi(resource_path_root: Path) -> None:
     assert all(pkgname in packages for pkgname in pkgbuild["pkgname"])
     assert all("pkgdesc" in package for package in packages.values())
     assert all("depends" in package for package in packages.values())
+
+
+def test_packages_empty(pkgbuild_ahriman: Pkgbuild) -> None:
+    """
+    must correctly load packages without package functionn
+    """
+    del pkgbuild_ahriman.fields["package()"]
+    assert pkgbuild_ahriman.packages() == {pkgbuild_ahriman["pkgbase"]: Pkgbuild({})}
 
 
 def test_getitem(pkgbuild_ahriman: Pkgbuild) -> None:

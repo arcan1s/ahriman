@@ -100,7 +100,7 @@ class Pkgbuild(Mapping[str, Any]):
 
         def io(package_name: str) -> IO[str]:
             # try to read package specific function and fallback to default otherwise
-            content = self.get(f"package_{package_name}") or self["package"]
+            content = self.get(f"package_{package_name}") or self.get("package") or ""
             return StringIO(content)
 
         return {package: self.from_io(io(package)) for package in packages}
