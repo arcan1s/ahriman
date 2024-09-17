@@ -212,6 +212,7 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     """
     must check for updates for locally stored packages
     """
+    package_ahriman.remote = RemoteSource(source=PackageSource.Local, git_url="", web_url="", path="", branch="")
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     fetch_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
@@ -237,6 +238,7 @@ def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman
     """
     must skip VCS packages check if requested for locally stored packages
     """
+    package_ahriman.remote = RemoteSource(source=PackageSource.Local, git_url="", web_url="", path="", branch="")
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
@@ -255,6 +257,19 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     must return unknown package as out-dated
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
+    mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+
+    assert update_handler.updates_local(vcs=True) == []
+
+
+def test_updates_local_remote(update_handler: UpdateHandler, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip packages with remote source
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")

@@ -153,6 +153,8 @@ class UpdateHandler(PackageInfo, Cleaner):
                     local = packages.get(remote.base)
                     if local is None:
                         continue  # we don't add packages automatically
+                    if local.remote.is_remote:
+                        continue  # avoid checking AUR packages
 
                     if local.is_outdated(remote, self.paths,
                                          vcs_allowed_age=self.vcs_allowed_age,
