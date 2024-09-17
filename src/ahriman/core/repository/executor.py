@@ -79,8 +79,9 @@ class Executor(PackageInfo, Cleaner):
                     with self.in_event(single.base, EventType.PackageUpdated, failure=EventType.PackageUpdateFailed):
                         packager = self.packager(packagers, single.base)
                         last_commit_sha = build_single(single, Path(dir_name), packager.packager_id)
-                        # clear changes and update commit hash
-                        self.reporter.package_changes_update(single.base, Changes(last_commit_sha))
+                        # update commit hash for changes keeping current diff if there is any
+                        changes = self.reporter.package_changes_get(single.base)
+                        self.reporter.package_changes_update(single.base, Changes(last_commit_sha, changes.changes))
                         # update dependencies list
                         package_archive = PackageArchive(self.paths.build_root, single, self.pacman, self.scan_paths)
                         dependencies = package_archive.depends_on()

@@ -64,7 +64,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
                                              bump_pkgrel=args.increment)
     updates_mock.assert_called_once_with(
         args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
-    changes_mock.assert_not_called()
+    changes_mock.assert_called_once_with([package_ahriman])
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
     check_mock.assert_called_once_with(False, False)
     on_start_mock.assert_called_once_with()
@@ -100,12 +100,11 @@ def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: P
     mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.with_dependencies", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.print_updates")
-    changes_mock = mocker.patch("ahriman.application.application.Application.changes")
+    mocker.patch("ahriman.application.application.Application.changes")
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
 
     _, repository_id = configuration.check_loaded()
     Update.run(args, repository_id, configuration, report=False)
-    changes_mock.assert_not_called()
     check_mock.assert_called_once_with(True, True)
 
 
