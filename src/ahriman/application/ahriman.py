@@ -266,6 +266,8 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                                     "5) and finally you can add package from AUR.",
                              formatter_class=_formatter)
     parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
+    parser.add_argument("--changes", help="calculate changes from the latest known commit if available",
+                        action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--dependencies", help="process missing package dependencies",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
@@ -534,8 +536,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="check for packages updates. Same as repo-update --dry-run --no-manual",
                              formatter_class=_formatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
-    parser.add_argument("--changes", help="calculate changes from the latest known commit if available. "
-                                          "Only applicable in dry run mode",
+    parser.add_argument("--changes", help="calculate changes from the latest known commit if available",
                         action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--check-files", help="enable or disable checking of broken dependencies "
                                               "(e.g. dynamically linked libraries or modules directories)",
