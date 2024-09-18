@@ -64,8 +64,9 @@ class Sources(LazyLogging):
             return None  # no previous reference found
 
         instance = Sources()
-        instance.fetch_until(source_dir, commit_sha=last_commit_sha)
-        return instance.diff(source_dir, last_commit_sha)
+        if instance.fetch_until(source_dir, commit_sha=last_commit_sha) is not None:
+            return instance.diff(source_dir, last_commit_sha)
+        return None
 
     @staticmethod
     def extend_architectures(sources_dir: Path, architecture: str) -> list[PkgbuildPatch]:
@@ -298,7 +299,8 @@ class Sources(LazyLogging):
             args.append(sha)
         return check_output(*self.git(), "diff", *args, cwd=sources_dir, logger=self.logger)
 
-    def fetch_until(self, sources_dir: Path, *, branch: str | None = None, commit_sha: str | None = None) -> None:
+    def fetch_until(self, sources_dir: Path, *, branch: str | None = None, commit_sha: str | None = None,
+                    max_depth: int = 10) -> str | None:
         """
         fetch repository until commit sha
 
@@ -307,11 +309,16 @@ class Sources(LazyLogging):
             branch(str | None, optional): use specified branch (Default value = None)
             commit_sha(str | None, optional): commit hash to fetch. If none set, only one will be fetched
                 (Default value = None)
+            max_depth(int, optional): maximal amount of commits to fetch if ``commit_sha`` is set (Default value = 10)
+
+        Returns:
+            str | None: fetched ``commit_sha`` (if set) and ``None`` in case if commit wasn't found or
+            ``commit_sha`` is not set
         """
         commit_sha = commit_sha or "HEAD"  # if none set we just fetch the last commit
 
         commits_count = 1
-        while commit_sha is not None:
+        while commits_count <= max_depth:
             command = self.git() + ["fetch", "--quiet", "--depth", str(commits_count)]
             if branch is not None:
                 command += ["origin", branch]
@@ -320,9 +327,12 @@ class Sources(LazyLogging):
             try:
                 # check if there is an object in current git directory
                 check_output(*self.git(), "cat-file", "-e", commit_sha, cwd=sources_dir, logger=self.logger)
-                commit_sha = None  # reset search
+                return commit_sha  # found the required commit
             except CalledProcessError:
                 commits_count += 1  # increase depth
+
+        # no commits found at the requested depth
+        return None
 
     def git(self, gitconfig: dict[str, str] | None = None) -> list[str]:
         """

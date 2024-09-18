@@ -39,6 +39,17 @@ def test_changes_skip(mocker: MockerFixture) -> None:
     diff_mock.assert_not_called()
 
 
+def test_changes_unknown_commit(mocker: MockerFixture) -> None:
+    """
+    must return none in case if commit sha wasn't found at the required depth
+    """
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch_until", return_value=None)
+    diff_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.diff")
+
+    assert Sources.changes(Path("local"), "sha") is None
+    diff_mock.assert_not_called()
+
+
 def test_extend_architectures(mocker: MockerFixture) -> None:
     """
     must update available architecture list
@@ -435,16 +446,17 @@ def test_fetch_until(sources: Sources, mocker: MockerFixture) -> None:
         "",
         "",
     ])
-
     local = Path("local")
-    sources.fetch_until(local, branch="master", commit_sha="sha")
+    last_commit_sha = "sha"
+
+    assert sources.fetch_until(local, branch="master", commit_sha="sha") == last_commit_sha
     check_output_mock.assert_has_calls([
         MockCall(*sources.git(), "fetch", "--quiet", "--depth", "1", "origin", "master",
                  cwd=local, logger=sources.logger),
-        MockCall(*sources.git(), "cat-file", "-e", "sha", cwd=local, logger=sources.logger),
+        MockCall(*sources.git(), "cat-file", "-e", last_commit_sha, cwd=local, logger=sources.logger),
         MockCall(*sources.git(), "fetch", "--quiet", "--depth", "2", "origin", "master",
                  cwd=local, logger=sources.logger),
-        MockCall(*sources.git(), "cat-file", "-e", "sha", cwd=local, logger=sources.logger),
+        MockCall(*sources.git(), "cat-file", "-e", last_commit_sha, cwd=local, logger=sources.logger),
     ])
 
 
@@ -453,9 +465,9 @@ def test_fetch_until_first(sources: Sources, mocker: MockerFixture) -> None:
     must fetch first commit only
     """
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
-
     local = Path("local")
-    sources.fetch_until(local, branch="master")
+
+    assert sources.fetch_until(local, branch="master") == "HEAD"
     check_output_mock.assert_has_calls([
         MockCall(*sources.git(), "fetch", "--quiet", "--depth", "1", "origin", "master",
                  cwd=local, logger=sources.logger),
@@ -468,13 +480,26 @@ def test_fetch_until_all_branches(sources: Sources, mocker: MockerFixture) -> No
     must fetch all branches
     """
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
-
     local = Path("local")
-    sources.fetch_until(local)
+
+    assert sources.fetch_until(local) == "HEAD"
     check_output_mock.assert_has_calls([
         MockCall(*sources.git(), "fetch", "--quiet", "--depth", "1", cwd=local, logger=sources.logger),
         MockCall(*sources.git(), "cat-file", "-e", "HEAD", cwd=local, logger=sources.logger),
     ])
+
+
+def test_fetch_until_not_found(sources: Sources, mocker: MockerFixture) -> None:
+    """
+    must return None in case if no commit found at the required maximal depth
+    """
+    mocker.patch("ahriman.core.build_tools.sources.check_output", side_effect=[
+        "",
+        CalledProcessError(1, ["command"], "error"),
+        "",
+        CalledProcessError(1, ["command"], "error"),
+    ])
+    assert sources.fetch_until(Path("local"), branch="master", commit_sha="sha", max_depth=2) is None
 
 
 def test_git(sources: Sources) -> None:
