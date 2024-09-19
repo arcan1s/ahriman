@@ -85,7 +85,7 @@ class Pkgbuild(Mapping[str, Any]):
         # however, pkgname is not presented is "package()" functions which we are parsing here too,
         # thus, in our terms, it is optional too
         if "pkgbase" not in fields and "pkgname" in fields:
-            fields["pkgbase"] = fields["pkgname"]
+            fields["pkgbase"] = PkgbuildPatch("pkgbase", fields["pkgname"].value)
 
         return cls({key: value for key, value in fields.items() if key})
 

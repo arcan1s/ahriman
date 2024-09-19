@@ -100,7 +100,7 @@ class PkgbuildParser(shlex.shlex):
         self._io = stream  # direct access without type casting
 
         # ignore substitution and extend bash symbols
-        self.wordchars += "${}#:+-@"
+        self.wordchars += "${}#:+-@!"
         # in case of default behaviour, it will ignore, for example, segment part of url outside of quotes
         self.commenters = ""
 
