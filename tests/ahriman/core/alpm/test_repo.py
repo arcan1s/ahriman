@@ -26,28 +26,13 @@ def test_repo_add(repo: Repo, mocker: MockerFixture) -> None:
 
 def test_repo_init(repo: Repo, mocker: MockerFixture) -> None:
     """
-    must create empty database files
+    must call repo-add with empty package list on repo initializing
     """
-    mocker.patch("pathlib.Path.exists", return_value=False)
-    touch_mock = mocker.patch("pathlib.Path.touch")
-    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
+    check_output_mock = mocker.patch("ahriman.core.alpm.repo.check_output")
 
     repo.init()
-    touch_mock.assert_called_once_with(exist_ok=True)
-    symlink_mock.assert_called_once_with(repo.repo_path)
-
-
-def test_repo_init_skip(repo: Repo, mocker: MockerFixture) -> None:
-    """
-    must do not create files if database already exists
-    """
-    mocker.patch("pathlib.Path.exists", return_value=True)
-    touch_mock = mocker.patch("pathlib.Path.touch")
-    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
-
-    repo.init()
-    touch_mock.assert_not_called()
-    symlink_mock.assert_not_called()
+    check_output_mock.assert_called_once()  # it will be checked later
+    assert check_output_mock.call_args[0][0] == "repo-add"
 
 
 def test_repo_remove(repo: Repo, mocker: MockerFixture) -> None:
