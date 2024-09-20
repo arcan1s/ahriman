@@ -165,26 +165,35 @@ class PkgbuildParser(shlex.shlex):
 
         return result
 
-    def _is_quoted(self) -> bool:
+    def _is_escaped(self) -> bool:
         """
         check if the last element was quoted. ``shlex.shlex`` parser doesn't provide information about was the token
         quoted or not, thus there is no difference between "'#'" (diez in quotes) and "#" (diez without quotes). This
         method simply rolls back to the last non-space character and check if it is a quotation mark
 
         Returns:
-            bool: ``True`` if the previous element of the stream is a quote and ``False`` otherwise
+            bool: ``True`` if the previous element of the stream is a quote or escaped and ``False`` otherwise
         """
         current_position = self._io.tell()
 
-        last_char = None
+        last_char = penultimate_char = None
         for index in range(current_position - 1, -1, -1):
             self._io.seek(index)
             last_char = self._io.read(1)
-            if not last_char.isspace():
-                break
+            if last_char.isspace():
+                continue
+
+            if index >= 0:
+                self._io.seek(index - 1)
+                penultimate_char = self._io.read(1)
+
+            break
 
         self._io.seek(current_position)  # reset position of the stream
-        return last_char is not None and last_char in self.quotes
+        is_quoted = last_char is not None and last_char in self.quotes
+        is_escaped = penultimate_char is not None and penultimate_char in self.escape
+
+        return is_quoted or is_escaped
 
     def _parse_array(self) -> list[str]:
         """
@@ -200,7 +209,7 @@ class PkgbuildParser(shlex.shlex):
         def extract() -> Generator[str, None, None]:
             while token := self.get_token():
                 match token:
-                    case _ if self._is_quoted():
+                    case _ if self._is_escaped():
                         pass
                     case PkgbuildToken.ArrayEnds:
                         break
@@ -231,7 +240,7 @@ class PkgbuildParser(shlex.shlex):
         counter = 0  # simple processing of the inner "{" and "}"
         for token in self:
             match token:
-                case _ if self._is_quoted():
+                case _ if self._is_escaped():
                     continue
                 case PkgbuildToken.FunctionStarts:
                     if counter == 0:

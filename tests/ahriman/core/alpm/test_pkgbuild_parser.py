@@ -68,7 +68,7 @@ def test_parse_array_comment() -> None:
     ])]
 
 
-def test_parse_array_quotes() -> None:
+def test_parse_array_escaped() -> None:
     """
     must correctly process quoted brackets
     """
@@ -79,6 +79,9 @@ def test_parse_array_quotes() -> None:
     assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
 
     parser = PkgbuildParser(StringIO("""var=(first ')' second)"""))
+    assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
+
+    parser = PkgbuildParser(StringIO("""var=(first \\) second)"""))
     assert list(parser.parse()) == [PkgbuildPatch("var", ["first", ")", "second"])]
 
 
@@ -123,7 +126,7 @@ def test_parse_function_inner_shell() -> None:
     assert list(parser.parse()) == [PkgbuildPatch("var()", "{ { echo hello world } }")]
 
 
-def test_parse_function_quotes() -> None:
+def test_parse_function_escaped() -> None:
     """
     must parse function with bracket in quotes
     """
@@ -141,6 +144,9 @@ def test_parse_function_quotes() -> None:
 
     parser = PkgbuildParser(StringIO("""var ( ) { echo hello world '}' } """))
     assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world '}' }""")]
+
+    parser = PkgbuildParser(StringIO("""var ( ) { echo hello world \\} } """))
+    assert list(parser.parse()) == [PkgbuildPatch("var()", """{ echo hello world \\} }""")]
 
 
 def test_parse_function_exception() -> None:
