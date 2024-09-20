@@ -229,7 +229,7 @@ class PkgbuildParser(shlex.shlex):
         # find start and end positions
         start_position = end_position = -1
         counter = 0  # simple processing of the inner "{" and "}"
-        while token := self.get_token():
+        for token in self:
             match token:
                 case _ if self._is_quoted():
                     continue
