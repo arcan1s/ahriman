@@ -28,9 +28,9 @@ def test_package_dependencies() -> None:
     """
     must extract package dependencies
     """
-    packages = dict(Versions.package_dependencies("srcinfo"))
+    packages = dict(Versions.package_dependencies("requests"))
     assert packages
-    assert packages.get("parse") is not None
+    assert packages.get("urllib3") is not None
 
 
 def test_package_dependencies_missing() -> None:

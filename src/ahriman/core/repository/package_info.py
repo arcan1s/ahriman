@@ -58,7 +58,7 @@ class PackageInfo(RepositoryProperties):
                     # force version to max of them
                     self.logger.warning("version of %s differs, found %s and %s",
                                         current.base, current.version, local.version)
-                    if current.is_outdated(local, self.paths, calculate_version=False):
+                    if current.is_outdated(local, self.configuration, calculate_version=False):
                         current.version = local.version
                 current.packages.update(local.packages)
             except Exception:

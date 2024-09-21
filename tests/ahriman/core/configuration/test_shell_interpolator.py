@@ -1,7 +1,7 @@
 import os
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.configuration.shell_interpolator import ExtendedTemplate, ShellInterpolator
+from ahriman.core.configuration.shell_interpolator import ShellInterpolator
 
 
 def _parser() -> dict[str, dict[str, str]]:
@@ -25,14 +25,6 @@ def _parser() -> dict[str, dict[str, str]]:
             "key5": "${section1:key4}",
         },
     }
-
-
-def test_extended_template() -> None:
-    """
-    must match colons in braces
-    """
-    assert ExtendedTemplate("$key:value").get_identifiers() == ["key"]
-    assert ExtendedTemplate("${key:value}").get_identifiers() == ["key:value"]
 
 
 def test_extract_variables() -> None:

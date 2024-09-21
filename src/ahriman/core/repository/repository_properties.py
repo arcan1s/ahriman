@@ -51,7 +51,6 @@ class RepositoryProperties(EventLogger, LazyLogging):
         scan_paths(ScanPaths): scan paths for the implicit dependencies
         sign(GPG): GPG wrapper instance
         triggers(TriggerLoader): triggers holder
-        vcs_allowed_age(int): maximal age of the VCS packages before they will be checked
     """
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, database: SQLite, *, report: bool,
@@ -67,8 +66,6 @@ class RepositoryProperties(EventLogger, LazyLogging):
         self.repository_id = repository_id
         self.configuration = configuration
         self.database = database
-
-        self.vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
 
         self.paths: RepositoryPaths = configuration.repository_paths  # additional workaround for pycharm typing
 

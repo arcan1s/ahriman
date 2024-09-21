@@ -21,7 +21,6 @@ dependencies = [
     "passlib",
     "pyelftools",
     "requests",
-    "srcinfo",
 ]
 
 dynamic = ["version"]

@@ -143,7 +143,7 @@ TL;DR
 
    sudo -u ahriman ahriman package-add /path/to/local/directory/with/PKGBUILD --now
 
-Before using this command you will need to create local directory, put ``PKGBUILD`` there and generate ``.SRCINFO`` by using ``makepkg --printsrcinfo > .SRCINFO`` command. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
+Before using this command you will need to create local directory and put ``PKGBUILD`` there. These packages will be stored locally and *will be ignored* during automatic update; in order to update the package you will need to run ``package-add`` command again.
 
 How to copy package from another repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -265,11 +265,7 @@ TL;DR
 How to update VCS packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Normally the service handles VCS packages correctly, however it requires additional dependencies:
-
-.. code-block:: shell
-
-   pacman -S breezy darcs mercurial subversion
+Normally the service handles VCS packages correctly. The version is updated in clean chroot, no additional actions are required.
 
 How to review changes before build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

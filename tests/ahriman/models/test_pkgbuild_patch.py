@@ -132,6 +132,14 @@ def test_serialize_list() -> None:
     assert PkgbuildPatch("key", ["val'ue", "val\"ue2"]).serialize() == """key=('val'"'"'ue' 'val"ue2')"""
 
 
+def test_substitute() -> None:
+    """
+    must correctly substitute variables
+    """
+    assert PkgbuildPatch("key", "$env $value").substitute({"env": "variable"}) == "variable $value"
+    assert PkgbuildPatch("key", ["$env $value"]).substitute({"env": "variable"}) == ["variable $value"]
+
+
 def test_write(mocker: MockerFixture) -> None:
     """
     must write serialized value to the file
