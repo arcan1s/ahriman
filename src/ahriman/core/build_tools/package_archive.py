@@ -115,7 +115,7 @@ class PackageArchive:
         Returns:
             FilesystemPackage: generated pacman package model with empty paths
         """
-        package_name, *_ = path.parent.name.rsplit("-", 2)
+        package_name, *_ = path.parent.name.rsplit("-", maxsplit=2)
         try:
             pacman_package = OfficialSyncdb.info(package_name, pacman=self.pacman)
             return FilesystemPackage(

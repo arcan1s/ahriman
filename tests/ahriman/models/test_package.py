@@ -1,17 +1,15 @@
-import pytest
-
 from pathlib import Path
 from pytest_mock import MockerFixture
-from srcinfo.parse import parse_srcinfo
 from unittest.mock import MagicMock
 
 from ahriman.core.alpm.pacman import Pacman
-from ahriman.core.exceptions import PackageInfoError
+from ahriman.core.configuration import Configuration
 from ahriman.core.utils import utcnow
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
-from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.pkgbuild import Pkgbuild
+from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
 def test_depends(package_python_schedule: Package) -> None:
@@ -52,9 +50,8 @@ def test_depends_build_with_version_and_overlap(mocker: MockerFixture, resource_
     """
     must load correct list of dependencies with version
     """
-
-    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_gcc10_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
 
     package_gcc10 = Package.from_build(Path("local"), "x86_64", None)
     assert package_gcc10.depends_build == {
@@ -179,10 +176,10 @@ def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, moc
 
 def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_path_root: Path) -> None:
     """
-    must construct package from srcinfo
+    must construct package from PKGBUILD
     """
-    srcinfo = (resource_path_root / "models" / "package_ahriman_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_ahriman_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
 
     package = Package.from_build(Path("path"), "x86_64", "packager")
     assert package_ahriman.packages.keys() == package.packages.keys()
@@ -193,15 +190,15 @@ def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_pa
 
 def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root: Path) -> None:
     """
-    must construct package from srcinfo with dependencies per-package overrides
+    must construct package from PKGBUILD with dependencies per-package overrides
     """
-    srcinfo = (resource_path_root / "models" / "package_gcc10_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_gcc10_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
 
     package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
         "gcc10": PackageDescription(
-            depends=["gcc10-libs=10.3.0-2", "binutils>=2.28", "libmpc", "zstd"],
+            depends=["gcc10-libs=10.5.0-2", "binutils>=2.28", "libmpc", "zstd"],
             make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
             opt_depends=[],
             check_depends=["dejagnu", "inetutils"],
@@ -213,7 +210,7 @@ def test_from_build_multiple_packages(mocker: MockerFixture, resource_path_root:
             check_depends=["dejagnu", "inetutils"],
         ),
         "gcc10-fortran": PackageDescription(
-            depends=["gcc10=10.3.0-2"],
+            depends=["gcc10=10.5.0-2"],
             make_depends=["binutils", "doxygen", "git", "libmpc", "python"],
             opt_depends=[],
             check_depends=["dejagnu", "inetutils"],
@@ -225,12 +222,12 @@ def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path
     """
     must construct package with architecture specific depends list
     """
-    srcinfo = (resource_path_root / "models" / "package_jellyfin-ffmpeg5-bin_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_jellyfin-ffmpeg6-bin_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
 
     package = Package.from_build(Path("path"), "x86_64", None)
     assert package.packages == {
-        "jellyfin-ffmpeg5-bin": PackageDescription(
+        "jellyfin-ffmpeg6-bin": PackageDescription(
             depends=["glibc"],
             make_depends=[],
             opt_depends=[
@@ -247,17 +244,6 @@ def test_from_build_architecture(mocker: MockerFixture, resource_path_root: Path
             ],
         ),
     }
-
-
-def test_from_build_failed(mocker: MockerFixture) -> None:
-    """
-    must raise exception if there are errors during srcinfo load
-    """
-    mocker.patch("ahriman.models.package.check_output", return_value="")
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-
-    with pytest.raises(PackageInfoError):
-        Package.from_build(Path("path"), "x86_64", None)
 
 
 def test_from_json_view_1(package_ahriman: Package) -> None:
@@ -299,11 +285,10 @@ def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must extract local file sources
     """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
-    parsed_srcinfo["source"] = ["local-file.tar.gz"]
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["source"] = PkgbuildPatch("source", ["local-file.tar.gz"])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == [Path("local-file.tar.gz")]
@@ -311,35 +296,23 @@ def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
 
 def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> None:
     """
-    must extract empty local files list when there is no local files
+    must extract empty local files list when there are no local files
     """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert not list(Package.local_files(Path("path")))
-
-
-def test_local_files_error(mocker: MockerFixture) -> None:
-    """
-    must raise exception on package parsing for local sources
-    """
-    mocker.patch("ahriman.models.package.check_output", return_value="")
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-
-    with pytest.raises(PackageInfoError):
-        list(Package.local_files(Path("path")))
 
 
 def test_local_files_schema(mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must skip local file source when file schema is used
     """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
-    parsed_srcinfo["source"] = ["file:///local-file.tar.gz"]
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.check_output", return_value="")
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["source"] = PkgbuildPatch("source", ["file:///local-file.tar.gz"])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert not list(Package.local_files(Path("path")))
@@ -349,11 +322,10 @@ def test_local_files_with_install(mocker: MockerFixture, resource_path_root: Pat
     """
     must extract local file sources with install file
     """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    parsed_srcinfo, _ = parse_srcinfo(srcinfo)
-    parsed_srcinfo["install"] = "install"
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=(parsed_srcinfo, []))
-    mocker.patch("ahriman.models.package.check_output", return_value="")
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["install"] = PkgbuildPatch("install", "install")
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
     mocker.patch("ahriman.models.package.Package.supported_architectures", return_value=["any"])
 
     assert list(Package.local_files(Path("path"))) == [Path("install")]
@@ -363,64 +335,49 @@ def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path
     """
     must generate list of available architectures
     """
-    srcinfo = (resource_path_root / "models" / "package_yay_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
     assert Package.supported_architectures(Path("path")) == \
-        {"i686", "pentium4", "x86_64", "arm", "armv7h", "armv6h", "aarch64"}
+        {"i686", "pentium4", "x86_64", "arm", "armv7h", "armv6h", "aarch64", "riscv64"}
 
 
-def test_supported_architectures_failed(mocker: MockerFixture) -> None:
-    """
-    must raise exception if there are errors during srcinfo load for architectures
-    """
-    mocker.patch("ahriman.models.package.check_output", return_value="")
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-
-    with pytest.raises(PackageInfoError):
-        Package.supported_architectures(Path("path"))
-
-
-def test_actual_version(package_ahriman: Package, repository_paths: RepositoryPaths) -> None:
+def test_actual_version(package_ahriman: Package, configuration: Configuration) -> None:
     """
     must return same actual_version as version is
     """
-    assert package_ahriman.actual_version(repository_paths) == package_ahriman.version
+    assert package_ahriman.actual_version(configuration) == package_ahriman.version
 
 
-def test_actual_version_vcs(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
+def test_actual_version_vcs(package_tpacpi_bat_git: Package, configuration: Configuration,
                             mocker: MockerFixture, resource_path_root: Path) -> None:
     """
     must return valid actual_version for VCS package
     """
-    srcinfo = (resource_path_root / "models" / "package_tpacpi-bat-git_srcinfo").read_text()
-    mocker.patch("ahriman.models.package.check_output", return_value=srcinfo)
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
+    pkgbuild = resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
+    mocker.patch("pathlib.Path.glob", return_value=[Path("local")])
+    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
+    build_mock = mocker.patch("ahriman.core.build_tools.task.Task.build")
+    unlink_mock = mocker.patch("pathlib.Path.unlink")
 
-    assert package_tpacpi_bat_git.actual_version(repository_paths) == "3.1.r13.g4959b52-1"
+    assert package_tpacpi_bat_git.actual_version(configuration) == "3.1.r13.g4959b52-1"
+    init_mock.assert_called_once_with(configuration.repository_paths.cache_for(package_tpacpi_bat_git.base), [], None)
+    build_mock.assert_called_once_with(configuration.repository_paths.cache_for(package_tpacpi_bat_git.base),
+                                       dry_run=True)
+    unlink_mock.assert_called_once_with()
 
 
-def test_actual_version_srcinfo_failed(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
-                                       mocker: MockerFixture) -> None:
+def test_actual_version_failed(package_tpacpi_bat_git: Package, configuration: Configuration,
+                               mocker: MockerFixture) -> None:
     """
     must return same version in case if exception occurred
     """
-    mocker.patch("ahriman.models.package.check_output", side_effect=Exception())
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
+    mocker.patch("ahriman.core.build_tools.task.Task.init", side_effect=Exception())
+    mocker.patch("pathlib.Path.glob", return_value=[Path("local")])
+    unlink_mock = mocker.patch("pathlib.Path.unlink")
 
-    assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
-
-
-def test_actual_version_vcs_failed(package_tpacpi_bat_git: Package, repository_paths: RepositoryPaths,
-                                   mocker: MockerFixture) -> None:
-    """
-    must return same version in case if there are errors during parse
-    """
-    mocker.patch("pathlib.Path.read_text", return_value="")
-    mocker.patch("ahriman.models.package.parse_srcinfo", return_value=({"packages": {}}, ["an error"]))
-    mocker.patch("ahriman.models.package.check_output")
-    mocker.patch("ahriman.core.build_tools.sources.Sources.load")
-
-    assert package_tpacpi_bat_git.actual_version(repository_paths) == package_tpacpi_bat_git.version
+    assert package_tpacpi_bat_git.actual_version(configuration) == package_tpacpi_bat_git.version
+    unlink_mock.assert_called_once_with()
 
 
 def test_full_depends(package_ahriman: Package, package_python_schedule: Package, pyalpm_package_ahriman: MagicMock,
@@ -461,17 +418,17 @@ def test_is_newer_than(package_ahriman: Package, package_python_schedule: Packag
     assert not package_python_schedule.is_newer_than(min_date)
 
 
-def test_is_outdated_false(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_is_outdated_false(package_ahriman: Package, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must be not outdated for the same package
     """
     actual_version_mock = mocker.patch("ahriman.models.package.Package.actual_version",
                                        return_value=package_ahriman.version)
-    assert not package_ahriman.is_outdated(package_ahriman, repository_paths)
-    actual_version_mock.assert_called_once_with(repository_paths)
+    assert not package_ahriman.is_outdated(package_ahriman, configuration)
+    actual_version_mock.assert_called_once_with(configuration)
 
 
-def test_is_outdated_true(package_ahriman: Package, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+def test_is_outdated_true(package_ahriman: Package, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     must be outdated for the new version
     """
@@ -479,27 +436,28 @@ def test_is_outdated_true(package_ahriman: Package, repository_paths: Repository
     other.version = other.version.replace("-1", "-2")
     actual_version_mock = mocker.patch("ahriman.models.package.Package.actual_version", return_value=other.version)
 
-    assert package_ahriman.is_outdated(other, repository_paths)
-    actual_version_mock.assert_called_once_with(repository_paths)
+    assert package_ahriman.is_outdated(other, configuration)
+    actual_version_mock.assert_called_once_with(configuration)
 
 
-def test_is_outdated_no_version_calculation(package_ahriman: Package, repository_paths: RepositoryPaths,
+def test_is_outdated_no_version_calculation(package_ahriman: Package, configuration: Configuration,
                                             mocker: MockerFixture) -> None:
     """
     must not call actual version if calculation is disabled
     """
     actual_version_mock = mocker.patch("ahriman.models.package.Package.actual_version")
-    assert not package_ahriman.is_outdated(package_ahriman, repository_paths, calculate_version=False)
+    assert not package_ahriman.is_outdated(package_ahriman, configuration, calculate_version=False)
     actual_version_mock.assert_not_called()
 
 
-def test_is_outdated_fresh_package(package_ahriman: Package, repository_paths: RepositoryPaths,
+def test_is_outdated_fresh_package(package_ahriman: Package, configuration: Configuration,
                                    mocker: MockerFixture) -> None:
     """
     must not call actual version if package is never than specified time
     """
+    configuration.set_option("build", "vcs_allowed_age", str(int(utcnow().timestamp())))
     actual_version_mock = mocker.patch("ahriman.models.package.Package.actual_version")
-    assert not package_ahriman.is_outdated(package_ahriman, repository_paths, vcs_allowed_age=utcnow().timestamp())
+    assert not package_ahriman.is_outdated(package_ahriman, configuration)
     actual_version_mock.assert_not_called()
 
 

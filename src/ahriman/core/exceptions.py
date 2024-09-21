@@ -212,6 +212,23 @@ class PacmanError(RuntimeError):
         RuntimeError.__init__(self, f"Could not perform operation with pacman: `{details}`")
 
 
+class PkgbuildParserError(ValueError):
+    """
+    exception raises in case of PKGBUILD parser errors
+    """
+
+    def __init__(self, reason: str, source: Any = None) -> None:
+        """
+        Args:
+            reason(str): parser error reason
+            source(Any, optional): source line if available (Default value = None)
+        """
+        message = f"Could not parse PKGBUILD: {reason}"
+        if source is not None:
+            message += f", source: `{source}`"
+        ValueError.__init__(self, message)
+
+
 class PathError(ValueError):
     """
     exception which will be raised on path which is not belong to root directory

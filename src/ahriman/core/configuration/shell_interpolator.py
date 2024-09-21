@@ -24,16 +24,7 @@ import sys
 from collections.abc import Generator, Mapping, MutableMapping
 from string import Template
 
-
-class ExtendedTemplate(Template):
-    """
-    extension to the default :class:`Template` class, which also enabled braces regex to lookup in sections
-
-    Attributes:
-        braceidpattern(str): regular expression to match a colon inside braces
-    """
-
-    braceidpattern = r"(?a:[_a-z0-9][_a-z0-9:]*)"
+from ahriman.core.configuration.shell_template import ShellTemplate
 
 
 class ShellInterpolator(configparser.Interpolation):
@@ -60,7 +51,7 @@ class ShellInterpolator(configparser.Interpolation):
         """
         def identifiers() -> Generator[tuple[str | None, str], None, None]:
             # extract all found identifiers and parse them
-            for identifier in ExtendedTemplate(value).get_identifiers():
+            for identifier in ShellTemplate(value).get_identifiers():
                 match identifier.split(":"):
                     case [lookup_option]:  # single option from the same section
                         yield None, lookup_option
@@ -121,7 +112,7 @@ class ShellInterpolator(configparser.Interpolation):
 
         # resolve internal references
         variables = dict(self._extract_variables(parser, value, defaults))
-        internal = ExtendedTemplate(escaped).safe_substitute(variables)
+        internal = ShellTemplate(escaped).safe_substitute(variables)
 
         # resolve enriched environment variables by using default Template class
         environment = Template(internal).safe_substitute(self.environment())

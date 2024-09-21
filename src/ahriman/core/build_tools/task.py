@@ -17,13 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from collections.abc import Generator
 from pathlib import Path
 
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import BuildError
 from ahriman.core.log import LazyLogging
-from ahriman.core.utils import check_output
+from ahriman.core.utils import check_output, package_like
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_paths import RepositoryPaths
@@ -65,12 +66,43 @@ class Task(LazyLogging):
         self.makepkg_flags = configuration.getlist("build", "makepkg_flags", fallback=[])
         self.makechrootpkg_flags = configuration.getlist("build", "makechrootpkg_flags", fallback=[])
 
-    def build(self, sources_dir: Path, **kwargs: str | None) -> list[Path]:
+    def _package_archives(self, sources_dir: Path, source_files: list[Path]) -> list[Path]:
+        """
+        extract package archives from the directory
+
+        Args:
+            sources_dir(Path): path to where sources are
+            source_files(list[Path]): list of files which were initially in the directory
+
+        Returns:
+            list[Path]: list of file paths which looks like freshly generated archives
+        """
+        def files() -> Generator[Path, None, None]:
+            for filepath in sources_dir.iterdir():
+                if filepath in source_files:
+                    continue  # skip files which were already there
+                if filepath.suffix == ".log":
+                    continue  # skip log files
+                if not package_like(filepath):
+                    continue  # path doesn't look like a package
+                yield filepath
+
+        # debug packages are always formed as package.base-debug
+        # see /usr/share/makepkg/util/pkgbuild.sh for more details
+        debug_package_prefix = f"{self.package.base}-debug-"
+        return [
+            package
+            for package in files()
+            if self.include_debug_packages or not package.name.startswith(debug_package_prefix)
+        ]
+
+    def build(self, sources_dir: Path, *, dry_run: bool = False, **kwargs: str | None) -> list[Path]:
         """
         run package build
 
         Args:
             sources_dir(Path): path to where sources are
+            dry_run(bool, optional): do not perform build itself (Default value = False)
             **kwargs(str | None): environment variables to be passed to build processes
 
         Returns:
@@ -80,6 +112,8 @@ class Task(LazyLogging):
         command.extend(self.archbuild_flags)
         command.extend(["--"] + self.makechrootpkg_flags)
         command.extend(["--"] + self.makepkg_flags)
+        if dry_run:
+            command.extend(["--nobuild"])
         self.logger.info("using %s for %s", command, self.package.base)
 
         environment: dict[str, str] = {
@@ -89,6 +123,7 @@ class Task(LazyLogging):
         }
         self.logger.info("using environment variables %s", environment)
 
+        source_files = list(sources_dir.iterdir())
         check_output(
             *command,
             exception=BuildError.from_process(self.package.base),
@@ -98,20 +133,7 @@ class Task(LazyLogging):
             environment=environment,
         )
 
-        package_list_command = ["makepkg", "--packagelist"]
-        if not self.include_debug_packages:
-            package_list_command.append("OPTIONS=(!debug)")  # disable debug flag manually
-        packages = check_output(
-            *package_list_command,
-            exception=BuildError.from_process(self.package.base),
-            cwd=sources_dir,
-            logger=self.logger,
-            environment=environment,
-        ).splitlines()
-        # some dirty magic here
-        # the filter is applied in order to make sure that result will only contain packages which were actually built
-        # e.g. in some cases packagelist command produces debug packages which were not actually built
-        return list(filter(lambda path: path.is_file(), map(Path, packages)))
+        return self._package_archives(sources_dir, source_files)
 
     def init(self, sources_dir: Path, patches: list[PkgbuildPatch], local_version: str | None) -> str | None:
         """

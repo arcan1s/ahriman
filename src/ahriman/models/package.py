@@ -26,19 +26,18 @@ from collections.abc import Callable, Generator, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore[import-not-found]
-from srcinfo.parse import parse_srcinfo  # type: ignore[import-untyped]
 from typing import Any, Self
 from urllib.parse import urlparse
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote import AUR, Official, OfficialSyncdb
-from ahriman.core.exceptions import PackageInfoError
+from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
-from ahriman.core.utils import check_output, dataclass_view, full_version, parse_version, srcinfo_property_list, utcnow
+from ahriman.core.utils import dataclass_view, full_version, parse_version, srcinfo_property_list, utcnow
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.remote_source import RemoteSource
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 @dataclass(kw_only=True)
@@ -255,25 +254,19 @@ class Package(LazyLogging):
 
         Returns:
             Self: package properties
-
-        Raises:
-            PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
 
         packages = {
             package: PackageDescription(
-                depends=srcinfo_property_list("depends", srcinfo, properties, architecture=architecture),
-                make_depends=srcinfo_property_list("makedepends", srcinfo, properties, architecture=architecture),
-                opt_depends=srcinfo_property_list("optdepends", srcinfo, properties, architecture=architecture),
-                check_depends=srcinfo_property_list("checkdepends", srcinfo, properties, architecture=architecture),
+                depends=srcinfo_property_list("depends", pkgbuild, properties, architecture=architecture),
+                make_depends=srcinfo_property_list("makedepends", pkgbuild, properties, architecture=architecture),
+                opt_depends=srcinfo_property_list("optdepends", pkgbuild, properties, architecture=architecture),
+                check_depends=srcinfo_property_list("checkdepends", pkgbuild, properties, architecture=architecture),
             )
-            for package, properties in srcinfo["packages"].items()
+            for package, properties in pkgbuild.packages().items()
         }
-        version = full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+        version = full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])
 
         remote = RemoteSource(
             source=PackageSource.Local,
@@ -284,7 +277,7 @@ class Package(LazyLogging):
         )
 
         return cls(
-            base=srcinfo["pkgbase"],
+            base=pkgbuild["pkgbase"],
             version=version,
             remote=remote,
             packages=packages,
@@ -363,18 +356,14 @@ class Package(LazyLogging):
         Raises:
             PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
-
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
         # we could use arch property, but for consistency it is better to call special method
         architectures = Package.supported_architectures(path)
 
         for architecture in architectures:
-            for source in srcinfo_property_list("source", srcinfo, {}, architecture=architecture):
+            for source in srcinfo_property_list("source", pkgbuild, {}, architecture=architecture):
                 if "::" in source:
-                    _, source = source.split("::", 1)  # in case if filename is specified, remove it
+                    _, source = source.split("::", maxsplit=1)  # in case if filename is specified, remove it
 
                 if urlparse(source).scheme:
                     # basically file schema should use absolute path which is impossible if we are distributing
@@ -383,7 +372,7 @@ class Package(LazyLogging):
 
                 yield Path(source)
 
-        if (install := srcinfo.get("install", None)) is not None:
+        if (install := pkgbuild.get("install")) is not None:
             yield Path(install)
 
     @staticmethod
@@ -396,15 +385,9 @@ class Package(LazyLogging):
 
         Returns:
             set[str]: list of package supported architectures
-
-        Raises:
-            PackageInfoError: if there are parsing errors
         """
-        srcinfo_source = check_output("makepkg", "--printsrcinfo", cwd=path)
-        srcinfo, errors = parse_srcinfo(srcinfo_source)
-        if errors:
-            raise PackageInfoError(errors)
-        return set(srcinfo.get("arch", []))
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
+        return set(pkgbuild.get("arch", []))
 
     def _package_list_property(self, extractor: Callable[[PackageDescription], list[str]]) -> list[str]:
         """
@@ -426,39 +409,39 @@ class Package(LazyLogging):
 
         return sorted(set(generator()))
 
-    def actual_version(self, paths: RepositoryPaths) -> str:
+    def actual_version(self, configuration: Configuration) -> str:
         """
         additional method to handle VCS package versions
 
         Args:
-            paths(RepositoryPaths): repository paths instance
+            configuration(Configuration): configuration instance
 
         Returns:
             str: package version if package is not VCS and current version according to VCS otherwise
-
-        Raises:
-            PackageInfoError: if there are parsing errors
         """
         if not self.is_vcs:
             return self.version
 
-        from ahriman.core.build_tools.sources import Sources
+        from ahriman.core.build_tools.task import Task
 
-        Sources.load(paths.cache_for(self.base), self, [], paths)
+        _, repository_id = configuration.check_loaded()
+        paths = configuration.repository_paths
+        task = Task(self, configuration, repository_id.architecture, paths)
 
         try:
-            # update pkgver first
-            check_output("makepkg", "--nodeps", "--nobuild", cwd=paths.cache_for(self.base), logger=self.logger)
-            # generate new .SRCINFO and put it to parser
-            srcinfo_source = check_output("makepkg", "--printsrcinfo",
-                                          cwd=paths.cache_for(self.base), logger=self.logger)
-            srcinfo, errors = parse_srcinfo(srcinfo_source)
-            if errors:
-                raise PackageInfoError(errors)
+            # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
+            task.init(paths.cache_for(self.base), [], None)
+            task.build(paths.cache_for(self.base), dry_run=True)
 
-            return full_version(srcinfo.get("epoch"), srcinfo["pkgver"], srcinfo["pkgrel"])
+            pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
+
+            return full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])
         except Exception:
-            self.logger.exception("cannot determine version of VCS package, make sure that VCS tools are installed")
+            self.logger.exception("cannot determine version of VCS package")
+        finally:
+            # clear log files generated by devtools
+            for log_file in paths.cache_for(self.base).glob("*.log"):
+                log_file.unlink()
 
         return self.version
 
@@ -513,26 +496,25 @@ class Package(LazyLogging):
             if package.build_date is not None
         )
 
-    def is_outdated(self, remote: Package, paths: RepositoryPaths, *,
-                    vcs_allowed_age: float | int = 0,
+    def is_outdated(self, remote: Package, configuration: Configuration, *,
                     calculate_version: bool = True) -> bool:
         """
         check if package is out-of-dated
 
         Args:
             remote(Package): package properties from remote source
-            paths(RepositoryPaths): repository paths instance. Required for VCS packages cache
-            vcs_allowed_age(float | int, optional): max age of the built packages before they will be
-                forced to calculate actual version (Default value = 0)
+            configuration(Configuration): configuration instance
             calculate_version(bool, optional): expand version to actual value (by calculating git versions)
                 (Default value = True)
 
         Returns:
             bool: ``True`` if the package is out-of-dated and ``False`` otherwise
         """
+        vcs_allowed_age = configuration.getint("build", "vcs_allowed_age", fallback=0)
         min_vcs_build_date = utcnow().timestamp() - vcs_allowed_age
+
         if calculate_version and not self.is_newer_than(min_vcs_build_date):
-            remote_version = remote.actual_version(paths)
+            remote_version = remote.actual_version(configuration)
         else:
             remote_version = remote.version
 

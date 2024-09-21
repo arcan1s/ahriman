@@ -32,7 +32,7 @@ This package contains application (aka executable) related classes and everythin
 
 This package contains everything required for the most of application actions and it is separated into several packages:
 
-* ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC).
+* ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC) and some other helpers.
 * ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be instantiated by ``load`` method.
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
 * ``ahriman.core.configuration`` contains extension for standard ``configparser`` library and some validation related classes.
@@ -374,6 +374,24 @@ There are several supported synchronization providers, currently they are ``rsyn
 ``s3`` provider uses ``boto3`` package and implements sync feature. The files are stored in architecture specific directory (e.g. if bucket is ``repository``, packages will be stored in ``repository/aur-clone/x86_64`` for the ``aur-clone`` repository and ``x86_64`` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, the implementation used is described `here <https://teppen.io/2018/10/23/aws_s3_verify_etags/>`__.
 
 ``github`` provider authenticates through basic auth, API key with repository write permissions is required. There will be created a release with the name of the architecture in case if it does not exist; files will be uploaded to the release assets. It also stores array of files and their MD5 checksums in release body in order to upload only changed ones. According to the GitHub API in case if there is already uploaded asset with the same name (e.g. database files), asset will be removed first.
+
+PKGBUILD parsing
+^^^^^^^^^^^^^^^^
+
+The application provides a house-made shell parser ``ahriman.core.alpm.pkgbuild_parser.PkgbuildParser`` to process PKGBUILDs and extract package data from them. It relies on the ``shlex.shlex`` parser with some configuration tweaks and adds some token post-processing.
+
+#. During the parser process, firstly, it extract next token from the source file (basically, the word) and tries to match it to the variable assignment. If so, then just processes accordingly.
+#. If it is not an assignment, the parser checks if the token was quoted.
+#. If it wasn't then the parser tries to match the array starts (two consecutive tokens like ``array=`` and ``(``) or it is function (``function``, ``()`` and ``{``).
+#. The arrays are processed until the next closing bracket ``)``. After extraction, the parser tries to expand an array according to bash rules (``prefix{first,second}suffix`` constructions).
+#. The functions are just read until the closing bracket ``}`` and then reread whole text from the input string without a tokenization.
+
+All extracted fields are packed as ``ahriman.models.pkgbuild_patch.PkgbuildPatch`` and then can be used as ``ahriman.models.pkgbuild.Pkgbuild`` instance.
+
+The PKGBUILD class also provides some additional functions on top of that:
+
+* Ability to extract fields defined inside ``package*()`` functions, which are in particular used for the multipackages.
+* Shell substitution, which supports constructions ``$var`` (including ``${var}``), ``${var#(#)pattern}``, ``${var%(%)pattern}`` and ``${var/(/)pattern/replacement}`` (including ``#pattern`` and ``%pattern``).
 
 Additional features
 ^^^^^^^^^^^^^^^^^^^

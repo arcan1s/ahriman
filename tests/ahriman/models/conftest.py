@@ -1,5 +1,6 @@
 import pytest
 
+from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
 from ahriman import __version__
@@ -11,6 +12,7 @@ from ahriman.models.internal_status import InternalStatus
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
+from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.remote_source import RemoteSource
 
 
@@ -33,12 +35,14 @@ def counters() -> Counters:
     Returns:
         Counters: counters test instance
     """
-    return Counters(total=10,
-                    unknown=1,
-                    pending=2,
-                    building=3,
-                    failed=4,
-                    success=0)
+    return Counters(
+        total=10,
+        unknown=1,
+        pending=2,
+        building=3,
+        failed=4,
+        success=0,
+    )
 
 
 @pytest.fixture
@@ -89,6 +93,21 @@ def package_tpacpi_bat_git() -> Package:
             branch="master",
         ),
         packages={"tpacpi-bat-git": PackageDescription()})
+
+
+@pytest.fixture
+def pkgbuild_ahriman(resource_path_root: Path) -> Pkgbuild:
+    """
+    pkgbuild fixture
+
+    Args:
+        resource_path_root(Path): resource path root directory
+
+    Returns:
+        Pkgbuild: pkgbuild test instance
+    """
+    pkgbuild = resource_path_root / "models" / "package_ahriman_pkgbuild"
+    return Pkgbuild.from_file(pkgbuild)
 
 
 @pytest.fixture

@@ -28,6 +28,14 @@ ahriman.core.configuration.shell\_interpolator module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.configuration.shell\_template module
+-------------------------------------------------
+
+.. automodule:: ahriman.core.configuration.shell_template
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.configuration.validator module
 -------------------------------------------
 

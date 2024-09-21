@@ -67,10 +67,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                 try:
                     remote = load_remote(local)
 
-                    if local.is_outdated(
-                            remote, self.paths,
-                            vcs_allowed_age=self.vcs_allowed_age,
-                            calculate_version=vcs):
+                    if local.is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Remote version is newer than local")
                         result.append(remote)
@@ -156,9 +153,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     if local.remote.is_remote:
                         continue  # avoid checking AUR packages
 
-                    if local.is_outdated(remote, self.paths,
-                                         vcs_allowed_age=self.vcs_allowed_age,
-                                         calculate_version=vcs):
+                    if local.is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Locally pulled sources are outdated")
                         result.append(remote)
