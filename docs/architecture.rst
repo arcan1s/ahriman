@@ -12,8 +12,8 @@ Packages have strict rules of importing:
 
 Full dependency diagram:
 
-.. image:: ahriman-architecture.svg
-   :target: _images/ahriman-architecture.svg
+.. image:: _static/architecture.svg
+   :target: _static/architecture.svg
    :alt: architecture
 
 ``ahriman.application`` package
