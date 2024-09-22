@@ -8,8 +8,8 @@ Remote synchronization and remote server call
 
 This setup requires at least two instances of the service:
 
-#. Web service (with opt-in authorization enabled), later will be referenced as ``master`` node.
-#. Application instances responsible for build, later will be referenced as ``worker`` nodes.
+#. Web service (with opt-in authorization enabled), later will be referenced as **master** node.
+#. Application instances responsible for build, later will be referenced as **worker** nodes.
 
 In this example the following settings are assumed:
 
@@ -70,7 +70,7 @@ Worker nodes configuration
       username = worker-user
       password = very-secure-password
 
-   As it has been mentioned above, ``status.address`` must be available for workers. In case if unix socket is used, it can be passed in the same option as usual. Optional ``status.username``/``status.password`` can be supplied in case if authentication was enabled on master node.
+   As it has been mentioned above, ``${status:address}`` must be available for workers. In case if unix socket is used, it can be passed in the same option as usual. Optional ``${status:username}``/``${status:password}`` can be supplied in case if authentication was enabled on master node.
 
 #.
    Each worker must call master node on success:
@@ -83,7 +83,7 @@ Worker nodes configuration
       [remote-call]
       manual = yes
 
-   After success synchronization (see above), the built packages will be put into directory, from which they will be read during manual update, thus ``remote-call.manual`` flag is required.
+   After success synchronization (see above), the built packages will be put into directory, from which they will be read during manual update, thus ``${remote-call:manual}`` flag is required.
 
 #.
    Change order of trigger runs. This step is required, because by default the report trigger is called before the upload trigger and we would like to achieve the opposite:
@@ -202,12 +202,12 @@ This action must be done in two steps:
 Delegate builds to remote workers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This setup heavily uses upload feature described above and, in addition, also delegates build process automatically to build machines. Same as above, there must be at least two instances available (``master`` and ``worker``), however, all ``worker`` nodes must be run in the web service mode.
+This setup heavily uses upload feature described above and, in addition, also delegates build process automatically to build machines. Same as above, there must be at least two instances available (**master** and **worker**), however, all **worker** nodes must be run in the web service mode.
 
 Master node configuration
 """""""""""""""""""""""""
 
-In addition to the configuration above, the worker list must be defined in configuration file (``build.workers`` option), i.e.:
+In addition to the configuration above, the worker list must be defined in configuration file (``${build:workers}`` option), i.e.:
 
 .. code-block:: ini
 
@@ -218,7 +218,7 @@ In addition to the configuration above, the worker list must be defined in confi
    enable_archive_upload = yes
    wait_timeout = 0
 
-In the example above, ``https://worker1.example.com`` and ``https://worker2.example.com`` are remote ``worker`` node addresses available for ``master`` node.
+In the example above, ``https://worker1.example.com`` and ``https://worker2.example.com`` are remote **worker** node addresses available for **master** node.
 
 In case if authentication is required (which is recommended way to setup it), it can be set by using ``status`` section as usual.
 
@@ -229,7 +229,7 @@ It is required to point to the master node repository, otherwise internal depend
 
 Also, in case if authentication is enabled, the same user with the same password must be created for all workers.
 
-It is also recommended to set ``web.wait_timeout`` to infinite in case of multiple conflicting runs and ``service_only`` to ``yes`` in order to disable status endpoints.
+It is also recommended to set ``${web:wait_timeout}`` to infinite in case of multiple conflicting runs and ``${web:service_only}`` to ``yes`` in order to disable status endpoints.
 
 Other settings are the same as mentioned above.
 
@@ -297,19 +297,19 @@ Command to run worker nodes (considering there will be two workers, one is on ``
    docker run --privileged -p 8081:8081 -e AHRIMAN_PORT=8081 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
    docker run --privileged -p 8082:8082 -e AHRIMAN_PORT=8082 -v worker.ini:/etc/ahriman.ini.d/overrides.ini arcan1s/ahriman:latest web
 
-Unlike the previous setup, it doesn't require to mount repository root for ``worker`` nodes, because they don't use it anyway.
+Unlike the previous setup, it doesn't require to mount repository root for **worker** nodes, because they don't use it anyway.
 
 Check proof-of-concept setup `here <https://github.com/arcan1s/ahriman/tree/master/recipes/distributed>`__.
 
 Addition of new package, package removal, repository update
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-In all scenarios, update process must be run only on ``master`` node. Unlike the manually distributed packages described above, automatic update must be enabled only for ``master`` node.
+In all scenarios, update process must be run only on **master** node. Unlike the manually distributed packages described above, automatic update must be enabled only for **master** node.
 
 Automatic worker nodes discovery
 """"""""""""""""""""""""""""""""
 
-Instead of setting ``build.workers`` option it is also possible to configure services to load worker list dynamically. To do so, the ``ahriman.core.distributed.WorkerLoaderTrigger`` and ``ahriman.core.distributed.WorkerTrigger`` must be used for ``master`` and ``worker`` nodes repsectively. See recipes for more details.
+Instead of setting ``${build:workers}`` option explicitly it is also possible to configure services to load worker list dynamically. To do so, the ``ahriman.core.distributed.WorkerLoaderTrigger`` and ``ahriman.core.distributed.WorkerTrigger`` must be used for **master** and **worker** nodes respectively. See recipes for more details.
 
 Known limitations
 """""""""""""""""
@@ -317,4 +317,4 @@ Known limitations
 * Workers don't support local packages. However, it is possible to build custom packages by providing sources by using ``ahriman.core.gitremote.RemotePullTrigger`` trigger.
 * No dynamic nodes discovery. In case if one of worker nodes is unavailable, the build process will fail.
 * No pkgrel bump on conflicts.
-* The identical user must be created for all workers. However, the ``master`` node user can be different from this one.
+* The identical user must be created for all workers. However, the **master** node user can be different from this one.

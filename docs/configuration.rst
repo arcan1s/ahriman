@@ -25,7 +25,7 @@ Configuration allows string interpolation from the same configuration file, e.g.
    key = ${anoher_key}
    another_key = value
 
-will read value for the ``section.key`` option from ``section.another_key``. In case if the cross-section reference is required, the ``${section:another_key}`` notation must be used. It also allows string interpolation from environment variables, e.g.:
+will read value for the ``key`` option from ``another_key`` in the same section. In case if the cross-section reference is required, the ``${section:another_key}`` notation must be used. It also allows string interpolation from environment variables, e.g.:
 
 .. code-block:: ini
 
@@ -43,7 +43,7 @@ will try to read value from ``SECRET`` environment variable. In case if the requ
    key = ${home}
    home = $HOME
 
-will eventually lead ``section1.key`` option to be set to the value of ``HOME`` environment variable (if available).
+will eventually lead ``key`` option in section ``section1`` to be set to the value of ``HOME`` environment variable (if available).
 
 There is also additional subcommand which will allow to validate configuration and print found errors. In order to do so, run ``service-config-validate`` subcommand, e.g.:
 
@@ -379,7 +379,7 @@ Requires ``rsync`` package to be installed. Do not forget to configure ssh for u
 
 * ``type`` - type of the upload, string, optional, must be set to ``rsync`` if exists.
 * ``command`` - rsync command to run, space separated list of string, required.
-* ``remote`` - remote server to rsync (e.g. ``1.2.3.4:path/to/sync``), string, required.
+* ``remote`` - remote server to rsync (e.g. ``ahriman@10.0.0.1:/srv/repo``), string, required.
 
 ``s3`` type
 ^^^^^^^^^^^
