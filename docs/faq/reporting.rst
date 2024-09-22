@@ -108,12 +108,12 @@ How to post build report to telegram
       chat_id = @ahriman
       link_path = http://example.com/aur-clone/x86_64
 
-   ``api_key`` is the one sent by `@BotFather <https://t.me/botfather>`__, ``chat_id`` is the value retrieved from previous step.
+   ``${api_key}`` is the one sent by `@BotFather <https://t.me/botfather>`__, ``${chat_id}`` is the value retrieved from previous step.
 
 If you did everything fine you should receive the message with the next update. Quick credentials check can be done by using the following command:
 
 .. code-block:: shell
 
-   curl 'https://api.telegram.org/bot{api_key}/sendMessage?chat_id={chat_id}&text=hello'
+   curl 'https://api.telegram.org/bot${api_key}/sendMessage?chat_id=${chat_id}&text=hello'
 
-(replace ``{chat_id}`` and ``{api_key}`` with the values from configuration).
+(replace ``${chat_id}`` and ``${api_key}`` with the values from configuration).

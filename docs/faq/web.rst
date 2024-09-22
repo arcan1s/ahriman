@@ -41,7 +41,7 @@ How to enable basic authorization
       target = configuration
       salt = somerandomstring
 
-   The ``salt`` parameter is optional, but recommended, and can be set to any (random) string.
+   The ``${auth:salt}`` parameter is optional, but recommended, and can be set to any (random) string.
 
 #.
    In order to provide access for reporting from application instances you can (the recommended way) use unix sockets by the following configuration (note, that it requires ``python-requests-unixsocket2`` package to be installed):
@@ -53,7 +53,7 @@ How to enable basic authorization
 
    This socket path must be available for web service instance and must be available for all application instances (e.g. in case if you are using docker container - see above - you need to make sure that the socket is passed to the root filesystem).
 
-   By the way, unix socket variable will be automatically set in case if ``--web-unix-socket`` argument is supplied to the ``setup`` subcommand.
+   By the way, unix socket variable will be automatically set in case if ``--web-unix-socket`` argument is supplied to the ``service-setup`` subcommand.
 
    Alternatively, you need to create user for the service:
 
@@ -96,7 +96,7 @@ How to enable OAuth authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   Create OAuth web application, download its ``client_id`` and ``client_secret``.
+   Create OAuth web application, download its ``${auth:client_id}`` and ``${auth:client_secret}``.
 
 #.
    Guess what? Install dependencies:
@@ -118,10 +118,10 @@ How to enable OAuth authorization
       [web]
       address = https://example.com
 
-   Configure ``oauth_provider`` and ``oauth_scopes`` in case if you would like to use different from Google provider. Scope must grant access to user email. ``web.address`` is required to make callback URL available from internet.
+   Configure ``${auth:oauth_provider}`` and ``${auth:oauth_scopes}`` in case if you would like to use different from Google provider. Scope must grant access to user email. ``${web:address}`` is required to make callback URL available from internet.
 
 #. 
-   If you are not going to use unix socket, you also need to create service user (remember to set ``auth.salt`` option before if required):
+   If you are not going to use unix socket, you also need to create service user (remember to set ``${auth:salt}`` option before if required):
 
    .. code-block:: shell
 
