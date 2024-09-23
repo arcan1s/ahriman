@@ -65,4 +65,4 @@ class Add(Handler):
 
         application.print_updates(packages, log_fn=application.logger.info)
         result = application.update(packages, packagers, bump_pkgrel=args.increment)
-        Add.check_if_empty(args.exit_code, result.is_empty)
+        Add.check_status(args.exit_code, not result.is_empty)

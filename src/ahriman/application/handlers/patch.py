@@ -136,7 +136,7 @@ class Patch(Handler):
             for patch in application.reporter.package_patches_get(package_base, None)
             if variables is None or patch.key in variables
         ]
-        Patch.check_if_empty(exit_code, not patches)
+        Patch.check_status(exit_code, bool(patches))
 
         PatchPrinter(package_base, patches)(verbose=True, separator=" = ")
 

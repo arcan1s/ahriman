@@ -39,14 +39,14 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     aur_search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     official_search_mock = mocker.patch("ahriman.core.alpm.remote.Official.multisearch",
                                         return_value=[aur_package_ahriman])
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)
     aur_search_mock.assert_called_once_with("ahriman")
     official_search_mock.assert_called_once_with("ahriman")
-    check_mock.assert_called_once_with(False, False)
+    check_mock.assert_called_once_with(False, True)
     print_mock.assert_has_calls([
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": "),
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": "),
@@ -64,11 +64,11 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.formatters.Printer.print")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, True)
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_run_sort(args: argparse.Namespace, configuration: Configuration, repository: Repository,

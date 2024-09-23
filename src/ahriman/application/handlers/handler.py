@@ -20,7 +20,7 @@
 import argparse
 import logging
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from multiprocessing import Pool
 
 from ahriman.application.lock import Lock
@@ -124,19 +124,26 @@ class Handler:
         raise NotImplementedError
 
     @staticmethod
-    def check_if_empty(enabled: bool, predicate: bool) -> None:
+    def check_status(enabled: bool, status: bool | Callable[[], bool]) -> None:
         """
         check condition and flag and raise ExitCode exception in case if it is enabled and condition match
 
         Args:
             enabled(bool): if ``False`` no check will be performed
-            predicate(bool): indicates condition on which exception should be thrown
+            status(bool | Callable[[], bool]): return status or function to check. ``True`` means success and vice versa
 
         Raises:
             ExitCode: if result is empty and check is enabled
         """
-        if enabled and predicate:
-            raise ExitCode
+        if not enabled:
+            return
+
+        match status:
+            case False:
+                raise ExitCode
+            # https://github.com/python/mypy/issues/14014
+            case Callable() if not status():  # type: ignore[misc]
+                raise ExitCode
 
     @staticmethod
     def repositories_extract(args: argparse.Namespace) -> list[RepositoryId]:

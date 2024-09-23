@@ -163,12 +163,12 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
                             return_value=[PkgbuildPatch(None, "patch"), PkgbuildPatch("version", "value")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", ["version"], False)
     get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
-    check_mock.assert_called_once_with(False, False)
+    check_mock.assert_called_once_with(False, True)
 
 
 def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> None:
@@ -178,12 +178,12 @@ def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> 
     get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
                             return_value=[PkgbuildPatch(None, "patch")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", None, False)
     get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
-    check_mock.assert_called_once_with(False, False)
+    check_mock.assert_called_once_with(False, True)
 
 
 def test_patch_set_list_empty_exception(application: Application, mocker: MockerFixture) -> None:
@@ -191,10 +191,10 @@ def test_patch_set_list_empty_exception(application: Application, mocker: Mocker
     must raise ExitCode exception on empty patch list
     """
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get", return_value={})
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", [], True)
-    check_mock.assert_called_once_with(True, True)
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_patch_set_create(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

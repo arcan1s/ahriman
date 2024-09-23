@@ -49,15 +49,15 @@ class Rebuild(Handler):
         application.on_start()
 
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
-        updates = application.repository.packages_depend_on(packages, args.depends_on)
+        packages = application.repository.packages_depend_on(packages, args.depends_on)
 
-        Rebuild.check_if_empty(args.exit_code, not updates)
+        Rebuild.check_status(args.exit_code, bool(packages))
         if args.dry_run:
-            application.print_updates(updates, log_fn=print)
+            application.print_updates(packages, log_fn=print)
             return
 
-        result = application.update(updates, Packagers(args.username), bump_pkgrel=args.increment)
-        Rebuild.check_if_empty(args.exit_code, result.is_empty)
+        result = application.update(packages, Packagers(args.username), bump_pkgrel=args.increment)
+        Rebuild.check_status(args.exit_code, not result.is_empty)
 
     @staticmethod
     def extract_packages(application: Application, status: BuildStatusEnum | None, *,

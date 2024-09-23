@@ -61,7 +61,7 @@ class Validate(Handler):
             ValidationPrinter(node, errors)(verbose=True)
 
         # as we reach this part it means that we always have errors
-        Validate.check_if_empty(args.exit_code, True)
+        Validate.check_status(args.exit_code, False)
 
     @staticmethod
     def schema(repository_id: RepositoryId, configuration: Configuration) -> ConfigurationSchema:

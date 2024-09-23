@@ -58,18 +58,18 @@ def test_check_unsafe(mocker: MockerFixture) -> None:
     """
     must check if command is unsafe
     """
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     UnsafeCommands.check_unsafe(["service-clean"], ["service-clean"], _parser())
-    check_mock.assert_called_once_with(True, True)
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_check_unsafe_safe(mocker: MockerFixture) -> None:
     """
     must check if command is safe
     """
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     UnsafeCommands.check_unsafe(["package-status"], ["service-clean"], _parser())
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, True)
 
 
 def test_get_unsafe_commands() -> None:
