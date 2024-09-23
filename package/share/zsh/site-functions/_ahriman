@@ -48,6 +48,7 @@ _shtab_ahriman_commands() {
     "repo-restore:restore settings and database"
     "repo-setup:create initial service configuration, requires root"
     "repo-sign:(re-)sign packages and repository database according to current settings"
+    "repo-statistics:fetch repository statistics"
     "repo-status-update:update repository status on the status page"
     "repo-sync:sync repository files to remote server according to current settings"
     "repo-tree:dump repository tree based on packages dependencies"
@@ -98,6 +99,7 @@ _shtab_ahriman_options=(
 
 _shtab_ahriman_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
@@ -119,7 +121,7 @@ _shtab_ahriman_aur_search_options=(
 
 _shtab_ahriman_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
   {--check-files,--no-check-files}"[enable or disable checking of broken dependencies (e.g. dynamically linked libraries or modules directories) (default\: True)]:check_files:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
@@ -209,6 +211,7 @@ _shtab_ahriman_key_import_options=(
 
 _shtab_ahriman_package_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
@@ -258,6 +261,7 @@ _shtab_ahriman_package_status_update_options=(
 
 _shtab_ahriman_package_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
   {--dependencies,--no-dependencies}"[process missing package dependencies (default\: True)]:dependencies:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--increment,--no-increment}"[increment package release (pkgrel) version on duplicate (default\: True)]:increment:"
@@ -323,7 +327,7 @@ _shtab_ahriman_repo_backup_options=(
 
 _shtab_ahriman_repo_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
-  {--changes,--no-changes}"[calculate changes from the latest known commit if available. Only applicable in dry run mode (default\: True)]:changes:"
+  {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
   {--check-files,--no-check-files}"[enable or disable checking of broken dependencies (e.g. dynamically linked libraries or modules directories) (default\: True)]:check_files:"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   {--vcs,--no-vcs}"[fetch actual version of VCS packages (default\: True)]:vcs:"
@@ -439,6 +443,17 @@ _shtab_ahriman_repo_setup_options=(
 _shtab_ahriman_repo_sign_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*)::sign only specified packages (default\: None):"
+)
+
+_shtab_ahriman_repo_statistics_options=(
+  "(- : *)"{-h,--help}"[show this help message and exit]"
+  "--chart[create updates chart and save it to the specified path (default\: None)]:chart:"
+  {-e,--event}"[event type filter (default\: package-updated)]:event:(package-outdated package-removed package-update-failed package-updated)"
+  "--from-date[only fetch events which are newer than the date (default\: None)]:from_date:"
+  "--limit[limit response by specified amount of events (default\: -1)]:limit:"
+  "--offset[skip specified amount of events (default\: 0)]:offset:"
+  "--to-date[only fetch events which are older than the date (default\: None)]:to_date:"
+  ":fetch only events for the specified package (default\: None):"
 )
 
 _shtab_ahriman_repo_status_update_options=(
@@ -706,6 +721,7 @@ _shtab_ahriman() {
         repo-restore) _arguments -C -s $_shtab_ahriman_repo_restore_options ;;
         repo-setup) _arguments -C -s $_shtab_ahriman_repo_setup_options ;;
         repo-sign) _arguments -C -s $_shtab_ahriman_repo_sign_options ;;
+        repo-statistics) _arguments -C -s $_shtab_ahriman_repo_statistics_options ;;
         repo-status-update) _arguments -C -s $_shtab_ahriman_repo_status_update_options ;;
         repo-sync) _arguments -C -s $_shtab_ahriman_repo_sync_options ;;
         repo-tree) _arguments -C -s $_shtab_ahriman_repo_tree_options ;;

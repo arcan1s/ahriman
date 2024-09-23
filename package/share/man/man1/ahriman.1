@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2024\-09\-04" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2024\-09\-23" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-changes,package-changes-remove,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-changes,package-changes-remove,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-statistics,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -134,6 +134,9 @@ restore repository data
 \fBahriman\fR \fI\,repo\-sign\/\fR
 sign packages
 .TP
+\fBahriman\fR \fI\,repo\-statistics\/\fR
+repository statistics
+.TP
 \fBahriman\fR \fI\,repo\-status\-update\/\fR
 update repository status
 .TP
@@ -248,7 +251,8 @@ usage: ahriman help\-version [\-h]
 print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
-usage: ahriman package\-add [\-h] [\-\-dependencies | \-\-no\-dependencies] [\-e] [\-\-increment | \-\-no\-increment] [\-n] [\-y]
+usage: ahriman package\-add [\-h] [\-\-changes | \-\-no\-changes] [\-\-dependencies | \-\-no\-dependencies] [\-e]
+                           [\-\-increment | \-\-no\-increment] [\-n] [\-y]
                            [\-s {auto,archive,aur,directory,local,remote,repository}] [\-u USERNAME] [\-v VARIABLE]
                            package [package ...]
 
@@ -259,6 +263,10 @@ add existing or new package to the build queue
 package source (base name, path to local files, remote URL)
 
 .SH OPTIONS \fI\,'ahriman package\-add'\/\fR
+.TP
+\fB\-\-changes\fR, \fB\-\-no\-changes\fR
+calculate changes from the latest known commit if available
+
 .TP
 \fB\-\-dependencies\fR, \fB\-\-no\-dependencies\fR
 process missing package dependencies
@@ -460,7 +468,7 @@ filter check by package base
 .SH OPTIONS \fI\,'ahriman repo\-check'\/\fR
 .TP
 \fB\-\-changes\fR, \fB\-\-no\-changes\fR
-calculate changes from the latest known commit if available. Only applicable in dry run mode
+calculate changes from the latest known commit if available
 
 .TP
 \fB\-\-check\-files\fR, \fB\-\-no\-check\-files\fR
@@ -623,6 +631,43 @@ usage: ahriman repo\-sign [\-h] [package ...]
 .TP
 \fBpackage\fR
 sign only specified packages
+
+.SH COMMAND \fI\,'ahriman repo\-statistics'\/\fR
+usage: ahriman repo\-statistics [\-h] [\-\-chart CHART]
+                               [\-e {package\-outdated,package\-removed,package\-update\-failed,package\-updated}]
+                               [\-\-from\-date FROM_DATE] [\-\-limit LIMIT] [\-\-offset OFFSET] [\-\-to\-date TO_DATE]
+                               [package]
+
+fetch repository statistics
+
+.TP
+\fBpackage\fR
+fetch only events for the specified package
+
+.SH OPTIONS \fI\,'ahriman repo\-statistics'\/\fR
+.TP
+\fB\-\-chart\fR \fI\,CHART\/\fR
+create updates chart and save it to the specified path
+
+.TP
+\fB\-e\fR \fI\,{package\-outdated,package\-removed,package\-update\-failed,package\-updated}\/\fR, \fB\-\-event\fR \fI\,{package\-outdated,package\-removed,package\-update\-failed,package\-updated}\/\fR
+event type filter
+
+.TP
+\fB\-\-from\-date\fR \fI\,FROM_DATE\/\fR
+only fetch events which are newer than the date
+
+.TP
+\fB\-\-limit\fR \fI\,LIMIT\/\fR
+limit response by specified amount of events
+
+.TP
+\fB\-\-offset\fR \fI\,OFFSET\/\fR
+skip specified amount of events
+
+.TP
+\fB\-\-to\-date\fR \fI\,TO_DATE\/\fR
+only fetch events which are older than the date
 
 .SH COMMAND \fI\,'ahriman repo\-status\-update'\/\fR
 usage: ahriman repo\-status\-update [\-h] [\-s {unknown,pending,building,failed,success}]
