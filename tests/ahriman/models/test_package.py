@@ -474,11 +474,11 @@ def test_next_pkgrel(package_ahriman: Package) -> None:
     assert package_ahriman.next_pkgrel(package_ahriman.version) == "1.2.2"
 
     package_ahriman.version = "1:1.0.0-1"
-    assert package_ahriman.next_pkgrel("1:1.0.1-1") is None
-    assert package_ahriman.next_pkgrel("2:1.0.0-1") is None
+    assert package_ahriman.next_pkgrel("1:1.0.1-1") == "1.1"
+    assert package_ahriman.next_pkgrel("2:1.0.0-1") == "1.1"
 
     package_ahriman.version = "1.0.0-1.1"
-    assert package_ahriman.next_pkgrel("1.0.1-2") is None
+    assert package_ahriman.next_pkgrel("1.0.1-2") == "2.1"
     assert package_ahriman.next_pkgrel("1.0.0-2") == "2.1"
 
     package_ahriman.version = "1.0.0-2"

@@ -134,9 +134,10 @@ def test_init_bump_pkgrel_skip(task_ahriman: Task, mocker: MockerFixture) -> Non
     """
     must keep pkgrel if version is different from provided
     """
+    task_ahriman.package.version = "2.0.0-1"
     mocker.patch("ahriman.models.package.Package.from_build", return_value=task_ahriman.package)
     mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
     write_mock = mocker.patch("ahriman.models.pkgbuild_patch.PkgbuildPatch.write")
 
-    assert task_ahriman.init(Path("ahriman"), [], f"2:{task_ahriman.package.version}") == "sha"
+    assert task_ahriman.init(Path("ahriman"), [], "1.0.0-1") == "sha"
     write_mock.assert_not_called()

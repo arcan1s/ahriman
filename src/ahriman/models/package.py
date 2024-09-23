@@ -538,14 +538,10 @@ class Package(LazyLogging):
         if local_version is None:
             return None  # local version not found, keep upstream pkgrel
 
-        epoch, pkgver, _ = parse_version(self.version)
-        local_epoch, local_pkgver, local_pkgrel = parse_version(local_version)
-
-        if epoch != local_epoch or pkgver != local_pkgver:
-            return None  # epoch or pkgver are different, keep upstream pkgrel
         if vercmp(self.version, local_version) > 0:
             return None  # upstream version is newer than local one, keep upstream pkgrel
 
+        *_, local_pkgrel = parse_version(local_version)
         if "." in local_pkgrel:
             major, minor = local_pkgrel.rsplit(".", maxsplit=1)
         else:
