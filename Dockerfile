@@ -54,7 +54,6 @@ RUN pacman -S --noconfirm --asdeps \
         python-cerberus \
         python-cryptography \
         python-jinja \
-        python-matplotlib \
         python-systemd \
         rsync \
         && \
