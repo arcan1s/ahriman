@@ -120,15 +120,21 @@ def test_run(args: argparse.Namespace, configuration: Configuration) -> None:
         Handler.run(args, repository_id, configuration, report=True)
 
 
-def test_check_if_empty() -> None:
+def test_check_status() -> None:
     """
     must raise exception in case if predicate is True and enabled
     """
-    Handler.check_if_empty(False, False)
-    Handler.check_if_empty(True, False)
-    Handler.check_if_empty(False, True)
+    Handler.check_status(False, True)
+    Handler.check_status(False, False)
+    Handler.check_status(False, lambda: True)
+    Handler.check_status(False, lambda: False)
+
+    Handler.check_status(True, True)
     with pytest.raises(ExitCode):
-        Handler.check_if_empty(True, True)
+        Handler.check_status(True, False)
+    Handler.check_status(True, lambda: True)
+    with pytest.raises(ExitCode):
+        Handler.check_status(True, lambda: False)
 
 
 def test_repositories_extract(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:

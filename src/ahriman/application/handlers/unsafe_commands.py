@@ -63,7 +63,7 @@ class UnsafeCommands(Handler):
             parser(argparse.ArgumentParser): generated argument parser
         """
         args = parser.parse_args(command)
-        UnsafeCommands.check_if_empty(True, args.command in unsafe_commands)
+        UnsafeCommands.check_status(True, args.command not in unsafe_commands)
 
     @staticmethod
     def get_unsafe_commands(parser: argparse.ArgumentParser) -> list[str]:

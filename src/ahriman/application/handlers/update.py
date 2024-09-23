@@ -54,7 +54,7 @@ class Update(Handler):
             application.changes(packages)
 
         if args.dry_run:  # exit from application if no build requested
-            Update.check_if_empty(args.exit_code, not packages)  # status code check
+            Update.check_status(args.exit_code, bool(packages))  # status code check
             return
 
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)
@@ -62,7 +62,7 @@ class Update(Handler):
 
         application.print_updates(packages, log_fn=application.logger.info)
         result = application.update(packages, packagers, bump_pkgrel=args.increment)
-        Update.check_if_empty(args.exit_code, result.is_empty)
+        Update.check_status(args.exit_code, not result.is_empty)
 
     @staticmethod
     def log_fn(application: Application, dry_run: bool) -> Callable[[str], None]:

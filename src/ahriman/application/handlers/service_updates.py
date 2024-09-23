@@ -57,4 +57,4 @@ class ServiceUpdates(Handler):
             return
 
         UpdatePrinter(remote, local_version)(verbose=True, separator=" -> ")
-        ServiceUpdates.check_if_empty(args.exit_code, not same_version)
+        ServiceUpdates.check_status(args.exit_code, same_version)

@@ -60,7 +60,8 @@ class Search(Handler):
         """
         official_packages_list = Official.multisearch(*args.search)
         aur_packages_list = AUR.multisearch(*args.search)
-        Search.check_if_empty(args.exit_code, not official_packages_list and not aur_packages_list)
+        non_empty = bool(official_packages_list or aur_packages_list)
+        Search.check_status(args.exit_code, non_empty)
 
         for packages_list in (official_packages_list, aur_packages_list):
             # keep sorting by packages source

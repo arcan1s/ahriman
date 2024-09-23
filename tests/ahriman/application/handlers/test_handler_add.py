@@ -82,7 +82,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     changes_mock = mocker.patch("ahriman.application.application.Application.changes")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
@@ -98,7 +98,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
                                              Packagers(args.username, {package_ahriman.base: "packager"}),
                                              bump_pkgrel=args.increment)
     dependencies_mock.assert_called_once_with([package_ahriman], process_dependencies=args.dependencies)
-    check_mock.assert_called_once_with(False, False)
+    check_mock.assert_called_once_with(False, True)
     print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
 
 
@@ -113,7 +113,7 @@ def test_run_no_changes(args: argparse.Namespace, configuration: Configuration, 
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.update")
-    mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    mocker.patch("ahriman.application.handlers.Handler.check_status")
     mocker.patch("ahriman.application.application.Application.updates")
     mocker.patch("ahriman.application.application.Application.with_dependencies")
     mocker.patch("ahriman.application.application.Application.print_updates")
@@ -138,8 +138,8 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.application.application.Application.with_dependencies")
     mocker.patch("ahriman.application.application.Application.updates")
     mocker.patch("ahriman.application.application.Application.print_updates")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Add.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, True)
+    check_mock.assert_called_once_with(True, False)

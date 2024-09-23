@@ -36,13 +36,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get",
                                     return_value=Changes("sha", "change"))
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     _, repository_id = configuration.check_loaded()
     Change.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with(args.package)
-    check_mock.assert_called_once_with(False, False)
+    check_mock.assert_called_once_with(False, True)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator="")
 
 
@@ -55,11 +55,11 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args.exit_code = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get", return_value=Changes())
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Change.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, True)
+    check_mock.assert_called_once_with(True, False)
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, repository: Repository,

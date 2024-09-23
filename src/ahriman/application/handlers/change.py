@@ -54,6 +54,6 @@ class Change(Handler):
             case Action.List:
                 changes = client.package_changes_get(args.package)
                 ChangesPrinter(changes)(verbose=True, separator="")
-                Change.check_if_empty(args.exit_code, changes.is_empty)
+                Change.check_status(args.exit_code, not changes.is_empty)
             case Action.Remove:
                 client.package_changes_update(args.package, Changes())

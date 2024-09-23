@@ -59,9 +59,9 @@ class Users(Handler):
                 database.user_update(user.hash_password(salt))
             case Action.List:
                 users = database.user_list(args.username, args.role)
-                Users.check_if_empty(args.exit_code, not users)
                 for user in users:
                     UserPrinter(user)(verbose=True)
+                Users.check_status(args.exit_code, bool(users))
             case Action.Remove:
                 database.user_remove(args.username)
 

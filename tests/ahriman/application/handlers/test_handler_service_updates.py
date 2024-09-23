@@ -34,13 +34,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     package_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     ServiceUpdates.run(args, repository_id, configuration, report=False)
     package_mock.assert_called_once_with(package_ahriman.base, None)
     application_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" -> ")
-    check_mock.assert_called_once_with(args.exit_code, True)
+    check_mock.assert_called_once_with(args.exit_code, False)
 
 
 def test_run_skip(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -53,7 +53,7 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_if_empty")
+    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     ServiceUpdates.run(args, repository_id, configuration, report=False)

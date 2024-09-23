@@ -47,7 +47,7 @@ class Run(Handler):
         parser = args.parser()
         for command in args.command:
             status = Run.run_command(shlex.split(command), parser)
-            Run.check_if_empty(True, not status)
+            Run.check_status(True, status)
 
     @staticmethod
     def run_command(command: list[str], parser: argparse.ArgumentParser) -> bool:
