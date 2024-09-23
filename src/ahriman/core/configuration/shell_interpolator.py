@@ -52,7 +52,7 @@ class ShellInterpolator(configparser.Interpolation):
         def identifiers() -> Generator[tuple[str | None, str], None, None]:
             # extract all found identifiers and parse them
             for identifier in ShellTemplate(value).get_identifiers():
-                match identifier.split(":"):
+                match identifier.rsplit(":", maxsplit=1):
                     case [lookup_option]:  # single option from the same section
                         yield None, lookup_option
                     case [lookup_section, lookup_option]:  # reference to another section
