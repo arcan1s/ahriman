@@ -25,13 +25,13 @@ RUN echo "[multilib]" >> "/etc/pacman.conf" && \
     echo "Include = /etc/pacman.d/mirrorlist" >> "/etc/pacman.conf"
 ## refresh packages, install sudo and install packages for building
 RUN pacman -Syu --noconfirm sudo && \
-    pacman -Sy --noconfirm --asdeps fakeroot python-tox
+    pacman -S --noconfirm --asdeps fakeroot python-tox
 ## create build user
 RUN useradd -m -d "/home/build" -s "/usr/bin/nologin" build && \
     echo "build ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/build"
 COPY "docker/install-aur-package.sh" "/usr/local/bin/install-aur-package"
 ## install package dependencies
-RUN pacman -Sy --noconfirm --asdeps \
+RUN pacman -S --noconfirm --asdeps \
         devtools \
         git \
         pyalpm \
@@ -40,14 +40,14 @@ RUN pacman -Sy --noconfirm --asdeps \
         python-pyelftools \
         python-requests \
         && \
-    pacman -Sy --noconfirm --asdeps \
+    pacman -S --noconfirm --asdeps \
         base-devel \
         python-build \
         python-flit \
         python-installer \
         python-wheel \
         && \
-    pacman -Sy --noconfirm --asdeps \
+    pacman -S --noconfirm --asdeps \
         git \
         python-aiohttp \
         python-boto3 \
