@@ -24,6 +24,9 @@ def _parser() -> dict[str, dict[str, str]]:
             "key3": "${section1:home}",
             "key5": "${section1:key4}",
         },
+        "section4:suffix": {
+            "key6": "value6"
+        },
     }
 
 
@@ -44,6 +47,10 @@ def test_extract_variables() -> None:
     assert not dict(ShellInterpolator._extract_variables(parser, "${section2:key1}", parser["section1"]))
 
     assert not dict(ShellInterpolator._extract_variables(parser, "${section4:key1}", parser["section1"]))
+
+    assert dict(ShellInterpolator._extract_variables(parser, "${section4:suffix:key6}", parser["section1"])) == {
+        "section4:suffix:key6": "value6",
+    }
 
 
 def test_environment() -> None:
