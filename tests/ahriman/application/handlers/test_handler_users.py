@@ -103,7 +103,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     _, repository_id = configuration.check_loaded()
     Users.run(args, repository_id, configuration, report=False)
     list_mock.assert_called_once_with("user", args.role)
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, [user])
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, database: SQLite,
@@ -120,7 +120,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
 
     _, repository_id = configuration.check_loaded()
     Users.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, [])
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, database: SQLite,

@@ -168,7 +168,7 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     Patch.patch_set_list(application, "ahriman", ["version"], False)
     get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, [PkgbuildPatch(key='version', value='value')])
 
 
 def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> None:
@@ -183,7 +183,7 @@ def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> 
     Patch.patch_set_list(application, "ahriman", None, False)
     get_mock.assert_called_once_with("ahriman", None)
     print_mock.assert_called_once_with(verbose=True, log_fn=pytest.helpers.anyvar(int), separator=" = ")
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, [PkgbuildPatch(key=None, value='patch')])
 
 
 def test_patch_set_list_empty_exception(application: Application, mocker: MockerFixture) -> None:
@@ -194,7 +194,7 @@ def test_patch_set_list_empty_exception(application: Application, mocker: Mocker
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", [], True)
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, [])
 
 
 def test_patch_set_create(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:

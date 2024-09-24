@@ -85,7 +85,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
 
     _, repository_id = configuration.check_loaded()
     Update.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, [])
 
 
 def test_run_update_empty_exception(args: argparse.Namespace, package_ahriman: Package, configuration: Configuration,
@@ -127,7 +127,7 @@ def test_run_dry_run(args: argparse.Namespace, package_ahriman: Package, configu
         args.package, aur=args.aur, local=args.local, manual=args.manual, vcs=args.vcs, check_files=args.check_files)
     application_mock.assert_not_called()
     changes_mock.assert_called_once_with([package_ahriman])
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, [package_ahriman])
 
 
 def test_run_no_changes(args: argparse.Namespace, configuration: Configuration, repository: Repository,

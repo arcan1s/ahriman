@@ -27,6 +27,7 @@ from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
 from ahriman.core.log.log_loader import LogLoader
+from ahriman.core.types import ExplicitBool
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -124,13 +125,14 @@ class Handler:
         raise NotImplementedError
 
     @staticmethod
-    def check_status(enabled: bool, status: bool | Callable[[], bool]) -> None:
+    def check_status(enabled: bool, status: ExplicitBool | Callable[[], ExplicitBool]) -> None:
         """
         check condition and flag and raise ExitCode exception in case if it is enabled and condition match
 
         Args:
             enabled(bool): if ``False`` no check will be performed
-            status(bool | Callable[[], bool]): return status or function to check. ``True`` means success and vice versa
+            status(ExplicitBool | Callable[[], ExplicitBool]): return status or function to check.
+                ``True`` means success and vice versa
 
         Raises:
             ExitCode: if result is empty and check is enabled
@@ -138,12 +140,9 @@ class Handler:
         if not enabled:
             return
 
-        match status:
-            case False:
-                raise ExitCode
-            # https://github.com/python/mypy/issues/14014
-            case Callable() if not status():  # type: ignore[misc]
-                raise ExitCode
+        status = status() if callable(status) else status
+        if not status:
+            raise ExitCode
 
     @staticmethod
     def repositories_extract(args: argparse.Namespace) -> list[RepositoryId]:
