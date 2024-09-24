@@ -54,7 +54,7 @@ class Update(Handler):
             application.changes(packages)
 
         if args.dry_run:  # exit from application if no build requested
-            Update.check_status(args.exit_code, bool(packages))  # status code check
+            Update.check_status(args.exit_code, packages)  # status code check
             return
 
         packages = application.with_dependencies(packages, process_dependencies=args.dependencies)

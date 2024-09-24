@@ -61,7 +61,7 @@ class Status(Handler):
         else:
             packages = client.package_get(None)
 
-        Status.check_status(args.exit_code, bool(packages))
+        Status.check_status(args.exit_code, packages)
 
         comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda item: item[0].base
         filter_fn: Callable[[tuple[Package, BuildStatus]], bool] =\

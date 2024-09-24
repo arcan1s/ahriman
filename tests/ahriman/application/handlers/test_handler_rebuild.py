@@ -55,7 +55,7 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     extract_mock.assert_called_once_with(pytest.helpers.anyvar(int), args.status, from_database=args.from_database)
     application_packages_mock.assert_called_once_with([package_ahriman], None)
     application_mock.assert_called_once_with([package_ahriman], Packagers(args.username), bump_pkgrel=args.increment)
-    check_mock.assert_has_calls([MockCall(False, True), MockCall(False, True)])
+    check_mock.assert_has_calls([MockCall(False, [package_ahriman]), MockCall(False, True)])
     on_start_mock.assert_called_once_with()
 
 
@@ -93,7 +93,7 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
     application_mock.assert_not_called()
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, [package_ahriman])
     print_mock.assert_called_once_with([package_ahriman], log_fn=pytest.helpers.anyvar(int))
 
 
@@ -146,7 +146,7 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, [])
 
 
 def test_run_build_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -164,7 +164,7 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
-    check_mock.assert_has_calls([MockCall(True, True), MockCall(True, False)])
+    check_mock.assert_has_calls([MockCall(True, [package_ahriman]), MockCall(True, False)])
 
 
 def test_extract_packages(application: Application, mocker: MockerFixture) -> None:

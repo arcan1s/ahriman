@@ -61,7 +61,7 @@ class Users(Handler):
                 users = database.user_list(args.username, args.role)
                 for user in users:
                     UserPrinter(user)(verbose=True)
-                Users.check_status(args.exit_code, bool(users))
+                Users.check_status(args.exit_code, users)
             case Action.Remove:
                 database.user_remove(args.username)
 

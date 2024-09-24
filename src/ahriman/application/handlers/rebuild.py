@@ -51,7 +51,7 @@ class Rebuild(Handler):
         packages = Rebuild.extract_packages(application, args.status, from_database=args.from_database)
         packages = application.repository.packages_depend_on(packages, args.depends_on)
 
-        Rebuild.check_status(args.exit_code, bool(packages))
+        Rebuild.check_status(args.exit_code, packages)
         if args.dry_run:
             application.print_updates(packages, log_fn=print)
             return

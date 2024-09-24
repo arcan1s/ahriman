@@ -36,11 +36,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     must run command
     """
     args = _default_args(args)
+    packages = [
+        (package_ahriman, BuildStatus(BuildStatusEnum.Success)),
+        (package_python_schedule, BuildStatus(BuildStatusEnum.Failed)),
+    ]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.core.status.Client.status_get")
-    packages_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_get",
-                                 return_value=[(package_ahriman, BuildStatus(BuildStatusEnum.Success)),
-                                               (package_python_schedule, BuildStatus(BuildStatusEnum.Failed))])
+    packages_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_get", return_value=packages)
     check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
@@ -48,7 +50,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     Status.run(args, repository_id, configuration, report=False)
     application_mock.assert_called_once_with()
     packages_mock.assert_called_once_with(None)
-    check_mock.assert_called_once_with(False, True)
+    check_mock.assert_called_once_with(False, packages)
     print_mock.assert_has_calls([
         MockCall(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")
         for _ in range(3)
@@ -69,7 +71,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
 
     _, repository_id = configuration.check_loaded()
     Status.run(args, repository_id, configuration, report=False)
-    check_mock.assert_called_once_with(True, False)
+    check_mock.assert_called_once_with(True, [])
 
 
 def test_run_verbose(args: argparse.Namespace, configuration: Configuration, repository: Repository,
