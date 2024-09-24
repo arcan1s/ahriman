@@ -3,7 +3,7 @@ Description=ArcH linux ReposItory MANager (%i)
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/ahriman --repository-id "%I" repo-daemon --no-changes --refresh
+ExecStart=/usr/bin/ahriman --repository-id "%I" repo-daemon --refresh
 User=ahriman
 Group=ahriman
 
