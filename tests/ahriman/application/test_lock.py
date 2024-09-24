@@ -26,10 +26,10 @@ def test_path(args: argparse.Namespace, configuration: Configuration) -> None:
     assert Lock(args, repository_id, configuration).path is None
 
     args.lock = Path("/run/ahriman.pid")
-    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_x86_64-aur-clone.pid")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman_x86_64-aur.pid")
 
     args.lock = Path("ahriman.pid")
-    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman/ahriman_x86_64-aur-clone.pid")
+    assert Lock(args, repository_id, configuration).path == Path("/run/ahriman/ahriman_x86_64-aur.pid")
 
     assert Lock(args, RepositoryId("", ""), configuration).path == Path("/run/ahriman/ahriman.pid")
 

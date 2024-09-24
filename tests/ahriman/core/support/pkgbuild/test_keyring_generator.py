@@ -71,7 +71,7 @@ def test_pkgdesc(database: SQLite, gpg: GPG, configuration: Configuration) -> No
     """
     _, repository_id = configuration.check_loaded()
 
-    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgdesc == "aur-clone PGP keyring"
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgdesc == "aur PGP keyring"
 
     configuration.set_option("keyring", "description", "description")
     assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgdesc == "description"
@@ -83,7 +83,7 @@ def test_pkgname(database: SQLite, gpg: GPG, configuration: Configuration) -> No
     """
     _, repository_id = configuration.check_loaded()
 
-    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgname == "aur-clone-keyring"
+    assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgname == "aur-keyring"
 
     configuration.set_option("keyring", "package", "keyring")
     assert KeyringGenerator(database, gpg, repository_id, configuration, "keyring").pkgname == "keyring"
@@ -169,7 +169,7 @@ def test_install(keyring_generator: KeyringGenerator) -> None:
     """
     assert keyring_generator.install() == """post_upgrade() {
   if usr/bin/pacman-key -l >/dev/null 2>&1; then
-    usr/bin/pacman-key --populate aur-clone
+    usr/bin/pacman-key --populate aur
     usr/bin/pacman-key --updatedb
   fi
 }
@@ -186,9 +186,9 @@ def test_package(keyring_generator: KeyringGenerator) -> None:
     must generate package function correctly
     """
     assert keyring_generator.package() == """{
-  install -Dm644 "$srcdir/aur-clone.gpg" "$pkgdir/usr/share/pacman/keyrings/aur-clone.gpg"
-  install -Dm644 "$srcdir/aur-clone-revoked" "$pkgdir/usr/share/pacman/keyrings/aur-clone-revoked"
-  install -Dm644 "$srcdir/aur-clone-trusted" "$pkgdir/usr/share/pacman/keyrings/aur-clone-trusted"
+  install -Dm644 "$srcdir/aur.gpg" "$pkgdir/usr/share/pacman/keyrings/aur.gpg"
+  install -Dm644 "$srcdir/aur-revoked" "$pkgdir/usr/share/pacman/keyrings/aur-revoked"
+  install -Dm644 "$srcdir/aur-trusted" "$pkgdir/usr/share/pacman/keyrings/aur-trusted"
 }"""
 
 
@@ -196,6 +196,6 @@ def test_sources(keyring_generator: KeyringGenerator) -> None:
     """
     must return valid sources files list
     """
-    assert keyring_generator.sources().get("aur-clone.gpg")
-    assert keyring_generator.sources().get("aur-clone-revoked")
-    assert keyring_generator.sources().get("aur-clone-trusted")
+    assert keyring_generator.sources().get("aur.gpg")
+    assert keyring_generator.sources().get("aur-revoked")
+    assert keyring_generator.sources().get("aur-trusted")

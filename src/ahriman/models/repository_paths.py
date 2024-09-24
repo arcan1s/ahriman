@@ -43,7 +43,7 @@ class RepositoryPaths(LazyLogging):
     Examples:
         This class can be used in order to access the repository tree structure::
 
-            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), RepositoryId("x86_64", "aur-clone"))
+            >>> paths = RepositoryPaths(Path("/var/lib/ahriman"), RepositoryId("x86_64", "aur"))
 
         Additional methods can be used in order to ensure that tree is created::
 

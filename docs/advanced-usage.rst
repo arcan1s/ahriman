@@ -11,7 +11,7 @@ Depending on the goal the package can be used in different ways. Nevertheless, i
    from ahriman.core.database import SQLite
    from ahriman.models.repository_id import RepositoryId
 
-   repository_id = RepositoryId("x86_64", "aur-clone")
+   repository_id = RepositoryId("x86_64", "aur")
    configuration = Configuration.from_path(Path("/etc/ahriman.ini"), repository_id)
    database = SQLite.load(configuration)
 

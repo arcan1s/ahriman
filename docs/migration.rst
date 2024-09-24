@@ -23,9 +23,9 @@ To 2.12.0
 
 This release includes paths migration. Unlike usual case, no automatic migration is performed because it might break user configuration. The following noticeable changes have been made:
 
-* Path to pre-built packages now includes repository name, i.e. it has been changed from ``/var/lib/ahriman/packages/x86_64`` to ``/var/lib/ahriman/packages/aur-clone/x86_64``.
-* Path to pacman databases now includes repository name too, it has been changed from ``/var/lib/ahriman/pacman/x86_64`` to ``/var/lib/ahriman/pacman/aur-clone/x86_64``.
-* Path to repository itself also includes repository name, from ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur-clone/x86_64``.
+* Path to pre-built packages now includes repository name, i.e. it has been changed from ``/var/lib/ahriman/packages/x86_64`` to ``/var/lib/ahriman/packages/aur/x86_64``.
+* Path to pacman databases now includes repository name too, it has been changed from ``/var/lib/ahriman/pacman/x86_64`` to ``/var/lib/ahriman/pacman/aur/x86_64``.
+* Path to repository itself also includes repository name, from ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur/x86_64``.
 
 In order to migrate to the new filesystem tree the following actions are required:
 
@@ -41,16 +41,16 @@ In order to migrate to the new filesystem tree the following actions are require
    Create directory tree. It can be done by running ``ahriman service-tree-migrate`` subcommand. It performs copying between the old repository tree and the new one. Alternatively directories can be copied by hands.
 
 #.
-   Edit configuration in case if anything is pointing to the old path, e.g. HTML report generation, in the way in which it will point to the directory inside repository specific one, e.g. ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur-clone/x86_64``.
+   Edit configuration in case if anything is pointing to the old path, e.g. HTML report generation, in the way in which it will point to the directory inside repository specific one, e.g. ``/var/lib/ahriman/repository/x86_64`` to ``/var/lib/ahriman/repository/aur/x86_64``.
 
 #.
    Run setup command (i.e. ``ahriman service-setup``) again with the same arguments as used before. This step can be done manually by editing devtools pacman configuration (``/usr/share/devtools/pacman.conf.d/ahriman-x86_64.conf`` by default) replacing ``Server`` with path to the repository, e.g.:
 
    .. code-block:: ini
 
-      [aur-clone]
+      [aur]
       SigLevel = Optional TrustAll
-      Server = file:///var/lib/ahriman/repository/aur-clone/x86_64
+      Server = file:///var/lib/ahriman/repository/aur/x86_64
 
    In case of manual interventions make sure to remove architecture reference from ``web`` sections (if any) to avoid ambiguity.
 
@@ -58,9 +58,9 @@ In order to migrate to the new filesystem tree the following actions are require
    Make sure to update remote synchronization services if any. Almost all of them rely on current repository tree by default, so it is required to setup either redirects or configure to synchronize to the old locations (e.g. ``object_path`` option for S3 synchronization).
 
 #.
-   Enable and start services again. Unit template parameter should include both repository architecture and name, dash separated, e.g. ``x86_64-aur-clone``, where ``x86_64`` is the repository architecture and ``aur-clone`` is the repository name:
+   Enable and start services again. Unit template parameter should include both repository architecture and name, dash separated, e.g. ``x86_64-aur``, where ``x86_64`` is the repository architecture and ``aur`` is the repository name:
 
    .. code-block:: shell
 
-      sudo systemctl enable --now ahriman@x86_64-aur-clone.timer
+      sudo systemctl enable --now ahriman@x86_64-aur.timer
       sudo systemctl enable --now ahriman-web

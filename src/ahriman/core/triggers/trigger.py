@@ -52,7 +52,7 @@ class Trigger(LazyLogging):
             >>> configuration = Configuration()
             >>> configuration.set_option("build", "triggers", "my.awesome.package.CustomTrigger")
             >>>
-            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur-clone"), configuration)
+            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur"), configuration)
             >>> loader.on_result(Result(), [])
     """
 

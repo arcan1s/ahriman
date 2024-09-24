@@ -31,5 +31,5 @@ class RepositoryIdSchema(Schema):
     })
     repository = fields.String(metadata={
         "description": "Repository name",
-        "example": "aur-clone",
+        "example": "aur",
     })

@@ -25,6 +25,7 @@ from typing import TypeVar
 
 from ahriman import __version__
 from ahriman.application import handlers
+from ahriman.application.help_formatter import _HelpFormatter
 from ahriman.core.utils import enum_values, extract_user
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum
@@ -45,19 +46,6 @@ __all__: list[str] = []
 SubParserAction = TypeVar("SubParserAction", bound="argparse._SubParsersAction[argparse.ArgumentParser]")
 
 
-def _formatter(prog: str) -> argparse.HelpFormatter:
-    """
-    formatter for the help message
-
-    Args:
-        prog(str): application name
-
-    Returns:
-        argparse.HelpFormatter: formatter used by default
-    """
-    return argparse.ArgumentDefaultsHelpFormatter(prog, width=120)
-
-
 # pylint: disable=too-many-statements
 def _parser() -> argparse.ArgumentParser:
     """
@@ -67,8 +55,28 @@ def _parser() -> argparse.ArgumentParser:
         argparse.ArgumentParser: command line parser for the application
     """
     parser = argparse.ArgumentParser(prog="ahriman", description="ArcH linux ReposItory MANager",
-                                     epilog="Argument list can also be read from file by using @ prefix.",
-                                     fromfile_prefix_chars="@", formatter_class=_formatter)
+                                     epilog="""
+Quick setup command (replace repository name, architecture and packager as needed):
+
+>>> ahriman -a x86_64 -r aur service-setup --packager "ahriman bot <ahriman@example.com>"
+
+Add new package from AUR:
+
+>>> ahriman package-add ahriman --now
+
+Check for updates and build out-of-dated packages (add ``--dry-run`` to build it later):
+
+>>> ahriman repo-update
+
+Remove package from the repository:
+
+>>> ahriman package-remove ahriman
+
+Start web service (requires additional configuration):
+
+>>> ahriman web
+""",
+                                     fromfile_prefix_chars="@", formatter_class=_HelpFormatter)
     parser.add_argument("-a", "--architecture", help="filter by target architecture")
     parser.add_argument("-c", "--configuration", help="configuration path", type=Path,
                         default=Path("/") / "etc" / "ahriman.ini")
@@ -154,7 +162,7 @@ def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("aur-search", aliases=["search"], help="search for package",
-                             description="search for package in AUR using API", formatter_class=_formatter)
+                             description="search for package in AUR using API", formatter_class=_HelpFormatter)
     parser.add_argument("search", help="search terms, can be specified multiple times, the result will match all terms",
                         nargs="+")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
@@ -179,7 +187,8 @@ def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.Argument
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
-                             description="list unsafe commands as defined in default args", formatter_class=_formatter)
+                             description="list unsafe commands as defined in default args",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("subcommand", help="instead of showing commands, just test command line for unsafe subcommand "
                                            "and return 0 in case if command is safe and 1 otherwise", nargs="*")
     parser.set_defaults(handler=handlers.UnsafeCommands, architecture="", lock=None, quiet=True, report=False,
@@ -199,7 +208,7 @@ def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("help", help="show help message",
                              description="show help message for application or command and exit",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("subcommand", help="show help message for specific command", nargs="?")
     parser.set_defaults(handler=handlers.Help, architecture="", lock=None, quiet=True, report=False, repository="",
                         unsafe=True, parser=_parser)
@@ -218,7 +227,7 @@ def _set_help_updates_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("help-updates", help="check for service updates",
                              description="request AUR for current version and compare with current service version",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit code if updates available", action="store_true")
     parser.set_defaults(handler=handlers.ServiceUpdates, architecture="", lock=None, quiet=True, report=False,
                         repository="", unsafe=True)
@@ -236,7 +245,8 @@ def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("help-version", aliases=["version"], help="application version",
-                             description="print application and its dependencies versions", formatter_class=_formatter)
+                             description="print application and its dependencies versions",
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Versions, architecture="", lock=None, quiet=True, report=False,
                         repository="", unsafe=True)
     return parser
@@ -256,15 +266,15 @@ def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              description="add existing or new package to the build queue",
                              epilog="This subcommand should be used for new package addition. It also supports flag "
                                     "--now in case if you would like to build the package immediately. "
-                                    "You can add new package from one of supported sources: "
-                                    "1) if it is already built package you can specify the path to the archive; "
-                                    "2) you can also add built packages from the directory (e.g. during the migration "
-                                    "from another repository source); "
-                                    "3) it is also possible to add package from local PKGBUILD, but in this case it "
-                                    "will be ignored during the next automatic updates; "
-                                    "4) ahriman supports downloading archives from remote (e.g. HTTP) sources; "
-                                    "5) and finally you can add package from AUR.",
-                             formatter_class=_formatter)
+                                    "You can add new package from one of supported sources:\n\n"
+                                    "1. If it is already built package you can specify the path to the archive.\n"
+                                    "2. You can also add built packages from the directory (e.g. during the migration "
+                                    "from another repository source).\n"
+                                    "3. It is also possible to add package from local PKGBUILD, but in this case it "
+                                    "will be ignored during the next automatic updates.\n"
+                                    "4. Ahriman supports downloading archives from remote (e.g. HTTP) sources.\n"
+                                    "5. Finally you can add package from AUR.",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
     parser.add_argument("--changes", help="calculate changes from the latest known commit if available",
                         action=argparse.BooleanOptionalAction, default=True)
@@ -298,7 +308,7 @@ def _set_package_changes_parser(root: SubParserAction) -> argparse.ArgumentParse
     parser = root.add_parser("package-changes", help="get package changes",
                              description="retrieve package changes stored in database",
                              epilog="This feature requests package status from the web interface if it is available.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package base")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.set_defaults(handler=handlers.Change, action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
@@ -317,7 +327,7 @@ def _set_package_changes_remove_parser(root: SubParserAction) -> argparse.Argume
     """
     parser = root.add_parser("package-changes-remove", help="remove package changes",
                              description="remove the package changes stored remotely",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package base")
     parser.set_defaults(handler=handlers.Change, action=Action.Remove, exit_code=False, lock=None, quiet=True,
                         report=False, unsafe=True)
@@ -335,7 +345,7 @@ def _set_package_remove_parser(root: SubParserAction) -> argparse.ArgumentParser
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-remove", aliases=["remove"], help="remove package",
-                             description="remove package from the repository", formatter_class=_formatter)
+                             description="remove package from the repository", formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package name or base", nargs="+")
     parser.set_defaults(handler=handlers.Remove)
     return parser
@@ -354,7 +364,7 @@ def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser
     parser = root.add_parser("package-status", aliases=["status"], help="get package status",
                              description="request status of the package",
                              epilog="This feature requests package status from the web interface if it is available.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="filter status by package base", nargs="*")
     parser.add_argument("--ahriman", help="get service status itself", action="store_true")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
@@ -380,7 +390,7 @@ def _set_package_status_remove_parser(root: SubParserAction) -> argparse.Argumen
                              description="remove the package from the status page",
                              epilog="Please note that this subcommand does not remove the package itself, it just "
                                     "clears the status page.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="remove specified packages from status page", nargs="+")
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Remove, lock=None, quiet=True, report=False,
                         unsafe=True)
@@ -398,7 +408,8 @@ def _set_package_status_update_parser(root: SubParserAction) -> argparse.Argumen
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("package-status-update", aliases=["status-update"], help="update package status",
-                             description="update package status on the status page", formatter_class=_formatter)
+                             description="update package status on the status page",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="set status for specified packages. "
                                         "If no packages supplied, service status will be updated",
                         nargs="*")
@@ -424,8 +435,8 @@ def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              epilog="Unlike ``patch-set-add``, this function allows to patch only one PKGBUILD "
                                     "function, e.g. typing ``ahriman patch-add ahriman pkgver`` it will change the "
                                     "``pkgver`` inside PKGBUILD, typing ``ahriman patch-add ahriman build()`` "
-                                    "it will change ``build()`` function inside PKGBUILD",
-                             formatter_class=_formatter)
+                                    "it will change ``build()`` function inside PKGBUILD.",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package base")
     parser.add_argument("variable", help="PKGBUILD variable or function name. If variable is a function, "
                                          "it must end with ()")
@@ -446,8 +457,8 @@ def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("patch-list", help="list patch sets",
-                             description="list available patches for the package", formatter_class=_formatter)
+    parser = root.add_parser("patch-list", help="list patch sets", description="list available patches for the package",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package base")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
@@ -468,7 +479,7 @@ def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("patch-remove", help="remove patch set", description="remove patches for the package",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="package base")
     parser.add_argument("-v", "--variable", help="should be used for single-function patches in case if you wold like "
                                                  "to remove only specified PKGBUILD variables. In case if not set, "
@@ -490,12 +501,13 @@ def _set_patch_set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("patch-set-add", help="add patch set", description="create or update source patches",
-                             epilog="In order to add a patch set for the package you will need to clone "
-                                    "the AUR package manually, add required changes (e.g. external patches, "
-                                    "edit PKGBUILD) and run command, e.g. ``ahriman patch-set-add path/to/directory``. "
-                                    "By default it tracks *.patch and *.diff files, but this behavior can be changed "
-                                    "by using --track option",
-                             formatter_class=_formatter)
+                             epilog="In order to add a patch set for the package you will need to:\n\n"
+                                    "1. Clone the AUR package manually.\n"
+                                    "2. Add required changes (e.g. external patches, edit PKGBUILD).\n"
+                                    "3. Run command, e.g. ``ahriman patch-set-add path/to/directory``.\n\n"
+                                    "By default it tracks ``*.patch`` and ``*.diff`` files, but this behavior can be "
+                                    "changed by using ``--track`` option.",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="path to directory with changed files for patch addition/update", type=Path)
     parser.add_argument("-t", "--track", help="files which has to be tracked", action="append",
                         default=["*.diff", "*.patch"])
@@ -515,7 +527,8 @@ def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-backup", help="backup repository data",
-                             description="backup repository settings and database", formatter_class=_formatter)
+                             description="backup repository settings and database",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("path", help="path of the output archive", type=Path)
     parser.set_defaults(handler=handlers.Backup, architecture="", lock=None, report=False, repository="",
                         unsafe=True)
@@ -534,7 +547,7 @@ def _set_repo_check_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-check", aliases=["check"], help="check for updates",
                              description="check for packages updates. Same as repo-update --dry-run --no-manual",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--changes", help="calculate changes from the latest known commit if available",
                         action=argparse.BooleanOptionalAction, default=True)
@@ -566,7 +579,7 @@ def _set_repo_create_keyring_parser(root: SubParserAction) -> argparse.ArgumentP
                              description="create package which contains list of trusted keys as set by "
                                          "configuration. Note, that this action will only create package, the package "
                                          "itself has to be built manually",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.support.KeyringTrigger"])
     return parser
 
@@ -585,7 +598,7 @@ def _set_repo_create_mirrorlist_parser(root: SubParserAction) -> argparse.Argume
                              description="create package which contains list of available mirrors as set by "
                                          "configuration. Note, that this action will only create package, the package "
                                          "itself has to be built manually",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.support.MirrorlistTrigger"])
     return parser
 
@@ -602,7 +615,7 @@ def _set_repo_daemon_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-daemon", aliases=["daemon"], help="run application as daemon",
                              description="start process which periodically will run update process",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("-i", "--interval", help="interval between runs in seconds", type=int, default=60 * 60 * 12)
     parser.add_argument("--aur", help="enable or disable checking for AUR updates",
                         action=argparse.BooleanOptionalAction, default=True)
@@ -644,7 +657,7 @@ def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
-                             description="force rebuild whole repository", formatter_class=_formatter)
+                             description="force rebuild whole repository", formatter_class=_HelpFormatter)
     parser.add_argument("--depends-on", help="only rebuild packages that depend on specified packages", action="append")
     parser.add_argument("--dry-run", help="just perform check for packages without rebuild process itself",
                         action="store_true")
@@ -676,7 +689,7 @@ def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentP
     """
     parser = root.add_parser("repo-remove-unknown", aliases=["remove-unknown"], help="remove unknown packages",
                              description="remove packages which are missing in AUR and do not have local PKGBUILDs",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
     parser.set_defaults(handler=handlers.RemoveUnknown)
     return parser
@@ -695,7 +708,7 @@ def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-report", aliases=["report"], help="generate report",
                              description="generate repository report according to current settings",
                              epilog="Create and/or update repository report as configured.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.report.ReportTrigger"])
     return parser
 
@@ -711,7 +724,7 @@ def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-restore", help="restore repository data",
-                             description="restore settings and database", formatter_class=_formatter)
+                             description="restore settings and database", formatter_class=_HelpFormatter)
     parser.add_argument("path", help="path of the input archive", type=Path)
     parser.add_argument("-o", "--output", help="root path of the extracted files", type=Path, default=Path("/"))
     parser.set_defaults(handler=handlers.Restore, architecture="", lock=None, report=False, repository="",
@@ -732,7 +745,7 @@ def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-sign", aliases=["sign"], help="sign packages",
                              description="(re-)sign packages and repository database according to current settings",
                              epilog="Sign repository and/or packages as configured.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="sign only specified packages", nargs="*")
     parser.set_defaults(handler=handlers.Sign)
     return parser
@@ -749,7 +762,7 @@ def _set_repo_statistics_parser(root: SubParserAction) -> argparse.ArgumentParse
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-statistics", help="repository statistics",
-                             description="fetch repository statistics", formatter_class=_formatter)
+                             description="fetch repository statistics", formatter_class=_HelpFormatter)
     parser.add_argument("package", help="fetch only events for the specified package", nargs="?")
     parser.add_argument("--chart", help="create updates chart and save it to the specified path", type=Path)
     parser.add_argument("-e", "--event", help="event type filter",
@@ -773,7 +786,8 @@ def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentPa
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("repo-status-update", help="update repository status",
-                             description="update repository status on the status page", formatter_class=_formatter)
+                             description="update repository status on the status page",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("-s", "--status", help="new status",
                         type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
     parser.set_defaults(handler=handlers.StatusUpdate, action=Action.Update, lock=None, package=[], quiet=True,
@@ -794,7 +808,7 @@ def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("repo-sync", aliases=["sync"], help="sync repository",
                              description="sync repository files to remote server according to current settings",
                              epilog="Synchronize the repository to remote services as configured.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Triggers, trigger=["ahriman.core.upload.UploadTrigger"])
     return parser
 
@@ -811,7 +825,7 @@ def _set_repo_tree_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-tree", help="dump repository tree",
                              description="dump repository tree based on packages dependencies",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("-p", "--partitions", help="also divide packages by independent partitions",
                         type=int, default=1)
     parser.set_defaults(handler=handlers.Structure, lock=None, quiet=True, report=False, unsafe=True)
@@ -830,7 +844,7 @@ def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-triggers", help="run triggers",
                              description="run triggers on empty build result as configured by settings",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("trigger", help="instead of running all triggers as set by configuration, just process "
                                         "specified ones in order of mention", nargs="*")
     parser.set_defaults(handler=handlers.Triggers)
@@ -849,7 +863,7 @@ def _set_repo_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("repo-update", aliases=["update"], help="update packages",
                              description="check for packages updates and run build process if requested",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("package", help="filter check by package base", nargs="*")
     parser.add_argument("--aur", help="enable or disable checking for AUR updates",
                         action=argparse.BooleanOptionalAction, default=True)
@@ -894,7 +908,7 @@ def _set_service_clean_parser(root: SubParserAction) -> argparse.ArgumentParser:
                              epilog="The subcommand clears every temporary directories (builds, caches etc). Normally "
                                     "you should not run this command manually. Also in case if you are going to clear "
                                     "the chroot directories you will need root privileges.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("--cache", help="clear directory with package caches",
                         action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--chroot", help="clear build chroot", action=argparse.BooleanOptionalAction, default=False)
@@ -920,7 +934,7 @@ def _set_service_config_parser(root: SubParserAction) -> argparse.ArgumentParser
     """
     parser = root.add_parser("service-config", aliases=["config", "repo-config"], help="dump configuration",
                              description="dump configuration for the specified architecture",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("section", help="filter settings by section", nargs="?")
     parser.add_argument("key", help="filter settings by key", nargs="?")
     parser.add_argument("--info", help="show additional information, e.g. configuration files",
@@ -944,7 +958,7 @@ def _set_service_config_validate_parser(root: SubParserAction) -> argparse.Argum
     parser = root.add_parser("service-config-validate", aliases=["config-validate", "repo-config-validate"],
                              help="validate system configuration",
                              description="validate configuration and print found errors",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if configuration is invalid",
                         action="store_true")
     parser.set_defaults(handler=handlers.Validate, lock=None, quiet=True, report=False, unsafe=True)
@@ -967,7 +981,7 @@ def _set_service_key_import_parser(root: SubParserAction) -> argparse.ArgumentPa
                                     "(in case if signature and keys are available in PKGBUILD). This process will "
                                     "fail in case if key is not known for build user. This subcommand can be used "
                                     "in order to import the PGP key to user keychain.",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
     parser.add_argument("key", help="PGP key to import from public server")
     parser.set_defaults(handler=handlers.KeyImport, architecture="", lock=None, report=False, repository="")
@@ -986,7 +1000,7 @@ def _set_service_repositories(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("service-repositories", help="show repositories",
                              description="list all available repositories",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("--id-only", help="show machine readable identifier instead",
                         action=argparse.BooleanOptionalAction, default=False)
     parser.set_defaults(handler=handlers.Repositories, architecture="", lock=None, report=False, repository="",
@@ -1007,8 +1021,8 @@ def _set_service_run(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("service-run", aliases=["run"], help="run multiple commands",
                              description="run multiple commands on success run of the previous command",
                              epilog="Commands must be quoted by using usual bash rules. Processes will be spawned "
-                                    "under the same user as this command",
-                             formatter_class=_formatter)
+                                    "under the same user as this command.",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("command", help="command to be run (quoted) without ``ahriman``", nargs="+")
     parser.set_defaults(handler=handlers.Run, architecture="", lock=None, report=False, repository="",
                         unsafe=True, parser=_parser)
@@ -1028,8 +1042,8 @@ def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("service-setup", aliases=["init", "repo-init", "repo-setup", "setup"],
                              help="initial service configuration",
                              description="create initial service configuration, requires root",
-                             epilog="Create _minimal_ configuration for the service according to provided options.",
-                             formatter_class=_formatter)
+                             epilog="Create **minimal** configuration for the service according to provided options.",
+                             formatter_class=_HelpFormatter)
     parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
     parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
                         type=Path, default=Path("/") / "usr" / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
@@ -1062,7 +1076,7 @@ def _set_service_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("service-shell", aliases=["shell"], help="invoke python shell",
-                             description="drop into python shell", formatter_class=_formatter)
+                             description="drop into python shell", formatter_class=_HelpFormatter)
     parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
     parser.add_argument("-v", "--verbose", help=argparse.SUPPRESS, action="store_true")
     parser.set_defaults(handler=handlers.Shell, lock=None, report=False)
@@ -1080,7 +1094,8 @@ def _set_service_tree_migrate_parser(root: SubParserAction) -> argparse.Argument
         argparse.ArgumentParser: created argument parser
     """
     parser = root.add_parser("service-tree-migrate", help="migrate repository tree",
-                             description="migrate repository tree between versions", formatter_class=_formatter)
+                             description="migrate repository tree between versions",
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.TreeMigrate, lock=None, quiet=True, report=False)
     return parser
 
@@ -1098,7 +1113,7 @@ def _set_user_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
     parser = root.add_parser("user-add", help="create or update user",
                              description="update user for web services with the given password and role. "
                                          "In case if password was not entered it will be asked interactively",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("username", help="username for web service")
     parser.add_argument("--key", help="optional PGP key used by this user. The private key must be imported")
     parser.add_argument("--packager", help="optional packager id used for build process in form of "
@@ -1124,7 +1139,7 @@ def _set_user_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("user-list", help="user known users and their access",
                              description="list users from the user mapping and their roles",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("username", help="filter users by username", nargs="?")
     parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
     parser.add_argument("-R", "--role", help="filter users by role", type=UserAccess, choices=enum_values(UserAccess))
@@ -1145,7 +1160,7 @@ def _set_user_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
     """
     parser = root.add_parser("user-remove", help="remove user",
                              description="remove user from the user mapping and update the configuration",
-                             formatter_class=_formatter)
+                             formatter_class=_HelpFormatter)
     parser.add_argument("username", help="username for web service")
     parser.set_defaults(handler=handlers.Users, action=Action.Remove, architecture="", exit_code=False, lock=None,
                         quiet=True, report=False, repository="")
@@ -1162,7 +1177,8 @@ def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: created argument parser
     """
-    parser = root.add_parser("web", help="web server", description="start web server", formatter_class=_formatter)
+    parser = root.add_parser("web", help="web server", description="start web server",
+                             formatter_class=_HelpFormatter)
     parser.set_defaults(handler=handlers.Web, architecture="", lock=Path("ahriman-web.pid"), report=False,
                         repository="", parser=_parser)
     return parser

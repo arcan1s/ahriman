@@ -21,7 +21,7 @@ How to report by email
 
       [email]
       host = smtp.example.com
-      link_path = http://example.com/aur-clone/x86_64
+      link_path = http://example.com/aur/x86_64
       password = ...
       port = 465
       receivers = me@example.com
@@ -47,8 +47,8 @@ How to generate index page
       target = html
 
       [html]
-      path = ${repository:root}/repository/aur-clone/x86_64/index.html
-      link_path = http://example.com/aur-clone/x86_64
+      path = ${repository:root}/repository/aur/x86_64/index.html
+      link_path = http://example.com/aur/x86_64
 
 Having this configuration, the generated ``index.html`` will be also automatically synced to remote services (e.g. S3).
 
@@ -106,7 +106,7 @@ How to post build report to telegram
       [telegram]
       api_key = aaAAbbBBccCC
       chat_id = @ahriman
-      link_path = http://example.com/aur-clone/x86_64
+      link_path = http://example.com/aur/x86_64
 
    ``${api_key}`` is the one sent by `@BotFather <https://t.me/botfather>`__, ``${chat_id}`` is the value retrieved from previous step.
 

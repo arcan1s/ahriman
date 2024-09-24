@@ -22,7 +22,7 @@ def test_repository_name(configuration: Configuration) -> None:
     """
     must return valid repository name
     """
-    assert configuration.repository_name == "aur-clone"
+    assert configuration.repository_name == "aur"
 
 
 def test_repository_paths(configuration: Configuration, repository_paths: RepositoryPaths) -> None:
@@ -68,8 +68,8 @@ def test_section_name(configuration: Configuration) -> None:
     assert configuration.section_name("build") == "build"
     assert configuration.section_name("build", None) == "build"
     assert configuration.section_name("build", "x86_64") == "build:x86_64"
-    assert configuration.section_name("build", "aur-clone", "x86_64") == "build:aur-clone:x86_64"
-    assert configuration.section_name("build", "aur-clone", None) == "build:aur-clone"
+    assert configuration.section_name("build", "aur", "x86_64") == "build:aur:x86_64"
+    assert configuration.section_name("build", "aur", None) == "build:aur"
     assert configuration.section_name("build", None, "x86_64") == "build:x86_64"
 
 
@@ -379,8 +379,8 @@ def test_override_sections(configuration: Configuration, repository_id: Reposito
     """
     assert configuration.override_sections("build", repository_id) == [
         "build:x86_64",
-        "build:aur-clone",
-        "build:aur-clone:x86_64",
+        "build:aur",
+        "build:aur:x86_64",
     ]
 
 

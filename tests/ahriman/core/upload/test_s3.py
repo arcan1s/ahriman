@@ -18,7 +18,7 @@ def test_object_path(configuration: Configuration, mocker: MockerFixture) -> Non
     _, repository_id = configuration.check_loaded()
 
     # new-style tree
-    assert S3(repository_id, configuration, "customs3").object_path == Path("aur-clone/x86_64")
+    assert S3(repository_id, configuration, "customs3").object_path == Path("aur/x86_64")
 
     # legacy tree
     mocker.patch.object(RepositoryPaths, "_suffix", Path("x86_64"))
@@ -58,12 +58,12 @@ def test_files_remove(s3_remote_objects: list[Any]) -> None:
     must remove remote objects
     """
     local_files = {
-        Path(item.key): item.e_tag for item in s3_remote_objects if item.key != "aur-clone/x86_64/a"
+        Path(item.key): item.e_tag for item in s3_remote_objects if item.key != "aur/x86_64/a"
     }
     remote_objects = {Path(item.key): item for item in s3_remote_objects}
 
     S3.files_remove(local_files, remote_objects)
-    remote_objects[Path("aur-clone/x86_64/a")].delete.assert_called_once_with()
+    remote_objects[Path("aur/x86_64/a")].delete.assert_called_once_with()
 
 
 def test_files_upload(s3: S3, s3_remote_objects: list[Any], mocker: MockerFixture) -> None:

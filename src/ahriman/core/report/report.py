@@ -41,7 +41,7 @@ class Report(LazyLogging):
         class method :func:`load()` which can be used in order to determine right report instance::
 
             >>> configuration = Configuration()
-            >>> report = Report.load(RepositoryId("x86_64", "aur-clone"), configuration, "email")
+            >>> report = Report.load(RepositoryId("x86_64", "aur"), configuration, "email")
 
         The :func:`generate()` method can be used in order to perform the report itself, whereas :func:`run()` method
         handles exception and raises :exc:`ahriman.core.exceptions.ReportError` instead::

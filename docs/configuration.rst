@@ -3,8 +3,8 @@ Configuration
 
 Some groups can be specified for each architecture and/or repository separately. E.g. if there are ``build`` and ``build:x86_64`` groups it will use an option from ``build:x86_64`` for the ``x86_64`` architecture and ``build`` for any other (architecture specific group has higher priority). In case if both groups are presented, architecture specific options will be merged into global ones overriding them. The order which will be used for option resolution is the following:
 
-#. Repository and architecture specific, e.g. ``build:aur-clone:x86_64``.
-#. Repository specific, e.g. ``build:aur-clone``.
+#. Repository and architecture specific, e.g. ``build:aur:x86_64``.
+#. Repository specific, e.g. ``build:aur``.
 #. Architecture specific, e.g. ``build:x86_64``.
 #. Default section, e.g. ``build``.
 

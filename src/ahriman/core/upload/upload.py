@@ -44,7 +44,7 @@ class Upload(LazyLogging):
         exception::
 
             >>> configuration = Configuration()
-            >>> upload = Upload.load(RepositoryId("x86_64", "aur-clone"), configuration, "s3")
+            >>> upload = Upload.load(RepositoryId("x86_64", "aur"), configuration, "s3")
             >>> upload.run(configuration.repository_paths.repository, [])
 
         Or in case if direct access to exception is required, the :func:`sync()` method can be used::

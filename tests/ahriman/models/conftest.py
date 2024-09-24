@@ -67,11 +67,13 @@ def internal_status(counters: Counters) -> InternalStatus:
     Returns:
         InternalStatus: internal status test instance
     """
-    return InternalStatus(status=BuildStatus(),
-                          architecture="x86_64",
-                          packages=counters,
-                          version=__version__,
-                          repository="aur-clone")
+    return InternalStatus(
+        status=BuildStatus(),
+        architecture="x86_64",
+        packages=counters,
+        version=__version__,
+        repository="aur",
+    )
 
 
 @pytest.fixture

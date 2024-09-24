@@ -1318,7 +1318,8 @@ def test_subparsers_service_setup(parser: argparse.ArgumentParser) -> None:
     """
     service-setup command must imply lock, quiet, report and unsafe
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>"])
     assert args.architecture == "x86_64"
     assert args.lock is None
     assert args.quiet
@@ -1331,10 +1332,11 @@ def test_subparsers_service_setup_option_from_configuration(parser: argparse.Arg
     """
     service-setup command must convert from-configuration option to path instance
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>"])
     assert isinstance(args.from_configuration, Path)
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--from-configuration", "path"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>", "--from-configuration", "path"])
     assert isinstance(args.from_configuration, Path)
 
 
@@ -1342,8 +1344,8 @@ def test_subparsers_service_setup_option_sign_target(parser: argparse.ArgumentPa
     """
     service-setup command must convert sign-target option to SignSettings instance
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--sign-target", "packages"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>", "--sign-target", "packages"])
     assert args.sign_target
     assert all(isinstance(target, SignSettings) for target in args.sign_target)
 
@@ -1352,7 +1354,8 @@ def test_subparsers_service_setup_option_sign_target_empty(parser: argparse.Argu
     """
     service-setup command must accept empty sign-target list as None
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>"])
     assert args.sign_target is None
 
 
@@ -1360,8 +1363,9 @@ def test_subparsers_service_setup_option_sign_target_multiple(parser: argparse.A
     """
     service-setup command must accept multiple sign-target
     """
-    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup", "--packager", "John Doe <john@doe.com>",
-                              "--sign-target", "packages", "--sign-target", "repository"])
+    args = parser.parse_args(["-a", "x86_64", "-r", "repo", "service-setup",
+                              "--packager", "ahriman bot <ahriman@example.com>", "--sign-target", "packages",
+                              "--sign-target", "repository"])
     assert args.sign_target == [SignSettings.Packages, SignSettings.Repository]
 
 

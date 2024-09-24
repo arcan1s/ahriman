@@ -33,8 +33,8 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
     args.makeflags_jobs = True
     args.mirror = "mirror"
     args.multilib = True
-    args.packager = "John Doe <john@doe.com>"
-    args.repository = "aur-clone"
+    args.packager = "ahriman bot <ahriman@example.com>"
+    args.repository = "aur"
     args.server = None
     args.sign_key = "key"
     args.sign_target = [SignSettings.Packages]

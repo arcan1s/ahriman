@@ -12,7 +12,7 @@ def test_init_path(configuration: Configuration) -> None:
     _, repository_id = configuration.check_loaded()
 
     assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").path == \
-        Path("etc") / "pacman.d" / "aur-clone-mirrorlist"
+        Path("etc") / "pacman.d" / "aur-mirrorlist"
 
     configuration.set_option("mirrorlist", "path", "/etc")
     assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").path == Path("etc")
@@ -37,7 +37,7 @@ def test_pkgdesc(configuration: Configuration) -> None:
     _, repository_id = configuration.check_loaded()
 
     assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgdesc == \
-        "aur-clone mirror list for use by pacman"
+        "aur mirror list for use by pacman"
 
     configuration.set_option("mirrorlist", "description", "description")
     assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgdesc == "description"
@@ -49,7 +49,7 @@ def test_pkgname(configuration: Configuration) -> None:
     """
     _, repository_id = configuration.check_loaded()
 
-    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgname == "aur-clone-mirrorlist"
+    assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgname == "aur-mirrorlist"
 
     configuration.set_option("mirrorlist", "package", "mirrorlist")
     assert MirrorlistGenerator(repository_id, configuration, "mirrorlist").pkgname == "mirrorlist"
@@ -81,7 +81,7 @@ def test_package(mirrorlist_generator: MirrorlistGenerator) -> None:
     must generate package function correctly
     """
     assert mirrorlist_generator.package() == """{
-  install -Dm644 "$srcdir/mirrorlist" "$pkgdir/etc/pacman.d/aur-clone-mirrorlist"
+  install -Dm644 "$srcdir/mirrorlist" "$pkgdir/etc/pacman.d/aur-mirrorlist"
 }"""
 
 

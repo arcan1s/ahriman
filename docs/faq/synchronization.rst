@@ -29,7 +29,7 @@ There are several choices:
        [rsync]
        remote = 192.168.0.1:/srv/repo
 
-   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (``Server = https://s3.eu-central-1.amazonaws.com/repository/aur-clone/x86_64``) or to GitHub (``Server = https://github.com/ahriman/repository/releases/download/aur-clone-x86_64``).
+   After that just add ``/srv/repo`` to the ``pacman.conf`` as usual. You can also upload to S3 (``Server = https://s3.eu-central-1.amazonaws.com/repository/aur/x86_64``) or to GitHub (``Server = https://github.com/ahriman/repository/releases/download/aur-x86_64``).
 
 How to sync to S3
 ^^^^^^^^^^^^^^^^^
