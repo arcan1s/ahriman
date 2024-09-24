@@ -72,7 +72,7 @@ class AURPackage:
             >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
-            >>> pacman = Pacman(RepositoryId("x86_64", "aur-clone"), configuration)
+            >>> pacman = Pacman(RepositoryId("x86_64", "aur"), configuration)
             >>> metadata = pacman.package_get("pacman")
             >>> package = AURPackage.from_pacman(next(metadata))  # load package from pyalpm wrapper
     """

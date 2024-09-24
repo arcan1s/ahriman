@@ -46,7 +46,7 @@ The following environment variables are supported:
 * ``AHRIMAN_PORT`` - HTTP server port if any, default is empty.
 * ``AHRIMAN_POSTSETUP_COMMAND`` - if set, the command which will be called (as root) after the setup command, but before any other actions.
 * ``AHRIMAN_PRESETUP_COMMAND`` - if set, the command which will be called (as root) right before the setup command.
-* ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur-clone``.
+* ``AHRIMAN_REPOSITORY`` - repository name, default is ``aur``.
 * ``AHRIMAN_REPOSITORY_SERVER`` - optional override for the repository URL. Useful if you would like to download packages from remote instead of local filesystem.
 * ``AHRIMAN_REPOSITORY_ROOT`` - repository root. Because of filesystem rights it is required to override default repository root. By default, it uses ``ahriman`` directory inside ahriman's home, which can be passed as mount volume.
 * ``AHRIMAN_UNIX_SOCKET`` - full path to unix socket which is used by web server, default is empty. Note that more likely you would like to put it inside ``AHRIMAN_REPOSITORY_ROOT`` directory (e.g. ``/var/lib/ahriman/ahriman/ahriman-web.sock``) or to ``/run/ahriman``.
@@ -106,9 +106,9 @@ In order to create configuration for additional repositories, the ``AHRIMAN_POST
 
 .. code-block:: shell
 
-   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -e AHRIMAN_POSTSETUP_COMMAND="ahriman --architecture x86_64 --repository aur-clone-v2 service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'" -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
+   docker run --privileged -p 8080:8080 -e AHRIMAN_PORT=8080 -e AHRIMAN_UNIX_SOCKET=/var/lib/ahriman/ahriman/ahriman-web.sock -e AHRIMAN_POSTSETUP_COMMAND="ahriman --architecture x86_64 --repository aur-v2 service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'" -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
-The command above will also create configuration for the repository named ``aur-clone-v2``.
+The command above will also create configuration for the repository named ``aur-v2``.
 
 Note, however, that the command above is only required in case if the service is going to be used to run subprocesses. Otherwise, everything else (web interface, status, etc) will be handled as usual.
 

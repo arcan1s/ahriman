@@ -50,7 +50,7 @@ class TriggerLoader(LazyLogging):
 
         Having such configuration you can create instance of the loader::
 
-            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur-clone"), configuration)
+            >>> loader = TriggerLoader.load(RepositoryId("x86_64", "aur"), configuration)
             >>> print(loader.triggers)
 
         After that you are free to run triggers::

@@ -555,7 +555,7 @@ def repository_id() -> RepositoryId:
     Returns:
         RepositoryId: repository identifier test instance
     """
-    return RepositoryId("x86_64", "aur-clone")
+    return RepositoryId("x86_64", "aur")
 
 
 @pytest.fixture

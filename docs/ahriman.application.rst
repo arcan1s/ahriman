@@ -21,6 +21,14 @@ ahriman.application.ahriman module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.help\_formatter module
+------------------------------------------
+
+.. automodule:: ahriman.application.help_formatter
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.lock module
 -------------------------------
 

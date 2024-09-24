@@ -51,7 +51,7 @@ class Configuration(configparser.RawConfigParser):
 
             >>> from pathlib import Path
             >>>
-            >>> configuration = Configuration.from_path(Path("/etc/ahriman.ini"), RepositoryId("x86_64", "aur-clone"))
+            >>> configuration = Configuration.from_path(Path("/etc/ahriman.ini"), RepositoryId("x86_64", "aur"))
             >>> repository_name = configuration.get("repository", "name")
             >>> makepkg_flags = configuration.getlist("build", "makepkg_flags")
 

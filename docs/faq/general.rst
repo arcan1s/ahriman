@@ -14,8 +14,8 @@ TL;DR
 .. code-block:: shell
 
    yay -S ahriman
-   ahriman -a x86_64 -r aur-clone service-setup --packager "ahriman bot <ahriman@example.com>"
-   systemctl enable --now ahriman@x86_64-aur-clone.timer
+   ahriman -a x86_64 -r aur service-setup --packager "ahriman bot <ahriman@example.com>"
+   systemctl enable --now ahriman@x86_64-aur.timer
 
 Long answer
 """""""""""
@@ -29,7 +29,7 @@ The alternative way (though not recommended) is to run service instead of timer:
 
 .. code-block:: shell
 
-   systemctl enable --now ahriman-daemon@x86_64-aur-clone
+   systemctl enable --now ahriman-daemon@x86_64-aur
 
 How to validate settings
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -77,7 +77,7 @@ states that default build command is ``extra-x86_64-build``. But if there is sec
    [build:i686]
    build_command = extra-i686-build
 
-the ``extra-i686-build`` command will be used for ``i686`` architecture. You can also override settings for different repositories and architectures; in this case section names will be ``build:aur-clone`` (repository name only) and ``build:aur-clone:i686`` (both repository name and architecture).
+the ``extra-i686-build`` command will be used for ``i686`` architecture. You can also override settings for different repositories and architectures; in this case section names will be ``build:aur`` (repository name only) and ``build:aur:i686`` (both repository name and architecture).
 
 How to generate build reports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -73,8 +73,8 @@ def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
     must run execution in multiple processes
     """
     ids = [
-        RepositoryId("i686", "aur-clone"),
-        RepositoryId("x86_64", "aur-clone"),
+        RepositoryId("i686", "aur"),
+        RepositoryId("x86_64", "aur"),
     ]
     mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=ids)
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
@@ -89,8 +89,8 @@ def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: Mocker
     """
     args.command = "web"
     mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[
-        RepositoryId("i686", "aur-clone"),
-        RepositoryId("x86_64", "aur-clone"),
+        RepositoryId("i686", "aur"),
+        RepositoryId("x86_64", "aur"),
     ])
     mocker.patch.object(Handler, "ALLOW_MULTI_ARCHITECTURE_RUN", False)
 
@@ -103,7 +103,7 @@ def test_execute_single(args: argparse.Namespace, mocker: MockerFixture) -> None
     must run execution in current process if only one architecture supplied
     """
     mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[
-        RepositoryId("x86_64", "aur-clone"),
+        RepositoryId("x86_64", "aur"),
     ])
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
 
@@ -179,7 +179,7 @@ def test_repositories_extract_repository_legacy(args: argparse.Namespace, config
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value=set())
 
-    assert Handler.repositories_extract(args) == [RepositoryId("arch", "aur-clone")]
+    assert Handler.repositories_extract(args) == [RepositoryId("arch", "aur")]
     known_architectures_mock.assert_not_called()
     known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)
 
@@ -255,6 +255,6 @@ def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configura
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value=set())
 
-    assert Handler.repositories_extract(args) == [RepositoryId("i686", "aur-clone")]
+    assert Handler.repositories_extract(args) == [RepositoryId("i686", "aur")]
     known_architectures_mock.assert_not_called()
     known_repositories_mock.assert_called_once_with(configuration.repository_paths.root)

@@ -103,7 +103,7 @@ class Tree:
             >>>
             >>> configuration = Configuration()
             >>> database = SQLite.load(configuration)
-            >>> repository = Repository.load(RepositoryId("x86_64", "aur-clone"), configuration, database, report=True)
+            >>> repository = Repository.load(RepositoryId("x86_64", "aur"), configuration, database, report=True)
             >>> packages = repository.packages()
             >>>
             >>> tree = Tree.resolve(packages)

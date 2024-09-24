@@ -118,12 +118,12 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
    ├── ahriman.db
    ├── cache
    ├── chroot
-   │   └── aur-clone
+   │   └── aur
    ├── packages
-   │   └── aur-clone
+   │   └── aur
    │       └── x86_64
    ├── pacman
-   │   └── aur-clone
+   │   └── aur
    │       └── x86_64
    │           ├── local
    │           │   └── ALPM_DB_VERSION
@@ -133,12 +133,12 @@ Having default root as ``/var/lib/ahriman`` (differs from container though), the
    │               └── multilib.db
    │
    └── repository
-       └── aur-clone
+       └── aur
            └── x86_64
-               ├── aur-clone.db -> aur-clone.db.tar.gz
-               ├── aur-clone.db.tar.gz
-               ├── aur-clone.files -> aur-clone.files.tar.gz
-               └── aur-clone.files.tar.gz
+               ├── aur.db -> aur.db.tar.gz
+               ├── aur.db.tar.gz
+               ├── aur.files -> aur.files.tar.gz
+               └── aur.files.tar.gz
 
 There are multiple subdirectories, some of them are commons for any repository, but some of them are not.
 
@@ -371,7 +371,7 @@ There are several supported synchronization providers, currently they are ``rsyn
 
 ``rsync`` provider does not have any specific logic except for running external rsync application with configured arguments. The service does not handle SSH configuration, thus it has to be configured before running application manually.
 
-``s3`` provider uses ``boto3`` package and implements sync feature. The files are stored in architecture specific directory (e.g. if bucket is ``repository``, packages will be stored in ``repository/aur-clone/x86_64`` for the ``aur-clone`` repository and ``x86_64`` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, the implementation used is described `here <https://teppen.io/2018/10/23/aws_s3_verify_etags/>`__.
+``s3`` provider uses ``boto3`` package and implements sync feature. The files are stored in architecture specific directory (e.g. if bucket is ``repository``, packages will be stored in ``repository/aur/x86_64`` for the ``aur`` repository and ``x86_64`` architecture), bucket must be created before any action and API key must have permissions to write to the bucket. No external configuration required. In order to upload only changed files the service compares calculated hashes with the Amazon ETags, the implementation used is described `here <https://teppen.io/2018/10/23/aws_s3_verify_etags/>`__.
 
 ``github`` provider authenticates through basic auth, API key with repository write permissions is required. There will be created a release with the name of the architecture in case if it does not exist; files will be uploaded to the release assets. It also stores array of files and their MD5 checksums in release body in order to upload only changed ones. According to the GitHub API in case if there is already uploaded asset with the same name (e.g. database files), asset will be removed first.
 

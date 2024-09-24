@@ -60,7 +60,7 @@ class PackageDescription:
             >>> from ahriman.models.repository_id import RepositoryId
             >>>
             >>> configuration = Configuration()
-            >>> pacman = Pacman(RepositoryId("x86_64", "aur-clone"), configuration)
+            >>> pacman = Pacman(RepositoryId("x86_64", "aur"), configuration)
             >>> pyalpm_description = next(package for package in pacman.package_get("pacman"))
             >>> description = PackageDescription.from_package(
             >>>     pyalpm_description, Path("/var/cache/pacman/pkg/pacman-6.0.1-4-x86_64.pkg.tar.zst"))

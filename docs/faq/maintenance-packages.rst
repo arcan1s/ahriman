@@ -30,9 +30,9 @@ The application provides special plugin which generates keyring package. This pl
 
    .. code-block:: shell
 
-      sudo -u ahriman ahriman package-add aur-clone-keyring --source local --now
+      sudo -u ahriman ahriman package-add aur-keyring --source local --now
 
-   where ``aur-clone`` is your repository name.
+   where ``aur`` is your repository name.
 
 This plugin might have some issues, in case of any of them, kindly create `new issue <https://github.com/arcan1s/ahriman/issues/new/choose>`__.
 
@@ -68,6 +68,6 @@ The application provides special plugin which generates mirrorlist package also.
 
    .. code-block:: shell
 
-      sudo -u ahriman ahriman package-add aur-clone-mirrorlist --source local --now
+      sudo -u ahriman ahriman package-add aur-mirrorlist --source local --now
 
-   where ``aur-clone`` is your repository name.
+   where ``aur`` is your repository name.

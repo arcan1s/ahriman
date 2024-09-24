@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.application.ahriman import _parser
 from ahriman.application.application import Application
+from ahriman.application.help_formatter import _HelpFormatter
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
@@ -42,6 +43,17 @@ def args() -> argparse.Namespace:
     """
     return argparse.Namespace(architecture=None, lock=None, force=False, unsafe=False, report=False,
                               repository=None, repository_id=None, wait_timeout=-1)
+
+
+@pytest.fixture
+def formatter() -> _HelpFormatter:
+    """
+    fixture for help message formatter
+
+    Returns:
+        _HelpFormatter: help message formatter test instance
+    """
+    return _HelpFormatter("ahriman")
 
 
 @pytest.fixture

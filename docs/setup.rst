@@ -10,7 +10,7 @@ Initial setup
 
    .. code-block:: shell
 
-      sudo ahriman -a x86_64 -r aur-clone service-setup ...
+      sudo ahriman -a x86_64 -r aur service-setup ...
 
    ``service-setup`` literally does the following steps:
 
@@ -19,7 +19,7 @@ Initial setup
 
       .. code-block:: shell
 
-          echo 'PACKAGER="John Doe <john@doe.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
+          echo 'PACKAGER="ahriman bot <ahriman@example.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
 
    #.
       Configure build tools (it is required for correct dependency management system):
@@ -29,26 +29,26 @@ Initial setup
 
          .. code-block:: shell
 
-            ln -s /usr/bin/archbuild /usr/local/bin/aur-clone-x86_64-build
+            ln -s /usr/bin/archbuild /usr/local/bin/aur-x86_64-build
 
       #. 
          Create configuration file (same as previous ``{name}.conf``):
 
          .. code-block:: shell
 
-            cp /usr/share/devtools/pacman.conf.d/{extra,aur-clone}.conf
+            cp /usr/share/devtools/pacman.conf.d/{extra,aur}.conf
 
       #. 
          Change configuration file, add your own repository, add multilib repository etc:
 
          .. code-block:: shell
 
-            echo '[multilib]' | tee -a /usr/share/devtools/pacman.conf.d/aur-clone-x86_64.conf
-            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/aur-clone-x86_64.conf
+            echo '[multilib]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+            echo 'Include = /etc/pacman.d/mirrorlist' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
 
-            echo '[aur-clone]' | tee -a /usr/share/devtools/pacman.conf.d/aur-clone-x86_64.conf
-            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/aur-clone-x86_64.conf
-            echo 'Server = file:///var/lib/ahriman/repository/$repo/$arch' | tee -a /usr/share/devtools/pacman.conf.d/aur-clone-x86_64.conf
+            echo '[aur]' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+            echo 'SigLevel = Optional TrustAll' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
+            echo 'Server = file:///var/lib/ahriman/repository/$repo/$arch' | tee -a /usr/share/devtools/pacman.conf.d/aur-x86_64.conf
 
       #. 
          Set ``build_command`` option to point to your command:
@@ -56,14 +56,14 @@ Initial setup
          .. code-block:: shell
 
             echo '[build]' | tee -a /etc/ahriman.ini.d/build.ini
-            echo 'build_command = aur-clone-x86_64-build' | tee -a /etc/ahriman.ini.d/build.ini
+            echo 'build_command = aur-x86_64-build' | tee -a /etc/ahriman.ini.d/build.ini
 
       #.
          Configure ``/etc/sudoers.d/ahriman`` to allow running command without a password:
 
          .. code-block:: shell
 
-            echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/aur-clone-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
+            echo 'Cmnd_Alias CARCHBUILD_CMD = /usr/local/bin/aur-x86_64-build *' | tee -a /etc/sudoers.d/ahriman
             echo 'ahriman ALL=(ALL) NOPASSWD:SETENV: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
             chmod 400 /etc/sudoers.d/ahriman
 
@@ -74,7 +74,7 @@ Initial setup
 
    .. code-block:: shell
 
-       systemctl enable --now ahriman@x86_64-aur-clone.timer
+       systemctl enable --now ahriman@x86_64-aur.timer
 
 #. 
    Start and enable status page:

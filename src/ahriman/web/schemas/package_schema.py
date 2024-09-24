@@ -46,5 +46,5 @@ class PackageSchema(Schema):
         })
     packager = fields.String(metadata={
         "description": "packager for the last success package build",
-        "example": "John Doe <john@doe.com>",
+        "example": "ahriman bot <ahriman@example.com>",
     })
