@@ -13,7 +13,7 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     init_mock = mocker.patch("ahriman.core.database.SQLite.init")
     SQLite.load(configuration)
-    init_mock.assert_called_once_with(configuration)
+    init_mock.assert_called_once_with()
 
 
 def test_init(database: SQLite, configuration: Configuration, mocker: MockerFixture) -> None:
@@ -21,18 +21,18 @@ def test_init(database: SQLite, configuration: Configuration, mocker: MockerFixt
     must run migrations on init
     """
     migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
-    database.init(configuration)
-    migrate_schema_mock.assert_called_once_with(pytest.helpers.anyvar(int), configuration)
+    database.init()
+    migrate_schema_mock.assert_called_once_with(pytest.helpers.anyvar(int), database._configuration)
 
 
-def test_init_skip_migration(database: SQLite, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_init_skip_migration(database: SQLite, mocker: MockerFixture) -> None:
     """
     must skip migrations if option is set
     """
-    configuration.set_option("settings", "apply_migrations", "no")
+    database._configuration.set_option("settings", "apply_migrations", "no")
     migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
 
-    database.init(configuration)
+    database.init()
     migrate_schema_mock.assert_not_called()
 
 

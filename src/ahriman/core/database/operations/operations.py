@@ -23,9 +23,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypeVar
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.log import LazyLogging
-from ahriman.models.repository_id import RepositoryId
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 T = TypeVar("T")
@@ -39,16 +38,16 @@ class Operations(LazyLogging):
         path(Path): path to the database file
     """
 
-    def __init__(self, path: Path, repository_id: RepositoryId, repository_paths: RepositoryPaths) -> None:
+    def __init__(self, path: Path, configuration: Configuration) -> None:
         """
         Args:
             path(Path): path to the database file
-            repository_id(RepositoryId): repository unique identifier
-            repository_paths(RepositoryPaths): repository paths
+            configuration(Configuration): configuration instance
         """
         self.path = path
-        self._repository_id = repository_id
-        self._repository_paths = repository_paths
+        self._configuration = configuration
+        _, self._repository_id = configuration.check_loaded()
+        self._repository_paths = configuration.repository_paths
 
     @property
     def logger_name(self) -> str:
