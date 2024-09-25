@@ -174,18 +174,31 @@ class PkgbuildParser(shlex.shlex):
         Returns:
             bool: ``True`` if the previous element of the stream is a quote or escaped and ``False`` otherwise
         """
+        # wrapper around reading utf symbols from random position of the stream
+        def read_last() -> tuple[int, str]:
+            while (position := self._io.tell()) > 0:
+                try:
+                    return position, self._io.read(1)
+                except UnicodeDecodeError:
+                    self._io.seek(position - 1)
+
+            raise PkgbuildParserError("reached starting position, no valid symbols found")
+
         current_position = self._io.tell()
 
         last_char = penultimate_char = None
-        for index in range(current_position - 1, -1, -1):
+        index = current_position - 1
+        while index > 0:
             self._io.seek(index)
-            last_char = self._io.read(1)
+
+            index, last_char = read_last()
             if last_char.isspace():
+                index -= 1
                 continue
 
-            if index >= 0:
+            if index > 1:
                 self._io.seek(index - 1)
-                penultimate_char = self._io.read(1)
+                _, penultimate_char = read_last()
 
             break
 
@@ -216,6 +229,7 @@ class PkgbuildParser(shlex.shlex):
                     case PkgbuildToken.Comment:
                         self.instream.readline()
                         continue
+
                 yield token
 
             if token != PkgbuildToken.ArrayEnds:
@@ -248,23 +262,27 @@ class PkgbuildParser(shlex.shlex):
                     counter += 1
                 case PkgbuildToken.FunctionEnds:
                     end_position = self._io.tell()
+                    if self.state != self.eof:  # type: ignore[attr-defined]
+                        end_position -= 1  # if we are not at the end of the file, position is _after_ the token
                     counter -= 1
                     if counter == 0:
                         break
+                case PkgbuildToken.Comment:
+                    self.instream.readline()
 
         if not 0 < start_position < end_position:
             raise PkgbuildParserError("function body wasn't found")
 
         # read the specified interval from source stream
         self._io.seek(start_position - 1)  # start from the previous symbol
-        content = self._io.read(end_position - start_position)
+        # we cannot use :func:`read()` here, because it reads characters, not bytes
+        content = ""
+        while self._io.tell() != end_position and (next_char := self._io.read(1)):
+            content += next_char
 
         # special case of the end of file
         if self.state == self.eof:  # type: ignore[attr-defined]
             content += self._io.read(1)
-
-        # reset position (because the last position was before the next token starts)
-        self._io.seek(end_position)
 
         return content
 

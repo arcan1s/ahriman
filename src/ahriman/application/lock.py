@@ -112,7 +112,7 @@ class Lock(LazyLogging):
         """
         if self.path is None:
             return
-        self._pid_file = self.path.open("a+")
+        self._pid_file = self.path.open("a+", encoding="utf8")
 
     def _watch(self) -> bool:
         """

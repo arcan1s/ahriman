@@ -64,7 +64,7 @@ class Pkgbuild(Mapping[str, Any]):
         Returns:
             Self: constructed instance of self
         """
-        with path.open() as input_file:
+        with path.open(encoding="utf8") as input_file:
             return cls.from_io(input_file)
 
     @classmethod

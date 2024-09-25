@@ -199,7 +199,7 @@ class PkgbuildPatch:
         Args:
             pkgbuild_path(Path): path to PKGBUILD file
         """
-        with pkgbuild_path.open("a") as pkgbuild:
+        with pkgbuild_path.open("a", encoding="utf8") as pkgbuild:
             pkgbuild.write("\n")  # in case if file ends without new line we are appending it at the end
             pkgbuild.write(self.serialize())
             pkgbuild.write("\n")  # append new line after the values

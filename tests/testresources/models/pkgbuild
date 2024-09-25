@@ -69,17 +69,29 @@ function() {
     { inner shell }
     last
 }
-function () {
+function() {
     body "{" argument
 }
-function () {
+function() {
     body "}" argument
 }
-function () {
+function() {
     body '{' argument
 }
-function () {
+function() {
     body '}' argument
+}
+
+# special case with quotes in comments
+function() {
+    # we don't care about unclosed quotation in comments
+    body # no, I said we really don't care
+}
+
+# some random unicode symbols
+function() {
+  mv "$pkgdir"/usr/share/fonts/站酷小薇体 "$pkgdir"/usr/share/fonts/zcool-xiaowei-regular
+  mv "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.站酷小薇体 "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.zcool-xiaowei-regular
 }
 
 # other statements

@@ -141,7 +141,7 @@ class Setup(Handler):
 
         (root.include / "00-setup-overrides.ini").unlink(missing_ok=True)  # remove old-style configuration
         target = root.include / f"00-setup-overrides-{repository_id.id}.ini"
-        with target.open("w") as ahriman_configuration:
+        with target.open("w", encoding="utf8") as ahriman_configuration:
             configuration.write(ahriman_configuration)
 
     @staticmethod
@@ -191,7 +191,7 @@ class Setup(Handler):
         configuration.set_option(repository_id.name, "Server", repository_server)
 
         target = source.parent / f"{repository_id.name}-{repository_id.architecture}.conf"
-        with target.open("w") as devtools_configuration:
+        with target.open("w", encoding="utf8") as devtools_configuration:
             configuration.write(devtools_configuration)
 
     @staticmethod

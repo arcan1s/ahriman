@@ -42,6 +42,17 @@ def test_expand_array_exception() -> None:
         assert PkgbuildParser._expand_array(["${pkgbase}{", ",", "-libs"])
 
 
+def test_is_escaped_exception(resource_path_root: Path) -> None:
+    """
+    must raise PkgbuildParserError if no valid utf symbols found
+    """
+    utf8 = resource_path_root / "models" / "utf8"
+    with utf8.open(encoding="utf8") as content:
+        content.seek(2)
+        with pytest.raises(PkgbuildParserError):
+            assert not PkgbuildParser(content)._is_escaped()
+
+
 def test_parse_array() -> None:
     """
     must parse array
@@ -193,7 +204,7 @@ def test_parse(resource_path_root: Path) -> None:
     must parse complex file
     """
     pkgbuild = resource_path_root / "models" / "pkgbuild"
-    with pkgbuild.open() as content:
+    with pkgbuild.open(encoding="utf8") as content:
         parser = PkgbuildParser(content)
         assert list(parser.parse()) == [
             PkgbuildPatch("var", "value"),
@@ -258,5 +269,13 @@ def test_parse(resource_path_root: Path) -> None:
 }"""),
             PkgbuildPatch("function()", """{
     body '}' argument
+}"""),
+            PkgbuildPatch("function()", """{
+    # we don't care about unclosed quotation in comments
+    body # no, I said we really don't care
+}"""),
+            PkgbuildPatch("function()", """{
+  mv "$pkgdir"/usr/share/fonts/站酷小薇体 "$pkgdir"/usr/share/fonts/zcool-xiaowei-regular
+  mv "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.站酷小薇体 "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.zcool-xiaowei-regular
 }"""),
         ]
