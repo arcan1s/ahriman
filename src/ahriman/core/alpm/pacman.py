@@ -91,9 +91,8 @@ class Pacman(LazyLogging):
             database = self.database_init(handle, repository, self.repository_id.architecture)
             self.database_copy(handle, database, pacman_root, use_ahriman_cache=use_ahriman_cache)
 
-        # install repository database too
-        local_database = self.database_init(handle, self.repository_id.name, self.repository_id.architecture)
-        self.database_copy(handle, local_database, pacman_root, use_ahriman_cache=use_ahriman_cache)
+        # install repository database too (without copying)
+        self.database_init(handle, self.repository_id.name, self.repository_id.architecture)
 
         if use_ahriman_cache and refresh_database:
             self.database_sync(handle, force=refresh_database == PacmanSynchronization.Force)
@@ -115,6 +114,7 @@ class Pacman(LazyLogging):
 
         if not use_ahriman_cache:
             return
+
         # copy root database if no local copy found
         pacman_db_path = Path(handle.dbpath)
         if not pacman_db_path.is_dir():
@@ -123,11 +123,13 @@ class Pacman(LazyLogging):
         if dst.is_file():
             return  # file already exists, do not copy
         dst.parent.mkdir(mode=0o755, exist_ok=True)  # create sync directory if it doesn't exist
+
         src = repository_database(pacman_root)
         if not src.is_file():
             self.logger.warning("repository %s is set to be used, however, no working copy was found", database.name)
             return  # database for some reason deos not exist
-        self.logger.info("copy pacman database from operating system root to ahriman's home")
+
+        self.logger.info("copy pacman database %s from operating system root to ahriman's home %s", src, dst)
         shutil.copy(src, dst)
         self.repository_paths.chown(dst)
 
