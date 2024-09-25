@@ -66,10 +66,9 @@ class SQLite(
             Self: fully initialized instance of the database
         """
         path = cls.database_path(configuration)
-        _, repository_id = configuration.check_loaded()
 
-        database = cls(path, repository_id, configuration.repository_paths)
-        database.init(configuration)
+        database = cls(path, configuration)
+        database.init()
 
         return database
 
@@ -86,23 +85,18 @@ class SQLite(
         """
         return configuration.getpath("settings", "database")
 
-    def init(self, configuration: Configuration) -> None:
+    def init(self) -> None:
         """
         perform database migrations
-
-        Args:
-            configuration(Configuration): configuration instance
         """
         # custom types support
         sqlite3.register_adapter(dict, json.dumps)
         sqlite3.register_adapter(list, json.dumps)
         sqlite3.register_converter("json", json.loads)
 
-        paths = configuration.repository_paths
-
-        if configuration.getboolean("settings", "apply_migrations", fallback=True):
-            self.with_connection(lambda connection: Migrations.migrate(connection, configuration))
-        paths.chown(self.path)
+        if self._configuration.getboolean("settings", "apply_migrations", fallback=True):
+            self.with_connection(lambda connection: Migrations.migrate(connection, self._configuration))
+        self._repository_paths.chown(self.path)
 
     def package_clear(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """
