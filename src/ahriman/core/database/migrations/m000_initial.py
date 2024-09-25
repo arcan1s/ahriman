@@ -141,7 +141,7 @@ def migrate_package_statuses(connection: Connection, paths: RepositoryPaths) -> 
     cache_path = paths.root / "status_cache.json"
     if not cache_path.is_file():
         return  # no file found
-    with cache_path.open() as cache:
+    with cache_path.open(encoding="utf8") as cache:
         dump = json.load(cache)
 
     for item in dump.get("packages", []):

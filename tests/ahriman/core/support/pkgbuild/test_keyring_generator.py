@@ -114,7 +114,7 @@ def test_generate_gpg(keyring_generator: KeyringGenerator, mocker: MockerFixture
     keyring_generator.trusted = ["trusted", "key"]
 
     keyring_generator._generate_gpg(Path("local"))
-    open_mock.assert_called_once_with("w")
+    open_mock.assert_called_once_with("w", encoding="utf8")
     export_mock.assert_has_calls([MockCall("key"), MockCall("revoked"), MockCall("trusted")])
     file_mock.write.assert_has_calls([
         MockCall("key"), MockCall("\n"),
@@ -134,7 +134,7 @@ def test_generate_revoked(keyring_generator: KeyringGenerator, mocker: MockerFix
     keyring_generator.revoked = ["revoked"]
 
     keyring_generator._generate_revoked(Path("local"))
-    open_mock.assert_called_once_with("w")
+    open_mock.assert_called_once_with("w", encoding="utf8")
     fingerprint_mock.assert_called_once_with("revoked")
     file_mock.write.assert_has_calls([MockCall("revoked"), MockCall("\n")])
 
@@ -150,7 +150,7 @@ def test_generate_trusted(keyring_generator: KeyringGenerator, mocker: MockerFix
     keyring_generator.trusted = ["trusted", "trusted"]
 
     keyring_generator._generate_trusted(Path("local"))
-    open_mock.assert_called_once_with("w")
+    open_mock.assert_called_once_with("w", encoding="utf8")
     fingerprint_mock.assert_called_once_with("trusted")
     file_mock.write.assert_has_calls([MockCall("trusted"), MockCall(":4:\n")])
 

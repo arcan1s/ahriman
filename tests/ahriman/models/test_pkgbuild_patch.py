@@ -149,5 +149,5 @@ def test_write(mocker: MockerFixture) -> None:
     open_mock.return_value.__enter__.return_value = file_mock
 
     PkgbuildPatch("key", "value").write(Path("PKGBUILD"))
-    open_mock.assert_called_once_with("a")
+    open_mock.assert_called_once_with("a", encoding="utf8")
     file_mock.write.assert_has_calls([call("\n"), call("""key=value"""), call("\n")])

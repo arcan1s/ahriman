@@ -63,7 +63,7 @@ def test_open(lock: Lock, mocker: MockerFixture) -> None:
     lock.path = Path("ahriman.pid")
 
     lock._open()
-    open_mock.assert_called_once_with("a+")
+    open_mock.assert_called_once_with("a+", encoding="utf8")
 
 
 def test_open_skip(lock: Lock, mocker: MockerFixture) -> None:

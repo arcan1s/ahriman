@@ -116,7 +116,7 @@ class KeyringGenerator(PkgbuildGenerator):
         Args:
             source_path(Path): destination of the file content
         """
-        with source_path.open("w") as source_file:
+        with source_path.open("w", encoding="utf8") as source_file:
             for key in sorted(set(self.trusted + self.packagers + self.revoked)):
                 public_key = self.sign.key_export(key)
                 source_file.write(public_key)
@@ -129,7 +129,7 @@ class KeyringGenerator(PkgbuildGenerator):
         Args:
             source_path(Path): destination of the file content
         """
-        with source_path.open("w") as source_file:
+        with source_path.open("w", encoding="utf8") as source_file:
             for key in sorted(set(self.revoked)):
                 fingerprint = self.sign.key_fingerprint(key)
                 source_file.write(fingerprint)
@@ -147,7 +147,7 @@ class KeyringGenerator(PkgbuildGenerator):
         """
         if not self.trusted:
             raise PkgbuildGeneratorError
-        with source_path.open("w") as source_file:
+        with source_path.open("w", encoding="utf8") as source_file:
             for key in sorted(set(self.trusted)):
                 fingerprint = self.sign.key_fingerprint(key)
                 source_file.write(fingerprint)

@@ -26,7 +26,7 @@ def test_from_file(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
     load_mock = mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_io", return_value=pkgbuild_ahriman)
 
     assert Pkgbuild.from_file(Path("local"))
-    open_mock.assert_called_once_with()
+    open_mock.assert_called_once_with(encoding="utf8")
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 
