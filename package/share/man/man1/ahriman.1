@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2024\-09\-24" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2024\-09\-26" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -989,7 +989,25 @@ usage: ahriman web [\-h]
 start web server
 
 .SH COMMENTS
-Argument list can also be read from file by using @ prefix.
+Quick setup command (replace repository name, architecture and packager as needed):
+
+>>> ahriman \-a x86_64 \-r aur service\-setup \-\-packager "ahriman bot <ahriman@example.com>"
+
+Add new package from AUR:
+
+>>> ahriman package\-add ahriman \-\-now
+
+Check for updates and build out\-of\-dated packages (add ``\-\-dry\-run`` to build it later):
+
+>>> ahriman repo\-update
+
+Remove package from the repository:
+
+>>> ahriman package\-remove ahriman
+
+Start web service (requires additional configuration):
+
+>>> ahriman web
 
 .SH AUTHOR
 .nf
