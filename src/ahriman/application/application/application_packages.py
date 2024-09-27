@@ -141,19 +141,19 @@ class ApplicationPackages(ApplicationProperties):
         self.database.build_queue_insert(package)
         self.reporter.set_unknown(package)
 
-    def add(self, names: Iterable[str], source: PackageSource, username: str | None = None) -> None:
+    def add(self, packages: Iterable[str], source: PackageSource, username: str | None = None) -> None:
         """
         add packages for the next build
 
         Args:
-            names(Iterable[str]): list of package bases to add
+            packages(Iterable[str]): list of package bases to add
             source(PackageSource): package source to add
             username(str | None, optional): optional override of username for build process (Default value = None)
         """
-        for name in names:
-            resolved_source = source.resolve(name, self.repository.paths)
+        for package in packages:
+            resolved_source = source.resolve(package, self.repository.paths)
             fn = getattr(self, f"_add_{resolved_source.value}")
-            fn(name, username)
+            fn(package, username)
 
     def on_result(self, result: Result) -> None:
         """
@@ -167,16 +167,16 @@ class ApplicationPackages(ApplicationProperties):
         """
         raise NotImplementedError
 
-    def remove(self, names: Iterable[str]) -> Result:
+    def remove(self, packages: Iterable[str]) -> Result:
         """
         remove packages from repository
 
         Args:
-            names(Iterable[str]): list of packages (either base or name) to remove
+            packages(Iterable[str]): list of packages (either base or name) to remove
 
         Returns:
             Result: removal result
         """
-        result = self.repository.process_remove(names)
+        result = self.repository.process_remove(packages)
         self.on_result(result)
         return result

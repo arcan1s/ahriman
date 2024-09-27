@@ -110,6 +110,7 @@ Start web service (requires additional configuration):
     _set_package_add_parser(subparsers)
     _set_package_changes_parser(subparsers)
     _set_package_changes_remove_parser(subparsers)
+    _set_package_copy_parser(subparsers)
     _set_package_remove_parser(subparsers)
     _set_package_status_parser(subparsers)
     _set_package_status_remove_parser(subparsers)
@@ -331,6 +332,27 @@ def _set_package_changes_remove_parser(root: SubParserAction) -> argparse.Argume
     parser.add_argument("package", help="package base")
     parser.set_defaults(handler=handlers.Change, action=Action.Remove, exit_code=False, lock=None, quiet=True,
                         report=False, unsafe=True)
+    return parser
+
+
+def _set_package_copy_parser(root: SubParserAction) -> argparse.ArgumentParser:
+    """
+    add parser for package copy subcommand
+
+    Args:
+        root(SubParserAction): subparsers for the commands
+
+    Returns:
+        argparse.ArgumentParser: created argument parser
+    """
+    parser = root.add_parser("package-copy", aliases=["copy"], help="copy package from another repository",
+                             description="copy package and its metadata from another repository",
+                             formatter_class=_HelpFormatter)
+    parser.add_argument("source", help="source repository name")
+    parser.add_argument("package", help="package base", nargs="+")
+    parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty", action="store_true")
+    parser.add_argument("--remove", help="remove package from the source repository after", action="store_true")
+    parser.set_defaults(handler=handlers.Copy)
     return parser
 
 

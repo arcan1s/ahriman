@@ -21,6 +21,7 @@ from ahriman.application.handlers.add import Add
 from ahriman.application.handlers.backup import Backup
 from ahriman.application.handlers.change import Change
 from ahriman.application.handlers.clean import Clean
+from ahriman.application.handlers.copy import Copy
 from ahriman.application.handlers.daemon import Daemon
 from ahriman.application.handlers.dump import Dump
 from ahriman.application.handlers.handler import Handler

@@ -309,6 +309,26 @@ def test_subparsers_package_changes_remove_package_changes(parser: argparse.Argu
     assert dir(args) == dir(reference_args)
 
 
+def test_subparsers_package_copy_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    package-copy command must correctly parse architecture list
+    """
+    args = parser.parse_args(["package-copy", "source", "ahriman"])
+    assert args.architecture is None
+    args = parser.parse_args(["-a", "x86_64", "package-copy", "source", "ahriman"])
+    assert args.architecture == "x86_64"
+
+
+def test_subparsers_package_copy_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    package-copy command must correctly parse repository list
+    """
+    args = parser.parse_args(["package-copy", "source", "ahriman"])
+    assert args.repository is None
+    args = parser.parse_args(["-r", "repo", "package-copy", "source", "ahriman"])
+    assert args.repository == "repo"
+
+
 def test_subparsers_package_remove_option_architecture(parser: argparse.ArgumentParser) -> None:
     """
     package-remove command must correctly parse architecture list

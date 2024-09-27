@@ -148,13 +148,11 @@ Before using this command you will need to create local directory and put ``PKGB
 How to copy package from another repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As simple as add package from archive. Considering case when you would like to copy package ``package`` with version ``ver-rel`` from repository ``source-repository`` to ``target-respository`` (same architecture), the command will be following:
+It is possible to copy package and its metadata between local repositories, optionally removing the source archive, e.g.:
 
 .. code-block:: shell
 
-   sudo -u ahriman ahriman -r target-repository package-add /var/lib/ahriman/repository/source-repository/x86_64/package-ver-rel-x86_64.pkg.tar.zst
-
-In addition, you can remove source package as usual later.
+   sudo -u ahriman ahriman -r target-repository package-copy source-repository ahriman
 
 This feature in particular useful if for managing multiple repositories like ``[testing]`` and ``[extra]``.
 

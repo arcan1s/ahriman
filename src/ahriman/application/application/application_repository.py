@@ -191,6 +191,12 @@ class ApplicationRepository(ApplicationProperties):
         """
         updates = {}
 
+        # always add already built packages, because they will be always added
+        updates.update({
+            package.base: package
+            for package in self.repository.load_archives(self.repository.packages_built())
+        })
+
         if aur:
             updates.update({package.base: package for package in self.repository.updates_aur(filter_packages, vcs=vcs)})
         if local:

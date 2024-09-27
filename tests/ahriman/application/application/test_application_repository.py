@@ -1,5 +1,6 @@
 import pytest
 
+from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
@@ -213,6 +214,9 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
     """
     must get updates for all
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur",
                                     return_value=[package_ahriman])
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
@@ -220,6 +224,7 @@ def test_updates_all(application_repository: ApplicationRepository, package_ahri
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=True, local=True, manual=True, vcs=True, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
@@ -230,12 +235,16 @@ def test_updates_disabled(application_repository: ApplicationRepository, mocker:
     """
     must get updates without anything
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=False, local=False, manual=False, vcs=True, check_files=False)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_not_called()
     updates_local_mock.assert_not_called()
     updates_manual_mock.assert_not_called()
@@ -246,12 +255,16 @@ def test_updates_no_aur(application_repository: ApplicationRepository, mocker: M
     """
     must get updates without aur
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=False, local=True, manual=True, vcs=True, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_not_called()
     updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
@@ -262,12 +275,16 @@ def test_updates_no_local(application_repository: ApplicationRepository, mocker:
     """
     must get updates without local packages
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=True, local=False, manual=True, vcs=True, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_not_called()
     updates_manual_mock.assert_called_once_with()
@@ -278,12 +295,16 @@ def test_updates_no_manual(application_repository: ApplicationRepository, mocker
     """
     must get updates without manual
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=True, local=True, manual=False, vcs=True, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_not_called()
@@ -294,12 +315,16 @@ def test_updates_no_vcs(application_repository: ApplicationRepository, mocker: M
     """
     must get updates without VCS
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=True, local=True, manual=True, vcs=False, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with([], vcs=False)
     updates_local_mock.assert_called_once_with(vcs=False)
     updates_manual_mock.assert_called_once_with()
@@ -310,12 +335,16 @@ def test_updates_no_check_files(application_repository: ApplicationRepository, m
     """
     must get updates without checking broken links
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates([], aur=True, local=True, manual=True, vcs=True, check_files=False)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with([], vcs=True)
     updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
@@ -326,12 +355,16 @@ def test_updates_with_filter(application_repository: ApplicationRepository, mock
     """
     must get updates with filter
     """
+    path = Path("local")
+    mocker.patch("ahriman.core.repository.package_info.PackageInfo.packages_built", return_value=[path])
+    updates_built_mock = mocker.patch("ahriman.core.repository.package_info.PackageInfo.load_archives")
     updates_aur_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_aur")
     updates_local_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_local")
     updates_manual_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_manual")
     updates_deps_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.updates_dependencies")
 
     application_repository.updates(["filter"], aur=True, local=True, manual=True, vcs=True, check_files=True)
+    updates_built_mock.assert_called_once_with([path])
     updates_aur_mock.assert_called_once_with(["filter"], vcs=True)
     updates_local_mock.assert_called_once_with(vcs=True)
     updates_manual_mock.assert_called_once_with()
