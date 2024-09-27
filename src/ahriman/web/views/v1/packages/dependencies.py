@@ -42,7 +42,7 @@ class DependenciesView(StatusViewGuard, BaseView):
     ROUTES = ["/api/v1/packages/{package}/dependencies"]
 
     @aiohttp_apispec.docs(
-        tags=["Build"],
+        tags=["Packages"],
         summary="Get package dependencies",
         description="Retrieve package implicit dependencies",
         responses={
@@ -74,7 +74,7 @@ class DependenciesView(StatusViewGuard, BaseView):
         return json_response(dependencies.view())
 
     @aiohttp_apispec.docs(
-        tags=["Build"],
+        tags=["Packages"],
         summary="Update package dependencies",
         description="Set package implicit dependencies",
         responses={
