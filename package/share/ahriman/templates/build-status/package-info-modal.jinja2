@@ -7,10 +7,17 @@
             </div>
             <div class="modal-body">
                 <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-1" style="text-align: right">packages</div>
+                    <div id="package-info-packages" class="col-8 col-lg-5"></div>
                     <div class="col-4 col-lg-1" style="text-align: right">version</div>
                     <div id="package-info-version" class="col-8 col-lg-5"></div>
+                </div>
+
+                <div class="form-group row mt-2">
                     <div class="col-4 col-lg-1" style="text-align: right">packager</div>
                     <div id="package-info-packager" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right"></div>
+                    <div id="package-info---placeholder" class="col-8 col-lg-5"></div>
                 </div>
 
                 <div class="form-group row mt-2">
@@ -28,10 +35,10 @@
                 </div>
 
                 <div class="form-group row mt-2">
-                    <div class="col-4 col-lg-1" style="text-align: right">packages</div>
-                    <div id="package-info-packages" class="col-8 col-lg-5"></div>
                     <div class="col-4 col-lg-1" style="text-align: right">depends</div>
                     <div id="package-info-depends" class="col-8 col-lg-5"></div>
+                    <div class="col-4 col-lg-1" style="text-align: right">implicitly depends</div>
+                    <div id="package-info-implicitly-depends" class="col-8 col-lg-5"></div>
                 </div>
 
                 <hr class="col-12">
@@ -107,6 +114,7 @@
     const packageInfoAurUrl = document.getElementById("package-info-aur-url");
     const packageInfoDepends = document.getElementById("package-info-depends");
     const packageInfoGroups = document.getElementById("package-info-groups");
+    const packageInfoImplicitlyDepends = document.getElementById("package-info-implicitly-depends");
     const packageInfoLicenses = document.getElementById("package-info-licenses");
     const packageInfoPackager = document.getElementById("package-info-packager");
     const packageInfoPackages = document.getElementById("package-info-packages");
@@ -200,6 +208,26 @@
         );
     }
 
+    function loadDependencies(packageBase, onFailure) {
+        makeRequest(
+            `/api/v1/packages/${packageBase}/dependencies`,
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
+            },
+            data => {
+                 packageInfoImplicitlyDepends.innerHTML = listToTable(
+                    Object.values(data.paths)
+                        .reduce((accumulator, currentValue) => accumulator.concat(currentValue), [])
+                );
+            },
+            onFailure,
+        );
+    }
+
     function loadEvents(packageBase, onFailure) {
         packageInfoEventsTable.bootstrapTable("showLoading");
         clearChart();
@@ -287,14 +315,9 @@
             },
             data => {
                 const description = data.find(Boolean);
-                const packages = Object.keys(description.package.packages);
+                const packages = description.package.packages;
                 const aurUrl = description.package.remote.web_url;
-                const upstreamUrls = Array.from(
-                    new Set(
-                        Object.values(description.package.packages)
-                            .map(single => single.url)
-                    )
-                ).sort();
+                const upstreamUrls = Array.from(new Set(Object.values(packages).map(single => single.url))).sort();
 
                 packageInfo.textContent = `${description.package.base} ${description.status.status} at ${new Date(1000 * description.status.timestamp).toISOStringShort()}`;
 
@@ -304,17 +327,17 @@
 
                 packageInfoAurUrl.innerHTML = aurUrl ? safeLink(aurUrl, aurUrl, "AUR link").outerHTML : "";
                 packageInfoDepends.innerHTML = listToTable(
-                    Object.values(description.package.packages)
+                    Object.values(packages)
                         .reduce((accumulator, currentValue) => {
-                            return accumulator.concat(currentValue.depends.filter(v => packages.indexOf(v) === -1))
-                                .concat(currentValue.make_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (make)`))
-                                .concat(currentValue.opt_depends.filter(v => packages.indexOf(v) === -1).map(v => `${v} (optional)`));
+                            return accumulator.concat(currentValue.depends.filter(v => !packages.hasOwnProperty(v)))
+                                .concat(currentValue.make_depends.filter(v => !packages.hasOwnProperty(v)).map(v => `${v} (make)`))
+                                .concat(currentValue.opt_depends.filter(v => !packages.hasOwnProperty(v)).map(v => `${v} (optional)`));
                         }, [])
                 );
                 packageInfoGroups.innerHTML = listToTable(extractListProperties(description.package, "groups"));
                 packageInfoLicenses.innerHTML = listToTable(extractListProperties(description.package, "licenses"));
                 packageInfoPackager.textContent = description.package.packager;
-                packageInfoPackages.innerHTML = listToTable(packages);
+                packageInfoPackages.innerHTML = listToTable(Object.entries(packages).map(([key, value]) => `${key} (${value.description})`));
                 packageInfoUpstreamUrl.innerHTML = upstreamUrls.map(url => safeLink(url, url, "upstream link").outerHTML).join("<br>");
                 packageInfoVersion.textContent = description.package.version;
             },
@@ -365,6 +388,7 @@
         };
 
         loadPackage(packageBase, onFailure);
+        loadDependencies(packageBase, onFailure);
         loadPatches(packageBase, onFailure);
         loadLogs(packageBase, onFailure);
         loadChanges(packageBase, onFailure);
@@ -388,6 +412,7 @@
             packageInfoAurUrl.textContent = "";
             packageInfoDepends.textContent = "";
             packageInfoGroups.textContent = "";
+            packageInfoImplicitlyDepends.textContent = "";
             packageInfoLicenses.textContent = "";
             packageInfoPackager.textContent = "";
             packageInfoPackages.textContent = "";
