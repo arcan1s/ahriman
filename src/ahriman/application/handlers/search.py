@@ -22,7 +22,7 @@ import argparse
 from collections.abc import Callable, Iterable
 from dataclasses import fields
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError
@@ -69,6 +69,33 @@ class Search(Handler):
                 AurPrinter(package)(verbose=args.info)
 
     @staticmethod
+    def _set_aur_search_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for AUR search subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("aur-search", aliases=["search"], help="search for package",
+                                 description="search for package in AUR using API")
+        parser.add_argument("search",
+                            help="search terms, can be specified multiple times, the result will match all terms",
+                            nargs="+")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("--info", help="show additional package information",
+                            action=argparse.BooleanOptionalAction, default=False)
+        parser.add_argument("--sort-by",
+                            help="sort field by this field. In case if two packages have the same value of "
+                                 "the specified field, they will be always sorted by name",
+                            default="name", choices=sorted(Search.SORT_FIELDS))
+        parser.set_defaults(architecture="", lock=None, quiet=True, report=False, repository="", unsafe=True)
+        return parser
+
+    @staticmethod
     def sort(packages: Iterable[AURPackage], sort_by: str) -> list[AURPackage]:
         """
         sort package list by specified field
@@ -90,3 +117,5 @@ class Search(Handler):
         comparator: Callable[[AURPackage], tuple[str, str]] =\
             lambda package: (getattr(package, sort_by), package.name)
         return sorted(packages, key=comparator)
+
+    arguments = [_set_aur_search_parser]

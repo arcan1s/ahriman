@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman import __version__
-from ahriman.application.handlers import ServiceUpdates
+from ahriman.application.handlers.service_updates import ServiceUpdates
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
@@ -34,7 +34,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     package_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     ServiceUpdates.run(args, repository_id, configuration, report=False)
@@ -53,7 +53,7 @@ def test_run_skip(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     application_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     ServiceUpdates.run(args, repository_id, configuration, report=False)

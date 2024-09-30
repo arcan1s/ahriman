@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import Structure
+from ahriman.application.handlers.structure import Structure
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package

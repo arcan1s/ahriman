@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Shell
+from ahriman.application.handlers.shell import Shell
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 

@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import PatchPrinter
@@ -66,6 +66,100 @@ class Patch(Handler):
                 Patch.patch_set_list(application, args.package, args.variable, args.exit_code)
             case Action.Remove:
                 Patch.patch_set_remove(application, args.package, args.variable)
+
+    @staticmethod
+    def _set_patch_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for new single-function patch subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("patch-add", help="add patch for PKGBUILD function",
+                                 description="create or update patched PKGBUILD function or variable",
+                                 epilog="Unlike ``patch-set-add``, this function allows to patch only one PKGBUILD "
+                                        "function, e.g. typing ``ahriman patch-add ahriman pkgver`` it will change the "
+                                        "``pkgver`` inside PKGBUILD, typing ``ahriman patch-add ahriman build()`` "
+                                        "it will change ``build()`` function inside PKGBUILD.")
+        parser.add_argument("package", help="package base")
+        parser.add_argument("variable", help="PKGBUILD variable or function name. If variable is a function, "
+                                             "it must end with ()")
+        parser.add_argument("patch", help="path to file which contains function or variable value. If not set, "
+                                          "the value will be read from stdin", type=Path, nargs="?")
+        parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, report=False,
+                            repository="")
+        return parser
+
+    @staticmethod
+    def _set_patch_list_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for list patches subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("patch-list", help="list patch sets",
+                                 description="list available patches for the package")
+        parser.add_argument("package", help="package base")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("-v", "--variable", help="if set, show only patches for specified PKGBUILD variables",
+                            action="append")
+        parser.set_defaults(action=Action.List, architecture="", lock=None, report=False, repository="", unsafe=True)
+        return parser
+
+    @staticmethod
+    def _set_patch_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for remove patches subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("patch-remove", help="remove patch set", description="remove patches for the package")
+        parser.add_argument("package", help="package base")
+        parser.add_argument("-v", "--variable",
+                            help="should be used for single-function patches in case if you wold like "
+                                 "to remove only specified PKGBUILD variables. In case if not set, "
+                                 "it will remove all patches related to the package",
+                            action="append")
+        parser.set_defaults(action=Action.Remove, architecture="", exit_code=False, lock=None, report=False,
+                            repository="")
+        return parser
+
+    @staticmethod
+    def _set_patch_set_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for new full-diff patch subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("patch-set-add", help="add patch set", description="create or update source patches",
+                                 epilog="In order to add a patch set for the package you will need to:\n\n"
+                                        "1. Clone the AUR package manually.\n"
+                                        "2. Add required changes (e.g. external patches, edit PKGBUILD).\n"
+                                        "3. Run command, e.g. ``ahriman patch-set-add path/to/directory``.\n\n"
+                                        "By default it tracks ``*.patch`` and ``*.diff`` files, but this behavior "
+                                        "can be changed by using ``--track`` option.")
+        parser.add_argument("package", help="path to directory with changed files for patch addition/update", type=Path)
+        parser.add_argument("-t", "--track", help="files which has to be tracked", action="append",
+                            default=["*.diff", "*.patch"])
+        parser.set_defaults(action=Action.Update, architecture="", exit_code=False, lock=None, report=False,
+                            repository="", variable=None)
+        return parser
 
     @staticmethod
     def patch_create_from_diff(sources_dir: Path, architecture: str, track: list[str]) -> tuple[str, PkgbuildPatch]:
@@ -155,3 +249,10 @@ class Patch(Handler):
                 application.reporter.package_patches_remove(package_base, variable)
         else:
             application.reporter.package_patches_remove(package_base, None)  # just pass as is
+
+    arguments = [
+        _set_patch_add_parser,
+        _set_patch_list_parser,
+        _set_patch_remove_parser,
+        _set_patch_set_add_parser,
+    ]

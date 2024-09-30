@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Rebuild
+from ahriman.application.handlers.rebuild import Rebuild
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
@@ -43,11 +43,12 @@ def test_run(args: argparse.Namespace, package_ahriman: Package, configuration: 
     result = Result()
     result.add_updated(package_ahriman)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
+    extract_mock = mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages",
+                                return_value=[package_ahriman])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on",
                                              return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
 
     _, repository_id = configuration.check_loaded()
@@ -70,7 +71,7 @@ def test_run_extract_packages(args: argparse.Namespace, configuration: Configura
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.application.application.Application.print_updates")
-    extract_mock = mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
+    extract_mock = mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[])
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
@@ -85,9 +86,9 @@ def test_run_dry_run(args: argparse.Namespace, configuration: Configuration, rep
     args = _default_args(args)
     args.dry_run = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.application.Application.update")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     print_mock = mocker.patch("ahriman.application.application.Application.print_updates")
 
     _, repository_id = configuration.check_loaded()
@@ -106,7 +107,7 @@ def test_run_filter(args: argparse.Namespace, configuration: Configuration, repo
     args.depends_on = ["python-aur"]
     mocker.patch("ahriman.application.application.Application.update")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
+    mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     _, repository_id = configuration.check_loaded()
@@ -122,7 +123,7 @@ def test_run_without_filter(args: argparse.Namespace, configuration: Configurati
     args = _default_args(args)
     mocker.patch("ahriman.application.application.Application.update")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages", return_value=[])
+    mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages", return_value=[])
     application_packages_mock = mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on")
 
     _, repository_id = configuration.check_loaded()
@@ -139,10 +140,10 @@ def test_run_update_empty_exception(args: argparse.Namespace, configuration: Con
     args.exit_code = True
     args.dry_run = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages")
+    mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[])
     mocker.patch("ahriman.application.application.Application.print_updates")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)
@@ -157,10 +158,10 @@ def test_run_build_empty_exception(args: argparse.Namespace, configuration: Conf
     args = _default_args(args)
     args.exit_code = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Rebuild.extract_packages")
+    mocker.patch("ahriman.application.handlers.rebuild.Rebuild.extract_packages")
     mocker.patch("ahriman.core.repository.repository.Repository.packages_depend_on", return_value=[package_ahriman])
     mocker.patch("ahriman.application.application.Application.update", return_value=Result())
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Rebuild.run(args, repository_id, configuration, report=False)

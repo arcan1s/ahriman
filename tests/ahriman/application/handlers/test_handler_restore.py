@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.application.handlers import Restore
+from ahriman.application.handlers.restore import Restore
 from ahriman.core.configuration import Configuration
 
 

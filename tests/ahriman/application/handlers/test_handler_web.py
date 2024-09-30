@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Web
+from ahriman.application.handlers.web import Web
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.log_handler import LogHandler
@@ -43,7 +43,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")
     join_mock = mocker.patch("ahriman.core.spawn.Spawn.join")
     _, repository_id = configuration.check_loaded()
-    mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[repository_id])
+    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=[repository_id])
 
     Web.run(args, repository_id, configuration, report=False)
     setup_mock.assert_called_once_with(configuration, pytest.helpers.anyvar(int), [repository_id])

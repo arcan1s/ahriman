@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import Search
+from ahriman.application.handlers.search import Search
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError
 from ahriman.core.repository import Repository
@@ -39,7 +39,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     aur_search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     official_search_mock = mocker.patch("ahriman.core.alpm.remote.Official.multisearch",
                                         return_value=[aur_package_ahriman])
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     _, repository_id = configuration.check_loaded()
@@ -64,7 +64,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.formatters.Printer.print")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)
@@ -80,7 +80,7 @@ def test_run_sort(args: argparse.Namespace, configuration: Configuration, reposi
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
+    sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)
@@ -100,7 +100,7 @@ def test_run_sort_by(args: argparse.Namespace, configuration: Configuration, rep
     mocker.patch("ahriman.core.alpm.remote.AUR.multisearch", return_value=[aur_package_ahriman])
     mocker.patch("ahriman.core.alpm.remote.Official.multisearch", return_value=[])
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    sort_mock = mocker.patch("ahriman.application.handlers.Search.sort")
+    sort_mock = mocker.patch("ahriman.application.handlers.search.Search.sort")
 
     _, repository_id = configuration.check_loaded()
     Search.run(args, repository_id, configuration, report=False)

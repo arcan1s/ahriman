@@ -20,8 +20,9 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import enum_values, extract_user
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
@@ -60,6 +61,38 @@ class Rebuild(Handler):
         Rebuild.check_status(args.exit_code, not result.is_empty)
 
     @staticmethod
+    def _set_repo_rebuild_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository rebuild subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-rebuild", aliases=["rebuild"], help="rebuild repository",
+                                 description="force rebuild whole repository")
+        parser.add_argument("--depends-on", help="only rebuild packages that depend on specified packages",
+                            action="append")
+        parser.add_argument("--dry-run", help="just perform check for packages without rebuild process itself",
+                            action="store_true")
+        parser.add_argument("--from-database",
+                            help="read packages from database instead of filesystem. This feature in particular is "
+                                 "required in case if you would like to restore repository from another repository "
+                                 "instance. Note, however, that in order to restore packages you need to have original "
+                                 "ahriman instance run with web service and have run repo-update at least once.",
+                            action="store_true")
+        parser.add_argument("--increment", help="increment package release (pkgrel) on duplicate",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("-s", "--status", help="filter packages by status. Requires --from-database to be set",
+                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
+        parser.add_argument("-u", "--username", help="build as user", default=extract_user())
+        return parser
+
+    @staticmethod
     def extract_packages(application: Application, status: BuildStatusEnum | None, *,
                          from_database: bool) -> list[Package]:
         """
@@ -81,3 +114,5 @@ class Rebuild(Handler):
             ]
 
         return application.repository.packages()
+
+    arguments = [_set_repo_rebuild_parser]

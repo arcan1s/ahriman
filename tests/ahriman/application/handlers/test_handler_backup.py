@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
-from ahriman.application.handlers import Backup
+from ahriman.application.handlers.backup import Backup
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -28,7 +28,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
-    mocker.patch("ahriman.application.handlers.Backup.get_paths", return_value=[Path("path")])
+    mocker.patch("ahriman.application.handlers.backup.Backup.get_paths", return_value=[Path("path")])
     tarfile = MagicMock()
     add_mock = tarfile.__enter__.return_value = MagicMock()
     mocker.patch("ahriman.application.handlers.backup.tarfile.open", return_value=tarfile)

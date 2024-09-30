@@ -25,11 +25,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import EventStatsPrinter, PackageStatsPrinter
-from ahriman.core.utils import pretty_datetime
-from ahriman.models.event import Event
+from ahriman.core.utils import enum_values, pretty_datetime
+from ahriman.models.event import Event, EventType
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -67,6 +67,30 @@ class Statistics(Handler):
                 Statistics.stats_per_package(args.event, events, args.chart)
             case _:
                 Statistics.stats_for_package(args.event, events, args.chart)
+
+    @staticmethod
+    def _set_repo_statistics_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository statistics subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-statistics", help="repository statistics",
+                                 description="fetch repository statistics")
+        parser.add_argument("package", help="fetch only events for the specified package", nargs="?")
+        parser.add_argument("--chart", help="create updates chart and save it to the specified path", type=Path)
+        parser.add_argument("-e", "--event", help="event type filter",
+                            type=EventType, choices=enum_values(EventType), default=EventType.PackageUpdated)
+        parser.add_argument("--from-date", help="only fetch events which are newer than the date")
+        parser.add_argument("--limit", help="limit response by specified amount of events", type=int, default=-1)
+        parser.add_argument("--offset", help="skip specified amount of events", type=int, default=0)
+        parser.add_argument("--to-date", help="only fetch events which are older than the date")
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
 
     @staticmethod
     def event_stats(event_type: str, events: list[Event]) -> None:
@@ -168,3 +192,5 @@ class Statistics(Handler):
         # chart if enabled
         if chart_path is not None:
             Statistics.plot_packages(event_type, by_object_id, chart_path)
+
+    arguments = [_set_repo_statistics_parser]

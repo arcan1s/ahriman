@@ -22,6 +22,7 @@ import logging
 
 from collections.abc import Callable, Iterable
 from multiprocessing import Pool
+from typing import TypeVar
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
@@ -32,12 +33,21 @@ from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
 
+# this workaround is for several things
+# firstly python devs don't think that is it error and asking you for workarounds https://bugs.python.org/issue41592
+# secondly linters don't like when you are importing private members
+# thirdly new mypy doesn't like _SubParsersAction and thinks it is a template
+SubParserAction = TypeVar("SubParserAction", bound="argparse._SubParsersAction[argparse.ArgumentParser]")
+
+
 class Handler:
     """
     base handler class for command callbacks
 
     Attributes:
         ALLOW_MULTI_ARCHITECTURE_RUN(bool): (class attribute) allow running with multiple architectures
+        arguments(list[Callable[[SubParserAction], argparse.ArgumentParser]]): (class attribute) argument parser
+            methods, which will be called to create command line parsers
 
     Examples:
         Wrapper for all command line actions, though each derived class implements :func:`run()` method, it usually
@@ -49,6 +59,7 @@ class Handler:
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = True
+    arguments: list[Callable[[SubParserAction], argparse.ArgumentParser]]
 
     @classmethod
     def call(cls, args: argparse.Namespace, repository_id: RepositoryId) -> bool:

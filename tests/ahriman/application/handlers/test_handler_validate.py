@@ -4,7 +4,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Validate
+from ahriman.application.handlers.validate import Validate
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA
 from ahriman.core.configuration.validator import Validator
