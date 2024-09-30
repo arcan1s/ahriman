@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -43,3 +43,22 @@ class Sign(Handler):
             report(bool): force enable or disable reporting
         """
         Application(repository_id, configuration, report=report).sign(args.package)
+
+    @staticmethod
+    def _set_repo_sign_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for sign subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-sign", aliases=["sign"], help="sign packages",
+                                 description="(re-)sign packages and repository database according to current settings",
+                                 epilog="Sign repository and/or packages as configured.")
+        parser.add_argument("package", help="sign only specified packages", nargs="*")
+        return parser
+
+    arguments = [_set_repo_sign_parser]

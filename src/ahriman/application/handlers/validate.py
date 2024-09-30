@@ -22,7 +22,7 @@ import copy
 
 from typing import Any
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import CONFIGURATION_SCHEMA, ConfigurationSchema
 from ahriman.core.exceptions import ExtensionError
@@ -62,6 +62,25 @@ class Validate(Handler):
 
         # as we reach this part it means that we always have errors
         Validate.check_status(args.exit_code, False)
+
+    @staticmethod
+    def _set_service_config_validate_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for config validation subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-config-validate", aliases=["config-validate", "repo-config-validate"],
+                                 help="validate system configuration",
+                                 description="validate configuration and print found errors")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if configuration is invalid",
+                            action="store_true")
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
 
     @staticmethod
     def schema(repository_id: RepositoryId, configuration: Configuration) -> ConfigurationSchema:
@@ -136,3 +155,5 @@ class Validate(Handler):
                 Validate.schema_merge(value, schema[key])
 
         return schema
+
+    arguments = [_set_service_config_validate_parser]

@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
@@ -49,3 +49,98 @@ class Triggers(Handler):
             loader.triggers = [loader.load_trigger(trigger, repository_id, configuration) for trigger in args.trigger]
         application.on_start()
         application.on_result(Result())
+
+    @staticmethod
+    def _set_repo_create_keyring_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for create-keyring subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-create-keyring", help="create keyring package",
+                                 description="create package which contains list of trusted keys as set by "
+                                             "configuration. Note, that this action will only create package, "
+                                             "the package itself has to be built manually")
+        parser.set_defaults(trigger=["ahriman.core.support.KeyringTrigger"])
+        return parser
+
+    @staticmethod
+    def _set_repo_create_mirrorlist_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for create-mirrorlist subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-create-mirrorlist", help="create mirrorlist package",
+                                 description="create package which contains list of available mirrors as set by "
+                                             "configuration. Note, that this action will only create package, "
+                                             "the package itself has to be built manually")
+        parser.set_defaults(trigger=["ahriman.core.support.MirrorlistTrigger"])
+        return parser
+
+    @staticmethod
+    def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for report subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-report", aliases=["report"], help="generate report",
+                                 description="generate repository report according to current settings",
+                                 epilog="Create and/or update repository report as configured.")
+        parser.set_defaults(trigger=["ahriman.core.report.ReportTrigger"])
+        return parser
+
+    @staticmethod
+    def _set_repo_sync_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository sync subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-sync", aliases=["sync"], help="sync repository",
+                                 description="sync repository files to remote server according to current settings",
+                                 epilog="Synchronize the repository to remote services as configured.")
+        parser.set_defaults(trigger=["ahriman.core.upload.UploadTrigger"])
+        return parser
+
+    @staticmethod
+    def _set_repo_triggers_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository triggers subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-triggers", help="run triggers",
+                                 description="run triggers on empty build result as configured by settings")
+        parser.add_argument("trigger", help="instead of running all triggers as set by configuration, just process "
+                                            "specified ones in order of mention", nargs="*")
+        return parser
+
+    arguments = [
+        _set_repo_create_keyring_parser,
+        _set_repo_create_mirrorlist_parser,
+        _set_repo_report_parser,
+        _set_repo_sync_parser,
+        _set_repo_triggers_parser,
+    ]

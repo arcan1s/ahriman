@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Copy
+from ahriman.application.handlers.copy import Copy
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatusEnum
@@ -37,7 +37,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
-    application_mock = mocker.patch("ahriman.application.handlers.Copy.copy_package")
+    application_mock = mocker.patch("ahriman.application.handlers.copy.Copy.copy_package")
     update_mock = mocker.patch("ahriman.application.application.Application.update")
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
     on_start_mock = mocker.patch("ahriman.application.application.Application.on_start")
@@ -59,7 +59,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     args.remove = True
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.application.handlers.Copy.copy_package")
+    mocker.patch("ahriman.application.handlers.copy.Copy.copy_package")
     mocker.patch("ahriman.application.application.Application.update")
     remove_mock = mocker.patch("ahriman.application.application.Application.remove")
 
@@ -77,7 +77,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args.exit_code = True
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[])
     mocker.patch("ahriman.application.application.Application.update")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Copy.run(args, repository_id, configuration, report=False)

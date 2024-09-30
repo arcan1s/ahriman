@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import Users
+from ahriman.application.handlers.users import Users
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.exceptions import PasswordError
@@ -42,7 +42,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
                 packager_id=args.packager, key=args.key)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
-    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    create_user_mock = mocker.patch("ahriman.application.handlers.users.Users.user_create", return_value=user)
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
     _, repository_id = configuration.check_loaded()
@@ -60,7 +60,7 @@ def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, 
     user = User(username=args.username, password=args.password, access=args.role,
                 packager_id=args.packager, key=args.key)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
-    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    create_user_mock = mocker.patch("ahriman.application.handlers.users.Users.user_create", return_value=user)
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
     _, repository_id = configuration.check_loaded()
@@ -80,7 +80,7 @@ def test_run_empty_salt_without_password(args: argparse.Namespace, configuration
                 packager_id=args.packager, key=args.key)
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
-    create_user_mock = mocker.patch("ahriman.application.handlers.Users.user_create", return_value=user)
+    create_user_mock = mocker.patch("ahriman.application.handlers.users.Users.user_create", return_value=user)
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
 
     _, repository_id = configuration.check_loaded()
@@ -97,7 +97,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, databa
     args = _default_args(args)
     args.action = Action.List
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     list_mock = mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[user])
 
     _, repository_id = configuration.check_loaded()
@@ -116,7 +116,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     args.exit_code = True
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.database.SQLite.user_list", return_value=[])
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Users.run(args, repository_id, configuration, report=False)

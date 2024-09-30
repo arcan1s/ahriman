@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import Versions
+from ahriman.application.handlers.versions import Versions
 from ahriman.core.configuration import Configuration
 
 
@@ -12,7 +12,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     """
     must run command
     """
-    application_mock = mocker.patch("ahriman.application.handlers.Versions.package_dependencies")
+    application_mock = mocker.patch("ahriman.application.handlers.versions.Versions.package_dependencies")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
 
     _, repository_id = configuration.check_loaded()

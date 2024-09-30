@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
@@ -68,6 +68,26 @@ class Copy(Handler):
             source_application.remove(args.package)
 
     @staticmethod
+    def _set_package_copy_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package copy subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-copy", aliases=["copy"], help="copy package from another repository",
+                                 description="copy package and its metadata from another repository")
+        parser.add_argument("source", help="source repository name")
+        parser.add_argument("package", help="package base", nargs="+")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("--remove", help="remove package from the source repository after", action="store_true")
+        return parser
+
+    @staticmethod
     def copy_package(package: Package, application: Application, source_application: Application) -> None:
         """
         copy package ``package`` from source repository to target repository
@@ -93,3 +113,5 @@ class Copy(Handler):
             package.base, source_application.reporter.package_dependencies_get(package.base)
         )
         application.reporter.package_update(package, BuildStatusEnum.Pending)
+
+    arguments = [_set_package_copy_parser]

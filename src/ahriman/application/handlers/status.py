@@ -22,10 +22,11 @@ import argparse
 from collections.abc import Callable
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import PackagePrinter, StatusPrinter
-from ahriman.models.build_status import BuildStatus
+from ahriman.core.utils import enum_values
+from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
 
@@ -68,3 +69,31 @@ class Status(Handler):
             lambda item: args.status is None or item[1].status == args.status
         for package, package_status in sorted(filter(filter_fn, packages), key=comparator):
             PackagePrinter(package, package_status)(verbose=args.info)
+
+    @staticmethod
+    def _set_package_status_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package status subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-status", aliases=["status"], help="get package status",
+                                 description="request status of the package",
+                                 epilog="This command requests package status from the web interface "
+                                        "if it is available.")
+        parser.add_argument("package", help="filter status by package base", nargs="*")
+        parser.add_argument("--ahriman", help="get service status itself", action="store_true")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("--info", help="show additional package information",
+                            action=argparse.BooleanOptionalAction, default=False)
+        parser.add_argument("-s", "--status", help="filter packages by status",
+                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum))
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    arguments = [_set_package_status_parser]

@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman import __version__
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import UpdatePrinter
 from ahriman.models.package import Package
@@ -58,3 +58,23 @@ class ServiceUpdates(Handler):
 
         UpdatePrinter(remote, local_version)(verbose=True, separator=" -> ")
         ServiceUpdates.check_status(args.exit_code, same_version)
+
+    @staticmethod
+    def _set_help_updates_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for service update check subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("help-updates", help="check for service updates",
+                                 description="request AUR for current version and compare with current service version")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit code if updates available",
+                            action="store_true")
+        parser.set_defaults(architecture="", lock=None, quiet=True, report=False, repository="", unsafe=True)
+        return parser
+
+    arguments = [_set_help_updates_parser]

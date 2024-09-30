@@ -24,11 +24,13 @@ from pwd import getpwuid
 from urllib.parse import quote_plus as urlencode
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import MissingArchitectureError
+from ahriman.core.utils import enum_values
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
+from ahriman.models.sign_settings import SignSettings
 from ahriman.models.user import User
 
 
@@ -79,6 +81,44 @@ class Setup(Handler):
         application.repository.repo.init()
         # lazy database sync
         application.repository.pacman.handle  # pylint: disable=pointless-statement
+
+    @staticmethod
+    def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for setup subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-setup", aliases=["init", "repo-init", "repo-setup", "setup"],
+                                 help="initial service configuration",
+                                 description="create initial service configuration, requires root",
+                                 epilog="Create minimal configuration for the service according to provided options.")
+        parser.add_argument("--build-as-user", help="force makepkg user to the specific one")
+        parser.add_argument("--from-configuration", help="path to default devtools pacman configuration",
+                            type=Path,
+                            default=Path("/") / "usr" / "share" / "devtools" / "pacman.conf.d" / "extra.conf")
+        parser.add_argument("--generate-salt", help="generate salt for user passwords",
+                            action=argparse.BooleanOptionalAction, default=False)
+        parser.add_argument("--makeflags-jobs",
+                            help="append MAKEFLAGS variable with parallelism set to number of cores",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("--mirror", help="use the specified explicitly mirror instead of including mirrorlist")
+        parser.add_argument("--multilib", help="add or do not multilib repository",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("--packager", help="packager name and email", required=True)
+        parser.add_argument("--server", help="server to be used for devtools. If none set, local files will be used")
+        parser.add_argument("--sign-key", help="sign key id")
+        parser.add_argument("--sign-target", help="sign options", action="append",
+                            type=SignSettings.from_option, choices=enum_values(SignSettings))
+        parser.add_argument("--web-port", help="port of the web service", type=int)
+        parser.add_argument("--web-unix-socket", help="path to unix socket used for interprocess communications",
+                            type=Path)
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
 
     @staticmethod
     def build_command(root: Path, repository_id: RepositoryId) -> Path:
@@ -240,3 +280,5 @@ class Setup(Handler):
         command.unlink(missing_ok=True)
         command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)
         paths.chown(command)  # we would like to keep owner inside ahriman's home
+
+    arguments = [_set_service_setup_parser]

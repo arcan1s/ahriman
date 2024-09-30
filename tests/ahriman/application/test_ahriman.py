@@ -5,7 +5,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.application import ahriman
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.models.action import Action
 from ahriman.models.build_status import BuildStatusEnum

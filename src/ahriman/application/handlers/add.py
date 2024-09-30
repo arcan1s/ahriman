@@ -20,8 +20,10 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import enum_values, extract_user
+from ahriman.models.package_source import PackageSource
 from ahriman.models.packagers import Packagers
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
@@ -66,3 +68,49 @@ class Add(Handler):
         application.print_updates(packages, log_fn=application.logger.info)
         result = application.update(packages, packagers, bump_pkgrel=args.increment)
         Add.check_status(args.exit_code, not result.is_empty)
+
+    @staticmethod
+    def _set_package_add_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package addition subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-add", aliases=["add", "package-update"], help="add package",
+                                 description="add existing or new package to the build queue",
+                                 epilog="This subcommand should be used for new package addition. "
+                                        "It also supports flag --now in case if you would like to build "
+                                        "the package immediately. You can add new package from one of "
+                                        "supported sources:\n\n"
+                                        "1. If it is already built package you can specify the path to the archive.\n"
+                                        "2. You can also add built packages from the directory (e.g. during the "
+                                        "migration from another repository source).\n"
+                                        "3. It is also possible to add package from local PKGBUILD, but in this case "
+                                        "it will be ignored during the next automatic updates.\n"
+                                        "4. Ahriman supports downloading archives from remote (e.g. HTTP) sources.\n"
+                                        "5. Finally you can add package from AUR.")
+        parser.add_argument("package", help="package source (base name, path to local files, remote URL)", nargs="+")
+        parser.add_argument("--changes", help="calculate changes from the latest known commit if available",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("--dependencies", help="process missing package dependencies",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.add_argument("--increment", help="increment package release (pkgrel) version on duplicate",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("-n", "--now", help="run update function after", action="store_true")
+        parser.add_argument("-y", "--refresh", help="download fresh package databases from the mirror before actions, "
+                                                    "-yy to force refresh even if up to date",
+                            action="count", default=False)
+        parser.add_argument("-s", "--source", help="explicitly specify the package source for this command",
+                            type=PackageSource, choices=enum_values(PackageSource), default=PackageSource.Auto)
+        parser.add_argument("-u", "--username", help="build as user", default=extract_user())
+        parser.add_argument("-v", "--variable", help="apply specified makepkg variables to the next build",
+                            action="append")
+        return parser
+
+    arguments = [_set_package_add_parser]

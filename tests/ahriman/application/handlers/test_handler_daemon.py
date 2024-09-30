@@ -2,7 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Daemon
+from ahriman.application.handlers.daemon import Daemon
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
@@ -31,7 +31,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, package_ahr
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    run_mock = mocker.patch("ahriman.application.handlers.Update.run")
+    run_mock = mocker.patch("ahriman.application.handlers.update.Update.run")
     iter_mock = mocker.patch("ahriman.application.application.updates_iterator.UpdatesIterator.__iter__",
                              return_value=iter([[package_ahriman.base]]))
 
@@ -50,7 +50,7 @@ def test_run_no_partitions(args: argparse.Namespace, configuration: Configuratio
     args = _default_args(args)
     args.partitions = False
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    run_mock = mocker.patch("ahriman.application.handlers.Update.run")
+    run_mock = mocker.patch("ahriman.application.handlers.update.Update.run")
     iter_mock = mocker.patch("ahriman.application.application.updates_iterator.UpdatesIterator.__iter__",
                              return_value=iter([[]]))
 
@@ -67,7 +67,7 @@ def test_run_no_updates(args: argparse.Namespace, configuration: Configuration, 
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    run_mock = mocker.patch("ahriman.application.handlers.Update.run")
+    run_mock = mocker.patch("ahriman.application.handlers.update.Update.run")
     iter_mock = mocker.patch("ahriman.application.application.updates_iterator.UpdatesIterator.__iter__",
                              return_value=iter([[package_ahriman.base], None]))
 
