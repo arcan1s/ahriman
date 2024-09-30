@@ -10,7 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+import datetime
 import sys
 
 from pathlib import Path
@@ -21,13 +21,11 @@ from ahriman import __version__
 basedir = Path(__file__).resolve().parent.parent / "src"
 sys.path.insert(0, str(basedir))
 
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-
 
 # -- Project information -----------------------------------------------------
 
 project = "ahriman"
-copyright = "2021-2023, ahriman team"
+copyright = f"2021-{datetime.date.today().year}, ahriman team"
 author = "ahriman team"
 
 # The full version, including alpha/beta/rc tags
@@ -41,6 +39,7 @@ release = __version__
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.graphviz",
     "sphinx.ext.napoleon",
     "sphinx_rtd_theme",
     "sphinxarg.ext",
@@ -78,7 +77,12 @@ html_logo = "_static/logo.svg"
 
 add_module_names = False
 
-modindex_common_prefix = ["ahriman.application.", "ahriman.core.", "ahriman.models.", "ahriman.web."]
+modindex_common_prefix = [
+    "ahriman.application.",
+    "ahriman.core.",
+    "ahriman.models.",
+    "ahriman.web.",
+]
 
 
 # -- Extension configuration -------------------------------------------------
@@ -92,3 +96,5 @@ autodoc_mock_imports = ["cryptography", "pyalpm"]
 autodoc_default_options = {
     "no-undoc-members": True,
 }
+
+graphviz_output_format = "svg"
