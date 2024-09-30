@@ -19,7 +19,7 @@
 #
 import argparse
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -53,6 +53,25 @@ class UnsafeCommands(Handler):
                 StringPrinter(command)(verbose=True)
 
     @staticmethod
+    def _set_help_commands_unsafe_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for listing unsafe commands
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("help-commands-unsafe", help="list unsafe commands",
+                                 description="list unsafe commands as defined in default args")
+        parser.add_argument("subcommand",
+                            help="instead of showing commands, just test command line for unsafe subcommand "
+                                 "and return 0 in case if command is safe and 1 otherwise", nargs="*")
+        parser.set_defaults(architecture="", lock=None, quiet=True, report=False, repository="", unsafe=True)
+        return parser
+
+    @staticmethod
     def check_unsafe(command: list[str], unsafe_commands: list[str], parser: argparse.ArgumentParser) -> None:
         """
         check if command is unsafe
@@ -81,3 +100,5 @@ class UnsafeCommands(Handler):
         subparser = next((action for action in parser._actions if isinstance(action, argparse._SubParsersAction)), None)
         actions = subparser.choices if subparser is not None else {}
         return sorted(action_name for action_name, action in actions.items() if action.get_default("unsafe"))
+
+    arguments = [_set_help_commands_unsafe_parser]

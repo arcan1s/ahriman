@@ -19,7 +19,7 @@
 #
 import argparse
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import ConfigurationPathsPrinter, ConfigurationPrinter, StringPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -59,3 +59,27 @@ class Dump(Handler):
             case section, key:  # key only
                 value = configuration.get(section, key, fallback="")
                 StringPrinter(value)(verbose=False)
+
+    @staticmethod
+    def _set_service_config_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for config subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-config", aliases=["config", "repo-config"], help="dump configuration",
+                                 description="dump configuration for the specified architecture")
+        parser.add_argument("section", help="filter settings by section", nargs="?")
+        parser.add_argument("key", help="filter settings by key", nargs="?")
+        parser.add_argument("--info", help="show additional information, e.g. configuration files",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.add_argument("--secure", help="hide passwords and secrets from output",
+                            action=argparse.BooleanOptionalAction, default=True)
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    arguments = [_set_service_config_parser]

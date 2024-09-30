@@ -3,7 +3,7 @@ import argparse
 from pytest_mock import MockerFixture
 
 from ahriman.application.ahriman import _parser
-from ahriman.application.handlers import Help
+from ahriman.application.handlers.help import Help
 from ahriman.core.configuration import Configuration
 
 

@@ -19,7 +19,7 @@
 #
 import argparse
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -48,3 +48,22 @@ class Help(Handler):
             parser.parse_args(["--help"])
         else:
             parser.parse_args([args.subcommand, "--help"])
+
+    @staticmethod
+    def _set_help_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for listing help subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("help", help="show help message",
+                                 description="show help message for application or command and exit")
+        parser.add_argument("subcommand", help="show help message for specific command", nargs="?")
+        parser.set_defaults(architecture="", lock=None, quiet=True, report=False, repository="", unsafe=True)
+        return parser
+
+    arguments = [_set_help_parser]
