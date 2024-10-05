@@ -1,0 +1,11 @@
+To 2.9.0
+--------
+
+This release includes major upgrade for the newest devtools and archlinux repository structure. In order to upgrade package need to:
+
+#. Upgrade to the latest major release of python (3.11) (required by other changes).
+#. Upgrade devtools to the latest release.
+#. Backup local settings, ``/etc/ahriman.ini.d/00-setup-overrides.ini`` by default.
+#. Run setup command (i.e. ``ahriman service-setup``) again with the same arguments as used before. This step can be done manually by moving ``devtools`` configuration (something like ``/usr/share/devtools/pacman-ahriman*.conf``) to new location ``/usr/share/devtools/pacman.conf.d/`` under name ``ahriman.conf``. After that make sure to remove any ``community`` mentions from configurations (e.g. ``/usr/share/devtools/pacman.conf.d/ahriman.conf``, ``/etc/ahriman.ini``) if there were any. The only thing which will change is ``devtools`` configuration.
+#. Remove build chroot as it is incompatible, e.g. ``sudo ahriman service-clean --chroot``.
+#. Run ``sudo -u ahriman ahriman update --no-aur --no-local --no-manual -yy`` in order to update local databases.

@@ -17,8 +17,8 @@ authors = [
 ]
 
 dependencies = [
+    "bcrypt",
     "inflection",
-    "passlib",
     "pyelftools",
     "requests",
 ]

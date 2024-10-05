@@ -34,7 +34,7 @@ Contents
    configuration
    command-line
    faq/index
-   migration
+   migrations/index
    architecture
    advanced-usage
    triggers

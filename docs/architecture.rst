@@ -147,7 +147,7 @@ There are multiple subdirectories, some of them are commons for any repository, 
 * ``pacman/{repository}/{architecture}`` is the repository and architecture specific caches for pacman's databases.
 * ``repository/{repository}/{architecture}`` is a repository packages directory.
 
-Normally you should avoid direct interaction with the application tree. For tree migration process refer to the :doc:`migration notes <migration>`.
+Normally you should avoid direct interaction with the application tree. For tree migration process refer to the :doc:`migration notes <migrations/index>`.
 
 Database
 --------

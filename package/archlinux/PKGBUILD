@@ -7,7 +7,7 @@ pkgdesc="ArcH linux ReposItory MANager"
 arch=('any')
 url="https://github.com/arcan1s/ahriman"
 license=('GPL3')
-depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-inflection' 'python-passlib' 'python-pyelftools' 'python-requests')
+depends=('devtools>=1:1.0.0' 'git' 'pyalpm' 'python-bcrypt' 'python-inflection' 'python-pyelftools' 'python-requests')
 makedepends=('python-build' 'python-flit' 'python-installer' 'python-wheel')
 optdepends=('python-aioauth-client: web server with OAuth2 authorization'
             'python-aiohttp: web server'

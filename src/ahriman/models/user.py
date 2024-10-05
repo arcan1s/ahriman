@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import bcrypt
+
 from dataclasses import dataclass, replace
-from passlib.hash import sha512_crypt
 from secrets import token_urlsafe as generate_password
 from typing import Self
 
@@ -67,8 +68,6 @@ class User:
     packager_id: str | None = None
     key: str | None = None
 
-    _HASHER = sha512_crypt
-
     def __post_init__(self) -> None:
         """
         remove empty fields
@@ -101,10 +100,9 @@ class User:
             bool: ``True`` in case if password matches, ``False`` otherwise
         """
         try:
-            verified: bool = self._HASHER.verify(password + salt, self.password)
+            return bcrypt.checkpw((password + salt).encode("utf8"), self.password.encode("utf8"))
         except ValueError:
-            verified = False  # the absence of evidence is not the evidence of absence (c) Gin Rummy
-        return verified
+            return False  # the absence of evidence is not the evidence of absence (c) Gin Rummy
 
     def hash_password(self, salt: str) -> Self:
         """
@@ -120,8 +118,8 @@ class User:
             # in case of empty password we leave it empty. This feature is used by any external (like OAuth) provider
             # when we do not store any password here
             return self
-        password_hash: str = self._HASHER.hash(self.password + salt)
-        return replace(self, password=password_hash)
+        password_hash = bcrypt.hashpw((self.password + salt).encode("utf8"), bcrypt.gensalt())
+        return replace(self, password=password_hash.decode("utf8"))
 
     def verify_access(self, required: UserAccess) -> bool:
         """

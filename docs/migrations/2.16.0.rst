@@ -1,0 +1,16 @@
+To 2.16.0
+---------
+
+This release replaces ``passlib`` dependency with ``bcrypt``.
+
+The reason behind this change is that python developers have deprecated and scheduled for removal ``crypt`` module, which is used by ``passlib``. (By the way, they recommend to use ``passlib`` as a replacement.) Unfortunately, it appears that ``passlib`` is unmaintained (see `the issue <https://foss.heptapod.net/python-libs/passlib/-/issues/187>`__), so the only solution is to migrate to anoher library.
+
+Because passwords are stored as hashes, it is near to impossible to shadow change passwords in database, the manual intervention is required if:
+
+#. Authentication is used.
+#. Notification provider is ``configuration`` or a user with explicitly set password exists.
+
+Manual steps might look as:
+
+#. Get list of users with their roles ``ahriman user-list``.
+#. For each user run update command, i.e. ``ahriman user-add <username> -R <role>``. Type password when it will be requested.

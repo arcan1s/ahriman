@@ -35,8 +35,8 @@ RUN pacman -S --noconfirm --asdeps \
         devtools \
         git \
         pyalpm \
+        python-bcrypt  \
         python-inflection \
-        python-passlib \
         python-pyelftools \
         python-requests \
         && \
