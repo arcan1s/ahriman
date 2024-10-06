@@ -236,16 +236,50 @@ The projects also uses typing checks (provided by `mypy`) and some linter checks
 tox
 ```
 
+Must be usually done before any pushes.
+
 ### Generate documentation templates
 
 ```shell
 tox -e docs
 ```
 
+Must be usually done if there are changes in modules structure.
+
 ### Create release
 
 ```shell
-tox -m release -- x.y.z
+tox -m release -- major.minor.patch
 ```
 
 The command above will generate documentation, tags, etc., and will push them to GitHub. Other things will be handled by GitHub workflows automatically.
+
+### Hotfixes policy
+
+Sometimes it is required to publish hotfix with specific commits, but some features have been already committed, which should not be included to the hotfix. In this case, some manual steps are required:
+
+1. Create new branch from the last stable release (`major.minor.patch`):
+
+    ```shell
+    git checkout -b release/major.minor major.minor.patch
+    ```
+   
+2. Cherry-pick desired commit(s):
+
+    ```shell
+    git cherry-pick <commit-sha>
+    ```
+   
+   Alternatively, make changes to the new branch and commit them.
+
+3. Push newly created branch to remote:
+
+    ```shell
+    git push --set-upstream origin release/major.minor
+    ```
+   
+4. Proceed to release as usual:
+
+    ```shell
+    tox -m release -- major.minor.patch+1
+    ```
