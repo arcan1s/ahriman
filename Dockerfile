@@ -59,6 +59,7 @@ RUN pacman -S --noconfirm --asdeps \
         && \
     runuser -u build -- install-aur-package \
         python-aioauth-client \
+        python-sphinx-typlog-theme \
         python-webargs \
         python-aiohttp-apispec-git \
         python-aiohttp-cors \
