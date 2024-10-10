@@ -43,7 +43,7 @@ RUN pacman -S --noconfirm --asdeps \
     pacman -S --noconfirm --asdeps \
         base-devel \
         python-build \
-        python-flit \
+        python-hatchling \
         python-installer \
         python-wheel \
         && \
