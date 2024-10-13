@@ -105,11 +105,11 @@ def run() -> int:
     Returns:
         int: application status code
     """
-    args_parser = _parser()
-    args = args_parser.parse_args()
+    parser = _parser()
+    args = parser.parse_args()
 
     if args.command is None:  # in case of empty command we would like to print help message
-        args_parser.exit(status=2, message=args_parser.format_help())
+        parser.exit(status=2, message=parser.format_help())
 
     handler: Handler = args.handler
     return handler.execute(args)
