@@ -103,7 +103,7 @@ def test_get_local_files(s3: S3, resource_path_root: Path, mocker: MockerFixture
     """
     must get all local files recursively
     """
-    walk_mock = mocker.patch("ahriman.core.utils.walk")
+    walk_mock = mocker.patch("ahriman.core.upload.s3.walk")
     s3.get_local_files(resource_path_root)
     walk_mock.assert_called()
 
