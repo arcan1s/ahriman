@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "ahriman"
@@ -89,26 +89,17 @@ web = [
     "setuptools",  # required by aiohttp-apispec
 ]
 
-[tool.hatch.version]
-path = "src/ahriman/__init__.py"
-
-[tool.hatch.build.targets.sdist]
+[tool.flit.sdist]
 include = [
     "AUTHORS",
     "CONTRIBUTING.md",
     "SECURITY.md",
     "package",
-    "src",
     "web.png",
 ]
 exclude = [
     "package/archlinux",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = [
-    "src/ahriman",
-]
-
-[tool.hatch.build.targets.wheel.force-include]
-"package" = "ahriman/data"
+[tool.flit.external-data]
+directory = "package"
