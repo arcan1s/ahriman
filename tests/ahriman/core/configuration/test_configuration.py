@@ -1,4 +1,6 @@
 import configparser
+from io import StringIO
+
 import pytest
 
 from pathlib import Path
@@ -178,6 +180,32 @@ def test_getlist_unmatched_quote(configuration: Configuration) -> None:
     configuration.set_option("build", "test_list", """ahri'man is cool""")
     with pytest.raises(ValueError):
         configuration.getlist("build", "test_list")
+
+
+def test_getlist_append() -> None:
+    """
+    must correctly append list values
+    """
+    configuration = Configuration()
+    configuration._read(
+        StringIO("""
+        [section]
+        list1[] = value1
+        list1[] = value2
+
+        list2[] = value3
+        list2[] =
+        list2[] = value4
+        list2[] = value5
+
+        list3[] = value6
+        list3 = value7
+        list3[] = value8
+        """), "io")
+
+    assert configuration.getlist("section", "list1") == ["value1", "value2"]
+    assert configuration.getlist("section", "list2") == ["value4", "value5"]
+    assert configuration.getlist("section", "list3") == ["value7", "value8"]
 
 
 def test_getpath_absolute_to_absolute(configuration: Configuration) -> None:

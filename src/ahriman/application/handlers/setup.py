@@ -161,8 +161,8 @@ class Setup(Handler):
             repository_server(str): url of the repository
         """
         # allow_no_value=True is required because pacman uses boolean configuration in which just keys present
-        # (e.g. NoProgressBar) which will lead to exception
-        configuration = Configuration(allow_no_value=True)
+        # (e.g. NoProgressBar) which will lead to exception. allow_multi_key=False is set just for fun
+        configuration = Configuration(allow_no_value=True, allow_multi_key=False)
         # preserve case
         # stupid mypy thinks that it is impossible
         configuration.optionxform = lambda optionstr: optionstr  # type: ignore[method-assign]

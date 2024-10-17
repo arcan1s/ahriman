@@ -4,7 +4,7 @@ set -e
 [ -n "$AHRIMAN_DEBUG" ] && set -x
 
 # configuration tune
-cat <<EOF > "/etc/ahriman.ini.d/00-docker.ini"
+cat <<EOF > "/etc/ahriman.ini.d/01-docker.ini"
 [repository]
 root = $AHRIMAN_REPOSITORY_ROOT
 

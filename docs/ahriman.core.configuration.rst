@@ -12,6 +12,14 @@ ahriman.core.configuration.configuration module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.configuration.configuration\_multi\_dict module
+------------------------------------------------------------
+
+.. automodule:: ahriman.core.configuration.configuration_multi_dict
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.configuration.schema module
 ----------------------------------------
 
