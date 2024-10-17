@@ -200,9 +200,9 @@ class Setup(Handler):
             multilib(bool): add or do not multilib repository to the configuration
             repository_server(str): url of the repository
         """
-        # allow_no_value=True is required because pacman uses boolean configuration in which just keys present
+        # allow_multi_key=False is required because pacman uses boolean configuration in which just keys present
         # (e.g. NoProgressBar) which will lead to exception
-        configuration = Configuration(allow_no_value=True)
+        configuration = Configuration(allow_multi_key=False)
         # preserve case
         # stupid mypy thinks that it is impossible
         configuration.optionxform = lambda optionstr: optionstr  # type: ignore[method-assign]
