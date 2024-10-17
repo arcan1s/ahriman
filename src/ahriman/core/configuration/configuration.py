@@ -25,6 +25,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self
 
+from ahriman.core.configuration.configuration_multi_dict import ConfigurationMultiDict
 from ahriman.core.configuration.shell_interpolator import ShellInterpolator
 from ahriman.core.exceptions import InitializeError
 from ahriman.models.repository_id import RepositoryId
@@ -69,21 +70,27 @@ class Configuration(configparser.RawConfigParser):
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
     converters: dict[str, Callable[[str], Any]]  # typing guard
 
-    def __init__(self, allow_no_value: bool = False) -> None:
+    def __init__(self, allow_no_value: bool = False, allow_multi_key: bool = True) -> None:
         """
         Args:
             allow_no_value(bool, optional): copies :class:`configparser.RawConfigParser` behaviour. In case if it is set
                 to ``True``, the keys without values will be allowed (Default value = False)
+            allow_multi_key(bool, optional): if set to ``False``, then the default dictionary class will be used to
+                store keys internally. Otherwise, the special implementation will be used, which supports arrays
+                (Default value = True)
         """
         configparser.RawConfigParser.__init__(
             self,
+            dict_type=ConfigurationMultiDict if allow_multi_key else dict,  # type: ignore[arg-type]
             allow_no_value=allow_no_value,
+            strict=False,
+            empty_lines_in_values=not allow_multi_key,
             interpolation=ShellInterpolator(),
             converters={
                 "list": shlex.split,
                 "path": self._convert_path,
                 "pathlist": lambda value: [self._convert_path(element) for element in shlex.split(value)],
-            }
+            },
         )
 
         self.repository_id: RepositoryId | None = None

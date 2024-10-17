@@ -13,7 +13,27 @@ There are two variable types which have been added to default ones, they are pat
 * By default, it splits value by spaces excluding empty elements. 
 * In case if quotation mark (``"`` or ``'``) will be found, any spaces inside will be ignored.
 * In order to use quotation mark inside value it is required to put it to another quotation mark, e.g. ``wor"'"d "with quote"`` will be parsed as ``["wor'd", "with quote"]`` and vice versa.
-* Unclosed quotation mark is not allowed and will rise an exception.
+* Unclosed quotation mark is not allowed and will raise an exception.
+
+It is also possible to split list option between multiple declarations. To do so, append key name with ``[]`` (like PHP, sorry!), e.g.:
+
+.. code-block:: ini
+
+   [section]
+   list[] = value1
+   list[] = value2
+
+will lead to ``${section:list}`` value to be set to ``value1 value2``. The values will be set in order of appearance, meaning that values which appear in different include files will be set in alphabetical order of file names. In order to reset list values, set option to empty string, e.g.:
+
+.. code-block:: ini
+
+   [section]
+   list[] = value1
+   list[] =
+   list[] = value2
+   list[] = value3
+
+will set option ``${section:list}`` to ``value2 value3``. Alternatively, setting the original option (e.g. ``list`` in the example above) will also reset value, though the subsequent options with leading ``[]`` will append the previous value.
 
 Path values, except for casting to ``pathlib.Path`` type, will be also expanded to absolute paths relative to the configuration path. E.g. if path is set to ``ahriman.ini.d/logging.ini`` and root configuration path is ``/etc/ahriman.ini``, the value will be expanded to ``/etc/ahriman.ini.d/logging.ini``. In order to disable path expand, use the full path, e.g. ``/etc/ahriman.ini.d/logging.ini``.
 
@@ -22,7 +42,7 @@ Configuration allows string interpolation from the same configuration file, e.g.
 .. code-block:: ini
 
    [section]
-   key = ${anoher_key}
+   key = ${another_key}
    another_key = value
 
 will read value for the ``key`` option from ``another_key`` in the same section. In case if the cross-section reference is required, the ``${section:another_key}`` notation must be used. It also allows string interpolation from environment variables, e.g.:
