@@ -40,7 +40,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
 def test_run_eval(args: argparse.Namespace, configuration: Configuration, repository: Repository,
                   mocker: MockerFixture) -> None:
     """
-    must run command
+    must run command via eval
     """
     args = _default_args(args)
     args.code = """print("hello world")"""

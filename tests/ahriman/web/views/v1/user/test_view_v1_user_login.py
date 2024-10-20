@@ -158,7 +158,7 @@ async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocke
 
 async def test_post_invalid_json(client_with_auth: TestClient, mocker: MockerFixture) -> None:
     """
-    must return unauthorized on invalid auth
+    must return unauthorized on invalid payload
     """
     response_schema = pytest.helpers.schema_response(LoginView.post, code=400)
     remember_mock = mocker.patch("aiohttp_security.remember")

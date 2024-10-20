@@ -9,50 +9,35 @@ from ahriman.core.sign.gpg import GPG
 from ahriman.models.sign_settings import SignSettings
 
 
-def test_repository_sign_args_1(gpg_with_key: GPG) -> None:
+def test_repository_sign_args(gpg_with_key: GPG) -> None:
     """
     must generate correct sign args
     """
     gpg_with_key.targets = {SignSettings.Repository}
     assert gpg_with_key.repository_sign_args
 
-
-def test_repository_sign_args_2(gpg_with_key: GPG) -> None:
-    """
-    must generate correct sign args
-    """
     gpg_with_key.targets = {SignSettings.Packages, SignSettings.Repository}
     assert gpg_with_key.repository_sign_args
 
 
-def test_repository_sign_args_skip_1(gpg_with_key: GPG) -> None:
+def test_repository_sign_args_skip(gpg_with_key: GPG) -> None:
     """
     must return empty args if it is not set
     """
     gpg_with_key.targets = {}
     assert not gpg_with_key.repository_sign_args
 
-
-def test_repository_sign_args_skip_2(gpg_with_key: GPG) -> None:
-    """
-    must return empty args if it is not set
-    """
     gpg_with_key.targets = {SignSettings.Packages}
     assert not gpg_with_key.repository_sign_args
 
 
-def test_repository_sign_args_skip_3(gpg: GPG) -> None:
+def test_repository_sign_args_skip_no_key(gpg: GPG) -> None:
     """
-    must return empty args if it is not set
+    must return empty args if it is not set if no key set
     """
     gpg.targets = {SignSettings.Repository}
     assert not gpg.repository_sign_args
 
-
-def test_repository_sign_args_skip_4(gpg: GPG) -> None:
-    """
-    must return empty args if it is not set
-    """
     gpg.targets = {SignSettings.Packages, SignSettings.Repository}
     assert not gpg.repository_sign_args
 
@@ -188,7 +173,7 @@ def test_process_sign_package_3(gpg_with_key: GPG, mocker: MockerFixture) -> Non
 
 def test_process_sign_package_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign package if it is not set
+    must not sign package on empty target list
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg_with_key.targets = {}
@@ -198,7 +183,7 @@ def test_process_sign_package_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -
 
 def test_process_sign_package_skip_2(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign package if it is not set
+    must not sign package if repository only is enabled
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg_with_key.targets = {SignSettings.Repository}
@@ -208,20 +193,10 @@ def test_process_sign_package_skip_2(gpg_with_key: GPG, mocker: MockerFixture) -
 
 def test_process_sign_package_skip_3(gpg: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign package if it is not set
+    must not sign package if key is not set
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg.targets = {SignSettings.Packages}
-    gpg.process_sign_package(Path("a"), None)
-    process_mock.assert_not_called()
-
-
-def test_process_sign_package_skip_4(gpg: GPG, mocker: MockerFixture) -> None:
-    """
-    must not sign package if it is not set
-    """
-    process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
-    gpg.targets = {SignSettings.Packages, SignSettings.Repository}
     gpg.process_sign_package(Path("a"), None)
     process_mock.assert_not_called()
 
@@ -264,7 +239,7 @@ def test_process_sign_repository_2(gpg_with_key: GPG, mocker: MockerFixture) -> 
 
 def test_process_sign_repository_skip_1(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign repository if it is not set
+    must not sign repository if no targets set
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg_with_key.targets = {}
@@ -274,7 +249,7 @@ def test_process_sign_repository_skip_1(gpg_with_key: GPG, mocker: MockerFixture
 
 def test_process_sign_repository_skip_2(gpg_with_key: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign repository if it is not set
+    must not sign repository if repository target is not set
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg_with_key.targets = {SignSettings.Packages}
@@ -284,19 +259,9 @@ def test_process_sign_repository_skip_2(gpg_with_key: GPG, mocker: MockerFixture
 
 def test_process_sign_repository_skip_3(gpg: GPG, mocker: MockerFixture) -> None:
     """
-    must not sign repository if it is not set
+    must not sign repository if key is not set
     """
     process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
     gpg.targets = {SignSettings.Repository}
-    gpg.process_sign_repository(Path("a"))
-    process_mock.assert_not_called()
-
-
-def test_process_sign_repository_skip_4(gpg: GPG, mocker: MockerFixture) -> None:
-    """
-    must not sign repository if it is not set
-    """
-    process_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process")
-    gpg.targets = {SignSettings.Packages, SignSettings.Repository}
     gpg.process_sign_repository(Path("a"))
     process_mock.assert_not_called()

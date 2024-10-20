@@ -107,7 +107,7 @@ def test_generate_very_big_text(telegram: Telegram, package_ahriman: Package, re
 
 def test_generate_no_empty(telegram: Telegram, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must generate report
+    must skip report generation if result is empty
     """
     send_mock = mocker.patch("ahriman.core.report.telegram.Telegram._send")
     telegram.generate([package_ahriman], Result())

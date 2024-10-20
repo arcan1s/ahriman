@@ -124,7 +124,7 @@ def test_run_with_auth(application_with_auth: Application, mocker: MockerFixture
 
 def test_run_with_socket(application: Application, mocker: MockerFixture) -> None:
     """
-    must run application
+    must run application with socket
     """
     port = 8080
     application[ConfigurationKey].set_option("web", "port", str(port))

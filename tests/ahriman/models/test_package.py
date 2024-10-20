@@ -255,14 +255,14 @@ def test_from_json_view_1(package_ahriman: Package) -> None:
 
 def test_from_json_view_2(package_python_schedule: Package) -> None:
     """
-    must construct same object from json
+    must construct same object from json (double package)
     """
     assert Package.from_json(package_python_schedule.view()) == package_python_schedule
 
 
 def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     """
-    must construct same object from json
+    must construct same object from json (git package)
     """
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
