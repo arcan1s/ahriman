@@ -79,7 +79,7 @@ def test_clean_packages(application_repository: ApplicationRepository, mocker: M
 
 def test_clean_pacman(application_repository: ApplicationRepository, mocker: MockerFixture) -> None:
     """
-    must clean packages directory
+    must clean pacman directory
     """
     clear_mock = mocker.patch("ahriman.core.repository.Repository.clear_pacman")
     application_repository.clean(cache=False, chroot=False, manual=False, packages=False, pacman=True)

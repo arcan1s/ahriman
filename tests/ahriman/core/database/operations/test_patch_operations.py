@@ -44,7 +44,7 @@ def test_patches_list_filter(database: SQLite, package_ahriman: Package, package
 def test_patches_list_filter_by_variable(database: SQLite, package_ahriman: Package,
                                          package_python_schedule: Package) -> None:
     """
-    must list all patches filtered by package name (same as get)
+    must list all patches filtered by variable (same as get)
     """
     database.patches_insert(package_ahriman.base, [PkgbuildPatch(None, "patch1")])
     database.patches_insert(package_ahriman.base, [PkgbuildPatch("key", "patch2")])

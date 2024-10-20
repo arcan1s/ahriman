@@ -171,7 +171,7 @@ def test_repositories_extract_repository(args: argparse.Namespace, configuration
 def test_repositories_extract_repository_legacy(args: argparse.Namespace, configuration: Configuration,
                                                 mocker: MockerFixture) -> None:
     """
-    must generate list of available repositories based on flags and tree
+    must generate list of available repositories based on flags and tree (legacy mode)
     """
     args.architecture = "arch"
     args.configuration = configuration.path

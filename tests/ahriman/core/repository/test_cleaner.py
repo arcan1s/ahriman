@@ -62,7 +62,7 @@ def test_clear_packages(cleaner: Cleaner, mocker: MockerFixture) -> None:
 
 def test_clear_pacman(cleaner: Cleaner, mocker: MockerFixture) -> None:
     """
-    must delete built packages
+    must clear pacman root
     """
     _mock_clear(mocker)
     cleaner.clear_pacman()

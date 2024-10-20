@@ -13,7 +13,7 @@ from ahriman.models.result import Result
 
 def test_known_triggers(configuration: Configuration) -> None:
     """
-    must return used triggers
+    must return known triggers
     """
     configuration.set_option("build", "triggers_known", "a b c")
     assert TriggerLoader.known_triggers(configuration) == ["a", "b", "c"]

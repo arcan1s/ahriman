@@ -142,7 +142,7 @@ def test_updates_aur_load_by_package(update_handler: UpdateHandler, package_pyth
 def test_updates_aur_load_by_package_failed(update_handler: UpdateHandler, package_ahriman: Package,
                                             mocker: MockerFixture) -> None:
     """
-    must update status via client for failed load
+    must update status via client for failed load if no remote package found
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=UnknownPackageError(package_ahriman.base))

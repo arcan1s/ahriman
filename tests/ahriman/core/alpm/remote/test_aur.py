@@ -60,7 +60,7 @@ def test_remote_git_url(aur_package_ahriman: AURPackage) -> None:
 
 def test_remote_web_url(aur_package_ahriman: AURPackage) -> None:
     """
-    must generate package git url
+    must generate package web url
     """
     web_url = AUR.remote_web_url(aur_package_ahriman.package_base)
     assert web_url.startswith(AUR.DEFAULT_AUR_URL)

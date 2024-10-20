@@ -46,7 +46,7 @@ def test_changes_url(web_client: WebClient, package_ahriman: Package) -> None:
 
 def test_dependencies_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
-    must generate changes url correctly
+    must generate dependencies url correctly
     """
     assert web_client._dependencies_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._dependencies_url(package_ahriman.base).endswith(
@@ -74,7 +74,7 @@ def test_logs_url(web_client: WebClient, package_ahriman: Package) -> None:
 
 def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
-    must generate package status url correctly
+    must generate package url correctly
     """
     assert web_client._package_url("").startswith(web_client.address)
     assert web_client._package_url("").endswith("/api/v1/packages")
@@ -86,7 +86,7 @@ def test_package_url(web_client: WebClient, package_ahriman: Package) -> None:
 
 def test_patches_url(web_client: WebClient, package_ahriman: Package) -> None:
     """
-    must generate changes url correctly
+    must generate patches url correctly
     """
     assert web_client._patches_url(package_ahriman.base).startswith(web_client.address)
     assert web_client._patches_url(package_ahriman.base).endswith(f"/api/v1/packages/{package_ahriman.base}/patches")
@@ -575,7 +575,7 @@ def test_package_logs_add_failed(web_client: WebClient, log_record: logging.LogR
 def test_package_logs_add_failed_http_error(web_client: WebClient, log_record: logging.LogRecord,
                                             package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must pass exception during log post
+    must pass HTTP exception during log post
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
     log_record.package_base = package_ahriman.base
@@ -725,7 +725,7 @@ def test_package_patches_get_failed(web_client: WebClient, package_ahriman: Pack
 def test_package_patches_get_failed_http_error(web_client: WebClient, package_ahriman: Package,
                                                mocker: MockerFixture) -> None:
     """
-    must suppress HTTP exception happened during dependencies fetch
+    must suppress HTTP exception happened during patches fetch
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
     web_client.package_patches_get(package_ahriman.base, None)

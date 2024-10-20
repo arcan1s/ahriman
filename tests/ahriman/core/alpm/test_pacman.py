@@ -87,7 +87,7 @@ def test_database_copy_skip(pacman: Pacman, mocker: MockerFixture) -> None:
 
 def test_database_copy_no_directory(pacman: Pacman, mocker: MockerFixture) -> None:
     """
-    must do not copy database if local cache already exists
+    must do not copy database if directory does not exist
     """
     database = next(db for db in pacman.handle.get_syncdbs() if db.name == "core")
     path = Path("randomname")

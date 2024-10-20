@@ -24,7 +24,7 @@ def test_template(configuration: Configuration) -> None:
 
 def test_template_full(configuration: Configuration) -> None:
     """
-    must correctly parse template name and path
+    must correctly parse full template name and path
     """
     template = "template"
     root, repository_id = configuration.check_loaded()

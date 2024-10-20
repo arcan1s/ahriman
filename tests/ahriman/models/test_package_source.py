@@ -86,7 +86,7 @@ def test_resolve_local(repository_paths: RepositoryPaths, mocker: MockerFixture)
 
 def test_resolve_local_cache(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
-    must resolve auto type into the local sources
+    must resolve auto type into the local sources with cache
     """
     cache_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.cache_for", return_value=Path("cache"))
     mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=lambda p: p == Path("cache"))

@@ -27,7 +27,7 @@ def test_is_function() -> None:
 
 def test_is_plain_diff() -> None:
     """
-    must correctly define key as function
+    must correctly define key as a plain diff
     """
     assert not PkgbuildPatch("key", "value").is_plain_diff
     assert PkgbuildPatch(None, "value").is_plain_diff
@@ -112,7 +112,7 @@ def test_from_env_serialize() -> None:
 
 def test_serialize_plain_diff() -> None:
     """
-    must correctly serialize function values
+    must correctly serialize plain diff values
     """
     assert PkgbuildPatch(None, "{ value }").serialize() == "{ value }"
 

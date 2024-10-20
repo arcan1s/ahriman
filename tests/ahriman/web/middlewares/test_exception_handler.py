@@ -98,7 +98,7 @@ async def test_exception_handler_unauthorized(mocker: MockerFixture) -> None:
 
 async def test_exception_handler_unauthorized_templated(mocker: MockerFixture) -> None:
     """
-    must handle unauthorized exception as json response
+    must handle unauthorized exception as json response in html context
     """
     request = pytest.helpers.request("", "", "")
     request_handler = AsyncMock(side_effect=HTTPUnauthorized())

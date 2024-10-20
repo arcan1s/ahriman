@@ -245,7 +245,7 @@ def test_set_failed(client: Client, package_ahriman: Package, mocker: MockerFixt
 
 def test_set_pending(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must set building status to the package
+    must set pending status to the package
     """
     update_mock = mocker.patch("ahriman.core.status.Client.package_status_update")
     client.set_pending(package_ahriman.base)

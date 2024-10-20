@@ -63,7 +63,7 @@ def test_in_package_context(database: SQLite, package_ahriman: Package, mocker: 
 
 def test_in_package_context_empty_version(database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must set package log context
+    must set package log context with empty version
     """
     set_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_set")
     reset_mock = mocker.patch("ahriman.core.log.LazyLogging._package_logger_reset")
