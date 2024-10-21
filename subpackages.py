@@ -29,12 +29,24 @@ prefix = Path(sys.prefix).relative_to("/")
 site_packages = Path(site.getsitepackages()[0]).relative_to("/")
 SUBPACKAGES = {
     "ahriman": [
-        Path("etc"),
+        prefix / "bin",
         prefix / "lib" / "systemd",
         prefix / "share",
         site_packages / "ahriman",
     ],
+    "ahriman-triggers": [
+        prefix / "share" / "ahriman" / "settings" / "ahriman.ini.d" / "00-triggers.ini",
+        site_packages / "ahriman" / "core" / "distributed",
+        site_packages / "ahriman" / "core" / "support",
+    ],
     "ahriman-web": [
+        prefix / "lib" / "systemd" / "system" / "ahriman-web.service",
+        prefix / "lib" / "systemd" / "system" / "ahriman-web@.service",
+        prefix / "share" / "ahriman" / "settings" / "ahriman.ini.d" / "00-web.ini",
+        prefix / "share" / "ahriman" / "templates" / "api.jinja2",
+        prefix / "share" / "ahriman" / "templates" / "build-status",
+        prefix / "share" / "ahriman" / "templates" / "build-status.jinja2",
+        prefix / "share" / "ahriman" / "templates" / "error.jinja2",
         site_packages / "ahriman" / "application" / "handlers" / "web.py",
         site_packages / "ahriman" / "core" / "auth",
         site_packages / "ahriman" / "web",

@@ -79,7 +79,8 @@ RUN cd "/home/build/ahriman" && \
     tox -e archive && \
     cp ./dist/*.tar.gz "package/archlinux" && \
     cd "package/archlinux" && \
-    runuser -u build -- makepkg --noconfirm --install --skipchecksums && \
+    runuser -u build -- makepkg --noconfirm --skipchecksums && \
+    runuser -u build -- makepkg --packagelist | grep -v -- -debug- | pacman -U --noconfirm --nodeps - && \
     cd / && rm -r "/home/build/ahriman"
 
 # cleanup unused
