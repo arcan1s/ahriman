@@ -6,7 +6,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.application.application import Application
-from ahriman.application.handlers import Patch
+from ahriman.application.handlers.patch import Patch
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.action import Action
@@ -40,9 +40,9 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     args = _default_args(args)
     args.action = Action.Update
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_diff",
+    patch_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_create_from_diff",
                               return_value=(args.package, PkgbuildPatch(None, "patch")))
-    application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
+    application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
     _, repository_id = configuration.check_loaded()
     Patch.run(args, repository_id, configuration, report=False)
@@ -61,8 +61,9 @@ def test_run_function(args: argparse.Namespace, configuration: Configuration, re
     args.variable = "version"
     patch = PkgbuildPatch(args.variable, args.patch)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    patch_mock = mocker.patch("ahriman.application.handlers.Patch.patch_create_from_function", return_value=patch)
-    application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_create")
+    patch_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_create_from_function",
+                              return_value=patch)
+    application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_create")
 
     _, repository_id = configuration.check_loaded()
     Patch.run(args, repository_id, configuration, report=False)
@@ -79,7 +80,7 @@ def test_run_list(args: argparse.Namespace, configuration: Configuration, reposi
     args.action = Action.List
     args.variable = ["version"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_list")
+    application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_list")
 
     _, repository_id = configuration.check_loaded()
     Patch.run(args, repository_id, configuration, report=False)
@@ -95,7 +96,7 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
     args.action = Action.Remove
     args.variable = ["version"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    application_mock = mocker.patch("ahriman.application.handlers.Patch.patch_set_remove")
+    application_mock = mocker.patch("ahriman.application.handlers.patch.Patch.patch_set_remove")
 
     _, repository_id = configuration.check_loaded()
     Patch.run(args, repository_id, configuration, report=False)
@@ -163,7 +164,7 @@ def test_patch_set_list(application: Application, mocker: MockerFixture) -> None
     get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
                             return_value=[PkgbuildPatch(None, "patch"), PkgbuildPatch("version", "value")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", ["version"], False)
     get_mock.assert_called_once_with("ahriman", None)
@@ -178,7 +179,7 @@ def test_patch_set_list_all(application: Application, mocker: MockerFixture) -> 
     get_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get",
                             return_value=[PkgbuildPatch(None, "patch")])
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", None, False)
     get_mock.assert_called_once_with("ahriman", None)
@@ -191,7 +192,7 @@ def test_patch_set_list_empty_exception(application: Application, mocker: Mocker
     must raise ExitCode exception on empty patch list
     """
     mocker.patch("ahriman.core.status.local_client.LocalClient.package_patches_get", return_value={})
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     Patch.patch_set_list(application, "ahriman", [], True)
     check_mock.assert_called_once_with(True, [])

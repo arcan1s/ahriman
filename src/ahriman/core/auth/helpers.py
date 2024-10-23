@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any
-
 try:
     import aiohttp_security
     _has_aiohttp_security = True
 except ImportError:
     _has_aiohttp_security = False
+
+from typing import Any
 
 
 __all__ = ["authorized_userid", "check_authorized", "forget", "remember"]

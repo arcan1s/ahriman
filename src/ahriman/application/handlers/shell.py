@@ -23,7 +23,7 @@ import sys
 
 from pathlib import Path
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -63,3 +63,23 @@ class Shell(Handler):
             code.interact(local=local_variables)
         else:
             code.InteractiveConsole(locals=local_variables).runcode(args.code)
+
+    @staticmethod
+    def _set_service_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for shell subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-shell", aliases=["shell"], help="invoke python shell",
+                                 description="drop into python shell")
+        parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
+        parser.add_argument("-v", "--verbose", help=argparse.SUPPRESS, action="store_true")
+        parser.set_defaults(lock=None, report=False)
+        return parser
+
+    arguments = [_set_service_shell_parser]

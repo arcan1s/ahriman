@@ -2,7 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import StatusUpdate
+from ahriman.application.handlers.status_update import StatusUpdate
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository

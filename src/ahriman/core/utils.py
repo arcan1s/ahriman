@@ -461,7 +461,7 @@ def trim_package(package_name: str) -> str:
         str: package name without description or version bound
     """
     for symbol in ("<", "=", ">", ":"):
-        package_name = package_name.partition(symbol)[0]
+        package_name, *_ = package_name.split(symbol, maxsplit=1)
     return package_name
 
 
@@ -478,7 +478,6 @@ def utcnow() -> datetime.datetime:
 def walk(directory_path: Path) -> Generator[Path, None, None]:
     """
     list all file paths in given directory
-    Credits to https://stackoverflow.com/a/64915960
 
     Args:
         directory_path(Path): root directory path
@@ -487,18 +486,13 @@ def walk(directory_path: Path) -> Generator[Path, None, None]:
         Path: all found files in given directory with full path
 
     Examples:
-        Since the :mod:`pathlib` module does not provide an alternative to :func:`os.walk()`, this wrapper
-        can be used instead::
+        Wrapper around :func:`pathlib.Path.walk`, which yields only files instead::
 
             >>> from pathlib import Path
             >>>
             >>> for file_path in walk(Path.cwd()):
             >>>     print(file_path)
-
-        Note, however, that unlike the original method, it does not yield directories.
     """
-    for element in directory_path.iterdir():
-        if element.is_dir():
-            yield from walk(element)
-            continue
-        yield element
+    for root, _, files in directory_path.walk(follow_symlinks=True):
+        for file in files:
+            yield root / file

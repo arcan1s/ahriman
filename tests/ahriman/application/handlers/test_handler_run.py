@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from ahriman.application.ahriman import _parser
-from ahriman.application.handlers import Run
+from ahriman.application.handlers.run import Run
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode
 
@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     args = _default_args(args)
-    application_mock = mocker.patch("ahriman.application.handlers.Run.run_command")
+    application_mock = mocker.patch("ahriman.application.handlers.run.Run.run_command")
 
     _, repository_id = configuration.check_loaded()
     Run.run(args, repository_id, configuration, report=False)
@@ -42,7 +42,7 @@ def test_run_failed(args: argparse.Namespace, configuration: Configuration, mock
     """
     args = _default_args(args)
     args.command = ["help", "config"]
-    application_mock = mocker.patch("ahriman.application.handlers.Run.run_command", return_value=False)
+    application_mock = mocker.patch("ahriman.application.handlers.run.Run.run_command", return_value=False)
 
     _, repository_id = configuration.check_loaded()
     with pytest.raises(ExitCode):
@@ -54,8 +54,13 @@ def test_run_command(mocker: MockerFixture) -> None:
     """
     must correctly run external command
     """
-    execute_mock = mocker.patch("ahriman.application.handlers.Help.execute")
-    Run.run_command(["help"], _parser())
+    # because of dynamic load we need to patch exact instance of the object
+    parser = _parser()
+    subparser = next((action for action in parser._actions if isinstance(action, argparse._SubParsersAction)), None)
+    action = subparser.choices["help"]
+    execute_mock = mocker.patch.object(action.get_default("handler"), "execute")
+
+    Run.run_command(["help"], parser)
     execute_mock.assert_called_once_with(pytest.helpers.anyvar(int))
 
 

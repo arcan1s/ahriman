@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Add
+from ahriman.application.handlers.add import Add
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.package import Package
@@ -82,7 +82,7 @@ def test_run_with_updates(args: argparse.Namespace, configuration: Configuration
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     application_mock = mocker.patch("ahriman.application.application.Application.update", return_value=result)
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     changes_mock = mocker.patch("ahriman.application.application.Application.changes")
     updates_mock = mocker.patch("ahriman.application.application.Application.updates", return_value=[package_ahriman])
     dependencies_mock = mocker.patch("ahriman.application.application.Application.with_dependencies",
@@ -113,7 +113,7 @@ def test_run_no_changes(args: argparse.Namespace, configuration: Configuration, 
     mocker.patch("ahriman.application.application.Application.add")
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.application.Application.update")
-    mocker.patch("ahriman.application.handlers.Handler.check_status")
+    mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
     mocker.patch("ahriman.application.application.Application.updates")
     mocker.patch("ahriman.application.application.Application.with_dependencies")
     mocker.patch("ahriman.application.application.Application.print_updates")
@@ -138,7 +138,7 @@ def test_run_empty_exception(args: argparse.Namespace, configuration: Configurat
     mocker.patch("ahriman.application.application.Application.with_dependencies")
     mocker.patch("ahriman.application.application.Application.updates")
     mocker.patch("ahriman.application.application.Application.print_updates")
-    check_mock = mocker.patch("ahriman.application.handlers.Handler.check_status")
+    check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")
 
     _, repository_id = configuration.check_loaded()
     Add.run(args, repository_id, configuration, report=False)

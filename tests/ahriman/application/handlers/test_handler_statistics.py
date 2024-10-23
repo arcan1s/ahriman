@@ -5,7 +5,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import Statistics
+from ahriman.application.handlers.statistics import Statistics
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.core.utils import pretty_datetime, utcnow
@@ -42,7 +42,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     events = [Event("1", "1"), Event("2", "2")]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     events_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_get", return_value=events)
-    application_mock = mocker.patch("ahriman.application.handlers.Statistics.stats_per_package")
+    application_mock = mocker.patch("ahriman.application.handlers.statistics.Statistics.stats_per_package")
 
     _, repository_id = configuration.check_loaded()
     Statistics.run(args, repository_id, configuration, report=False)
@@ -60,7 +60,7 @@ def test_run_for_package(args: argparse.Namespace, configuration: Configuration,
     events = [Event("1", "1"), Event("2", "2")]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     events_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_get", return_value=events)
-    application_mock = mocker.patch("ahriman.application.handlers.Statistics.stats_for_package")
+    application_mock = mocker.patch("ahriman.application.handlers.statistics.Statistics.stats_for_package")
 
     _, repository_id = configuration.check_loaded()
     Statistics.run(args, repository_id, configuration, report=False)
@@ -77,7 +77,7 @@ def test_run_convert_from_date(args: argparse.Namespace, configuration: Configur
     date = utcnow()
     args.from_date = date.isoformat()
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Statistics.stats_per_package")
+    mocker.patch("ahriman.application.handlers.statistics.Statistics.stats_per_package")
     events_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_get", return_value=[])
 
     _, repository_id = configuration.check_loaded()
@@ -94,7 +94,7 @@ def test_run_convert_to_date(args: argparse.Namespace, configuration: Configurat
     date = utcnow()
     args.to_date = date.isoformat()
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Statistics.stats_per_package")
+    mocker.patch("ahriman.application.handlers.statistics.Statistics.stats_per_package")
     events_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_get", return_value=[])
 
     _, repository_id = configuration.check_loaded()
@@ -147,8 +147,8 @@ def test_stats_for_package(mocker: MockerFixture) -> None:
     must print statistics for the package
     """
     events = [Event("event", "1"), Event("event", "1")]
-    events_mock = mocker.patch("ahriman.application.handlers.Statistics.event_stats")
-    chart_plot = mocker.patch("ahriman.application.handlers.Statistics.plot_times")
+    events_mock = mocker.patch("ahriman.application.handlers.statistics.Statistics.event_stats")
+    chart_plot = mocker.patch("ahriman.application.handlers.statistics.Statistics.plot_times")
 
     Statistics.stats_for_package("event", events, None)
     events_mock.assert_called_once_with("event", events)
@@ -161,8 +161,8 @@ def test_stats_for_package_with_chart(mocker: MockerFixture) -> None:
     """
     local = Path("local")
     events = [Event("event", "1"), Event("event", "1")]
-    mocker.patch("ahriman.application.handlers.Statistics.event_stats")
-    chart_plot = mocker.patch("ahriman.application.handlers.Statistics.plot_times")
+    mocker.patch("ahriman.application.handlers.statistics.Statistics.event_stats")
+    chart_plot = mocker.patch("ahriman.application.handlers.statistics.Statistics.plot_times")
 
     Statistics.stats_for_package("event", events, local)
     chart_plot.assert_called_once_with("event", events, local)
@@ -174,8 +174,8 @@ def test_stats_per_package(mocker: MockerFixture) -> None:
     """
     events = [Event("event", "1"), Event("event", "2"), Event("event", "1")]
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    events_mock = mocker.patch("ahriman.application.handlers.Statistics.event_stats")
-    chart_plot = mocker.patch("ahriman.application.handlers.Statistics.plot_packages")
+    events_mock = mocker.patch("ahriman.application.handlers.statistics.Statistics.event_stats")
+    chart_plot = mocker.patch("ahriman.application.handlers.statistics.Statistics.plot_packages")
 
     Statistics.stats_per_package("event", events, None)
     print_mock.assert_has_calls([
@@ -192,8 +192,8 @@ def test_stats_per_package_with_chart(mocker: MockerFixture) -> None:
     """
     local = Path("local")
     events = [Event("event", "1"), Event("event", "2"), Event("event", "1")]
-    mocker.patch("ahriman.application.handlers.Statistics.event_stats")
-    chart_plot = mocker.patch("ahriman.application.handlers.Statistics.plot_packages")
+    mocker.patch("ahriman.application.handlers.statistics.Statistics.event_stats")
+    chart_plot = mocker.patch("ahriman.application.handlers.statistics.Statistics.plot_packages")
 
     Statistics.stats_per_package("event", events, local)
     chart_plot.assert_called_once_with("event", {"1": 2, "2": 1}, local)

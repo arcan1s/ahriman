@@ -25,7 +25,7 @@ from collections.abc import Generator
 from importlib import metadata
 
 from ahriman import __version__
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import VersionPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -58,6 +58,22 @@ class Versions(Handler):
                        {"Python": sys.version})(verbose=False, separator=" ")
         packages = Versions.package_dependencies("ahriman")
         VersionPrinter("Installed packages", dict(packages))(verbose=False, separator=" ")
+
+    @staticmethod
+    def _set_help_version_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for version subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("help-version", aliases=["version"], help="application version",
+                                 description="print application and its dependencies versions")
+        parser.set_defaults(architecture="", lock=None, quiet=True, report=False, repository="", unsafe=True)
+        return parser
 
     @staticmethod
     def package_dependencies(root: str) -> Generator[tuple[str, str], None, None]:
@@ -96,3 +112,5 @@ class Versions(Handler):
                 yield distribution.name, distribution.version
             except metadata.PackageNotFoundError:
                 continue
+
+    arguments = [_set_help_version_parser]

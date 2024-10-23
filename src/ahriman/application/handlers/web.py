@@ -20,8 +20,9 @@
 import argparse
 
 from collections.abc import Generator
+from pathlib import Path
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
 from ahriman.core.triggers import TriggerLoader
@@ -72,6 +73,21 @@ class Web(Handler):
         spawner.join()
 
     @staticmethod
+    def _set_web_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for web subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("web", help="web server", description="start web server")
+        parser.set_defaults(architecture="", lock=Path("ahriman-web.pid"), report=False, repository="")
+        return parser
+
+    @staticmethod
     def extract_arguments(args: argparse.Namespace, configuration: Configuration) -> Generator[str, None, None]:
         """
         extract list of arguments used for current command, except for command specific ones
@@ -100,3 +116,5 @@ class Web(Handler):
         # arguments from configuration
         if (wait_timeout := configuration.getint("web", "wait_timeout", fallback=None)) is not None:
             yield from ["--wait-timeout", str(wait_timeout)]
+
+    arguments = [_set_web_parser]

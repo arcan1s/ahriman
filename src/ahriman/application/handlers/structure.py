@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter, TreePrinter
 from ahriman.core.tree import Tree
@@ -58,3 +58,23 @@ class Structure(Handler):
 
             # empty line
             StringPrinter("")(verbose=False)
+
+    @staticmethod
+    def _set_repo_tree_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository tree subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-tree", help="dump repository tree",
+                                 description="dump repository tree based on packages dependencies")
+        parser.add_argument("-p", "--partitions", help="also divide packages by independent partitions",
+                            type=int, default=1)
+        parser.set_defaults(lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    arguments = [_set_repo_tree_parser]

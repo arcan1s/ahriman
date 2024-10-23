@@ -30,7 +30,7 @@ mv dist/ahriman-*.tar.gz package/archlinux
 chmod +777 package/archlinux  # because fuck you that's why
 cd package/archlinux
 sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
-sudo -u nobody -- makepkg --packagelist | grep -v -- -debug- | pacman -U --noconfirm -
+sudo -u nobody -- makepkg --packagelist | grep -v -- -debug- | pacman -U --noconfirm --nodeps -
 # create machine-id which is required by build tools
 systemd-machine-id-setup
 

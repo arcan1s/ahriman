@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -53,3 +53,21 @@ class RemoveUnknown(Handler):
             return
 
         application.remove(unknown_packages)
+
+    @staticmethod
+    def _set_repo_remove_unknown_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for remove unknown packages subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-remove-unknown", aliases=["remove-unknown"], help="remove unknown packages",
+                                 description="remove packages which are missing in AUR and do not have local PKGBUILDs")
+        parser.add_argument("--dry-run", help="just perform check for packages without removal", action="store_true")
+        return parser
+
+    arguments = [_set_repo_remove_unknown_parser]

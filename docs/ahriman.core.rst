@@ -36,6 +36,14 @@ ahriman.core.exceptions module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.module\_loader module
+----------------------------------
+
+.. automodule:: ahriman.core.module_loader
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.spawn module
 -------------------------
 

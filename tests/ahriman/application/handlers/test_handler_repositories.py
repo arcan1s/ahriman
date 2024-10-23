@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Repositories
+from ahriman.application.handlers.repositories import Repositories
 from ahriman.core.configuration import Configuration
 
 
@@ -29,7 +29,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args = _default_args(args)
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
     _, repository_id = configuration.check_loaded()
-    application_mock = mocker.patch("ahriman.application.handlers.Handler.repositories_extract",
+    application_mock = mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract",
                                     return_value=[repository_id])
 
     Repositories.run(args, repository_id, configuration, report=False)

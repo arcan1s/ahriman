@@ -19,7 +19,7 @@
 #
 import argparse
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import RepositoryPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -52,3 +52,23 @@ class Repositories(Handler):
         )
         for repository in cls.repositories_extract(dummy_args):
             RepositoryPrinter(repository)(verbose=not args.id_only)
+
+    @staticmethod
+    def _set_service_repositories(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repositories listing
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-repositories", help="show repositories",
+                                 description="list all available repositories")
+        parser.add_argument("--id-only", help="show machine readable identifier instead",
+                            action=argparse.BooleanOptionalAction, default=False)
+        parser.set_defaults(architecture="", lock=None, report=False, repository="", unsafe=True)
+        return parser
+
+    arguments = [_set_service_repositories]

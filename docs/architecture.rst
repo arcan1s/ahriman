@@ -18,7 +18,7 @@ Full dependency diagram:
 ``ahriman.application`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.Handler`` class.
+This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.handler.Handler`` class.
 
 ``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
