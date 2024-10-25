@@ -26,11 +26,16 @@ cp "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 # create fresh tarball
 tox -e archive
 # run makepkg
-mv dist/ahriman-*.tar.gz package/archlinux
+PKGVER=$(python -c "from src.ahriman import __version__; print(__version__)")
+mv "dist/ahriman-$PKGVER.tar.gz" package/archlinux
 chmod +777 package/archlinux  # because fuck you that's why
 cd package/archlinux
 sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
-sudo -u nobody -- makepkg --packagelist | grep -v -- -debug- | pacman -U --noconfirm --nodeps -
+sudo -u nobody -- makepkg --packagelist | grep "ahriman-$PKGVER" | pacman -U --noconfirm --nodeps -
+if [[ -z $MINIMAL_INSTALL ]]; then
+    sudo -u nobody -- makepkg --packagelist | grep "ahriman-triggers-$PKGVER" | pacman -U --noconfirm --nodeps -
+    sudo -u nobody -- makepkg --packagelist | grep "ahriman-web-$PKGVER" | pacman -U --noconfirm --nodeps -
+fi
 # create machine-id which is required by build tools
 systemd-machine-id-setup
 
@@ -41,12 +46,12 @@ pacman -Qdtq | pacman -Rscn --noconfirm -
 [[ -z $MINIMAL_INSTALL ]] && WEB_ARGS=("--web-port" "8080")
 ahriman -a x86_64 -r "github" service-setup --packager "ahriman bot <ahriman@example.com>" "${WEB_ARGS[@]}"
 # enable services
-systemctl enable ahriman-web
 systemctl enable ahriman@x86_64-github.timer
 if [[ -z $MINIMAL_INSTALL ]]; then
     # validate configuration
     ahriman service-config-validate --exit-code
     # run web service (detached)
+    systemctl enable ahriman-web
     sudo -u ahriman -- ahriman web &
     WEB_PID=$!
 fi
