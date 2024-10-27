@@ -51,42 +51,6 @@ class Triggers(Handler):
         application.on_result(Result())
 
     @staticmethod
-    def _set_repo_create_keyring_parser(root: SubParserAction) -> argparse.ArgumentParser:
-        """
-        add parser for create-keyring subcommand
-
-        Args:
-            root(SubParserAction): subparsers for the commands
-
-        Returns:
-            argparse.ArgumentParser: created argument parser
-        """
-        parser = root.add_parser("repo-create-keyring", help="create keyring package",
-                                 description="create package which contains list of trusted keys as set by "
-                                             "configuration. Note, that this action will only create package, "
-                                             "the package itself has to be built manually")
-        parser.set_defaults(trigger=["ahriman.core.support.KeyringTrigger"])
-        return parser
-
-    @staticmethod
-    def _set_repo_create_mirrorlist_parser(root: SubParserAction) -> argparse.ArgumentParser:
-        """
-        add parser for create-mirrorlist subcommand
-
-        Args:
-            root(SubParserAction): subparsers for the commands
-
-        Returns:
-            argparse.ArgumentParser: created argument parser
-        """
-        parser = root.add_parser("repo-create-mirrorlist", help="create mirrorlist package",
-                                 description="create package which contains list of available mirrors as set by "
-                                             "configuration. Note, that this action will only create package, "
-                                             "the package itself has to be built manually")
-        parser.set_defaults(trigger=["ahriman.core.support.MirrorlistTrigger"])
-        return parser
-
-    @staticmethod
     def _set_repo_report_parser(root: SubParserAction) -> argparse.ArgumentParser:
         """
         add parser for report subcommand
@@ -138,8 +102,6 @@ class Triggers(Handler):
         return parser
 
     arguments = [
-        _set_repo_create_keyring_parser,
-        _set_repo_create_mirrorlist_parser,
         _set_repo_report_parser,
         _set_repo_sync_parser,
         _set_repo_triggers_parser,

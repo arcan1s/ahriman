@@ -32,10 +32,11 @@ SUBPACKAGES = {
         prefix / "bin",
         prefix / "lib" / "systemd",
         prefix / "share",
-        site_packages / "ahriman",
+        site_packages,
     ],
     "ahriman-triggers": [
         prefix / "share" / "ahriman" / "settings" / "ahriman.ini.d" / "00-triggers.ini",
+        site_packages / "ahriman" / "application" / "handlers" / "triggers_support.py",
         site_packages / "ahriman" / "core" / "distributed",
         site_packages / "ahriman" / "core" / "support",
     ],
