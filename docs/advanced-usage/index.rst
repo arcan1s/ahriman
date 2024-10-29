@@ -1,6 +1,12 @@
 Advanced usage
 ==============
 
+.. toctree::
+   :maxdepth: 2
+
+   handlers
+   views
+
 Depending on the goal the package can be used in different ways. Nevertheless, in the most cases you will need some basic classes
 
 .. code-block:: python
