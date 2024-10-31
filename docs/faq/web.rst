@@ -5,11 +5,11 @@ How to setup web service
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   Install dependencies:
+   Install web service:
 
    .. code-block:: shell
 
-      yay -S --asdeps python-aiohttp python-aiohttp-jinja2 python-aiohttp-apispec>=3.0.0 python-aiohttp-cors
+      yay -S -ahriman-web
 
 #. 
    Configure service:
