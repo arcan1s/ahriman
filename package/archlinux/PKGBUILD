@@ -1,7 +1,7 @@
 # Maintainer: Evgeniy Alekseev
 
 pkgbase='ahriman'
-pkgname=('ahriman' 'ahriman-triggers' 'ahriman-web')
+pkgname=('ahriman' 'ahriman-core' 'ahriman-triggers' 'ahriman-web')
 pkgver=2.15.2
 pkgrel=1
 pkgdesc="ArcH linux ReposItory MANager"
@@ -22,6 +22,12 @@ build() {
 
 package_ahriman() {
     pkgname='ahriman'
+    pkgdesc="ArcH linux ReposItory MANager (meta package)"
+    depends=("$pkgbase-core=$pkgver" "$pkgbase-triggers=$pkgver" "$pkgbase-web=$pkgver")
+}
+
+package_ahriman-core() {
+    pkgname='ahriman-core'
     optdepends=('ahriman-triggers: additional extensions for the application'
                 'ahriman-web: web server'
                 'python-boto3: sync to s3'
@@ -31,7 +37,7 @@ package_ahriman() {
                 'python-jinja: html report generation'
                 'python-systemd: journal support'
                 'rsync: sync by using rsync')
-    install="$pkgname.install"
+    install="$pkgbase.install"
     backup=('etc/ahriman.ini'
             'etc/ahriman.ini.d/logging.ini')
 
@@ -51,7 +57,7 @@ package_ahriman() {
 package_ahriman-triggers() {
     pkgname='ahriman-triggers'
     pkgdesc="ArcH linux ReposItory MANager, additional extensions"
-    depends=("$pkgbase=$pkgver")
+    depends=("$pkgbase-core=$pkgver")
     backup=('etc/ahriman.ini.d/00-triggers.ini')
 
     cd "$pkgbase-$pkgver"
@@ -65,7 +71,7 @@ package_ahriman-triggers() {
 package_ahriman-web() {
     pkgname='ahriman-web'
     pkgdesc="ArcH linux ReposItory MANager, web server"
-    depends=("$pkgbase=$pkgver" 'python-aiohttp-apispec>=3.0.0' 'python-aiohttp-cors' 'python-aiohttp-jinja2')
+    depends=("$pkgbase-core=$pkgver" 'python-aiohttp-apispec>=3.0.0' 'python-aiohttp-cors' 'python-aiohttp-jinja2')
     optdepends=('python-aioauth-client: OAuth2 authorization support'
                 'python-aiohttp-security: authorization support'
                 'python-aiohttp-session: authorization support'

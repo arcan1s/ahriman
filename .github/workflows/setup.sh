@@ -31,7 +31,7 @@ mv "dist/ahriman-$PKGVER.tar.gz" package/archlinux
 chmod +777 package/archlinux  # because fuck you that's why
 cd package/archlinux
 sudo -u nobody -- makepkg -cf --skipchecksums --noconfirm
-sudo -u nobody -- makepkg --packagelist | grep "ahriman-$PKGVER" | pacman -U --noconfirm --nodeps -
+sudo -u nobody -- makepkg --packagelist | grep "ahriman-core-$PKGVER" | pacman -U --noconfirm --nodeps -
 if [[ -z $MINIMAL_INSTALL ]]; then
     sudo -u nobody -- makepkg --packagelist | grep "ahriman-triggers-$PKGVER" | pacman -U --noconfirm --nodeps -
     sudo -u nobody -- makepkg --packagelist | grep "ahriman-web-$PKGVER" | pacman -U --noconfirm --nodeps -

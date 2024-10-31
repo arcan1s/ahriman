@@ -28,7 +28,7 @@ from pathlib import Path
 prefix = Path(sys.prefix).relative_to("/")
 site_packages = Path(site.getsitepackages()[0]).relative_to("/")
 SUBPACKAGES = {
-    "ahriman": [
+    "ahriman-core": [
         prefix / "bin",
         prefix / "lib" / "systemd",
         prefix / "share",
