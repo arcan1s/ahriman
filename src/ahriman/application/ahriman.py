@@ -95,6 +95,11 @@ Start web service (requires additional configuration):
             subparser.formatter_class = _HelpFormatter
             subparser.set_defaults(handler=handler, parser=_parser)
 
+    # sort actions alphabetically in both choices and help message
+    # pylint: disable=protected-access
+    subparsers._choices_actions = sorted(subparsers._choices_actions, key=lambda action: action.dest)
+    subparsers.choices = dict(sorted(subparsers.choices.items()))
+
     return parser
 
 
