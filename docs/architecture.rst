@@ -440,7 +440,7 @@ Different APIs are separated into different packages:
 * ``ahriman.web.views.api`` not a real API, but some views which provide OpenAPI support.
 * ``ahriman.web.views.*.auditlog`` provides event log API.
 * ``ahriman.web.views.*.distributed`` is an API for builders interaction for multi-node setup.
-* ``ahriman.web.views.*.pacakges`` contains views which provide information about existing packages.
+* ``ahriman.web.views.*.packages`` contains views which provide information about existing packages.
 * ``ahriman.web.views.*.service`` provides views for application controls.
 * ``ahriman.web.views.*.status`` package provides REST API for application reporting.
 * ``ahriman.web.views.*.user`` package provides login and logout methods which can be called without authorization.

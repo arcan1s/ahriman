@@ -9,7 +9,7 @@ How to setup web service
 
    .. code-block:: shell
 
-      yay -S -ahriman-web
+      yay -S ahriman-web
 
 #. 
    Configure service:

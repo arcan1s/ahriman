@@ -36,7 +36,6 @@ async def test_get_not_found(client_with_auth: TestClient, mocker: MockerFixture
     """
     must raise not found if path is invalid
     """
-    print([route.handler for route in client_with_auth.app.router.routes()])
     static_route = next(route for route in client_with_auth.app.router.routes() if route.handler == StaticView)
     mocker.patch.object(static_route.handler, "ROUTES", [])
     response = await client_with_auth.get("/favicon.ico", allow_redirects=False)

@@ -17,7 +17,7 @@ def test_dynamic_routes(resource_path_root: Path, configuration: Configuration) 
         if file.suffix == ".py" and file.name not in ("__init__.py", "base.py", "status_view_guard.py")
     ]
 
-    routes = _dynamic_routes(configuration)
+    routes = dict(_dynamic_routes(configuration))
     assert all(isinstance(view, type) for view in routes.values())
     assert len(set(routes.values())) == len(expected_views)
 

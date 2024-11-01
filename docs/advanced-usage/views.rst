@@ -1,9 +1,9 @@
 Writing own API endpoint
 ========================
 
-The web service loads views dynamically, thus it is possible to add custom API endpoint or even web page. The views must be derived from ``ahriman.web.views.base.BaseView`` and implements HTTP methods. The API specification will be also loaded (if available), but optional. The implementation must be saved into the ``ahriman.web.views`` package
+The web service loads views dynamically, thus it is possible to add custom API endpoint or even web page. The view must be derived from ``ahriman.web.views.base.BaseView`` and should implement desired HTTP methods. The API specification will be also loaded automatically if available, but optional. The implementation must be saved into the ``ahriman.web.views`` package
 
-Let's consider example for API endpoint which always returns 204 with no response:
+Let's consider example of API endpoint which always returns 204 with no response:
 
 .. code-block:: python
 
@@ -18,9 +18,9 @@ Let's consider example for API endpoint which always returns 204 with no respons
            # check public methods of the BaseView class for all available controls
            raise HTTPNoContent
 
-The ``get()`` method can be decorated by ``aiohttp_apispec`` methods, but we will leave it for self-study. Consider checking examples of usages in the main package.
+The ``get()`` method can be decorated by ``aiohttp_apispec`` methods, but we will leave it for a self-study, please, consider to check examples of usages in the main package.
 
-In order to view to be set correctly to routes list, few more options are required to be set. First of all, it is required to specify ``ROUTES`` (list of strings), which contains list of all available routes, e.g.:
+In order to view to be added to the route list correctly, few more properties are required to be set. First of all, it is required to specify ``ROUTES`` (list of strings), which contains list of all available routes, e.g.:
 
 .. code-block:: python
 

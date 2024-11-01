@@ -36,8 +36,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    setup_mock = mocker.patch("ahriman.web.web.setup_server")
-    run_mock = mocker.patch("ahriman.web.web.run_server")
+    setup_mock = mocker.patch("ahriman.application.handlers.web.setup_server")
+    run_mock = mocker.patch("ahriman.application.handlers.web.run_server")
     start_mock = mocker.patch("ahriman.core.spawn.Spawn.start")
     trigger_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.load")
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")

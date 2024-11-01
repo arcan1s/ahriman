@@ -27,6 +27,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.spawn import Spawn
 from ahriman.core.triggers import TriggerLoader
 from ahriman.models.repository_id import RepositoryId
+from ahriman.web.web import run_server, setup_server
 
 
 class Web(Handler):
@@ -48,9 +49,6 @@ class Web(Handler):
             configuration(Configuration): configuration instance
             report(bool): force enable or disable reporting
         """
-        # we are using local import for optional dependencies
-        from ahriman.web.web import run_server, setup_server
-
         spawner_args = Web.extract_arguments(args, configuration)
         spawner = Spawn(args.parser(), list(spawner_args))
         spawner.start()

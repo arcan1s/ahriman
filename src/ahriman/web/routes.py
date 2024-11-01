@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import Application, View
+from collections.abc import Generator
 
 import ahriman.web.views
 
@@ -29,22 +30,19 @@ from ahriman.web.views.base import BaseView
 __all__ = ["setup_routes"]
 
 
-def _dynamic_routes(configuration: Configuration) -> dict[str, type[View]]:
+def _dynamic_routes(configuration: Configuration) -> Generator[tuple[str, type[View]], None, None]:
     """
     extract dynamic routes based on views
 
     Args:
         configuration(Configuration): configuration instance
 
-    Returns:
-        dict[str, type[View]]: map of the route to its view
+    Yields:
+        tuple[str, type[View]]: map of the route to its view
     """
-    routes: dict[str, type[View]] = {}
     for view in implementations(ahriman.web.views, BaseView):
-        view_routes = view.routes(configuration)
-        routes.update([(route, view) for route in view_routes])
-
-    return routes
+        for route in view.routes(configuration):
+            yield route, view
 
 
 def setup_routes(application: Application, configuration: Configuration) -> None:
@@ -57,5 +55,5 @@ def setup_routes(application: Application, configuration: Configuration) -> None
     """
     application.router.add_static("/static", configuration.getpath("web", "static_path"), follow_symlinks=True)
 
-    for route, view in _dynamic_routes(configuration).items():
+    for route, view in _dynamic_routes(configuration):
         application.router.add_view(route, view)

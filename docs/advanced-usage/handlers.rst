@@ -27,7 +27,7 @@ Let's imagine, that the new class implements ``help-web``, which prints server i
         result = response.json()
         print(result)
 
-The main functionality of the class is already described, but command is still not available yet. To do so, it is required to set ``arguments`` property, which is list of functions, which takes argument parser object, creates new subcommand and returns the modified parser, e.g.:
+The main functionality of the class is already described, but command is still not available yet. To do so, it is required to set ``arguments`` property, which is the list of the functions, each of them which takes argument parser object, creates new subcommand and returns the modified parser, e.g.:
 
 .. code-block:: python
 
