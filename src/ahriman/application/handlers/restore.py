@@ -20,7 +20,9 @@
 import argparse
 import tarfile
 
-from ahriman.application.handlers.handler import Handler
+from pathlib import Path
+
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -46,3 +48,23 @@ class Restore(Handler):
         """
         with tarfile.open(args.path) as archive:
             archive.extractall(path=args.output)  # nosec
+
+    @staticmethod
+    def _set_repo_restore_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository restore subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-restore", help="restore repository data",
+                                 description="restore settings and database")
+        parser.add_argument("path", help="path of the input archive", type=Path)
+        parser.add_argument("-o", "--output", help="root path of the extracted files", type=Path, default=Path("/"))
+        parser.set_defaults(architecture="", lock=None, report=False, repository="", unsafe=True)
+        return parser
+
+    arguments = [_set_repo_restore_parser]

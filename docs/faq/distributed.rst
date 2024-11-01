@@ -311,6 +311,12 @@ Automatic worker nodes discovery
 
 Instead of setting ``${build:workers}`` option explicitly it is also possible to configure services to load worker list dynamically. To do so, the ``ahriman.core.distributed.WorkerLoaderTrigger`` and ``ahriman.core.distributed.WorkerTrigger`` must be used for **master** and **worker** nodes respectively. See recipes for more details.
 
+Those triggers have to be installed as a separate package:
+
+.. code-block:: shell
+
+   yay -S ahriman-triggers
+
 Known limitations
 """""""""""""""""
 

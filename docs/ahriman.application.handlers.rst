@@ -228,6 +228,14 @@ ahriman.application.handlers.triggers module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.triggers\_support module
+-----------------------------------------------------
+
+.. automodule:: ahriman.application.handlers.triggers_support
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.unsafe\_commands module
 ----------------------------------------------------
 

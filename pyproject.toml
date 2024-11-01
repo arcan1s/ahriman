@@ -95,6 +95,7 @@ include = [
     "CONTRIBUTING.md",
     "SECURITY.md",
     "package",
+    "subpackages.py",
     "web.png",
 ]
 exclude = [

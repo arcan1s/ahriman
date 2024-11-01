@@ -20,7 +20,7 @@
 import argparse
 import shlex
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -50,6 +50,25 @@ class Run(Handler):
             Run.check_status(True, status)
 
     @staticmethod
+    def _set_service_run(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for multicommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-run", aliases=["run"], help="run multiple commands",
+                                 description="run multiple commands on success run of the previous command",
+                                 epilog="Commands must be quoted by using usual bash rules. Processes will be spawned "
+                                        "under the same user as this command.")
+        parser.add_argument("command", help="command to be run (quoted) without ``ahriman``", nargs="+")
+        parser.set_defaults(architecture="", lock=None, report=False, repository="", unsafe=True)
+        return parser
+
+    @staticmethod
     def run_command(command: list[str], parser: argparse.ArgumentParser) -> bool:
         """
         run command specified by the argument
@@ -64,3 +83,5 @@ class Run(Handler):
         args = parser.parse_args(command)
         handler: Handler = args.handler
         return handler.execute(args) == 0
+
+    arguments = [_set_service_run]

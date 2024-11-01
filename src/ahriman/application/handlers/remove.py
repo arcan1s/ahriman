@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -45,3 +45,21 @@ class Remove(Handler):
         application = Application(repository_id, configuration, report=report)
         application.on_start()
         application.remove(args.package)
+
+    @staticmethod
+    def _set_package_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package removal subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-remove", aliases=["remove"], help="remove package",
+                                 description="remove package from the repository")
+        parser.add_argument("package", help="package name or base", nargs="+")
+        return parser
+
+    arguments = [_set_package_remove_parser]

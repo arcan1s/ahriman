@@ -13,7 +13,7 @@ TL;DR
 
 .. code-block:: shell
 
-   yay -S ahriman
+   yay -S ahriman-core
    ahriman -a x86_64 -r aur service-setup --packager "ahriman bot <ahriman@example.com>"
    systemctl enable --now ahriman@x86_64-aur.timer
 

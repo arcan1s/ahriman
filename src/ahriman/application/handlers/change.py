@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import ChangesPrinter
 from ahriman.models.action import Action
@@ -57,3 +57,43 @@ class Change(Handler):
                 Change.check_status(args.exit_code, not changes.is_empty)
             case Action.Remove:
                 client.package_changes_update(args.package, Changes())
+
+    @staticmethod
+    def _set_package_changes_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package changes subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-changes", help="get package changes",
+                                 description="retrieve package changes stored in database",
+                                 epilog="This command requests package status from the web interface "
+                                        "if it is available.")
+        parser.add_argument("package", help="package base")
+        parser.add_argument("-e", "--exit-code", help="return non-zero exit status if result is empty",
+                            action="store_true")
+        parser.set_defaults(action=Action.List, lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    @staticmethod
+    def _set_package_changes_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package change remove subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-changes-remove", help="remove package changes",
+                                 description="remove the package changes stored remotely")
+        parser.add_argument("package", help="package base")
+        parser.set_defaults(action=Action.Remove, exit_code=False, lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    arguments = [_set_package_changes_parser, _set_package_changes_remove_parser]

@@ -2,7 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import KeyImport
+from ahriman.application.handlers.key_import import KeyImport
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 

@@ -19,7 +19,7 @@
 #
 import argparse
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
@@ -51,6 +51,22 @@ class TreeMigrate(Handler):
         TreeMigrate.tree_move(current_tree, target_tree)
 
     @staticmethod
+    def _set_service_tree_migrate_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for tree migration subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-tree-migrate", help="migrate repository tree",
+                                 description="migrate repository tree between versions")
+        parser.set_defaults(lock=None, quiet=True, report=False)
+        return parser
+
+    @staticmethod
     def tree_move(from_tree: RepositoryPaths, to_tree: RepositoryPaths) -> None:
         """
         move files between trees. Trees must be created in advance
@@ -66,3 +82,5 @@ class TreeMigrate(Handler):
             RepositoryPaths.repository,
         ):
             attribute.fget(from_tree).rename(attribute.fget(to_tree))  # type: ignore[attr-defined]
+
+    arguments = [_set_service_tree_migrate_parser]

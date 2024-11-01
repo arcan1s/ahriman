@@ -3,7 +3,7 @@ import pytest
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Web
+from ahriman.application.handlers.web import Web
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 from ahriman.models.log_handler import LogHandler
@@ -36,14 +36,14 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    setup_mock = mocker.patch("ahriman.web.web.setup_server")
-    run_mock = mocker.patch("ahriman.web.web.run_server")
+    setup_mock = mocker.patch("ahriman.application.handlers.web.setup_server")
+    run_mock = mocker.patch("ahriman.application.handlers.web.run_server")
     start_mock = mocker.patch("ahriman.core.spawn.Spawn.start")
     trigger_mock = mocker.patch("ahriman.core.triggers.TriggerLoader.load")
     stop_mock = mocker.patch("ahriman.core.spawn.Spawn.stop")
     join_mock = mocker.patch("ahriman.core.spawn.Spawn.join")
     _, repository_id = configuration.check_loaded()
-    mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[repository_id])
+    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=[repository_id])
 
     Web.run(args, repository_id, configuration, report=False)
     setup_mock.assert_called_once_with(configuration, pytest.helpers.anyvar(int), [repository_id])

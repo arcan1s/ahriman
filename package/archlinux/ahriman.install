@@ -2,6 +2,7 @@ post_upgrade() {
     local breakpoints=(
         2.9.0-1
         2.12.0-1
+        2.16.0-1
     )
 
     for v in "${breakpoints[@]}"; do

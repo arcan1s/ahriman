@@ -20,7 +20,7 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 
@@ -46,3 +46,27 @@ class KeyImport(Handler):
         """
         application = Application(repository_id, configuration, report=report)
         application.repository.sign.key_import(args.key_server, args.key)
+
+    @staticmethod
+    def _set_service_key_import_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for key import subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("service-key-import", aliases=["key-import"], help="import PGP key",
+                                 description="import PGP key from public sources to the repository user",
+                                 epilog="By default ahriman runs build process with package sources validation "
+                                        "(in case if signature and keys are available in PKGBUILD). This process will "
+                                        "fail in case if key is not known for build user. This subcommand can be used "
+                                        "in order to import the PGP key to user keychain.")
+        parser.add_argument("--key-server", help="key server for key import", default="keyserver.ubuntu.com")
+        parser.add_argument("key", help="PGP key to import from public server")
+        parser.set_defaults(architecture="", lock=None, report=False, repository="")
+        return parser
+
+    arguments = [_set_service_key_import_parser]

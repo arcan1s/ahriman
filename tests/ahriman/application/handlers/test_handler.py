@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Handler
+from ahriman.application.handlers.handler import Handler
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import ExitCode, MissingArchitectureError, MultipleArchitecturesError
 from ahriman.models.log_handler import LogHandler
@@ -19,7 +19,7 @@ def test_call(args: argparse.Namespace, configuration: Configuration, mocker: Mo
     args.log_handler = LogHandler.Console
     args.quiet = False
     args.report = False
-    mocker.patch("ahriman.application.handlers.Handler.run")
+    mocker.patch("ahriman.application.handlers.handler.Handler.run")
     configuration_mock = mocker.patch("ahriman.core.configuration.Configuration.from_path", return_value=configuration)
     log_handler_mock = mocker.patch("ahriman.core.log.log_loader.LogLoader.handler", return_value=args.log_handler)
     log_load_mock = mocker.patch("ahriman.core.log.log_loader.LogLoader.load")
@@ -76,7 +76,7 @@ def test_execute(args: argparse.Namespace, mocker: MockerFixture) -> None:
         RepositoryId("i686", "aur"),
         RepositoryId("x86_64", "aur"),
     ]
-    mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=ids)
+    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=ids)
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")
 
     Handler.execute(args)
@@ -88,7 +88,7 @@ def test_execute_multiple_not_supported(args: argparse.Namespace, mocker: Mocker
     must raise an exception if multiple architectures are not supported by the handler
     """
     args.command = "web"
-    mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[
+    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=[
         RepositoryId("i686", "aur"),
         RepositoryId("x86_64", "aur"),
     ])
@@ -102,7 +102,7 @@ def test_execute_single(args: argparse.Namespace, mocker: MockerFixture) -> None
     """
     must run execution in current process if only one architecture supplied
     """
-    mocker.patch("ahriman.application.handlers.Handler.repositories_extract", return_value=[
+    mocker.patch("ahriman.application.handlers.handler.Handler.repositories_extract", return_value=[
         RepositoryId("x86_64", "aur"),
     ])
     starmap_mock = mocker.patch("multiprocessing.pool.Pool.starmap")

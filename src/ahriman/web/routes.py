@@ -19,90 +19,30 @@
 #
 from aiohttp.web import Application, View
 from collections.abc import Generator
-from importlib.machinery import SourceFileLoader
-from pathlib import Path
-from pkgutil import ModuleInfo, iter_modules
-from types import ModuleType
-from typing import Any, Type, TypeGuard
+
+import ahriman.web.views
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.module_loader import implementations
 from ahriman.web.views.base import BaseView
 
 
 __all__ = ["setup_routes"]
 
 
-def _dynamic_routes(module_root: Path, configuration: Configuration) -> dict[str, Type[View]]:
+def _dynamic_routes(configuration: Configuration) -> Generator[tuple[str, type[View]], None, None]:
     """
     extract dynamic routes based on views
 
     Args:
-        module_root(Path): root module path with views
         configuration(Configuration): configuration instance
 
-    Returns:
-        dict[str, Type[View]]: map of the route to its view
-    """
-    def is_base_view(clazz: Any) -> TypeGuard[Type[BaseView]]:
-        return isinstance(clazz, type) and issubclass(clazz, BaseView)
-
-    routes: dict[str, Type[View]] = {}
-    for module_info in _modules(module_root):
-        module = _module(module_info)
-
-        for attribute_name in dir(module):
-            view = getattr(module, attribute_name)
-            if not is_base_view(view):
-                continue
-
-            view_routes = view.routes(configuration)
-            routes.update([(route, view) for route in view_routes])
-
-    return routes
-
-
-def _module(module_info: ModuleInfo) -> ModuleType:
-    """
-    load module from its info
-
-    Args:
-        module_info(ModuleInfo): module info descriptor
-
-    Returns:
-        ModuleType: loaded module
-
-    Raises:
-        ValueError: if loader is not an instance of :class:`importlib.machinery.SourceFileLoader`
-    """
-    module_spec = module_info.module_finder.find_spec(module_info.name, None)
-    if module_spec is None:
-        raise ValueError(f"Module specification of {module_info.name} is empty")
-
-    loader = module_spec.loader
-    if not isinstance(loader, SourceFileLoader):
-        raise ValueError(f"Module {module_info.name} loader is not an instance of SourceFileLoader")
-
-    module = ModuleType(loader.name)
-    loader.exec_module(module)
-
-    return module
-
-
-def _modules(module_root: Path) -> Generator[ModuleInfo, None, None]:
-    """
-    extract available modules from package
-
-    Args:
-        module_root(Path): module root path
-
     Yields:
-        ModuleInfo: module information each available module
+        tuple[str, type[View]]: map of the route to its view
     """
-    for module_info in iter_modules([str(module_root)]):
-        if module_info.ispkg:
-            yield from _modules(module_root / module_info.name)
-        else:
-            yield module_info
+    for view in implementations(ahriman.web.views, BaseView):
+        for route in view.routes(configuration):
+            yield route, view
 
 
 def setup_routes(application: Application, configuration: Configuration) -> None:
@@ -115,6 +55,5 @@ def setup_routes(application: Application, configuration: Configuration) -> None
     """
     application.router.add_static("/static", configuration.getpath("web", "static_path"), follow_symlinks=True)
 
-    views_root = Path(__file__).parent / "views"
-    for route, view in _dynamic_routes(views_root, configuration).items():
+    for route, view in _dynamic_routes(configuration):
         application.router.add_view(route, view)

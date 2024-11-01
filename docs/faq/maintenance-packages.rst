@@ -1,6 +1,12 @@
 Maintenance packages
 --------------------
 
+Those features require extensions package to be installed before, e.g.:
+
+.. code-block:: shell
+
+   yay -S ahriman-triggers
+
 Generate keyring package
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

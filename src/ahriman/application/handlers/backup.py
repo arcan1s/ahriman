@@ -23,7 +23,7 @@ import tarfile
 from pathlib import Path
 from pwd import getpwuid
 
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
 from ahriman.models.repository_id import RepositoryId
@@ -52,6 +52,23 @@ class Backup(Handler):
         with tarfile.open(args.path, mode="w") as archive:  # well we don't actually use compression
             for backup_path in backup_paths:
                 archive.add(backup_path)
+
+    @staticmethod
+    def _set_repo_backup_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository backup subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-backup", help="backup repository data",
+                                 description="backup repository settings and database")
+        parser.add_argument("path", help="path of the output archive", type=Path)
+        parser.set_defaults(architecture="", lock=None, report=False, repository="", unsafe=True)
+        return parser
 
     @staticmethod
     def get_paths(configuration: Configuration) -> set[Path]:
@@ -83,3 +100,5 @@ class Backup(Handler):
             paths.add(gnupg_home)
 
         return paths
+
+    arguments = [_set_repo_backup_parser]

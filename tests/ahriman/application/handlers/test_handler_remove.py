@@ -2,7 +2,7 @@ import argparse
 
 from pytest_mock import MockerFixture
 
-from ahriman.application.handlers import Remove
+from ahriman.application.handlers.remove import Remove
 from ahriman.core.configuration import Configuration
 from ahriman.core.repository import Repository
 

@@ -36,6 +36,6 @@ Contents
    faq/index
    migrations/index
    architecture
-   advanced-usage
+   advanced-usage/index
    triggers
    modules

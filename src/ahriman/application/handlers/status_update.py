@@ -20,9 +20,11 @@
 import argparse
 
 from ahriman.application.application import Application
-from ahriman.application.handlers.handler import Handler
+from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import enum_values
 from ahriman.models.action import Action
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -59,3 +61,67 @@ class StatusUpdate(Handler):
             case Action.Remove:
                 for package in args.package:
                     client.package_remove(package)
+
+    @staticmethod
+    def _set_package_status_remove_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package status remove subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-status-remove", help="remove package status",
+                                 description="remove the package from the status page",
+                                 epilog="Please note that this subcommand does not remove the package itself, it just "
+                                        "clears the status page.")
+        parser.add_argument("package", help="remove specified packages from status page", nargs="+")
+        parser.set_defaults(action=Action.Remove, lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    @staticmethod
+    def _set_package_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for package status update subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("package-status-update", aliases=["status-update"], help="update package status",
+                                 description="update package status on the status page")
+        parser.add_argument("package", help="set status for specified packages. "
+                                            "If no packages supplied, service status will be updated",
+                            nargs="*")
+        parser.add_argument("-s", "--status", help="new package build status",
+                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
+        parser.set_defaults(action=Action.Update, lock=None, quiet=True, report=False, unsafe=True)
+        return parser
+
+    @staticmethod
+    def _set_repo_status_update_parser(root: SubParserAction) -> argparse.ArgumentParser:
+        """
+        add parser for repository status update subcommand
+
+        Args:
+            root(SubParserAction): subparsers for the commands
+
+        Returns:
+            argparse.ArgumentParser: created argument parser
+        """
+        parser = root.add_parser("repo-status-update", help="update repository status",
+                                 description="update repository status on the status page")
+        parser.add_argument("-s", "--status", help="new status",
+                            type=BuildStatusEnum, choices=enum_values(BuildStatusEnum), default=BuildStatusEnum.Success)
+        parser.set_defaults(action=Action.Update, lock=None, package=[], quiet=True, report=False, unsafe=True)
+        return parser
+
+    arguments = [
+        _set_package_status_remove_parser,
+        _set_package_status_update_parser,
+        _set_repo_status_update_parser,
+    ]

@@ -7,7 +7,7 @@ from typing import Any
 from unittest.mock import call as MockCall
 from urllib.parse import quote_plus as urlencode
 
-from ahriman.application.handlers import Setup
+from ahriman.application.handlers.setup import Setup
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.core.repository import Repository
@@ -50,11 +50,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_ahriman")
-    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
-    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")
-    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_sudo")
-    executable_mock = mocker.patch("ahriman.application.handlers.Setup.executable_create")
+    ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
+    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
+    makepkg_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
+    sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
+    executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
     _, repository_id = configuration.check_loaded()
@@ -95,12 +95,12 @@ def test_run_with_server(args: argparse.Namespace, configuration: Configuration,
     args = _default_args(args)
     args.server = "server"
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    mocker.patch("ahriman.application.handlers.Setup.configuration_create_ahriman")
-    mocker.patch("ahriman.application.handlers.Setup.configuration_create_makepkg")
-    mocker.patch("ahriman.application.handlers.Setup.configuration_create_sudo")
-    mocker.patch("ahriman.application.handlers.Setup.executable_create")
+    mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
+    mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")
+    mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
+    mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     mocker.patch("ahriman.core.alpm.repo.Repo.init")
-    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.Setup.configuration_create_devtools")
+    devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
 
     _, repository_id = configuration.check_loaded()
     Setup.run(args, repository_id, configuration, report=False)

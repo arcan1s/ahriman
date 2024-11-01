@@ -30,12 +30,14 @@ class ImportType(StrEnum):
     import type enumeration
 
     Attributes:
+        Future(MethodTypeOrder): (class attribute) from __future__ import
         Package(MethodTypeOrder): (class attribute) package import
         PackageFrom(MethodTypeOrder): (class attribute) package import, from clause
         System(ImportType): (class attribute) system installed packages
         SystemFrom(MethodTypeOrder): (class attribute) system installed packages, from clause
     """
 
+    Future = "future"
     Package = "package"
     PackageFrom = "package-from"
     System = "system"
@@ -70,6 +72,7 @@ class ImportOrder(BaseRawFileChecker):
             "import-type-order",
             {
                 "default": [
+                    "future",
                     "system",
                     "system-from",
                     "package",
@@ -91,7 +94,7 @@ class ImportOrder(BaseRawFileChecker):
     )
 
     @staticmethod
-    def imports(source: Iterable[Any], start_lineno: int = 0) -> list[nodes.Import | nodes.ImportFrom]:
+    def imports(source: Iterable[Any], start_lineno: int = 0) -> Iterable[nodes.Import | nodes.ImportFrom]:
         """
         extract import nodes from list of raw nodes
 
@@ -100,7 +103,7 @@ class ImportOrder(BaseRawFileChecker):
             start_lineno(int, optional): minimal allowed line number (Default value = 0)
 
         Returns:
-            list[nodes.Import | nodes.ImportFrom]: list of import nodes
+            Iterable[nodes.Import | nodes.ImportFrom]: list of import nodes
         """
 
         def is_defined_import(imports: Any) -> bool:
@@ -108,7 +111,7 @@ class ImportOrder(BaseRawFileChecker):
                 and imports.lineno is not None \
                 and imports.lineno >= start_lineno
 
-        return list(filter(is_defined_import, source))
+        return sorted(filter(is_defined_import, source), key=lambda imports: imports.lineno)
 
     def check_from_imports(self, imports: nodes.ImportFrom) -> None:
         """
@@ -124,30 +127,36 @@ class ImportOrder(BaseRawFileChecker):
             self.add_message("from-imports-out-of-order", line=imports.lineno, args=(real, expected))
             break
 
-    def check_imports(self, imports: list[nodes.Import | nodes.ImportFrom], root_package: str) -> None:
+    def check_imports(self, imports: Iterable[nodes.Import | nodes.ImportFrom], root_package: str) -> None:
         """
         check imports
 
         Args:
-            imports(list[nodes.Import | nodes.ImportFrom]): list of imports in their defined order
+            imports(Iterable[nodes.Import | nodes.ImportFrom]): list of imports in their defined order
             root_package(str): root package name
         """
         last_statement: tuple[int, str] | None = None
 
         for statement in imports:
             # define types and perform specific checks
-            if isinstance(statement, nodes.ImportFrom):
-                import_name = statement.modname
-                root, *_ = import_name.split(".", maxsplit=1)
-                import_type = ImportType.PackageFrom if root_package == root else ImportType.SystemFrom
-                # check from import itself
-                self.check_from_imports(statement)
-            else:
-                import_name = next(name for name, _ in statement.names)
-                root, *_ = import_name.split(".", maxsplit=1)[0]
-                import_type = ImportType.Package if root_package == root else ImportType.System
-                # check import itself
-                self.check_package_imports(statement)
+            match statement:
+                case nodes.ImportFrom() if statement.modname == "__future__":
+                    import_name = statement.modname
+                    import_type = ImportType.Future
+                case nodes.ImportFrom():
+                    import_name = statement.modname
+                    root, *_ = import_name.split(".", maxsplit=1)
+                    import_type = ImportType.PackageFrom if root_package == root else ImportType.SystemFrom
+                    # check from import itself
+                    self.check_from_imports(statement)
+                case nodes.Import():
+                    import_name = next(name for name, _ in statement.names)
+                    root, *_ = import_name.split(".", maxsplit=1)
+                    import_type = ImportType.Package if root_package == root else ImportType.System
+                    # check import itself
+                    self.check_package_imports(statement)
+                case _:
+                    continue
 
             # extract index
             try:

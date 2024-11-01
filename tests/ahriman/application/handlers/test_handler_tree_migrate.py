@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
-from ahriman.application.handlers import TreeMigrate
+from ahriman.application.handlers.tree_migrate import TreeMigrate
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
@@ -15,7 +15,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     must run command
     """
     tree_create_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
-    application_mock = mocker.patch("ahriman.application.handlers.TreeMigrate.tree_move")
+    application_mock = mocker.patch("ahriman.application.handlers.tree_migrate.TreeMigrate.tree_move")
     _, repository_id = configuration.check_loaded()
     old_paths = configuration.repository_paths
     new_paths = RepositoryPaths(old_paths.root, old_paths.repository_id, _force_current_tree=True)

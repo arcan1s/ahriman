@@ -18,7 +18,7 @@ Full dependency diagram:
 ``ahriman.application`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.Handler`` class.
+This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.handler.Handler`` class.
 
 ``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
@@ -52,8 +52,10 @@ This package contains everything required for the most of application actions an
 This package also provides some generic functions and classes which may be used by other packages:
 
 * ``ahriman.core.exceptions`` provides custom exceptions.
+* ``ahriman.core.module_loader`` provides ``implementations`` method which can be used for dynamic classes load. In particular, this method is used for web views and application handlers loading.
 * ``ahriman.core.spawn.Spawn`` is a tool which can spawn another ``ahriman`` process. This feature is used by web application.
 * ``ahriman.core.tree`` is a dependency tree implementation.
+* ``ahriman.core.types`` are an additional global types for mypy checks.
 
 ``ahriman.models`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -436,6 +438,9 @@ REST API supports only JSON data.
 Different APIs are separated into different packages:
 
 * ``ahriman.web.views.api`` not a real API, but some views which provide OpenAPI support.
+* ``ahriman.web.views.*.auditlog`` provides event log API.
+* ``ahriman.web.views.*.distributed`` is an API for builders interaction for multi-node setup.
+* ``ahriman.web.views.*.packages`` contains views which provide information about existing packages.
 * ``ahriman.web.views.*.service`` provides views for application controls.
 * ``ahriman.web.views.*.status`` package provides REST API for application reporting.
 * ``ahriman.web.views.*.user`` package provides login and logout methods which can be called without authorization.

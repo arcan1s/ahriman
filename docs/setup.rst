@@ -2,7 +2,7 @@ Initial setup
 =============
 
 #. 
-   Install package as usual.
+   Install package(s) as usual. At least, ``ahriman-core`` package is required; other features can be installed separately. Alternatively, it is possible to install meta-package, which includes everything.
 #. 
    Change settings if required, see :doc:`configuration reference <configuration>` for more details.
 #.
