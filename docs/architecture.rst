@@ -8,7 +8,8 @@ Packages have strict rules of importing:
 
 * ``ahriman.application`` package must not be used outside of this package.
 * ``ahriman.core`` and ``ahriman.models`` packages don't have any import restriction. Actually we would like to totally restrict importing of ``core`` package from ``models``, but it is impossible at the moment.
-* ``ahriman.web`` package is allowed to be imported from ``ahriman.application`` (web handler only, only ``ahriman.web.web`` methods). It also must not be imported globally, only local import is allowed. 
+* ``ahriman.web`` package is allowed to be imported from ``ahriman.application`` (web handler only, only ``ahriman.web.web`` methods).
+* The idea remains the same for all imports, if an package requires some specific dependencies, it must be imported locally to keep dependencies optional.
 
 Full dependency diagram:
 
@@ -18,7 +19,7 @@ Full dependency diagram:
 ``ahriman.application`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.handler.Handler`` class.
+This package contains application (aka executable) related classes and everything for it. It also contains package called ``ahriman.application.handlers`` in which all available subcommands are described as separated classes derived from the base ``ahriman.application.handlers.handler.Handler`` class. Those classes are being loaded dynamically through the lookup of the ``ahriman.application.handlers`` package.
 
 ``ahriman.application.application.Application`` (god class) is used for any interaction from parsers with repository. It is divided into multiple traits by functions (package related and repository related) in the same package.
 
@@ -32,9 +33,9 @@ This package contains application (aka executable) related classes and everythin
 This package contains everything required for the most of application actions and it is separated into several packages:
 
 * ``ahriman.core.alpm`` package controls pacman related functions. It provides wrappers for ``pyalpm`` library and safe calls for repository tools (``repo-add`` and ``repo-remove``). Also this package contains ``ahriman.core.alpm.remote`` package which provides wrapper for remote sources (e.g. AUR RPC and official repositories RPC) and some other helpers.
-* ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be instantiated by ``load`` method.
+* ``ahriman.core.auth`` package provides classes for authorization methods used by web mostly. Base class is ``ahriman.core.auth.Auth`` which must be instantiated by ``load`` method. This package is only required by the ``ahriman.web`` package.
 * ``ahriman.core.build_tools`` is a package which provides wrapper for ``devtools`` commands.
-* ``ahriman.core.configuration`` contains extension for standard ``configparser`` library and some validation related classes.
+* ``ahriman.core.configuration`` contains extensions for standard ``configparser`` module and some validation related classes.
 * ``ahriman.core.database`` is everything for database, including data and schema migrations.
 * ``ahriman.core.distributed`` package with triggers and helpers for distributed build system.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
@@ -56,6 +57,7 @@ This package also provides some generic functions and classes which may be used 
 * ``ahriman.core.spawn.Spawn`` is a tool which can spawn another ``ahriman`` process. This feature is used by web application.
 * ``ahriman.core.tree`` is a dependency tree implementation.
 * ``ahriman.core.types`` are an additional global types for mypy checks.
+* ``ahriman.core.utils`` contains some useful functions which are not the part of any other class.
 
 ``ahriman.models`` package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,7 +71,7 @@ Web application. It is important that this package is isolated from any other to
 
 * ``ahriman.web.middlewares`` provides middlewares for request handlers.
 * ``ahriman.web.schemas`` provides schemas (actually copy paste from dataclasses) used by swagger documentation.
-* ``ahriman.web.views`` contains web views derived from aiohttp view class.
+* ``ahriman.web.views`` contains web views derived from aiohttp view class. Those classes are loaded dynamically through the filesystem lookup.
 * ``ahriman.web.apispec`` provides generators for swagger documentation.
 * ``ahriman.web.cors`` contains helpers for cross origin resource sharing middlewares.
 * ``ahriman.web.routes`` creates routes for web application.
@@ -80,7 +82,7 @@ Application run
 
 #. Parse command line arguments, find subcommand and related handler which is set by the parser.
 #. Call ``Handler.execute`` method.
-#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Web``, which should be able to spawn child process in daemon mode; it is impossible to do from daemonic processes).
+#. Define list of architectures to run. In case if there is more than one architecture specified run several subprocesses or continue in current process otherwise. Class attribute ``ALLOW_MULTI_ARCHITECTURE_RUN`` controls whether the application can be run in multiple processes or not - this feature is required for some handlers (e.g. ``Config``, which utilizes stdout to print messages).
 #. In each child process call lock functions.
 #. After success checks pass control to ``Handler.run`` method defined by specific handler class.
 #. Return result (success or failure) of each subprocess and exit from application.
@@ -175,28 +177,28 @@ Type conversions
 
 By default, it parses rows into python dictionary. In addition, the following pseudo-types are supported:
 
-* ``dict[str, Any]``, ``list[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` data type and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
+* ``dict[str, Any]`` and ``list[Any]`` - for storing JSON data structures in database (technically there is no restriction on types for dictionary keys and values, but it is recommended to use only string keys). The type is stored as ``json`` data type and ``json.loads`` and ``json.dumps`` methods are used in order to read and write from/to database respectively.
 
 Basic flows
 -----------
 
 By default package build operations are performed with ``PACKAGER`` which is specified in ``makepkg.conf``, however, it is possible to override this variable from command line; in this case service performs lookup in the following way:
 
-* If packager is not set, it reads environment variables (e.g. ``SUDO_USER`` and ``USER``), otherwise it uses value from command line.
+* If packager is not set, it reads environment variables (e.g. ``DOAS_USER``, ``SUDO_USER`` and ``USER``), otherwise it uses value from command line.
 * It checks users for the specified username and tries to extract packager variable from it.
-* If packager value has been found, it will be passed as ``PACKAGER`` system variable (additional sudo configuration might be required).
+* If packager value has been found, it will be passed as ``PACKAGER`` system variable (additional sudo configuration to pass environment variables might be required).
 
 Add new packages or rebuild existing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Idea is to add package to a build queue from which it will be handled automatically during the next update run. Different variants are supported:
+The idea is to add package to a build queue from which it will be handled automatically during the next update run. Different variants are supported:
 
-* If supplied argument is file, then application moves the file to the directory with built packages. Same rule applies for directory, but in this case it copies every package-like file from the specified directory.
+* If supplied argument is file, then application moves the file to the directory with the built packages. Same rule is applied for directory, but in this case it copies every package-like file from the specified directory.
 * If supplied argument is directory and there is ``PKGBUILD`` file there, it will be treated as local package. In this case it will queue this package to build and copy source files (``PKGBUILD`` and ``.SRCINFO``) to caches.
-* If supplied argument looks like URL (i.e. it has scheme - e.g. ``http://`` which is neither ``data`` nor ``file``), it tries to download the package from the specified remote source.
-* If supplied argument is not file then application tries to lookup for the specified name in AUR and clones it into the directory with manual updates. This scenario can also handle package dependencies which are missing in repositories.
+* If supplied argument looks like URL (i.e. it has scheme, which is neither ``data`` nor ``file``, e.g. ``http://``), it tries to download the package from the specified remote source.
+* If supplied argument is not file then application tries to lookup for the specified name in AUR and clones it into the temporary directory, from which it will be added into the build queue. This scenario can also handle package dependencies which are missing in repositories.
 
-This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR. Also official repositories calls are hidden behind explicit source definition.
+This logic can be overwritten by specifying the ``source`` parameter, which is partially useful if you would like to add package from AUR, but there is local directory cloned from AUR. Also the official repositories calls are hidden behind explicit source definition.
 
 Rebuild packages
 ^^^^^^^^^^^^^^^^
@@ -221,7 +223,7 @@ There are few ways for packages to be marked as out-of-date and hence requiring 
 Update packages
 ^^^^^^^^^^^^^^^
 
-This feature is divided into to the following stages: check AUR for updates and run rebuild for required packages. The package update flow is the following:
+This feature is divided into the following stages: check AUR for updates and run rebuild for required packages. The package update flow is the following:
 
 #. Process every built package first. Those packages are usually added manually.
 #. Run sync and report methods.
@@ -255,18 +257,17 @@ The upload process is performed via special API endpoint, which is disabled by d
 
 After success upload, the update process must be called as usual in order to copy built packages to the main repository tree.
 
-On the other side, the delegation uses upload feature, but in addition it also calls external services in order to trigger build process. The packages are separated to chunks based on the amount of the configured workers and their dependencies.
+On the other side, the delegation uses upload feature, but in addition it also calls external services in order to trigger build process. The packages are separated into the chunks based on the amount of the configured workers and their dependencies.
 
 pkgrel bump rules
 ^^^^^^^^^^^^^^^^^
 
-The application is able to automatically bump package release (``pkgrel``) during build process if there is duplicate version in repository. The version will be incremented as following:
+The application is able to automatically bump package release (``pkgrel`` variable) during the build process if there is duplicated version in the repository. The version will be incremented as following:
 
 #. Get version of the remote package.
 #. Get version of the local package if available.
-#. If local version is not set, proceed with remote one.
-#. If local version is set and epoch or package version (``pkgver``) are different, proceed with remote version.
-#. If local version is set and remote version is newer than local one, proceed with remote.
+#. If the local version is not set, proceed with the remote one.
+#. If the local version is set and the remote version is newer than local one, proceed with remote.
 #. Extract ``pkgrel`` value.
 #. If it has ``major.minor`` notation (e.g. ``1.1``), then increment last part by 1, e.g. ``1.1 -> 1.2``, ``1.0.1 -> 1.0.2``.
 #. If ``pkgrel`` is a number (e.g. ``1``), then append 1 to the end of the string, e.g. ``1 -> 1.1``.
@@ -274,9 +275,9 @@ The application is able to automatically bump package release (``pkgrel``) durin
 Implicit dependencies resolution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In addition to the depends/optional/make/check depends lists the server also handles implicit dependencies. After success build, the application traverse through the build tree and finds
+In addition to the depends/optional/make/check depends lists the server also handles implicit dependencies. After success build, the application traverse through the build tree and finds:
 
-* Libraries to which the binaries (ELF-files) are linked. To do so, the ``NEEDED`` section of the ELF-files are read.
+* Libraries to which the binaries (ELF-files) are linked. To do so, the ``NEEDED`` section of the ELF-files is read.
 * Directories which contains files of the package, but do not belong to this package. This case covers, for example, python and ruby submodules.
 
 Having the initial dependencies tree, the application is looking for packages which contains those (both files and directories) paths and creates the initial packages list. After that, the packages list is reduced in the following way:
@@ -286,6 +287,8 @@ Having the initial dependencies tree, the application is looking for packages wh
 * If there is a package which depends on the another package which provide the same entry, the package will be removed.
 * After that, if there is a package which *optionally* depends on the another package in the remaining list, the package will be removed.
 * And finally, if there is any path, which is the child of the entry, and it contains the same package, the package from the smaller entry will be removed.
+
+Those paths are also filtered by regular expressions set in the configuration.
 
 All those implicit dependencies are stored in the database and extracted on each check. In case if any of the repository packages doesn't contain any entry anymore (e.g. so version has been changed or modules directory has been changed), the dependent package will be marked as out-of-dated.
 
@@ -326,7 +329,7 @@ Some packages provide different behaviour depending on configuration settings. I
 Authorization
 ^^^^^^^^^^^^^
 
-The package provides several authorization methods: disabled, based on configuration and OAuth2. 
+The package provides several authorization methods: disabled, based on configuration, PAM and OAuth2.
 
 Disabled (default) authorization provider just allows everything for everyone and does not have any specific configuration (it uses some default configuration parameters though). It also provides generic interface for derived classes.
 
@@ -335,7 +338,7 @@ Mapping (aka configuration) provider uses hashed passwords with optional salt fr
 * ``check_credentials`` - user password validation (authentication).
 * ``verify_access`` - user permission validation (authorization).
 
-Passwords must be stored in database as ``hash(password + salt)``, where ``password`` is user defined password (taken from user input), ``salt`` is random string (any length) defined globally in configuration and ``hash`` is secure hash function. Thus, the following configuration
+Passwords must be stored in database as ``hash(password + salt)``, where ``password`` is user defined password (taken from user input), ``salt`` is random string (any length) defined globally in configuration and ``hash`` is a secure hash function. Thus, the following configuration
 
 .. code-block::
 
@@ -348,7 +351,7 @@ OAuth provider uses library definitions (``aioauth-client``) in order *authentic
 
 OAuth's implementation also allows authenticating users via username + password (in the same way as mapping does) though it is not recommended for end-users and password must be left blank. In particular this feature can be used by service reporting (aka robots).
 
-In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any further checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration.
+In addition, web service checks the source socket used. In case if it belongs to ``socket.AF_UNIX`` family, it will skip any further checks considering the request to be performed in safe environment (e.g. on the same physical machine). This feature, in particular is being used by the reporter instances in case if socket address is set in configuration. Note, however, that this behaviour can be disabled by configuration.
 
 In order to configure users there are special subcommands.
 
@@ -383,7 +386,7 @@ The application provides a house-made shell parser ``ahriman.core.alpm.pkgbuild_
 
 #. During the parser process, firstly, it extract next token from the source file (basically, the word) and tries to match it to the variable assignment. If so, then just processes accordingly.
 #. If it is not an assignment, the parser checks if the token was quoted.
-#. If it wasn't then the parser tries to match the array starts (two consecutive tokens like ``array=`` and ``(``) or it is function (``function``, ``()`` and ``{``).
+#. If it wasn't quoted then the parser tries to match the array starts (two consecutive tokens like ``array=`` and ``(``) or it is function (``function``, ``()`` and ``{``).
 #. The arrays are processed until the next closing bracket ``)``. After extraction, the parser tries to expand an array according to bash rules (``prefix{first,second}suffix`` constructions).
 #. The functions are just read until the closing bracket ``}`` and then reread whole text from the input string without a tokenization.
 
@@ -399,7 +402,6 @@ Additional features
 
 Some features require optional dependencies to be installed:
 
-* Version control executables (e.g. ``git``, ``svn``) for VCS packages.
 * ``gnupg`` application for package and repository sign feature.
 * ``rsync`` application for rsync based repository sync.
 * ``boto3`` python package for ``S3`` sync.
@@ -459,7 +461,7 @@ Service provides optional authorization which can be turned on in settings. In o
 
 If this feature is configured any request will be prohibited without authentication. In addition, configuration flag ``auth.allow_read_only`` can be used in order to allow read-only operations - reading index page and packages - without authorization.
 
-For authenticated users it uses encrypted session cookies to store tokens; encryption key is generated each time at the start of the application. It also stores expiration time of the session inside.
+For authenticated users it uses encrypted session cookies to store tokens; encryption key is read from configuration or generated at the start of the application if not set. It also stores expiration time of the session inside.
 
 External calls
 ^^^^^^^^^^^^^^
