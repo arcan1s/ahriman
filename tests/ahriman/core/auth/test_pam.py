@@ -77,7 +77,7 @@ async def test_known_username(pam: PAM, user: User, mocker: MockerFixture) -> No
 
 async def test_known_username_mapping(pam: PAM, user: User, mocker: MockerFixture) -> None:
     """
-    must fallback to username checking to database if no user found in system
+    must fall back to username checking to database if no user found in system
     """
     mocker.patch("ahriman.core.auth.pam.getpwnam", side_effect=KeyError)
     mapping_mock = mocker.patch("ahriman.core.auth.mapping.Mapping.known_username")

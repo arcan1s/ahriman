@@ -5,7 +5,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
 from unittest.mock import call as MockCall
-from urllib.parse import quote_plus as urlencode
+from urllib.parse import quote_plus as url_encode
 
 from ahriman.application.handlers.setup import Setup
 from ahriman.core.configuration import Configuration
@@ -148,7 +148,7 @@ def test_configuration_create_ahriman(args: argparse.Namespace, configuration: C
         MockCall("web", "port", str(args.web_port)),
         MockCall("status", "address", f"http://127.0.0.1:{str(args.web_port)}"),
         MockCall("web", "unix_socket", str(args.web_unix_socket)),
-        MockCall("status", "address", f"http+unix://{urlencode(str(args.web_unix_socket))}"),
+        MockCall("status", "address", f"http+unix://{url_encode(str(args.web_unix_socket))}"),
         MockCall("auth", "salt", pytest.helpers.anyvar(str, strict=True)),
     ])
     write_mock.assert_called_once_with(pytest.helpers.anyvar(int))

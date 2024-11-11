@@ -97,7 +97,7 @@ Otherwise, you would need to pass ``AHRIMAN_PORT`` and mount container network t
 
 Simple server with authentication can be found in `examples <https://github.com/arcan1s/ahriman/tree/master/recipes/web>`__ too.
 
-Mutli-repository web service
+Multi-repository web service
 """"""""""""""""""""""""""""
 
 Idea is pretty same as to just run web service. However, it is required to run setup commands for each repository, except for one which is specified by ``AHRIMAN_REPOSITORY`` and ``AHRIMAN_ARCHITECTURE`` variables.

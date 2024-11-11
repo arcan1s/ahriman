@@ -21,7 +21,7 @@ import argparse
 
 from pathlib import Path
 from pwd import getpwuid
-from urllib.parse import quote_plus as urlencode
+from urllib.parse import quote_plus as url_encode
 
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
@@ -174,7 +174,7 @@ class Setup(Handler):
         if args.web_unix_socket is not None:
             unix_socket = str(args.web_unix_socket)
             configuration.set_option("web", "unix_socket", unix_socket)
-            configuration.set_option("status", "address", f"http+unix://{urlencode(unix_socket)}")
+            configuration.set_option("status", "address", f"http+unix://{url_encode(unix_socket)}")
 
         if args.generate_salt:
             configuration.set_option("auth", "salt", User.generate_password(20))

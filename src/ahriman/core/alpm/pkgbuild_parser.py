@@ -146,7 +146,7 @@ class PkgbuildParser(shlex.shlex):
                     # reset state
                     buffer, prefix = [], None
 
-                # we have already prefix string, so we are in progress of expansion
+                # we have already got prefix string, so we are in progress of expansion
                 # we always operate the last element, so this matches ",", "next"
                 case (PkgbuildToken.Comma, _) if prefix is not None:
                     buffer.append(f"{prefix}{second}")
@@ -168,7 +168,7 @@ class PkgbuildParser(shlex.shlex):
     def _is_escaped(self) -> bool:
         """
         check if the last element was quoted. ``shlex.shlex`` parser doesn't provide information about was the token
-        quoted or not, thus there is no difference between "'#'" (diez in quotes) and "#" (diez without quotes). This
+        quoted or not, thus there is no difference between "'#'" (sharp in quotes) and "#" (sharp without quotes). This
         method simply rolls back to the last non-space character and check if it is a quotation mark
 
         Returns:

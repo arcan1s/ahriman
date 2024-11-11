@@ -44,7 +44,7 @@ The main functionality of the class is already described, but command is still n
 
        arguments = set_parser
 
-In addition, ``ahriman.application.handlers.handler.Handler.ALLOW_MULTI_ARCHITECTURE_RUN`` can be set to ``False`` in order to disable multiprocess run (e.g. in case if there are conflicting operations, like writting to stdout).
+In addition, ``ahriman.application.handlers.handler.Handler.ALLOW_MULTI_ARCHITECTURE_RUN`` can be set to ``False`` in order to disable multiprocess run (e.g. in case if there are conflicting operations, like writing to stdout).
 
 Save the file above as ``/usr/lib/python3.12/site-packages/ahriman/application/handlers/help_web.py`` (replace ``python3.12`` with actual python version) and you are set.
 

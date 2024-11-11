@@ -19,7 +19,7 @@
 #
 import contextlib
 
-from urllib.parse import quote_plus as urlencode
+from urllib.parse import quote_plus as url_encode
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncAhrimanClient
@@ -75,7 +75,7 @@ class WebClient(Client, SyncAhrimanClient):
         # legacy-style section
         if (unix_socket := configuration.get("web", "unix_socket", fallback=None)) is not None:
             # special pseudo-protocol which is used for unix sockets
-            return "web", f"http+unix://{urlencode(unix_socket)}"
+            return "web", f"http+unix://{url_encode(unix_socket)}"
         address = configuration.get("web", "address", fallback=None)
         if not address:
             # build address from host and port directly
@@ -94,7 +94,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url for web service for changes
         """
-        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/changes"
+        return f"{self.address}/api/v1/packages/{url_encode(package_base)}/changes"
 
     def _dependencies_url(self, package_base: str) -> str:
         """
@@ -106,7 +106,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url for web service for dependencies
         """
-        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/dependencies"
+        return f"{self.address}/api/v1/packages/{url_encode(package_base)}/dependencies"
 
     def _events_url(self) -> str:
         """
@@ -127,7 +127,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url for web service for logs
         """
-        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/logs"
+        return f"{self.address}/api/v1/packages/{url_encode(package_base)}/logs"
 
     def _package_url(self, package_base: str = "") -> str:
         """
@@ -139,7 +139,7 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url of web service for specific package base
         """
-        suffix = f"/{urlencode(package_base)}" if package_base else ""
+        suffix = f"/{url_encode(package_base)}" if package_base else ""
         return f"{self.address}/api/v1/packages{suffix}"
 
     def _patches_url(self, package_base: str, variable: str = "") -> str:
@@ -153,8 +153,8 @@ class WebClient(Client, SyncAhrimanClient):
         Returns:
             str: full url of web service for the package patch
         """
-        suffix = f"/{urlencode(variable)}" if variable else ""
-        return f"{self.address}/api/v1/packages/{urlencode(package_base)}/patches{suffix}"
+        suffix = f"/{url_encode(variable)}" if variable else ""
+        return f"{self.address}/api/v1/packages/{url_encode(package_base)}/patches{suffix}"
 
     def _status_url(self) -> str:
         """

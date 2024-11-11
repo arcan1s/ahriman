@@ -287,6 +287,7 @@ def local_client(database: SQLite, configuration: Configuration) -> Client:
 
     Args:
         database(SQLite): database fixture
+        configuration(Configuration): configuration fixture
 
     Returns:
         Client: local status client test instance

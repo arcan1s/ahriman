@@ -107,8 +107,8 @@ class Pkgbuild(Mapping[str, Any]):
 
     def __getitem__(self, item: str) -> Any:
         """
-        get the field of the PKGBUILD. This method tries to get exact key value if possible; if none found, it tries to
-        fetch function with the same name
+        get the field of the PKGBUILD. This method tries to get exact key value if possible; if none was found,
+        it tries to fetch function with the same name
 
         Args:
             item(str): key name

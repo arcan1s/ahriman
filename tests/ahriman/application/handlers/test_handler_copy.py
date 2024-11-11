@@ -53,7 +53,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, repository: Repository,
                     package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must run command and remove packages afterwards
+    must run command and remove packages afterward
     """
     args = _default_args(args)
     args.remove = True

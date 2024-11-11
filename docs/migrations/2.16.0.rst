@@ -3,7 +3,7 @@ To 2.16.0
 
 This release replaces ``passlib`` dependency with ``bcrypt``.
 
-The reason behind this change is that python developers have deprecated and scheduled for removal ``crypt`` module, which is used by ``passlib``. (By the way, they recommend to use ``passlib`` as a replacement.) Unfortunately, it appears that ``passlib`` is unmaintained (see `the issue <https://foss.heptapod.net/python-libs/passlib/-/issues/187>`__), so the only solution is to migrate to anoher library.
+The reason behind this change is that python developers have deprecated and scheduled for removal ``crypt`` module, which is used by ``passlib``. (By the way, they recommend to use ``passlib`` as a replacement.) Unfortunately, it appears that ``passlib`` is unmaintained (see `the issue <https://foss.heptapod.net/python-libs/passlib/-/issues/187>`__), so the only solution is to migrate to another library.
 
 Because passwords are stored as hashes, it is near to impossible to shadow change passwords in database, the manual intervention is required if:
 

@@ -5,7 +5,7 @@ from ahriman.models.scan_paths import ScanPaths
 
 def test_is_allowed() -> None:
     """
-    must check if path is subpath of one in allowed list
+    must check if path is sub-path of one in allowed list
     """
     assert ScanPaths(["usr"]).is_allowed(Path("usr"))
     assert ScanPaths(["usr"]).is_allowed(Path("usr") / "lib")

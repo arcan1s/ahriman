@@ -252,6 +252,6 @@ async def test_username_request(base: BaseView) -> None:
 
 async def test_username_request_exception(base: BaseView) -> None:
     """
-    must not fail in case if cannot read request
+    must not fail in case if it cannot read request
     """
     assert await base.username() is None

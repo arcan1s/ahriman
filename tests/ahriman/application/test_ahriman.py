@@ -392,7 +392,7 @@ def test_subparsers_package_status_update(parser: argparse.ArgumentParser) -> No
 
 def test_subparsers_package_status_update_option_status(parser: argparse.ArgumentParser) -> None:
     """
-    package-status-update command must convert status option to buildstatusenum instance
+    package-status-update command must convert status option to BuildStatusEnum instance
     """
     args = parser.parse_args(["-a", "x86_64", "-r", "repo", "package-status-update"])
     assert isinstance(args.status, BuildStatusEnum)

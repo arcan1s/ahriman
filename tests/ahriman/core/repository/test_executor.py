@@ -32,6 +32,7 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
+    changes_mock.assert_called_once_with(package_ahriman.base)
     depends_on_mock.assert_called_once_with()
     dependencies_mock.assert_called_once_with(package_ahriman.base, Dependencies())
     # must move files (once)

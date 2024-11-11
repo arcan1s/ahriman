@@ -136,7 +136,7 @@ def test_event_add_failed_http_error(web_client: WebClient, mocker: MockerFixtur
 
 def test_event_add_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
     """
-    must suppress any exception happened during events creaton and don't log
+    must suppress any exception happened during events creation and don't log
     """
     web_client.suppress_errors = True
     mocker.patch("requests.Session.request", side_effect=Exception())

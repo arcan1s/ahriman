@@ -191,7 +191,7 @@ def test_extract_packages_by_status(application: Application, mocker: MockerFixt
 
 def test_extract_packages_from_database(application: Application, mocker: MockerFixture) -> None:
     """
-    must extract packages from database from database
+    must extract packages from database
     """
     packages_mock = mocker.patch("ahriman.core.database.SQLite.packages_get")
     Rebuild.extract_packages(application, None, from_database=True)

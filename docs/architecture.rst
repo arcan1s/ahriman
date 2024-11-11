@@ -394,7 +394,7 @@ All extracted fields are packed as ``ahriman.models.pkgbuild_patch.PkgbuildPatch
 
 The PKGBUILD class also provides some additional functions on top of that:
 
-* Ability to extract fields defined inside ``package*()`` functions, which are in particular used for the multipackages.
+* Ability to extract fields defined inside ``package*()`` functions, which are in particular used for the multi-packages.
 * Shell substitution, which supports constructions ``$var`` (including ``${var}``), ``${var#(#)pattern}``, ``${var%(%)pattern}`` and ``${var/(/)pattern/replacement}`` (including ``#pattern`` and ``%pattern``).
 
 Additional features

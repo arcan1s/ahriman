@@ -58,8 +58,8 @@ class EventStatsPrinter(StringPrinter):
             mean = statistics.mean(self.events)
 
             if len(self.events) > 1:
-                stdev = statistics.stdev(self.events)
-                average = f"{mean:.3f} ± {stdev:.3f}"
+                st_dev = statistics.stdev(self.events)
+                average = f"{mean:.3f} ± {st_dev:.3f}"
             else:
                 average = f"{mean:.3f}"
 

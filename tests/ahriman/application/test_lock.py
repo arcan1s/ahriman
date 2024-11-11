@@ -115,7 +115,7 @@ def test_write_skip(lock: Lock) -> None:
 
 def test_write_locked(lock: Lock, mocker: MockerFixture) -> None:
     """
-    must raise DuplicateRunError if cannot lock file
+    must raise DuplicateRunError if it cannot lock file
     """
     mocker.patch("ahriman.application.lock.Lock.perform_lock", return_value=False)
     with pytest.raises(DuplicateRunError):
