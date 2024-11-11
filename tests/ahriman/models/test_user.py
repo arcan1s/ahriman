@@ -1,7 +1,27 @@
+import pytest
+
 from dataclasses import replace
 
 from ahriman.models.user import User
 from ahriman.models.user_access import UserAccess
+
+
+def test_algo() -> None:
+    """
+    must correctly define algorithm used
+    """
+    assert User(username="user", password=None, access=UserAccess.Read).algo is None
+    assert User(username="user", password="", access=UserAccess.Read).algo is None
+    assert User(
+        username="user",
+        password="$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0",
+        access=UserAccess.Read,
+    ).algo == "$6$"
+    assert User(
+        username="user",
+        password="$2b$12$VCWKazvYxH7B0eAalDGAbu/3y1dSWs79sv/2ujjX1TMaFdVUy80hy",
+        access=UserAccess.Read,
+    ).algo == "$2b$"
 
 
 def test_check_credentials_hash_password(user: User) -> None:
@@ -20,9 +40,21 @@ def test_check_credentials_empty_hash(user: User) -> None:
     must reject any authorization if the hash is invalid
     """
     current_password = user.password
-    assert not user.check_credentials(current_password, "salt")
     user = replace(user, password="")
     assert not user.check_credentials(current_password, "salt")
+
+
+def test_check_credentials_sha512() -> None:
+    """
+    must raise DeprecationWarning for sha512 hashed passwords
+    """
+    user = User(
+        username="user",
+        password="$6$rounds=656000$mWBiecMPrHAL1VgX$oU4Y5HH8HzlvMaxwkNEJjK13ozElyU1wAHBoO/WW5dAaE4YEfnB0X3FxbynKMl4FBdC3Ovap0jINz4LPkNADg0",
+        access=UserAccess.Read,
+    )
+    with pytest.raises(ValueError):
+        assert user.check_credentials("password", "salt")
 
 
 def test_hash_password_empty_hash(user: User) -> None:

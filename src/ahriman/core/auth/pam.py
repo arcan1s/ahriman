@@ -120,7 +120,7 @@ class PAM(Mapping):
             bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
         # this method is basically inverted, first we check overrides in database and then fallback to the PAM logic
-        if (user := self.get_user(username)) is not None:
+        if (user := await self.get_user(username)) is not None:
             return user.verify_access(required)
         # if username is in admin group, then we treat it as full access
         if username in self.group_members(self.full_access_group):

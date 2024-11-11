@@ -31,27 +31,27 @@ async def test_check_credentials_unknown(mapping: Mapping, user: User) -> None:
     assert not await mapping.check_credentials(user.username, user.password)
 
 
-def test_get_user(mapping: Mapping, user: User, mocker: MockerFixture) -> None:
+async def test_get_user(mapping: Mapping, user: User, mocker: MockerFixture) -> None:
     """
     must return user from storage by username
     """
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=user)
-    assert mapping.get_user(user.username) == user
+    assert await mapping.get_user(user.username) == user
 
 
-def test_get_user_normalized(mapping: Mapping, user: User, mocker: MockerFixture) -> None:
+async def test_get_user_normalized(mapping: Mapping, user: User, mocker: MockerFixture) -> None:
     """
     must return user from storage by username case-insensitive
     """
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=user)
-    assert mapping.get_user(user.username.upper()) == user
+    assert await mapping.get_user(user.username.upper()) == user
 
 
-def test_get_user_unknown(mapping: Mapping, user: User) -> None:
+async def test_get_user_unknown(mapping: Mapping, user: User) -> None:
     """
     must return None in case if no user found
     """
-    assert mapping.get_user(user.username) is None
+    assert await mapping.get_user(user.username) is None
 
 
 async def test_known_username(mapping: Mapping, user: User, mocker: MockerFixture) -> None:

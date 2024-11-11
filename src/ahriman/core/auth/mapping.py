@@ -59,10 +59,10 @@ class Mapping(Auth):
         """
         if password is None:
             return False  # invalid data supplied
-        user = self.get_user(username)
+        user = await self.get_user(username)
         return user is not None and user.check_credentials(password, self.salt)
 
-    def get_user(self, username: str) -> User | None:
+    async def get_user(self, username: str) -> User | None:
         """
         retrieve user from in-memory mapping
 
@@ -84,7 +84,7 @@ class Mapping(Auth):
         Returns:
             bool: ``True`` in case if user is known and can be authorized and ``False`` otherwise
         """
-        return username is not None and self.get_user(username) is not None
+        return username is not None and await self.get_user(username) is not None
 
     async def verify_access(self, username: str, required: UserAccess, context: str | None) -> bool:
         """
@@ -98,5 +98,5 @@ class Mapping(Auth):
         Returns:
             bool: ``True`` in case if user is allowed to do this request and ``False`` otherwise
         """
-        user = self.get_user(username)
+        user = await self.get_user(username)
         return user is not None and user.verify_access(required)

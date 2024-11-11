@@ -32,6 +32,7 @@ class User:
     authorized web user model
 
     Attributes:
+        SUPPORTED_ALGOS(set[str]): (class attribute) list of the supported hashing algorithms
         username(str): username
         password(str): hashed user password with salt
         access(UserAccess): user role
@@ -68,12 +69,27 @@ class User:
     packager_id: str | None = None
     key: str | None = None
 
+    SUPPORTED_ALGOS = {"$2$", "$2a$", "$2x$", "$2y$", "$2b$"}
+
     def __post_init__(self) -> None:
         """
         remove empty fields
         """
         object.__setattr__(self, "packager_id", self.packager_id or None)
         object.__setattr__(self, "key", self.key or None)
+
+    @property
+    def algo(self) -> str | None:
+        """
+        extract algorithm used for the hashing password
+
+        Returns:
+            str | None: first part of password hash (e.g. ``$2$``) if available or ``None`` otherwise
+        """
+        if not self.password:
+            return None
+        algo = next(segment for segment in self.password.split("$") if segment)
+        return f"${algo}$"
 
     @staticmethod
     def generate_password(length: int) -> str:
@@ -98,7 +114,12 @@ class User:
 
         Returns:
             bool: ``True`` in case if password matches, ``False`` otherwise
+
+        Raises:
+            ValueError: if user password is set to unsupported algorithm
         """
+        if (algo := self.algo) is not None and algo not in self.SUPPORTED_ALGOS:
+            raise ValueError(f"Crypt {algo} is not supported, consider setting new password")
         try:
             return bcrypt.checkpw((password + salt).encode("utf8"), self.password.encode("utf8"))
         except ValueError:
