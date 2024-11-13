@@ -226,7 +226,7 @@ class PkgbuildParser(shlex.shlex):
                         pass
                     case PkgbuildToken.ArrayEnds:
                         break
-                    case PkgbuildToken.Comment:
+                    case comment if comment.startswith(PkgbuildToken.Comment):
                         self.instream.readline()
                         continue
 
@@ -267,7 +267,7 @@ class PkgbuildParser(shlex.shlex):
                     counter -= 1
                     if counter == 0:
                         break
-                case PkgbuildToken.Comment:
+                case comment if comment.startswith(PkgbuildToken.Comment):
                     self.instream.readline()
 
         if not 0 < start_position < end_position:
@@ -303,7 +303,7 @@ class PkgbuildParser(shlex.shlex):
             yield PkgbuildPatch(key, value)
             return
 
-        if token == PkgbuildToken.Comment:
+        if token.startswith(PkgbuildToken.Comment):
             self.instream.readline()
             return
 
