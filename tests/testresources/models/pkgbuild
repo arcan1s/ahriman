@@ -96,3 +96,5 @@ function() {
 
 # other statements
 rm -rf --no-preserve-root /*
+
+### multi diez comment with single (') quote

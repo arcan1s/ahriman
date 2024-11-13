@@ -386,3 +386,66 @@ def test_parse_yay(resource_path_root: Path) -> None:
         "source": ["${pkgname}-${pkgver}.tar.gz::https://github.com/Jguer/yay/archive/v${pkgver}.tar.gz"],
         "sha256sums": ["2fb6121a6eb4c5e6afaf22212b2ed15022500a4bc34bb3dc0f9782c1d43c3962"],
     }
+
+
+def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (vim-youcompleteme-git)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_vim-youcompleteme-git_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "vim-youcompleteme-git",
+        "_gocode": "y",
+        "_typescript": "y",
+        "_tern": "n",
+        "_java": "y",
+        "_use_system_clang": "ON",
+        "_use_system_abseil": "OFF",
+        "_neovim": "$NEOVIM_YOUCOMPLETEME",
+        "pkgname": "vim-youcompleteme-git",
+        "pkgver": "r3216.0d855962",
+        "pkgrel": "1",
+        "pkgdesc": "A code-completion engine for Vim",
+        "arch": ["x86_64"],
+        "url": "https://ycm-core.github.io/YouCompleteMe/",
+        "license": ["GPL3"],
+        "groups": ["vim-plugins"],
+        "depends": [
+            "vim",
+            "python>=3.6",
+            "python-watchdog",
+            "python-bottle",
+            "clang"
+        ],
+        "makedepends": [
+            "git",
+            "cmake",
+            "pybind11",
+        ],
+        "optdepends": [
+            "gopls: Go semantic completion",
+            "nodejs-tern: JavaScript semantic completion",
+            "rust-analyzer: Rust semantic completion",
+            "typescript: Typescript semantic completion",
+            "python-jedi: Python semantic completion",
+            "python-numpydoc: Python semantic completion",
+            "python-regex: Better Unicode support",
+            "omnisharp-roslyn: C# semantic completion",
+            "java-environment>=11: Java semantic completion",
+            "jdtls: Java semantic completion",
+            "abseil-cpp: if setting _use_system_abseil ON",
+        ],
+        "source": [
+            "git+https://github.com/ycm-core/YouCompleteMe.git",
+            "git+https://github.com/ycm-core/ycmd.git",
+            "clangd-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/clangd-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
+            "libclang-15.0.1.tar.bz2::https://github.com/ycm-core/llvm/releases/download/15.0.1/libclang-15.0.1-x86_64-unknown-linux-gnu.tar.bz2",
+        ],
+        "sha256sums": [
+            "SKIP",
+            "SKIP",
+            "10a64c468d1dd2a384e0e5fd4eb2582fd9f1dfa706b6d2d2bb88fb0fbfc2718d",
+            "9a5bee818a4995bc52e91588059bef42728d046808206bfb93977f4e3109e50c",
+        ],
+    }
