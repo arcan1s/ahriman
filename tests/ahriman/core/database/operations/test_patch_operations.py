@@ -15,6 +15,22 @@ def test_patches_get_insert(database: SQLite, package_ahriman: Package, package_
     ]
 
 
+def test_patches_get_insert_array(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert array patch to database
+    """
+    database.patches_insert(package_ahriman.base, [PkgbuildPatch("array", ["array", "value"])])
+    assert database.patches_get(package_ahriman.base) == [PkgbuildPatch("array", ["array", "value"])]
+
+
+def test_patches_get_insert_function(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert function patch to database
+    """
+    database.patches_insert(package_ahriman.base, [PkgbuildPatch("function()", "{ function body' }")])
+    assert database.patches_get(package_ahriman.base) == [PkgbuildPatch("function()", "{ function body' }")]
+
+
 def test_patches_list(database: SQLite, package_ahriman: Package, package_python_schedule: Package) -> None:
     """
     must list all patches

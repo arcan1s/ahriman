@@ -1,3 +1,4 @@
+import json
 import pytest
 import shlex
 
@@ -63,9 +64,11 @@ def test_parse() -> None:
     """
     must parse string correctly
     """
-    assert PkgbuildPatch.parse("VALUE") == "VALUE"
-    assert PkgbuildPatch.parse("(ARRAY VALUE)") == ["ARRAY", "VALUE"]
-    assert PkgbuildPatch.parse("""("QU'OUTED" ARRAY VALUE)""") == ["QU'OUTED", "ARRAY", "VALUE"]
+    assert PkgbuildPatch.parse("key", "VALUE").value == "VALUE"
+    assert PkgbuildPatch.parse("key", "(ARRAY VALUE)").value == ["ARRAY", "VALUE"]
+    assert PkgbuildPatch.parse("key", """("QU'OUTED" ARRAY VALUE)""").value == ["QU'OUTED", "ARRAY", "VALUE"]
+    assert PkgbuildPatch.parse("key()", """{ function with " quotes }""").value == """{ function with " quotes }"""
+    assert PkgbuildPatch.parse("key", json.dumps(["array", "value"])).value == ["array", "value"]
 
 
 def test_unquote() -> None:

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import json
 import shlex
 
 from dataclasses import dataclass, fields
@@ -79,11 +80,11 @@ class PkgbuildPatch:
             variable(str): variable in bash form, i.e. KEY=VALUE
 
         Returns:
-            Self: package properties
+            Self: patch object
         """
         key, *value_parts = variable.split("=", maxsplit=1)
         raw_value = next(iter(value_parts), "")  # extract raw value
-        return cls(key, cls.parse(raw_value))
+        return cls.parse(key, raw_value)
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:
@@ -100,21 +101,36 @@ class PkgbuildPatch:
         known_fields = [pair.name for pair in fields(cls)]
         return cls(**filter_json(dump, known_fields))
 
-    @staticmethod
-    def parse(source: str) -> str | list[str]:
+    @classmethod
+    def parse(cls, key: str | None, source: str) -> Self:
         """
         parse string value to the PKGBUILD patch value. This method simply takes string, tries to identify it as array
-        or just string and return the respective value. Functions should be processed correctly, however, not guaranteed
+        or just string and return the respective value. Functions are returned as is. Shell arrays and single values
+        are returned without quotes
 
         Args:
-            source(str): source string to parse
+            key(str | None): variable key
+            source(str): source value string to parse
 
         Returns:
-            str | list[str]: parsed value either string or list of strings
+            Self: parsed patch object
         """
-        if source.startswith("(") and source.endswith(")"):
-            return shlex.split(source[1:-1])  # arrays for poor
-        return PkgbuildPatch.unquote(source)
+        def value() -> str | list[str]:
+            match source:
+                case function if key is not None and key.endswith("()"):
+                    # the key looks like a function, no further processing should be applied here
+                    return function
+                case shell_array if shell_array.startswith("(") and shell_array.endswith(")"):
+                    # the source value looks like shell array, remove brackets and parse with shlex
+                    return shlex.split(shell_array[1:-1])
+                case json_array if json_array.startswith("[") and json_array.endswith("]"):
+                    # json (aka python) array, parse with json parser instead
+                    parsed: list[str] = json.loads(json_array)
+                    return parsed
+                case variable:
+                    return cls.unquote(variable)
+
+        return cls(key, value())
 
     @staticmethod
     def unquote(source: str) -> str:

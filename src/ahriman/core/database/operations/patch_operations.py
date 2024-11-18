@@ -83,7 +83,7 @@ class PatchOperations(Operations):
         """
         def run(connection: Connection) -> list[tuple[str, PkgbuildPatch]]:
             return [
-                (row["package_base"], PkgbuildPatch(row["variable"], row["patch"]))
+                (row["package_base"], PkgbuildPatch.parse(row["variable"], row["patch"]))
                 for row in connection.execute(
                     """select * from patches where :package_base is null or package_base = :package_base""",
                     {"package_base": package_base})
