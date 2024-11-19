@@ -34,14 +34,6 @@ def test_is_plain_diff() -> None:
     assert PkgbuildPatch(None, "value").is_plain_diff
 
 
-def test_quote() -> None:
-    """
-    must quote strings if unsafe flag is not set
-    """
-    assert PkgbuildPatch.quote("value") == """value"""
-    assert PkgbuildPatch.quote("va'lue") == """'va'"'"'lue'"""
-
-
 def test_from_env() -> None:
     """
     must construct patch from environment variable
@@ -69,6 +61,16 @@ def test_parse() -> None:
     assert PkgbuildPatch.parse("key", """("QU'OUTED" ARRAY VALUE)""").value == ["QU'OUTED", "ARRAY", "VALUE"]
     assert PkgbuildPatch.parse("key()", """{ function with " quotes }""").value == """{ function with " quotes }"""
     assert PkgbuildPatch.parse("key", json.dumps(["array", "value"])).value == ["array", "value"]
+
+
+def test_quote() -> None:
+    """
+    must quote strings if unsafe flag is not set
+    """
+    assert PkgbuildPatch.quote("value") == """value"""
+    assert PkgbuildPatch.quote("va'lue") == """'va'"'"'lue'"""
+    assert PkgbuildPatch.quote("https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$pkgver.tar.gz") == \
+        """\"https://github.com/arcan1s/ahriman/releases/download/$pkgver/$pkgbase-$pkgver.tar.gz\""""
 
 
 def test_unquote() -> None:
