@@ -100,11 +100,11 @@ class PkgbuildPatch:
         return cls(**filter_json(dump, known_fields))
 
     @classmethod
-    def parse(cls, key: str | None, source: str) -> Self:
+    def parse(cls, key: str | None, source: str | list[str]) -> Self:
         """
         parse string value to the PKGBUILD patch value. This method simply takes string, tries to identify it as array
         or just string and return the respective value. Functions are returned as is. Shell arrays and single values
-        are returned without quotes
+        are returned without quotes. If source is ``list``, then value is returned as is
 
         Args:
             key(str | None): variable key
@@ -118,6 +118,9 @@ class PkgbuildPatch:
                 case function if key is not None and key.endswith("()"):
                     # the key looks like a function, no further processing should be applied here
                     return function
+                case list():
+                    # do not try to perform operations on the list, just return as is
+                    return source
                 case shell_array if shell_array.startswith("(") and shell_array.endswith(")"):
                     # the source value looks like shell array, remove brackets and parse with shlex
                     return shlex.split(shell_array[1:-1])

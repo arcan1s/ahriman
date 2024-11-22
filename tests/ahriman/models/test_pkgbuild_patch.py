@@ -61,6 +61,7 @@ def test_parse() -> None:
     assert PkgbuildPatch.parse("key", """("QU'OUTED" ARRAY VALUE)""").value == ["QU'OUTED", "ARRAY", "VALUE"]
     assert PkgbuildPatch.parse("key()", """{ function with " quotes }""").value == """{ function with " quotes }"""
     assert PkgbuildPatch.parse("key", json.dumps(["array", "value"])).value == ["array", "value"]
+    assert PkgbuildPatch.parse("key", ["array", "value"]).value == ["array", "value"]
 
 
 def test_quote() -> None:

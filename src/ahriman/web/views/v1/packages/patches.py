@@ -101,6 +101,6 @@ class PatchesView(StatusViewGuard, BaseView):
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().package_patches_update(package_base, PkgbuildPatch(key, value))
+        self.service().package_patches_update(package_base, PkgbuildPatch.parse(key, value))
 
         raise HTTPNoContent

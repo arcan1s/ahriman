@@ -68,7 +68,7 @@ class AddView(BaseView):
         try:
             data = await self.request.json()
             packages = self.get_non_empty(lambda key: [package for package in data[key] if package], "packages")
-            patches = [PkgbuildPatch(patch["key"], patch.get("value", "")) for patch in data.get("patches", [])]
+            patches = [PkgbuildPatch.parse(patch["key"], patch.get("value", "")) for patch in data.get("patches", [])]
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 

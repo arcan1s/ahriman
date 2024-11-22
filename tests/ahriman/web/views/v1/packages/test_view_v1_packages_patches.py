@@ -82,6 +82,25 @@ async def test_post_full_diff(client: TestClient, package_ahriman: Package) -> N
     assert patches == [payload]
 
 
+async def test_post_array(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must create patch from list variable
+    """
+    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    request_schema = pytest.helpers.schema_request(PatchesView.post)
+
+    payload = {"key": "k", "value": "(array value)"}
+    assert not request_schema.validate(payload)
+    response = await client.post(f"/api/v1/packages/{package_ahriman.base}/patches", json=payload)
+    assert response.status == 204
+
+    response = await client.get(f"/api/v1/packages/{package_ahriman.base}/patches")
+    patches = await response.json()
+    parsed = [PkgbuildPatch(patch["key"], patch["value"]) for patch in patches]
+    assert parsed == [PkgbuildPatch("k", ["array", "value"])]
+
+
 async def test_post_exception(client: TestClient, package_ahriman: Package) -> None:
     """
     must raise exception on invalid payload

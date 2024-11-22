@@ -163,7 +163,7 @@
         const variableValueInput = document.createElement("input");
         variableValueInput.classList.add("form-control");
         variableValueInput.readOnly = true;
-        variableValueInput.value = variable.value;
+        variableValueInput.value = JSON.stringify(variable.value);
 
         const variableButtonRemove = document.createElement("button");
         variableButtonRemove.type = "button";
