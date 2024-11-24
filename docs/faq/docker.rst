@@ -16,7 +16,7 @@ The default action (in case if no arguments provided) is ``repo-update``. Basica
 
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest
 
-``--privileged`` flag is required to make mount possible inside container. In order to make data available outside of container, you would need to mount local (parent) directory inside container by using ``-v /path/to/local/repo:/var/lib/ahriman`` argument, where ``/path/to/local/repo`` is a path to repository on local machine. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
+In order to make data available outside of container, you would need to mount local (parent) directory inside container by using ``-v /path/to/local/repo:/var/lib/ahriman`` argument, where ``/path/to/local/repo`` is a path to repository on local machine. In addition, you can pass own configuration overrides by using the same ``-v`` flag, e.g.:
 
 .. code-block:: shell
 
@@ -29,6 +29,28 @@ The action can be specified during run, e.g.:
    docker run --privileged -v /path/to/local/repo:/var/lib/ahriman arcan1s/ahriman:latest package-add ahriman --now
 
 For more details please refer to the docker FAQ.
+
+Privileged and non-privileged container
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Examples here suggest using ``--privileged`` flag which is required for the devtools and is involved in two types of operations: tmpfs mount and cgroup manipulation. Whereas it is the easiest way to operate, it might be not really secure. The other way to make devtools working is to grant required capabilities, which can be achieved by using flags:
+
+* ``--cap-add=SYS_ADMIN``, which grants permissions to operate with tmpfs for ``systemd-nspawn``.
+* ``-v /sys/fs/cgroup:/sys/fs/cgroup`` which allows access to cgroup manipulation.
+
+Thus, there are two possible ways to run the container:
+
+.. code-block:: shell
+
+   docker run --privileged arcan1s/ahriman:latest
+
+and
+
+.. code-block:: shell
+
+   docker run --cap-add=SYS_ADMIN -v /sys/fs/cgroup:/sys/fs/cgroup arcan1s/ahriman:latest
+
+but for the simplicity this FAQ will always use ``--privileged`` flag.
 
 Environment variables
 ^^^^^^^^^^^^^^^^^^^^^
