@@ -136,6 +136,7 @@ VOLUME ["/var/lib/ahriman"]
 COPY "docker/systemd-nspawn.sh" "/usr/local/bin/systemd-nspawn"
 ## entrypoint setup
 COPY "docker/entrypoint.sh" "/usr/local/bin/entrypoint"
+COPY "docker/entrypoint-web.sh" "/usr/local/bin/entrypoint-web"
 ENTRYPOINT ["entrypoint"]
 # default command
 CMD ["repo-update", "--refresh"]

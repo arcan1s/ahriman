@@ -1,0 +1,136 @@
+name: Regress
+
+on: workflow_dispatch
+
+jobs:
+  run-regress-tests:
+
+    runs-on: ubuntu-latest
+
+    services:
+      ahriman:
+        image: arcan1s/ahriman:edge
+        env:
+          AHRIMAN_PORT: 8080
+          AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman-web.sock
+        options: --privileged --entrypoint entrypoint-web
+        ports:
+          - 8080
+        volumes:
+          - repo:/var/lib/ahriman
+
+    container:
+      image: arcan1s/ahriman:edge
+      env:
+        AHRIMAN_DEBUG: y
+        AHRIMAN_OUTPUT: console
+        AHRIMAN_PORT: 8080
+        AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman-web.sock
+      options: --privileged
+      volumes:
+        - repo:/var/lib/ahriman
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: pacman -Sy
+
+      - name: Init repository
+        run: entrypoint help
+
+      - name: Print configuration
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            service-config
+
+      - name: Validate configuration
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            service-config-validate
+
+      - name: Create a user
+        run: |
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            user-add \
+              --packager "github actions <actions@github.com>" \
+              --password ahriman \
+              --role full \
+              ahriman
+
+      - name: Fetch users
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            user-list \
+              --exit-code
+          
+      - name: Add package
+        run: |
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            package-add \
+              --exit-code \
+              --now \
+              --refresh \
+              ahriman
+
+      - name: Update status of the package
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            package-status-update \
+              --status failed \
+              ahriman
+
+      - name: Request status of the package
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            package-status \
+              --exit-code \
+              --info \
+              --status failed \
+              ahriman
+          
+      - name: Update packages
+        run: |
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            repo-update \
+              --exit-code \
+          || true
+
+      - name: Add patch
+        run: |
+          echo '${pkgver%%.*}' | \
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            patch-add \
+              ahriman \
+              pkgrel
+          
+      - name: Retrieve patches
+        run: |
+          ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            patch-list \
+              --exit-code \
+              ahriman
+
+      - name: Rebuild packages
+        run: |
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            repo-rebuild \
+              --depends-on python \
+              --exit-code
+          
+      - name: Remove package
+        run: |
+          sudo -u ahriman ahriman \
+            --log-handler "$AHRIMAN_OUTPUT" \
+            package-remove \
+              ahriman
