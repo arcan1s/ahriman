@@ -57,6 +57,9 @@ ahriman "${AHRIMAN_DEFAULT_ARGS[@]}" service-setup "${AHRIMAN_SETUP_ARGS[@]}"
 # create machine-id which is required by build tools
 systemd-machine-id-setup &> /dev/null
 
+# special workaround to emulate /bin/bash entrypoint if first argument starts with /
+[[ "$1" =~ ^/.* ]] && exec "$@"
+
 # if AHRIMAN_FORCE_ROOT is set or command is unsafe we can run without sudo
 # otherwise we prepend executable by sudo command
 if [ -n "$AHRIMAN_FORCE_ROOT" ]; then

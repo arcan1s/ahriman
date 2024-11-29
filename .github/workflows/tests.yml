@@ -17,9 +17,9 @@ jobs:
 
     container:
       image: archlinux:base
+      options: -w /build
       volumes:
         - ${{ github.workspace }}:/build
-      options: -w /build
 
     steps:
       - uses: actions/checkout@v3

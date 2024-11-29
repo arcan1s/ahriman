@@ -15,9 +15,9 @@ jobs:
 
     container:
       image: archlinux:base
+      options: --privileged -w /build
       volumes:
         - ${{ github.workspace }}:/build
-      options: --privileged -w /build
 
     steps:
       - uses: actions/checkout@v3
