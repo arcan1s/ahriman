@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2024\-09\-26" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2024\-12\-01" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
 .B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {aur-search,search,help-commands-unsafe,help,help-updates,help-version,version,package-add,add,package-update,package-changes,package-changes-remove,package-remove,remove,package-status,status,package-status-remove,package-status-update,status-update,patch-add,patch-list,patch-remove,patch-set-add,repo-backup,repo-check,check,repo-create-keyring,repo-create-mirrorlist,repo-daemon,daemon,repo-rebuild,rebuild,repo-remove-unknown,remove-unknown,repo-report,report,repo-restore,repo-sign,sign,repo-statistics,repo-status-update,repo-sync,sync,repo-tree,repo-triggers,repo-update,update,service-clean,clean,repo-clean,service-config,config,repo-config,service-config-validate,config-validate,repo-config-validate,service-key-import,key-import,service-repositories,service-run,run,service-setup,init,repo-init,repo-setup,setup,service-shell,shell,service-tree-migrate,user-add,user-list,user-remove,web} ...
+[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {add,aur-search,check,clean,config,config-validate,copy,daemon,help,help-commands-unsafe,help-updates,help-version,init,key-import,package-add,package-changes,package-changes-remove,package-copy,package-remove,package-status,package-status-remove,package-status-update,package-update,patch-add,patch-list,patch-remove,patch-set-add,rebuild,remove,remove-unknown,repo-backup,repo-check,repo-clean,repo-config,repo-config-validate,repo-create-keyring,repo-create-mirrorlist,repo-daemon,repo-init,repo-rebuild,repo-remove-unknown,repo-report,repo-restore,repo-setup,repo-sign,repo-statistics,repo-status-update,repo-sync,repo-tree,repo-triggers,repo-update,report,run,search,service-clean,service-config,service-config-validate,service-key-import,service-repositories,service-run,service-setup,service-shell,service-tree-migrate,setup,shell,sign,status,status-update,sync,update,user-add,user-list,user-remove,version,web} ...
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -59,11 +59,11 @@ COMMAND
 \fBahriman\fR \fI\,aur\-search\/\fR
 search for package
 .TP
-\fBahriman\fR \fI\,help\-commands\-unsafe\/\fR
-list unsafe commands
-.TP
 \fBahriman\fR \fI\,help\/\fR
 show help message
+.TP
+\fBahriman\fR \fI\,help\-commands\-unsafe\/\fR
+list unsafe commands
 .TP
 \fBahriman\fR \fI\,help\-updates\/\fR
 check for service updates
@@ -79,6 +79,9 @@ get package changes
 .TP
 \fBahriman\fR \fI\,package\-changes\-remove\/\fR
 remove package changes
+.TP
+\fBahriman\fR \fI\,package\-copy\/\fR
+copy package from another repository
 .TP
 \fBahriman\fR \fI\,package\-remove\/\fR
 remove package
@@ -216,6 +219,15 @@ show additional package information
 sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted
 by name
 
+.SH COMMAND \fI\,'ahriman help'\/\fR
+usage: ahriman help [\-h] [subcommand]
+
+show help message for application or command and exit
+
+.TP
+\fBsubcommand\fR
+show help message for specific command
+
 .SH COMMAND \fI\,'ahriman help\-commands\-unsafe'\/\fR
 usage: ahriman help\-commands\-unsafe [\-h] [subcommand ...]
 
@@ -225,15 +237,6 @@ list unsafe commands as defined in default args
 \fBsubcommand\fR
 instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1
 otherwise
-
-.SH COMMAND \fI\,'ahriman help'\/\fR
-usage: ahriman help [\-h] [subcommand]
-
-show help message for application or command and exit
-
-.TP
-\fBsubcommand\fR
-show help message for specific command
 
 .SH COMMAND \fI\,'ahriman help\-updates'\/\fR
 usage: ahriman help\-updates [\-h] [\-e]
@@ -321,6 +324,28 @@ remove the package changes stored remotely
 .TP
 \fBpackage\fR
 package base
+
+.SH COMMAND \fI\,'ahriman package\-copy'\/\fR
+usage: ahriman package\-copy [\-h] [\-e] [\-\-remove] source package [package ...]
+
+copy package and its metadata from another repository
+
+.TP
+\fBsource\fR
+source repository name
+
+.TP
+\fBpackage\fR
+package base
+
+.SH OPTIONS \fI\,'ahriman package\-copy'\/\fR
+.TP
+\fB\-e\fR, \fB\-\-exit\-code\fR
+return non\-zero exit status if result is empty
+
+.TP
+\fB\-\-remove\fR
+remove package from the source repository after
 
 .SH COMMAND \fI\,'ahriman package\-remove'\/\fR
 usage: ahriman package\-remove [\-h] package [package ...]
