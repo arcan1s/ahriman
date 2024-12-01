@@ -54,7 +54,7 @@ class StatusUpdate(Handler):
             case Action.Update if args.package:
                 # update packages statuses
                 for package in args.package:
-                    client.package_update(package, args.status)
+                    client.package_status_update(package, args.status)
             case Action.Update:
                 # update service status
                 client.status_update(args.status)

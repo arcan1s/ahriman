@@ -49,7 +49,7 @@ def test_run_packages(args: argparse.Namespace, configuration: Configuration, re
     args = _default_args(args)
     args.package = ["package"]
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    update_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_update")
+    update_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
 
     _, repository_id = configuration.check_loaded()
     StatusUpdate.run(args, repository_id, configuration, report=False)
