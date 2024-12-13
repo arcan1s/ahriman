@@ -18,12 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import argparse
-import code
 import sys
 
 from pathlib import Path
 
 from ahriman.application.handlers.handler import Handler, SubParserAction
+from ahriman.application.interactive_shell import InteractiveShell
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import StringPrinter
 from ahriman.models.repository_id import RepositoryId
@@ -58,11 +58,13 @@ class Shell(Handler):
             "configuration": configuration,
             "repository_id": repository_id,
         }
+        console = InteractiveShell(locals=local_variables)
 
-        if args.code is None:
-            code.interact(local=local_variables)
-        else:
-            code.InteractiveConsole(locals=local_variables).runcode(args.code)
+        match args.code:
+            case None:
+                console.interact()
+            case snippet:
+                console.runcode(snippet)
 
     @staticmethod
     def _set_service_shell_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -79,6 +81,7 @@ class Shell(Handler):
                                  description="drop into python shell")
         parser.add_argument("code", help="instead of dropping into shell, just execute the specified code", nargs="?")
         parser.add_argument("-v", "--verbose", help=argparse.SUPPRESS, action="store_true")
+        parser.add_argument("-o", "--output", help="output commands and result to the file", type=Path)
         parser.set_defaults(lock=None, report=False)
         return parser
 

@@ -30,6 +30,7 @@ package_ahriman-core() {
     pkgname='ahriman-core'
     optdepends=('ahriman-triggers: additional extensions for the application'
                 'ahriman-web: web server'
+                'ipython: an enhanced shell interpreter'
                 'python-boto3: sync to s3'
                 'python-cerberus: configuration validator'
                 'python-matplotlib: usage statistics chart'

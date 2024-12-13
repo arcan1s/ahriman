@@ -60,6 +60,9 @@ pacman = [
 s3 = [
     "boto3",
 ]
+shell = [
+    "IPython"
+]
 stats = [
     "matplotlib",
 ]

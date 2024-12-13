@@ -30,11 +30,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    application_mock = mocker.patch("code.interact")
+    application_mock = mocker.patch("ahriman.application.interactive_shell.InteractiveShell.interact")
 
     _, repository_id = configuration.check_loaded()
     Shell.run(args, repository_id, configuration, report=False)
-    application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
+    application_mock.assert_called_once_with()
 
 
 def test_run_eval(args: argparse.Namespace, configuration: Configuration, repository: Repository,
@@ -45,7 +45,7 @@ def test_run_eval(args: argparse.Namespace, configuration: Configuration, reposi
     args = _default_args(args)
     args.code = """print("hello world")"""
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
-    application_mock = mocker.patch("code.InteractiveConsole.runcode")
+    application_mock = mocker.patch("ahriman.application.interactive_shell.InteractiveShell.runcode")
 
     _, repository_id = configuration.check_loaded()
     Shell.run(args, repository_id, configuration, report=False)
@@ -62,11 +62,11 @@ def test_run_verbose(args: argparse.Namespace, configuration: Configuration, rep
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     read_mock = mocker.patch("pathlib.Path.read_text", return_value="")
     print_mock = mocker.patch("ahriman.core.formatters.Printer.print")
-    application_mock = mocker.patch("code.interact")
+    application_mock = mocker.patch("ahriman.application.interactive_shell.InteractiveShell.interact")
 
     _, repository_id = configuration.check_loaded()
     Shell.run(args, repository_id, configuration, report=False)
-    application_mock.assert_called_once_with(local=pytest.helpers.anyvar(int))
+    application_mock.assert_called_once_with()
     read_mock.assert_called_once_with(encoding="utf8")
     print_mock.assert_called_once_with(verbose=False, log_fn=pytest.helpers.anyvar(int), separator=": ")
 
