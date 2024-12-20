@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 from collections.abc import Callable
 
 from ahriman.models.user_access import UserAccess
 from ahriman.models.worker import Worker
-from ahriman.web.schemas import AuthSchema, ErrorSchema, WorkerSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import WorkerSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -41,19 +40,12 @@ class WorkersView(BaseView):
     DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/distributed"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Distributed"],
         summary="Unregister all workers",
         description="Unregister and remove all known workers from the service",
-        responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [DELETE_PERMISSION]}],
+        permission=DELETE_PERMISSION,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def delete(self) -> None:
         """
         unregister worker
@@ -65,19 +57,13 @@ class WorkersView(BaseView):
 
         raise HTTPNoContent
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Distributed"],
         summary="Get workers",
         description="Retrieve registered workers",
-        responses={
-            200: {"description": "Success response", "schema": WorkerSchema(many=True)},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        schema=WorkerSchema(many=True),
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def get(self) -> Response:
         """
         get workers list
@@ -92,21 +78,14 @@ class WorkersView(BaseView):
 
         return json_response(response)
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Distributed"],
         summary="Register worker",
         description="Register or update remote worker",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        body_schema=WorkerSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.json_schema(WorkerSchema)
     async def post(self) -> None:
         """
         register remote worker

@@ -175,11 +175,10 @@ Again, the most checks can be performed by `tox` command, though some additional
 * Web API methods must be documented by using `aiohttp_apispec` library. The schema testing mostly should be implemented in related view class tests. Recommended example for documentation (excluding comments):
 
     ```python
-    import aiohttp_apispec
-
     from marshmallow import Schema, fields  
-
-    from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PaginationSchema
+    
+    from ahriman.web.apispec.decorators import apidocs
+    from ahriman.web.schemas import PackageNameSchema, PaginationSchema
     from ahriman.web.views.base import BaseView
 
 
@@ -198,25 +197,17 @@ Again, the most checks can be performed by `tox` command, though some additional
         POST_PERMISSION = ...
         ROUTES = ...
 
-        @aiohttp_apispec.docs(
+        @apidocs(
             tags=["Tag"],
             summary="Do foo",
             description="Extended description of the method which does foo",
-            responses={
-                200: {"description": "Success response", "schema": ResponseSchema},
-                204: {"description": "Success response"},  # example without json schema response
-                400: {"description": "Bad data is supplied", "schema": ErrorSchema},  # exception raised by this method
-                401: {"description": "Authorization required", "schema": ErrorSchema},  # should be always presented
-                403: {"description": "Access is forbidden", "schema": ErrorSchema},  # should be always presented
-                404: {"description": "Repository is unknown", "schema": ErrorSchema},  # include if BaseView.service() method is called
-                500: {"description": "Internal server error", "schema": ErrorSchema},  # should be always presented
-            },
-            security=[{"token": [POST_PERMISSION]}],
+            error_400_enabled=True,  # exception raised by this method
+            error_404_description="Repository is unknown",
+            schema=ResponseSchema,  # leave empty if no responses here
+            match_schema=PackageNameSchema,
+            query_schema=PaginationSchema,
+            body_schema=RequestSchema(many=True),
         )
-        @aiohttp_apispec.cookies_schema(AuthSchema)  # should be always presented
-        @aiohttp_apispec.match_info_schema(PackageNameSchema)
-        @aiohttp_apispec.querystring_schema(PaginationSchema)
-        @aiohttp_apispec.json_schema(RequestSchema(many=True))
         async def post(self) -> None: ...
     ```
 

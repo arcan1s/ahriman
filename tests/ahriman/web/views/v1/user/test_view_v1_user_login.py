@@ -81,7 +81,7 @@ async def test_get(client_with_oauth_auth: TestClient, mocker: MockerFixture) ->
     oauth.known_username.return_value = True
     oauth.enabled = False  # lol
     oauth.max_age = 60
-    remember_mock = mocker.patch("aiohttp_security.remember")
+    remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
     request_schema = pytest.helpers.schema_request(LoginView.get, location="querystring")
 
     payload = {"code": "code"}
@@ -102,7 +102,7 @@ async def test_get_unauthorized(client_with_oauth_auth: TestClient, mocker: Mock
     oauth = client_with_oauth_auth.app[AuthKey]
     oauth.known_username.return_value = False
     oauth.max_age = 60
-    remember_mock = mocker.patch("aiohttp_security.remember")
+    remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
     response_schema = pytest.helpers.schema_response(LoginView.post, code=401)
 
     response = await client_with_oauth_auth.get(
@@ -118,7 +118,7 @@ async def test_post(client_with_auth: TestClient, user: User, mocker: MockerFixt
     must log in user correctly
     """
     payload = {"username": user.username, "password": user.password}
-    remember_mock = mocker.patch("aiohttp_security.remember")
+    remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
     request_schema = pytest.helpers.schema_request(LoginView.post)
 
     assert not request_schema.validate(payload)
@@ -148,7 +148,7 @@ async def test_post_unauthorized(client_with_auth: TestClient, user: User, mocke
     response_schema = pytest.helpers.schema_response(LoginView.post, code=401)
 
     payload = {"username": user.username, "password": ""}
-    remember_mock = mocker.patch("aiohttp_security.remember")
+    remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
 
     response = await client_with_auth.post("/api/v1/login", json=payload, headers={"accept": "application/json"})
     assert response.status == 401
@@ -161,7 +161,7 @@ async def test_post_invalid_json(client_with_auth: TestClient, mocker: MockerFix
     must return unauthorized on invalid payload
     """
     response_schema = pytest.helpers.schema_response(LoginView.post, code=400)
-    remember_mock = mocker.patch("aiohttp_security.remember")
+    remember_mock = mocker.patch("ahriman.web.views.v1.user.login.remember")
 
     response = await client_with_auth.post("/api/v1/login")
     assert response.status == 400

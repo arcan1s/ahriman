@@ -17,15 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.web.apispec import Schema, fields
+try:
+    import aiohttp_apispec  # type: ignore[import-untyped]
+
+    from marshmallow import Schema, fields
+except ImportError:
+    from unittest.mock import Mock
+
+    Schema = Mock  # type: ignore[misc]
+    aiohttp_apispec = None
+    fields = Mock()
 
 
-class DependenciesSchema(Schema):
-    """
-    request/response package dependencies schema
-    """
-
-    paths = fields.Dict(
-        keys=fields.String(), values=fields.List(fields.String()), required=True, metadata={
-            "description": "Map of filesystem paths to packages which contain this path",
-        })
+__all__ = ["Schema", "aiohttp_apispec", "fields"]

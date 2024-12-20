@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman.models.changes import Changes
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ChangesSchema, ErrorSchema, PackageNameSchema, RepositoryIdSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import ChangesSchema, PackageNameSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -41,22 +40,16 @@ class ChangesView(StatusViewGuard, BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/packages/{package}/changes"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Get package changes",
         description="Retrieve package changes since the last build",
-        responses={
-            200: {"description": "Success response", "schema": ChangesSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_404_description="Package base and/or repository are unknown",
+        schema=ChangesSchema,
+        match_schema=PackageNameSchema,
+        query_schema=RepositoryIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
         get package changes
@@ -73,24 +66,17 @@ class ChangesView(StatusViewGuard, BaseView):
 
         return json_response(changes.view())
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Update package changes",
         description="Update package changes to the new ones",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        match_schema=PackageNameSchema,
+        query_schema=RepositoryIdSchema,
+        body_schema=ChangesSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(ChangesSchema)
     async def post(self) -> None:
         """
         insert new package changes

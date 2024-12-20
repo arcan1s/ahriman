@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PGPKeyIdSchema, PGPKeySchema, ProcessIdSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import PGPKeyIdSchema, PGPKeySchema, ProcessIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -39,22 +38,16 @@ class PGPView(BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/service/pgp"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Search for PGP key",
         description="Search for PGP key and retrieve its body",
-        responses={
-            200: {"description": "Success response", "schema": PGPKeySchema},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "PGP key is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="PGP key is unknown",
+        schema=PGPKeySchema,
+        query_schema=PGPKeyIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(PGPKeyIdSchema)
     async def get(self) -> Response:
         """
         retrieve key from the key server
@@ -79,21 +72,15 @@ class PGPView(BaseView):
 
         return json_response({"key": key})
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Fetch PGP key",
         description="Fetch PGP key from the key server",
-        responses={
-            200: {"description": "Success response", "schema": ProcessIdSchema},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        schema=ProcessIdSchema,
+        body_schema=PGPKeyIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.json_schema(PGPKeyIdSchema)
     async def post(self) -> Response:
         """
         store key to the local service environment

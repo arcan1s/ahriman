@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PatchNameSchema, PatchSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import PatchNameSchema, PatchSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -40,20 +39,13 @@ class PatchView(StatusViewGuard, BaseView):
     GET_PERMISSION = UserAccess.Reporter
     ROUTES = ["/api/v1/packages/{package}/patches/{patch}"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Delete package patch",
         description="Delete package patch by variable",
-        responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [DELETE_PERMISSION]}],
+        permission=DELETE_PERMISSION,
+        match_schema=PatchNameSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PatchNameSchema)
     async def delete(self) -> None:
         """
         delete package patch
@@ -68,21 +60,15 @@ class PatchView(StatusViewGuard, BaseView):
 
         raise HTTPNoContent
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Get package patch",
         description="Retrieve package patch by variable",
-        responses={
-            200: {"description": "Success response", "schema": PatchSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Patch name is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_404_description="Patch name is unknown",
+        schema=PatchSchema,
+        match_schema=PatchNameSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PatchNameSchema)
     async def get(self) -> Response:
         """
         get package patch

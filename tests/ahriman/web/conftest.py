@@ -129,7 +129,7 @@ def application(configuration: Configuration, spawner: Spawn, database: SQLite, 
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(helpers, "_has_aiohttp_security", False)
+    mocker.patch.object(helpers, "aiohttp_security", None)
     _, repository_id = configuration.check_loaded()
 
     return setup_server(configuration, spawner, [repository_id])
@@ -155,7 +155,6 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     configuration.set_option("web", "port", "8080")
     mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(helpers, "_has_aiohttp_security", True)
     _, repository_id = configuration.check_loaded()
     application = setup_server(configuration, spawner, [repository_id])
 
@@ -163,31 +162,6 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     mocker.patch("ahriman.core.database.SQLite.user_get", return_value=generated)
 
     return application
-
-
-@pytest.fixture
-def application_with_debug(configuration: Configuration, spawner: Spawn, database: SQLite,
-                           mocker: MockerFixture) -> Application:
-    """
-    application fixture with debug enabled
-
-    Args:
-        configuration(Configuration): configuration fixture
-        spawner(Spawn): spawner fixture
-        database(SQLite): database fixture
-        mocker(MockerFixture): mocker object
-
-    Returns:
-        Application: application test instance
-    """
-    configuration.set_option("web", "debug", "yes")
-    configuration.set_option("web", "port", "8080")
-    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
-    mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    mocker.patch.object(helpers, "_has_aiohttp_security", False)
-    _, repository_id = configuration.check_loaded()
-
-    return setup_server(configuration, spawner, [repository_id])
 
 
 @pytest.fixture

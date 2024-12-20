@@ -4,7 +4,8 @@ from aiohttp.web import Application
 from pytest_mock import MockerFixture
 
 from ahriman import __version__
-from ahriman.web.apispec import _info, _security, _servers, setup_apispec
+from ahriman.web.apispec import info
+from ahriman.web.apispec.info import _info, _security, _servers, setup_apispec
 from ahriman.web.keys import ConfigurationKey
 
 
@@ -47,7 +48,7 @@ def test_setup_apispec(application: Application, mocker: MockerFixture) -> None:
     must set api specification
     """
     apispec_mock = mocker.patch("aiohttp_apispec.setup_aiohttp_apispec")
-    setup_apispec(application)
+    assert setup_apispec(application)
     apispec_mock.assert_called_once_with(
         application,
         url="/api-docs/swagger.json",
@@ -56,3 +57,11 @@ def test_setup_apispec(application: Application, mocker: MockerFixture) -> None:
         servers=pytest.helpers.anyvar(int),
         security=pytest.helpers.anyvar(int),
     )
+
+
+def test_setup_apispec_import_error(application: Application, mocker: MockerFixture) -> None:
+    """
+    must return none if apispec is not available
+    """
+    mocker.patch.object(info, "aiohttp_apispec", None)
+    assert setup_apispec(application) is None

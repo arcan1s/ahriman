@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman import __version__
@@ -26,7 +24,8 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, InternalStatusSchema, RepositoryIdSchema, StatusSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import InternalStatusSchema, RepositoryIdSchema, StatusSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -44,20 +43,15 @@ class StatusView(StatusViewGuard, BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/status"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Status"],
         summary="Web service status",
         description="Get web service status counters",
-        responses={
-            200: {"description": "Success response", "schema": InternalStatusSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_404_description="Repository is unknown",
+        schema=InternalStatusSchema,
+        query_schema=RepositoryIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def get(self) -> Response:
         """
         get current service status
@@ -77,23 +71,16 @@ class StatusView(StatusViewGuard, BaseView):
 
         return json_response(status.view())
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Status"],
         summary="Set web service status",
         description="Update web service status. Counters will remain unchanged",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        query_schema=RepositoryIdSchema,
+        body_schema=StatusSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(StatusSchema)
     async def post(self) -> None:
         """
         update service status

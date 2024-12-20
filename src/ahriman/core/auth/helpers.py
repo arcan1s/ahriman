@@ -19,9 +19,8 @@
 #
 try:
     import aiohttp_security
-    _has_aiohttp_security = True
 except ImportError:
-    _has_aiohttp_security = False
+    aiohttp_security = None  # type: ignore[assignment]
 
 from typing import Any
 
@@ -40,7 +39,7 @@ async def authorized_userid(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if _has_aiohttp_security:
+    if aiohttp_security is not None:
         return await aiohttp_security.authorized_userid(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -56,7 +55,7 @@ async def check_authorized(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if _has_aiohttp_security:
+    if aiohttp_security is not None:
         return await aiohttp_security.check_authorized(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -72,7 +71,7 @@ async def forget(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if _has_aiohttp_security:
+    if aiohttp_security is not None:
         return await aiohttp_security.forget(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None
 
@@ -88,6 +87,6 @@ async def remember(*args: Any, **kwargs: Any) -> Any:
     Returns:
         Any: ``None`` in case if no aiohttp_security module found and function call otherwise
     """
-    if _has_aiohttp_security:
+    if aiohttp_security is not None:
         return await aiohttp_security.remember(*args, **kwargs)  # pylint: disable=no-value-for-parameter
     return None

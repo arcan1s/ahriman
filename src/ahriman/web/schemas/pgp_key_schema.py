@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
+from ahriman.web.apispec import Schema, fields
 
 
 class PGPKeySchema(Schema):

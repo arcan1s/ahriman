@@ -17,13 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPFound, HTTPUnauthorized
 
 from ahriman.core.auth.helpers import check_authorized, forget
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema
+from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.views.base import BaseView
 
 
@@ -38,18 +36,13 @@ class LogoutView(BaseView):
     POST_PERMISSION = UserAccess.Unauthorized
     ROUTES = ["/api/v1/logout"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Login"],
         summary="Logout",
         description="Logout user and remove authorization cookies",
-        responses={
-            302: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        response_code=HTTPFound,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def post(self) -> None:
         """
         logout user from the service

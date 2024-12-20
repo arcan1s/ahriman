@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogSchema, PackageNameSchema, PaginationSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import LogSchema, PackageNameSchema, PaginationSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -38,23 +37,17 @@ class LogsView(StatusViewGuard, BaseView):
     GET_PERMISSION = UserAccess.Reporter
     ROUTES = ["/api/v2/packages/{package}/logs"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Get paginated package logs",
         description="Retrieve package logs and the last package status",
-        responses={
-            200: {"description": "Success response", "schema": LogSchema(many=True)},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Package base and/or repository are unknown",
+        schema=LogSchema(many=True),
+        match_schema=PackageNameSchema,
+        query_schema=PaginationSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(PaginationSchema)
     async def get(self) -> Response:
         """
         get last package logs

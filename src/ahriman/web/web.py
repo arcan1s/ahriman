@@ -33,7 +33,7 @@ from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.repository_id import RepositoryId
-from ahriman.web.apispec import setup_apispec
+from ahriman.web.apispec.info import setup_apispec
 from ahriman.web.cors import setup_cors
 from ahriman.web.keys import AuthKey, ConfigurationKey, SpawnKey, WatcherKey, WorkersKey
 from ahriman.web.middlewares.exception_handler import exception_handler

@@ -17,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from marshmallow import Schema, fields
-
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.web.apispec import Schema, fields
 from ahriman.web.schemas.package_schema import PackageSchema
 from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
 from ahriman.web.schemas.status_schema import StatusSchema
