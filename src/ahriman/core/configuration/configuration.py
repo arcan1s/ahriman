@@ -21,7 +21,6 @@ import configparser
 import shlex
 import sys
 
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self
 
@@ -68,7 +67,6 @@ class Configuration(configparser.RawConfigParser):
     _LEGACY_ARCHITECTURE_SPECIFIC_SECTIONS = ["web"]
     ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign"]
     SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
-    converters: dict[str, Callable[[str], Any]]  # typing guard
 
     def __init__(self, allow_no_value: bool = False, allow_multi_key: bool = True) -> None:
         """
