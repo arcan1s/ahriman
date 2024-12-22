@@ -17,16 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.utils import pretty_datetime
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, LogsSchema, PackageNameSchema, PackageVersionSchema, \
-    RepositoryIdSchema, VersionedLogSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import LogsSchema, PackageNameSchema, PackageVersionSchema, RepositoryIdSchema, \
+    VersionedLogSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -45,22 +44,15 @@ class LogsView(StatusViewGuard, BaseView):
     GET_PERMISSION = UserAccess.Reporter
     ROUTES = ["/api/v1/packages/{package}/logs"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Delete package logs",
         description="Delete all logs which belong to the specified package",
-        responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [DELETE_PERMISSION]}],
+        permission=DELETE_PERMISSION,
+        error_404_description="Repository is unknown",
+        match_schema=PackageNameSchema,
+        query_schema=PackageVersionSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(PackageVersionSchema)
     async def delete(self) -> None:
         """
         delete package logs
@@ -74,22 +66,16 @@ class LogsView(StatusViewGuard, BaseView):
 
         raise HTTPNoContent
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Get package logs",
         description="Retrieve all package logs and the last package status",
-        responses={
-            200: {"description": "Success response", "schema": LogsSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base and/or repository are unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_404_description="Package base and/or repository are unknown",
+        schema=LogsSchema,
+        match_schema=PackageNameSchema,
+        query_schema=RepositoryIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def get(self) -> Response:
         """
         get last package logs
@@ -115,23 +101,16 @@ class LogsView(StatusViewGuard, BaseView):
         }
         return json_response(response)
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Add package logs",
         description="Insert new package log record",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        match_schema=PackageNameSchema,
+        body_schema=VersionedLogSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.json_schema(VersionedLogSchema)
     async def post(self) -> None:
         """
         create new package log record

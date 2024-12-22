@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPNotFound, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, ProcessSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import ProcessIdSchema, ProcessSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -37,21 +36,15 @@ class ProcessView(BaseView):
     GET_PERMISSION = UserAccess.Reporter
     ROUTES = ["/api/v1/service/process/{process_id}"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Get process",
         description="Get process information",
-        responses={
-            200: {"description": "Success response", "schema": ProcessSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Process is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_404_description="Process is unknown",
+        schema=ProcessSchema,
+        match_schema=ProcessIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(ProcessIdSchema)
     async def get(self) -> Response:
         """
         get spawned process status

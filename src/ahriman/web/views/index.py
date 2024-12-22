@@ -23,6 +23,7 @@ from typing import Any
 
 from ahriman.core.auth.helpers import authorized_userid
 from ahriman.models.user_access import UserAccess
+from ahriman.web.apispec import aiohttp_apispec
 from ahriman.web.views.base import BaseView
 
 
@@ -36,6 +37,7 @@ class IndexView(BaseView):
             * control - HTML to insert for login control, HTML string, required
             * enabled - whether authorization is enabled by configuration or not, boolean, required
             * username - authenticated username if any, string, null means not authenticated
+        * docs_enabled - indicates if api docs is enabled, boolean, required
         * index_url - url to the repository index, string, optional
         * repositories - list of repositories unique identifiers, required
             * id - unique repository identifier, string, required
@@ -66,6 +68,7 @@ class IndexView(BaseView):
 
         return {
             "auth": auth,
+            "docs_enabled": aiohttp_apispec is not None,
             "index_url": self.configuration.get("web", "index_url", fallback=None),
             "repositories": [
                 {

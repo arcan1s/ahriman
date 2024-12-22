@@ -17,17 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
 import shutil
 
 from aiohttp import BodyPartReader
-from aiohttp.web import HTTPBadRequest, HTTPCreated, HTTPNotFound
+from aiohttp.web import HTTPBadRequest, HTTPCreated
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, FileSchema, RepositoryIdSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import FileSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -41,6 +42,22 @@ class UploadView(BaseView):
 
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/service/upload"]
+
+    @classmethod
+    def routes(cls, configuration: Configuration) -> list[str]:
+        """
+        extract routes list for the view
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
+            and returns empty list otherwise
+        """
+        if not configuration.getboolean("web", "enable_archive_upload", fallback=False):
+            return []
+        return cls.ROUTES
 
     @staticmethod
     async def save_file(part: BodyPartReader, target: Path, *, max_body_size: int | None = None) -> tuple[str, Path]:
@@ -92,23 +109,18 @@ class UploadView(BaseView):
 
             return archive_name, temporary_output
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Upload package",
         description="Upload package to local filesystem",
-        responses={
-            201: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown or endpoint is disabled", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        response_code=HTTPCreated,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        query_schema=RepositoryIdSchema,
+        body_schema=FileSchema,
+        body_location="form",
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.form_schema(FileSchema)
     async def post(self) -> None:
         """
         upload file from another instance to the server
@@ -118,9 +130,6 @@ class UploadView(BaseView):
             HTTPCreated: on success response
             HTTPNotFound: method is disabled by configuration
         """
-        if not self.configuration.getboolean("web", "enable_archive_upload", fallback=False):
-            raise HTTPNotFound
-
         try:
             reader = await self.request.multipart()
         except Exception as ex:

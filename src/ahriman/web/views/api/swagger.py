@@ -20,8 +20,10 @@
 from aiohttp.web import Response, json_response
 from collections.abc import Callable
 
+from ahriman.core.configuration import Configuration
 from ahriman.core.utils import partition
 from ahriman.models.user_access import UserAccess
+from ahriman.web.apispec import aiohttp_apispec
 from ahriman.web.views.base import BaseView
 
 
@@ -35,6 +37,22 @@ class SwaggerView(BaseView):
 
     GET_PERMISSION = UserAccess.Unauthorized
     ROUTES = ["/api-docs/swagger.json"]
+
+    @classmethod
+    def routes(cls, configuration: Configuration) -> list[str]:
+        """
+        extract routes list for the view
+
+        Args:
+            configuration(Configuration): configuration instance
+
+        Returns:
+            list[str]: list of routes defined for the view. By default, it tries to read :attr:`ROUTES` option if set
+            and returns empty list otherwise
+        """
+        if aiohttp_apispec is None:
+            return []
+        return cls.ROUTES
 
     async def get(self) -> Response:
         """

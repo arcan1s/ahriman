@@ -7,20 +7,13 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   ahriman.web.apispec
    ahriman.web.middlewares
    ahriman.web.schemas
    ahriman.web.views
 
 Submodules
 ----------
-
-ahriman.web.apispec module
---------------------------
-
-.. automodule:: ahriman.web.apispec
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
 
 ahriman.web.cors module
 -----------------------

@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import Application
 from typing import Any
 
 from ahriman import __version__
+from ahriman.web.apispec import aiohttp_apispec
 from ahriman.web.keys import ConfigurationKey
 
 
@@ -101,7 +100,7 @@ def _servers(application: Application) -> list[dict[str, Any]]:
     }]
 
 
-def setup_apispec(application: Application) -> aiohttp_apispec.AiohttpApiSpec:
+def setup_apispec(application: Application) -> Any:
     """
     setup swagger api specification
 
@@ -109,8 +108,11 @@ def setup_apispec(application: Application) -> aiohttp_apispec.AiohttpApiSpec:
         application(Application): web application instance
 
     Returns:
-        aiohttp_apispec.AiohttpApiSpec: created specification instance
+        Any: created specification instance if module is available
     """
+    if aiohttp_apispec is None:
+        return None
+
     return aiohttp_apispec.setup_aiohttp_apispec(
         application,
         url="/api-docs/swagger.json",

@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
 import itertools
 
 from aiohttp.web import HTTPNoContent, Response, json_response
@@ -26,7 +25,8 @@ from collections.abc import Callable
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageStatusSchema, PaginationSchema, RepositoryIdSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import PackageStatusSchema, PaginationSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -44,22 +44,16 @@ class PackagesView(StatusViewGuard, BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/packages"]
 
-    @aiohttp_apispec.docs(
-        tags=["Packages"],
+    @apidocs(
+        tags=["packages"],
         summary="Get packages list",
         description="Retrieve packages and their descriptors",
-        responses={
-            200: {"description": "Success response", "schema": PackageStatusSchema(many=True)},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        schema=PackageStatusSchema(many=True),
+        query_schema=PaginationSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(PaginationSchema)
     async def get(self) -> Response:
         """
         get current packages status
@@ -84,21 +78,14 @@ class PackagesView(StatusViewGuard, BaseView):
 
         return json_response(response)
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Load packages",
         description="Load packages from cache",
-        responses={
-            204: {"description": "Success response"},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_404_description="Repository is unknown",
+        query_schema=RepositoryIdSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
     async def post(self) -> None:
         """
         reload all packages from repository

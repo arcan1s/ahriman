@@ -8,6 +8,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock, MagicMock, call as MockCall
 
+from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.v1.service.upload import UploadView
@@ -27,6 +28,21 @@ def test_routes() -> None:
     must return correct routes
     """
     assert UploadView.ROUTES == ["/api/v1/service/upload"]
+
+
+def test_routes_dynamic(configuration: Configuration) -> None:
+    """
+    must correctly return upload url
+    """
+    assert UploadView.ROUTES == UploadView.routes(configuration)
+
+
+def test_routes_dynamic_not_found(configuration: Configuration) -> None:
+    """
+    must disable upload route if option is not set
+    """
+    configuration.set_option("web", "enable_archive_upload", "no")
+    assert UploadView.routes(configuration) == []
 
 
 async def test_save_file(mocker: MockerFixture) -> None:
@@ -132,20 +148,6 @@ async def test_post_with_sig(client: TestClient, repository_paths: RepositoryPat
         MockCall(local / "filename"),
         MockCall(local / "filename.sig"),
     ])
-
-
-async def test_post_not_found(client: TestClient, mocker: MockerFixture) -> None:
-    """
-    must return 404 if request was disabled
-    """
-    mocker.patch("ahriman.core.configuration.Configuration.getboolean", return_value=False)
-    data = FormData()
-    data.add_field("package", BytesIO(b"content"), filename="filename", content_type="application/octet-stream")
-    response_schema = pytest.helpers.schema_response(UploadView.post, code=404)
-
-    response = await client.post("/api/v1/service/upload", data=data)
-    assert response.status == 404
-    assert not response_schema.validate(await response.json())
 
 
 async def test_post_not_multipart(client: TestClient) -> None:

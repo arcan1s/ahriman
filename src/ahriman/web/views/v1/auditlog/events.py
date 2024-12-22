@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman.models.event import Event
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, EventSchema, EventSearchSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import EventSchema, EventSearchSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -39,21 +38,15 @@ class EventsView(BaseView):
     GET_PERMISSION = POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/events"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Audit log"],
         summary="Get events",
         description="Retrieve events from audit log",
-        responses={
-            200: {"description": "Success response", "schema": EventSchema(many=True)},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_400_enabled=True,
+        schema=EventSchema(many=True),
+        query_schema=EventSearchSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(EventSearchSchema)
     async def get(self) -> Response:
         """
         get events list
@@ -78,21 +71,14 @@ class EventsView(BaseView):
 
         return json_response(response)
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Audit log"],
         summary="Create event",
         description="Add new event to the audit log",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        body_schema=EventSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.json_schema(EventSchema)
     async def post(self) -> None:
         """
         add new audit log event

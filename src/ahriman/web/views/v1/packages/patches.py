@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, PackageNameSchema, PatchSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import PackageNameSchema, PatchSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -41,20 +40,14 @@ class PatchesView(StatusViewGuard, BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/packages/{package}/patches"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Get package patches",
         description="Retrieve all package patches",
-        responses={
-            200: {"description": "Success response", "schema": PatchSchema(many=True)},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        schema=PatchSchema(many=True),
+        match_schema=PackageNameSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
     async def get(self) -> Response:
         """
         get package patches
@@ -68,22 +61,15 @@ class PatchesView(StatusViewGuard, BaseView):
         response = [patch.view() for patch in patches]
         return json_response(response)
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Packages"],
         summary="Update package patch",
         description="Update or create package patch",
-        responses={
-            204: {"description": "Success response"},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        match_schema=PackageNameSchema,
+        body_schema=PatchSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.match_info_schema(PackageNameSchema)
-    @aiohttp_apispec.json_schema(PatchSchema)
     async def post(self) -> None:
         """
         update or create package patch

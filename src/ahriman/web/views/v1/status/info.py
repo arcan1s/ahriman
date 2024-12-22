@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import Response, json_response
 
 from ahriman import __version__
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, InfoSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import InfoSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -38,19 +37,13 @@ class InfoView(BaseView):
     GET_PERMISSION = UserAccess.Unauthorized
     ROUTES = ["/api/v1/info"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Status"],
         summary="Service information",
         description="Perform basic service health check and returns its information",
-        responses={
-            200: {"description": "Success response", "schema": InfoSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        schema=InfoSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
     async def get(self) -> Response:
         """
         get service information

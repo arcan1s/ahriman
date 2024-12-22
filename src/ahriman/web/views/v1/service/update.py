@@ -17,12 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, Response, json_response
 
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AuthSchema, ErrorSchema, ProcessIdSchema, RepositoryIdSchema, UpdateFlagsSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import ProcessIdSchema, RepositoryIdSchema, UpdateFlagsSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -37,23 +36,17 @@ class UpdateView(BaseView):
     POST_PERMISSION = UserAccess.Full
     ROUTES = ["/api/v1/service/update"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Update packages",
         description="Run repository update process",
-        responses={
-            200: {"description": "Success response", "schema": ProcessIdSchema},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Repository is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [POST_PERMISSION]}],
+        permission=POST_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Repository is unknown",
+        schema=ProcessIdSchema,
+        query_schema=RepositoryIdSchema,
+        body_schema=UpdateFlagsSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(RepositoryIdSchema)
-    @aiohttp_apispec.json_schema(UpdateFlagsSchema)
     async def post(self) -> Response:
         """
         run repository update. No parameters supported here

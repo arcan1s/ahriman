@@ -4,6 +4,7 @@ from aiohttp.test_utils import TestClient
 from pytest_mock import MockerFixture
 from typing import Any
 
+from ahriman.core.configuration import Configuration
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.api.swagger import SwaggerView
 
@@ -84,6 +85,28 @@ async def test_get_permission() -> None:
     for method in ("GET",):
         request = pytest.helpers.request("", "", method)
         assert await SwaggerView.get_permission(request) == UserAccess.Unauthorized
+
+
+def test_routes() -> None:
+    """
+    must return correct routes
+    """
+    assert SwaggerView.ROUTES == ["/api-docs/swagger.json"]
+
+
+def test_routes_dynamic(configuration: Configuration) -> None:
+    """
+    must correctly return openapi url
+    """
+    assert SwaggerView.ROUTES == SwaggerView.routes(configuration)
+
+
+def test_routes_dynamic_not_found(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must disable openapi route if no apispec package found
+    """
+    mocker.patch("ahriman.web.views.api.swagger.aiohttp_apispec", None)
+    assert SwaggerView.routes(configuration) == []
 
 
 async def test_get(client: TestClient, mocker: MockerFixture) -> None:

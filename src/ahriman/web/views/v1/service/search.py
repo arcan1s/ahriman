@@ -17,15 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_apispec  # type: ignore[import-untyped]
-
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
 from collections.abc import Callable
 
 from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
-from ahriman.web.schemas import AURPackageSchema, AuthSchema, ErrorSchema, SearchSchema
+from ahriman.web.apispec.decorators import apidocs
+from ahriman.web.schemas import AURPackageSchema, SearchSchema
 from ahriman.web.views.base import BaseView
 
 
@@ -40,22 +39,16 @@ class SearchView(BaseView):
     GET_PERMISSION = UserAccess.Reporter
     ROUTES = ["/api/v1/service/search"]
 
-    @aiohttp_apispec.docs(
+    @apidocs(
         tags=["Actions"],
         summary="Search for package",
         description="Search for package in AUR",
-        responses={
-            200: {"description": "Success response", "schema": AURPackageSchema(many=True)},
-            400: {"description": "Bad data is supplied", "schema": ErrorSchema},
-            401: {"description": "Authorization required", "schema": ErrorSchema},
-            403: {"description": "Access is forbidden", "schema": ErrorSchema},
-            404: {"description": "Package base is unknown", "schema": ErrorSchema},
-            500: {"description": "Internal server error", "schema": ErrorSchema},
-        },
-        security=[{"token": [GET_PERMISSION]}],
+        permission=GET_PERMISSION,
+        error_400_enabled=True,
+        error_404_description="Package base is unknown",
+        schema=AURPackageSchema(many=True),
+        query_schema=SearchSchema,
     )
-    @aiohttp_apispec.cookies_schema(AuthSchema)
-    @aiohttp_apispec.querystring_schema(SearchSchema)
     async def get(self) -> Response:
         """
         search packages in AUR
