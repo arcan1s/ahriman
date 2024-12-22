@@ -65,7 +65,7 @@ def subpackages(root: Path) -> dict[str, list[Path]]:
     Returns:
         dict[str, list[Path]]: extended list of files which belong to a specific package
     """
-    for package, paths in SUBPACKAGES.items():
+    for paths in SUBPACKAGES.values():
         new_paths = []
         for path in paths:
             full_path = root / path
@@ -77,7 +77,7 @@ def subpackages(root: Path) -> dict[str, list[Path]]:
                         new_path.relative_to(root) for new_path in pycache_path.glob(f"{full_path.stem}.*.pyc")
                     )
 
-        SUBPACKAGES[package].extend(new_paths)
+        paths.extend(new_paths)
 
     return SUBPACKAGES
 
