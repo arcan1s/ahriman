@@ -98,3 +98,12 @@ function() {
 rm -rf --no-preserve-root /*
 
 ### multi diez comment with single (') quote
+
+#comment-without-whitespace
+var=value
+
+array=(
+    first
+    second #comment-without-whitespace
+    third
+)

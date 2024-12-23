@@ -199,6 +199,52 @@ def test_parse_token_comment() -> None:
     ]
 
 
+def test_read_comment() -> None:
+    """
+    must read comment correctly
+    """
+    io = StringIO("# comment\nnew line")
+    io.seek(2)
+
+    PkgbuildParser(io)._read_comment()
+    assert io.tell() == 10
+
+
+def test_read_comment_skip() -> None:
+    """
+    must skip reading new line if comment ends with new line
+    """
+    io = StringIO("#comment\nnew line")
+    io.seek(7)
+
+    PkgbuildParser(io)._read_comment()
+    assert io.tell() == 9
+
+
+def test_read_last() -> None:
+    """
+    must read last symbol from current position
+    """
+    io = StringIO("mock")
+    io.seek(2)
+    assert PkgbuildParser(io)._read_last() == (1, "o")
+
+
+def test_read_last_starting() -> None:
+    """
+    must raise exception if it reads from starting position
+    """
+    with pytest.raises(PkgbuildParserError):
+        assert PkgbuildParser(StringIO("mock"))._read_last()
+
+
+def test_read_last_from_position() -> None:
+    """
+    must read last symbol from the specified position
+    """
+    assert PkgbuildParser(StringIO("mock"))._read_last(2) == (2, "c")
+
+
 def test_parse(resource_path_root: Path) -> None:
     """
     must parse complex file
@@ -278,4 +324,6 @@ def test_parse(resource_path_root: Path) -> None:
   mv "$pkgdir"/usr/share/fonts/站酷小薇体 "$pkgdir"/usr/share/fonts/zcool-xiaowei-regular
   mv "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.站酷小薇体 "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE.zcool-xiaowei-regular
 }"""),
+            PkgbuildPatch("var", "value"),
+            PkgbuildPatch("array", ["first", "second", "third"]),
         ]

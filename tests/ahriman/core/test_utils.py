@@ -471,6 +471,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "package_ahriman_pkgbuild",
         resource_path_root / "models" / "package_gcc10_pkgbuild",
         resource_path_root / "models" / "package_jellyfin-ffmpeg6-bin_pkgbuild",
+        resource_path_root / "models" / "package_python-pytest-loop_pkgbuild",
         resource_path_root / "models" / "package_tpacpi-bat-git_pkgbuild",
         resource_path_root / "models" / "package_vim-youcompleteme-git_pkgbuild",
         resource_path_root / "models" / "package_yay_pkgbuild",

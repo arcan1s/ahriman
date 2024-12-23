@@ -449,3 +449,41 @@ def test_parse_vim_youcompleteme_git(resource_path_root: Path) -> None:
             "9a5bee818a4995bc52e91588059bef42728d046808206bfb93977f4e3109e50c",
         ],
     }
+
+
+def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (python-pytest-loop)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_python-pytest-loop_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    assert values == {
+        "pkgbase": "python-pytest-loop",
+        "_pname": "${pkgbase#python-}",
+        "_pyname": "${_pname//-/_}",
+        "pkgname": [
+            "python-${_pname}",
+        ],
+        "pkgver": "1.0.13",
+        "pkgrel": "1",
+        "pkgdesc": "Pytest plugin for looping test execution.",
+        "arch": ["any"],
+        "url": "https://github.com/anogowski/pytest-loop",
+        "license": ["MPL-2.0"],
+        "makedepends": [
+            "python-hatchling",
+            "python-versioningit",
+            "python-wheel",
+            "python-build",
+            "python-installer",
+        ],
+        "checkdepends": [
+            "python-pytest",
+        ],
+        "source": [
+            "https://files.pythonhosted.org/packages/source/${_pyname:0:1}/${_pyname}/${_pyname}-${pkgver}.tar.gz",
+        ],
+        "md5sums": [
+            "98365f49606d5068f92350f1d2569a5f",
+        ],
+    }

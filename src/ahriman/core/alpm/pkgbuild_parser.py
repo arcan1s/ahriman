@@ -41,6 +41,7 @@ class PkgbuildToken(StrEnum):
         FunctionDeclaration(PkgbuildToken): (class attribute) function declaration token
         FunctionEnds(PkgbuildToken): (class attribute) function ends token
         FunctionStarts(PkgbuildToken): (class attribute) function starts token
+        NewLine(PkgbuildToken): (class attribute) new line token
     """
 
     ArrayStarts = "("
@@ -53,6 +54,8 @@ class PkgbuildToken(StrEnum):
     FunctionDeclaration = "()"
     FunctionStarts = "{"
     FunctionEnds = "}"
+
+    NewLine = "\n"
 
 
 class PkgbuildParser(shlex.shlex):
@@ -174,31 +177,18 @@ class PkgbuildParser(shlex.shlex):
         Returns:
             bool: ``True`` if the previous element of the stream is a quote or escaped and ``False`` otherwise
         """
-        # wrapper around reading utf symbols from random position of the stream
-        def read_last() -> tuple[int, str]:
-            while (position := self._io.tell()) > 0:
-                try:
-                    return position, self._io.read(1)
-                except UnicodeDecodeError:
-                    self._io.seek(position - 1)
-
-            raise PkgbuildParserError("reached starting position, no valid symbols found")
-
         current_position = self._io.tell()
 
         last_char = penultimate_char = None
         index = current_position - 1
         while index > 0:
-            self._io.seek(index)
-
-            index, last_char = read_last()
+            index, last_char = self._read_last(index)
             if last_char.isspace():
                 index -= 1
                 continue
 
             if index > 1:
-                self._io.seek(index - 1)
-                _, penultimate_char = read_last()
+                _, penultimate_char = self._read_last(index - 1)
 
             break
 
@@ -227,7 +217,7 @@ class PkgbuildParser(shlex.shlex):
                     case PkgbuildToken.ArrayEnds:
                         break
                     case comment if comment.startswith(PkgbuildToken.Comment):
-                        self.instream.readline()
+                        self._read_comment()
                         continue
 
                 yield token
@@ -268,7 +258,7 @@ class PkgbuildParser(shlex.shlex):
                     if counter == 0:
                         break
                 case comment if comment.startswith(PkgbuildToken.Comment):
-                    self.instream.readline()
+                    self._read_comment()
 
         if not 0 < start_position < end_position:
             raise PkgbuildParserError("function body wasn't found")
@@ -304,7 +294,7 @@ class PkgbuildParser(shlex.shlex):
             return
 
         if token.startswith(PkgbuildToken.Comment):
-            self.instream.readline()
+            self._read_comment()
             return
 
         match self.get_token():
@@ -331,6 +321,44 @@ class PkgbuildParser(shlex.shlex):
             # some random token received without continuation, lets guess it is empty assignment (i.e. key=)
             case other if other is not None:
                 yield from self._parse_token(other)
+
+    def _read_comment(self) -> None:
+        """
+        read comment from the current position. This method doesn't check comment itself, just read the stream
+        until the comment line ends
+        """
+        _, last_symbol = self._read_last()
+        if last_symbol != PkgbuildToken.NewLine:
+            self.instream.readline()
+
+    def _read_last(self, initial_index: int | None = None) -> tuple[int, str]:
+        """
+        wrapper around read to read the last symbol from the input stream. This method is designed to process UTF-8
+        symbols correctly. This method does not reset current stream position
+
+        Args:
+            initial_index(int | None, optional): initial index to start reading from. If none set, the previous position
+                will be used (Default value = None)
+
+        Returns:
+            tuple[int, str]: last symbol and its position in the stream
+
+        Raises:
+            PkgbuildParserError: in case if stream reached starting position, but no valid symbols were found
+        """
+        if initial_index is None:
+            initial_index = self._io.tell() - 1
+        if initial_index < 0:
+            raise PkgbuildParserError("stream is on starting position")
+        self._io.seek(initial_index)
+
+        while (position := self._io.tell()) > 0:
+            try:
+                return position, self._io.read(1)
+            except UnicodeDecodeError:
+                self._io.seek(position - 1)
+
+        raise PkgbuildParserError("reached starting position, no valid symbols found")
 
     def parse(self) -> Generator[PkgbuildPatch, None, None]:
         """
