@@ -29,9 +29,11 @@ def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any
     depends_on_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on",
                                    return_value=Dependencies())
     dependencies_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_dependencies_update")
+    with_packages_mock = mocker.patch("ahriman.models.package.Package.with_packages")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
+    with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
     changes_mock.assert_called_once_with(package_ahriman.base)
     depends_on_mock.assert_called_once_with()
     dependencies_mock.assert_called_once_with(package_ahriman.base, Dependencies())

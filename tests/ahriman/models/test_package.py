@@ -1,6 +1,8 @@
+import copy
+
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
@@ -493,3 +495,23 @@ def test_build_status_pretty_print(package_ahriman: Package) -> None:
     """
     assert package_ahriman.pretty_print()
     assert isinstance(package_ahriman.pretty_print(), str)
+
+
+def test_with_packages(package_ahriman: Package, package_python_schedule: Package, pacman: Pacman,
+                       mocker: MockerFixture) -> None:
+    """
+    must correctly replace packages descriptions
+    """
+    paths = [Path("1"), Path("2")]
+    from_archive_mock = mocker.patch("ahriman.models.package.Package.from_archive", side_effect=[
+        package_ahriman, package_python_schedule
+    ])
+
+    result = copy.deepcopy(package_ahriman)
+    package_ahriman.packages[package_ahriman.base].architecture = "i686"
+
+    result.with_packages(paths, pacman)
+    from_archive_mock.assert_has_calls([
+        MockCall(path, pacman) for path in paths
+    ])
+    assert result.packages[result.base] == package_ahriman.packages[package_ahriman.base]

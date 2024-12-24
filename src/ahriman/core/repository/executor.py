@@ -62,6 +62,8 @@ class Executor(PackageInfo, Cleaner):
             patches = self.reporter.package_patches_get(package.base, None)
             commit_sha = task.init(local_path, patches, local_version)
             built = task.build(local_path, PACKAGER=packager_id)
+
+            package.with_packages(built, self.pacman)
             for src in built:
                 dst = self.paths.packages / src.name
                 shutil.move(src, dst)

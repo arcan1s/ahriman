@@ -136,7 +136,7 @@ class PackageArchive:
         dependencies, roots = self.depends_on_paths()
         installed_packages = self.installed_packages()
         # build list of packages, which contains both the package itself and (possible) debug packages
-        packages = list(self.package.packages) + [f"{package}-debug" for package in self.package.packages]
+        packages = list(self.package.packages) + [f"{self.package.base}-debug"]
 
         # build initial map of file path -> packages containing this path
         # in fact, keys will contain all libraries the package linked to and all directories it contains

@@ -568,3 +568,19 @@ class Package(LazyLogging):
             dict[str, Any]: json-friendly dictionary
         """
         return dataclass_view(self)
+
+    def with_packages(self, packages: list[Path], pacman: Pacman) -> None:
+        """
+        replace packages descriptions with ones from archives
+
+        Args:
+            packages(Iterable[Path]): paths to package archives
+            pacman(Pacman): alpm wrapper instance
+        """
+        self.packages = {}  # reset state
+        for package in packages:
+            archive = self.from_archive(package, pacman)
+            if archive.base != self.base:
+                continue
+
+            self.packages.update(archive.packages)
