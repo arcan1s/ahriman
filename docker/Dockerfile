@@ -108,9 +108,7 @@ RUN cp "/etc/pacman.d/mirrorlist" "/etc/pacman.d/mirrorlist.orig" && \
     sed -i "s/SigLevel *=.*/SigLevel = Optional/g" "/etc/pacman.conf" && \
     pacman -Sy
 ## install package and its optional dependencies
-RUN pacman -S --noconfirm \
-        --assume-installed python-aiohttp-apispec=3.0.0 \
-        ahriman
+RUN pacman -S --noconfirm ahriman
 RUN pacman -S --noconfirm --asdeps \
         python-aioauth-client \
         python-aiohttp-apispec-git \
