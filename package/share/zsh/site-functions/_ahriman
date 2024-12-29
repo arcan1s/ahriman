@@ -583,6 +583,7 @@ _shtab_ahriman_service_setup_options=(
 
 _shtab_ahriman_service_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-o,--output}"[output commands and result to the file (default\: None)]:output:"
   ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
@@ -608,6 +609,7 @@ _shtab_ahriman_setup_options=(
 
 _shtab_ahriman_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
+  {-o,--output}"[output commands and result to the file (default\: None)]:output:"
   ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 

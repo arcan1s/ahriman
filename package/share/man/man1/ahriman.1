@@ -1,4 +1,4 @@
-.TH AHRIMAN "1" "2024\-12\-01" "ahriman" "Generated Python Manual"
+.TH AHRIMAN "1" "2024\-12\-29" "ahriman" "Generated Python Manual"
 .SH NAME
 ahriman
 .SH SYNOPSIS
@@ -940,13 +940,18 @@ port of the web service
 path to unix socket used for interprocess communications
 
 .SH COMMAND \fI\,'ahriman service\-shell'\/\fR
-usage: ahriman service\-shell [\-h] [code]
+usage: ahriman service\-shell [\-h] [\-o OUTPUT] [code]
 
 drop into python shell
 
 .TP
 \fBcode\fR
 instead of dropping into shell, just execute the specified code
+
+.SH OPTIONS \fI\,'ahriman service\-shell'\/\fR
+.TP
+\fB\-o\fR \fI\,OUTPUT\/\fR, \fB\-\-output\fR \fI\,OUTPUT\/\fR
+output commands and result to the file
 
 .SH COMMAND \fI\,'ahriman service\-tree\-migrate'\/\fR
 usage: ahriman service\-tree\-migrate [\-h]
