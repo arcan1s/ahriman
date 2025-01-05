@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from code import InteractiveConsole
+from importlib.util import find_spec
 from typing import Any
 
 
@@ -25,6 +26,19 @@ class InteractiveShell(InteractiveConsole):
     """
     wrapper around :class:`code.InteractiveConsole` to pass :func:`interact()` to IPython shell
     """
+
+    @staticmethod
+    def has_ipython() -> bool:
+        """
+        check if IPython shell is available
+
+        Returns:
+            bool: ``True`` if IPython shell is available, ``False`` otherwise
+        """
+        try:
+            return find_spec("IPython.terminal.embed") is not None
+        except ModuleNotFoundError:
+            return False
 
     def interact(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -34,13 +48,13 @@ class InteractiveShell(InteractiveConsole):
             *args(Any): positional arguments
             **kwargs(Any): keyword arguments
         """
-        try:
+        if self.has_ipython():
             from IPython.terminal.embed import InteractiveShellEmbed
 
             shell = InteractiveShellEmbed(user_ns=self.locals)  # type: ignore[no-untyped-call]
             shell.show_banner()  # type: ignore[no-untyped-call]
             shell.interact()  # type: ignore[no-untyped-call]
-        except ImportError:
+        else:
             # fallback to default
             import readline  # pylint: disable=unused-import
             InteractiveConsole.interact(self, *args, **kwargs)
