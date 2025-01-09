@@ -68,3 +68,10 @@ def test_lt_invalid() -> None:
     """
     with pytest.raises(ValueError):
         assert RepositoryId("x86_64", "a") < 42
+
+
+def test_str() -> None:
+    """
+    must convert identifier to string
+    """
+    assert str(RepositoryId("x86_64", "a")) == "a (x86_64)"

@@ -16,6 +16,7 @@ from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
+from ahriman.models.repository_stats import RepositoryStats
 
 
 def test_load_dummy_client(configuration: Configuration) -> None:
@@ -283,6 +284,14 @@ def test_set_unknown_skip(client: Client, package_ahriman: Package, mocker: Mock
     client.set_unknown(package_ahriman)
 
     update_mock.assert_not_called()
+
+
+def test_statistics(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must correctly fetch statistics
+    """
+    mocker.patch("ahriman.core.status.Client.package_get", return_value=[(package_ahriman, None)])
+    assert client.statistics() == RepositoryStats(bases=1, packages=1, archive_size=4200, installed_size=4200000)
 
 
 def test_status_get(client: Client) -> None:

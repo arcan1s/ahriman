@@ -92,6 +92,14 @@ ahriman.core.formatters.repository\_printer module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.formatters.repository\_stats\_printer module
+---------------------------------------------------------
+
+.. automodule:: ahriman.core.formatters.repository_stats_printer
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.formatters.status\_printer module
 ----------------------------------------------
 

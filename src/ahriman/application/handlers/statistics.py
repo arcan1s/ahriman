@@ -27,7 +27,7 @@ from pathlib import Path
 from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.formatters import EventStatsPrinter, PackageStatsPrinter
+from ahriman.core.formatters import EventStatsPrinter, PackageStatsPrinter, RepositoryStatsPrinter
 from ahriman.core.utils import enum_values, pretty_datetime
 from ahriman.models.event import Event, EventType
 from ahriman.models.repository_id import RepositoryId
@@ -64,6 +64,7 @@ class Statistics(Handler):
 
         match args.package:
             case None:
+                RepositoryStatsPrinter(repository_id, application.reporter.statistics())(verbose=True)
                 Statistics.stats_per_package(args.event, events, args.chart)
             case _:
                 Statistics.stats_for_package(args.event, events, args.chart)

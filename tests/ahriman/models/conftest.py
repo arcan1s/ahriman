@@ -14,6 +14,7 @@ from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
 from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.remote_source import RemoteSource
+from ahriman.models.repository_stats import RepositoryStats
 
 
 @pytest.fixture
@@ -71,8 +72,9 @@ def internal_status(counters: Counters) -> InternalStatus:
         status=BuildStatus(),
         architecture="x86_64",
         packages=counters,
-        version=__version__,
         repository="aur",
+        stats=RepositoryStats(bases=1, packages=2, archive_size=3, installed_size=4),
+        version=__version__,
     )
 
 

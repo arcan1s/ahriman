@@ -21,6 +21,7 @@ from ahriman import __version__
 from ahriman.web.apispec import fields
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
+from ahriman.web.schemas.repository_stats_schema import RepositoryStatsSchema
 from ahriman.web.schemas.status_schema import StatusSchema
 
 
@@ -31,6 +32,9 @@ class InternalStatusSchema(RepositoryIdSchema):
 
     packages = fields.Nested(CountersSchema(), required=True, metadata={
         "description": "Repository package counters",
+    })
+    stats = fields.Nested(RepositoryStatsSchema(), required=True, metadata={
+        "description": "Repository stats",
     })
     status = fields.Nested(StatusSchema(), required=True, metadata={
         "description": "Repository status as stored by web service",
