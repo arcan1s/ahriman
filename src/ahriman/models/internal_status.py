@@ -23,6 +23,7 @@ from typing import Any, Self
 from ahriman.core.utils import dataclass_view
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.counters import Counters
+from ahriman.models.repository_stats import RepositoryStats
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -35,6 +36,7 @@ class InternalStatus:
         architecture(str | None): repository architecture
         packages(Counters): packages statuses counter object
         repository(str | None): repository name
+        stats(RepositoryStats | None): repository stats
         version(str | None): service version
     """
 
@@ -42,6 +44,7 @@ class InternalStatus:
     architecture: str | None = None
     packages: Counters = field(default=Counters(total=0))
     repository: str | None = None
+    stats: RepositoryStats | None = None
     version: str | None = None
 
     @classmethod
@@ -56,11 +59,13 @@ class InternalStatus:
             Self: internal status
         """
         counters = Counters.from_json(dump["packages"]) if "packages" in dump else Counters(total=0)
+        stats = RepositoryStats.from_json(dump["stats"]) if "stats" in dump else None
         build_status = dump.get("status") or {}
         return cls(status=BuildStatus.from_json(build_status),
                    architecture=dump.get("architecture"),
                    packages=counters,
                    repository=dump.get("repository"),
+                   stats=stats,
                    version=dump.get("version"))
 
     def view(self) -> dict[str, Any]:

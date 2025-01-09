@@ -18,26 +18,27 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from ahriman.core.formatters.string_printer import StringPrinter
+from ahriman.core.utils import pretty_size
 from ahriman.models.property import Property
-from ahriman.models.series_statistics import SeriesStatistics
+from ahriman.models.repository_id import RepositoryId
+from ahriman.models.repository_stats import RepositoryStats
 
 
-class EventStatsPrinter(StringPrinter):
+class RepositoryStatsPrinter(StringPrinter):
     """
-    print event statistics
+    print repository statistics
 
     Attributes:
-        statistics(SeriesStatistics): statistics object
+        statistics(RepositoryStats): repository statistics
     """
 
-    def __init__(self, event_type: str, events: list[float | int]) -> None:
+    def __init__(self, repository_id: RepositoryId, statistics: RepositoryStats) -> None:
         """
         Args:
-            event_type(str): event type used for this statistics
-            events(list[float | int]): event values to build statistics
+            statistics(RepositoryStats): repository statistics
         """
-        StringPrinter.__init__(self, event_type)
-        self.statistics = SeriesStatistics(events)
+        StringPrinter.__init__(self, str(repository_id))
+        self.statistics = statistics
 
     def properties(self) -> list[Property]:
         """
@@ -46,18 +47,7 @@ class EventStatsPrinter(StringPrinter):
         Returns:
             list[Property]: list of content properties
         """
-        properties = [
-            Property("total", self.statistics.total),
+        return [
+            Property("Packages", self.statistics.bases),
+            Property("Repository size", pretty_size(self.statistics.archive_size)),
         ]
-
-        # time statistics
-        if self.statistics:
-            mean = self.statistics.mean
-
-            properties.extend([
-                Property("min", self.statistics.min),
-                Property("average", f"{mean:.3f} ± {self.statistics.st_dev:.3f}"),
-                Property("max", self.statistics.max),
-            ])
-
-        return properties

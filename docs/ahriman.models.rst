@@ -236,6 +236,14 @@ ahriman.models.repository\_paths module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.repository\_stats module
+---------------------------------------
+
+.. automodule:: ahriman.models.repository_stats
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.result module
 ----------------------------
 
@@ -248,6 +256,14 @@ ahriman.models.scan\_paths module
 ---------------------------------
 
 .. automodule:: ahriman.models.scan_paths
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
+ahriman.models.series\_statistics module
+----------------------------------------
+
+.. automodule:: ahriman.models.series_statistics
    :members:
    :no-undoc-members:
    :show-inheritance:

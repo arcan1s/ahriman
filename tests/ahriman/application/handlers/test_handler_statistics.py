@@ -11,6 +11,7 @@ from ahriman.core.repository import Repository
 from ahriman.core.utils import pretty_datetime, utcnow
 from ahriman.models.event import Event, EventType
 from ahriman.models.package import Package
+from ahriman.models.repository_stats import RepositoryStats
 
 
 def _default_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -40,13 +41,16 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     """
     args = _default_args(args)
     events = [Event("1", "1"), Event("2", "2")]
+    stats = RepositoryStats(bases=1, packages=2, archive_size=3, installed_size=4)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     events_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.event_get", return_value=events)
+    stats_mock = mocker.patch("ahriman.core.status.client.Client.statistics", return_value=stats)
     application_mock = mocker.patch("ahriman.application.handlers.statistics.Statistics.stats_per_package")
 
     _, repository_id = configuration.check_loaded()
     Statistics.run(args, repository_id, configuration, report=False)
     events_mock.assert_called_once_with(args.event, args.package, None, None, args.limit, args.offset)
+    stats_mock.assert_called_once_with()
     application_mock.assert_called_once_with(args.event, events, args.chart)
 
 

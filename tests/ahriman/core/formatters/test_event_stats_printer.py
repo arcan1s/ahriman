@@ -15,13 +15,6 @@ def test_properties_empty() -> None:
     assert EventStatsPrinter("event", []).properties()
 
 
-def test_properties_single() -> None:
-    """
-    must skip calculation of the standard deviation for single event
-    """
-    assert EventStatsPrinter("event", [1]).properties()
-
-
 def test_title(event_stats_printer: EventStatsPrinter) -> None:
     """
     must return non-empty title

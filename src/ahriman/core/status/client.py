@@ -31,6 +31,7 @@ from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
+from ahriman.models.repository_stats import RepositoryStats
 
 
 class Client:
@@ -353,6 +354,16 @@ class Client:
         if self.package_get(package.base):
             return  # skip update in case if package is already known
         self.package_update(package, BuildStatusEnum.Unknown)
+
+    def statistics(self) -> RepositoryStats:
+        """
+        get repository statistics
+
+        Returns:
+            RepositoryStats: repository statistics object
+        """
+        packages = [package for package, _ in self.package_get(None)]
+        return RepositoryStats.from_packages(packages)
 
     def status_get(self) -> InternalStatus:
         """

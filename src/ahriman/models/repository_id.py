@@ -97,3 +97,12 @@ class RepositoryId:
             raise ValueError(f"'<' not supported between instances of '{type(self)}' and '{type(other)}'")
 
         return (self.name, self.architecture) < (other.name, other.architecture)
+
+    def __str__(self) -> str:
+        """
+        string representation of the repository identifier
+
+        Returns:
+            str: string view of the repository identifier
+        """
+        return f"{self.name} ({self.architecture})"

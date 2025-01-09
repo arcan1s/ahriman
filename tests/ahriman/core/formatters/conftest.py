@@ -12,6 +12,7 @@ from ahriman.core.formatters import \
     PackageStatsPrinter, \
     PatchPrinter, \
     RepositoryPrinter, \
+    RepositoryStatsPrinter, \
     StatusPrinter, \
     StringPrinter, \
     TreePrinter, \
@@ -25,6 +26,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
+from ahriman.models.repository_stats import RepositoryStats
 from ahriman.models.user import User
 
 
@@ -134,10 +136,27 @@ def repository_printer(repository_id: RepositoryId) -> RepositoryPrinter:
     """
     fixture for repository printer
 
+    Args:
+        repository_id(RepositoryId): repository identifier fixture
+
     Returns:
         RepositoryPrinter: repository printer test instance
     """
     return RepositoryPrinter(repository_id)
+
+
+@pytest.fixture
+def repository_stats_printer(repository_id: RepositoryId) -> RepositoryStatsPrinter:
+    """
+    fixture for repository stats printer
+
+    Args:
+        repository_id(RepositoryId): repository identifier fixture
+
+    Returns:
+        RepositoryStatsPrinter: repository stats printer test instance
+    """
+    return RepositoryStatsPrinter(repository_id, RepositoryStats(bases=1, packages=2, archive_size=3, installed_size=4))
 
 
 @pytest.fixture

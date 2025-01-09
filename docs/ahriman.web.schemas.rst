@@ -260,6 +260,14 @@ ahriman.web.schemas.repository\_id\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.repository\_stats\_schema module
+----------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.repository_stats_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.search\_schema module
 -----------------------------------------
 

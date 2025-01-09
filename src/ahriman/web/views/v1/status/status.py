@@ -23,6 +23,7 @@ from ahriman import __version__
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.counters import Counters
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.repository_stats import RepositoryStats
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.schemas import InternalStatusSchema, RepositoryIdSchema, StatusSchema
@@ -60,12 +61,16 @@ class StatusView(StatusViewGuard, BaseView):
             Response: 200 with service status object
         """
         repository_id = self.repository_id()
-        counters = Counters.from_packages(self.service(repository_id).packages)
+        packages = self.service(repository_id).packages
+        counters = Counters.from_packages(packages)
+        stats = RepositoryStats.from_packages([package for package, _ in packages])
+
         status = InternalStatus(
             status=self.service(repository_id).status,
             architecture=repository_id.architecture,
             packages=counters,
             repository=repository_id.name,
+            stats=stats,
             version=__version__,
         )
 

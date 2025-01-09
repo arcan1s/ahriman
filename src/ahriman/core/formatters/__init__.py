@@ -28,6 +28,7 @@ from ahriman.core.formatters.package_stats_printer import PackageStatsPrinter
 from ahriman.core.formatters.patch_printer import PatchPrinter
 from ahriman.core.formatters.printer import Printer
 from ahriman.core.formatters.repository_printer import RepositoryPrinter
+from ahriman.core.formatters.repository_stats_printer import RepositoryStatsPrinter
 from ahriman.core.formatters.status_printer import StatusPrinter
 from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.core.formatters.tree_printer import TreePrinter
