@@ -296,14 +296,6 @@
     }
 
     function loadPackage(packageBase, onFailure) {
-        const headerClass = status => {
-            if (status === "pending") return ["bg-warning"];
-            if (status === "building") return ["bg-warning"];
-            if (status === "failed") return ["bg-danger", "text-white"];
-            if (status === "success") return ["bg-success", "text-white"];
-            return ["bg-secondary", "text-white"];
-        };
-
         makeRequest(
             `/api/v1/packages/${packageBase}`,
             {

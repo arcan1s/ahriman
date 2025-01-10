@@ -25,6 +25,6 @@ class FileSchema(Schema):
     request file upload schema
     """
 
-    archive = fields.Field(required=True, metadata={
+    archive = fields.Raw(required=True, metadata={
         "description": "Package archive to be uploaded",
     })
