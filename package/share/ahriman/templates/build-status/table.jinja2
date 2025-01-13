@@ -7,7 +7,7 @@
     // so far bootstrap-table only operates with jquery elements
     const table = $(document.getElementById("packages"));
 
-    const statusBadge = document.getElementById("badge-status");
+    const dashboardButton = document.getElementById("dashboard-button");
     const versionBadge = document.getElementById("badge-version");
 
     function doPackageAction(uri, packages, repository, successText, failureText, data) {
@@ -141,14 +141,62 @@
             data => {
                 versionBadge.innerHTML = `<i class="bi bi-github"></i> ahriman ${safe(data.version)}`;
 
-                statusBadge.classList.remove(...statusBadge.classList);
-                statusBadge.classList.add("btn");
-                statusBadge.classList.add(badgeClass(data.status.status));
+                dashboardButton.classList.remove(...dashboardButton.classList);
+                dashboardButton.classList.add("btn");
+                dashboardButton.classList.add(badgeClass(data.status.status));
 
-                const popover = bootstrap.Popover.getOrCreateInstance(statusBadge);
-                popover.dispose();
-                statusBadge.dataset.bsContent = `${data.status.status} at ${new Date(1000 * data.status.timestamp).toISOStringShort()}`;
-                bootstrap.Popover.getOrCreateInstance(statusBadge);
+                dashboardModalHeader.classList.remove(...dashboardModalHeader.classList);
+                dashboardModalHeader.classList.add("modal-header");
+                headerClass(data.status.status).forEach(clz => dashboardModalHeader.classList.add(clz));
+
+                dashboardName.textContent = data.repository;
+                dashboardArchitecture.textContent = data.architecture;
+                dashboardStatus.textContent = data.status.status;
+                dashboardStatusTimestamp.textContent = new Date(1000 * data.status.timestamp).toISOStringShort();
+
+                if (dashboardPackagesStatusesChart) {
+                    const labels = [
+                        "unknown",
+                        "pending",
+                        "building",
+                        "failed",
+                        "success",
+                    ];
+                    dashboardPackagesStatusesChart.config.data = {
+                        labels: labels,
+                        datasets: [{
+                            label: "packages in status",
+                            data: labels.map(label => data.packages[label]),
+                            backgroundColor: [
+                                "rgb(55, 58, 60)",
+                                "rgb(255, 117, 24)",
+                                "rgb(255, 117, 24)",
+                                "rgb(255, 0, 57)",
+                                "rgb(63, 182, 24)",  // copy-paste from current style
+                            ],
+                        }],
+                    };
+                    dashboardPackagesStatusesChart.update();
+                }
+
+                if (dashboardPackagesCountChart) {
+                    dashboardPackagesCountChart.config.data = {
+                        labels: ["packages"],
+                        datasets: [
+                            {
+                                label: "archives",
+                                data: [data.stats.packages],
+                            },
+                            {
+                                label: "bases",
+                                data: [data.stats.bases],
+                            },
+                        ],
+                    };
+                    dashboardPackagesCountChart.update();
+                }
+
+                dashboardCanvas.hidden = data.status.total > 0;
             },
         );
     }
@@ -227,7 +275,6 @@
             });
         });
 
-        bootstrap.Popover.getOrCreateInstance(statusBadge);
         selectRepository();
     });
 </script>

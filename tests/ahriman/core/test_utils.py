@@ -479,6 +479,7 @@ def test_walk(resource_path_root: Path) -> None:
         resource_path_root / "models" / "pkgbuild",
         resource_path_root / "models" / "utf8",
         resource_path_root / "web" / "templates" / "build-status" / "alerts.jinja2",
+        resource_path_root / "web" / "templates" / "build-status" / "dashboard.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "key-import-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "login-modal.jinja2",
         resource_path_root / "web" / "templates" / "build-status" / "package-add-modal.jinja2",
