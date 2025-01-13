@@ -1,0 +1,76 @@
+<div id="dashboard-modal" tabindex="-1" role="dialog" class="modal fade">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+             <div id="dashboard-modal-header" class="modal-header">
+                <h4 class="modal-title">System health</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-2" style="text-align: right">Repository name</div>
+                    <div id="dashboard-name" class="col-8 col-lg-3"></div>
+                    <div class="col-4 col-lg-2" style="text-align: right">Repository architecture</div>
+                    <div id="dashboard-architecture" class="col-8 col-lg-3"></div>
+                </div>
+
+                <div class="form-group row mt-2">
+                    <div class="col-4 col-lg-2" style="text-align: right">Current status</div>
+                    <div id="dashboard-status" class="col-8 col-lg-3"></div>
+                    <div class="col-4 col-lg-2" style="text-align: right">Updated at</div>
+                    <div id="dashboard-status-timestamp" class="col-8 col-lg-3"></div>
+                </div>
+
+                <div id="dashboard-canvas" class="form-group row mt-2">
+                    <div class="col-8 col-lg-6">
+                        <canvas id="dashboard-packages-count-chart"></canvas>
+                    </div>
+                    <div class="col-8 col-lg-6">
+                        <canvas id="dashboard-packages-statuses-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i><span class="d-none d-sm-inline"> close</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dashboardModal = document.getElementById("dashboard-modal");
+    const dashboardModalHeader = document.getElementById("dashboard-modal-header");
+
+    const dashboardName = document.getElementById("dashboard-name");
+    const dashboardArchitecture = document.getElementById("dashboard-architecture");
+    const dashboardStatus = document.getElementById("dashboard-status");
+    const dashboardStatusTimestamp = document.getElementById("dashboard-status-timestamp");
+
+    const dashboardCanvas = document.getElementById("dashboard-canvas");
+    const dashboardPackagesStatusesChartCanvas = document.getElementById("dashboard-packages-statuses-chart");
+    let dashboardPackagesStatusesChart = null;
+    const dashboardPackagesCountChartCanvas = document.getElementById("dashboard-packages-count-chart");
+    let dashboardPackagesCountChart = null;
+
+    ready(_ => {
+        dashboardPackagesStatusesChart = new Chart(dashboardPackagesStatusesChartCanvas, {
+            type: "pie",
+            data: {},
+            options: {
+                responsive: true,
+            },
+        });
+        dashboardPackagesCountChart = new Chart(dashboardPackagesCountChartCanvas, {
+            type: "bar",
+            data: {},
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                },
+            },
+        });
+    });
+</script>

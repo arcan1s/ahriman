@@ -58,6 +58,14 @@
         return value.includes(dataList[index].toLowerCase());
     }
 
+    function headerClass(status) {
+        if (status === "pending") return ["bg-warning"];
+        if (status === "building") return ["bg-warning"];
+        if (status === "failed") return ["bg-danger", "text-white"];
+        if (status === "success") return ["bg-success", "text-white"];
+        return ["bg-secondary", "text-white"];
+    }
+
     function listToTable(data) {
         return Array.from(new Set(data))
             .sort()
