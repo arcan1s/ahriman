@@ -359,13 +359,10 @@ def test_actual_version_vcs(package_tpacpi_bat_git: Package, configuration: Conf
     mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
     mocker.patch("pathlib.Path.glob", return_value=[Path("local")])
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
-    build_mock = mocker.patch("ahriman.core.build_tools.task.Task.build")
     unlink_mock = mocker.patch("pathlib.Path.unlink")
 
     assert package_tpacpi_bat_git.actual_version(configuration) == "3.1.r13.g4959b52-1"
     init_mock.assert_called_once_with(configuration.repository_paths.cache_for(package_tpacpi_bat_git.base), [], None)
-    build_mock.assert_called_once_with(configuration.repository_paths.cache_for(package_tpacpi_bat_git.base),
-                                       dry_run=True)
     unlink_mock.assert_called_once_with()
 
 

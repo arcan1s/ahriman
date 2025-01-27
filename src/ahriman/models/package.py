@@ -432,8 +432,6 @@ class Package(LazyLogging):
             with self.suppress_logging():
                 # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
                 task.init(paths.cache_for(self.base), [], None)
-                task.build(paths.cache_for(self.base), dry_run=True)
-
                 pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
 
                 return full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])

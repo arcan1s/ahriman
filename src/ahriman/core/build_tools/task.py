@@ -149,8 +149,11 @@ class Task(LazyLogging):
             str | None: current commit sha if available
         """
         last_commit_sha = Sources.load(sources_dir, self.package, patches, self.paths)
-        if local_version is None:
-            return last_commit_sha  # there is no local package or pkgrel increment is disabled
+        if self.package.is_vcs:  # if package is VCS, then make sure to update PKGBUILD to the latest version
+            self.build(sources_dir, dry_run=True)
+
+        if local_version is None:  # there is no local package or pkgrel increment is disabled
+            return last_commit_sha
 
         # load fresh package
         loaded_package = Package.from_build(sources_dir, self.architecture, None)

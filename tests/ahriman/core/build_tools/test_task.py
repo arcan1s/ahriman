@@ -117,6 +117,21 @@ def test_init(task_ahriman: Task, mocker: MockerFixture) -> None:
     load_mock.assert_called_once_with(Path("ahriman"), task_ahriman.package, patches, task_ahriman.paths)
 
 
+def test_init_vcs(task_ahriman: Task, mocker: MockerFixture) -> None:
+    """
+    must copy tree instead of fetch
+    """
+    task_ahriman.package.base += "-git"
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=task_ahriman.package)
+    load_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.load", return_value="sha")
+    build_mock = mocker.patch("ahriman.core.build_tools.task.Task.build")
+
+    local = Path("ahriman")
+    assert task_ahriman.init(local, [], None) == "sha"
+    load_mock.assert_called_once_with(local, task_ahriman.package, [], task_ahriman.paths)
+    build_mock.assert_called_once_with(local, dry_run=True)
+
+
 def test_init_bump_pkgrel(task_ahriman: Task, mocker: MockerFixture) -> None:
     """
     must bump pkgrel if it is same as provided
