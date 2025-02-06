@@ -75,6 +75,15 @@ class LocalClient(Client):
         """
         return self.database.event_get(event, object_id, from_date, to_date, limit, offset, self.repository_id)
 
+    def logs_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older logs from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        self.database.logs_rotate(keep_last_records, self.repository_id)
+
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -145,7 +154,8 @@ class LocalClient(Client):
         """
         self.database.logs_insert(log_record_id, created, message, self.repository_id)
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1,
+                         offset: int = 0) -> list[tuple[LogRecordId, float, str]]:
         """
         get package logs
 
@@ -155,7 +165,7 @@ class LocalClient(Client):
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[float, str]]: package logs
+            list[tuple[LogRecordId, float, str]]: package logs
         """
         return self.database.logs_get(package_base, limit, offset, self.repository_id)
 

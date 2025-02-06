@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from dataclasses import dataclass
+import uuid
+
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -28,7 +30,12 @@ class LogRecordId:
     Attributes:
         package_base(str): package base for which log record belongs
         version(str): package version for which log record belongs
+        process_id(str, optional): unique process identifier
     """
 
     package_base: str
     version: str
+
+    # this is not mistake, this value is kind of global identifier, which is generated
+    # upon the process start
+    process_id: str = field(default=str(uuid.uuid4()))

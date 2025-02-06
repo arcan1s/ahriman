@@ -67,6 +67,8 @@ class LogsView(StatusViewGuard, BaseView):
             {
                 "created": created,
                 "message": message,
-            } for created, message in logs
+                "version": log_record_id.version,
+                "process_id": log_record_id.process_id,
+            } for log_record_id, created, message in logs
         ]
         return json_response(response)
