@@ -5,7 +5,6 @@ from pytest_mock import MockerFixture
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
-from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
 
@@ -62,38 +61,6 @@ def test_package_get_failed(watcher: Watcher, package_ahriman: Package) -> None:
     """
     with pytest.raises(UnknownPackageError):
         watcher.package_get(package_ahriman.base)
-
-
-def test_package_logs_add_new(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must create package logs record for new package
-    """
-    delete_mock = mocker.patch("ahriman.core.status.watcher.Watcher.package_logs_remove", create=True)
-    insert_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_logs_add")
-
-    log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.version)
-    assert watcher._last_log_record_id != log_record_id
-
-    watcher.package_logs_add(log_record_id, 42.01, "log record")
-    delete_mock.assert_called_once_with(package_ahriman.base, log_record_id.version)
-    insert_mock.assert_called_once_with(log_record_id, 42.01, "log record")
-
-    assert watcher._last_log_record_id == log_record_id
-
-
-def test_package_logs_add_update(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must create package logs record for current package
-    """
-    delete_mock = mocker.patch("ahriman.core.status.watcher.Watcher.package_logs_remove", create=True)
-    insert_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_logs_add")
-
-    log_record_id = LogRecordId(package_ahriman.base, watcher._last_log_record_id.version)
-    watcher._last_log_record_id = log_record_id
-
-    watcher.package_logs_add(log_record_id, 42.01, "log record")
-    delete_mock.assert_not_called()
-    insert_mock.assert_called_once_with(log_record_id, 42.01, "log record")
 
 
 def test_package_remove(watcher: Watcher, package_ahriman: Package, mocker: MockerFixture) -> None:

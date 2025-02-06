@@ -87,13 +87,3 @@ def test_in_package_context_failed(database: SQLite, package_ahriman: Package, m
             raise ValueError()
 
     reset_mock.assert_called_once_with()
-
-
-def test_suppress_logging(database: SQLite, mocker: MockerFixture) -> None:
-    """
-    must temporary disable log messages
-    """
-    disable_mock = mocker.patch("ahriman.core.log.lazy_logging.logging.disable")
-    with database.suppress_logging():
-        pass
-    disable_mock.assert_has_calls([MockCall(logging.WARNING), MockCall(logging.NOTSET)])

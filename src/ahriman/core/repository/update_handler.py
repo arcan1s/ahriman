@@ -144,8 +144,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                         branch="master",
                     )
 
-                    with self.suppress_logging():
-                        Sources.fetch(cache_dir, source)
+                    Sources.fetch(cache_dir, source)
                     remote = Package.from_build(cache_dir, self.architecture, None)
 
                     local = packages.get(remote.base)
