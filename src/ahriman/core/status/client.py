@@ -115,6 +115,14 @@ class Client:
         """
         raise NotImplementedError
 
+    def logs_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older logs from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -197,7 +205,8 @@ class Client:
         """
         # this method does not raise NotImplementedError because it is actively used as dummy client for http log
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1,
+                         offset: int = 0) -> list[tuple[LogRecordId, float, str]]:
         """
         get package logs
 
@@ -207,7 +216,7 @@ class Client:
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[float, str]]: package logs
+            list[tuple[LogRecordId, float, str]]: package logs
 
         Raises:
             NotImplementedError: not implemented method

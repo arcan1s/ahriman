@@ -210,6 +210,18 @@ class WebClient(Client, SyncAhrimanClient):
 
         return []
 
+    def logs_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older logs from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+        query = self.repository_id.query() + [("keep_last_records", str(keep_last_records))]
+
+        with contextlib.suppress(Exception):
+            self.make_request("DELETE", f"{self.address}/api/v1/service/logs", params=query)
+
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -306,6 +318,7 @@ class WebClient(Client, SyncAhrimanClient):
         payload = {
             "created": created,
             "message": message,
+            "process_id": log_record_id.process_id,
             "version": log_record_id.version,
         }
 
@@ -315,7 +328,8 @@ class WebClient(Client, SyncAhrimanClient):
         self.make_request("POST", self._logs_url(log_record_id.package_base),
                           params=self.repository_id.query(), json=payload, suppress_errors=True)
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1,
+                         offset: int = 0) -> list[tuple[LogRecordId, float, str]]:
         """
         get package logs
 
@@ -325,7 +339,7 @@ class WebClient(Client, SyncAhrimanClient):
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[float, str]]: package logs
+            list[tuple[LogRecordId, float, str]]: package logs
         """
         query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
 
@@ -333,7 +347,13 @@ class WebClient(Client, SyncAhrimanClient):
             response = self.make_request("GET", self._logs_url(package_base), params=query)
             response_json = response.json()
 
-            return [(record["created"], record["message"]) for record in response_json]
+            return [
+                (
+                    LogRecordId(package_base, record["version"], record["process_id"]),
+                    record["created"],
+                    record["message"]
+                ) for record in response_json
+            ]
 
         return []
 

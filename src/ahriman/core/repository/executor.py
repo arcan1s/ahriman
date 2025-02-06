@@ -75,7 +75,7 @@ class Executor(PackageInfo, Cleaner):
 
         result = Result()
         for single in updates:
-            with self.in_package_context(single.base, local_versions.get(single.base)), \
+            with self.in_package_context(single.base, single.version), \
                     TemporaryDirectory(ignore_cleanup_errors=True) as dir_name:
                 try:
                     with self.in_event(single.base, EventType.PackageUpdated, failure=EventType.PackageUpdateFailed):
@@ -194,7 +194,6 @@ class Executor(PackageInfo, Cleaner):
             self.repo.add(package_path)
 
         current_packages = {package.base: package for package in self.packages()}
-        local_versions = {package_base: package.version for package_base, package in current_packages.items()}
 
         removed_packages: list[str] = []  # list of packages which have been removed from the base
         updates = self.load_archives(packages)
@@ -202,7 +201,7 @@ class Executor(PackageInfo, Cleaner):
 
         result = Result()
         for local in updates:
-            with self.in_package_context(local.base, local_versions.get(local.base)):
+            with self.in_package_context(local.base, local.version):
                 try:
                     packager = self.packager(packagers, local.base)
 

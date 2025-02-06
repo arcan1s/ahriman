@@ -17,26 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman import __version__
-from ahriman.web.apispec import Schema, fields
+__all__ = ["steps"]
 
 
-class LogSchema(Schema):
+steps = [
     """
-    request and response package log schema
-    """
-
-    created = fields.Float(required=True, metadata={
-        "description": "Log record timestamp",
-        "example": 1680537091.233495,
-    })
-    message = fields.String(required=True, metadata={
-        "description": "Log message",
-    })
-    version = fields.String(required=True, metadata={
-        "description": "Package version to tag",
-        "example": __version__,
-    })
-    process_id = fields.String(metadata={
-        "description": "Process unique identifier",
-    })
+    alter table logs add column process_id text not null default ''
+    """,
+]

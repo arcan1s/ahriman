@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import atexit
 import logging
 
 from typing import Self
@@ -33,6 +34,7 @@ class HttpLogHandler(logging.Handler):
     method
 
     Attributes:
+        keep_last_records(int): number of last records to keep
         reporter(Client): build status reporter instance
         suppress_errors(bool): suppress logging errors (e.g. if no web server available)
     """
@@ -51,6 +53,7 @@ class HttpLogHandler(logging.Handler):
 
         self.reporter = Client.load(repository_id, configuration, report=report)
         self.suppress_errors = suppress_errors
+        self.keep_last_records = configuration.getint("settings", "keep_last_logs", fallback=0)
 
     @classmethod
     def load(cls, repository_id: RepositoryId, configuration: Configuration, *, report: bool) -> Self:
@@ -76,6 +79,8 @@ class HttpLogHandler(logging.Handler):
         handler = cls(repository_id, configuration, report=report, suppress_errors=suppress_errors)
         root.addHandler(handler)
 
+        atexit.register(handler.rotate)
+
         return handler
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -95,3 +100,9 @@ class HttpLogHandler(logging.Handler):
             if self.suppress_errors:
                 return
             self.handleError(record)
+
+    def rotate(self) -> None:
+        """
+        rotate log records, removing older ones
+        """
+        self.reporter.logs_rotate(self.keep_last_records)
