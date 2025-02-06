@@ -19,12 +19,14 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
 
     add_mock = mocker.patch("logging.Logger.addHandler")
     load_mock = mocker.patch("ahriman.core.status.Client.load")
+    atexit_mock = mocker.patch("atexit.register")
 
     _, repository_id = configuration.check_loaded()
     handler = HttpLogHandler.load(repository_id, configuration, report=False)
     assert handler
     add_mock.assert_called_once_with(handler)
     load_mock.assert_called_once_with(repository_id, configuration, report=False)
+    atexit_mock.assert_called_once_with(handler.rotate)
 
 
 def test_load_exist(configuration: Configuration) -> None:
@@ -93,3 +95,16 @@ def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, 
 
     handler.emit(log_record)
     log_mock.assert_not_called()
+
+
+def test_rotate(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must rotate logs
+    """
+    rotate_mock = mocker.patch("ahriman.core.status.Client.logs_rotate")
+
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
+
+    handler.rotate()
+    rotate_mock.assert_called_once_with(handler.keep_last_records)

@@ -30,7 +30,7 @@ class LogsOperations(Operations):
     """
 
     def logs_get(self, package_base: str, limit: int = -1, offset: int = 0,
-                 repository_id: RepositoryId | None = None) -> list[tuple[float, str]]:
+                 repository_id: RepositoryId | None = None) -> list[tuple[LogRecordId, float, str]]:
         """
         extract logs for specified package base
 
@@ -41,16 +41,16 @@ class LogsOperations(Operations):
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Return:
-            list[tuple[float, str]]: sorted package log records and their timestamps
+            list[tuple[LogRecordId, float, str]]: sorted package log records and their timestamps
         """
         repository_id = repository_id or self._repository_id
 
-        def run(connection: Connection) -> list[tuple[float, str]]:
+        def run(connection: Connection) -> list[tuple[LogRecordId, float, str]]:
             return [
-                (row["created"], row["record"])
+                (LogRecordId(package_base, row["version"], row["process_id"]), row["created"], row["record"])
                 for row in connection.execute(
                     """
-                    select created, record from (
+                    select created, record, version, process_id from (
                         select * from logs
                         where package_base = :package_base and repository = :repository
                         order by created desc limit :limit offset :offset
@@ -83,9 +83,9 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, version, created, record, repository)
+                (package_base, version, created, record, repository, process_id)
                 values
-                (:package_base, :version, :created, :record, :repository)
+                (:package_base, :version, :created, :record, :repository, :process_id)
                 """,
                 {
                     "package_base": log_record_id.package_base,
@@ -93,6 +93,7 @@ class LogsOperations(Operations):
                     "created": created,
                     "record": record,
                     "repository": repository_id.id,
+                    "process_id": log_record_id.process_id,
                 }
             )
 
@@ -123,5 +124,56 @@ class LogsOperations(Operations):
                     "repository": repository_id.id,
                 }
             )
+
+        return self.with_connection(run, commit=True)
+
+    def logs_rotate(self, keep_last_records: int, repository_id: RepositoryId | None = None) -> None:
+        """
+        rotate logs in storage. This method will remove old logs, keeping only the last N records for each package
+
+        Args:
+            keep_last_records(int): number of last records to keep
+            repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
+        """
+        repository_id = repository_id or self._repository_id
+
+        def remove_duplicates(connection: Connection) -> None:
+            connection.execute(
+                """
+                delete from logs
+                where (package_base, version, repository, process_id) not in (
+                  select package_base, version, repository, process_id from logs
+                  where (package_base, version, repository, created) in (
+                    select package_base, version, repository, max(created) from logs
+                    where repository = :repository
+                    group by package_base, version, repository
+                  )
+                )
+                """,
+                {
+                    "repository": repository_id.id,
+                }
+            )
+
+        def remove_older(connection: Connection) -> None:
+            connection.execute(
+                """
+                delete from logs
+                where (package_base, repository, process_id) in (
+                  select package_base, repository, process_id from logs
+                  where repository = :repository
+                  group by package_base, repository, process_id
+                  order by min(created) desc limit -1 offset :offset
+                )
+                """,
+                {
+                    "offset": keep_last_records,
+                    "repository": repository_id.id,
+                }
+            )
+
+        def run(connection: Connection) -> None:
+            remove_duplicates(connection)
+            remove_older(connection)
 
         return self.with_connection(run, commit=True)

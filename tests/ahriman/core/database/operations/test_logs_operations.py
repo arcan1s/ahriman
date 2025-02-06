@@ -14,8 +14,12 @@ def test_logs_insert_remove_version(database: SQLite, package_ahriman: Package,
     database.logs_insert(LogRecordId(package_python_schedule.base, "1"), 42.0, "message 3")
 
     database.logs_remove(package_ahriman.base, "1")
-    assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
-    assert database.logs_get(package_python_schedule.base) == [(42.0, "message 3")]
+    assert database.logs_get(package_ahriman.base) == [
+        (LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"),
+    ]
+    assert database.logs_get(package_python_schedule.base) == [
+        (LogRecordId(package_python_schedule.base, "1"), 42.0, "message 3"),
+    ]
 
 
 def test_logs_insert_remove_multi(database: SQLite, package_ahriman: Package) -> None:
@@ -28,7 +32,7 @@ def test_logs_insert_remove_multi(database: SQLite, package_ahriman: Package) ->
 
     database.logs_remove(package_ahriman.base, None, RepositoryId("i686", database._repository_id.name))
     assert not database.logs_get(package_ahriman.base, repository_id=RepositoryId("i686", database._repository_id.name))
-    assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
+    assert database.logs_get(package_ahriman.base) == [(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")]
 
 
 def test_logs_insert_remove_full(database: SQLite, package_ahriman: Package, package_python_schedule: Package) -> None:
@@ -41,7 +45,9 @@ def test_logs_insert_remove_full(database: SQLite, package_ahriman: Package, pac
 
     database.logs_remove(package_ahriman.base, None)
     assert not database.logs_get(package_ahriman.base)
-    assert database.logs_get(package_python_schedule.base) == [(42.0, "message 3")]
+    assert database.logs_get(package_python_schedule.base) == [
+        (LogRecordId(package_python_schedule.base, "1"), 42.0, "message 3"),
+    ]
 
 
 def test_logs_insert_get(database: SQLite, package_ahriman: Package) -> None:
@@ -50,7 +56,10 @@ def test_logs_insert_get(database: SQLite, package_ahriman: Package) -> None:
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
-    assert database.logs_get(package_ahriman.base) == [(42.0, "message 1"), (43.0, "message 2")]
+    assert database.logs_get(package_ahriman.base) == [
+        (LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"),
+        (LogRecordId(package_ahriman.base, "1"), 43.0, "message 2"),
+    ]
 
 
 def test_logs_insert_get_pagination(database: SQLite, package_ahriman: Package) -> None:
@@ -59,7 +68,9 @@ def test_logs_insert_get_pagination(database: SQLite, package_ahriman: Package) 
     """
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
     database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
-    assert database.logs_get(package_ahriman.base, 1, 1) == [(42.0, "message 1")]
+    assert database.logs_get(package_ahriman.base, 1, 1) == [
+        (LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"),
+    ]
 
 
 def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> None:
@@ -71,5 +82,40 @@ def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> No
                          RepositoryId("i686", database._repository_id.name))
 
     assert database.logs_get(package_ahriman.base,
-                             repository_id=RepositoryId("i686", database._repository_id.name)) == [(43.0, "message 2")]
-    assert database.logs_get(package_ahriman.base) == [(42.0, "message 1")]
+                             repository_id=RepositoryId("i686", database._repository_id.name)) == [
+        (LogRecordId(package_ahriman.base, "1"), 43.0, "message 2"),
+    ]
+    assert database.logs_get(package_ahriman.base) == [
+        (LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"),
+    ]
+
+
+def test_logs_rotate_remove_all(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must remove all records when rotating with keep_last_records is 0
+    """
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1")
+    database.logs_insert(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2")
+    database.logs_insert(LogRecordId(package_ahriman.base, "2"), 44.0, "message 3")
+
+    database.logs_rotate(0)
+    assert not database.logs_get(package_ahriman.base)
+
+
+def test_logs_rotate_remove_duplicates(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must remove duplicate records while preserving the most recent one for each package version
+    """
+    database.logs_insert(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1")
+    database.logs_insert(LogRecordId(package_ahriman.base, "1", "p2"), 43.0, "message 2")
+    database.logs_insert(LogRecordId(package_ahriman.base, "1", "p3"), 44.0, "message 3")
+    database.logs_insert(LogRecordId(package_ahriman.base, "2", "p1"), 45.0, "message 4")
+
+    database.logs_rotate(2)
+
+    logs = database.logs_get(package_ahriman.base)
+    assert len(logs) == 2
+    assert logs == [
+        (LogRecordId(package_ahriman.base, "1", "p3"), 44.0, "message 3"),
+        (LogRecordId(package_ahriman.base, "2", "p1"), 45.0, "message 4"),
+    ]

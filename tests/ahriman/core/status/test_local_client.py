@@ -34,6 +34,15 @@ def test_event_get(local_client: LocalClient, package_ahriman: Package, mocker: 
                                        local_client.repository_id)
 
 
+def test_logs_rotate(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must rotate logs
+    """
+    rotate_mock = mocker.patch("ahriman.core.database.SQLite.logs_rotate")
+    local_client.logs_rotate(42)
+    rotate_mock.assert_called_once_with(42, local_client.repository_id)
+
+
 def test_package_changes_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must retrieve package changes

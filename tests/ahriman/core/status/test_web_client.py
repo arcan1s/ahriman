@@ -257,6 +257,57 @@ def test_event_get_failed_http_error_suppress(web_client: WebClient, mocker: Moc
     logging_mock.assert_not_called()
 
 
+def test_logs_rotate(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must rotate logs
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+
+    web_client.logs_rotate(42)
+    requests_mock.assert_called_once_with("DELETE", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [("keep_last_records", "42")])
+
+
+def test_logs_rotate_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during logs rotation
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.logs_rotate(42)
+
+
+def test_logs_rotate_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during logs rotation
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.logs_rotate(42)
+
+
+def test_logs_rotate_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during logs rotation and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.logs_rotate(42)
+    logging_mock.assert_not_called()
+
+
+def test_logs_rotate_failed_http_error_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during logs rotation and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.logs_rotate(42)
+    logging_mock.assert_not_called()
+
+
 def test_package_changes_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must get changes
@@ -551,6 +602,7 @@ def test_package_logs_add(web_client: WebClient, log_record: logging.LogRecord, 
     payload = {
         "created": log_record.created,
         "message": log_record.getMessage(),
+        "process_id": LogRecordId.process_id,
         "version": package_ahriman.version,
     }
 
@@ -588,7 +640,12 @@ def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocke
     """
     must get logs
     """
-    message = {"created": 42.0, "message": "log"}
+    message = {
+        "created": 42.0,
+        "message": "log",
+        "version": package_ahriman.version,
+        "process_id": LogRecordId.process_id,
+    }
     response_obj = requests.Response()
     response_obj._content = json.dumps([message]).encode("utf8")
     response_obj.status_code = 200
@@ -598,7 +655,9 @@ def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocke
     result = web_client.package_logs_get(package_ahriman.base, 1, 2)
     requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query() + [("limit", "1"), ("offset", "2")])
-    assert result == [(message["created"], message["message"])]
+    assert result == [
+        (LogRecordId(package_ahriman.base, package_ahriman.version), message["created"], message["message"]),
+    ]
 
 
 def test_package_logs_get_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

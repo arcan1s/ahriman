@@ -3,6 +3,7 @@ import pytest
 from aiohttp.test_utils import TestClient
 
 from ahriman.models.build_status import BuildStatusEnum
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
 from ahriman.web.views.v2.packages.logs import LogsView
@@ -48,10 +49,14 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
         {
             "created": 42.0,
             "message": "message 1",
+            "version": "42",
+            "process_id": LogRecordId.process_id,
         },
         {
             "created": 43.0,
             "message": "message 2",
+            "version": "42",
+            "process_id": LogRecordId.process_id,
         },
     ]
 
@@ -76,7 +81,7 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
 
     logs = await response.json()
     assert not response_schema.validate(logs)
-    assert logs == [{"created": 42.0, "message": "message 1"}]
+    assert logs == [{"created": 42.0, "message": "message 1", "version": "42", "process_id": LogRecordId.process_id}]
 
 
 async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> None:

@@ -112,6 +112,13 @@ def test_event_get(client: Client) -> None:
         client.event_get(None, None)
 
 
+def test_logs_rotate(client: Client, package_ahriman: Package) -> None:
+    """
+    must do not raise exception on logs rotation call
+    """
+    client.logs_rotate(1)
+
+
 def test_package_changes_get(client: Client, package_ahriman: Package) -> None:
     """
     must raise not implemented on package changes request

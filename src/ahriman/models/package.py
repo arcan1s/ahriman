@@ -429,12 +429,11 @@ class Package(LazyLogging):
         task = Task(self, configuration, repository_id.architecture, paths)
 
         try:
-            with self.suppress_logging():
-                # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
-                task.init(paths.cache_for(self.base), [], None)
-                pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
+            # create fresh chroot environment, fetch sources and - automagically - update PKGBUILD
+            task.init(paths.cache_for(self.base), [], None)
+            pkgbuild = Pkgbuild.from_file(paths.cache_for(self.base) / "PKGBUILD")
 
-                return full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])
+            return full_version(pkgbuild.get("epoch"), pkgbuild["pkgver"], pkgbuild["pkgrel"])
         except Exception:
             self.logger.exception("cannot determine version of VCS package")
         finally:
