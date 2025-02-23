@@ -1,9 +1,11 @@
 import pytest
 
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
 
+from ahriman.core.exceptions import EncodeError
 from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -23,11 +25,37 @@ def test_from_file(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
     must correctly load from file
     """
     open_mock = mocker.patch("pathlib.Path.open")
+    open_mock.return_value.__enter__.return_value = BytesIO(b"content")
     load_mock = mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_io", return_value=pkgbuild_ahriman)
 
     assert Pkgbuild.from_file(Path("local"))
-    open_mock.assert_called_once_with(encoding="utf8")
+    open_mock.assert_called_once_with("rb")
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+
+
+def test_from_file_latin(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
+    """
+    must correctly load from file with latin encoding
+    """
+    open_mock = mocker.patch("pathlib.Path.open")
+    open_mock.return_value.__enter__.return_value = BytesIO("contént".encode("latin-1"))
+    load_mock = mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_io", return_value=pkgbuild_ahriman)
+
+    assert Pkgbuild.from_file(Path("local"))
+    open_mock.assert_called_once_with("rb")
+    load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
+
+
+def test_from_file_unknown_encoding(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
+    """
+    must raise exception when encoding is unknown
+    """
+    open_mock = mocker.patch("pathlib.Path.open")
+    io_mock = open_mock.return_value.__enter__.return_value = MagicMock()
+    io_mock.read.return_value.decode.side_effect = EncodeError(pkgbuild_ahriman.DEFAULT_ENCODINGS)
+
+    with pytest.raises(EncodeError):
+        assert Pkgbuild.from_file(Path("local"))
 
 
 def test_from_io(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
@@ -461,9 +489,7 @@ def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
         "pkgbase": "python-pytest-loop",
         "_pname": "${pkgbase#python-}",
         "_pyname": "${_pname//-/_}",
-        "pkgname": [
-            "python-${_pname}",
-        ],
+        "pkgname": ["python-${_pname}"],
         "pkgver": "1.0.13",
         "pkgrel": "1",
         "pkgdesc": "Pytest plugin for looping test execution.",
@@ -486,4 +512,99 @@ def test_parse_python_pytest_loop(resource_path_root: Path) -> None:
         "md5sums": [
             "98365f49606d5068f92350f1d2569a5f",
         ],
+    }
+
+
+def test_parse_pacman_static(resource_path_root: Path) -> None:
+    """
+    must parse real PKGBUILDs correctly (pacman-static)
+    """
+    pkgbuild = Pkgbuild.from_file(resource_path_root / "models" / "package_pacman-static_pkgbuild")
+    values = {key: value.value for key, value in pkgbuild.fields.items() if not value.is_function}
+    print(values)
+    assert values == {
+        "pkgbase": "pacman-static",
+        "pkgname": "pacman-static",
+        "pkgver": "7.0.0.r6.gc685ae6",
+        "_cares_ver": "1.34.4",
+        "_nghttp2_ver": "1.64.0",
+        "_curlver": "8.12.1",
+        "_sslver": "3.4.1",
+        "_zlibver": "1.3.1",
+        "_xzver": "5.6.4",
+        "_bzipver": "1.0.8",
+        "_zstdver": "1.5.6",
+        "_libarchive_ver": "3.7.7",
+        "_gpgerrorver": "1.51",
+        "_libassuanver": "3.0.0",
+        "_gpgmever": "1.24.2",
+        "pkgrel": "15",
+        "_git_tag": "7.0.0",
+        "_git_patch_level_commit": "c685ae6412af04cae1eaa5d6bda8c277c7ffb8c8",
+        "pkgdesc": "Statically-compiled pacman (to fix or install systems without libc)",
+        "arch": [
+            "i486",
+            "i686",
+            "pentium4",
+            "x86_64",
+            "arm",
+            "armv6h",
+            "armv7h",
+            "aarch64"
+        ],
+        "url": "https://www.archlinux.org/pacman/",
+        "license": ["GPL-2.0-or-later"],
+        "depends": ["pacman"],
+        "makedepends": [
+            "meson",
+            "musl",
+            "kernel-headers-musl",
+            "git",
+        ],
+        "options": [
+            "!emptydirs",
+            "!lto",
+        ],
+        "source": [
+            "git+https://gitlab.archlinux.org/pacman/pacman.git#tag=v${_git_tag}?signed",
+            "pacman-revertme-makepkg-remove-libdepends-and-libprovides.patch::https://gitlab.archlinux.org/pacman/pacman/-/commit/354a300cd26bb1c7e6551473596be5ecced921de.patch",
+        ],
+        "validpgpkeys": [
+            "6645B0A8C7005E78DB1D7864F99FFE0FEAE999BD",
+            "B8151B117037781095514CA7BBDFFC92306B1121",
+        ],
+        "sha512sums": [
+            "44e00c2bc259fe6a85de71f7fd8a43fcfd1b8fb7d920d2267bd5b347e02f1dab736b3d96e31faf7b535480398e2348f7c0b9914e51ca7e12bab2d5b8003926b4",
+            "1a108c4384b6104e627652488659de0b1ac3330640fc3250f0a283af7c5884daab187c1efc024b2545262da1911d2b0b7b0d5e4e5b68bb98db25a760c9f1fb1a",
+            "b544196c3b7a55faacd11700d11e2fe4f16a7418282c9abb24a668544a15293580fd1a2cc5f93367c8a17c7ee45335c6d2f5c68a72dd176d516fd033f203eeec",
+            "3285e14d94bc736d6caddfe7ad7e3c6a6e69d49b079c989bb3e8aba4da62c022e38229d1e691aaa030b7d3bcd89e458d203f260806149a71ad9adb31606eae02",
+            "SKIP",
+            "9fcdcceab8bce43e888db79a38c775ff15790a806d3cc5cc96f396a829c6da2383b258481b5642153da14087943f6ef607af0aa3b75df6f41b95c6cd61d835eb",
+            "SKIP",
+            "1de6307c587686711f05d1e96731c43526fa3af51e4cd94c06c880954b67f6eb4c7db3177f0ea5937d41bc1f8cadcf5bce75025b5c1a46a469376960f1001c5f",
+            "SKIP",
+            "b1873dbb7a49460b007255689102062756972de5cc2d38b12cc9f389b6be412da6797579b1acd3717a8cd2ee118fd9801b94e55f063d4328f050f0876a5eb53c",
+            "b5887ea77417fae49b6cb1e9fa782d3021f268d5219701d87a092235964f73fa72a31428b630445517f56f2bb69dcbbb24119ef9dbf8b4e40a753369a9f9a16f",
+            "580677aad97093829090d4b605ac81c50327e74a6c2de0b85dd2e8525553f3ddde17556ea46f8f007f89e435493c9a20bc997d1ef1c1c2c23274528e3c46b94f",
+            "SKIP",
+            "e3216eca5fae2c9ce419e698bfbe186903088dad0a579749cb49bcde8f9d4073b98bf1570fe69190a9a41feb2a7c9814498ec9b867527de1c74ff75a1cbdfc17",
+            "083f5e675d73f3233c7930ebe20425a533feedeaaa9d8cc86831312a6581cefbe6ed0d08d2fa89be81082f2a5abdabca8b3c080bf97218a1bd59dc118a30b9f3",
+            "SKIP",
+            "21f9da445afd76acaf3acb22d216c2b584d95e8c68e00f5cb3f6673f2d556dd14a7593344adf8ffd194bba3314387ee0e486d6248f6c935abca2edd8a4cf95ed",
+            "SKIP",
+            "4489f615c6a0389577a7d1fd7d3917517bb2fe032abd9a6d87dfdbd165dabcf53f8780645934020bf27517b67a064297475888d5b368176cf06bc22f1e735e2b",
+            "SKIP",
+            "7c5c95c1b85bef2d4890c068a5a8ea8a1fe0d8def6ab09e5f34fc2746d8808bbb0fc168e3bd66d52ee5ed799dcf9f258f4125cda98c8384f6411bcad8d8b3139",
+            "SKIP",
+            "ad69101d1fceef6cd1dd6d5348f6f2be06912da6b6a7d0fece3ce08cf35054e6953b80ca9c4748554882892faa44e7c54e705cf25bbf2b796cd4ad12b09da185",
+            "SKIP",
+            "2524f71f4c2ebc254a1927279be3394e820d0a0c6dec7ef835a862aa08c35756edaa4208bcdc710dd092872b59c200b555b78670372e2830822e278ff1ec4e4a",
+            "SKIP",
+        ],
+        "LDFLAGS": "$LDFLAGS -static",
+        "CC": "musl-gcc -fno-stack-protector",
+        "CXX": "musl-gcc -fno-stack-protector",
+        "CFLAGS": "${CFLAGS/-fstack-protector-strong/}",
+        "CXXFLAGS": "${CXXFLAGS/-fstack-protector-strong/}",
+        "PKGEXT": ".pkg.tar.xz",
     }

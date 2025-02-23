@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, IO, Self
 
 from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser, PkgbuildToken
+from ahriman.core.exceptions import EncodeError
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
@@ -33,10 +34,13 @@ class Pkgbuild(Mapping[str, Any]):
     model and proxy for PKGBUILD properties
 
     Attributes:
+        DEFAULT_ENCODINGS(list[str]): (class attribute) list of encoding to be applied on the file content
         fields(dict[str, PkgbuildPatch]): PKGBUILD fields
     """
 
     fields: dict[str, PkgbuildPatch]
+
+    DEFAULT_ENCODINGS = ["utf8", "latin-1"]
 
     @property
     def variables(self) -> dict[str, str]:
@@ -54,18 +58,34 @@ class Pkgbuild(Mapping[str, Any]):
         }
 
     @classmethod
-    def from_file(cls, path: Path) -> Self:
+    def from_file(cls, path: Path, encodings: list[str] | None = None) -> Self:
         """
         parse PKGBUILD from the file
 
         Args:
             path(Path): path to the PKGBUILD file
+            encodings(list[str] | None, optional): the encoding of the file (Default value = None)
 
         Returns:
             Self: constructed instance of self
+
+        Raises:
+            EncodeError: if encoding is unknown
         """
-        with path.open(encoding="utf8") as input_file:
-            return cls.from_io(input_file)
+        # read raw bytes from file
+        with path.open("rb") as input_file:
+            content = input_file.read()
+
+        # decode bytes content based on either
+        encodings = encodings or cls.DEFAULT_ENCODINGS
+        for encoding in encodings:
+            try:
+                io = StringIO(content.decode(encoding))
+                return cls.from_io(io)
+            except ValueError:
+                pass
+
+        raise EncodeError(encodings)
 
     @classmethod
     def from_io(cls, stream: IO[str]) -> Self:
