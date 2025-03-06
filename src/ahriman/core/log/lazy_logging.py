@@ -74,7 +74,7 @@ class LazyLogging:
 
         def package_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
             record = current_factory(*args, **kwargs)
-            record.package_id = LogRecordId(package_base, version or "")
+            record.package_id = LogRecordId(package_base, version or "<unknown>")
             return record
 
         logging.setLogRecordFactory(package_record_factory)
