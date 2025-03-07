@@ -24,6 +24,7 @@ from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.status import Client
+from ahriman.models.log_record import LogRecord
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -95,7 +96,7 @@ class HttpLogHandler(logging.Handler):
             return  # in case if no package base supplied we need just skip log message
 
         try:
-            self.reporter.package_logs_add(log_record_id, record.created, record.getMessage())
+            self.reporter.package_logs_add(LogRecord(log_record_id, record.created, record.getMessage()))
         except Exception:
             if self.suppress_errors:
                 return

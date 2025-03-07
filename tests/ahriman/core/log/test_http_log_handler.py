@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
@@ -51,7 +52,7 @@ def test_emit(configuration: Configuration, log_record: logging.LogRecord, packa
     handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
-    log_mock.assert_called_once_with(log_record_id, log_record.created, log_record.getMessage())
+    log_mock.assert_called_once_with(LogRecord(log_record_id, log_record.created, log_record.getMessage()))
 
 
 def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord, package_ahriman: Package,

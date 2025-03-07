@@ -13,6 +13,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -112,7 +113,7 @@ def test_event_get(client: Client) -> None:
         client.event_get(None, None)
 
 
-def test_logs_rotate(client: Client, package_ahriman: Package) -> None:
+def test_logs_rotate(client: Client) -> None:
     """
     must do not raise exception on logs rotation call
     """
@@ -164,7 +165,7 @@ def test_package_logs_add(client: Client, package_ahriman: Package, log_record: 
     must process log record addition without exception
     """
     log_record_id = LogRecordId(package_ahriman.base, package_ahriman.version)
-    client.package_logs_add(log_record_id, log_record.created, log_record.getMessage())
+    client.package_logs_add(LogRecord(log_record_id, log_record.created, log_record.getMessage()))
 
 
 def test_package_logs_get(client: Client, package_ahriman: Package) -> None:

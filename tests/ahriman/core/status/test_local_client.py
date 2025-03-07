@@ -8,6 +8,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -112,10 +113,10 @@ def test_package_logs_add(local_client: LocalClient, package_ahriman: Package, l
     """
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_insert")
     log_record_id = LogRecordId(package_ahriman.base, package_ahriman.version)
+    record = LogRecord(log_record_id, log_record.created, log_record.getMessage())
 
-    local_client.package_logs_add(log_record_id, log_record.created, log_record.getMessage())
-    logs_mock.assert_called_once_with(log_record_id, log_record.created, log_record.getMessage(),
-                                      local_client.repository_id)
+    local_client.package_logs_add(record)
+    logs_mock.assert_called_once_with(record, local_client.repository_id)
 
 
 def test_package_logs_get(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:

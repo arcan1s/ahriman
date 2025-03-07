@@ -12,6 +12,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -605,9 +606,10 @@ def test_package_logs_add(web_client: WebClient, log_record: logging.LogRecord, 
         "process_id": LogRecordId.process_id,
         "version": package_ahriman.version,
     }
+    record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
+                       log_record.created, log_record.getMessage())
 
-    web_client.package_logs_add(LogRecordId(package_ahriman.base, package_ahriman.version),
-                                log_record.created, log_record.getMessage())
+    web_client.package_logs_add(record)
     requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query(), json=payload, suppress_errors=True)
 
@@ -619,9 +621,11 @@ def test_package_logs_add_failed(web_client: WebClient, log_record: logging.LogR
     """
     mocker.patch("requests.Session.request", side_effect=Exception())
     log_record.package_base = package_ahriman.base
+    record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
+                       log_record.created, log_record.getMessage())
+
     with pytest.raises(Exception):
-        web_client.package_logs_add(LogRecordId(package_ahriman.base, package_ahriman.version),
-                                    log_record.created, log_record.getMessage())
+        web_client.package_logs_add(record)
 
 
 def test_package_logs_add_failed_http_error(web_client: WebClient, log_record: logging.LogRecord,
@@ -631,9 +635,11 @@ def test_package_logs_add_failed_http_error(web_client: WebClient, log_record: l
     """
     mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
     log_record.package_base = package_ahriman.base
+    record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
+                       log_record.created, log_record.getMessage())
+
     with pytest.raises(Exception):
-        web_client.package_logs_add(LogRecordId(package_ahriman.base, package_ahriman.version),
-                                    log_record.created, log_record.getMessage())
+        web_client.package_logs_add(record)
 
 
 def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -656,7 +662,7 @@ def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocke
     requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query() + [("limit", "1"), ("offset", "2")])
     assert result == [
-        (LogRecordId(package_ahriman.base, package_ahriman.version), message["created"], message["message"]),
+        LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version), message["created"], message["message"]),
     ]
 
 

@@ -21,6 +21,7 @@ from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, j
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.utils import pretty_datetime
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -96,7 +97,7 @@ class LogsView(StatusViewGuard, BaseView):
         response = {
             "package_base": package_base,
             "status": status.view(),
-            "logs": "\n".join(f"[{pretty_datetime(created)}] {message}" for _, created, message in logs)
+            "logs": "\n".join(f"[{pretty_datetime(log_record.created)}] {log_record.message}" for log_record in logs)
         }
         return json_response(response)
 
@@ -130,6 +131,7 @@ class LogsView(StatusViewGuard, BaseView):
 
         # either read from process identifier from payload or assign to the current process identifier
         process_id = data.get("process_id", LogRecordId("", "").process_id)
-        self.service().package_logs_add(LogRecordId(package_base, version, process_id), created, record)
+        log_record = LogRecord(LogRecordId(package_base, version, process_id), created, record)
+        self.service().package_logs_add(log_record)
 
         raise HTTPNoContent

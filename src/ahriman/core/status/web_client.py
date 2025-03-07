@@ -29,6 +29,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -306,30 +307,27 @@ class WebClient(Client, SyncAhrimanClient):
 
         return []
 
-    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
+    def package_logs_add(self, log_record: LogRecord) -> None:
         """
         post log record
 
         Args:
-            log_record_id(LogRecordId): log record id
-            created(float): log created timestamp
-            message(str): log message
+            log_record(LogRecord): log record
         """
         payload = {
-            "created": created,
-            "message": message,
-            "process_id": log_record_id.process_id,
-            "version": log_record_id.version,
+            "created": log_record.created,
+            "message": log_record.message,
+            "process_id": log_record.log_record_id.process_id,
+            "version": log_record.log_record_id.version,
         }
 
         # this is special case, because we would like to do not suppress exception here
         # in case of exception raised it will be handled by upstream HttpLogHandler
         # In the other hand, we force to suppress all http logs here to avoid cyclic reporting
-        self.make_request("POST", self._logs_url(log_record_id.package_base),
+        self.make_request("POST", self._logs_url(log_record.log_record_id.package_base),
                           params=self.repository_id.query(), json=payload, suppress_errors=True)
 
-    def package_logs_get(self, package_base: str, limit: int = -1,
-                         offset: int = 0) -> list[tuple[LogRecordId, float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
@@ -339,7 +337,7 @@ class WebClient(Client, SyncAhrimanClient):
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[LogRecordId, float, str]]: package logs
+            list[LogRecord]: package logs
         """
         query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
 
@@ -348,7 +346,7 @@ class WebClient(Client, SyncAhrimanClient):
             response_json = response.json()
 
             return [
-                (
+                LogRecord(
                     LogRecordId(package_base, record["version"], record["process_id"]),
                     record["created"],
                     record["message"]

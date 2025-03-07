@@ -23,7 +23,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.log_record import LogRecord
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
@@ -143,19 +143,16 @@ class LocalClient(Client):
             return packages
         return [(package, status) for package, status in packages if package.base == package_base]
 
-    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
+    def package_logs_add(self, log_record: LogRecord) -> None:
         """
         post log record
 
         Args:
-            log_record_id(LogRecordId): log record id
-            created(float): log created timestamp
-            message(str): log message
+            log_record(LogRecord): log record
         """
-        self.database.logs_insert(log_record_id, created, message, self.repository_id)
+        self.database.logs_insert(log_record, self.repository_id)
 
-    def package_logs_get(self, package_base: str, limit: int = -1,
-                         offset: int = 0) -> list[tuple[LogRecordId, float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
@@ -165,7 +162,7 @@ class LocalClient(Client):
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[LogRecordId, float, str]]: package logs
+            list[LogRecord]: package logs
         """
         return self.database.logs_get(package_base, limit, offset, self.repository_id)
 

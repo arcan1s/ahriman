@@ -20,6 +20,7 @@
 from sqlite3 import Connection
 
 from ahriman.core.database.operations.operations import Operations
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.repository_id import RepositoryId
 
@@ -30,7 +31,7 @@ class LogsOperations(Operations):
     """
 
     def logs_get(self, package_base: str, limit: int = -1, offset: int = 0,
-                 repository_id: RepositoryId | None = None) -> list[tuple[LogRecordId, float, str]]:
+                 repository_id: RepositoryId | None = None) -> list[LogRecord]:
         """
         extract logs for specified package base
 
@@ -41,13 +42,13 @@ class LogsOperations(Operations):
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
 
         Return:
-            list[tuple[LogRecordId, float, str]]: sorted package log records and their timestamps
+            list[LogRecord]: sorted package log records
         """
         repository_id = repository_id or self._repository_id
 
-        def run(connection: Connection) -> list[tuple[LogRecordId, float, str]]:
+        def run(connection: Connection) -> list[LogRecord]:
             return [
-                (LogRecordId(package_base, row["version"], row["process_id"]), row["created"], row["record"])
+                LogRecord(LogRecordId(package_base, row["version"], row["process_id"]), row["created"], row["record"])
                 for row in connection.execute(
                     """
                     select created, record, version, process_id from (
@@ -66,15 +67,12 @@ class LogsOperations(Operations):
 
         return self.with_connection(run)
 
-    def logs_insert(self, log_record_id: LogRecordId, created: float, record: str,
-                    repository_id: RepositoryId | None = None) -> None:
+    def logs_insert(self, log_record: LogRecord, repository_id: RepositoryId | None = None) -> None:
         """
         write new log record to database
 
         Args:
-            log_record_id(LogRecordId): current log record id
-            created(float): log created timestamp from log record attribute
-            record(str): log record
+            log_record(LogRecord): log record object
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
         """
         repository_id = repository_id or self._repository_id
@@ -88,12 +86,12 @@ class LogsOperations(Operations):
                 (:package_base, :version, :created, :record, :repository, :process_id)
                 """,
                 {
-                    "package_base": log_record_id.package_base,
-                    "version": log_record_id.version,
-                    "created": created,
-                    "record": record,
+                    "package_base": log_record.log_record_id.package_base,
+                    "version": log_record.log_record_id.version,
+                    "created": log_record.created,
+                    "record": log_record.message,
                     "repository": repository_id.id,
-                    "process_id": log_record_id.process_id,
+                    "process_id": log_record.log_record_id.process_id,
                 }
             )
 

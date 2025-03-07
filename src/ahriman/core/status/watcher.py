@@ -28,7 +28,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.log_record import LogRecord
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -107,9 +107,9 @@ class Watcher(LazyLogging):
         except KeyError:
             raise UnknownPackageError(package_base) from None
 
-    package_logs_add: Callable[[LogRecordId, float, str], None]
+    package_logs_add: Callable[[LogRecord], None]
 
-    package_logs_get: Callable[[str, int, int], list[tuple[LogRecordId, float, str]]]
+    package_logs_get: Callable[[str, int, int], list[LogRecord]]
 
     package_logs_remove: Callable[[str, str | None], None]
 
