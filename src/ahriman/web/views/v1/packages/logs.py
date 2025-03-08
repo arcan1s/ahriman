@@ -22,7 +22,6 @@ from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, j
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.utils import pretty_datetime
 from ahriman.models.log_record import LogRecord
-from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
 from ahriman.web.schemas import LogSchema, LogsSchema, PackageNameSchema, PackageVersionSchema, RepositoryIdSchema
@@ -123,15 +122,10 @@ class LogsView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            created = data["created"]
-            record = data["message"]
-            version = data["version"]
+            log_record = LogRecord.from_json(package_base, data)
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        # either read from process identifier from payload or assign to the current process identifier
-        process_id = data.get("process_id", LogRecordId("", "").process_id)
-        log_record = LogRecord(LogRecordId(package_base, version, process_id), created, record)
         self.service().package_logs_add(log_record)
 
         raise HTTPNoContent

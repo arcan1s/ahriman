@@ -63,12 +63,5 @@ class LogsView(StatusViewGuard, BaseView):
 
         logs = self.service(package_base=package_base).package_logs_get(package_base, limit, offset)
 
-        response = [
-            {
-                "created": log_record.created,
-                "message": log_record.message,
-                "version": log_record.log_record_id.version,
-                "process_id": log_record.log_record_id.process_id,
-            } for log_record in logs
-        ]
+        response = [log_record.view() for log_record in logs]
         return json_response(response)

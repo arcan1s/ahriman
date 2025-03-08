@@ -78,7 +78,7 @@ class Event:
             dump(dict[str, Any]): json dump body
 
         Returns:
-            Self: dependencies object
+            Self: event object
         """
         return cls(
             event=dump["event"],

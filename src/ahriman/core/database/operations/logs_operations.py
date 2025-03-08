@@ -21,7 +21,6 @@ from sqlite3 import Connection
 
 from ahriman.core.database.operations.operations import Operations
 from ahriman.models.log_record import LogRecord
-from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -48,10 +47,10 @@ class LogsOperations(Operations):
 
         def run(connection: Connection) -> list[LogRecord]:
             return [
-                LogRecord(LogRecordId(package_base, row["version"], row["process_id"]), row["created"], row["record"])
+                LogRecord.from_json(package_base, row)
                 for row in connection.execute(
                     """
-                    select created, record, version, process_id from (
+                    select created, message, version, process_id from (
                         select * from logs
                         where package_base = :package_base and repository = :repository
                         order by created desc limit :limit offset :offset
@@ -81,18 +80,14 @@ class LogsOperations(Operations):
             connection.execute(
                 """
                 insert into logs
-                (package_base, version, created, record, repository, process_id)
+                (package_base, version, created, message, repository, process_id)
                 values
-                (:package_base, :version, :created, :record, :repository, :process_id)
+                (:package_base, :version, :created, :message, :repository, :process_id)
                 """,
                 {
                     "package_base": log_record.log_record_id.package_base,
-                    "version": log_record.log_record_id.version,
-                    "created": log_record.created,
-                    "record": log_record.message,
                     "repository": repository_id.id,
-                    "process_id": log_record.log_record_id.process_id,
-                }
+                } | log_record.view()
             )
 
         return self.with_connection(run, commit=True)

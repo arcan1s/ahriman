@@ -24,4 +24,7 @@ steps = [
     """
     alter table logs add column process_id text not null default ''
     """,
+    """
+    alter table logs rename column record to message
+    """,
 ]

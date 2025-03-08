@@ -30,7 +30,6 @@ from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
 from ahriman.models.log_record import LogRecord
-from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
@@ -345,13 +344,7 @@ class WebClient(Client, SyncAhrimanClient):
             response = self.make_request("GET", self._logs_url(package_base), params=query)
             response_json = response.json()
 
-            return [
-                LogRecord(
-                    LogRecordId(package_base, record["version"], record["process_id"]),
-                    record["created"],
-                    record["message"]
-                ) for record in response_json
-            ]
+            return [LogRecord.from_json(package_base, record) for record in response_json]
 
         return []
 

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from dataclasses import dataclass
+from typing import Any, Self
 
 from ahriman.models.log_record_id import LogRecordId
 
@@ -36,3 +37,40 @@ class LogRecord:
     log_record_id: LogRecordId
     created: float
     message: str
+
+    @classmethod
+    def from_json(cls, package_base: str, dump: dict[str, Any]) -> Self:
+        """
+        construct log record from the json dump
+
+        Args:
+            package_base(str): package base for which log record belongs
+            dump(dict[str, Any]): json dump body
+
+        Returns:
+            Self: log record object
+        """
+        if "process_id" in dump:
+            log_record_id = LogRecordId(package_base, dump["version"], dump["process_id"])
+        else:
+            log_record_id = LogRecordId(package_base, dump["version"])
+
+        return cls(
+            log_record_id=log_record_id,
+            created=dump["created"],
+            message=dump["message"],
+        )
+
+    def view(self) -> dict[str, Any]:
+        """
+        generate json log record view
+
+        Returns:
+            dict[str, Any]: json-friendly dictionary
+        """
+        return {
+            "created": self.created,
+            "message": self.message,
+            "version": self.log_record_id.version,
+            "process_id": self.log_record_id.process_id,
+        }
