@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
+from ahriman.models.log_record import LogRecord
 from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.package import Package
 
@@ -19,12 +20,14 @@ def test_load(configuration: Configuration, mocker: MockerFixture) -> None:
 
     add_mock = mocker.patch("logging.Logger.addHandler")
     load_mock = mocker.patch("ahriman.core.status.Client.load")
+    atexit_mock = mocker.patch("atexit.register")
 
     _, repository_id = configuration.check_loaded()
     handler = HttpLogHandler.load(repository_id, configuration, report=False)
     assert handler
     add_mock.assert_called_once_with(handler)
     load_mock.assert_called_once_with(repository_id, configuration, report=False)
+    atexit_mock.assert_called_once_with(handler.rotate)
 
 
 def test_load_exist(configuration: Configuration) -> None:
@@ -49,7 +52,7 @@ def test_emit(configuration: Configuration, log_record: logging.LogRecord, packa
     handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
 
     handler.emit(log_record)
-    log_mock.assert_called_once_with(log_record_id, log_record.created, log_record.getMessage())
+    log_mock.assert_called_once_with(LogRecord(log_record_id, log_record.created, log_record.getMessage()))
 
 
 def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord, package_ahriman: Package,
@@ -93,3 +96,16 @@ def test_emit_skip(configuration: Configuration, log_record: logging.LogRecord, 
 
     handler.emit(log_record)
     log_mock.assert_not_called()
+
+
+def test_rotate(configuration: Configuration, mocker: MockerFixture) -> None:
+    """
+    must rotate logs
+    """
+    rotate_mock = mocker.patch("ahriman.core.status.Client.logs_rotate")
+
+    _, repository_id = configuration.check_loaded()
+    handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
+
+    handler.rotate()
+    rotate_mock.assert_called_once_with(handler.keep_last_records)

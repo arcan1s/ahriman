@@ -21,11 +21,10 @@ from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, j
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.utils import pretty_datetime
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.log_record import LogRecord
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import LogsSchema, PackageNameSchema, PackageVersionSchema, RepositoryIdSchema, \
-    VersionedLogSchema
+from ahriman.web.schemas import LogSchema, LogsSchema, PackageNameSchema, PackageVersionSchema, RepositoryIdSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -97,7 +96,7 @@ class LogsView(StatusViewGuard, BaseView):
         response = {
             "package_base": package_base,
             "status": status.view(),
-            "logs": "\n".join(f"[{pretty_datetime(created)}] {message}" for created, message in logs)
+            "logs": "\n".join(f"[{pretty_datetime(log_record.created)}] {log_record.message}" for log_record in logs)
         }
         return json_response(response)
 
@@ -109,7 +108,7 @@ class LogsView(StatusViewGuard, BaseView):
         error_400_enabled=True,
         error_404_description="Repository is unknown",
         match_schema=PackageNameSchema,
-        body_schema=VersionedLogSchema,
+        body_schema=LogSchema,
     )
     async def post(self) -> None:
         """
@@ -123,12 +122,10 @@ class LogsView(StatusViewGuard, BaseView):
 
         try:
             data = await self.request.json()
-            created = data["created"]
-            record = data["message"]
-            version = data["version"]
+            log_record = LogRecord.from_json(package_base, data)
         except Exception as ex:
             raise HTTPBadRequest(reason=str(ex))
 
-        self.service().package_logs_add(LogRecordId(package_base, version), created, record)
+        self.service().package_logs_add(log_record)
 
         raise HTTPNoContent

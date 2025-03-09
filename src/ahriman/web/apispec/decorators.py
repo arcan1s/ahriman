@@ -18,7 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPException
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec import Schema, aiohttp_apispec

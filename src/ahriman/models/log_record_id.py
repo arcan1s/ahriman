@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import uuid
+
 from dataclasses import dataclass
+from typing import ClassVar
 
 
 @dataclass(frozen=True)
@@ -26,9 +29,21 @@ class LogRecordId:
     log record process identifier
 
     Attributes:
+        DEFAULT_PROCESS_ID(str): (class attribute) default process identifier
         package_base(str): package base for which log record belongs
         version(str): package version for which log record belongs
+        process_id(str, optional): unique process identifier
     """
 
     package_base: str
     version: str
+    process_id: str = ""
+
+    DEFAULT_PROCESS_ID: ClassVar[str] = str(uuid.uuid4())
+
+    def __post_init__(self) -> None:
+        """
+        assign process identifier from default if not set
+        """
+        if not self.process_id:
+            object.__setattr__(self, "process_id", self.DEFAULT_PROCESS_ID)

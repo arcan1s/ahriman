@@ -27,7 +27,7 @@ from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
 from ahriman.models.internal_status import InternalStatus
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.log_record import LogRecord
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.repository_id import RepositoryId
@@ -115,6 +115,14 @@ class Client:
         """
         raise NotImplementedError
 
+    def logs_rotate(self, keep_last_records: int) -> None:
+        """
+        remove older logs from storage
+
+        Args:
+            keep_last_records(int): number of last records to keep
+        """
+
     def package_changes_get(self, package_base: str) -> Changes:
         """
         get package changes
@@ -186,18 +194,16 @@ class Client:
         """
         raise NotImplementedError
 
-    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
+    def package_logs_add(self, log_record: LogRecord) -> None:
         """
         post log record
 
         Args:
-            log_record_id(LogRecordId): log record id
-            created(float): log created timestamp
-            message(str): log message
+            log_record(LogRecord): log record
         """
         # this method does not raise NotImplementedError because it is actively used as dummy client for http log
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[tuple[float, str]]:
+    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
@@ -207,7 +213,7 @@ class Client:
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
-            list[tuple[float, str]]: package logs
+            list[LogRecord]: package logs
 
         Raises:
             NotImplementedError: not implemented method

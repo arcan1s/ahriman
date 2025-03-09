@@ -17,18 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman import __version__
-from ahriman.web.apispec import fields
-from ahriman.web.schemas.log_schema import LogSchema
-from ahriman.web.schemas.repository_id_schema import RepositoryIdSchema
+from ahriman.web.apispec import Schema, fields
 
 
-class VersionedLogSchema(LogSchema, RepositoryIdSchema):
+class LogsRotateSchema(Schema):
     """
-    request package log schema
+    request logs rotate schema
     """
 
-    version = fields.Integer(required=True, metadata={
-        "description": "Package version to tag",
-        "example": __version__,
+    keep_last_records = fields.Integer(metadata={
+        "description": "Keep the specified amount of records",
     })

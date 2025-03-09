@@ -28,7 +28,7 @@ from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.changes import Changes
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import Event, EventType
-from ahriman.models.log_record_id import LogRecordId
+from ahriman.models.log_record import LogRecord
 from ahriman.models.package import Package
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -52,9 +52,6 @@ class Watcher(LazyLogging):
         self._lock = Lock()
         self._known: dict[str, tuple[Package, BuildStatus]] = {}
         self.status = BuildStatus()
-
-        # special variables for updating logs
-        self._last_log_record_id = LogRecordId("", "")
 
     @property
     def packages(self) -> list[tuple[Package, BuildStatus]]:
@@ -80,6 +77,8 @@ class Watcher(LazyLogging):
                 package.base: (package, status)
                 for package, status in self.client.package_get(None)
             }
+
+    logs_rotate: Callable[[int], None]
 
     package_changes_get: Callable[[str], Changes]
 
@@ -108,22 +107,9 @@ class Watcher(LazyLogging):
         except KeyError:
             raise UnknownPackageError(package_base) from None
 
-    def package_logs_add(self, log_record_id: LogRecordId, created: float, message: str) -> None:
-        """
-        make new log record into database
+    package_logs_add: Callable[[LogRecord], None]
 
-        Args:
-            log_record_id(LogRecordId): log record id
-            created(float): log created timestamp
-            message(str): log message
-        """
-        if self._last_log_record_id != log_record_id:
-            # there is new log record, so we remove old ones
-            self.package_logs_remove(log_record_id.package_base, log_record_id.version)
-        self._last_log_record_id = log_record_id
-        self.client.package_logs_add(log_record_id, created, message)
-
-    package_logs_get: Callable[[str, int, int], list[tuple[float, str]]]
+    package_logs_get: Callable[[str, int, int], list[LogRecord]]
 
     package_logs_remove: Callable[[str, str | None], None]
 

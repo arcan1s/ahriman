@@ -74,7 +74,7 @@ class LazyLogging:
 
         def package_record_factory(*args: Any, **kwargs: Any) -> logging.LogRecord:
             record = current_factory(*args, **kwargs)
-            record.package_id = LogRecordId(package_base, version or "")
+            record.package_id = LogRecordId(package_base, version or "<unknown>")
             return record
 
         logging.setLogRecordFactory(package_record_factory)
@@ -99,24 +99,3 @@ class LazyLogging:
             yield
         finally:
             self._package_logger_reset()
-
-    @contextlib.contextmanager
-    def suppress_logging(self, log_level: int = logging.WARNING) -> Generator[None, None, None]:
-        """
-        silence log messages in context
-
-        Args:
-            log_level(int, optional): the highest log level to keep (Default value = logging.WARNING)
-
-        Examples:
-             This function is designed to be used to suppress all log messages in context, e.g.:
-
-                 >>> with self.suppress_logging():
-                 >>>     do_some_noisy_actions()
-        """
-        current_level = self.logger.manager.disable
-        try:
-            logging.disable(log_level)
-            yield
-        finally:
-            logging.disable(current_level)
