@@ -12,6 +12,14 @@ ahriman.web.views.v1.service.add module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.views.v1.service.logs module
+----------------------------------------
+
+.. automodule:: ahriman.web.views.v1.service.logs
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.views.v1.service.pgp module
 ---------------------------------------
 

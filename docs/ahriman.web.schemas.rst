@@ -116,6 +116,14 @@ ahriman.web.schemas.login\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.logs\_rotate\_schema module
+-----------------------------------------------
+
+.. automodule:: ahriman.web.schemas.logs_rotate_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.logs\_schema module
 ---------------------------------------
 
@@ -288,14 +296,6 @@ ahriman.web.schemas.update\_flags\_schema module
 ------------------------------------------------
 
 .. automodule:: ahriman.web.schemas.update_flags_schema
-   :members:
-   :no-undoc-members:
-   :show-inheritance:
-
-ahriman.web.schemas.versioned\_log\_schema module
--------------------------------------------------
-
-.. automodule:: ahriman.web.schemas.versioned_log_schema
    :members:
    :no-undoc-members:
    :show-inheritance:

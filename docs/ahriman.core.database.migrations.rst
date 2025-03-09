@@ -124,6 +124,14 @@ ahriman.core.database.migrations.m014\_auditlog module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m015\_logs\_process\_id module
+---------------------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m015_logs_process_id
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

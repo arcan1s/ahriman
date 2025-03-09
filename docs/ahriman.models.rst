@@ -100,6 +100,14 @@ ahriman.models.log\_handler module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.models.log\_record module
+---------------------------------
+
+.. automodule:: ahriman.models.log_record
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.models.log\_record\_id module
 -------------------------------------
 
