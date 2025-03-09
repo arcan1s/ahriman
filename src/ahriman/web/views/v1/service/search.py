@@ -19,6 +19,7 @@
 #
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Response, json_response
 from collections.abc import Callable
+from typing import ClassVar
 
 from ahriman.core.alpm.remote import AUR
 from ahriman.models.aur_package import AURPackage
@@ -36,7 +37,7 @@ class SearchView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Reporter
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
     ROUTES = ["/api/v1/service/search"]
 
     @apidocs(

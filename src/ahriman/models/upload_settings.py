@@ -27,11 +27,11 @@ class UploadSettings(StrEnum):
     remote synchronization targets enumeration
 
     Attributes:
-        Disabled(UploadSettings): (class attribute) no sync will be performed, required for testing purpose
-        Rsync(UploadSettings): (class attribute) sync via rsync
-        S3(UploadSettings): (class attribute) sync to Amazon S3
-        GitHub(UploadSettings): (class attribute) sync to GitHub releases page
-        RemoteService(UploadSettings): (class attribute) sync to another ahriman instance
+        Disabled(UploadSettings): no sync will be performed, required for testing purpose
+        Rsync(UploadSettings): sync via rsync
+        S3(UploadSettings): sync to Amazon S3
+        GitHub(UploadSettings): sync to GitHub releases page
+        RemoteService(UploadSettings): sync to another ahriman instance
     """
 
     Disabled = "disabled"  # for testing purpose

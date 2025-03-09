@@ -19,7 +19,7 @@
 #
 import aiohttp_jinja2
 
-from typing import Any
+from typing import Any, ClassVar
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.user_access import UserAccess
@@ -35,7 +35,7 @@ class DocsView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Unauthorized
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
     ROUTES = ["/api-docs"]
 
     @classmethod

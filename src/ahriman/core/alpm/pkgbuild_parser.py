@@ -34,14 +34,14 @@ class PkgbuildToken(StrEnum):
     well-known tokens dictionary
 
     Attributes:
-        ArrayEnds(PkgbuildToken): (class attribute) array ends token
-        ArrayStarts(PkgbuildToken): (class attribute) array starts token
-        Comma(PkgbuildToken): (class attribute) comma token
-        Comment(PkgbuildToken): (class attribute) comment token
-        FunctionDeclaration(PkgbuildToken): (class attribute) function declaration token
-        FunctionEnds(PkgbuildToken): (class attribute) function ends token
-        FunctionStarts(PkgbuildToken): (class attribute) function starts token
-        NewLine(PkgbuildToken): (class attribute) new line token
+        ArrayEnds(PkgbuildToken): array ends token
+        ArrayStarts(PkgbuildToken): array starts token
+        Comma(PkgbuildToken): comma token
+        Comment(PkgbuildToken): comment token
+        FunctionDeclaration(PkgbuildToken): function declaration token
+        FunctionEnds(PkgbuildToken): function ends token
+        FunctionStarts(PkgbuildToken): function starts token
+        NewLine(PkgbuildToken): new line token
     """
 
     ArrayStarts = "("

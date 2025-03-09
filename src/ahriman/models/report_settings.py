@@ -27,13 +27,13 @@ class ReportSettings(StrEnum):
     report targets enumeration
 
     Attributes:
-        Disabled(ReportSettings): (class attribute) option which generates no report for testing purpose
-        HTML(ReportSettings): (class attribute) html report generation
-        Email(ReportSettings): (class attribute) email report generation
-        Console(ReportSettings): (class attribute) print result to console
-        Telegram(ReportSettings): (class attribute) markdown report to telegram channel
-        RSS(ReportSettings): (class attribute) RSS report generation
-        RemoteCall(ReportSettings): (class attribute) remote ahriman server call
+        Disabled(ReportSettings): option which generates no report for testing purpose
+        HTML(ReportSettings): html report generation
+        Email(ReportSettings): email report generation
+        Console(ReportSettings): print result to console
+        Telegram(ReportSettings): markdown report to telegram channel
+        RSS(ReportSettings): RSS report generation
+        RemoteCall(ReportSettings): remote ahriman server call
     """
 
     Disabled = "disabled"  # for testing purpose

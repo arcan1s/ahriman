@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from typing import ClassVar
+
 from ahriman.core.configuration import Configuration
 
 
@@ -25,7 +27,7 @@ class StatusViewGuard:
     helper for check if status routes are enabled
     """
 
-    ROUTES: list[str]
+    ROUTES: ClassVar[list[str]]
 
     @classmethod
     def routes(cls, configuration: Configuration) -> list[str]:

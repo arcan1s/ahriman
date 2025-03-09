@@ -21,7 +21,7 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
-from typing import Any, IO, Self
+from typing import Any, ClassVar, IO, Self
 
 from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser, PkgbuildToken
 from ahriman.core.exceptions import EncodeError
@@ -40,7 +40,7 @@ class Pkgbuild(Mapping[str, Any]):
 
     fields: dict[str, PkgbuildPatch]
 
-    DEFAULT_ENCODINGS = ["utf8", "latin-1"]
+    DEFAULT_ENCODINGS: ClassVar[list[str]] = ["utf8", "latin-1"]
 
     @property
     def variables(self) -> dict[str, str]:

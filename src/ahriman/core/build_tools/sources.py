@@ -21,6 +21,7 @@ import shutil
 
 from collections.abc import Generator
 from pathlib import Path
+from typing import ClassVar
 
 from ahriman.core.exceptions import CalledProcessError
 from ahriman.core.log import LazyLogging
@@ -42,9 +43,9 @@ class Sources(LazyLogging):
         GITCONFIG(dict[str, str]): (class attribute) git config options to suppress annoying hints
     """
 
-    DEFAULT_BRANCH = "master"  # default fallback branch
-    DEFAULT_COMMIT_AUTHOR = ("ahriman", "ahriman@localhost")
-    GITCONFIG = {
+    DEFAULT_BRANCH: ClassVar[str] = "master"  # default fallback branch
+    DEFAULT_COMMIT_AUTHOR: ClassVar[tuple[str, str]] = ("ahriman", "ahriman@localhost")
+    GITCONFIG: ClassVar[dict[str, str]] = {
         "init.defaultBranch": DEFAULT_BRANCH,
     }
 

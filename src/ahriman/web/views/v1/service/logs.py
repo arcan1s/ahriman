@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent
+from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -33,7 +34,7 @@ class LogsView(BaseView):
         DELETE_PERMISSION(UserAccess): (class attribute) delete permissions of self
     """
 
-    DELETE_PERMISSION = UserAccess.Full
+    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/service/logs"]
 
     @apidocs(

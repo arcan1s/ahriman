@@ -23,6 +23,7 @@ from aiohttp import BodyPartReader
 from aiohttp.web import HTTPBadRequest, HTTPCreated
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import ClassVar
 
 from ahriman.core.configuration import Configuration
 from ahriman.models.repository_paths import RepositoryPaths
@@ -40,7 +41,7 @@ class UploadView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Full
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/service/upload"]
 
     @classmethod

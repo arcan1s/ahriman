@@ -25,9 +25,9 @@ class Action(StrEnum):
     base action enumeration
 
     Attributes:
-        List(Action): (class attribute) list available values
-        Remove(Action): (class attribute) remove everything from local storage
-        Update(Action): (class attribute) update local storage or add to
+        List(Action): list available values
+        Remove(Action): remove everything from local storage
+        Update(Action): update local storage or add to
     """
 
     List = "list"

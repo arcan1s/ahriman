@@ -23,6 +23,7 @@ import sys
 
 from collections.abc import Generator, Mapping, MutableMapping
 from string import Template
+from typing import ClassVar
 
 from ahriman.core.configuration.shell_template import ShellTemplate
 
@@ -32,7 +33,7 @@ class ShellInterpolator(configparser.Interpolation):
     custom string interpolator, because we cannot use defaults argument due to config validation
     """
 
-    DATA_LINK_ESCAPE = "\x10"
+    DATA_LINK_ESCAPE: ClassVar[str] = "\x10"
 
     @staticmethod
     def _extract_variables(parser: MutableMapping[str, Mapping[str, str]], value: str,

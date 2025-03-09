@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, Response, json_response
+from typing import ClassVar
 
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.user_access import UserAccess
@@ -34,7 +35,7 @@ class AddView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    POST_PERMISSION = UserAccess.Full
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/service/add"]
 
     @apidocs(

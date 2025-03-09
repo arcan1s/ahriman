@@ -23,6 +23,7 @@ import shutil
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from pyalpm import DB  # type: ignore[import-not-found]
+from typing import ClassVar
 from urllib.parse import urlparse
 
 from ahriman.core.configuration import Configuration
@@ -41,7 +42,7 @@ class PacmanDatabase(SyncHttpClient):
         sync_files_database(bool): sync files database
     """
 
-    LAST_MODIFIED_HEADER = "Last-Modified"
+    LAST_MODIFIED_HEADER: ClassVar[str] = "Last-Modified"
 
     def __init__(self, database: DB, configuration: Configuration) -> None:
         """

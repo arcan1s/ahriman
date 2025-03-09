@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPFound, HTTPMethodNotAllowed, HTTPUnauthorized
+from typing import ClassVar
 
 from ahriman.core.auth.helpers import remember
 from ahriman.models.user_access import UserAccess
@@ -35,7 +36,7 @@ class LoginView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized
+    GET_PERMISSION = POST_PERMISSION = UserAccess.Unauthorized  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/login"]
 
     @apidocs(

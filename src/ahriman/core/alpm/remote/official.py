@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any
+from typing import Any, ClassVar
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.remote import Remote
@@ -36,10 +36,10 @@ class Official(Remote):
         DEFAULT_RPC_URL(str): (class attribute) default archlinux repositories RPC url
     """
 
-    DEFAULT_ARCHLINUX_GIT_URL = "https://gitlab.archlinux.org"
-    DEFAULT_ARCHLINUX_URL = "https://archlinux.org"
-    DEFAULT_SEARCH_REPOSITORIES = ["Core", "Extra", "Multilib"]
-    DEFAULT_RPC_URL = "https://archlinux.org/packages/search/json"
+    DEFAULT_ARCHLINUX_GIT_URL: ClassVar[str] = "https://gitlab.archlinux.org"
+    DEFAULT_ARCHLINUX_URL: ClassVar[str] = "https://archlinux.org"
+    DEFAULT_SEARCH_REPOSITORIES: ClassVar[list[str]] = ["Core", "Extra", "Multilib"]
+    DEFAULT_RPC_URL: ClassVar[str] = "https://archlinux.org/packages/search/json"
 
     @classmethod
     def remote_git_url(cls, package_base: str, repository: str) -> str:

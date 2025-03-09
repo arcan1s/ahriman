@@ -28,10 +28,10 @@ class EventType(StrEnum):
     predefined event types
 
     Attributes:
-        PackageOutdated(EventType): (class attribute) package has been marked as out-of-date
-        PackageRemoved(EventType): (class attribute) package has been removed
-        PackageUpdateFailed(EventType): (class attribute) package update has been failed
-        PackageUpdated(EventType): (class attribute) package has been updated
+        PackageOutdated(EventType): package has been marked as out-of-date
+        PackageRemoved(EventType): package has been removed
+        PackageUpdateFailed(EventType): package update has been failed
+        PackageUpdated(EventType): package has been updated
     """
 
     PackageOutdated = "package-outdated"

@@ -21,6 +21,7 @@ import logging
 
 from logging.config import fileConfig
 from pathlib import Path
+from typing import ClassVar
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.log.http_log_handler import HttpLogHandler
@@ -38,9 +39,9 @@ class LogLoader:
         DEFAULT_SYSLOG_DEVICE(Path): (class attribute) default path to syslog device
     """
 
-    DEFAULT_LOG_FORMAT = "[%(levelname)s %(asctime)s] [%(filename)s:%(lineno)d %(funcName)s]: %(message)s"
-    DEFAULT_LOG_LEVEL = logging.DEBUG
-    DEFAULT_SYSLOG_DEVICE = Path("/") / "dev" / "log"
+    DEFAULT_LOG_FORMAT: ClassVar[str] = "[%(levelname)s %(asctime)s] [%(name)s]: %(message)s"
+    DEFAULT_LOG_LEVEL: ClassVar[int] = logging.DEBUG
+    DEFAULT_SYSLOG_DEVICE: ClassVar[Path] = Path("/") / "dev" / "log"
 
     @staticmethod
     def handler(selected: LogHandler | None) -> LogHandler:

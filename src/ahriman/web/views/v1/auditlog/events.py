@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from typing import ClassVar
 
 from ahriman.models.event import Event
 from ahriman.models.user_access import UserAccess
@@ -35,7 +36,7 @@ class EventsView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = POST_PERMISSION = UserAccess.Full
+    GET_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/events"]
 
     @apidocs(

@@ -20,7 +20,7 @@
 from aiohttp.web import HTTPBadRequest, HTTPNotFound, Request, StreamResponse, View
 from aiohttp_cors import CorsViewMixin  # type: ignore[import-untyped]
 from collections.abc import Awaitable, Callable
-from typing import TypeVar
+from typing import ClassVar, TypeVar
 
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
@@ -46,8 +46,8 @@ class BaseView(View, CorsViewMixin):
         ROUTES(list[str]): (class attribute) list of supported routes
     """
 
-    OPTIONS_PERMISSION = UserAccess.Unauthorized
-    ROUTES: list[str] = []
+    OPTIONS_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
+    ROUTES: ClassVar[list[str]] = []
 
     @property
     def configuration(self) -> Configuration:

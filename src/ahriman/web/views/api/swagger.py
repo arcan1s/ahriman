@@ -19,6 +19,7 @@
 #
 from aiohttp.web import Response, json_response
 from collections.abc import Callable
+from typing import ClassVar
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.utils import partition
@@ -35,7 +36,7 @@ class SwaggerView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Unauthorized
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
     ROUTES = ["/api-docs/swagger.json"]
 
     @classmethod

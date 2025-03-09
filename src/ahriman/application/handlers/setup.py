@@ -21,6 +21,7 @@ import argparse
 
 from pathlib import Path
 from pwd import getpwuid
+from typing import ClassVar
 from urllib.parse import quote_plus as url_encode
 
 from ahriman.application.application import Application
@@ -46,9 +47,9 @@ class Setup(Handler):
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # conflicting io
 
-    ARCHBUILD_COMMAND_PATH = Path("/") / "usr" / "bin" / "archbuild"
-    MIRRORLIST_PATH = Path("/") / "etc" / "pacman.d" / "mirrorlist"
-    SUDOERS_DIR_PATH = Path("/") / "etc" / "sudoers.d"
+    ARCHBUILD_COMMAND_PATH: ClassVar[Path] = Path("/") / "usr" / "bin" / "archbuild"
+    MIRRORLIST_PATH: ClassVar[Path] = Path("/") / "etc" / "pacman.d" / "mirrorlist"
+    SUDOERS_DIR_PATH: ClassVar[Path] = Path("/") / "etc" / "sudoers.d"
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

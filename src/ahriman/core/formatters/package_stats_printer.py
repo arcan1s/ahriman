@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from typing import ClassVar
+
 from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.property import Property
 
@@ -26,10 +28,11 @@ class PackageStatsPrinter(StringPrinter):
     print packages statistics
 
     Attributes:
+        MAX_COUNT(int): (class attribute) maximum number of packages to print
         events(dict[str, int]): map of package to its event frequency
     """
 
-    MAX_COUNT = 10
+    MAX_COUNT: ClassVar[int] = 10
 
     def __init__(self, events: dict[str, int]) -> None:
         """

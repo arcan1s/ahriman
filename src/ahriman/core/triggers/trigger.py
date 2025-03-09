@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from collections.abc import Callable
+from typing import ClassVar
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.configuration.schema import ConfigurationSchema
@@ -56,8 +57,8 @@ class Trigger(LazyLogging):
             >>> loader.on_result(Result(), [])
     """
 
-    CONFIGURATION_SCHEMA: ConfigurationSchema = {}
-    CONFIGURATION_SCHEMA_FALLBACK: str | None = None
+    CONFIGURATION_SCHEMA: ClassVar[ConfigurationSchema] = {}
+    CONFIGURATION_SCHEMA_FALLBACK: ClassVar[str | None] = None
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """

@@ -32,13 +32,13 @@ class PackageSource(StrEnum):
     package source for addition enumeration
 
     Attributes:
-        Auto(PackageSource): (class attribute) automatically determine type of the source
-        Archive(PackageSource): (class attribute) source is a package archive
-        AUR(PackageSource): (class attribute) source is an AUR package for which it should search
-        Directory(PackageSource): (class attribute) source is a directory which contains packages
-        Local(PackageSource): (class attribute) source is locally stored PKGBUILD
-        Remote(PackageSource): (class attribute) source is remote (http, ftp etc...) link
-        Repository(PackageSource): (class attribute) source is official repository
+        Auto(PackageSource): automatically determine type of the source
+        Archive(PackageSource): source is a package archive
+        AUR(PackageSource): source is an AUR package for which it should search
+        Directory(PackageSource): source is a directory which contains packages
+        Local(PackageSource): source is locally stored PKGBUILD
+        Remote(PackageSource): source is remote (http, ftp etc...) link
+        Repository(PackageSource): source is official repository
 
     Examples:
         In case if source is unknown the :func:`resolve()` and the source

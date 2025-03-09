@@ -19,6 +19,7 @@
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 from collections.abc import Callable
+from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.models.worker import Worker
@@ -37,7 +38,7 @@ class WorkersView(BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.Full
+    DELETE_PERMISSION = GET_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
     ROUTES = ["/api/v1/distributed"]
 
     @apidocs(

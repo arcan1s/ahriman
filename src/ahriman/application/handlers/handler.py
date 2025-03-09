@@ -22,7 +22,7 @@ import logging
 
 from collections.abc import Callable, Iterable
 from multiprocessing import Pool
-from typing import TypeVar
+from typing import ClassVar, TypeVar
 
 from ahriman.application.lock import Lock
 from ahriman.core.configuration import Configuration
@@ -58,8 +58,8 @@ class Handler:
             >>> Add.execute(args)
     """
 
-    ALLOW_MULTI_ARCHITECTURE_RUN = True
-    arguments: list[Callable[[SubParserAction], argparse.ArgumentParser]]
+    ALLOW_MULTI_ARCHITECTURE_RUN: ClassVar[bool] = True
+    arguments: ClassVar[list[Callable[[SubParserAction], argparse.ArgumentParser]]]
 
     @classmethod
     def call(cls, args: argparse.Namespace, repository_id: RepositoryId) -> bool:

@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPNoContent, HTTPNotFound, Response, json_response
+from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -35,8 +36,8 @@ class PatchView(StatusViewGuard, BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    DELETE_PERMISSION = UserAccess.Full
-    GET_PERMISSION = UserAccess.Reporter
+    DELETE_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
     ROUTES = ["/api/v1/packages/{package}/patches/{patch}"]
 
     @apidocs(

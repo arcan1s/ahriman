@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, HTTPNotFound, Response, json_response
+from typing import ClassVar
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.utils import pretty_datetime
@@ -39,8 +40,8 @@ class LogsView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full
-    GET_PERMISSION = UserAccess.Reporter
+    DELETE_PERMISSION = POST_PERMISSION = UserAccess.Full  # type: ClassVar[UserAccess]
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
     ROUTES = ["/api/v1/packages/{package}/logs"]
 
     @apidocs(

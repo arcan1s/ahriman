@@ -22,7 +22,7 @@ import shlex
 import sys
 
 from pathlib import Path
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from ahriman.core.configuration.configuration_multi_dict import ConfigurationMultiDict
 from ahriman.core.configuration.shell_interpolator import ShellInterpolator
@@ -65,8 +65,8 @@ class Configuration(configparser.RawConfigParser):
     """
 
     _LEGACY_ARCHITECTURE_SPECIFIC_SECTIONS = ["web"]
-    ARCHITECTURE_SPECIFIC_SECTIONS = ["alpm", "build", "sign"]
-    SYSTEM_CONFIGURATION_PATH = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
+    ARCHITECTURE_SPECIFIC_SECTIONS: ClassVar[list[str]] = ["alpm", "build", "sign"]
+    SYSTEM_CONFIGURATION_PATH: ClassVar[Path] = Path(sys.prefix) / "share" / "ahriman" / "settings" / "ahriman.ini"
 
     def __init__(self, allow_no_value: bool = False, allow_multi_key: bool = True) -> None:
         """

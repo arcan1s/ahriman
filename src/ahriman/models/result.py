@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from ahriman.models.package import Package
 
@@ -33,7 +33,7 @@ class Result:
         STATUS_PRIORITIES(list[str]): (class attribute) list of statues according to their priorities
     """
 
-    STATUS_PRIORITIES = [
+    STATUS_PRIORITIES: ClassVar[list[str]] = [
         "failed",
         "removed",
         "updated",

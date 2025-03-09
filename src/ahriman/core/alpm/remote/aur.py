@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Any
+from typing import Any, ClassVar
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.alpm.remote.remote import Remote
@@ -35,9 +35,9 @@ class AUR(Remote):
         DEFAULT_RPC_VERSION(str): (class attribute) default AUR RPC version
     """
 
-    DEFAULT_AUR_URL = "https://aur.archlinux.org"
-    DEFAULT_RPC_URL = f"{DEFAULT_AUR_URL}/rpc"
-    DEFAULT_RPC_VERSION = "5"
+    DEFAULT_AUR_URL: ClassVar[str] = "https://aur.archlinux.org"
+    DEFAULT_RPC_URL: ClassVar[str] = f"{DEFAULT_AUR_URL}/rpc"
+    DEFAULT_RPC_VERSION: ClassVar[str] = "5"
 
     @classmethod
     def remote_git_url(cls, package_base: str, repository: str) -> str:

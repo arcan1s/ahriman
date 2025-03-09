@@ -27,11 +27,11 @@ class UserAccess(StrEnum):
     web user access enumeration
 
     Attributes:
-        Unauthorized(UserAccess): (class attribute) user can access specific resources which are marked as available
+        Unauthorized(UserAccess): user can access specific resources which are marked as available
             without authorization (e.g. login, logout, static)
-        Read(UserAccess): (class attribute) user can read the page
-        Reporter(UserAccess): (class attribute) user can read everything and is able to perform some modifications
-        Full(UserAccess): (class attribute) user has full access
+        Read(UserAccess): user can read the page
+        Reporter(UserAccess): user can read everything and is able to perform some modifications
+        Full(UserAccess): user has full access
     """
 
     Unauthorized = "unauthorized"

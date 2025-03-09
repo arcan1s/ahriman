@@ -23,6 +23,7 @@ import sys
 
 from collections.abc import Generator
 from importlib import metadata
+from typing import ClassVar
 
 from ahriman import __version__
 from ahriman.application.handlers.handler import Handler, SubParserAction
@@ -36,11 +37,11 @@ class Versions(Handler):
     version handler
 
     Attributes:
-        PEP423_PACKAGE_NAME(str): (class attribute) special regex for valid PEP423 package name
+        PEP423_PACKAGE_NAME(re.Pattern[str]): (class attribute) special regex for valid PEP423 package name
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
-    PEP423_PACKAGE_NAME = re.compile(r"^[A-Za-z0-9._-]+")
+    PEP423_PACKAGE_NAME: ClassVar[re.Pattern[str]] = re.compile(r"^[A-Za-z0-9._-]+")
 
     @classmethod
     def run(cls, args: argparse.Namespace, repository_id: RepositoryId, configuration: Configuration, *,

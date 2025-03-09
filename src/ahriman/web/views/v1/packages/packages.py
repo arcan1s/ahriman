@@ -21,6 +21,7 @@ import itertools
 
 from aiohttp.web import HTTPNoContent, Response, json_response
 from collections.abc import Callable
+from typing import ClassVar
 
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
@@ -40,8 +41,8 @@ class PackagesView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Read
-    POST_PERMISSION = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Read
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/packages"]
 
     @apidocs(

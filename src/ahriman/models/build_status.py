@@ -29,11 +29,11 @@ class BuildStatusEnum(StrEnum):
     build status enumeration
 
     Attributes:
-        Unknown(BuildStatusEnum): (class attribute) build status is unknown
-        Pending(BuildStatusEnum): (class attribute) package is out-of-dated and will be built soon
-        Building(BuildStatusEnum): (class attribute) package is building right now
-        Failed(BuildStatusEnum): (class attribute) package build failed
-        Success(BuildStatusEnum): (class attribute) package has been built without errors
+        Unknown(BuildStatusEnum): build status is unknown
+        Pending(BuildStatusEnum): package is out-of-dated and will be built soon
+        Building(BuildStatusEnum): package is building right now
+        Failed(BuildStatusEnum): package build failed
+        Success(BuildStatusEnum): package has been built without errors
     """
 
     Unknown = "unknown"

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from typing import ClassVar
+
 from ahriman.core.formatters.string_printer import StringPrinter
 from ahriman.models.property import Property
 
@@ -31,7 +33,7 @@ class ConfigurationPrinter(StringPrinter):
         values(dict[str, str]): configuration values dictionary
     """
 
-    HIDE_KEYS = [
+    HIDE_KEYS: ClassVar[list[str]] = [
         "api_key",  # telegram key
         "client_secret",  # oauth secret
         "cookie_secret_key",  # cookie secret key

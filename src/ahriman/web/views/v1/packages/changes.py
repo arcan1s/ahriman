@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from typing import ClassVar
 
 from ahriman.models.changes import Changes
 from ahriman.models.user_access import UserAccess
@@ -36,8 +37,8 @@ class ChangesView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Reporter
-    POST_PERMISSION = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/packages/{package}/changes"]
 
     @apidocs(

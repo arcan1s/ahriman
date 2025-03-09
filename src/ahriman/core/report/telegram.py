@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from typing import ClassVar
+
 from ahriman.core.configuration import Configuration
 from ahriman.core.http import SyncHttpClient
 from ahriman.core.report.jinja_template import JinjaTemplate
@@ -39,8 +41,8 @@ class Telegram(Report, JinjaTemplate, SyncHttpClient):
         template_type(str): template message type to be used in parse mode, one of MarkdownV2, HTML, Markdown
     """
 
-    TELEGRAM_API_URL = "https://api.telegram.org"
-    TELEGRAM_MAX_CONTENT_LENGTH = 4096
+    TELEGRAM_API_URL: ClassVar[str] = "https://api.telegram.org"
+    TELEGRAM_MAX_CONTENT_LENGTH: ClassVar[int] = 4096
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration, section: str) -> None:
         """

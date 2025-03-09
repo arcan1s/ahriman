@@ -28,9 +28,6 @@ class ShellTemplate(Template):
     """
     extension to the default :class:`Template` class, which also adds additional tokens to braced regex and enables
     bash expansion
-
-    Attributes:
-        braceidpattern(str): regular expression to match every character except for closing bracket
     """
 
     braceidpattern = r"(?a:[_a-z0-9][^}]*)"

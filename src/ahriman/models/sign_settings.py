@@ -27,9 +27,9 @@ class SignSettings(StrEnum):
     sign targets enumeration
 
     Attributes:
-        Disabled(SignSettings): (class attribute) option which generates no report for testing purpose
-        Packages(SignSettings): (class attribute) sign each package
-        Repository(SignSettings): (class attribute) sign repository database file
+        Disabled(SignSettings): option which generates no report for testing purpose
+        Packages(SignSettings): sign each package
+        Repository(SignSettings): sign repository database file
     """
 
     Disabled = "disabled"

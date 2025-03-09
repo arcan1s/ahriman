@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPNotFound, Response, json_response
+from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -33,7 +34,7 @@ class ProcessView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Reporter
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Reporter
     ROUTES = ["/api/v1/service/process/{process_id}"]
 
     @apidocs(

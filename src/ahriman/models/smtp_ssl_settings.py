@@ -27,9 +27,9 @@ class SmtpSSLSettings(StrEnum):
     SMTP SSL mode enumeration
 
     Attributes:
-        Disabled(SmtpSSLSettings): (class attribute) no SSL enabled
-        SSL(SmtpSSLSettings): (class attribute) use SMTP_SSL instead of normal SMTP client
-        STARTTLS(SmtpSSLSettings): (class attribute) use STARTTLS in normal SMTP client
+        Disabled(SmtpSSLSettings): no SSL enabled
+        SSL(SmtpSSLSettings): use SMTP_SSL instead of normal SMTP client
+        STARTTLS(SmtpSSLSettings): use STARTTLS in normal SMTP client
     """
 
     Disabled = "disabled"

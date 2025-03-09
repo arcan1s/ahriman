@@ -21,7 +21,7 @@ import bcrypt
 
 from dataclasses import dataclass, replace
 from secrets import token_urlsafe as generate_password
-from typing import Self
+from typing import ClassVar, Self
 
 from ahriman.models.user_access import UserAccess
 
@@ -69,7 +69,7 @@ class User:
     packager_id: str | None = None
     key: str | None = None
 
-    SUPPORTED_ALGOS = {"$2$", "$2a$", "$2x$", "$2y$", "$2b$"}
+    SUPPORTED_ALGOS: ClassVar[set[str]] = {"$2$", "$2a$", "$2x$", "$2y$", "$2b$"}
 
     def __post_init__(self) -> None:
         """

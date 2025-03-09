@@ -19,7 +19,7 @@
 #
 import aiohttp_jinja2
 
-from typing import Any
+from typing import Any, ClassVar
 
 from ahriman.core.auth.helpers import authorized_userid
 from ahriman.models.user_access import UserAccess
@@ -48,7 +48,7 @@ class IndexView(BaseView):
         GET_PERMISSION(UserAccess): (class attribute) get permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Unauthorized
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Unauthorized
     ROUTES = ["/", "/index.html"]
 
     @aiohttp_jinja2.template("build-status.jinja2")

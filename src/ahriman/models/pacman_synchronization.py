@@ -25,9 +25,9 @@ class PacmanSynchronization(IntEnum):
     pacman database synchronization flag
 
     Attributes:
-        Disabled(PacmanSynchronization): (class attribute) do not synchronize local database
-        Enabled(PacmanSynchronization): (class attribute) synchronize local database (same as pacman -Sy)
-        Force(PacmanSynchronization): (class attribute) force synchronize local database (same as pacman -Syy)
+        Disabled(PacmanSynchronization): do not synchronize local database
+        Enabled(PacmanSynchronization): synchronize local database (same as pacman -Sy)
+        Force(PacmanSynchronization): force synchronize local database (same as pacman -Syy)
     """
 
     Disabled = 0

@@ -21,6 +21,7 @@ import argparse
 
 from collections.abc import Callable, Iterable
 from dataclasses import fields
+from typing import ClassVar
 
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.alpm.remote import AUR, Official
@@ -40,7 +41,7 @@ class Search(Handler):
     """
 
     ALLOW_MULTI_ARCHITECTURE_RUN = False  # system-wide action
-    SORT_FIELDS = {
+    SORT_FIELDS: ClassVar[set[str]] = {
         field.name
         for field in fields(AURPackage)
         if field.default_factory is not list

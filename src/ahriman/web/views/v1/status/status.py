@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
+from typing import ClassVar
 
 from ahriman import __version__
 from ahriman.models.build_status import BuildStatusEnum
@@ -40,8 +41,8 @@ class StatusView(StatusViewGuard, BaseView):
         POST_PERMISSION(UserAccess): (class attribute) post permissions of self
     """
 
-    GET_PERMISSION = UserAccess.Read
-    POST_PERMISSION = UserAccess.Full
+    GET_PERMISSION: ClassVar[UserAccess] = UserAccess.Read
+    POST_PERMISSION: ClassVar[UserAccess] = UserAccess.Full
     ROUTES = ["/api/v1/status"]
 
     @apidocs(

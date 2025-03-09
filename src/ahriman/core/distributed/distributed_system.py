@@ -22,7 +22,6 @@ import contextlib
 from functools import cached_property
 
 from ahriman.core.configuration import Configuration
-from ahriman.core.configuration.schema import ConfigurationSchema
 from ahriman.core.status.web_client import WebClient
 from ahriman.core.triggers import Trigger
 from ahriman.models.repository_id import RepositoryId
@@ -34,7 +33,7 @@ class DistributedSystem(Trigger, WebClient):
     simple class to (un)register itself as a distributed worker
     """
 
-    CONFIGURATION_SCHEMA: ConfigurationSchema = {
+    CONFIGURATION_SCHEMA = {
         "worker": {
             "type": "dict",
             "schema": {

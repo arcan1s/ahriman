@@ -22,6 +22,7 @@ import itertools
 
 from collections.abc import Callable, Generator
 from pathlib import Path
+from typing import ClassVar
 
 from ahriman.core.utils import utcnow
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
@@ -35,7 +36,7 @@ class PkgbuildGenerator:
         PKGBUILD_STATIC_PROPERTIES(list[PkgbuildPatch]): (class attribute) list of default pkgbuild static properties
     """
 
-    PKGBUILD_STATIC_PROPERTIES = [
+    PKGBUILD_STATIC_PROPERTIES: ClassVar[list[PkgbuildPatch]] = [
         PkgbuildPatch("pkgrel", "1"),
         PkgbuildPatch("arch", ["any"]),
     ]

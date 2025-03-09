@@ -27,10 +27,10 @@ class AuthSettings(StrEnum):
     web authorization type
 
     Attributes:
-        Disabled(AuthSettings): (class attribute) authorization is disabled
-        Configuration(AuthSettings): (class attribute) configuration based authorization
-        OAuth(AuthSettings): (class attribute) OAuth based provider
-        PAM(AuthSettings): (class attribute) PAM based provider
+        Disabled(AuthSettings): authorization is disabled
+        Configuration(AuthSettings): configuration based authorization
+        OAuth(AuthSettings): OAuth based provider
+        PAM(AuthSettings): PAM based provider
     """
 
     Disabled = "disabled"
