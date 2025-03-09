@@ -19,7 +19,8 @@
 #
 import uuid
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import ClassVar
 
 
 @dataclass(frozen=True)
@@ -28,6 +29,7 @@ class LogRecordId:
     log record process identifier
 
     Attributes:
+        DEFAULT_PROCESS_ID(str): (class attribute) default process identifier
         package_base(str): package base for which log record belongs
         version(str): package version for which log record belongs
         process_id(str, optional): unique process identifier
@@ -35,7 +37,13 @@ class LogRecordId:
 
     package_base: str
     version: str
+    process_id: str = ""
 
-    # this is not mistake, this value is kind of global identifier, which is generated
-    # upon the process start
-    process_id: str = field(default=str(uuid.uuid4()))
+    DEFAULT_PROCESS_ID: ClassVar[str] = str(uuid.uuid4())
+
+    def __post_init__(self) -> None:
+        """
+        assign process identifier from default if not set
+        """
+        if not self.process_id:
+            object.__setattr__(self, "process_id", self.DEFAULT_PROCESS_ID)

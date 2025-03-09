@@ -19,12 +19,14 @@
 #
 import atexit
 import logging
+import uuid
 
 from typing import Self
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.status import Client
 from ahriman.models.log_record import LogRecord
+from ahriman.models.log_record_id import LogRecordId
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -80,6 +82,7 @@ class HttpLogHandler(logging.Handler):
         handler = cls(repository_id, configuration, report=report, suppress_errors=suppress_errors)
         root.addHandler(handler)
 
+        LogRecordId.DEFAULT_PROCESS_ID = str(uuid.uuid4())  # assign default process identifier for log records
         atexit.register(handler.rotate)
 
         return handler

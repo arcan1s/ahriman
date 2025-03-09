@@ -50,13 +50,13 @@ async def test_get(client: TestClient, package_ahriman: Package) -> None:
             "created": 42.0,
             "message": "message 1",
             "version": "42",
-            "process_id": LogRecordId.process_id,
+            "process_id": LogRecordId.DEFAULT_PROCESS_ID,
         },
         {
             "created": 43.0,
             "message": "message 2",
             "version": "42",
-            "process_id": LogRecordId.process_id,
+            "process_id": LogRecordId.DEFAULT_PROCESS_ID,
         },
     ]
 
@@ -81,7 +81,9 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
 
     logs = await response.json()
     assert not response_schema.validate(logs)
-    assert logs == [{"created": 42.0, "message": "message 1", "version": "42", "process_id": LogRecordId.process_id}]
+    assert logs == [
+        {"created": 42.0, "message": "message 1", "version": "42", "process_id": LogRecordId.DEFAULT_PROCESS_ID},
+    ]
 
 
 async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> None:

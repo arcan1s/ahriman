@@ -603,7 +603,7 @@ def test_package_logs_add(web_client: WebClient, log_record: logging.LogRecord, 
     payload = {
         "created": log_record.created,
         "message": log_record.getMessage(),
-        "process_id": LogRecordId.process_id,
+        "process_id": LogRecordId.DEFAULT_PROCESS_ID,
         "version": package_ahriman.version,
     }
     record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
@@ -650,7 +650,7 @@ def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocke
         "created": 42.0,
         "message": "log",
         "version": package_ahriman.version,
-        "process_id": LogRecordId.process_id,
+        "process_id": LogRecordId.DEFAULT_PROCESS_ID,
     }
     response_obj = requests.Response()
     response_obj._content = json.dumps([message]).encode("utf8")
