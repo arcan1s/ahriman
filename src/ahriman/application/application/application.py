@@ -117,7 +117,7 @@ class Application(ApplicationPackages, ApplicationRepository):
 
         Args:
             packages(list[Package]): list of source packages of which dependencies have to be processed
-            process_dependencies(bool): if no set, dependencies will not be processed
+            process_dependencies(bool): if set to ``False``, dependencies will not be processed
 
         Returns:
             list[Package]: updated packages list. Packager for dependencies will be copied from the original package
@@ -130,6 +130,9 @@ class Application(ApplicationPackages, ApplicationRepository):
                 >>> packages = application.with_dependencies(packages, process_dependencies=True)
                 >>> application.print_updates(packages, log_fn=print)
         """
+        if not process_dependencies or not packages:
+            return packages
+
         def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources
             satisfied_packages = known_packages | {
@@ -145,22 +148,29 @@ class Application(ApplicationPackages, ApplicationRepository):
                 if dependency not in satisfied_packages
             }
 
-        if not process_dependencies or not packages:
-            return packages
+        def new_packages(root: Package) -> dict[str, Package]:
+            portion = {root.base: root}
+            while missing := missing_dependencies(portion.values()):
+                for package_name, packager in missing.items():
+                    if (source_dir := self.repository.paths.cache_for(package_name)).is_dir():
+                        # there is local cache, load package from it
+                        leaf = Package.from_build(source_dir, self.repository.architecture, packager)
+                    else:
+                        leaf = Package.from_aur(package_name, packager)
+                    portion[leaf.base] = leaf
+
+                    # register package in the database
+                    self.repository.reporter.set_unknown(leaf)
+
+            return portion
 
         known_packages = self._known_packages()
-        with_dependencies = {package.base: package for package in packages}
-
-        while missing := missing_dependencies(with_dependencies.values()):
-            for package_name, username in missing.items():
-                if (source_dir := self.repository.paths.cache_for(package_name)).is_dir():
-                    # there is local cache, load package from it
-                    package = Package.from_build(source_dir, self.repository.architecture, username)
-                else:
-                    package = Package.from_aur(package_name, username)
-                with_dependencies[package.base] = package
-
-                # register package in the database
-                self.repository.reporter.set_unknown(package)
+        with_dependencies: dict[str, Package] = {}
+        for package in packages:
+            with self.in_package_context(package.base, package.version):  # use the same context for the logger
+                try:
+                    with_dependencies |= new_packages(package)
+                except Exception:
+                    self.logger.exception("could not process dependencies of %s, skip the package", package.base)
 
         return list(with_dependencies.values())

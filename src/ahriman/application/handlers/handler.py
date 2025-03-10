@@ -53,7 +53,7 @@ class Handler:
         Wrapper for all command line actions, though each derived class implements :func:`run()` method, it usually
         must not be called directly. The recommended way is to call :func:`execute()` class method, e.g.::
 
-            >>> from ahriman.application.handlers import Add
+            >>> from ahriman.application.handlers.add import Add
             >>>
             >>> Add.execute(args)
     """

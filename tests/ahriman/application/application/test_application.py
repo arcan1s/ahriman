@@ -113,6 +113,40 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     ], any_order=True)
 
 
+def test_with_dependencies_exception(application: Application, package_ahriman: Package,
+                                     package_python_schedule: Package, mocker: MockerFixture) -> None:
+    """
+    must skip packages if exception occurs
+    """
+    def create_package_mock(package_base) -> MagicMock:
+        mock = MagicMock()
+        mock.base = package_base
+        mock.depends_build = []
+        mock.packages_full = [package_base]
+        return mock
+
+    package_python_schedule.packages = {
+        package_python_schedule.base: package_python_schedule.packages[package_python_schedule.base]
+    }
+    package_ahriman.packages[package_ahriman.base].depends = ["devtools", "python", package_python_schedule.base]
+    package_ahriman.packages[package_ahriman.base].make_depends = ["python-build", "python-installer"]
+
+    packages = {
+        package_ahriman.base: package_ahriman,
+        package_python_schedule.base: package_python_schedule,
+        "python": create_package_mock("python"),
+        "python-installer": create_package_mock("python-installer"),
+    }
+
+    mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=lambda p: p.name == "python")
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=lambda *args: packages[args[0]])
+    mocker.patch("ahriman.models.package.Package.from_build", side_effect=Exception)
+    mocker.patch("ahriman.application.application.Application._known_packages",
+                 return_value={"devtools", "python-build", "python-pytest"})
+
+    assert not application.with_dependencies([package_ahriman], process_dependencies=True)
+
+
 def test_with_dependencies_skip(application: Application, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must skip processing of dependencies
