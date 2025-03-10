@@ -311,7 +311,7 @@
                         const link = document.createElement("a");
                         link.classList.add("nav-link");
 
-                        link.textContent = version.version;
+                        link.textContent = new Date(1000 * version.created).toISOStringShort();
                         link.href = "#";
                         link.onclick = _ => {
                             const logs = data
