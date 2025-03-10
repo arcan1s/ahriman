@@ -60,10 +60,13 @@
                 <div class="tab-content" id="nav-tabContent">
                     <div id="package-info-logs" class="tab-pane fade show active" role="tabpanel" aria-labelledby="package-info-logs-button" tabindex="0">
                         <div class="row">
-                            <div class="col-2">
-                                <nav id="package-info-logs-versions" class="nav flex-column"></nav>
+                            <div class="col-1 dropend">
+                                <button id="package-info-logs-dropdown" class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-list"></i>
+                                </button>
+                                <nav id="package-info-logs-versions" class="dropdown-menu" aria-labelledby="package-info-logs-dropdown"></nav>
                             </div>
-                            <div class="col-10">
+                            <div class="col-11">
                                 <pre class="language-console"><code id="package-info-logs-input" class="pre-scrollable language-console"></code><button id="package-info-logs-copy-button" type="button" class="btn language-console" onclick="copyLogs()"><i class="bi bi-clipboard"></i> copy</button></pre>
                             </div>
                         </div>
@@ -309,9 +312,9 @@
                     )
                     .map(version => {
                         const link = document.createElement("a");
-                        link.classList.add("nav-link");
+                        link.classList.add("dropdown-item");
 
-                        link.textContent = version.version;
+                        link.textContent = new Date(1000 * version.created).toISOStringShort();
                         link.href = "#";
                         link.onclick = _ => {
                             const logs = data
