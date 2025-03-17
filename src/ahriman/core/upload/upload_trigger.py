@@ -83,6 +83,20 @@ class UploadTrigger(Trigger):
                 },
             },
         },
+        "remote-service": {
+            "type": "dict",
+            "schema": {
+                "type": {
+                    "type": "string",
+                    "allowed": ["ahriman", "remote-service"],
+                },
+                "timeout": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
+            },
+        },
         "rsync": {
             "type": "dict",
             "schema": {
@@ -104,20 +118,6 @@ class UploadTrigger(Trigger):
                     "type": "string",
                     "required": True,
                     "empty": False,
-                },
-            },
-        },
-        "remote-service": {
-            "type": "dict",
-            "schema": {
-                "type": {
-                    "type": "string",
-                    "allowed": ["ahriman", "remote-service"],
-                },
-                "timeout": {
-                    "type": "integer",
-                    "coerce": "integer",
-                    "min": 0,
                 },
             },
         },

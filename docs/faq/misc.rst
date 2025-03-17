@@ -56,6 +56,13 @@ Though originally I've created ahriman by trying to improve the project, it stil
 
 It is automation tools for ``repoctl`` mentioned above. Except for using shell it looks pretty cool and also offers some additional features like patches, remote synchronization (isn't it?) and reporting.
 
+`AURCache <https://github.com/Lukas-Heiligenbrunner/AURCache>`__
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+That's really cool project if you are looking for simple service to build AUR packages. It provides very informative dashboard and easy to configure and use. However, it doesn't provide direct way to control build process (e.g. it is neither trivial to build packages for architectures which are not supported by default nor to change build flags).
+
+Also this application relies on docker setup (e.g. builders are only available as special docker containers). In addition, it uses ``paru`` to build packages instead of ``devtools``.
+
 How to check service logs
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 

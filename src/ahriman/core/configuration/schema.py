@@ -57,10 +57,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "path_exists": True,
                 "path_type": "file",
             },
-            "suppress_http_log_errors": {
-                "type": "boolean",
-                "coerce": "boolean",
-            }
         },
     },
     "alpm": {
@@ -347,10 +343,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "coerce": "integer",
                 "min": 0,
             },
-            "password": {
-                "type": "string",
-                "empty": False,
-            },
             "port": {
                 "type": "integer",
                 "coerce": "integer",
@@ -379,11 +371,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 },
                 "empty": False,
             },
-            "timeout": {
-                "type": "integer",
-                "coerce": "integer",
-                "min": 0,
-            },
             "unix_socket": {
                 "type": "path",
                 "coerce": "absolute_path",
@@ -391,10 +378,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
             "unix_socket_unsafe": {
                 "type": "boolean",
                 "coerce": "boolean",
-            },
-            "username": {
-                "type": "string",
-                "empty": False,
             },
             "wait_timeout": {
                 "type": "integer",

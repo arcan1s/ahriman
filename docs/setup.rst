@@ -12,19 +12,22 @@ Initial setup
 
       sudo ahriman -a x86_64 -r aur service-setup ...
 
-   ``service-setup`` literally does the following steps:
+   .. admonition:: Details
+      :collapsible: closed
 
-   #.
-      Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``):
+      ``service-setup`` literally does the following steps:
 
-      .. code-block:: shell
+      #.
+         Create ``/var/lib/ahriman/.makepkg.conf`` with ``makepkg.conf`` overrides if required (at least you might want to set ``PACKAGER``):
 
-          echo 'PACKAGER="ahriman bot <ahriman@example.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
+         .. code-block:: shell
 
-   #.
-      Configure build tools (it is required for correct dependency management system):
+            echo 'PACKAGER="ahriman bot <ahriman@example.com>"' | sudo -u ahriman tee -a /var/lib/ahriman/.makepkg.conf
 
-      #. 
+      #.
+         Configure build tools (it is required for correct dependency management system):
+
+      #.
          Create build command (you can choose any name for command, basically it should be ``{name}-{arch}-build``):
 
          .. code-block:: shell
@@ -67,7 +70,7 @@ Initial setup
             echo 'ahriman ALL=(ALL) NOPASSWD:SETENV: CARCHBUILD_CMD' | tee -a /etc/sudoers.d/ahriman
             chmod 400 /etc/sudoers.d/ahriman
 
-      This command supports several arguments, kindly refer to its help message.
+   This command supports several arguments, kindly refer to its help message.
 
 #. 
    Start and enable ``ahriman@.timer`` via ``systemctl``:

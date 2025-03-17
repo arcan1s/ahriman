@@ -81,6 +81,7 @@ Base configuration settings.
 * ``apply_migrations`` - perform database migrations on the application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
 * ``database`` - path to the application SQLite database, string, required.
 * ``include`` - path to directory with configuration files overrides, string, optional. Files will be read in alphabetical order.
+* ``keep_last_logs`` - amount of build logs to be kept for each package, integer, optional ,default ``0``. Logs will be cleared at the end of each process.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 
 ``alpm:*`` groups
@@ -217,7 +218,7 @@ Mirrorlist generator plugin
 ``remote-pull`` group
 ---------------------
 
-Remote git source synchronization settings. Unlike ``Upload`` triggers those triggers are used for PKGBUILD synchronization - fetch from remote repository PKGBUILDs before updating process.
+Remote git source synchronization settings. Unlike ``upload`` triggers those triggers are used for PKGBUILD synchronization - fetch from remote repository PKGBUILDs before updating process.
 
 It supports authorization; to do so you'd need to prefix the URL with authorization part, e.g. ``https://key:token@github.com/arcan1s/ahriman.git``. It is highly recommended to use application tokens instead of your user authorization details. Alternatively, you can use any other option supported by git, e.g.:
 
