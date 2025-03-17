@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import aiohttp_cors  # type: ignore[import-untyped]
+import aiohttp_cors
 
 from aiohttp.web import Application
 
@@ -36,7 +36,7 @@ def setup_cors(application: Application) -> aiohttp_cors.CorsConfig:
         aiohttp_cors.CorsConfig: generated CORS configuration
     """
     cors = aiohttp_cors.setup(application, defaults={
-        "*": aiohttp_cors.ResourceOptions(
+        "*": aiohttp_cors.ResourceOptions(  # type: ignore[no-untyped-call]
             expose_headers="*",
             allow_headers="*",
             allow_methods="*",
