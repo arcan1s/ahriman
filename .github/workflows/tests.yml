@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: 1 0 * * *
 
+permissions:
+  contents: read
+
 jobs:
   run-tests:
 

@@ -15,9 +15,8 @@ import sys
 
 from pathlib import Path
 
-from ahriman import __version__
 
-
+# support package imports
 basedir = Path(__file__).resolve().parent.parent / "src"
 sys.path.insert(0, str(basedir))
 
@@ -29,6 +28,7 @@ copyright = f"2021-{datetime.date.today().year}, ahriman team"
 author = "ahriman team"
 
 # The full version, including alpha/beta/rc tags
+from ahriman import __version__
 release = __version__
 
 
@@ -91,7 +91,13 @@ autoclass_content = "both"
 
 autodoc_member_order = "groupwise"
 
-autodoc_mock_imports = ["cryptography", "pyalpm"]
+autodoc_mock_imports = [
+    "aioauth_client",
+    "aiohttp_security",
+    "aiohttp_session",
+    "cryptography", 
+    "pyalpm",
+]
 
 autodoc_default_options = {
     "no-undoc-members": True,

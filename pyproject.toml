@@ -25,15 +25,64 @@ dependencies = [
 
 dynamic = ["version"]
 
+[project.optional-dependencies]
+journald = [
+    "systemd-python",
+]
+# FIXME technically this dependency is required, but in some cases we do not have access to
+# the libalpm which is required in order to install the package. Thus in case if we do not
+# really need to run the application we can move it to "optional" dependencies
+pacman = [
+    "pyalpm",
+]
+reports = [
+    "Jinja2",
+]
+s3 = [
+    "boto3",
+]
+shell = [
+    "IPython"
+]
+stats = [
+    "matplotlib",
+]
+unixsocket = [
+    "requests-unixsocket2",  # required by unix socket support
+]
+validator = [
+    "cerberus",
+]
+web = [
+    "aiohttp",
+    "aiohttp_cors",
+    "aiohttp_jinja2",
+]
+web_api-docs = [
+    "ahriman[web]",
+    "aiohttp-apispec",
+    "setuptools",  # required by aiohttp-apispec
+]
+web_auth = [
+    "ahriman[web]",
+    "aiohttp_session",
+    "aiohttp_security",
+    "cryptography",
+]
+web_oauth2 = [
+    "ahriman[web_auth]",
+    "aioauth-client",
+]
+
+[project.scripts]
+ahriman = "ahriman.application.ahriman:run"
+
 [project.urls]
 Documentation = "https://ahriman.readthedocs.io/"
 Repository = "https://github.com/arcan1s/ahriman"
 Changelog = "https://github.com/arcan1s/ahriman/releases"
 
-[project.scripts]
-ahriman = "ahriman.application.ahriman:run"
-
-[project.optional-dependencies]
+[dependency-groups]
 check = [
     "autopep8",
     "bandit",
@@ -47,24 +96,6 @@ docs = [
      "shtab",
      "sphinx-argparse",
      "sphinx-rtd-theme>=1.1.1",  # https://stackoverflow.com/a/74355734
- ]
-journald = [
-    "systemd-python",
-]
-# FIXME technically this dependency is required, but in some cases we do not have access to
-# the libalpm which is required in order to install the package. Thus in case if we do not
-# really need to run the application we can move it to "optional" dependencies
-pacman = [
-    "pyalpm",
-]
-s3 = [
-    "boto3",
-]
-shell = [
-    "IPython"
-]
-stats = [
-    "matplotlib",
 ]
 tests = [
     "pytest",
@@ -74,22 +105,6 @@ tests = [
     "pytest-mock",
     "pytest-resource-path",
     "pytest-spec",
-]
-validator = [
-    "cerberus",
-]
-web = [
-    "Jinja2",
-    "aioauth-client",
-    "aiohttp",
-    "aiohttp-apispec",
-    "aiohttp_cors",
-    "aiohttp_jinja2",
-    "aiohttp_session",
-    "aiohttp_security",
-    "cryptography",
-    "requests-unixsocket2",  # required by unix socket support
-    "setuptools",  # required by aiohttp-apispec
 ]
 
 [tool.flit.sdist]

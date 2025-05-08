@@ -8,6 +8,10 @@ on:
       - '*'
       - '!*rc*'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   docker-image:
 

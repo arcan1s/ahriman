@@ -9,13 +9,7 @@ build:
 
 python:
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
-        - s3
-        - validator
-        - web
+    - requirements: docs/requirements.txt
 
 formats:
   - pdf
