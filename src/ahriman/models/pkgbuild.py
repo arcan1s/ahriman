@@ -24,7 +24,6 @@ from pathlib import Path
 from typing import Any, ClassVar, IO, Self
 
 from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser, PkgbuildToken
-from ahriman.core.exceptions import EncodeError
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
@@ -34,13 +33,13 @@ class Pkgbuild(Mapping[str, Any]):
     model and proxy for PKGBUILD properties
 
     Attributes:
-        DEFAULT_ENCODINGS(list[str]): (class attribute) list of encoding to be applied on the file content
+        DEFAULT_ENCODINGS(str): (class attribute) default encoding to be applied on the file content
         fields(dict[str, PkgbuildPatch]): PKGBUILD fields
     """
 
     fields: dict[str, PkgbuildPatch]
 
-    DEFAULT_ENCODINGS: ClassVar[list[str]] = ["utf8", "latin-1"]
+    DEFAULT_ENCODINGS: ClassVar[str] = "utf8"
 
     @property
     def variables(self) -> dict[str, str]:
@@ -58,13 +57,13 @@ class Pkgbuild(Mapping[str, Any]):
         }
 
     @classmethod
-    def from_file(cls, path: Path, encodings: list[str] | None = None) -> Self:
+    def from_file(cls, path: Path, encoding: str | None = None) -> Self:
         """
         parse PKGBUILD from the file
 
         Args:
             path(Path): path to the PKGBUILD file
-            encodings(list[str] | None, optional): the encoding of the file (Default value = None)
+            encoding(str | None, optional): the encoding of the file (Default value = None)
 
         Returns:
             Self: constructed instance of self
@@ -77,15 +76,10 @@ class Pkgbuild(Mapping[str, Any]):
             content = input_file.read()
 
         # decode bytes content based on either
-        encodings = encodings or cls.DEFAULT_ENCODINGS
-        for encoding in encodings:
-            try:
-                io = StringIO(content.decode(encoding))
-                return cls.from_io(io)
-            except ValueError:
-                pass
+        encoding = encoding or cls.DEFAULT_ENCODINGS
+        io = StringIO(content.decode(encoding, errors="backslashreplace"))
 
-        raise EncodeError(encodings)
+        return cls.from_io(io)
 
     @classmethod
     def from_io(cls, stream: IO[str]) -> Self:

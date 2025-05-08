@@ -95,19 +95,6 @@ class DuplicateRunError(RuntimeError):
             self, "Another application instance is run. This error can be suppressed by using --force flag.")
 
 
-class EncodeError(ValueError):
-    """
-    exception used for bytes encoding errors
-    """
-
-    def __init__(self, encodings: list[str]) -> None:
-        """
-        Args:
-            encodings(list[str]): list of encodings tried
-        """
-        ValueError.__init__(self, f"Could not encode bytes by using {encodings}")
-
-
 class ExitCode(RuntimeError):
     """
     special exception which has to be thrown to return non-zero status without error message

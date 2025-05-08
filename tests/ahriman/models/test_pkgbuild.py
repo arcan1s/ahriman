@@ -3,9 +3,7 @@ import pytest
 from io import BytesIO, StringIO
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
 
-from ahriman.core.exceptions import EncodeError
 from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
@@ -44,18 +42,6 @@ def test_from_file_latin(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> N
     assert Pkgbuild.from_file(Path("local"))
     open_mock.assert_called_once_with("rb")
     load_mock.assert_called_once_with(pytest.helpers.anyvar(int))
-
-
-def test_from_file_unknown_encoding(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
-    """
-    must raise exception when encoding is unknown
-    """
-    open_mock = mocker.patch("pathlib.Path.open")
-    io_mock = open_mock.return_value.__enter__.return_value = MagicMock()
-    io_mock.read.return_value.decode.side_effect = EncodeError(pkgbuild_ahriman.DEFAULT_ENCODINGS)
-
-    with pytest.raises(EncodeError):
-        assert Pkgbuild.from_file(Path("local"))
 
 
 def test_from_io(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> None:
