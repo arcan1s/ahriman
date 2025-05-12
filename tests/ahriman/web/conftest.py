@@ -1,8 +1,8 @@
 import pytest
+import pytest_asyncio
 
 from aiohttp.test_utils import TestClient
 from aiohttp.web import Application, Resource, UrlMappingMatchInfo
-from asyncio import BaseEventLoop
 from collections.abc import Awaitable, Callable
 from marshmallow import Schema
 from pytest_mock import MockerFixture
@@ -164,15 +164,13 @@ def application_with_auth(configuration: Configuration, user: User, spawner: Spa
     return application
 
 
-@pytest.fixture
-def client(application: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
-           mocker: MockerFixture) -> TestClient:
+@pytest_asyncio.fixture
+async def client(application: Application, aiohttp_client: Any, mocker: MockerFixture) -> TestClient:
     """
     web client fixture
 
     Args:
         application(Application): application fixture
-        event_loop(BaseEventLoop): context event loop
         aiohttp_client(Any): aiohttp client fixture
         mocker(MockerFixture): mocker object
 
@@ -180,37 +178,35 @@ def client(application: Application, event_loop: BaseEventLoop, aiohttp_client: 
         TestClient: web client test instance
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
-    return event_loop.run_until_complete(aiohttp_client(application))
+    return await aiohttp_client(application)
 
 
-@pytest.fixture
-def client_with_auth(application_with_auth: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
-                     mocker: MockerFixture) -> TestClient:
-    """
-    web client fixture with full authorization functions
-
-    Args:
-        application_with_auth(Application): application fixture
-        event_loop(BaseEventLoop): context event loop
-        aiohttp_client(Any): aiohttp client fixture
-        mocker(MockerFixture): mocker object
-
-    Returns:
-        TestClient: web client test instance
-    """
-    mocker.patch("pathlib.Path.iterdir", return_value=[])
-    return event_loop.run_until_complete(aiohttp_client(application_with_auth))
-
-
-@pytest.fixture
-def client_with_oauth_auth(application_with_auth: Application, event_loop: BaseEventLoop, aiohttp_client: Any,
+@pytest_asyncio.fixture
+async def client_with_auth(application_with_auth: Application, aiohttp_client: Any,
                            mocker: MockerFixture) -> TestClient:
     """
     web client fixture with full authorization functions
 
     Args:
         application_with_auth(Application): application fixture
-        event_loop(BaseEventLoop): context event loop
+        aiohttp_client(Any): aiohttp client fixture
+        mocker(MockerFixture): mocker object
+
+    Returns:
+        TestClient: web client test instance
+    """
+    mocker.patch("pathlib.Path.iterdir", return_value=[])
+    return await aiohttp_client(application_with_auth)
+
+
+@pytest_asyncio.fixture
+async def client_with_oauth_auth(application_with_auth: Application, aiohttp_client: Any,
+                                 mocker: MockerFixture) -> TestClient:
+    """
+    web client fixture with full authorization functions
+
+    Args:
+        application_with_auth(Application): application fixture
         aiohttp_client(Any): aiohttp client fixture
         mocker(MockerFixture): mocker object
 
@@ -219,4 +215,4 @@ def client_with_oauth_auth(application_with_auth: Application, event_loop: BaseE
     """
     mocker.patch("pathlib.Path.iterdir", return_value=[])
     application_with_auth[AuthKey] = MagicMock(spec=OAuth)
-    return event_loop.run_until_complete(aiohttp_client(application_with_auth))
+    return await aiohttp_client(application_with_auth)
