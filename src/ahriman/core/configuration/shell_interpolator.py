@@ -23,7 +23,7 @@ import sys
 
 from collections.abc import Generator, Mapping, MutableMapping
 from string import Template
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from ahriman.core.configuration.shell_template import ShellTemplate
 
@@ -85,7 +85,7 @@ class ShellInterpolator(configparser.Interpolation):
             "prefix": sys.prefix,
         }
 
-    def before_get(self, parser: MutableMapping[str, Mapping[str, str]], section: str, option: str, value: str,
+    def before_get(self, parser: MutableMapping[str, Mapping[str, str]], section: Any, option: Any, value: str,
                    defaults: Mapping[str, str]) -> str:
         """
         interpolate option value
@@ -100,8 +100,8 @@ class ShellInterpolator(configparser.Interpolation):
 
         Args:
             parser(MutableMapping[str, Mapping[str, str]]): option parser
-            section(str): section name
-            option(str): option name
+            section(Any): section name
+            option(Any): option name
             value(str): source (not-converted) value
             defaults(Mapping[str, str]): default values
 
