@@ -39,7 +39,7 @@ class RemoteSchema(Schema):
         "example": ".",
     })
     source = fields.Enum(PackageSource, by_value=True, required=True, metadata={
-        "description": "Pacakge source",
+        "description": "Package source",
     })
     web_url = fields.String(metadata={
         "description": "Package repository page",

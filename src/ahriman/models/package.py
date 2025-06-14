@@ -69,7 +69,7 @@ class Package(LazyLogging):
         :attr:`ahriman.models.package_source.PackageSource.Archive`,
         :attr:`ahriman.models.package_source.PackageSource.AUR`,
         :attr:`ahriman.models.package_source.PackageSource.Local` and
-        :attr:`ahriman.models.package_source.PackageSource.Repository` repsectively:
+        :attr:`ahriman.models.package_source.PackageSource.Repository` respectively:
 
             >>> ahriman_package = Package.from_aur("ahriman")
             >>> pacman_package = Package.from_official("pacman", pacman)

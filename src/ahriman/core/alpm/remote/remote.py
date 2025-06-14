@@ -35,7 +35,7 @@ class Remote(SyncHttpClient):
             >>> package = AUR.info("ahriman")
             >>> search_result = Official.multisearch("pacman", "manager", pacman=pacman)
 
-        Differnece between :func:`search()` and :func:`multisearch()` is that :func:`search()` passes all arguments to
+        Difference between :func:`search()` and :func:`multisearch()` is that :func:`search()` passes all arguments to
         underlying wrapper directly, whereas :func:`multisearch()` splits search one by one and finds intersection
         between search results.
     """

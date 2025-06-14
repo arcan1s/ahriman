@@ -71,7 +71,7 @@ class EventLogger:
                 >>> with self.in_event(package_base, EventType.PackageUpdated):
                 >>>     do_something()
 
-            Additional parameter ``failure`` can be set in order to emit an event on exception occured. If none set
+            Additional parameter ``failure`` can be set in order to emit an event on exception occurred. If none set
             (default), then no event will be recorded on exception
         """
         with MetricsTimer() as timer:

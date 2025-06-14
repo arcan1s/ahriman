@@ -53,7 +53,7 @@ def test_remote_git_url(remote: Remote) -> None:
     must raise NotImplemented for missing remote git url
     """
     with pytest.raises(NotImplementedError):
-        remote.remote_git_url("package", "repositorys")
+        remote.remote_git_url("package", "repositories")
 
 
 def test_remote_web_url(remote: Remote) -> None:

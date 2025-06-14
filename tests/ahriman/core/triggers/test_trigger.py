@@ -73,7 +73,7 @@ def test_configuration_sections(configuration: Configuration) -> None:
 
 def test_on_result(trigger: Trigger) -> None:
     """
-    must pass execution nto run method
+    must pass execution to run method
     """
     trigger.on_result(Result(), [])
 

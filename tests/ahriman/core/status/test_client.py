@@ -285,7 +285,7 @@ def test_set_unknown(client: Client, package_ahriman: Package, mocker: MockerFix
 
 def test_set_unknown_skip(client: Client, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
-    must skip unknown status update in case if pacakge is already known
+    must skip unknown status update in case if package is already known
     """
     mocker.patch("ahriman.core.status.Client.package_get", return_value=[(package_ahriman, None)])
     update_mock = mocker.patch("ahriman.core.status.Client.package_update")

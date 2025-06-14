@@ -40,7 +40,7 @@ class JinjaTemplate:
 
         * homepage - link to homepage, string, optional
         * last_update - report generation time, pretty printed datetime, required
-        * link_path - prefix fo packages to download, string, required
+        * link_path - prefix of packages to download, string, required
         * has_package_signed - ``True`` in case if package sign enabled, ``False`` otherwise, required
         * has_repo_signed - ``True`` in case if repository database sign enabled, ``False`` otherwise, required
         * packages - sorted list of packages properties, required
@@ -64,7 +64,7 @@ class JinjaTemplate:
     Attributes:
         default_pgp_key(str | None): default PGP key
         homepage(str | None): homepage link if any (for footer)
-        link_path(str): prefix fo packages to download
+        link_path(str): prefix of packages to download
         name(str): repository name
         rss_url(str | None): link to the RSS feed
         sign_targets(set[SignSettings]): targets to sign enabled in configuration

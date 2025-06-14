@@ -106,7 +106,7 @@ class PackageView(StatusViewGuard, BaseView):
     @apidocs(
         tags=["Packages"],
         summary="Update package",
-        description="Update package status and set its descriptior optionally",
+        description="Update package status and set its descriptor optionally",
         permission=POST_PERMISSION,
         error_400_enabled=True,
         error_404_description="Repository is unknown",

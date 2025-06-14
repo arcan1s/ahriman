@@ -10,7 +10,7 @@ from ahriman.core.exceptions import PacmanError
 
 def test_copy(mocker: MockerFixture) -> None:
     """
-    must copy loca database file
+    must copy local database file
     """
     copy_mock = mocker.patch("shutil.copy")
     PacmanDatabase.copy(Path("remote"), Path("local"))
