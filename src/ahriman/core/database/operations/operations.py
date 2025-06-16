@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import contextlib
 import sqlite3
 
 from collections.abc import Callable
@@ -87,10 +88,12 @@ class Operations(LazyLogging):
         Returns:
             T: result of the ``query`` call
         """
-        with sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES) as connection:
+        with contextlib.closing(sqlite3.connect(self.path, detect_types=sqlite3.PARSE_DECLTYPES)) as connection:
             connection.set_trace_callback(self.logger.debug)
             connection.row_factory = self.factory
+
             result = query(connection)
             if commit:
                 connection.commit()
+
         return result
