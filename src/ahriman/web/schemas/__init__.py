@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+from ahriman.web.schemas.any_schema import AnySchema
 from ahriman.web.schemas.aur_package_schema import AURPackageSchema
 from ahriman.web.schemas.auth_schema import AuthSchema
 from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
