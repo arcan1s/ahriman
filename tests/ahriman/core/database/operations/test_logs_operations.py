@@ -93,6 +93,27 @@ def test_logs_insert_get_multi(database: SQLite, package_ahriman: Package) -> No
     ]
 
 
+def test_logs_rotate_remove_older(database: SQLite, package_ahriman: Package,
+                                  package_python_schedule: Package) -> None:
+    """
+    must correctly remove old records
+    """
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1"))
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 43.0, "message 2"))
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "2", "p2"), 44.0, "message 3"))
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "2", "p2"), 45.0, "message 4"))
+    database.logs_insert(LogRecord(LogRecordId(package_python_schedule.base, "3", "p1"), 40.0, "message 5"))
+
+    database.logs_rotate(1)
+    assert database.logs_get(package_ahriman.base) == [
+        LogRecord(LogRecordId(package_ahriman.base, "2", "p2"), 44.0, "message 3"),
+        LogRecord(LogRecordId(package_ahriman.base, "2", "p2"), 45.0, "message 4"),
+    ]
+    assert database.logs_get(package_python_schedule.base) == [
+        LogRecord(LogRecordId(package_python_schedule.base, "3", "p1"), 40.0, "message 5"),
+    ]
+
+
 def test_logs_rotate_remove_all(database: SQLite, package_ahriman: Package) -> None:
     """
     must remove all records when rotating with keep_last_records is 0

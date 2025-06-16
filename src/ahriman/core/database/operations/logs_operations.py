@@ -153,10 +153,13 @@ class LogsOperations(Operations):
                 """
                 delete from logs
                 where (package_base, repository, process_id) in (
-                  select package_base, repository, process_id from logs
-                  where repository = :repository
-                  group by package_base, repository, process_id
-                  order by min(created) desc limit -1 offset :offset
+                  select package_base, repository, process_id from (
+                    select package_base, repository, process_id, row_number() over (partition by package_base order by max(created) desc) as rn
+                    from logs
+                    where repository = :repository
+                    group by package_base, repository, process_id
+                  )
+                  where rn > :offset
                 )
                 """,
                 {
