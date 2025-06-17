@@ -56,12 +56,8 @@ def metrics_handler() -> Middleware:
     """
     middleware for metrics support
 
-    Args:
-        request(Request): request object
-        handler(HandlerType): request handler as returned by application
-
     Returns:
-        StreamResponse: generated response for the request
+        Middleware: middleware function to handle server metrics
     """
     if aiohttp_openmetrics is not None:
         return aiohttp_openmetrics.metrics_middleware
