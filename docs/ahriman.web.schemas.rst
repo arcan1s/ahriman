@@ -4,6 +4,14 @@ ahriman.web.schemas package
 Submodules
 ----------
 
+ahriman.web.schemas.any\_schema module
+--------------------------------------
+
+.. automodule:: ahriman.web.schemas.any_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.aur\_package\_schema module
 -----------------------------------------------
 
