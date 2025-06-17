@@ -46,7 +46,7 @@ class PackagesView(StatusViewGuard, BaseView):
     ROUTES = ["/api/v1/packages"]
 
     @apidocs(
-        tags=["packages"],
+        tags=["Packages"],
         summary="Get packages list",
         description="Retrieve packages and their descriptors",
         permission=GET_PERMISSION,

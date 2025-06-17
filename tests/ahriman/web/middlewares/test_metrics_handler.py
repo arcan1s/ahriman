@@ -2,11 +2,11 @@ import importlib
 import pytest
 import sys
 
-import ahriman.web.middlewares.metrics_handler as metrics_handler
-
 from aiohttp.web import HTTPNotFound
 from pytest_mock import MockerFixture
 from unittest.mock import AsyncMock
+
+import ahriman.web.middlewares.metrics_handler as metrics_handler
 
 
 async def test_metrics(mocker: MockerFixture) -> None:
