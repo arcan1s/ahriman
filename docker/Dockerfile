@@ -40,6 +40,7 @@ RUN pacman -S --noconfirm --asdeps \
     pacman -S --noconfirm --asdeps \
         git \
         python-aiohttp \
+        python-aiohttp-openmetrics \
         python-boto3 \
         python-cerberus \
         python-cryptography \
@@ -112,6 +113,7 @@ RUN pacman -S --noconfirm ahriman
 RUN pacman -S --noconfirm --asdeps \
         python-aioauth-client \
         python-aiohttp-apispec-git \
+        python-aiohttp-openmetrics \
         python-aiohttp-security \
         python-aiohttp-session \
         python-boto3 \

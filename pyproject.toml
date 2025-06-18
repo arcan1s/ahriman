@@ -69,6 +69,10 @@ web_auth = [
     "aiohttp_security",
     "cryptography",
 ]
+web_metrics = [
+    "ahriman[web]",
+    "aiohttp-openmetrics",
+]
 web_oauth2 = [
     "ahriman[web_auth]",
     "aioauth-client",

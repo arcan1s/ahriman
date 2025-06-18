@@ -167,6 +167,9 @@ class BaseView(View, CorsViewMixin):
         """
         HEAD method implementation based on the result of GET method
 
+        Returns:
+            StreamResponse: generated response for the request
+
         Raises:
             HTTPMethodNotAllowed: in case if there is no GET method implemented
         """
