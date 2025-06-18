@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from ahriman.application.application import Application
 from ahriman.application.handlers.copy import Copy
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.repository import Repository
 from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
@@ -30,11 +31,12 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
 
 
 def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-             package_ahriman: Package, mocker: MockerFixture) -> None:
+             database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
     application_mock = mocker.patch("ahriman.application.handlers.copy.Copy.copy_package")
@@ -51,12 +53,13 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
 
 
 def test_run_remove(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-                    package_ahriman: Package, mocker: MockerFixture) -> None:
+                    database: SQLite, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must run command and remove packages afterward
     """
     args = _default_args(args)
     args.remove = True
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.application.handlers.copy.Copy.copy_package")
@@ -69,12 +72,14 @@ def test_run_remove(args: argparse.Namespace, configuration: Configuration, repo
 
 
 def test_run_empty_exception(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-                             mocker: MockerFixture) -> None:
+                             database: SQLite, mocker: MockerFixture) -> None:
     """
     must raise ExitCode exception on empty result
     """
     args = _default_args(args)
     args.exit_code = True
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
+    mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.core.repository.Repository.packages", return_value=[])
     mocker.patch("ahriman.application.application.Application.update")
     check_mock = mocker.patch("ahriman.application.handlers.handler.Handler.check_status")

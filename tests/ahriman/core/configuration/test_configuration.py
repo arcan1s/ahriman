@@ -102,6 +102,15 @@ def test_check_loaded_architecture(configuration: Configuration) -> None:
         configuration.check_loaded()
 
 
+def test_copy_from(configuration: Configuration) -> None:
+    """
+    must copy values from another instance
+    """
+    instance = Configuration()
+    instance.copy_from(configuration)
+    assert instance.dump() == configuration.dump()
+
+
 def test_dump(configuration: Configuration) -> None:
     """
     dump must not be empty

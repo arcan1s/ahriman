@@ -144,6 +144,7 @@ def test_repositories_extract(args: argparse.Namespace, configuration: Configura
     args.architecture = "arch"
     args.configuration = configuration.path
     args.repository = "repo"
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
 
@@ -159,6 +160,7 @@ def test_repositories_extract_repository(args: argparse.Namespace, configuration
     """
     args.architecture = "arch"
     args.configuration = configuration.path
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value={"repo"})
@@ -175,6 +177,7 @@ def test_repositories_extract_repository_legacy(args: argparse.Namespace, config
     """
     args.architecture = "arch"
     args.configuration = configuration.path
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value=set())
@@ -191,6 +194,7 @@ def test_repositories_extract_architecture(args: argparse.Namespace, configurati
     """
     args.configuration = configuration.path
     args.repository = "repo"
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures",
                                             return_value={"arch"})
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
@@ -207,6 +211,7 @@ def test_repositories_extract_empty(args: argparse.Namespace, configuration: Con
     """
     args.command = "config"
     args.configuration = configuration.path
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures", return_value=set())
     mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories", return_value=set())
 
@@ -221,6 +226,7 @@ def test_repositories_extract_systemd(args: argparse.Namespace, configuration: C
     """
     args.configuration = configuration.path
     args.repository_id = "i686/some/repo/name"
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
 
@@ -236,6 +242,7 @@ def test_repositories_extract_systemd_with_dash(args: argparse.Namespace, config
     """
     args.configuration = configuration.path
     args.repository_id = "i686-some-repo-name"
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories")
 
@@ -251,6 +258,7 @@ def test_repositories_extract_systemd_legacy(args: argparse.Namespace, configura
     """
     args.configuration = configuration.path
     args.repository_id = "i686"
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     known_architectures_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_architectures")
     known_repositories_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.known_repositories",
                                            return_value=set())

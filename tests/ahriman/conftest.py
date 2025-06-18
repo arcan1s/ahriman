@@ -249,19 +249,25 @@ def auth(configuration: Configuration) -> Auth:
 
 
 @pytest.fixture
-def configuration(repository_id: RepositoryId, resource_path_root: Path) -> Configuration:
+def configuration(repository_id: RepositoryId, tmp_path: Path, resource_path_root: Path) -> Configuration:
     """
     configuration fixture
 
     Args:
         repository_id(RepositoryId): repository identifier fixture
+        tmp_path(Path): temporary path used by the fixture as root
         resource_path_root(Path): resource path root directory
 
     Returns:
         Configuration: configuration test instance
     """
     path = resource_path_root / "core" / "ahriman.ini"
-    return Configuration.from_path(path, repository_id)
+
+    instance = Configuration.from_path(path, repository_id)
+    instance.set_option("repository", "root", str(tmp_path))
+    instance.set_option("settings", "database", str(tmp_path / "ahriman.db"))
+
+    return instance
 
 
 @pytest.fixture
@@ -275,9 +281,7 @@ def database(configuration: Configuration) -> SQLite:
     Returns:
         SQLite: database test instance
     """
-    database = SQLite.load(configuration)
-    yield database
-    database.path.unlink()
+    return SQLite.load(configuration)
 
 
 @pytest.fixture

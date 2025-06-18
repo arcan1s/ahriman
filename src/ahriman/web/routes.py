@@ -72,8 +72,8 @@ def setup_routes(application: Application, configuration: Configuration) -> None
         application(Application): web application instance
         configuration(Configuration): configuration instance
     """
-    application.router.add_static("/static", configuration.getpath("web", "static_path"), name="_static",
-                                  follow_symlinks=True)
+    application.router.add_static("/static", configuration.getpath("web", "static_path"),
+                                  name="_static", follow_symlinks=True)
 
     for route, view in _dynamic_routes(configuration):
         application.router.add_view(route, view, name=_identifier(route))

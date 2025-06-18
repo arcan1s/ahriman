@@ -37,8 +37,6 @@ jobs:
         - repo:/var/lib/ahriman
 
     steps:
-      - uses: actions/checkout@v3
-
       - run: pacman -Sy
 
       - name: Init repository

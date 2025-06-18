@@ -1575,6 +1575,7 @@ def test_run(args: argparse.Namespace, configuration: Configuration, mocker: Moc
     args.command = ""
     args.handler = Handler
 
+    mocker.patch("ahriman.core.configuration.Configuration.load", new=lambda self, _: self.copy_from(configuration))
     mocker.patch("argparse.ArgumentParser.parse_args", return_value=args)
 
     assert ahriman.run() == 1

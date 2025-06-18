@@ -26,7 +26,16 @@ jobs:
         - ${{ github.workspace }}:/build
 
     steps:
-      - uses: actions/checkout@v3
+      - run: pacman --noconfirm -Syu base-devel git python-tox
 
-      - name: Run check and tests in arch linux container
-        run: .github/workflows/tests.sh
+      - run: git config --global --add safe.directory *
+
+      - uses: actions/checkout@v4
+
+      - name: Run check and tests
+        run: tox
+
+      - name: Generate documentation and check if there are untracked changes
+        run: |
+          tox -e docs
+          [ -z "$(git status --porcelain docs/*.rst)" ]

@@ -62,8 +62,8 @@ def test_validate_is_ip_address(validator: Validator, mocker: MockerFixture) -> 
     validator._validate_is_ip_address([], "field", "localhost")
 
     validator._validate_is_ip_address([], "field", "127.0.0.1")
-    validator._validate_is_ip_address([], "field", "::")
-    validator._validate_is_ip_address([], "field", "0.0.0.0")
+    validator._validate_is_ip_address([], "field", "::")  # nosec
+    validator._validate_is_ip_address([], "field", "0.0.0.0")  # nosec
 
     validator._validate_is_ip_address([], "field", "random string")
 

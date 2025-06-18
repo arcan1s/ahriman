@@ -210,6 +210,17 @@ class Configuration(configparser.RawConfigParser):
             raise InitializeError("Configuration path and/or repository id are not set")
         return self.path, self.repository_id
 
+    def copy_from(self, configuration: Self) -> None:
+        """
+        copy values from another instance overriding existing
+
+        Args:
+            configuration(Self): configuration instance to merge from
+        """
+        for section in configuration.sections():
+            for key, value in configuration.items(section):
+                self.set_option(section, key, value)
+
     def dump(self) -> dict[str, dict[str, str]]:
         """
         dump configuration to dictionary
@@ -220,6 +231,7 @@ class Configuration(configparser.RawConfigParser):
         return {
             section: dict(self.items(section))
             for section in self.sections()
+            if self[section]
         }
 
     # pylint and mypy are too stupid to find these methods

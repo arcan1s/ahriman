@@ -9,6 +9,7 @@ from urllib.parse import quote_plus as url_encode
 
 from ahriman.application.handlers.setup import Setup
 from ahriman.core.configuration import Configuration
+from ahriman.core.database import SQLite
 from ahriman.core.exceptions import MissingArchitectureError
 from ahriman.core.repository import Repository
 from ahriman.models.repository_id import RepositoryId
@@ -44,11 +45,12 @@ def _default_args(args: argparse.Namespace) -> argparse.Namespace:
 
 
 def test_run(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-             repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+             database: SQLite, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must run command
     """
     args = _default_args(args)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     ahriman_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
     devtools_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_devtools")
@@ -88,12 +90,13 @@ def test_run_no_architecture_or_repository(configuration: Configuration) -> None
 
 
 def test_run_with_server(args: argparse.Namespace, configuration: Configuration, repository: Repository,
-                         mocker: MockerFixture) -> None:
+                         database: SQLite, mocker: MockerFixture) -> None:
     """
     must run command with server specified
     """
     args = _default_args(args)
     args.server = "server"
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.core.repository.Repository.load", return_value=repository)
     mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_ahriman")
     mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_makepkg")

@@ -51,7 +51,8 @@ def test_run(args: argparse.Namespace, configuration: Configuration, database: S
     update_mock.assert_called_once_with(user)
 
 
-def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
+def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, database: SQLite,
+                        mocker: MockerFixture) -> None:
     """
     must process users with empty password salt
     """
@@ -59,6 +60,7 @@ def test_run_empty_salt(args: argparse.Namespace, configuration: Configuration, 
     args = _default_args(args)
     user = User(username=args.username, password=args.password, access=args.role,
                 packager_id=args.packager, key=args.key)
+    mocker.patch("ahriman.core.database.SQLite.load", return_value=database)
     mocker.patch("ahriman.models.user.User.hash_password", return_value=user)
     create_user_mock = mocker.patch("ahriman.application.handlers.users.Users.user_create", return_value=user)
     update_mock = mocker.patch("ahriman.core.database.SQLite.user_update")
