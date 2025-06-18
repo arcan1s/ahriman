@@ -1,0 +1,45 @@
+[tool.pylint.main]
+init-hook = "sys.path.append('pylint_plugins')"
+load-plugins = [
+    "pylint.extensions.docparams",
+    "pylint.extensions.bad_builtin",
+    "definition_order",
+    "import_order",
+]
+
+[tool.pylint.classes]
+bad-functions = [
+    "print",
+]
+
+[tool.pylint.design]
+max-parents = 15
+
+[tool.pylint."messages control"]
+disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+    "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero",
+    "missing-module-docstring",
+    "line-too-long",
+    "no-name-in-module",
+    "import-outside-toplevel",
+    "invalid-name",
+    "raise-missing-from",
+    "wrong-import-order",
+    "too-few-public-methods",
+    "too-many-instance-attributes",
+    "broad-exception-caught",
+    "fixme",
+    "too-many-arguments",
+    "duplicate-code",
+    "cyclic-import",
+    "too-many-positional-arguments",
+]

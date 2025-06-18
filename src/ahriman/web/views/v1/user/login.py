@@ -97,6 +97,7 @@ class LoginView(BaseView):
         login user to service. The authentication session will be passed in ``Set-Cookie`` header.
 
         Raises:
+            HTTPBadRequest: if bad data is supplied
             HTTPFound: on success response
             HTTPUnauthorized: if case of authorization error
         """
