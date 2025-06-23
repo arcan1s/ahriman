@@ -1,0 +1,310 @@
+env_list = [
+    "check",
+    "tests",
+]
+isolated_build = true
+labels.release = [
+    "version",
+    "docs",
+    "publish",
+]
+
+[flags]
+autopep8 = [
+    "--max-line-length", "120",
+    "-aa",
+]
+bandit = [
+    "--configfile", ".bandit.yml",
+]
+manpage = [
+    "--author", "{[project]name} team",
+    "--author-email", "",
+    "--description", "ArcH linux ReposItory MANager",
+    "--manual-title", "ArcH linux ReposItory MANager",
+    "--project-name", "{[project]name}",
+    "--version", "{env:VERSION}",
+    "--url", "https://github.com/arcan1s/ahriman",
+]
+mypy = [
+    "--implicit-reexport",
+    "--strict",
+    "--allow-untyped-decorators",
+    "--allow-subclassing-any",
+]
+pydeps = [
+    "--no-config",
+    "--cluster",
+]
+pylint = [
+    "--rcfile", ".pylint.toml",
+]
+shtab = [
+    "--prefix", "{[project]name}",
+    "--prog", "{[project]name}",
+    "ahriman.application.ahriman._parser",
+]
+
+[project]
+extras = [
+    "journald",
+    "pacman",
+    "reports",
+    "s3",
+    "shell",
+    "stats",
+    "unixsocket",
+    "validator",
+    "web",
+    "web-auth",
+    "web-docs",
+    "web-oauth2",
+    "web-metrics",
+]
+name = "ahriman"
+
+[env.archive]
+description = "Create source files tarball"
+deps = [
+    "build",
+]
+commands = [
+    [
+        "{envpython}",
+        "-m", "build",
+        "--sdist",
+    ],
+]
+
+[env.check]
+description = "Run common checks like linter, mypy, etc"
+dependency_groups = [
+    "check",
+]
+extras = [
+    { replace = "ref", of = ["project", "extras"], extend = true },
+]
+pip_pre = true
+set_env.CFLAGS = "-Wno-unterminated-string-initialization"
+set_env.MYPYPATH = "src"
+commands = [
+    [
+        "autopep8",
+        { replace = "ref", of = ["flags", "autopep8"], extend = true },
+        "--exit-code",
+        "--in-place",
+        "--jobs", "0",
+        "--recursive",
+        "src/{[project]name}",
+        "tests/{[project]name}",
+    ],
+    [
+        "pylint",
+        { replace = "ref", of = ["flags", "pylint"], extend = true },
+        "src/{[project]name}",
+    ],
+    [
+        "bandit",
+        { replace = "ref", of = ["flags", "bandit"], extend = true },
+        "--recursive",
+        "src/{[project]name}",
+    ],
+    [
+        "bandit",
+        { replace = "ref", of = ["flags", "bandit"], extend = true },
+        "--skip", "B101,B105,B106",
+        "--recursive",
+        "src/{[project]name}",
+    ],
+    [
+        "mypy",
+        { replace = "ref", of = ["flags", "mypy"], extend = true },
+        "--install-types",
+        "--non-interactive",
+        "--package", "{[project]name}",
+    ],
+]
+
+[env.docs]
+description = "Generate source files for documentation"
+dependency_groups = [
+    "docs",
+]
+depends = [
+    "version",
+]
+deps = [
+    "uv",
+]
+dynamic_version = "{[project]name}.__version__"
+extras = [
+    { replace = "ref", of = ["project", "extras"], extend = true },
+]
+# TODO: steamline shlex usage after https://github.com/iterative/shtab/pull/192 merge
+handle_redirect = true
+pip_pre = true
+set_env.PYTHONPATH = "src"
+set_env.SPHINX_APIDOC_OPTIONS = "members,no-undoc-members,show-inheritance"
+commands = [
+    [
+        "shtab",
+        { replace = "ref", of = ["flags", "shtab"], extend = true },
+        "--shell",
+        "bash",
+        ">",
+        "package/share/bash-completion/completions/_ahriman",
+    ],
+    [
+        "shtab",
+        { replace = "ref", of = ["flags", "shtab"], extend = true },
+        "--shell",
+        "zsh",
+        ">",
+        "package/share/zsh/site-functions/_ahriman",
+    ],
+    [
+        "argparse-manpage",
+        { replace = "ref", of = ["flags", "manpage"], extend = true },
+        "--module", "ahriman.application.ahriman",
+        "--function", "_parser",
+        "--output", "package/share/man/man1/ahriman.1",
+    ],
+    [
+        "pydeps",
+        { replace = "ref", of = ["flags", "pydeps"], extend = true },
+        "--dot-output", "{tox_root}/docs/_static/architecture.dot",
+        "--no-output",
+        "--show-dot",
+        "src/ahriman",
+    ],
+    [
+        "sphinx-apidoc",
+        "--force",
+        "--no-toc",
+        "--output-dir", "docs",
+        "src",
+    ],
+    # compile list of dependencies for rtd.io
+    [
+        "uv",
+        "pip",
+        "compile",
+        "--group", "pyproject.toml:docs",
+        "--extra", "s3",
+        "--extra", "validator",
+        "--extra", "web",
+        "--output-file", "docs/requirements.txt",
+        "--quiet",
+        "pyproject.toml",
+    ],
+]
+
+[env.html]
+description = "Generate html documentation"
+dependency_groups = [
+    "docs",
+]
+extras = [
+    { replace = "ref", of = ["project", "extras"], extend = true },
+]
+pip_pre = true
+recreate = true
+commands = [
+    [
+        "sphinx-build",
+        "--builder", "html",
+        "--fail-on-warning",
+        "--jobs", "auto",
+        "--write-all",
+        "docs",
+        "{envtmpdir}/html",
+    ],
+]
+
+[env.publish]
+description = "Create and publish release to GitHub"
+allowlist_externals = [
+    "git",
+]
+depends = [
+    "docs",
+]
+pass_env = [
+    "SSH_AUTH_SOCK",
+]
+commands = [
+    [
+        "git",
+        "add",
+        "package/archlinux/PKGBUILD",
+        "src/ahriman/__init__.py",
+        "docs/_static/architecture.dot",
+        "package/share/man/man1/ahriman.1",
+        "package/share/bash-completion/completions/_ahriman",
+        "package/share/zsh/site-functions/_ahriman",
+    ],
+    [
+        "git",
+        "commit",
+        "--message", "Release {posargs}",
+    ],
+    [
+        "git",
+        "tag",
+        "{posargs}",
+    ],
+    [
+        "git",
+        "push",
+    ],
+    [
+        "git",
+        "push",
+        "--tags",
+    ],
+]
+
+[env.tests]
+description = "Run tests"
+dependency_groups = [
+    "tests",
+]
+extras = [
+    { replace = "ref", of = ["project", "extras"], extend = true },
+]
+pip_pre = true
+set_env.CFLAGS = "-Wno-unterminated-string-initialization"
+commands = [
+    [
+        "pytest",
+        { replace = "posargs", extend = true },
+    ],
+]
+
+[env.version]
+description = "Bump package version"
+allowlist_externals = [
+    "sed",
+]
+deps = [
+    "packaging",
+]
+commands = [
+    # check if version is set and validate it
+    [
+        "{envpython}",
+        "-c", "from packaging.version import Version; Version('{posargs}')",
+    ],
+    [
+        "sed",
+        "--in-place",
+        "s/^__version__ = .*/__version__ = \"{posargs}\"/",
+        "src/ahriman/__init__.py",
+    ],
+    [
+        "sed",
+        "--in-place",
+        "s/pkgver=.*/pkgver={posargs}/",
+        "package/archlinux/PKGBUILD",
+    ],
+]

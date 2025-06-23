@@ -1,10 +1,10 @@
 [tool.pylint.main]
-init-hook = "sys.path.append('pylint_plugins')"
+init-hook = "sys.path.append('tools')"
 load-plugins = [
     "pylint.extensions.docparams",
     "pylint.extensions.bad_builtin",
-    "definition_order",
-    "import_order",
+    "pylint_plugins.definition_order",
+    "pylint_plugins.import_order",
 ]
 
 [tool.pylint.classes]

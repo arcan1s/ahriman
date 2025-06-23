@@ -58,23 +58,23 @@ web = [
     "aiohttp_cors",
     "aiohttp_jinja2",
 ]
-web_api-docs = [
-    "ahriman[web]",
-    "aiohttp-apispec",
-    "setuptools",  # required by aiohttp-apispec
-]
-web_auth = [
+web-auth = [
     "ahriman[web]",
     "aiohttp_session",
     "aiohttp_security",
     "cryptography",
 ]
-web_metrics = [
+web-docs = [
+    "ahriman[web]",
+    "aiohttp-apispec",
+    "setuptools",  # required by aiohttp-apispec
+]
+web-metrics = [
     "ahriman[web]",
     "aiohttp-openmetrics",
 ]
-web_oauth2 = [
-    "ahriman[web_auth]",
+web-oauth2 = [
+    "ahriman[web-auth]",
     "aioauth-client",
 ]
 
