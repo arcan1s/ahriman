@@ -106,7 +106,7 @@ def test_package_info(official: Official, aur_package_akonadi: AURPackage, mocke
 
 def test_package_info_not_found(official: Official, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
-    must raise UnknownPackage exception in case if no package was found
+    must raise UnknownPackageError in case if no package was found
     """
     mocker.patch("ahriman.core.alpm.remote.Official.arch_request", return_value=[])
     with pytest.raises(UnknownPackageError, match=aur_package_ahriman.name):
@@ -119,5 +119,16 @@ def test_package_search(official: Official, aur_package_akonadi: AURPackage, moc
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request",
                                 return_value=[aur_package_akonadi])
-    assert official.package_search(aur_package_akonadi.name, pacman=None) == [aur_package_akonadi]
+    assert official.package_search(aur_package_akonadi.name, pacman=None, search_by=None) == [
+        aur_package_akonadi,
+    ]
     request_mock.assert_called_once_with(aur_package_akonadi.name, by="q")
+
+
+def test_package_search_name(official: Official, aur_package_akonadi: AURPackage, mocker: MockerFixture) -> None:
+    """
+    must make request for search with custom field
+    """
+    request_mock = mocker.patch("ahriman.core.alpm.remote.Official.arch_request")
+    official.package_search(aur_package_akonadi.name, pacman=None, search_by="name")
+    request_mock.assert_called_once_with(aur_package_akonadi.name, by="name")

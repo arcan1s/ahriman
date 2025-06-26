@@ -167,13 +167,24 @@ def test_from_aur(package_ahriman: Package, aur_package_ahriman: AURPackage, moc
     """
     must construct package from aur
     """
-    mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
+    info_mock = mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
 
     package = Package.from_aur(package_ahriman.base, package_ahriman.packager)
+    info_mock.assert_called_once_with(package_ahriman.base, include_provides=False)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()
     assert package_ahriman.packager == package.packager
+
+
+def test_from_aur_include_provides(package_ahriman: Package, aur_package_ahriman: AURPackage,
+                                   mocker: MockerFixture) -> None:
+    """
+    must construct package from aur by using provides list
+    """
+    info_mock = mocker.patch("ahriman.core.alpm.remote.AUR.info", return_value=aur_package_ahriman)
+    Package.from_aur(package_ahriman.base, package_ahriman.packager, include_provides=True)
+    info_mock.assert_called_once_with(package_ahriman.base, include_provides=True)
 
 
 def test_from_build(package_ahriman: Package, mocker: MockerFixture, resource_path_root: Path) -> None:
@@ -269,14 +280,25 @@ def test_from_json_view_3(package_tpacpi_bat_git: Package) -> None:
     assert Package.from_json(package_tpacpi_bat_git.view()) == package_tpacpi_bat_git
 
 
+def test_from_official_include_provides(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
+                                        mocker: MockerFixture) -> None:
+    """
+    must construct package from official repository
+    """
+    info_mock = mocker.patch("ahriman.core.alpm.remote.Official.info", return_value=aur_package_ahriman)
+    Package.from_official(package_ahriman.base, pacman, package_ahriman.packager, include_provides=True)
+    info_mock.assert_called_once_with(package_ahriman.base, pacman=pacman, include_provides=True)
+
+
 def test_from_official(package_ahriman: Package, aur_package_ahriman: AURPackage, pacman: Pacman,
                        mocker: MockerFixture) -> None:
     """
     must construct package from official repository
     """
-    mocker.patch("ahriman.core.alpm.remote.Official.info", return_value=aur_package_ahriman)
+    info_mock = mocker.patch("ahriman.core.alpm.remote.Official.info", return_value=aur_package_ahriman)
 
     package = Package.from_official(package_ahriman.base, pacman, package_ahriman.packager)
+    info_mock.assert_called_once_with(package_ahriman.base, pacman=pacman, include_provides=False)
     assert package_ahriman.base == package.base
     assert package_ahriman.version == package.version
     assert package_ahriman.packages.keys() == package.packages.keys()

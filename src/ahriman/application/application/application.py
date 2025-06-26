@@ -133,18 +133,18 @@ class Application(ApplicationPackages, ApplicationRepository):
         if not process_dependencies or not packages:
             return packages
 
-        def missing_dependencies(source: Iterable[Package]) -> dict[str, str | None]:
+        def missing_dependencies(sources: Iterable[Package]) -> dict[str, str | None]:
             # append list of known packages with packages which are in current sources
             satisfied_packages = known_packages | {
                 single
-                for package in source
-                for single in package.packages_full
+                for source in sources
+                for single in source.packages_full
             }
 
             return {
-                dependency: package.packager
-                for package in source
-                for dependency in package.depends_build
+                dependency: source.packager
+                for source in sources
+                for dependency in source.depends_build
                 if dependency not in satisfied_packages
             }
 
@@ -156,7 +156,7 @@ class Application(ApplicationPackages, ApplicationRepository):
                         # there is local cache, load package from it
                         leaf = Package.from_build(source_dir, self.repository.architecture, packager)
                     else:
-                        leaf = Package.from_aur(package_name, packager)
+                        leaf = Package.from_aur(package_name, packager, include_provides=True)
                     portion[leaf.base] = leaf
 
                     # register package in the database

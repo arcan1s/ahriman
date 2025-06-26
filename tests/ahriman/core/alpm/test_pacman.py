@@ -282,3 +282,10 @@ def test_packages_with_provides(pacman: Pacman) -> None:
     """
     assert "sh" in pacman.packages()
     assert "mysql" in pacman.packages()  # mariadb
+
+
+def test_package_provided_by(pacman: Pacman) -> None:
+    """
+    must search through the provides lists
+    """
+    assert list(pacman.provided_by("sh"))

@@ -127,15 +127,17 @@ class Official(Remote):
         except StopIteration:
             raise UnknownPackageError(package_name) from None
 
-    def package_search(self, *keywords: str, pacman: Pacman | None) -> list[AURPackage]:
+    def package_search(self, *keywords: str, pacman: Pacman | None, search_by: str | None) -> list[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
             pacman(Pacman | None): alpm wrapper instance, required for official repositories search
+            search_by(str | None): search by keywords
 
         Returns:
             list[AURPackage]: list of packages which match the criteria
         """
-        return self.arch_request(*keywords, by="q")
+        search_by = search_by or "q"
+        return self.arch_request(*keywords, by=search_by)

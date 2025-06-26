@@ -59,3 +59,22 @@ class OfficialSyncdb(Official):
             return next(AURPackage.from_pacman(package) for package in pacman.package(package_name))
         except StopIteration:
             raise UnknownPackageError(package_name) from None
+
+    def package_provided_by(self, package_name: str, *, pacman: Pacman | None) -> list[AURPackage]:
+        """
+        get package list which provide the specified package name
+
+        Args:
+            package_name(str): package name to search
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
+
+        Returns:
+            list[AURPackage]: list of packages which match the criteria
+        """
+        if pacman is None:
+            return []
+
+        return [
+            AURPackage.from_pacman(package)
+            for package in pacman.provided_by(package_name)
+        ]
