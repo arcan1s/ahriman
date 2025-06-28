@@ -59,7 +59,7 @@ class Remote(SyncHttpClient):
             AURPackage: package which match the package name
 
         Raises:
-            UnknownPackageError: if package name is not found and ``include_provides`` is set to ``False``
+            UnknownPackageError: if requested package not found
         """
         instance = cls()
         try:
