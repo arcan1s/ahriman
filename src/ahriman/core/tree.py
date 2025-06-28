@@ -33,6 +33,7 @@ class Leaf:
 
     Attributes:
         dependencies(set[str]): list of package dependencies
+        items(list[str]): list of packages in this leaf including provides
         package(Package): leaf package properties
     """
 
@@ -42,17 +43,9 @@ class Leaf:
             package(Package): package properties
         """
         self.package = package
+        # store frequently used properties
         self.dependencies = package.depends_build
-
-    @property
-    def items(self) -> Iterable[str]:
-        """
-        extract all packages from the leaf
-
-        Returns:
-            Iterable[str]: packages containing in this leaf
-        """
-        return self.package.packages.keys()
+        self.items = self.package.packages_full
 
     def is_dependency(self, packages: Iterable[Leaf]) -> bool:
         """

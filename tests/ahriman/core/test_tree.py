@@ -195,6 +195,32 @@ def test_tree_levels_sorted() -> None:
     assert third == [leaf2.package, leaf4.package]
 
 
+def test_tree_levels_provides() -> None:
+    """
+    must build tree according to provides list
+    """
+    leaf1 = Leaf(
+        Package(
+            base="package1",
+            version="1.0.0",
+            remote=RemoteSource(source=PackageSource.AUR),
+            packages={"package1": PackageDescription(depends=["package3"])},
+        )
+    )
+    leaf2 = Leaf(
+        Package(
+            base="package2",
+            version="1.0.0",
+            remote=RemoteSource(source=PackageSource.AUR),
+            packages={"package2": PackageDescription(provides=["package3"])},
+        )
+    )
+
+    first, second = Tree([leaf1, leaf2]).levels()
+    assert first == [leaf2.package]
+    assert second == [leaf1.package]
+
+
 def test_tree_partitions() -> None:
     """
     must divide tree into partitions
