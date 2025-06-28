@@ -1,4 +1,6 @@
+from pathlib import Path
 from pytest_mock import MockerFixture
+from typing import Any
 from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.application.application import Application
@@ -73,6 +75,10 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
         mock.packages_full = [package_base]
         return mock
 
+    def get_package(name: str | Path, *args: Any, **kwargs: Any) -> Package:
+        name = name if isinstance(name, str) else name.name
+        return packages[name]
+
     package_python_schedule.packages = {
         package_python_schedule.base: package_python_schedule.packages[package_python_schedule.base]
     }
@@ -87,10 +93,8 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     }
 
     mocker.patch("pathlib.Path.is_dir", autospec=True, side_effect=lambda p: p.name == "python")
-    package_aur_mock = mocker.patch("ahriman.models.package.Package.from_aur",
-                                    side_effect=lambda *args: packages[args[0]])
-    package_local_mock = mocker.patch("ahriman.models.package.Package.from_build",
-                                      side_effect=lambda *args: packages[args[0].name])
+    package_aur_mock = mocker.patch("ahriman.models.package.Package.from_aur", side_effect=get_package)
+    package_local_mock = mocker.patch("ahriman.models.package.Package.from_build", side_effect=get_package)
     packages_mock = mocker.patch("ahriman.application.application.Application._known_packages",
                                  return_value={"devtools", "python-build", "python-pytest"})
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_unknown")
@@ -98,8 +102,8 @@ def test_with_dependencies(application: Application, package_ahriman: Package, p
     result = application.with_dependencies([package_ahriman], process_dependencies=True)
     assert {package.base: package for package in result} == packages
     package_aur_mock.assert_has_calls([
-        MockCall(package_python_schedule.base, package_ahriman.packager),
-        MockCall("python-installer", package_ahriman.packager),
+        MockCall(package_python_schedule.base, package_ahriman.packager, include_provides=True),
+        MockCall("python-installer", package_ahriman.packager, include_provides=True),
     ], any_order=True)
     package_local_mock.assert_has_calls([
         MockCall(application.repository.paths.cache_for("python"), "x86_64", package_ahriman.packager),

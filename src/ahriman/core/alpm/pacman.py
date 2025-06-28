@@ -255,3 +255,19 @@ class Pacman(LazyLogging):
                 result.update(trim_package(provides) for provides in package.provides)
 
         return result
+
+    def provided_by(self, package_name: str) -> Generator[Package, None, None]:
+        """
+        search through databases and emit packages which provides the ``package_name``
+
+        Args:
+            package_name(str): package name to search
+
+        Yields:
+            Package: list of packages which were returned by the query
+        """
+        def is_package_provided(package: Package) -> bool:
+            return package_name in package.provides
+
+        for database in self.handle.get_syncdbs():
+            yield from filter(is_package_provided, database.search(package_name))

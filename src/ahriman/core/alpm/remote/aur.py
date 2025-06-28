@@ -130,15 +130,36 @@ class AUR(Remote):
         except StopIteration:
             raise UnknownPackageError(package_name) from None
 
-    def package_search(self, *keywords: str, pacman: Pacman | None) -> list[AURPackage]:
+    def package_provided_by(self, package_name: str, *, pacman: Pacman | None) -> list[AURPackage]:
+        """
+        get package list which provide the specified package name
+
+        Args:
+            package_name(str): package name to search
+            pacman(Pacman | None): alpm wrapper instance, required for official repositories search
+
+        Returns:
+            list[AURPackage]: list of packages which match the criteria
+        """
+        return [
+            package
+            # search api provides reduced models
+            for stub in self.package_search(package_name, pacman=pacman, search_by="provides")
+            # verity that found package actually provides it
+            if package_name in (package := self.package_info(stub.package_base, pacman=pacman)).provides
+        ]
+
+    def package_search(self, *keywords: str, pacman: Pacman | None, search_by: str | None) -> list[AURPackage]:
         """
         search package in AUR web
 
         Args:
             *keywords(str): keywords to search
             pacman(Pacman | None): alpm wrapper instance, required for official repositories search
+            search_by(str | None): search by keywords
 
         Returns:
             list[AURPackage]: list of packages which match the criteria
         """
-        return self.aur_request("search", *keywords, by="name-desc")
+        search_by = search_by or "name-desc"
+        return self.aur_request("search", *keywords, by=search_by)

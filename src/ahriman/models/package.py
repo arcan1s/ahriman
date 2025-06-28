@@ -213,18 +213,19 @@ class Package(LazyLogging):
         )
 
     @classmethod
-    def from_aur(cls, name: str, packager: str | None = None) -> Self:
+    def from_aur(cls, name: str, packager: str | None = None, *, include_provides: bool = False) -> Self:
         """
         construct package properties from AUR page
 
         Args:
             name(str): package name (either base or normal name)
             packager(str | None, optional): packager to be used for this build (Default value = None)
+            include_provides(bool, optional): search by provides if no exact match found (Default value = False)
 
         Returns:
             Self: package properties
         """
-        package = AUR.info(name)
+        package = AUR.info(name, include_provides=include_provides)
 
         remote = RemoteSource(
             source=PackageSource.AUR,
@@ -310,7 +311,8 @@ class Package(LazyLogging):
         )
 
     @classmethod
-    def from_official(cls, name: str, pacman: Pacman, packager: str | None = None, *, use_syncdb: bool = True) -> Self:
+    def from_official(cls, name: str, pacman: Pacman, packager: str | None = None, *, use_syncdb: bool = True,
+                      include_provides: bool = False) -> Self:
         """
         construct package properties from official repository page
 
@@ -319,11 +321,13 @@ class Package(LazyLogging):
             pacman(Pacman): alpm wrapper instance
             packager(str | None, optional): packager to be used for this build (Default value = None)
             use_syncdb(bool, optional): use pacman databases instead of official repositories RPC (Default value = True)
+            include_provides(bool, optional): search by provides if no exact match found (Default value = False)
 
         Returns:
             Self: package properties
         """
-        package = OfficialSyncdb.info(name, pacman=pacman) if use_syncdb else Official.info(name)
+        impl = OfficialSyncdb if use_syncdb else Official
+        package = impl.info(name, pacman=pacman, include_provides=include_provides)
 
         remote = RemoteSource(
             source=PackageSource.Repository,

@@ -4,7 +4,7 @@ import requests
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.alpm.remote import AUR
 from ahriman.core.exceptions import PackageInfoError, UnknownPackageError
@@ -132,11 +132,31 @@ def test_package_info(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerF
 
 def test_package_info_not_found(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
     """
-    must raise UnknownPackage exception in case if no package was found
+    must raise UnknownPackageError in case if no package was found
     """
     mocker.patch("ahriman.core.alpm.remote.AUR.aur_request", return_value=[])
     with pytest.raises(UnknownPackageError, match=aur_package_ahriman.name):
         assert aur.package_info(aur_package_ahriman.name, pacman=None)
+
+
+def test_package_provided_by(aur: AUR, aur_package_ahriman: AURPackage, aur_package_akonadi: AURPackage,
+                             mocker: MockerFixture) -> None:
+    """
+    must search for packages which provide required one
+    """
+    aur_package_ahriman.provides.append(aur_package_ahriman.name)
+    search_mock = mocker.patch("ahriman.core.alpm.remote.AUR.package_search", return_value=[
+        aur_package_ahriman, aur_package_akonadi
+    ])
+    info_mock = mocker.patch("ahriman.core.alpm.remote.AUR.package_info", side_effect=[
+        aur_package_ahriman, aur_package_akonadi
+    ])
+
+    assert aur.package_provided_by(aur_package_ahriman.name, pacman=None) == [aur_package_ahriman]
+    search_mock.assert_called_once_with(aur_package_ahriman.name, pacman=None, search_by="provides")
+    info_mock.assert_has_calls([
+        MockCall(aur_package_ahriman.name, pacman=None), MockCall(aur_package_akonadi.name, pacman=None)
+    ])
 
 
 def test_package_search(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
@@ -144,5 +164,14 @@ def test_package_search(aur: AUR, aur_package_ahriman: AURPackage, mocker: Mocke
     must make request for search
     """
     request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.aur_request", return_value=[aur_package_ahriman])
-    assert aur.package_search(aur_package_ahriman.name, pacman=None) == [aur_package_ahriman]
+    assert aur.package_search(aur_package_ahriman.name, pacman=None, search_by=None) == [aur_package_ahriman]
     request_mock.assert_called_once_with("search", aur_package_ahriman.name, by="name-desc")
+
+
+def test_package_search_provides(aur: AUR, aur_package_ahriman: AURPackage, mocker: MockerFixture) -> None:
+    """
+    must make request for search with custom field
+    """
+    request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.aur_request")
+    aur.package_search(aur_package_ahriman.name, pacman=None, search_by="provides")
+    request_mock.assert_called_once_with("search", aur_package_ahriman.name, by="provides")
