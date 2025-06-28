@@ -13,7 +13,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    container:
+      image: archlinux:base
+      options: -w /build
+      volumes:
+        - ${{ github.workspace }}:/build
+
     steps:
+      - run: pacman --noconfirm -Syu base-devel git python-tox
+
       - uses: actions/checkout@v4
 
       - name: Extract version
@@ -26,10 +34,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filter: 'Release \d+\.\d+\.\d+'
-
-      - uses: ConorMacBride/install-package@v1.1.0
-        with:
-          apt: tox
 
       - name: Create archive
         run: tox -e archive
