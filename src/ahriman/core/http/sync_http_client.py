@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import requests
+import sys
 
 from functools import cached_property
 from typing import Any, IO, Literal
@@ -70,7 +71,10 @@ class SyncHttpClient(LazyLogging):
             request.Session: created session object
         """
         session = requests.Session()
-        session.headers["User-Agent"] = f"ahriman/{__version__}"
+        python_version = ".".join(map(str, sys.version_info[:3]))  # just major.minor.patch
+        session.headers["User-Agent"] = f"ahriman/{__version__}" \
+            f"{requests.utils.default_user_agent()}" \
+            f"python/{python_version}"
 
         return session
 
