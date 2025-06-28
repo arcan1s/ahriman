@@ -76,24 +76,18 @@ def test_aur_request(aur: AUR, aur_package_ahriman: AURPackage,
     request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.make_request", return_value=response_mock)
 
     assert aur.aur_request("info", "ahriman") == [aur_package_ahriman]
-    request_mock.assert_called_once_with(
-        "GET", "https://aur.archlinux.org/rpc",
-        params=[("type", "info"), ("v", "5"), ("arg", "ahriman")])
+    request_mock.assert_called_once_with("GET", "https://aur.archlinux.org/rpc/v5/info/ahriman", params=[])
 
 
-def test_aur_request_multi_arg(aur: AUR, aur_package_ahriman: AURPackage,
-                               mocker: MockerFixture, resource_path_root: Path) -> None:
+def test_aur_request_multi_arg(aur: AUR) -> None:
     """
-    must perform request to AUR with multiple args
+    must raise PackageInfoError if invalid amount of arguments supplied
     """
-    response_mock = MagicMock()
-    response_mock.json.return_value = json.loads(_get_response(resource_path_root))
-    request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.make_request", return_value=response_mock)
+    with pytest.raises(PackageInfoError):
+        aur.aur_request("search", "ahriman", "is", "cool")
 
-    assert aur.aur_request("search", "ahriman", "is", "cool") == [aur_package_ahriman]
-    request_mock.assert_called_once_with(
-        "GET", "https://aur.archlinux.org/rpc",
-        params=[("type", "search"), ("v", "5"), ("arg[]", "ahriman"), ("arg[]", "is"), ("arg[]", "cool")])
+    with pytest.raises(PackageInfoError):
+        aur.aur_request("search")
 
 
 def test_aur_request_with_kwargs(aur: AUR, aur_package_ahriman: AURPackage,
@@ -106,9 +100,8 @@ def test_aur_request_with_kwargs(aur: AUR, aur_package_ahriman: AURPackage,
     request_mock = mocker.patch("ahriman.core.alpm.remote.AUR.make_request", return_value=response_mock)
 
     assert aur.aur_request("search", "ahriman", by="name") == [aur_package_ahriman]
-    request_mock.assert_called_once_with(
-        "GET", "https://aur.archlinux.org/rpc",
-        params=[("type", "search"), ("v", "5"), ("arg", "ahriman"), ("by", "name")])
+    request_mock.assert_called_once_with("GET", "https://aur.archlinux.org/rpc/v5/search/ahriman",
+                                         params=[("by", "name")])
 
 
 def test_aur_request_failed(aur: AUR, mocker: MockerFixture) -> None:

@@ -97,20 +97,17 @@ class AUR(Remote):
 
         Returns:
             list[AURPackage]: response parsed to package list
+
+        Raises:
+            PackageInfoError: if multiple arguments are passed
         """
-        query: list[tuple[str, str]] = [
-            ("type", request_type),
-            ("v", self.DEFAULT_RPC_VERSION),
-        ]
+        if len(args) != 1:
+            raise PackageInfoError("AUR API requires exactly one argument to search")
 
-        arg_query = "arg[]" if len(args) > 1 else "arg"
-        for arg in args:
-            query.append((arg_query, arg))
+        url = f"{self.DEFAULT_RPC_URL}/v{self.DEFAULT_RPC_VERSION}/{request_type}/{args[0]}"
+        query = list(kwargs.items())
 
-        for key, value in kwargs.items():
-            query.append((key, value))
-
-        response = self.make_request("GET", self.DEFAULT_RPC_URL, params=query)
+        response = self.make_request("GET", url, params=query)
         return self.parse_response(response.json())
 
     def package_info(self, package_name: str, *, pacman: Pacman | None) -> AURPackage:
