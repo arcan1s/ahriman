@@ -150,6 +150,13 @@ def test_check_output_empty_line(mocker: MockerFixture) -> None:
     logger_mock.assert_has_calls([MockCall(""), MockCall("hello")])
 
 
+def test_check_output_encoding_error(resource_path_root: Path) -> None:
+    """
+    must correctly process unicode encoding error in command output
+    """
+    assert check_output("cat", str(resource_path_root / "models" / "package_pacman-static_pkgbuild"))
+
+
 def test_check_user(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must check user correctly

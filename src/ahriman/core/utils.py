@@ -136,7 +136,8 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
     } | environment
 
     with subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          user=user, env=full_environment, text=True, encoding="utf8", bufsize=1) as process:
+                          user=user, env=full_environment, text=True, encoding="utf8", errors="backslashreplace",
+                          bufsize=1) as process:
         if input_data is not None:
             input_channel = get_io(process, "stdin")
             input_channel.write(input_data)
