@@ -25,6 +25,13 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-3 col-form-label"></label>
+                        <div class="col-9">
+                            <input id="package-add-refresh-input" type="checkbox" class="form-check-input" value="" checked>
+                            <label for="package-add-refresh-input" class="form-check-label">update pacman databases</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-12">
                             <button id="package-add-variable-button" type="button" class="form-control btn btn-light rounded" onclick="packageAddVariableInputCreate()"><i class="bi bi-plus"></i> add environment variable </button>
                         </div>
@@ -49,6 +56,8 @@
     const packageAddKnownPackagesList = document.getElementById("package-add-known-packages-dlist");
 
     const packageAddVariablesDiv = document.getElementById("package-add-variables-div");
+
+    const packageAddRefreshInput = document.getElementById("package-add-refresh-input");
 
     function packageAddVariableInputCreate() {
         const variableInput = document.createElement("div");
@@ -99,16 +108,18 @@
         return {patches: patches};
     }
 
-    function packagesAdd(packages, patches, repository) {
+    function packagesAdd(packages, patches, repository, data) {
         packages = packages ?? packageAddInput.value;
         patches = patches ?? patchesParse();
         repository = repository ?? getRepositorySelector(packageAddRepositoryInput);
+        data = data ?? {refresh: packageAddRefreshInput.checked};
 
         if (packages) {
             bootstrap.Modal.getOrCreateInstance(packageAddModal).hide();
             const onSuccess = update => `Packages ${update} have been added`;
             const onFailure = error => `Package addition failed: ${error}`;
-            doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure, patches);
+            const parameters = Object.assign({}, data, patches);
+            doPackageAction("/api/v1/service/add", [packages], repository, onSuccess, onFailure, parameters);
         }
     }
 

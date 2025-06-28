@@ -95,6 +95,9 @@
             </div>
             <div class="modal-footer">
                 {% if not auth.enabled or auth.username is not none %}
+                    <input id="package-info-refresh-input" type="checkbox" class="form-check-input" value="" checked>
+                    <label for="package-info-refresh-input" class="form-check-label">update pacman databases</label>
+
                     <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
                     <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
                 {% endif %}
@@ -134,6 +137,8 @@
 
     const packageInfoVariablesBlock = document.getElementById("package-info-variables-block");
     const packageInfoVariablesDiv = document.getElementById("package-info-variables-div");
+
+    const packageInfoRefreshInput = document.getElementById("package-info-refresh-input");
 
     function clearChart() {
         packageInfoEventsUpdateChartCanvas.hidden = true;
@@ -404,7 +409,7 @@
 
     function packageInfoUpdate() {
         const packageBase = packageInfoModal.package;
-        packagesAdd(packageBase, [], repository);
+        packagesAdd(packageBase, [], repository, {refresh: packageInfoRefreshInput.checked});
     }
 
     function showPackageInfo(packageBase) {

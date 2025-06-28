@@ -73,6 +73,19 @@
         doPackageAction(url, currentSelection, repository, onSuccess, onFailure);
     }
 
+    function refreshDatabases() {
+        const onSuccess = _ => "Pacman database update has been requested";
+        const onFailure = error => `Could not update pacman databases: ${error}`;
+        const parameters = {
+            refresh: true,
+            aur: false,
+            local: false,
+            manual: false,
+        };
+
+        doPackageAction("/api/v1/service/update", [], repository, onSuccess, onFailure, parameters);
+    }
+
     function reload() {
         table.bootstrapTable("showLoading");
 
