@@ -326,12 +326,15 @@ class WebClient(Client, SyncAhrimanClient):
         self.make_request("POST", self._logs_url(log_record.log_record_id.package_base),
                           params=self.repository_id.query(), json=payload, suppress_errors=True)
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
+    def package_logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
+                         limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
         Args:
             package_base(str): package base
+            version(str | None, optional): package version to search (Default value = None)
+            process_id(str | None, optional): process identifier to search (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 
@@ -339,6 +342,10 @@ class WebClient(Client, SyncAhrimanClient):
             list[LogRecord]: package logs
         """
         query = self.repository_id.query() + [("limit", str(limit)), ("offset", str(offset))]
+        if version is not None:
+            query.append(("version", version))
+        if process_id is not None:
+            query.append(("process_id", process_id))
 
         with contextlib.suppress(Exception):
             response = self.make_request("GET", self._logs_url(package_base), params=query)

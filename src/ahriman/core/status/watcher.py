@@ -109,7 +109,7 @@ class Watcher(LazyLogging):
 
     package_logs_add: Callable[[LogRecord], None]
 
-    package_logs_get: Callable[[str, int, int], list[LogRecord]]
+    package_logs_get: Callable[[str, str | None, str | None, int, int], list[LogRecord]]
 
     package_logs_remove: Callable[[str, str | None], None]
 

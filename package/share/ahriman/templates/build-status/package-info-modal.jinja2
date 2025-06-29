@@ -101,6 +101,8 @@
                     <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
                     <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
                 {% endif %}
+                <input id="package-info-autoreload-button" type="checkbox" class="btn-check" autocomplete="off" onclick="togglePackageInfoAutoReload()" checked>
+                <label for="package-info-autoreload-button" class="btn btn-outline-secondary" title="toggle auto reload"><i class="bi bi-clock"></i></label>
                 <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span></button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i><span class="d-none d-sm-inline"> close</span></button>
             </div>
@@ -140,12 +142,22 @@
 
     const packageInfoRefreshInput = document.getElementById("package-info-refresh-input");
 
+    const packageInfoAutoReloadButton = document.getElementById("package-info-autoreload-button");
+    let packageInfoAutoReloadTask = null;
+
     function clearChart() {
         packageInfoEventsUpdateChartCanvas.hidden = true;
         if (packageInfoEventsUpdateChart) {
             packageInfoEventsUpdateChart.data = {};
             packageInfoEventsUpdateChart.update();
         }
+    }
+
+    function convertLogs(data, filter) {
+        return data
+            .filter((filter || Boolean))
+            .map(log_record => `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`)
+            .join("\n");
     }
 
     async function copyChanges() {
@@ -319,15 +331,19 @@
                         const link = document.createElement("a");
                         link.classList.add("dropdown-item");
 
+                        link.dataset.version = version.version;
+                        link.dataset.processId = version.process_id;
+                        link.dataset.logs = convertLogs(data, log_record => log_record.version === version.version && log_record.process_id === version.process_id);
+
                         link.textContent = new Date(1000 * version.created).toISOStringShort();
                         link.href = "#";
                         link.onclick = _ => {
-                            const logs = data
-                                .filter(log_record => log_record.version === version.version && log_record.process_id === version.process_id)
-                                .map(log_record => `[${new Date(1000 * log_record.created).toISOString()}] ${log_record.message}`);
-
-                            packageInfoLogsInput.textContent = logs.join("\n");
+                            // check if we are at the bottom of the code block
+                            const isScrolledToBottom = packageInfoLogsInput.scrollTop + packageInfoLogsInput.clientHeight >= packageInfoLogsInput.scrollHeight;
+                            packageInfoLogsInput.textContent = link.dataset.logs;
                             highlight(packageInfoLogsInput);
+                            if (isScrolledToBottom)
+                                packageInfoLogsInput.scrollTop = packageInfoLogsInput.scrollHeight; // scroll to the new end
 
                             Array.from(packageInfoLogsVersions.children).forEach(el => el.classList.remove("active"));
                             link.classList.add("active");
@@ -403,23 +419,46 @@
     }
 
     function packageInfoRemove() {
-        const packageBase = packageInfoModal.package;
+        const packageBase = packageInfoModal.dataset.package;
         packagesRemove([packageBase]);
     }
 
     function packageInfoUpdate() {
-        const packageBase = packageInfoModal.package;
+        const packageBase = packageInfoModal.dataset.package;
         packagesAdd(packageBase, [], repository, {refresh: packageInfoRefreshInput.checked});
+    }
+
+    function reloadActiveLogs(packageBase) {
+        const activeLogSelector = packageInfoLogsVersions.querySelector(".active");
+
+        if (activeLogSelector) {
+            makeRequest(
+                `/api/v2/packages/${packageBase}/logs`,
+                {
+                    query: {
+                        architecture: repository.architecture,
+                        repository: repository.repository,
+                        version: activeLogSelector.dataset.version,
+                        process_id: activeLogSelector.dataset.processId,
+                    },
+                    convert: response => response.json(),
+                },
+                data => {
+                    activeLogSelector.dataset.logs = convertLogs(data);
+                    activeLogSelector.click();
+                },
+            );
+        }
     }
 
     function showPackageInfo(packageBase) {
         const isPackageBaseSet = packageBase !== undefined;
         if (isPackageBaseSet) {
             // set package base as currently used
-            packageInfoModal.package = packageBase;
+            packageInfoModal.dataset.package = packageBase;
         } else {
             // read package base from the current window attribute
-            packageBase = packageInfoModal.package;
+            packageBase = packageInfoModal.dataset.package;
         }
 
         const onFailure = error => {
@@ -438,6 +477,21 @@
 
         if (isPackageBaseSet) {
             bootstrap.Modal.getOrCreateInstance(packageInfoModal).show();
+            togglePackageInfoAutoReload();
+        }
+    }
+
+    function togglePackageInfoAutoReload() {
+        clearInterval(packageInfoAutoReloadTask);
+        if (packageInfoAutoReloadButton.checked) {
+            packageInfoAutoReloadTask = setInterval(_ => {
+                if (!hasActiveSelection()) {
+                    const packageBase = packageInfoModal.dataset.package;
+                    // we only poll status and logs here
+                    loadPackage(packageBase);
+                    reloadActiveLogs(packageBase);
+                }
+            }, 5000);
         }
     }
 
@@ -468,6 +522,9 @@
             packageInfoChangesInput.textContent = "";
             packageInfoEventsTable.bootstrapTable("load", []);
             clearChart();
+
+            clearInterval(packageInfoAutoReloadTask);
+            packageInfoAutoReloadTask = null; // not really required (?) but lets clear everything
         });
     });
 </script>

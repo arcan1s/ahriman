@@ -203,12 +203,15 @@ class Client:
         """
         # this method does not raise NotImplementedError because it is actively used as dummy client for http log
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
+    def package_logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
+                         limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
         Args:
             package_base(str): package base
+            version(str | None, optional): package version to search (Default value = None)
+            process_id(str | None, optional): process identifier to search (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 

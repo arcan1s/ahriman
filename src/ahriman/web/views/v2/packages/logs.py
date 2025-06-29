@@ -22,7 +22,7 @@ from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import LogSchema, PackageNameSchema, PaginationSchema
+from ahriman.web.schemas import LogSchema, LogsSearchSchema, PackageNameSchema
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 
@@ -47,7 +47,7 @@ class LogsView(StatusViewGuard, BaseView):
         error_404_description="Package base and/or repository are unknown",
         schema=LogSchema(many=True),
         match_schema=PackageNameSchema,
-        query_schema=PaginationSchema,
+        query_schema=LogsSearchSchema,
     )
     async def get(self) -> Response:
         """
@@ -61,8 +61,10 @@ class LogsView(StatusViewGuard, BaseView):
         """
         package_base = self.request.match_info["package"]
         limit, offset = self.page()
+        version = self.request.query.get("version", None)
+        process = self.request.query.get("process_id", None)
 
-        logs = self.service(package_base=package_base).package_logs_get(package_base, limit, offset)
+        logs = self.service(package_base=package_base).package_logs_get(package_base, version, process, limit, offset)
 
         response = [log_record.view() for log_record in logs]
         return json_response(response)

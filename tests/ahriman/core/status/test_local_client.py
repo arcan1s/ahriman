@@ -124,8 +124,9 @@ def test_package_logs_get(local_client: LocalClient, package_ahriman: Package, m
     must retrieve package logs
     """
     logs_mock = mocker.patch("ahriman.core.database.SQLite.logs_get")
-    local_client.package_logs_get(package_ahriman.base, 1, 2)
-    logs_mock.assert_called_once_with(package_ahriman.base, 1, 2, local_client.repository_id)
+    local_client.package_logs_get(package_ahriman.base, package_ahriman.version, "process", 1, 2)
+    logs_mock.assert_called_once_with(package_ahriman.base, package_ahriman.version, "process", 1, 2,
+                                      local_client.repository_id)
 
 
 def test_package_logs_remove(local_client: LocalClient, package_ahriman: Package, mocker: MockerFixture) -> None:

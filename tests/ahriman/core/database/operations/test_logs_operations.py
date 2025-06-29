@@ -71,8 +71,32 @@ def test_logs_insert_get_pagination(database: SQLite, package_ahriman: Package) 
     """
     database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"))
     database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1"), 43.0, "message 2"))
-    assert database.logs_get(package_ahriman.base, 1, 1) == [
+    assert database.logs_get(package_ahriman.base, None, None, 1, 1) == [
         LogRecord(LogRecordId(package_ahriman.base, "1"), 42.0, "message 1"),
+    ]
+
+
+def test_logs_insert_get_filter_by_version(database: SQLite, package_ahriman: Package) -> None:
+    """
+    must insert and get package logs with pagination
+    """
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1"))
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "1", "p2"), 43.0, "message 2"))
+    database.logs_insert(LogRecord(LogRecordId(package_ahriman.base, "2", "p1"), 44.0, "message 3"))
+
+    assert database.logs_get(package_ahriman.base, "1", None) == [
+        LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1"),
+        LogRecord(LogRecordId(package_ahriman.base, "1", "p2"), 43.0, "message 2"),
+    ]
+    assert database.logs_get(package_ahriman.base, "2", None) == [
+        LogRecord(LogRecordId(package_ahriman.base, "2", "p1"), 44.0, "message 3"),
+    ]
+    assert database.logs_get(package_ahriman.base, None, "p1") == [
+        LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1"),
+        LogRecord(LogRecordId(package_ahriman.base, "2", "p1"), 44.0, "message 3"),
+    ]
+    assert database.logs_get(package_ahriman.base, "1", "p1") == [
+        LogRecord(LogRecordId(package_ahriman.base, "1", "p1"), 42.0, "message 1"),
     ]
 
 

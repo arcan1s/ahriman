@@ -34,6 +34,7 @@ from ahriman.web.schemas.log_schema import LogSchema
 from ahriman.web.schemas.login_schema import LoginSchema
 from ahriman.web.schemas.logs_rotate_schema import LogsRotateSchema
 from ahriman.web.schemas.logs_schema import LogsSchema
+from ahriman.web.schemas.logs_search_schema import LogsSearchSchema
 from ahriman.web.schemas.oauth2_schema import OAuth2Schema
 from ahriman.web.schemas.package_name_schema import PackageNameSchema
 from ahriman.web.schemas.package_names_schema import PackageNamesSchema

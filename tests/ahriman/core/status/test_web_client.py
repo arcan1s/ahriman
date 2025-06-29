@@ -658,12 +658,27 @@ def test_package_logs_get(web_client: WebClient, package_ahriman: Package, mocke
 
     requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request", return_value=response_obj)
 
-    result = web_client.package_logs_get(package_ahriman.base, 1, 2)
+    result = web_client.package_logs_get(package_ahriman.base, None, None, 1, 2)
     requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
                                           params=web_client.repository_id.query() + [("limit", "1"), ("offset", "2")])
     assert result == [
         LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version), message["created"], message["message"]),
     ]
+
+
+def test_package_logs_get_filter(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must get logs with version and process id filter
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+    web_client.package_logs_get(package_ahriman.base, package_ahriman.version, LogRecordId.DEFAULT_PROCESS_ID, 1, 2)
+    requests_mock.assert_called_once_with("GET", pytest.helpers.anyvar(str, True),
+                                          params=web_client.repository_id.query() + [
+                                              ("limit", "1"),
+                                              ("offset", "2"),
+                                              ("version", package_ahriman.version),
+                                              ("process_id", LogRecordId.DEFAULT_PROCESS_ID),
+    ])
 
 
 def test_package_logs_get_failed(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:

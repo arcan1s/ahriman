@@ -140,6 +140,14 @@ ahriman.web.schemas.logs\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.logs\_search\_schema module
+-----------------------------------------------
+
+.. automodule:: ahriman.web.schemas.logs_search_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.oauth2\_schema module
 -----------------------------------------
 

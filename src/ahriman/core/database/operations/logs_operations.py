@@ -29,13 +29,15 @@ class LogsOperations(Operations):
     logs operations
     """
 
-    def logs_get(self, package_base: str, limit: int = -1, offset: int = 0,
-                 repository_id: RepositoryId | None = None) -> list[LogRecord]:
+    def logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
+                 limit: int = -1, offset: int = 0, repository_id: RepositoryId | None = None) -> list[LogRecord]:
         """
         extract logs for specified package base
 
         Args:
             package_base(str): package base to extract logs
+            version(str | None, optional): package version to filter (Default value = None)
+            process_id(str | None, optional): process identifier to filter (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
             repository_id(RepositoryId, optional): repository unique identifier override (Default value = None)
@@ -52,12 +54,17 @@ class LogsOperations(Operations):
                     """
                     select created, message, version, process_id from (
                         select * from logs
-                        where package_base = :package_base and repository = :repository
+                        where package_base = :package_base
+                          and repository = :repository
+                          and (:version is null or version = :version)
+                          and (:process_id is null or process_id = :process_id)
                         order by created desc limit :limit offset :offset
                     ) order by created asc
                     """,
                     {
                         "package_base": package_base,
+                        "version": version,
+                        "process_id": process_id,
                         "repository": repository_id.id,
                         "limit": limit,
                         "offset": offset,

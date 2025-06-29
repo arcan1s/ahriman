@@ -86,6 +86,31 @@ async def test_get_with_pagination(client: TestClient, package_ahriman: Package)
     ]
 
 
+async def test_get_with_filter(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must get logs with filter by version and process identifier
+    """
+    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
+                      json={"created": 42.0, "message": "message 1", "version": "42"})
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
+                      json={"created": 43.0, "message": "message 2", "version": "43"})
+    request_schema = pytest.helpers.schema_request(LogsView.get, location="querystring")
+    response_schema = pytest.helpers.schema_response(LogsView.get)
+
+    payload = {"version": "42", "process_id": LogRecordId.DEFAULT_PROCESS_ID}
+    assert not request_schema.validate(payload)
+    response = await client.get(f"/api/v2/packages/{package_ahriman.base}/logs", params=payload)
+    assert response.status == 200
+
+    logs = await response.json()
+    assert not response_schema.validate(logs)
+    assert logs == [
+        {"created": 42.0, "message": "message 1", "version": "42", "process_id": LogRecordId.DEFAULT_PROCESS_ID},
+    ]
+
+
 async def test_get_bad_request(client: TestClient, package_ahriman: Package) -> None:
     """
     must return bad request for invalid query parameters

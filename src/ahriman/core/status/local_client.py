@@ -152,19 +152,22 @@ class LocalClient(Client):
         """
         self.database.logs_insert(log_record, self.repository_id)
 
-    def package_logs_get(self, package_base: str, limit: int = -1, offset: int = 0) -> list[LogRecord]:
+    def package_logs_get(self, package_base: str, version: str | None = None, process_id: str | None = None,
+                         limit: int = -1, offset: int = 0) -> list[LogRecord]:
         """
         get package logs
 
         Args:
             package_base(str): package base
+            version(str | None, optional): package version to search (Default value = None)
+            process_id(str | None, optional): process identifier to search (Default value = None)
             limit(int, optional): limit records to the specified count, -1 means unlimited (Default value = -1)
             offset(int, optional): records offset (Default value = 0)
 
         Returns:
             list[LogRecord]: package logs
         """
-        return self.database.logs_get(package_base, limit, offset, self.repository_id)
+        return self.database.logs_get(package_base, version, process_id, limit, offset, self.repository_id)
 
     def package_logs_remove(self, package_base: str, version: str | None) -> None:
         """

@@ -58,6 +58,10 @@
         return value.includes(dataList[index].toLowerCase());
     }
 
+    function hasActiveSelection() {
+        return !document.getSelection().isCollapsed; // not sure if it is a valid way, but I guess so
+    }
+
     function headerClass(status) {
         if (status === "pending") return ["bg-warning"];
         if (status === "building") return ["bg-warning"];
