@@ -64,7 +64,7 @@ digraph G {
     ahriman_core_alpm_remote_aur [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote\.\naur",shape="box"];
     ahriman_core_alpm_remote_official [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote\.\nofficial",shape="box"];
     ahriman_core_alpm_remote_official_syncdb [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nalpm\.\nremote\.\nofficial_syncdb",shape="box"];
-    ahriman_core_alpm_remote_remote [fillcolor="#ae441e",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\nremote\.\nremote"];
+    ahriman_core_alpm_remote_remote [fillcolor="#a5401d",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\nremote\.\nremote"];
     ahriman_core_alpm_repo [fillcolor="#994d33",fontcolor="#ffffff",label="ahriman\.\ncore\.\nalpm\.\nrepo"];
     ahriman_core_auth [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nauth",shape="box"];
     ahriman_core_auth_auth [fillcolor="blue",fontcolor="white",label="ahriman\.\ncore\.\nauth\.\nauth",shape="box"];
@@ -509,9 +509,9 @@ digraph G {
     ahriman_core_alpm_remote_official -> ahriman_core_alpm_remote [fillcolor="blue",minlen="0",weight="4"];
     ahriman_core_alpm_remote_official -> ahriman_core_alpm_remote_official_syncdb [fillcolor="blue",minlen="0",weight="4"];
     ahriman_core_alpm_remote_official_syncdb -> ahriman_core_alpm_remote [fillcolor="blue",minlen="0",weight="4"];
-    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote [fillcolor="#ae441e",minlen="0",weight="4"];
-    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote_aur [fillcolor="#ae441e",minlen="0",weight="4"];
-    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote_official [fillcolor="#ae441e",minlen="0",weight="4"];
+    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote [fillcolor="#a5401d",minlen="0",weight="4"];
+    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote_aur [fillcolor="#a5401d",minlen="0",weight="4"];
+    ahriman_core_alpm_remote_remote -> ahriman_core_alpm_remote_official [fillcolor="#a5401d",minlen="0",weight="4"];
     ahriman_core_alpm_repo -> ahriman_core_repository_repository_properties [fillcolor="#994d33",minlen="2",weight="2"];
     ahriman_core_auth -> ahriman_web_keys [fillcolor="blue",minlen="2"];
     ahriman_core_auth -> ahriman_web_middlewares_auth_handler [fillcolor="blue",minlen="3"];
@@ -710,6 +710,7 @@ digraph G {
     ahriman_core_exceptions -> ahriman_core_alpm_remote_aur [fillcolor="#ef4306",minlen="2",weight="2"];
     ahriman_core_exceptions -> ahriman_core_alpm_remote_official [fillcolor="#ef4306",minlen="2",weight="2"];
     ahriman_core_exceptions -> ahriman_core_alpm_remote_official_syncdb [fillcolor="#ef4306",minlen="2",weight="2"];
+    ahriman_core_exceptions -> ahriman_core_alpm_remote_remote [fillcolor="#ef4306",minlen="2",weight="2"];
     ahriman_core_exceptions -> ahriman_core_alpm_repo [fillcolor="#ef4306",minlen="2",weight="2"];
     ahriman_core_exceptions -> ahriman_core_auth_oauth [fillcolor="#ef4306",minlen="2",weight="2"];
     ahriman_core_exceptions -> ahriman_core_auth_pam [fillcolor="#ef4306",minlen="2",weight="2"];
