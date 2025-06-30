@@ -10,6 +10,10 @@
     const dashboardButton = document.getElementById("dashboard-button");
     const versionBadge = document.getElementById("badge-version");
 
+    const tableAutoReloadButton = document.getElementById("table-autoreload-button");
+    const tableAutoReloadInput = document.getElementById("table-autoreload-input");
+    let tableAutoReloadTask = null;
+
     function doPackageAction(uri, packages, repository, successText, failureText, data) {
         makeRequest(
             uri,
@@ -86,8 +90,10 @@
         doPackageAction("/api/v1/service/update", [], repository, onSuccess, onFailure, parameters);
     }
 
-    function reload() {
-        table.bootstrapTable("showLoading");
+    function reload(silent) {
+        if (!silent) {
+            table.bootstrapTable("showLoading");
+        }
 
         const badgeClass = status => {
             if (status === "pending") return "btn-outline-warning";
@@ -128,16 +134,18 @@
                 table.bootstrapTable("hideLoading");
             },
             error => {
-                if ((error.status === 401) || (error.status === 403)) {
-                    // authorization error
-                    const text = "In order to see statuses you must login first.";
-                    table.find("tr.unauthorized").remove();
-                    table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${safe(text)}</td></tr>`);
-                    table.bootstrapTable("hideLoading");
-                } else {
-                    // other errors
-                    const message = details => `Could not load list of packages: ${details}`;
-                    showFailure("Load failure", message, error);
+                if (!silent) {
+                    if ((error.status === 401) || (error.status === 403)) {
+                        // authorization error
+                        const text = "In order to see statuses you must login first.";
+                        table.find("tr.unauthorized").remove();
+                        table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${safe(text)}</td></tr>`);
+                        table.bootstrapTable("hideLoading");
+                    } else {
+                        // other errors
+                        const message = details => `Could not load list of packages: ${details}`;
+                        showFailure("Load failure", message, error);
+                    }
                 }
             },
         );
@@ -230,6 +238,15 @@
         return {classes: cellClass(value)};
     }
 
+    function toggleTableAutoReload(interval) {
+        clearInterval(tableAutoReloadTask);
+        tableAutoReloadTask = toggleAutoReload(tableAutoReloadButton, interval, tableAutoReloadInput, _ => {
+            if (getSelection().length === 0) {
+                reload(true);
+            }
+        });
+    }
+
     ready(_ => {
         document.querySelectorAll("#repositories a").forEach(element => {
             element.onclick = _ => {
@@ -289,5 +306,8 @@
         });
 
         selectRepository();
+        {% if autorefresh_intervals %}
+            toggleTableAutoReload();
+        {% endif %}
     });
 </script>

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# pylint: disable=too-many-public-methods
 import configparser
 import shlex
 import sys
@@ -85,9 +86,10 @@ class Configuration(configparser.RawConfigParser):
             empty_lines_in_values=not allow_multi_key,
             interpolation=ShellInterpolator(),
             converters={
+                "intlist": lambda value: list(map(int, shlex.split(value))),
                 "list": shlex.split,
                 "path": self._convert_path,
-                "pathlist": lambda value: [self._convert_path(element) for element in shlex.split(value)],
+                "pathlist": lambda value: list(map(self._convert_path, shlex.split(value))),
             },
         )
 
@@ -236,6 +238,8 @@ class Configuration(configparser.RawConfigParser):
 
     # pylint and mypy are too stupid to find these methods
     # pylint: disable=missing-function-docstring,unused-argument
+    def getintlist(self, *args: Any, **kwargs: Any) -> list[int]: ...  # type: ignore[empty-body]
+
     def getlist(self, *args: Any, **kwargs: Any) -> list[str]: ...  # type: ignore[empty-body]
 
     def getpath(self, *args: Any, **kwargs: Any) -> Path: ...  # type: ignore[empty-body]

@@ -133,6 +133,14 @@ def test_dump_architecture_specific(configuration: Configuration) -> None:
     assert dump["build"]["archbuild_flags"] == "hello flag"
 
 
+def test_getintlist(configuration: Configuration) -> None:
+    """
+    must extract list of integers
+    """
+    configuration.set_option("build", "test_int_list", "1 42 3")
+    assert configuration.getintlist("build", "test_int_list") == [1, 42, 3]
+
+
 def test_getlist(configuration: Configuration) -> None:
     """
     must return list of string correctly

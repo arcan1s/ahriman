@@ -101,9 +101,21 @@
                     <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
                     <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
                 {% endif %}
-                <input id="package-info-autoreload-button" type="checkbox" class="btn-check" autocomplete="off" onclick="togglePackageInfoAutoReload()" checked>
-                <label for="package-info-autoreload-button" class="btn btn-outline-secondary" title="toggle auto reload"><i class="bi bi-clock"></i></label>
-                <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span></button>
+                {% if autorefresh_intervals %}
+                    <button type="button" class="btn btn-secondary" onclick="showPackageInfo()"><i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span></button>
+                    <div class="btn-group dropup">
+                        <input id="package-info-autoreload-button" type="checkbox" class="btn-check" autocomplete="off" onclick="togglePackageInfoAutoReload()" checked>
+                        <label for="package-info-autoreload-button" class="btn btn-outline-secondary" title="toggle auto reload"><i class="bi bi-clock"></i></label>
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">select interval</span>
+                        </button>
+                        <ul id="package-info-autoreload-input" class="dropdown-menu">
+                            {% for interval in autorefresh_intervals %}
+                                <li><a class="dropdown-item {{ "active" if interval.is_active }}" onclick="togglePackageInfoAutoReload({{ interval.interval }})" data-interval="{{ interval.interval }}">{{ interval.text }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x"></i><span class="d-none d-sm-inline"> close</span></button>
             </div>
         </div>
@@ -143,6 +155,7 @@
     const packageInfoRefreshInput = document.getElementById("package-info-refresh-input");
 
     const packageInfoAutoReloadButton = document.getElementById("package-info-autoreload-button");
+    const packageInfoAutoReloadInput = document.getElementById("package-info-autoreload-input");
     let packageInfoAutoReloadTask = null;
 
     function clearChart() {
@@ -477,22 +490,22 @@
 
         if (isPackageBaseSet) {
             bootstrap.Modal.getOrCreateInstance(packageInfoModal).show();
-            togglePackageInfoAutoReload();
+            {% if autorefresh_intervals %}
+                togglePackageInfoAutoReload();
+            {% endif %}
         }
     }
 
-    function togglePackageInfoAutoReload() {
+    function togglePackageInfoAutoReload(interval) {
         clearInterval(packageInfoAutoReloadTask);
-        if (packageInfoAutoReloadButton.checked) {
-            packageInfoAutoReloadTask = setInterval(_ => {
-                if (!hasActiveSelection()) {
-                    const packageBase = packageInfoModal.dataset.package;
-                    // we only poll status and logs here
-                    loadPackage(packageBase);
-                    reloadActiveLogs(packageBase);
-                }
-            }, 5000);
-        }
+        packageInfoAutoReloadTask = toggleAutoReload(packageInfoAutoReloadButton, interval, packageInfoAutoReloadInput, _ => {
+            if (!hasActiveSelection()) {
+                const packageBase = packageInfoModal.dataset.package;
+                // we only poll status and logs here
+                loadPackage(packageBase);
+                reloadActiveLogs(packageBase);
+            }
+        });
     }
 
     ready(_ => {

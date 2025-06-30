@@ -166,6 +166,7 @@ Reporting to web service related settings. In most cases there is fallback to we
 Web server settings. This feature requires ``aiohttp`` libraries to be installed.
 
 * ``address`` - optional address in form ``proto://host:port`` (``port`` can be omitted in case of default ``proto`` ports), will be used instead of ``http://{host}:{port}`` in case if set, string, optional. This option is required in case if ``OAuth`` provider is used.
+* ``autorefresh_intervals`` - enable page auto refresh options, space separated list of integers, optional. The first defined interval will be used as default. If no intervals set, the auto refresh buttons will be disabled.
 * ``enable_archive_upload`` - allow to upload packages via HTTP (i.e. call of ``/api/v1/service/upload`` uri), boolean, optional, default ``no``.
 * ``host`` - host to bind, string, optional.
 * ``index_url`` - full URL of the repository index page, string, optional.
