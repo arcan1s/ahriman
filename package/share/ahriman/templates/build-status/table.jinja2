@@ -113,24 +113,24 @@
                 convert: response => response.json(),
             },
             data => {
-                const payload = data.map(description => {
-                    const package_base = description.package.base;
-                    const web_url = description.package.remote.web_url;
-                    return {
-                        id: package_base,
-                        base: web_url ? safeLink(web_url, package_base, package_base).outerHTML : safe(package_base),
-                        version: safe(description.package.version),
-                        packager: description.package.packager ? safe(description.package.packager) : "",
-                        packages: listToTable(Object.keys(description.package.packages)),
-                        groups: listToTable(extractListProperties(description.package, "groups")),
-                        licenses: listToTable(extractListProperties(description.package, "licenses")),
-                        timestamp: new Date(1000 * description.status.timestamp).toISOStringShort(),
-                        status: description.status.status,
-                    };
-                });
+                const payload = data
+                    .map(description => {
+                        const package_base = description.package.base;
+                        const web_url = description.package.remote.web_url;
+                        return {
+                            id: package_base,
+                            base: web_url ? safeLink(web_url, package_base, package_base).outerHTML : safe(package_base),
+                            version: safe(description.package.version),
+                            packager: description.package.packager ? safe(description.package.packager) : "",
+                            packages: listToTable(Object.keys(description.package.packages)),
+                            groups: listToTable(extractListProperties(description.package, "groups")),
+                            licenses: listToTable(extractListProperties(description.package, "licenses")),
+                            timestamp: new Date(1000 * description.status.timestamp).toISOStringShort(),
+                            status: description.status.status,
+                        };
+                    });
 
-                table.bootstrapTable("load", payload);
-                table.bootstrapTable("uncheckAll");
+                updateTable(table, payload);
                 table.bootstrapTable("hideLoading");
             },
             error => {
@@ -241,15 +241,20 @@
     function toggleTableAutoReload(interval) {
         clearInterval(tableAutoReloadTask);
         tableAutoReloadTask = toggleAutoReload(tableAutoReloadButton, interval, tableAutoReloadInput, _ => {
-            if ((getSelection().length === 0) &&
-                (table.bootstrapTable("getOptions").pageNumber === 1) &&
-                (!dashboardModal.classList.contains("show"))) {
+            if (!dashboardModal.classList.contains("show") &&
+                !hasActiveDropdown()) {
                 reload(true);
             }
         });
     }
 
     ready(_ => {
+        const onCheckFunction = function () {
+            if (packageRemoveButton) {
+                packageRemoveButton.disabled = !getSelection().length;
+            }
+        };
+
         document.querySelectorAll("#repositories a").forEach(element => {
             element.onclick = _ => {
                 repository = {
@@ -264,48 +269,51 @@
             };
         });
 
-        table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", _ => {
-            if (packageRemoveButton) {
-                packageRemoveButton.disabled = !table.bootstrapTable("getSelections").length;
-            }
+        table.bootstrapTable({
+            onCheck: onCheckFunction,
+            onCheckAll: onCheckFunction,
+            onClickRow: (data, row, cell) => {
+                if (0 === cell || "base" === cell) {
+                    const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
+                    table.bootstrapTable(method, {field: "id", values: [data.id]});
+                } else showPackageInfo(data.id);
+            },
+            onCreatedControls: _ => {
+                new easepick.create({
+                    element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
+                    css: [
+                        "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                    ],
+                    grid: 2,
+                    calendars: 2,
+                    autoApply: false,
+                    locale: {
+                        cancel: "Clear",
+                    },
+                    RangePlugin: {
+                        tooltip: false,
+                    },
+                    plugins: [
+                        "RangePlugin",
+                    ],
+                    setup: picker => {
+                        picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
+                        // replace "Cancel" behaviour to "Clear"
+                        picker.onClickCancelButton = element => {
+                            if (picker.isCancelButton(element)) {
+                                picker.clear();
+                                picker.hide();
+                                table.bootstrapTable("triggerSearch");
+                            }
+                        };
+                    },
+                });
+            },
+            onUncheck: onCheckFunction,
+            onUncheckAll: onCheckFunction,
         });
-        table.on("click-row.bs.table", (self, data, row, cell) => {
-            if (0 === cell || "base" === cell) {
-                const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
-                table.bootstrapTable(method, {field: "id", values: [data.id]});
-            } else showPackageInfo(data.id);
-        });
-        table.on("created-controls.bs.table", _ => {
-            new easepick.create({
-                element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
-                css: [
-                    "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
-                ],
-                grid: 2,
-                calendars: 2,
-                autoApply: false,
-                locale: {
-                    cancel: "Clear",
-                },
-                RangePlugin: {
-                    tooltip: false,
-                },
-                plugins: [
-                    "RangePlugin",
-                ],
-                setup: picker => {
-                    picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
-                    // replace "Cancel" behaviour to "Clear"
-                    picker.onClickCancelButton = element => {
-                        if (picker.isCancelButton(element)) {
-                            picker.clear();
-                            picker.hide();
-                            table.bootstrapTable("triggerSearch");
-                        }
-                    };
-                },
-            });
-        });
+
+        restoreAutoReloadSettings(tableAutoReloadButton, tableAutoReloadInput);
 
         selectRepository();
         {% if autorefresh_intervals %}

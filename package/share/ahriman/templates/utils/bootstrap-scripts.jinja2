@@ -1,23 +1,24 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous" type="application/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-md5@0.8.3/src/md5.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.30.0/tableExport.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.33.0/tableExport.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous" type="application/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous" type="application/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/bootstrap-table.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/export/bootstrap-table-export.min.js" crossorigin="anonymous" type="application/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/resizable/bootstrap-table-resizable.js" crossorigin="anonymous" type="application/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/filter-control/bootstrap-table-filter-control.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/export/bootstrap-table-export.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/resizable/bootstrap-table-resizable.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/filter-control/bootstrap-table-filter-control.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/cookie/bootstrap-table-cookie.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.umd.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous" type="application/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
 <script>
     async function copyToClipboard(text, button) {
@@ -60,6 +61,11 @@
 
     function hasActiveSelection() {
         return !document.getSelection().isCollapsed; // not sure if it is a valid way, but I guess so
+    }
+
+    function hasActiveDropdown() {
+        return Array.from(document.querySelectorAll(".dropdown-menu"))
+            .some(el => el.classList.contains("show"));
     }
 
     function headerClass(status) {
@@ -110,12 +116,23 @@
             .catch(error => onFailure && onFailure(error));
     }
 
+    function readOptional(extractor, callback) {
+        for (let value = extractor(); !!value; value = null) {
+            callback(value);
+        }
+    }
+
     function ready(fn) {
         if (document.readyState === "complete" || document.readyState === "interactive") {
             setTimeout(fn, 1);
         } else {
             document.addEventListener("DOMContentLoaded", fn);
         }
+    }
+
+    function restoreAutoReloadSettings(toggle, intervalSelector) {
+        readOptional(() => localStorage.getItem(`ahriman-${toggle.id}-refresh-enabled`), value => toggle.checked = value === "true");
+        readOptional(() => localStorage.getItem(`ahriman-${toggle.id}-refresh-interval`), value => toggleActiveElement(intervalSelector, "interval", value));
     }
 
     function safe(string) {
@@ -137,6 +154,18 @@
         return element;
     }
 
+    function toggleActiveElement(selector, dataType, value) {
+        const targetElement = selector.querySelector(`a[data-${dataType}="${value}"]`);
+        if (targetElement?.classList?.contains("active")) {
+            return; // element is already active, skip processing
+        }
+
+        Array.from(selector.children).forEach(il => {
+            Array.from(il.children).forEach(el => el.classList.remove("active"));
+        });
+        targetElement?.classList?.add("active");
+    }
+
     function toggleAutoReload(toggle, interval, intervalSelector, callback) {
         if (interval) {
             toggle.checked = true; // toggle reload
@@ -144,24 +173,52 @@
             interval = intervalSelector.querySelector(".active")?.dataset?.interval; // find active element
         }
 
+        let intervalId = null;
         if (interval) {
             if (toggle.checked) {
                 // refresh UI
-                Array.from(intervalSelector.children).forEach(il => {
-                    Array.from(il.children).forEach(el => el.classList.remove("active"));
-                });
-                intervalSelector.querySelector(`a[data-interval="${interval}"]`)?.classList?.add("active");
+                toggleActiveElement(intervalSelector, "interval", interval);
                 // finally create timer task
-                return setInterval(callback, interval);
+                intervalId = setInterval(callback, interval);
             }
         } else {
             toggle.checked = false; // no active interval found, disable toggle
         }
 
-        return null; // return null to assign to keep method sane
+        localStorage.setItem(`ahriman-${toggle.id}-refresh-enabled`, toggle.checked);
+        localStorage.setItem(`ahriman-${toggle.id}-refresh-interval`, interval);
+        return intervalId;
     }
 
-    Date.prototype.toISOStringShort = function() {
+    function updateTable(table, rows) {
+        // instead of using load method here, we just update rows manually to avoid table reinitialization
+        const currentData = table.bootstrapTable("getData").reduce((accumulator, row) => {
+            accumulator[row.id] = row["0"];
+            return accumulator;
+        }, {});
+        // insert or update rows
+        rows.forEach(row => {
+            if (Object.hasOwn(currentData, row.id)) {
+                row["0"] = currentData[row.id]; // copy checkbox state
+                table.bootstrapTable("updateByUniqueId", {
+                    id: row.id,
+                    row: row,
+                    replace: true,
+                });
+            } else {
+                table.bootstrapTable("insertRow", {index: 0, row: row});
+            }
+        });
+        // remove old rows
+        const newData = rows.map(value => value.id);
+        Object.keys(currentData).forEach(id => {
+            if (!newData.includes(id)) {
+                table.bootstrapTable("removeByUniqueId", id);
+            }
+        });
+    }
+
+    Date.prototype.toISOStringShort = function () {
         const pad = number => String(number).padStart(2, "0");
         return `${this.getFullYear()}-${pad(this.getMonth() + 1)}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;
     }

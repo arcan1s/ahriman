@@ -80,8 +80,7 @@
                                data-classes="table table-hover"
                                data-sortable="true"
                                data-sort-name="timestamp"
-                               data-sort-order="desc"
-                               data-toggle="table">
+                               data-sort-order="desc">
                             <thead class="table-primary">
                                 <tr>
                                     <th data-align="right" data-field="timestamp">date</th>
@@ -509,6 +508,8 @@
     }
 
     ready(_ => {
+        packageInfoEventsTable.bootstrapTable({});
+
         packageInfoEventsUpdateChart = new Chart(packageInfoEventsUpdateChartCanvas, {
             type: "line",
             data: {},
@@ -539,5 +540,7 @@
             clearInterval(packageInfoAutoReloadTask);
             packageInfoAutoReloadTask = null; // not really required (?) but lets clear everything
         });
+
+        restoreAutoReloadSettings(packageInfoAutoReloadButton, packageInfoAutoReloadInput);
     });
 </script>
