@@ -80,6 +80,21 @@
                 <button type="button" class="btn btn-secondary" onclick="reload()">
                     <i class="bi bi-arrow-clockwise"></i><span class="d-none d-sm-inline"> reload</span>
                 </button>
+
+                {% if autorefresh_intervals %}
+                    <div class="btn-group">
+                        <input id="table-autoreload-button" type="checkbox" class="btn-check" autocomplete="off" onclick="toggleTableAutoReload()" checked>
+                        <label for="table-autoreload-button" class="btn btn-outline-secondary" title="toggle auto reload"><i class="bi bi-clock"></i></label>
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">select interval</span>
+                        </button>
+                        <ul id="table-autoreload-input" class="dropdown-menu">
+                            {% for interval in autorefresh_intervals %}
+                                <li><a class="dropdown-item {{ "active" if interval.is_active }}" onclick="toggleTableAutoReload({{ interval.interval }})" data-interval="{{ interval.interval }}">{{ interval.text }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
 
             <table id="packages"

@@ -324,6 +324,15 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "empty": False,
                 "is_url": ["http", "https"],
             },
+            "autorefresh_intervals": {
+                "type": "list",
+                "coerce": "list",
+                "schema": {
+                    "type": "integer",
+                    "coerce": "integer",
+                    "min": 0,
+                },
+            },
             "enable_archive_upload": {
                 "type": "boolean",
                 "coerce": "boolean",

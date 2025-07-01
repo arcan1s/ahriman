@@ -137,6 +137,28 @@
         return element;
     }
 
+    function toggleAutoReload(toggle, interval, intervalSelector, callback) {
+        if (interval) {
+            toggle.checked = true; // toggle reload
+        } else {
+            interval = intervalSelector.querySelector(".active")?.dataset?.interval; // find active element
+        }
+
+        if (interval) {
+            if (toggle.checked) {
+                // refresh UI
+                Array.from(intervalSelector.children).forEach(il => {
+                    Array.from(il.children).forEach(el => el.classList.remove("active"));
+                });
+                intervalSelector.querySelector(`a[data-interval="${interval}"]`)?.classList?.add("active");
+                // finally create timer task
+                return setInterval(callback, interval);
+            }
+        }
+
+        return null; // return null to assign to keep method sane
+    }
+
     Date.prototype.toISOStringShort = function() {
         const pad = number => String(number).padStart(2, "0");
         return `${this.getFullYear()}-${pad(this.getMonth() + 1)}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;

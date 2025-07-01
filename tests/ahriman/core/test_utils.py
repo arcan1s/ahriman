@@ -10,8 +10,8 @@ from unittest.mock import call as MockCall
 
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
 from ahriman.core.utils import check_output, check_user, dataclass_view, enum_values, extract_user, filter_json, \
-    full_version, minmax, package_like, parse_version, partition, pretty_datetime, pretty_size, safe_filename, \
-    srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
+    full_version, minmax, package_like, parse_version, partition, pretty_datetime, pretty_interval, pretty_size, \
+    safe_filename, srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_id import RepositoryId
@@ -339,6 +339,18 @@ def test_pretty_datetime_empty() -> None:
     must generate empty string from None timestamp
     """
     assert pretty_datetime(None) == ""
+
+
+def test_pretty_interval() -> None:
+    """
+    must generate string from interval
+    """
+    assert pretty_interval(1) == "1 second"
+    assert pretty_interval(42) == "42 seconds"
+    assert pretty_interval(62) == "1 minute 2 seconds"
+    assert pretty_interval(121) == "2 minutes 1 second"
+    assert pretty_interval(3600) == "1 hour"
+    assert pretty_interval(7242) == "2 hours 42 seconds"
 
 
 def test_pretty_size_bytes() -> None:

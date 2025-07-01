@@ -51,6 +51,7 @@ __all__ = [
     "parse_version",
     "partition",
     "pretty_datetime",
+    "pretty_interval",
     "pretty_size",
     "safe_filename",
     "srcinfo_property",
@@ -351,6 +352,28 @@ def pretty_datetime(timestamp: datetime.datetime | float | int | None) -> str:
     if isinstance(timestamp, (int, float)):
         timestamp = datetime.datetime.fromtimestamp(timestamp, datetime.UTC)
     return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def pretty_interval(interval: int) -> str:
+    """
+    convert time interval to string
+
+    Args:
+        interval(int): time interval in seconds
+
+    Returns:
+        str: pretty printable interval as string
+    """
+    minutes, seconds = divmod(interval, 60)
+    hours, minutes = divmod(minutes, 60)
+    return " ".join([
+        f"{value} {description}{"s" if value > 1 else ""}"
+        for value, description in [
+            (hours, "hour"),
+            (minutes, "minute"),
+            (seconds, "second"),
+        ] if value > 0
+    ])
 
 
 def pretty_size(size: float | None, level: int = 0) -> str:
