@@ -94,6 +94,15 @@ class Remote(SyncHttpClient):
                 for package in portion
                 if package.name in packages or not packages
             }
+
+        # simple check for duplicates. This method will remove all packages under base if there is
+        # a package named exactly as its base
+        packages = {
+            package.name: package
+            for package in packages.values()
+            if package.package_base not in packages or package.package_base == package.name
+        }
+
         return list(packages.values())
 
     @classmethod

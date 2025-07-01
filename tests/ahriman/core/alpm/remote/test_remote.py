@@ -1,5 +1,6 @@
 import pytest
 
+from dataclasses import replace
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
 
@@ -86,6 +87,17 @@ def test_multisearch_single(aur_package_ahriman: AURPackage, pacman: Pacman, moc
     search_mock = mocker.patch("ahriman.core.alpm.remote.Remote.package_search", return_value=[aur_package_ahriman])
     assert Remote.multisearch("ahriman", pacman=pacman) == [aur_package_ahriman]
     search_mock.assert_called_once_with("ahriman", pacman=pacman, search_by=None)
+
+
+def test_multisearch_remove_duplicates(aur_package_ahriman: AURPackage, pacman: Pacman, mocker: MockerFixture) -> None:
+    """
+    must remove duplicates from search result
+    """
+    package1 = replace(aur_package_ahriman)
+    package2 = replace(aur_package_ahriman, name="ahriman-triggers")
+    mocker.patch("ahriman.core.alpm.remote.Remote.package_search", return_value=[package1, package2])
+
+    assert Remote.multisearch("ahriman", pacman=pacman) == [package1]
 
 
 def test_remote_git_url(remote: Remote) -> None:
