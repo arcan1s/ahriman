@@ -250,6 +250,12 @@
     }
 
     ready(_ => {
+        const onCheckFunction = function () {
+            if (packageRemoveButton) {
+                packageRemoveButton.disabled = !getSelection().length;
+            }
+        };
+
         document.querySelectorAll("#repositories a").forEach(element => {
             element.onclick = _ => {
                 repository = {
@@ -264,48 +270,52 @@
             };
         });
 
-        table.on("check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table", _ => {
-            if (packageRemoveButton) {
-                packageRemoveButton.disabled = !table.bootstrapTable("getSelections").length;
-            }
+        table.bootstrapTable({
+            onCheck: onCheckFunction,
+            onCheckAll: onCheckFunction,
+            onClickRow: (data, row, cell) => {
+                if (0 === cell || "base" === cell) {
+                    const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
+                    table.bootstrapTable(method, {field: "id", values: [data.id]});
+                } else showPackageInfo(data.id);
+            },
+            onCreatedControls: _ => {
+                new easepick.create({
+                    element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
+                    css: [
+                        "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
+                    ],
+                    grid: 2,
+                    calendars: 2,
+                    autoApply: false,
+                    locale: {
+                        cancel: "Clear",
+                    },
+                    RangePlugin: {
+                        tooltip: false,
+                    },
+                    plugins: [
+                        "RangePlugin",
+                    ],
+                    setup: picker => {
+                        picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
+                        // replace "Cancel" behaviour to "Clear"
+                        picker.onClickCancelButton = element => {
+                            if (picker.isCancelButton(element)) {
+                                picker.clear();
+                                picker.hide();
+                                table.bootstrapTable("triggerSearch");
+                            }
+                        };
+                    },
+                });
+            },
+            onPageChange: (_, size) => { Cookies.set(`ahriman-${table.attr("id")}-page-size`, size); },
+            onUncheck: onCheckFunction,
+            onUncheckAll: onCheckFunction,
         });
-        table.on("click-row.bs.table", (self, data, row, cell) => {
-            if (0 === cell || "base" === cell) {
-                const method = data[0] === true ? "uncheckBy" : "checkBy"; // fck javascript
-                table.bootstrapTable(method, {field: "id", values: [data.id]});
-            } else showPackageInfo(data.id);
-        });
-        table.on("created-controls.bs.table", _ => {
-            new easepick.create({
-                element: document.querySelector(".bootstrap-table-filter-control-timestamp"),
-                css: [
-                    "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css",
-                ],
-                grid: 2,
-                calendars: 2,
-                autoApply: false,
-                locale: {
-                    cancel: "Clear",
-                },
-                RangePlugin: {
-                    tooltip: false,
-                },
-                plugins: [
-                    "RangePlugin",
-                ],
-                setup: picker => {
-                    picker.on("select", _ => { table.bootstrapTable("triggerSearch"); });
-                    // replace "Cancel" behaviour to "Clear"
-                    picker.onClickCancelButton = element => {
-                        if (picker.isCancelButton(element)) {
-                            picker.clear();
-                            picker.hide();
-                            table.bootstrapTable("triggerSearch");
-                        }
-                    };
-                },
-            });
-        });
+
+        restoreAutoReloadSettings(tableAutoReloadButton, tableAutoReloadInput);
 
         selectRepository();
         {% if autorefresh_intervals %}

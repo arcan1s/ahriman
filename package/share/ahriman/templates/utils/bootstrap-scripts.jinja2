@@ -19,6 +19,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous" type="application/javascript"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js" crossorigin="anonymous" type="application/javascript"></script>
+
 <script>
     async function copyToClipboard(text, button) {
         await navigator.clipboard.writeText(text);
@@ -118,6 +120,19 @@
         }
     }
 
+    function restoreAutoReloadSettings(toggle, intervalSelector) {
+        for (let refreshEnabled = Cookies.get(`ahriman-${toggle.id}-refresh-enabled`);
+             !!refreshEnabled;
+             refreshEnabled = undefined) {
+            toggle.checked = refreshEnabled === "true";
+        }
+        for (let refreshInterval = Cookies.get(`ahriman-${toggle.id}-refresh-interval`);
+             !!refreshInterval;
+             refreshInterval = undefined) {
+            toggleActiveElement(intervalSelector, "interval", refreshInterval);
+        }
+    }
+
     function safe(string) {
         return String(string)
             .replace(/&/g, "&amp;")
@@ -137,6 +152,18 @@
         return element;
     }
 
+    function toggleActiveElement(selector, dataType, value) {
+        const targetElement = selector.querySelector(`a[data-${dataType}="${value}"]`);
+        if (targetElement?.classList?.contains("active")) {
+            return; // element is already active, skip processing
+        }
+
+        Array.from(selector.children).forEach(il => {
+            Array.from(il.children).forEach(el => el.classList.remove("active"));
+        });
+        targetElement?.classList?.add("active");
+    }
+
     function toggleAutoReload(toggle, interval, intervalSelector, callback) {
         if (interval) {
             toggle.checked = true; // toggle reload
@@ -144,21 +171,21 @@
             interval = intervalSelector.querySelector(".active")?.dataset?.interval; // find active element
         }
 
+        let intervalId = null;
         if (interval) {
             if (toggle.checked) {
                 // refresh UI
-                Array.from(intervalSelector.children).forEach(il => {
-                    Array.from(il.children).forEach(el => el.classList.remove("active"));
-                });
-                intervalSelector.querySelector(`a[data-interval="${interval}"]`)?.classList?.add("active");
+                toggleActiveElement(intervalSelector, "interval", interval);
                 // finally create timer task
-                return setInterval(callback, interval);
+                intervalId = setInterval(callback, interval);
             }
         } else {
             toggle.checked = false; // no active interval found, disable toggle
         }
 
-        return null; // return null to assign to keep method sane
+        Cookies.set(`ahriman-${toggle.id}-refresh-enabled`, toggle.checked);
+        Cookies.set(`ahriman-${toggle.id}-refresh-interval`, interval);
+        return intervalId;
     }
 
     Date.prototype.toISOStringShort = function() {
