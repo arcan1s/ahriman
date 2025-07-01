@@ -241,7 +241,9 @@
     function toggleTableAutoReload(interval) {
         clearInterval(tableAutoReloadTask);
         tableAutoReloadTask = toggleAutoReload(tableAutoReloadButton, interval, tableAutoReloadInput, _ => {
-            if (getSelection().length === 0) {
+            if ((getSelection().length === 0) &&
+                (table.bootstrapTable("getOptions").pageNumber === 1) &&
+                (!dashboardModal.classList.contains("show"))) {
                 reload(true);
             }
         });
