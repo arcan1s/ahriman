@@ -74,10 +74,11 @@ class IndexView(BaseView):
         autorefresh_intervals = [
             {
                 "interval": interval * 1000,  # milliseconds
-                "is_active": index == 0,
+                "is_active": index == 0,  # first element is always default
                 "text": pretty_interval(interval),
             }
             for index, interval in enumerate(self.configuration.getintlist("web", "autorefresh_intervals", fallback=[]))
+            if interval > 0  # special case if 0 exists and first, refresh will not be turned on by default
         ]
 
         return {

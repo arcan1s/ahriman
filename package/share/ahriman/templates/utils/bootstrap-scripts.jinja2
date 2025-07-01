@@ -154,6 +154,8 @@
                 // finally create timer task
                 return setInterval(callback, interval);
             }
+        } else {
+            toggle.checked = false; // no active interval found, disable toggle
         }
 
         return null; // return null to assign to keep method sane
