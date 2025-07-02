@@ -72,8 +72,8 @@ class SyncHttpClient(LazyLogging):
         """
         session = requests.Session()
         python_version = ".".join(map(str, sys.version_info[:3]))  # just major.minor.patch
-        session.headers["User-Agent"] = f"ahriman/{__version__}" \
-            f"{requests.utils.default_user_agent()}" \
+        session.headers["User-Agent"] = f"ahriman/{__version__} " \
+            f"{requests.utils.default_user_agent()} " \
             f"python/{python_version}"
 
         return session
