@@ -72,7 +72,7 @@ def _create_socket(configuration: Configuration, application: Application) -> so
     async def remove_socket(_: Application) -> None:
         unix_socket.unlink(missing_ok=True)
 
-    application.on_shutdown.append(remove_socket)
+    application.on_shutdown.append(remove_socket)  # type: ignore[arg-type]
 
     return sock
 
@@ -142,8 +142,8 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
         InitializeError: if no repositories set
     """
     application = Application(logger=logging.getLogger(__name__))
-    application.on_shutdown.append(_on_shutdown)
-    application.on_startup.append(_on_startup)
+    application.on_shutdown.append(_on_shutdown)  # type: ignore[arg-type]
+    application.on_startup.append(_on_startup)  # type: ignore[arg-type]
 
     application.middlewares.append(normalize_path_middleware(append_slash=False, remove_slash=True))
     application.middlewares.append(exception_handler(application.logger))
