@@ -3,7 +3,9 @@
 
     function createAlert(title, message, clz, action, id) {
         id ??= md5(title + message); // MD5 id from the content
-        if (alertPlaceholder.querySelector(`#alert-${id}`)) return; // check if there are duplicates
+        if (alertPlaceholder.querySelector(`#alert-${id}`)) {
+            return; // check if there are duplicates
+        }
 
         const wrapper = document.createElement("div");
         wrapper.id = `alert-${id}`;

@@ -51,6 +51,87 @@
     const dashboardPackagesCountChartCanvas = document.getElementById("dashboard-packages-count-chart");
     let dashboardPackagesCountChart = null;
 
+    function statusLoad() {
+        const badgeClass = status => {
+            if (status === "pending") return "btn-outline-warning";
+            if (status === "building") return "btn-outline-warning";
+            if (status === "failed") return "btn-outline-danger";
+            if (status === "success") return "btn-outline-success";
+            return "btn-outline-secondary";
+        };
+
+        makeRequest(
+            "/api/v1/status",
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
+            },
+            data => {
+                versionBadge.innerHTML = `<i class="bi bi-github"></i> ahriman ${safe(data.version)}`;
+
+                dashboardButton.classList.remove(...dashboardButton.classList);
+                dashboardButton.classList.add("btn");
+                dashboardButton.classList.add(badgeClass(data.status.status));
+
+                dashboardModalHeader.classList.remove(...dashboardModalHeader.classList);
+                dashboardModalHeader.classList.add("modal-header");
+                headerClass(data.status.status).forEach(clz => dashboardModalHeader.classList.add(clz));
+
+                dashboardName.textContent = data.repository;
+                dashboardArchitecture.textContent = data.architecture;
+                dashboardStatus.textContent = data.status.status;
+                dashboardStatusTimestamp.textContent = new Date(1000 * data.status.timestamp).toISOStringShort();
+
+                if (dashboardPackagesStatusesChart) {
+                    const labels = [
+                        "unknown",
+                        "pending",
+                        "building",
+                        "failed",
+                        "success",
+                    ];
+                    dashboardPackagesStatusesChart.config.data = {
+                        labels: labels,
+                        datasets: [{
+                            label: "packages in status",
+                            data: labels.map(label => data.packages[label]),
+                            backgroundColor: [
+                                "rgb(55, 58, 60)",
+                                "rgb(255, 117, 24)",
+                                "rgb(255, 117, 24)",
+                                "rgb(255, 0, 57)",
+                                "rgb(63, 182, 24)",  // copy-paste from current style
+                            ],
+                        }],
+                    };
+                    dashboardPackagesStatusesChart.update();
+                }
+
+                if (dashboardPackagesCountChart) {
+                    dashboardPackagesCountChart.config.data = {
+                        labels: ["packages"],
+                        datasets: [
+                            {
+                                label: "archives",
+                                data: [data.stats.packages],
+                            },
+                            {
+                                label: "bases",
+                                data: [data.stats.bases],
+                            },
+                        ],
+                    };
+                    dashboardPackagesCountChart.update();
+                }
+
+                dashboardCanvas.hidden = data.status.total > 0;
+            },
+        );
+    }
+
     ready(_ => {
         dashboardPackagesStatusesChart = new Chart(dashboardPackagesStatusesChartCanvas, {
             type: "pie",

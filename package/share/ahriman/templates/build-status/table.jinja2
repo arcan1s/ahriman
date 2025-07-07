@@ -59,6 +59,41 @@
         return table.bootstrapTable("getSelections").map(row => row.id);
     }
 
+    function packagesLoad(onFailure) {
+        makeRequest(
+            "/api/v1/packages",
+            {
+                query: {
+                    architecture: repository.architecture,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
+            },
+            data => {
+                const payload = data
+                    .map(description => {
+                        const package_base = description.package.base;
+                        const web_url = description.package.remote.web_url;
+                        return {
+                            id: package_base,
+                            base: web_url ? safeLink(web_url, package_base, package_base).outerHTML : safe(package_base),
+                            version: safe(description.package.version),
+                            packager: description.package.packager ? safe(description.package.packager) : "",
+                            packages: listToTable(Object.keys(description.package.packages)),
+                            groups: listToTable(extractListProperties(description.package, "groups")),
+                            licenses: listToTable(extractListProperties(description.package, "licenses")),
+                            timestamp: new Date(1000 * description.status.timestamp).toISOStringShort(),
+                            status: description.status.status,
+                        };
+                    });
+
+                updateTable(table, payload);
+                table.bootstrapTable("hideLoading");
+            },
+            onFailure,
+        );
+    }
+
     function packagesRemove(packages) {
         packages = packages ?? getSelection();
         const onSuccess = update => `Packages ${update} have been removed`;
@@ -90,136 +125,24 @@
         doPackageAction("/api/v1/service/update", [], repository, onSuccess, onFailure, parameters);
     }
 
-    function reload(silent) {
-        if (!silent) {
-            table.bootstrapTable("showLoading");
-        }
-
-        const badgeClass = status => {
-            if (status === "pending") return "btn-outline-warning";
-            if (status === "building") return "btn-outline-warning";
-            if (status === "failed") return "btn-outline-danger";
-            if (status === "success") return "btn-outline-success";
-            return "btn-outline-secondary";
+    function reload() {
+        table.bootstrapTable("showLoading");
+        const onFailure = error => {
+            if ((error.status === 401) || (error.status === 403)) {
+                // authorization error
+                const text = "In order to see statuses you must login first.";
+                table.find("tr.unauthorized").remove();
+                table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${safe(text)}</td></tr>`);
+                table.bootstrapTable("hideLoading");
+            } else {
+                // other errors
+                const message = details => `Could not load list of packages: ${details}`;
+                showFailure("Load failure", message, error);
+            }
         };
 
-        makeRequest(
-            "/api/v1/packages",
-            {
-                query: {
-                    architecture: repository.architecture,
-                    repository: repository.repository,
-                },
-                convert: response => response.json(),
-            },
-            data => {
-                const payload = data
-                    .map(description => {
-                        const package_base = description.package.base;
-                        const web_url = description.package.remote.web_url;
-                        return {
-                            id: package_base,
-                            base: web_url ? safeLink(web_url, package_base, package_base).outerHTML : safe(package_base),
-                            version: safe(description.package.version),
-                            packager: description.package.packager ? safe(description.package.packager) : "",
-                            packages: listToTable(Object.keys(description.package.packages)),
-                            groups: listToTable(extractListProperties(description.package, "groups")),
-                            licenses: listToTable(extractListProperties(description.package, "licenses")),
-                            timestamp: new Date(1000 * description.status.timestamp).toISOStringShort(),
-                            status: description.status.status,
-                        };
-                    });
-
-                updateTable(table, payload);
-                table.bootstrapTable("hideLoading");
-            },
-            error => {
-                if (!silent) {
-                    if ((error.status === 401) || (error.status === 403)) {
-                        // authorization error
-                        const text = "In order to see statuses you must login first.";
-                        table.find("tr.unauthorized").remove();
-                        table.find("tbody").append(`<tr class="unauthorized"><td colspan="100%">${safe(text)}</td></tr>`);
-                        table.bootstrapTable("hideLoading");
-                    } else {
-                        // other errors
-                        const message = details => `Could not load list of packages: ${details}`;
-                        showFailure("Load failure", message, error);
-                    }
-                }
-            },
-        );
-
-        makeRequest(
-            "/api/v1/status",
-            {
-                query: {
-                    architecture: repository.architecture,
-                    repository: repository.repository,
-                },
-                convert: response => response.json(),
-            },
-            data => {
-                versionBadge.innerHTML = `<i class="bi bi-github"></i> ahriman ${safe(data.version)}`;
-
-                dashboardButton.classList.remove(...dashboardButton.classList);
-                dashboardButton.classList.add("btn");
-                dashboardButton.classList.add(badgeClass(data.status.status));
-
-                dashboardModalHeader.classList.remove(...dashboardModalHeader.classList);
-                dashboardModalHeader.classList.add("modal-header");
-                headerClass(data.status.status).forEach(clz => dashboardModalHeader.classList.add(clz));
-
-                dashboardName.textContent = data.repository;
-                dashboardArchitecture.textContent = data.architecture;
-                dashboardStatus.textContent = data.status.status;
-                dashboardStatusTimestamp.textContent = new Date(1000 * data.status.timestamp).toISOStringShort();
-
-                if (dashboardPackagesStatusesChart) {
-                    const labels = [
-                        "unknown",
-                        "pending",
-                        "building",
-                        "failed",
-                        "success",
-                    ];
-                    dashboardPackagesStatusesChart.config.data = {
-                        labels: labels,
-                        datasets: [{
-                            label: "packages in status",
-                            data: labels.map(label => data.packages[label]),
-                            backgroundColor: [
-                                "rgb(55, 58, 60)",
-                                "rgb(255, 117, 24)",
-                                "rgb(255, 117, 24)",
-                                "rgb(255, 0, 57)",
-                                "rgb(63, 182, 24)",  // copy-paste from current style
-                            ],
-                        }],
-                    };
-                    dashboardPackagesStatusesChart.update();
-                }
-
-                if (dashboardPackagesCountChart) {
-                    dashboardPackagesCountChart.config.data = {
-                        labels: ["packages"],
-                        datasets: [
-                            {
-                                label: "archives",
-                                data: [data.stats.packages],
-                            },
-                            {
-                                label: "bases",
-                                data: [data.stats.bases],
-                            },
-                        ],
-                    };
-                    dashboardPackagesCountChart.update();
-                }
-
-                dashboardCanvas.hidden = data.status.total > 0;
-            },
-        );
+        packagesLoad(onFailure);
+        statusLoad();
     }
 
     function selectRepository() {
@@ -243,7 +166,8 @@
         tableAutoReloadTask = toggleAutoReload(tableAutoReloadButton, interval, tableAutoReloadInput, _ => {
             if (!dashboardModal.classList.contains("show") &&
                 !hasActiveDropdown()) {
-                reload(true);
+                packagesLoad();
+                statusLoad();
             }
         });
     }
