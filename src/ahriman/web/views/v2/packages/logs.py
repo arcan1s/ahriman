@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import itertools
+
 from aiohttp.web import Response, json_response
+from dataclasses import replace
 from typing import ClassVar
 
 from ahriman.models.user_access import UserAccess
@@ -28,7 +31,8 @@ from ahriman.web.views.status_view_guard import StatusViewGuard
 
 
 class LogsView(StatusViewGuard, BaseView):
-    """
+    """        else:
+
     package logs web view
 
     Attributes:
@@ -65,6 +69,15 @@ class LogsView(StatusViewGuard, BaseView):
         process = self.request.query.get("process_id", None)
 
         logs = self.service(package_base=package_base).package_logs_get(package_base, version, process, limit, offset)
+
+        head = self.request.query.get("head", "false")
+        # pylint: disable=protected-access
+        if self.configuration._convert_to_boolean(head):  # type: ignore[attr-defined]
+            # logs should be sorted already
+            logs = [
+                replace(next(log_records), message="")  # remove messages
+                for _, log_records in itertools.groupby(logs, lambda log_record: log_record.log_record_id)
+            ]
 
         response = [log_record.view() for log_record in logs]
         return json_response(response)

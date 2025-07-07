@@ -139,3 +139,41 @@ async def test_get_not_found(client: TestClient, package_ahriman: Package) -> No
     response = await client.get(f"/api/v2/packages/{package_ahriman.base}/logs")
     assert response.status == 404
     assert not response_schema.validate(await response.json())
+
+
+async def test_get_head(client: TestClient, package_ahriman: Package) -> None:
+    """
+    must return only versions if head parameter is set
+    """
+    await client.post(f"/api/v1/packages/{package_ahriman.base}",
+                      json={"status": BuildStatusEnum.Success.value, "package": package_ahriman.view()})
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
+                      json={"created": 42.0, "message": "message 1", "version": "42"})
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
+                      json={"created": 43.0, "message": "message 2", "version": "42"})
+    await client.post(f"/api/v1/packages/{package_ahriman.base}/logs",
+                      json={"created": 44.0, "message": "message 3", "version": "43"})
+    request_schema = pytest.helpers.schema_request(LogsView.get, location="querystring")
+    response_schema = pytest.helpers.schema_response(LogsView.get)
+
+    payload = {"head": "true"}
+    assert not request_schema.validate(payload)
+    response = await client.get(f"/api/v2/packages/{package_ahriman.base}/logs", params=payload)
+    assert response.status == 200
+
+    logs = await response.json()
+    assert not response_schema.validate(logs)
+    assert logs == [
+        {
+            "created": 42.0,
+            "message": "",
+            "version": "42",
+            "process_id": LogRecordId.DEFAULT_PROCESS_ID,
+        },
+        {
+            "created": 44.0,
+            "message": "",
+            "version": "43",
+            "process_id": LogRecordId.DEFAULT_PROCESS_ID,
+        },
+    ]

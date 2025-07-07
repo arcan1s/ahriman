@@ -27,6 +27,9 @@ class LogsSearchSchema(PaginationSchema):
     request log search schema
     """
 
+    head = fields.Boolean(metadata={
+        "description": "Return versions only without fetching logs themselves",
+    })
     version = fields.String(metadata={
         "description": "Package version to search",
         "example": __version__,

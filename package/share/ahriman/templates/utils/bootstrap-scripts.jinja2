@@ -218,6 +218,21 @@
         });
     }
 
+    Array.prototype.equals = function (right, comparator) {
+        let index = this.length;
+        if (index !== right.length) {
+            return false;
+        }
+
+        while (index--) {
+            if (!comparator(this[index], right[index])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     Date.prototype.toISOStringShort = function () {
         const pad = number => String(number).padStart(2, "0");
         return `${this.getFullYear()}-${pad(this.getMonth() + 1)}-${pad(this.getDate())} ${pad(this.getHours())}:${pad(this.getMinutes())}:${pad(this.getSeconds())}`;

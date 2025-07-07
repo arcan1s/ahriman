@@ -97,7 +97,7 @@
                     <input id="package-info-refresh-input" type="checkbox" class="form-check-input" value="" checked>
                     <label for="package-info-refresh-input" class="form-check-label">update pacman databases</label>
 
-                    <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()" data-bs-dismiss="modal"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
+                    <button id="package-info-update-button" type="submit" class="btn btn-success" onclick="packageInfoUpdate()"><i class="bi bi-play"></i><span class="d-none d-sm-inline"> update</span></button>
                     <button id="package-info-remove-button" type="submit" class="btn btn-danger" onclick="packageInfoRemove()" data-bs-dismiss="modal"><i class="bi bi-trash"></i><span class="d-none d-sm-inline"> remove</span></button>
                 {% endif %}
                 {% if autorefresh_intervals %}
@@ -315,6 +315,69 @@
     }
 
     function loadLogs(packageBase, onFailure) {
+        const sortFn = (left, right) => left.process_id.localeCompare(right.process_id) || left.version.localeCompare(right.version);
+        const compareFn = (left, right) => left.process_id === right.process_id && left.version === right.version;
+
+        makeRequest(
+            `/api/v2/packages/${packageBase}/logs`,
+            {
+                query: {
+                    architecture: repository.architecture,
+                    head: true,
+                    repository: repository.repository,
+                },
+                convert: response => response.json(),
+            },
+            data => {
+                const currentVersions = Array.from(packageInfoLogsVersions.children)
+                    .map(el => {
+                        return {
+                            process_id: el.dataset.processId,
+                            version: el.dataset.version,
+                        };
+                    })
+                    .sort(sortFn);
+                const newVersions = data
+                    .map(el => {
+                        return {
+                            process_id: el.process_id,
+                            version: el.version,
+                        };
+                    })
+                    .sort(sortFn);
+
+                if (currentVersions.equals(newVersions, compareFn))
+                    loadLogsActive(packageBase);
+                else
+                    loadLogsAll(packageBase, onFailure);
+            },
+        )
+    }
+
+    function loadLogsActive(packageBase) {
+        const activeLogSelector = packageInfoLogsVersions.querySelector(".active");
+
+        if (activeLogSelector) {
+            makeRequest(
+                `/api/v2/packages/${packageBase}/logs`,
+                {
+                    query: {
+                        architecture: repository.architecture,
+                        repository: repository.repository,
+                        version: activeLogSelector.dataset.version,
+                        process_id: activeLogSelector.dataset.processId,
+                    },
+                    convert: response => response.json(),
+                },
+                data => {
+                    activeLogSelector.dataset.logs = convertLogs(data);
+                    activeLogSelector.click();
+                },
+            );
+        }
+    }
+
+    function loadLogsAll(packageBase, onFailure) {
         makeRequest(
             `/api/v2/packages/${packageBase}/logs`,
             {
@@ -440,29 +503,6 @@
         packagesAdd(packageBase, [], repository, {refresh: packageInfoRefreshInput.checked});
     }
 
-    function reloadActiveLogs(packageBase) {
-        const activeLogSelector = packageInfoLogsVersions.querySelector(".active");
-
-        if (activeLogSelector) {
-            makeRequest(
-                `/api/v2/packages/${packageBase}/logs`,
-                {
-                    query: {
-                        architecture: repository.architecture,
-                        repository: repository.repository,
-                        version: activeLogSelector.dataset.version,
-                        process_id: activeLogSelector.dataset.processId,
-                    },
-                    convert: response => response.json(),
-                },
-                data => {
-                    activeLogSelector.dataset.logs = convertLogs(data);
-                    activeLogSelector.click();
-                },
-            );
-        }
-    }
-
     function showPackageInfo(packageBase) {
         const isPackageBaseSet = packageBase !== undefined;
         if (isPackageBaseSet) {
@@ -502,7 +542,7 @@
                 const packageBase = packageInfoModal.dataset.package;
                 // we only poll status and logs here
                 loadPackage(packageBase);
-                reloadActiveLogs(packageBase);
+                loadLogs(packageBase);
             }
         });
     }
