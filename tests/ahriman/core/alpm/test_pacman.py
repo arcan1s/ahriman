@@ -289,3 +289,4 @@ def test_package_provided_by(pacman: Pacman) -> None:
     must search through the provides lists
     """
     assert list(pacman.provided_by("sh"))
+    assert list(pacman.provided_by("libacl.so"))  # case with exact version
