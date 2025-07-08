@@ -267,7 +267,8 @@ class Pacman(LazyLogging):
             Package: list of packages which were returned by the query
         """
         def is_package_provided(package: Package) -> bool:
-            return package_name in package.provides
+            provides = [trim_package(name) for name in package.provides]
+            return package_name in provides
 
         for database in self.handle.get_syncdbs():
             yield from filter(is_package_provided, database.search(package_name))

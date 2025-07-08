@@ -83,12 +83,13 @@ class PackageDescription:
 
     def __post_init__(self) -> None:
         """
-        update dependencies list accordingly
+        update packages lists accordingly
         """
         self.depends = [trim_package(package) for package in self.depends]
-        self.opt_depends = [trim_package(package) for package in self.opt_depends]
         self.make_depends = [trim_package(package) for package in self.make_depends]
+        self.opt_depends = [trim_package(package) for package in self.opt_depends]
         self.check_depends = [trim_package(package) for package in self.check_depends]
+        self.provides = [trim_package(package) for package in self.provides]
 
     @property
     def filepath(self) -> Path | None:

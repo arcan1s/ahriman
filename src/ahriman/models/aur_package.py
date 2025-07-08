@@ -25,7 +25,7 @@ from dataclasses import dataclass, field, fields
 from pyalpm import Package  # type: ignore[import-not-found]
 from typing import Any, Self
 
-from ahriman.core.utils import filter_json, full_version
+from ahriman.core.utils import filter_json, full_version, trim_package
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -102,6 +102,17 @@ class AURPackage:
     license: list[str] = field(default_factory=list)
     keywords: list[str] = field(default_factory=list)
     groups: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        """
+        update packages lists accordingly
+        """
+        object.__setattr__(self, "depends", [trim_package(package) for package in self.depends])
+        object.__setattr__(self, "make_depends", [trim_package(package) for package in self.make_depends])
+        object.__setattr__(self, "opt_depends", [trim_package(package) for package in self.opt_depends])
+        object.__setattr__(self, "check_depends", [trim_package(package) for package in self.check_depends])
+        object.__setattr__(self, "conflicts", [trim_package(package) for package in self.conflicts])
+        object.__setattr__(self, "provides", [trim_package(package) for package in self.provides])
 
     @classmethod
     def from_json(cls, dump: dict[str, Any]) -> Self:

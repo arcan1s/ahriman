@@ -2,7 +2,7 @@ import datetime
 import json
 import pyalpm  # typing: ignore
 
-from dataclasses import asdict, fields
+from dataclasses import asdict, fields, replace
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
@@ -36,6 +36,25 @@ def _get_official_data(resource_path_root: Path) -> dict[str, Any]:
     """
     response = (resource_path_root / "models" / "package_akonadi_aur").read_text()
     return json.loads(response)["results"][0]
+
+
+def test_post_init(aur_package_ahriman: AURPackage) -> None:
+    """
+    must trim versions and descriptions from packages list
+    """
+    package = replace(
+        aur_package_ahriman,
+        depends=["a=1"],
+        make_depends=["b>=3"],
+        opt_depends=["c: a description"],
+        check_depends=["d=4"],
+        provides=["e=5"],
+    )
+    assert package.depends == ["a"]
+    assert package.make_depends == ["b"]
+    assert package.opt_depends == ["c"]
+    assert package.check_depends == ["d"]
+    assert package.provides == ["e"]
 
 
 def test_from_json(aur_package_ahriman: AURPackage, resource_path_root: Path) -> None:

@@ -146,7 +146,7 @@ class AUR(Remote):
             # search api provides reduced models
             for stub in self.package_search(package_name, pacman=pacman, search_by="provides")
             # verity that found package actually provides it
-            if package_name in (package := self.package_info(stub.package_base, pacman=pacman)).provides
+            if package_name in (package := self.package_info(stub.name, pacman=pacman)).provides
         ]
 
     def package_search(self, *keywords: str, pacman: Pacman | None, search_by: str | None) -> list[AURPackage]:

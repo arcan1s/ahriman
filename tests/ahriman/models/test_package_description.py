@@ -6,10 +6,15 @@ from ahriman.models.package_description import PackageDescription
 
 def test_post_init() -> None:
     """
-    must trim versions and descriptions from dependencies list
+    must trim versions and descriptions from packages list
     """
-    assert PackageDescription(depends=["a=1"], make_depends=["b>=3"], opt_depends=["c: a description"]) == \
-        PackageDescription(depends=["a"], make_depends=["b"], opt_depends=["c"])
+    assert PackageDescription(
+        depends=["a=1"],
+        make_depends=["b>=3"],
+        opt_depends=["c: a description"],
+        check_depends=["d=4"],
+        provides=["e=5"]
+    ) == PackageDescription(depends=["a"], make_depends=["b"], opt_depends=["c"], check_depends=["d"], provides=["e"])
 
 
 def test_filepath(package_description_ahriman: PackageDescription) -> None:
