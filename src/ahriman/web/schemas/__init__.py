@@ -22,6 +22,7 @@ from ahriman.web.schemas.aur_package_schema import AURPackageSchema
 from ahriman.web.schemas.auth_schema import AuthSchema
 from ahriman.web.schemas.build_options_schema import BuildOptionsSchema
 from ahriman.web.schemas.changes_schema import ChangesSchema
+from ahriman.web.schemas.configuration_schema import ConfigurationSchema
 from ahriman.web.schemas.counters_schema import CountersSchema
 from ahriman.web.schemas.dependencies_schema import DependenciesSchema
 from ahriman.web.schemas.error_schema import ErrorSchema

@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/ahriman web
+ExecReload=/usr/bin/ahriman web-reload
 User=ahriman
 Group=ahriman
 

@@ -44,6 +44,14 @@ ahriman.web.schemas.changes\_schema module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.web.schemas.configuration\_schema module
+------------------------------------------------
+
+.. automodule:: ahriman.web.schemas.configuration_schema
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.web.schemas.counters\_schema module
 -------------------------------------------
 

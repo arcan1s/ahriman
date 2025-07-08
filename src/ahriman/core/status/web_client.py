@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+# pylint: disable=too-many-public-methods
 import contextlib
 
 from urllib.parse import quote_plus as url_encode
@@ -164,6 +165,13 @@ class WebClient(Client, SyncAhrimanClient):
             str: full url for web service for status
         """
         return f"{self.address}/api/v1/status"
+
+    def configuration_reload(self) -> None:
+        """
+        reload configuration
+        """
+        with contextlib.suppress(Exception):
+            self.make_request("POST", f"{self.address}/api/v1/service/config")
 
     def event_add(self, event: Event) -> None:
         """

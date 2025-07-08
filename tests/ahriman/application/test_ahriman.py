@@ -1563,6 +1563,35 @@ def test_subparsers_web_option_repository(parser: argparse.ArgumentParser) -> No
     assert args.repository == ""
 
 
+def test_subparsers_web_reload(parser: argparse.ArgumentParser) -> None:
+    """
+    web-reload command must imply architecture, lock, quiet, report, repository and unsafe
+    """
+    args = parser.parse_args(["web-reload"])
+    assert args.architecture == ""
+    assert args.lock is None
+    assert args.quiet
+    assert not args.report
+    assert args.repository == ""
+    assert args.unsafe
+
+
+def test_subparsers_web_reload_option_architecture(parser: argparse.ArgumentParser) -> None:
+    """
+    web-reload command must correctly parse architecture list
+    """
+    args = parser.parse_args(["-a", "x86_64", "web-reload"])
+    assert args.architecture == ""
+
+
+def test_subparsers_web_reload_option_repository(parser: argparse.ArgumentParser) -> None:
+    """
+    web-reload command must correctly parse repository list
+    """
+    args = parser.parse_args(["-r", "repo", "web-reload"])
+    assert args.repository == ""
+
+
 def test_run(args: argparse.Namespace, configuration: Configuration, mocker: MockerFixture) -> None:
     """
     application must be run

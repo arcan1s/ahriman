@@ -81,6 +81,11 @@ class Client:
 
         return make_local_client()
 
+    def configuration_reload(self) -> None:
+        """
+        reload configuration
+        """
+
     def event_add(self, event: Event) -> None:
         """
         create new event

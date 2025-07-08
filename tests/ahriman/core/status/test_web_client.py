@@ -107,6 +107,55 @@ def test_status_url(web_client: WebClient) -> None:
     assert web_client._status_url().endswith("/api/v1/status")
 
 
+def test_configuration_reload(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must reload configuration
+    """
+    requests_mock = mocker.patch("ahriman.core.status.web_client.WebClient.make_request")
+    web_client.configuration_reload()
+    requests_mock.assert_called_once_with("POST", pytest.helpers.anyvar(str, True))
+
+
+def test_configuration_reload_failed(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during configuration reload
+    """
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    web_client.configuration_reload()
+
+
+def test_configuration_reload_failed_http_error(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during configuration reload
+    """
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    web_client.configuration_reload()
+
+
+def test_configuration_reload_failed_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress any exception happened during configuration reload and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=Exception())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.configuration_reload()
+    logging_mock.assert_not_called()
+
+
+def test_configuration_reload_failed_http_error_suppress(web_client: WebClient, mocker: MockerFixture) -> None:
+    """
+    must suppress HTTP exception happened during configuration reload and don't log
+    """
+    web_client.suppress_errors = True
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    logging_mock = mocker.patch("logging.exception")
+
+    web_client.configuration_reload()
+    logging_mock.assert_not_called()
+
+
 def test_event_add(web_client: WebClient, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must create event

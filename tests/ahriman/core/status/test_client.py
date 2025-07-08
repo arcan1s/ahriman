@@ -97,6 +97,13 @@ def test_load_web_client_from_legacy_unix_socket(configuration: Configuration, d
     assert isinstance(Client.load(repository_id, configuration, database, report=True), WebClient)
 
 
+def test_configuration_reload(client: Client) -> None:
+    """
+    must do nothing on configuration reload
+    """
+    client.configuration_reload()
+
+
 def test_event_add(client: Client) -> None:
     """
     must raise not implemented on event insertion

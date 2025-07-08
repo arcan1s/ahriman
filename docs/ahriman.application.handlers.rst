@@ -100,6 +100,14 @@ ahriman.application.handlers.rebuild module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.application.handlers.reload module
+------------------------------------------
+
+.. automodule:: ahriman.application.handlers.reload
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.application.handlers.remove module
 ------------------------------------------
 
