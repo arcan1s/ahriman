@@ -203,8 +203,6 @@ def migrate_package_repository(connection: Connection, configuration: Configurat
         configuration(Configuration): configuration instance
     """
     _, repository_id = configuration.check_loaded()
-    if repository_id.is_empty:
-        return  # no repository available yet
 
     connection.execute("""update build_queue set repository = :repository""", {"repository": repository_id.id})
     connection.execute("""update package_bases set repository = :repository""", {"repository": repository_id.id})

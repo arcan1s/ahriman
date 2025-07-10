@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import contextlib
 import os
 import shutil
 
@@ -221,21 +222,13 @@ class RepositoryPaths(LazyLogging):
         stat = path.stat()
         return stat.st_uid, stat.st_gid
 
-    def cache_for(self, package_base: str) -> Path:
-        """
-        get path to cached PKGBUILD and package sources for the package base
-
-        Args:
-            package_base(str): package base name
-
-        Returns:
-            Path: full path to directory for specified package base cache
-        """
-        return self.cache / package_base
-
-    def chown(self, path: Path) -> None:
+    def _chown(self, path: Path) -> None:
         """
         set owner of path recursively (from root) to root owner
+
+        Notes:
+            More likely you don't want to call this method explicitly, consider using :func:`preserve_owner`
+            as context manager instead
 
         Args:
             path(Path): path to be chown
@@ -256,6 +249,56 @@ class RepositoryPaths(LazyLogging):
             set_owner(path)
             path = path.parent
 
+    def cache_for(self, package_base: str) -> Path:
+        """
+        get path to cached PKGBUILD and package sources for the package base
+
+        Args:
+            package_base(str): package base name
+
+        Returns:
+            Path: full path to directory for specified package base cache
+        """
+        return self.cache / package_base
+
+    @contextlib.contextmanager
+    def preserve_owner(self, path: Path | None = None) -> Generator[None, None, None]:
+        """
+        perform any action preserving owner for any newly created file or directory
+
+        Args:
+            path(Path | None, optional): use this path as root instead of repository root (Default value = None)
+
+        Examples:
+            This method is designed to use as context manager when you are going to perform operations which might
+            change filesystem, especially if you are doing it under unsafe flag, e.g.::
+
+                >>> with paths.preserve_owner():
+                >>>     paths.tree_create()
+
+            Note, however, that this method doesn't handle any exceptions and will eventually interrupt
+            if there will be any.
+        """
+        path = path or self.root
+
+        def walk(root: Path) -> Generator[Path, None, None]:
+            # basically walk, but skipping some content
+            for child in root.iterdir():
+                yield child
+                if child in (self.chroot.parent,):
+                    yield from child.iterdir()  # we only yield top-level in chroot directory
+                elif child.is_dir():
+                    yield from walk(child)
+
+        # get current filesystem and run action
+        previous_snapshot = set(walk(path))
+        yield
+
+        # get newly created files and directories and chown them
+        new_entries = set(walk(path)).difference(previous_snapshot)
+        for entry in new_entries:
+            self._chown(entry)
+
     def tree_clear(self, package_base: str) -> None:
         """
         clear package specific files
@@ -274,12 +317,13 @@ class RepositoryPaths(LazyLogging):
         """
         if self.repository_id.is_empty:
             return  # do not even try to create tree in case if no repository id set
-        for directory in (
-                self.cache,
-                self.chroot,
-                self.packages,
-                self.pacman,
-                self.repository,
-        ):
-            directory.mkdir(mode=0o755, parents=True, exist_ok=True)
-            self.chown(directory)
+
+        with self.preserve_owner():
+            for directory in (
+                    self.cache,
+                    self.chroot,
+                    self.packages,
+                    self.pacman,
+                    self.repository,
+            ):
+                directory.mkdir(mode=0o755, parents=True, exist_ok=True)

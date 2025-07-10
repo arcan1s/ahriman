@@ -72,16 +72,17 @@ class Setup(Handler):
 
         application = Application(repository_id, configuration, report=report)
 
-        Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
-        Setup.executable_create(application.repository.paths, repository_id)
-        repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
-        Setup.configuration_create_devtools(
-            repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
-        Setup.configuration_create_sudo(application.repository.paths, repository_id)
+        with application.repository.paths.preserve_owner():
+            Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
+            Setup.executable_create(application.repository.paths, repository_id)
+            repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
+            Setup.configuration_create_devtools(
+                repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
+            Setup.configuration_create_sudo(application.repository.paths, repository_id)
 
-        application.repository.repo.init()
-        # lazy database sync
-        application.repository.pacman.handle  # pylint: disable=pointless-statement
+            application.repository.repo.init()
+            # lazy database sync
+            application.repository.pacman.handle  # pylint: disable=pointless-statement
 
     @staticmethod
     def _set_service_setup_parser(root: SubParserAction) -> argparse.ArgumentParser:
@@ -280,6 +281,5 @@ class Setup(Handler):
         command = Setup.build_command(paths.root, repository_id)
         command.unlink(missing_ok=True)
         command.symlink_to(Setup.ARCHBUILD_COMMAND_PATH)
-        paths.chown(command)  # we would like to keep owner inside ahriman's home
 
     arguments = [_set_service_setup_parser]

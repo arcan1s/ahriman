@@ -198,15 +198,6 @@ def test_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None
     assert RepositoryPaths.owner(repository_paths.root) == (42, 142)
 
 
-def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
-    """
-    must return correct path for cache directory
-    """
-    path = repository_paths.cache_for(package_ahriman.base)
-    assert path.name == package_ahriman.base
-    assert path.parent == repository_paths.cache
-
-
 def test_chown(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must correctly set owner for the directory
@@ -216,7 +207,7 @@ def test_chown(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None
     chown_mock = mocker.patch("os.chown")
 
     path = repository_paths.root / "path"
-    repository_paths.chown(path)
+    repository_paths._chown(path)
     chown_mock.assert_called_once_with(path, 42, 42, follow_symlinks=False)
 
 
@@ -229,7 +220,7 @@ def test_chown_parent(repository_paths: RepositoryPaths, mocker: MockerFixture) 
     chown_mock = mocker.patch("os.chown")
 
     path = repository_paths.root / "parent" / "path"
-    repository_paths.chown(path)
+    repository_paths._chown(path)
     chown_mock.assert_has_calls([
         MockCall(path, 42, 42, follow_symlinks=False),
         MockCall(path.parent, 42, 42, follow_symlinks=False)
@@ -245,7 +236,7 @@ def test_chown_skip(repository_paths: RepositoryPaths, mocker: MockerFixture) ->
     chown_mock = mocker.patch("os.chown")
 
     path = repository_paths.root / "path"
-    repository_paths.chown(path)
+    repository_paths._chown(path)
     chown_mock.assert_not_called()
 
 
@@ -254,7 +245,46 @@ def test_chown_invalid_path(repository_paths: RepositoryPaths) -> None:
     must raise invalid path exception in case if directory outside the root supplied
     """
     with pytest.raises(PathError):
-        repository_paths.chown(repository_paths.root.parent)
+        repository_paths._chown(repository_paths.root.parent)
+
+
+def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
+    """
+    must return correct path for cache directory
+    """
+    path = repository_paths.cache_for(package_ahriman.base)
+    assert path.name == package_ahriman.base
+    assert path.parent == repository_paths.cache
+
+
+def test_preserve_owner(tmp_path: Path, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must preserve file owner during operations
+    """
+    repository_paths = RepositoryPaths(tmp_path, repository_id)
+    repository_paths.tree_create()
+    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths._chown")
+
+    with repository_paths.preserve_owner():
+        (repository_paths.root / "created1").touch()
+        (repository_paths.chroot / "created2").touch()
+    chown_mock.assert_has_calls([MockCall(repository_paths.root / "created1")])
+
+
+def test_preserve_owner_specific(tmp_path: Path, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must preserve file owner during operations only in specific directory
+    """
+    repository_paths = RepositoryPaths(tmp_path, repository_id)
+    repository_paths.tree_create()
+    (repository_paths.root / "content").mkdir()
+    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths._chown")
+
+    with repository_paths.preserve_owner(repository_paths.root / "content"):
+        (repository_paths.root / "created1").touch()
+        (repository_paths.root / "content" / "created2").touch()
+        (repository_paths.chroot / "created3").touch()
+    chown_mock.assert_has_calls([MockCall(repository_paths.root / "content" / "created2")])
 
 
 def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -293,11 +323,11 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         and not callable(getattr(repository_paths, prop))
     }
     mkdir_mock = mocker.patch("pathlib.Path.mkdir")
-    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
+    owner_guard_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
 
     repository_paths.tree_create()
     mkdir_mock.assert_has_calls([MockCall(mode=0o755, parents=True, exist_ok=True) for _ in paths], any_order=True)
-    chown_mock.assert_has_calls([MockCall(pytest.helpers.anyvar(int)) for _ in paths], any_order=True)
+    owner_guard_mock.assert_called_once_with()
 
 
 def test_tree_create_skip(mocker: MockerFixture) -> None:

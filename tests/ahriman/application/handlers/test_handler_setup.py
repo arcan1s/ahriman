@@ -58,9 +58,11 @@ def test_run(args: argparse.Namespace, configuration: Configuration, repository:
     sudo_configuration_mock = mocker.patch("ahriman.application.handlers.setup.Setup.configuration_create_sudo")
     executable_mock = mocker.patch("ahriman.application.handlers.setup.Setup.executable_create")
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
+    owner_guard_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
 
     _, repository_id = configuration.check_loaded()
     Setup.run(args, repository_id, configuration, report=False)
+    owner_guard_mock.assert_called_once_with()
     ahriman_configuration_mock.assert_called_once_with(args, repository_id, configuration)
     devtools_configuration_mock.assert_called_once_with(
         repository_id, args.from_configuration, args.mirror, args.multilib, f"file://{repository_paths.repository}")
@@ -268,13 +270,11 @@ def test_executable_create(configuration: Configuration, repository_paths: Repos
     """
     must create executable
     """
-    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.chown")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
     unlink_mock = mocker.patch("pathlib.Path.unlink")
 
     _, repository_id = configuration.check_loaded()
     Setup.executable_create(repository_paths, repository_id)
-    chown_mock.assert_called_once_with(Setup.build_command(repository_paths.root, repository_id))
     symlink_mock.assert_called_once_with(Setup.ARCHBUILD_COMMAND_PATH)
     unlink_mock.assert_called_once_with(missing_ok=True)
 
