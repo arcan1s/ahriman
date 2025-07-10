@@ -166,11 +166,16 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     # package cache
     if not repositories:
         raise InitializeError("No repositories configured, exiting")
-    database = SQLite.load(configuration)
     watchers: dict[RepositoryId, Watcher] = {}
+    configuration_path, _ = configuration.check_loaded()
     for repository_id in repositories:
         application.logger.info("load repository %s", repository_id)
-        client = Client.load(repository_id, configuration, database, report=False)  # explicitly load local client
+        # load settings explicitly for architecture if any
+        repository_configuration = Configuration.from_path(configuration_path, repository_id)
+        # load database instance, because it holds identifier
+        database = SQLite.load(repository_configuration)
+        # explicitly load local client
+        client = Client.load(repository_id, repository_configuration, database, report=False)
         watchers[repository_id] = Watcher(client)
     application[WatcherKey] = watchers
     # workers cache
@@ -179,6 +184,7 @@ def setup_server(configuration: Configuration, spawner: Spawn, repositories: lis
     application[SpawnKey] = spawner
 
     application.logger.info("setup authorization")
+    database = SQLite.load(configuration)
     validator = application[AuthKey] = Auth.load(configuration, database)
     if validator.enabled:
         from ahriman.web.middlewares.auth_handler import setup_auth

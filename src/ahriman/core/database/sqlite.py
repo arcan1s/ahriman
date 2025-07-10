@@ -94,9 +94,13 @@ class SQLite(
         sqlite3.register_adapter(list, json.dumps)
         sqlite3.register_converter("json", json.loads)
 
-        if self._configuration.getboolean("settings", "apply_migrations", fallback=True):
+        if not self._configuration.getboolean("settings", "apply_migrations", fallback=True):
+            return
+        if self._repository_id.is_empty:
+            return  # do not perform migration on empty repository identifier (e.g. multirepo command)
+
+        with self._repository_paths.preserve_owner():
             self.with_connection(lambda connection: Migrations.migrate(connection, self._configuration))
-        self._repository_paths.chown(self.path)
 
     def package_clear(self, package_base: str, repository_id: RepositoryId | None = None) -> None:
         """

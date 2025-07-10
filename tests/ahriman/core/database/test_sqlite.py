@@ -36,6 +36,17 @@ def test_init_skip_migration(database: SQLite, mocker: MockerFixture) -> None:
     migrate_schema_mock.assert_not_called()
 
 
+def test_init_skip_empty_repository(database: SQLite, mocker: MockerFixture) -> None:
+    """
+    must skip migrations if repository identifier is not set
+    """
+    database._repository_id = RepositoryId("", "")
+    migrate_schema_mock = mocker.patch("ahriman.core.database.migrations.Migrations.migrate")
+
+    database.init()
+    migrate_schema_mock.assert_not_called()
+
+
 def test_package_clear(database: SQLite, repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     must clear package data

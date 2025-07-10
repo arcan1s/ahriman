@@ -6,7 +6,7 @@ services:
     environment:
       AHRIMAN_DEBUG: yes
       AHRIMAN_OUTPUT: console
-      AHRIMAN_PRESETUP_COMMAND: sudo -u ahriman gpg --import /run/secrets/key
+      AHRIMAN_POSTSETUP_COMMAND: sudo -u ahriman gpg --import /run/secrets/key
       AHRIMAN_REPOSITORY: ahriman-demo
 
     configs:

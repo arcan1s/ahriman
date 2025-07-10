@@ -9,7 +9,7 @@ services:
       AHRIMAN_OAUTH_CLIENT_SECRET: ${AHRIMAN_OAUTH_CLIENT_SECRET}
       AHRIMAN_OUTPUT: console
       AHRIMAN_PORT: 8080
-      AHRIMAN_PRESETUP_COMMAND: sudo -u ahriman ahriman user-add ${AHRIMAN_OAUTH_USER} -R full -p ""
+      AHRIMAN_POSTSETUP_COMMAND: sudo -u ahriman ahriman user-add ${AHRIMAN_OAUTH_USER} -R full -p ""
       AHRIMAN_REPOSITORY: ahriman-demo
       AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman.sock
 

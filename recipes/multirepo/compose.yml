@@ -8,8 +8,8 @@ services:
       AHRIMAN_OUTPUT: console
       AHRIMAN_PASSWORD: ${AHRIMAN_PASSWORD}
       AHRIMAN_PORT: 8080
-      AHRIMAN_POSTSETUP_COMMAND: ahriman --architecture x86_64 --repository another-demo service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'
-      AHRIMAN_PRESETUP_COMMAND: (cat /run/secrets/password; echo; cat /run/secrets/password) | sudo -u ahriman ahriman user-add demo -R full
+      AHRIMAN_POSTSETUP_COMMAND: (cat /run/secrets/password; echo; cat /run/secrets/password) | sudo -u ahriman ahriman user-add demo -R full
+      AHRIMAN_PRESETUP_COMMAND: ahriman --architecture x86_64 --repository another-demo service-setup --build-as-user ahriman --packager 'ahriman bot <ahriman@example.com>'
       AHRIMAN_REPOSITORY: ahriman-demo
       AHRIMAN_UNIX_SOCKET: /var/lib/ahriman/ahriman/ahriman.sock
 
