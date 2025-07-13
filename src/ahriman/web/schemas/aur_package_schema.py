@@ -25,11 +25,11 @@ class AURPackageSchema(Schema):
     response AUR package schema
     """
 
-    package = fields.String(required=True, metadata={
-        "description": "Package base",
-        "example": "ahriman",
-    })
     description = fields.String(required=True, metadata={
         "description": "Package description",
         "example": "ArcH linux ReposItory MANager",
+    })
+    package = fields.String(required=True, metadata={
+        "description": "Package base",
+        "example": "ahriman",
     })

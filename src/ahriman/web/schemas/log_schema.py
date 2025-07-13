@@ -33,10 +33,10 @@ class LogSchema(Schema):
     message = fields.String(required=True, metadata={
         "description": "Log message",
     })
+    process_id = fields.String(metadata={
+        "description": "Process unique identifier",
+    })
     version = fields.String(required=True, metadata={
         "description": "Package version to tag",
         "example": __version__,
-    })
-    process_id = fields.String(metadata={
-        "description": "Process unique identifier",
     })

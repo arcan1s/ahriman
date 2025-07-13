@@ -25,11 +25,11 @@ class LoginSchema(Schema):
     request login schema
     """
 
-    username = fields.String(required=True, metadata={
-        "description": "Login username",
-        "example": "user",
-    })
     password = fields.String(required=True, metadata={
         "description": "Login password",
         "example": "pa55w0rd",
+    })
+    username = fields.String(required=True, metadata={
+        "description": "Login username",
+        "example": "user",
     })

@@ -37,21 +37,13 @@ class PackagePropertiesSchema(Schema):
         "description": "Package build timestamp",
         "example": 1680537091,
     })
-    depends = fields.List(fields.String(), metadata={
-        "description": "Package dependencies list",
-        "example": ["devtools"],
-    })
-    make_depends = fields.List(fields.String(), metadata={
-        "description": "Package make dependencies list",
-        "example": ["python-build"],
-    })
-    opt_depends = fields.List(fields.String(), metadata={
-        "description": "Package optional dependencies list",
-        "example": ["python-aiohttp"],
-    })
     check_depends = fields.List(fields.String(), metadata={
         "description": "Package test dependencies list",
         "example": ["python-pytest"],
+    })
+    depends = fields.List(fields.String(), metadata={
+        "description": "Package dependencies list",
+        "example": ["devtools"],
     })
     description = fields.String(metadata={
         "description": "Package description",
@@ -72,6 +64,14 @@ class PackagePropertiesSchema(Schema):
     licenses = fields.List(fields.String(), metadata={
         "description": "Package licenses",
         "example": ["GPL3"],
+    })
+    make_depends = fields.List(fields.String(), metadata={
+        "description": "Package make dependencies list",
+        "example": ["python-build"],
+    })
+    opt_depends = fields.List(fields.String(), metadata={
+        "description": "Package optional dependencies list",
+        "example": ["python-aiohttp"],
     })
     provides = fields.List(fields.String(), metadata={
         "description": "Package provides list",

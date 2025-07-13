@@ -25,19 +25,19 @@ class RepositoryStatsSchema(Schema):
     response repository stats schema
     """
 
-    bases = fields.Int(metadata={
-        "description": "Amount of unique packages bases",
-        "example": 2,
-    })
-    packages = fields.Int(metadata={
-        "description": "Amount of unique packages",
-        "example": 4,
-    })
     archive_size = fields.Int(metadata={
         "description": "Total archive size of the packages in bytes",
         "example": 42000,
     })
+    bases = fields.Int(metadata={
+        "description": "Amount of unique packages bases",
+        "example": 2,
+    })
     installed_size = fields.Int(metadata={
         "description": "Total installed size of the packages in bytes",
         "example": 42000000,
+    })
+    packages = fields.Int(metadata={
+        "description": "Amount of unique packages",
+        "example": 4,
     })

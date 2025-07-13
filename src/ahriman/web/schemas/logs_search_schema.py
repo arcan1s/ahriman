@@ -30,10 +30,10 @@ class LogsSearchSchema(PaginationSchema):
     head = fields.Boolean(metadata={
         "description": "Return versions only without fetching logs themselves",
     })
+    process_id = fields.String(metadata={
+        "description": "Process unique identifier to search",
+    })
     version = fields.String(metadata={
         "description": "Package version to search",
         "example": __version__,
-    })
-    process_id = fields.String(metadata={
-        "description": "Process unique identifier to search",
     })

@@ -30,17 +30,17 @@ class EventSchema(Schema):
         "description": "Event creation timestamp",
         "example": 1680537091,
     })
+    data = fields.Dict(keys=fields.String(), metadata={
+        "description": "Event metadata if available",
+    })
     event = fields.String(required=True, metadata={
         "description": "Event type",
         "example": EventType.PackageUpdated,
     })
-    object_id = fields.String(required=True, metadata={
-        "description": "Event object identifier",
-        "example": "ahriman",
-    })
     message = fields.String(metadata={
         "description": "Event message if available",
     })
-    data = fields.Dict(keys=fields.String(), metadata={
-        "description": "Event metadata if available",
+    object_id = fields.String(required=True, metadata={
+        "description": "Event object identifier",
+        "example": "ahriman",
     })

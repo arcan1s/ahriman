@@ -25,18 +25,6 @@ class CountersSchema(Schema):
     response package counters schema
     """
 
-    total = fields.Integer(required=True, metadata={
-        "description": "Total amount of packages",
-        "example": 6,
-    })
-    _unknown = fields.Integer(data_key="unknown", required=True, metadata={
-        "description": "Amount of packages in unknown state",
-        "example": 0,
-    })
-    pending = fields.Integer(required=True, metadata={
-        "description": "Amount of packages in pending state",
-        "example": 2,
-    })
     building = fields.Integer(required=True, metadata={
         "description": "Amount of packages in building state",
         "example": 1,
@@ -45,7 +33,19 @@ class CountersSchema(Schema):
         "description": "Amount of packages in failed state",
         "example": 1,
     })
+    pending = fields.Integer(required=True, metadata={
+        "description": "Amount of packages in pending state",
+        "example": 2,
+    })
     success = fields.Integer(required=True, metadata={
         "description": "Amount of packages in success state",
         "example": 3,
+    })
+    total = fields.Integer(required=True, metadata={
+        "description": "Total amount of packages",
+        "example": 6,
+    })
+    unknown_ = fields.Integer(data_key="unknown", required=True, metadata={
+        "description": "Amount of packages in unknown state",
+        "example": 0,
     })

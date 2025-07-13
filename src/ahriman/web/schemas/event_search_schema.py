@@ -31,13 +31,13 @@ class EventSearchSchema(PaginationSchema):
         "description": "Event type",
         "example": EventType.PackageUpdated,
     })
-    object_id = fields.String(metadata={
-        "description": "Event object identifier",
-        "example": "ahriman",
-    })
     from_date = fields.Integer(metadata={
         "description": "Minimal creation timestamp, inclusive",
         "example": 1680537091,
+    })
+    object_id = fields.String(metadata={
+        "description": "Event object identifier",
+        "example": "ahriman",
     })
     to_date = fields.Integer(metadata={
         "description": "Maximal creation timestamp, exclusive",

@@ -25,7 +25,7 @@ class SearchSchema(Schema):
     request package search schema
     """
 
-    _for = fields.List(fields.String(), data_key="for", required=True, metadata={
+    for_ = fields.List(fields.String(), data_key="for", required=True, metadata={
         "description": "Keyword for search",
         "example": ["ahriman"],
     })

@@ -32,18 +32,18 @@ class PackageSchema(Schema):
         "description": "Package base",
         "example": "ahriman",
     })
-    version = fields.String(required=True, metadata={
-        "description": "Package version",
-        "example": __version__,
-    })
-    remote = fields.Nested(RemoteSchema(), required=True, metadata={
-        "description": "Package remote properties",
+    packager = fields.String(metadata={
+        "description": "packager for the last success package build",
+        "example": "ahriman bot <ahriman@example.com>",
     })
     packages = fields.Dict(
         keys=fields.String(), values=fields.Nested(PackagePropertiesSchema()), required=True, metadata={
             "description": "Packages which belong to this base",
         })
-    packager = fields.String(metadata={
-        "description": "packager for the last success package build",
-        "example": "ahriman bot <ahriman@example.com>",
+    remote = fields.Nested(RemoteSchema(), required=True, metadata={
+        "description": "Package remote properties",
+    })
+    version = fields.String(required=True, metadata={
+        "description": "Package version",
+        "example": __version__,
     })
