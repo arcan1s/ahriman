@@ -70,7 +70,11 @@ class SearchView(BaseView):
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 
-        comparator: Callable[[AURPackage], str] = lambda item: item.package_base
+        comparator: Callable[[AURPackage], tuple[bool, bool, str]] = lambda item: (
+            item.package_base not in search,  # inverted because False < True
+            not any(item.package_base.startswith(term) for term in search),  # same as above
+            item.package_base,
+        )
         response = [
             {
                 "package": package.package_base,
