@@ -68,6 +68,11 @@
             .some(el => el.classList.contains("show"));
     }
 
+    function hasActiveModal() {
+        return Array.from(document.querySelectorAll(".modal"))
+            .some(el => el.classList.contains("show"));
+    }
+
     function headerClass(status) {
         if (status === "pending") return ["bg-warning"];
         if (status === "building") return ["bg-warning"];
