@@ -82,7 +82,7 @@ def test_run_failed(local_client: Client, configuration: Configuration, result: 
     """
     must reraise exception on error occurred
     """
-    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception)
     runner = RemotePush(local_client, configuration, "gitremote")
 
     with pytest.raises(GitRemoteError):

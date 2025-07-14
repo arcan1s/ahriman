@@ -120,7 +120,7 @@ def test_configuration_reload_failed(web_client: WebClient, mocker: MockerFixtur
     """
     must suppress any exception happened during configuration reload
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.configuration_reload()
 
 
@@ -128,7 +128,7 @@ def test_configuration_reload_failed_http_error(web_client: WebClient, mocker: M
     """
     must suppress HTTP exception happened during configuration reload
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.configuration_reload()
 
 
@@ -137,7 +137,7 @@ def test_configuration_reload_failed_suppress(web_client: WebClient, mocker: Moc
     must suppress any exception happened during configuration reload and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.configuration_reload()
@@ -149,7 +149,7 @@ def test_configuration_reload_failed_http_error_suppress(web_client: WebClient, 
     must suppress HTTP exception happened during configuration reload and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.configuration_reload()
@@ -172,7 +172,7 @@ def test_event_add_failed(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must suppress any exception happened during events creation
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.event_add(Event("", ""))
 
 
@@ -180,7 +180,7 @@ def test_event_add_failed_http_error(web_client: WebClient, mocker: MockerFixtur
     """
     must suppress HTTP exception happened during events creation
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.event_add(Event("", ""))
 
 
@@ -189,7 +189,7 @@ def test_event_add_failed_suppress(web_client: WebClient, mocker: MockerFixture)
     must suppress any exception happened during events creation and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.event_add(Event("", ""))
@@ -201,7 +201,7 @@ def test_event_add_failed_http_error_suppress(web_client: WebClient, mocker: Moc
     must suppress HTTP exception happened during events creation and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.event_add(Event("", ""))
@@ -271,7 +271,7 @@ def test_event_get_failed(web_client: WebClient, mocker: MockerFixture) -> None:
     """
     must suppress any exception happened during events fetch
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.event_get(None, None)
 
 
@@ -279,7 +279,7 @@ def test_event_get_failed_http_error(web_client: WebClient, mocker: MockerFixtur
     """
     must suppress HTTP exception happened during events fetch
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.event_get(None, None)
 
 
@@ -288,7 +288,7 @@ def test_event_get_failed_suppress(web_client: WebClient, mocker: MockerFixture)
     must suppress any exception happened during events fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.event_get(None, None)
@@ -300,7 +300,7 @@ def test_event_get_failed_http_error_suppress(web_client: WebClient, mocker: Moc
     must suppress HTTP exception happened during events fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.event_get(None, None)
@@ -322,7 +322,7 @@ def test_logs_rotate_failed(web_client: WebClient, mocker: MockerFixture) -> Non
     """
     must suppress any exception happened during logs rotation
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.logs_rotate(42)
 
 
@@ -330,7 +330,7 @@ def test_logs_rotate_failed_http_error(web_client: WebClient, mocker: MockerFixt
     """
     must suppress HTTP exception happened during logs rotation
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.logs_rotate(42)
 
 
@@ -339,7 +339,7 @@ def test_logs_rotate_failed_suppress(web_client: WebClient, mocker: MockerFixtur
     must suppress any exception happened during logs rotation and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.logs_rotate(42)
@@ -351,7 +351,7 @@ def test_logs_rotate_failed_http_error_suppress(web_client: WebClient, mocker: M
     must suppress HTTP exception happened during logs rotation and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.logs_rotate(42)
@@ -379,7 +379,7 @@ def test_package_changes_get_failed(web_client: WebClient, package_ahriman: Pack
     """
     must suppress any exception happened during changes fetch
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_changes_get(package_ahriman.base)
 
 
@@ -388,7 +388,7 @@ def test_package_changes_get_failed_http_error(web_client: WebClient, package_ah
     """
     must suppress HTTP exception happened during changes fetch
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_changes_get(package_ahriman.base)
 
 
@@ -398,7 +398,7 @@ def test_package_changes_get_failed_suppress(web_client: WebClient, package_ahri
     must suppress any exception happened during changes fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_changes_get(package_ahriman.base)
@@ -411,7 +411,7 @@ def test_package_changes_get_failed_http_error_suppress(web_client: WebClient, p
     must suppress HTTP exception happened during changes fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_changes_get(package_ahriman.base)
@@ -434,7 +434,7 @@ def test_package_changes_update_failed(web_client: WebClient, package_ahriman: P
     """
     must suppress any exception happened during changes update
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_changes_update(package_ahriman.base, Changes())
 
 
@@ -443,7 +443,7 @@ def test_package_changes_update_failed_http_error(web_client: WebClient, package
     """
     must suppress HTTP exception happened during changes update
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_changes_update(package_ahriman.base, Changes())
 
 
@@ -453,7 +453,7 @@ def test_package_changes_update_failed_suppress(web_client: WebClient, package_a
     must suppress any exception happened during changes update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_changes_update(package_ahriman.base, Changes())
@@ -466,7 +466,7 @@ def test_package_changes_update_failed_http_error_suppress(web_client: WebClient
     must suppress HTTP exception happened during changes update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_changes_update(package_ahriman.base, Changes())
@@ -495,7 +495,7 @@ def test_package_dependencies_get_failed(web_client: WebClient, package_ahriman:
     """
     must suppress any exception happened during dependencies fetch
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_dependencies_get(package_ahriman.base)
 
 
@@ -504,7 +504,7 @@ def test_package_dependencies_get_failed_http_error(web_client: WebClient, packa
     """
     must suppress HTTP exception happened during dependencies fetch
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_dependencies_get(package_ahriman.base)
 
 
@@ -514,7 +514,7 @@ def test_package_dependencies_get_failed_suppress(web_client: WebClient, package
     must suppress any exception happened during dependencies fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_dependencies_get(package_ahriman.base)
@@ -527,7 +527,7 @@ def test_package_dependencies_get_failed_http_error_suppress(web_client: WebClie
     must suppress HTTP exception happened during dependencies fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_dependencies_get(package_ahriman.base)
@@ -551,7 +551,7 @@ def test_package_dependencies_update_failed(web_client: WebClient, package_ahrim
     """
     must suppress any exception happened during dependencies update
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_dependencies_update(package_ahriman.base, Dependencies())
 
 
@@ -560,7 +560,7 @@ def test_package_dependencies_update_failed_http_error(web_client: WebClient, pa
     """
     must suppress HTTP exception happened during dependencies update
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_dependencies_update(package_ahriman.base, Dependencies())
 
 
@@ -570,7 +570,7 @@ def test_package_dependencies_update_failed_suppress(web_client: WebClient, pack
     must suppress any exception happened during dependencies update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_dependencies_update(package_ahriman.base, Dependencies())
@@ -583,7 +583,7 @@ def test_package_dependencies_update_failed_http_error_suppress(web_client: WebC
     must suppress HTTP exception happened during dependencies update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_dependencies_update(package_ahriman.base, Dependencies())
@@ -612,7 +612,7 @@ def test_package_get_failed(web_client: WebClient, mocker: MockerFixture) -> Non
     """
     must suppress any exception happened during status getting
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     assert web_client.package_get(None) == []
 
 
@@ -620,7 +620,7 @@ def test_package_get_failed_http_error(web_client: WebClient, mocker: MockerFixt
     """
     must suppress HTTP exception happened during status getting
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     assert web_client.package_get(None) == []
 
 
@@ -668,7 +668,7 @@ def test_package_logs_add_failed(web_client: WebClient, log_record: logging.LogR
     """
     must pass exception during log post
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     log_record.package_base = package_ahriman.base
     record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
                        log_record.created, log_record.getMessage())
@@ -682,7 +682,7 @@ def test_package_logs_add_failed_http_error(web_client: WebClient, log_record: l
     """
     must pass HTTP exception during log post
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     log_record.package_base = package_ahriman.base
     record = LogRecord(LogRecordId(package_ahriman.base, package_ahriman.version),
                        log_record.created, log_record.getMessage())
@@ -734,7 +734,7 @@ def test_package_logs_get_failed(web_client: WebClient, package_ahriman: Package
     """
     must suppress any exception happened during logs fetch
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_logs_get(package_ahriman.base)
 
 
@@ -743,7 +743,7 @@ def test_package_logs_get_failed_http_error(web_client: WebClient, package_ahrim
     """
     must suppress HTTP exception happened during logs fetch
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_logs_get(package_ahriman.base)
 
 
@@ -753,7 +753,7 @@ def test_package_logs_get_failed_suppress(web_client: WebClient, package_ahriman
     must suppress any exception happened during logs fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_logs_get(package_ahriman.base)
@@ -766,7 +766,7 @@ def test_package_logs_get_failed_http_error_suppress(web_client: WebClient, pack
     must suppress HTTP exception happened during logs fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_logs_get(package_ahriman.base)
@@ -788,7 +788,7 @@ def test_package_logs_remove_failed(web_client: WebClient, package_ahriman: Pack
     """
     must suppress any exception happened during logs removal
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_logs_remove(package_ahriman.base, "42")
 
 
@@ -797,7 +797,7 @@ def test_package_logs_remove_failed_http_error(web_client: WebClient, package_ah
     """
     must suppress HTTP exception happened during logs removal
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_logs_remove(package_ahriman.base, "42")
 
 
@@ -807,7 +807,7 @@ def test_package_logs_remove_failed_suppress(web_client: WebClient, package_ahri
     must suppress any exception happened during logs removal and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_logs_remove(package_ahriman.base, "42")
@@ -820,7 +820,7 @@ def test_package_logs_remove_failed_http_error_suppress(web_client: WebClient, p
     must suppress HTTP exception happened during logs removal and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_logs_remove(package_ahriman.base, "42")
@@ -847,7 +847,7 @@ def test_package_patches_get_failed(web_client: WebClient, package_ahriman: Pack
     """
     must suppress any exception happened during patches fetch
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_patches_get(package_ahriman.base, None)
 
 
@@ -856,7 +856,7 @@ def test_package_patches_get_failed_http_error(web_client: WebClient, package_ah
     """
     must suppress HTTP exception happened during patches fetch
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_patches_get(package_ahriman.base, None)
 
 
@@ -866,7 +866,7 @@ def test_package_patches_get_failed_suppress(web_client: WebClient, package_ahri
     must suppress any exception happened during patches fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_get(package_ahriman.base, None)
@@ -879,7 +879,7 @@ def test_package_patches_get_failed_http_error_suppress(web_client: WebClient, p
     must suppress HTTP exception happened during patches fetch and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_get(package_ahriman.base, None)
@@ -901,7 +901,7 @@ def test_package_patches_update_failed(web_client: WebClient, package_ahriman: P
     """
     must suppress any exception happened during patches update
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_patches_update(package_ahriman.base, PkgbuildPatch("key", "value"))
 
 
@@ -910,7 +910,7 @@ def test_package_patches_update_failed_http_error(web_client: WebClient, package
     """
     must suppress HTTP exception happened during patches update
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_patches_update(package_ahriman.base, PkgbuildPatch("key", "value"))
 
 
@@ -920,7 +920,7 @@ def test_package_patches_update_failed_suppress(web_client: WebClient, package_a
     must suppress any exception happened during patches update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_update(package_ahriman.base, PkgbuildPatch("key", "value"))
@@ -933,7 +933,7 @@ def test_package_patches_update_failed_http_error_suppress(web_client: WebClient
     must suppress HTTP exception happened during patches update and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_update(package_ahriman.base, PkgbuildPatch("key", "value"))
@@ -954,7 +954,7 @@ def test_package_patches_remove_failed(web_client: WebClient, package_ahriman: P
     """
     must suppress any exception happened during patches removal
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_patches_remove(package_ahriman.base, None)
 
 
@@ -963,7 +963,7 @@ def test_package_patches_remove_failed_http_error(web_client: WebClient, package
     """
     must suppress HTTP exception happened during patches removal
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_patches_remove(package_ahriman.base, None)
 
 
@@ -973,7 +973,7 @@ def test_package_patches_remove_failed_suppress(web_client: WebClient, package_a
     must suppress any exception happened during patches removal and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_remove(package_ahriman.base, None)
@@ -986,7 +986,7 @@ def test_package_patches_remove_failed_http_error_suppress(web_client: WebClient
     must suppress HTTP exception happened during patches removal and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_patches_remove(package_ahriman.base, None)
@@ -1008,7 +1008,7 @@ def test_package_remove_failed(web_client: WebClient, package_ahriman: Package, 
     """
     must suppress any exception happened during removal
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_remove(package_ahriman.base)
 
 
@@ -1017,7 +1017,7 @@ def test_package_remove_failed_http_error(web_client: WebClient, package_ahriman
     """
     must suppress HTTP exception happened during removal
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_remove(package_ahriman.base)
 
 
@@ -1039,7 +1039,7 @@ def test_package_status_update_failed(web_client: WebClient, package_ahriman: Pa
     """
     must suppress any exception happened during update
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
 
 
@@ -1048,7 +1048,7 @@ def test_package_status_update_failed_http_error(web_client: WebClient, package_
     """
     must suppress HTTP exception happened during update
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_status_update(package_ahriman.base, BuildStatusEnum.Unknown)
 
 
@@ -1068,7 +1068,7 @@ def test_package_update_failed(web_client: WebClient, package_ahriman: Package, 
     """
     must suppress any exception happened during addition
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
 
 
@@ -1077,7 +1077,7 @@ def test_package_update_failed_http_error(web_client: WebClient, package_ahriman
     """
     must suppress HTTP exception happened during addition
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
 
 
@@ -1086,7 +1086,7 @@ def test_package_update_failed_suppress(web_client: WebClient, package_ahriman: 
     must suppress any exception happened during addition and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
@@ -1099,7 +1099,7 @@ def test_package_update_failed_http_error_suppress(web_client: WebClient, packag
     must suppress HTTP exception happened during addition and don't log
     """
     web_client.suppress_errors = True
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     logging_mock = mocker.patch("logging.exception")
 
     web_client.package_update(package_ahriman, BuildStatusEnum.Unknown)
@@ -1127,7 +1127,7 @@ def test_status_get_failed(web_client: WebClient, mocker: MockerFixture) -> None
     """
     must suppress any exception happened during web service status getting
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     assert web_client.status_get().architecture is None
 
 
@@ -1135,7 +1135,7 @@ def test_status_get_failed_http_error(web_client: WebClient, mocker: MockerFixtu
     """
     must suppress HTTP exception happened during web service status getting
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     assert web_client.status_get().architecture is None
 
 
@@ -1159,7 +1159,7 @@ def test_status_update_self_failed(web_client: WebClient, mocker: MockerFixture)
     """
     must suppress any exception happened during service update
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     web_client.status_update(BuildStatusEnum.Unknown)
 
 
@@ -1167,5 +1167,5 @@ def test_status_update_failed_http_error(web_client: WebClient, mocker: MockerFi
     """
     must suppress HTTP exception happened during service update
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     web_client.status_update(BuildStatusEnum.Unknown)

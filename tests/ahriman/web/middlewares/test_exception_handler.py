@@ -72,7 +72,7 @@ async def test_exception_handler_success(mocker: MockerFixture) -> None:
     must pass 2xx and 3xx codes
     """
     request = pytest.helpers.request("", "", "")
-    request_handler = AsyncMock(side_effect=HTTPNoContent())
+    request_handler = AsyncMock(side_effect=HTTPNoContent)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     handler = exception_handler(logging.getLogger())
@@ -86,7 +86,7 @@ async def test_exception_handler_unauthorized(mocker: MockerFixture) -> None:
     must handle unauthorized exception as json response
     """
     request = pytest.helpers.request("", "", "")
-    request_handler = AsyncMock(side_effect=HTTPUnauthorized())
+    request_handler = AsyncMock(side_effect=HTTPUnauthorized)
     mocker.patch("ahriman.web.middlewares.exception_handler._is_templated_unauthorized", return_value=False)
     render_mock = mocker.patch("aiohttp_jinja2.render_template")
 
@@ -101,7 +101,7 @@ async def test_exception_handler_unauthorized_templated(mocker: MockerFixture) -
     must handle unauthorized exception as json response in html context
     """
     request = pytest.helpers.request("", "", "")
-    request_handler = AsyncMock(side_effect=HTTPUnauthorized())
+    request_handler = AsyncMock(side_effect=HTTPUnauthorized)
     mocker.patch("ahriman.web.middlewares.exception_handler._is_templated_unauthorized", return_value=True)
     render_mock = mocker.patch("aiohttp_jinja2.render_template")
 
@@ -154,7 +154,7 @@ async def test_exception_handler_client_error(mocker: MockerFixture) -> None:
     must handle client exception
     """
     request = pytest.helpers.request("", "", "")
-    request_handler = AsyncMock(side_effect=HTTPBadRequest())
+    request_handler = AsyncMock(side_effect=HTTPBadRequest)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     handler = exception_handler(logging.getLogger())
@@ -168,7 +168,7 @@ async def test_exception_handler_server_error(mocker: MockerFixture) -> None:
     must handle server exception
     """
     request = pytest.helpers.request("", "", "")
-    request_handler = AsyncMock(side_effect=HTTPInternalServerError())
+    request_handler = AsyncMock(side_effect=HTTPInternalServerError)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     handler = exception_handler(logging.getLogger())

@@ -46,7 +46,7 @@ def test_call_exception(args: argparse.Namespace, configuration: Configuration, 
     """
     args.configuration = Path("")
     args.quiet = False
-    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=Exception())
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=Exception)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     _, repository_id = configuration.check_loaded()
@@ -60,7 +60,7 @@ def test_call_exit_code(args: argparse.Namespace, configuration: Configuration, 
     """
     args.configuration = Path("")
     args.quiet = False
-    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=ExitCode())
+    mocker.patch("ahriman.core.configuration.Configuration.from_path", side_effect=ExitCode)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     _, repository_id = configuration.check_loaded()

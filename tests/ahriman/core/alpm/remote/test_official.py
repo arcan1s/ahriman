@@ -80,7 +80,7 @@ def test_arch_request_failed(official: Official, mocker: MockerFixture) -> None:
     """
     must reraise generic exception
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     with pytest.raises(Exception):
         official.arch_request("akonadi", by="q")
 
@@ -89,7 +89,7 @@ def test_arch_request_failed_http_error(official: Official, mocker: MockerFixtur
     """
     must reraise http exception
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     with pytest.raises(requests.HTTPError):
         official.arch_request("akonadi", by="q")
 

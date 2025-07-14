@@ -61,7 +61,7 @@ def test_emit_failed(configuration: Configuration, log_record: logging.LogRecord
     must call handle error on exception
     """
     log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
-    mocker.patch("ahriman.core.status.Client.package_logs_add", side_effect=Exception())
+    mocker.patch("ahriman.core.status.Client.package_logs_add", side_effect=Exception)
     handle_error_mock = mocker.patch("logging.Handler.handleError")
     _, repository_id = configuration.check_loaded()
     handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=False)
@@ -76,7 +76,7 @@ def test_emit_suppress_failed(configuration: Configuration, log_record: logging.
     must not call handle error on exception if suppress flag is set
     """
     log_record.package_id = LogRecordId(package_ahriman.base, package_ahriman.version)
-    mocker.patch("ahriman.core.status.Client.package_logs_add", side_effect=Exception())
+    mocker.patch("ahriman.core.status.Client.package_logs_add", side_effect=Exception)
     handle_error_mock = mocker.patch("logging.Handler.handleError")
     _, repository_id = configuration.check_loaded()
     handler = HttpLogHandler(repository_id, configuration, report=False, suppress_errors=True)

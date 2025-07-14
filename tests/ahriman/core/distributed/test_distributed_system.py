@@ -37,7 +37,7 @@ def test_register_failed(distributed_system: DistributedSystem, mocker: MockerFi
     """
     must suppress any exception happened during worker registration
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     distributed_system.register()
 
 
@@ -45,7 +45,7 @@ def test_register_failed_http_error(distributed_system: DistributedSystem, mocke
     """
     must suppress HTTP exception happened during worker registration
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     distributed_system.register()
 
 
@@ -70,7 +70,7 @@ def test_workers_failed(distributed_system: DistributedSystem, mocker: MockerFix
     """
     must suppress any exception happened during worker extraction
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     distributed_system.workers()
 
 
@@ -78,5 +78,5 @@ def test_workers_failed_http_error(distributed_system: DistributedSystem, mocker
     """
     must suppress HTTP exception happened during worker extraction
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     distributed_system.workers()

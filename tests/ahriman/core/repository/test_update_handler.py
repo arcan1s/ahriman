@@ -59,7 +59,7 @@ def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Pack
     must update status via client for failed load
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception())
+    mocker.patch("ahriman.models.package.Package.from_aur", side_effect=Exception)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_failed")
 
     update_handler.updates_aur([], vcs=True)
@@ -281,7 +281,7 @@ def test_updates_local_with_failures(update_handler: UpdateHandler, package_ahri
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages")
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
-    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception())
+    mocker.patch("ahriman.core.build_tools.sources.Sources.fetch", side_effect=Exception)
 
     assert not update_handler.updates_local(vcs=True)
 
@@ -336,6 +336,6 @@ def test_updates_manual_with_failures(update_handler: UpdateHandler, package_ahr
     """
     must process manual through the packages with failure
     """
-    mocker.patch("ahriman.core.database.SQLite.build_queue_get", side_effect=Exception())
+    mocker.patch("ahriman.core.database.SQLite.build_queue_get", side_effect=Exception)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     assert update_handler.updates_manual() == []

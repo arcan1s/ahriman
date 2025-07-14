@@ -393,7 +393,7 @@ def test_actual_version_failed(package_tpacpi_bat_git: Package, configuration: C
     """
     must return same version in case if exception occurred
     """
-    mocker.patch("ahriman.core.build_tools.task.Task.init", side_effect=Exception())
+    mocker.patch("ahriman.core.build_tools.task.Task.init", side_effect=Exception)
     mocker.patch("pathlib.Path.glob", return_value=[Path("local")])
     unlink_mock = mocker.patch("pathlib.Path.unlink")
 

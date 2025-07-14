@@ -85,7 +85,7 @@ def test_run_failed(configuration: Configuration, mocker: MockerFixture) -> None
     """
     must reraise exception on error occurred
     """
-    mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_clone", side_effect=Exception())
+    mocker.patch("ahriman.core.gitremote.remote_pull.RemotePull.repo_clone", side_effect=Exception)
     _, repository_id = configuration.check_loaded()
     runner = RemotePull(repository_id, configuration, "gitremote")
 

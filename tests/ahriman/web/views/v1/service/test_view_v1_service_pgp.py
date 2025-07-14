@@ -60,7 +60,7 @@ async def test_get_process_exception(client: TestClient, mocker: MockerFixture) 
     """
     must raise 404 on invalid PGP server response
     """
-    import_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_download", side_effect=Exception())
+    import_mock = mocker.patch("ahriman.core.sign.gpg.GPG.key_download", side_effect=Exception)
     response_schema = pytest.helpers.schema_response(PGPView.get, code=400)
 
     response = await client.get("/api/v1/service/pgp", params={"key": "0xdeadbeaf", "server": "keyserver.ubuntu.com"})

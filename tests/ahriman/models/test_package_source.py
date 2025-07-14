@@ -62,7 +62,7 @@ def test_resolve_aur_no_access(repository_paths: RepositoryPaths, mocker: Mocker
     """
     must resolve auto type into the AUR package in case if we cannot read in suggested path
     """
-    mocker.patch("pathlib.Path.is_dir", side_effect=PermissionError())
+    mocker.patch("pathlib.Path.is_dir", side_effect=PermissionError)
     assert PackageSource.Auto.resolve("package", repository_paths) == PackageSource.AUR
 
 

@@ -90,7 +90,7 @@ async def test_get_oauth_username_exception_1(oauth: OAuth, mocker: MockerFixtur
     """
     must return None in case of OAuth request error (get_access_token)
     """
-    mocker.patch("aioauth_client.GoogleClient.get_access_token", side_effect=Exception())
+    mocker.patch("aioauth_client.GoogleClient.get_access_token", side_effect=Exception)
     user_info_mock = mocker.patch("aioauth_client.GoogleClient.user_info")
 
     email = await oauth.get_oauth_username("code")
@@ -103,7 +103,7 @@ async def test_get_oauth_username_exception_2(oauth: OAuth, mocker: MockerFixtur
     must return None in case of OAuth request error (user_info)
     """
     mocker.patch("aioauth_client.GoogleClient.get_access_token", return_value=("token", ""))
-    mocker.patch("aioauth_client.GoogleClient.user_info", side_effect=Exception())
+    mocker.patch("aioauth_client.GoogleClient.user_info", side_effect=Exception)
 
     email = await oauth.get_oauth_username("code")
     assert email is None

@@ -83,7 +83,7 @@ def test_key_download_failure(gpg: GPG, mocker: MockerFixture) -> None:
     """
     must download the key from public server and log error if any (and raise it again)
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     with pytest.raises(requests.HTTPError):
         gpg.key_download("keyserver.ubuntu.com", "0xE989490C")
 

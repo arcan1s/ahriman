@@ -42,7 +42,7 @@ def test_apply_migration_exception(migrations: Migrations, mocker: MockerFixture
     must roll back and close cursor on exception during migration
     """
     cursor = MagicMock()
-    mocker.patch("logging.Logger.info", side_effect=Exception())
+    mocker.patch("logging.Logger.info", side_effect=Exception)
     migrations.connection.cursor.return_value = cursor
 
     with pytest.raises(Exception):
@@ -59,7 +59,7 @@ def test_apply_migration_sql_exception(migrations: Migrations) -> None:
     must close cursor on general migration error
     """
     cursor = MagicMock()
-    cursor.execute.side_effect = Exception()
+    cursor.execute.side_effect = Exception
     migrations.connection.cursor.return_value = cursor
 
     with pytest.raises(Exception):

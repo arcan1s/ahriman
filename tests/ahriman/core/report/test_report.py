@@ -13,7 +13,7 @@ def test_report_failure(configuration: Configuration, mocker: MockerFixture) -> 
     """
     must raise ReportFailed on errors
     """
-    mocker.patch("ahriman.core.report.html.HTML.generate", side_effect=Exception())
+    mocker.patch("ahriman.core.report.html.HTML.generate", side_effect=Exception)
     _, repository_id = configuration.check_loaded()
 
     with pytest.raises(ReportError):

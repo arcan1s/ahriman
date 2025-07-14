@@ -49,7 +49,7 @@ def test_load_trigger_package_error_on_creation(trigger_loader: TriggerLoader, c
     """
     must raise InvalidException on trigger initialization if any exception is thrown
     """
-    mocker.patch("ahriman.core.triggers.trigger.Trigger.__init__", side_effect=Exception())
+    mocker.patch("ahriman.core.triggers.trigger.Trigger.__init__", side_effect=Exception)
     _, repository_id = configuration.check_loaded()
 
     with pytest.raises(ExtensionError):
@@ -67,7 +67,7 @@ def test_load_trigger_class_package_invalid_import(trigger_loader: TriggerLoader
     """
     must raise InvalidExtension on invalid import
     """
-    mocker.patch("importlib.import_module", side_effect=ModuleNotFoundError())
+    mocker.patch("importlib.import_module", side_effect=ModuleNotFoundError)
     with pytest.raises(ExtensionError):
         trigger_loader.load_trigger_class("random.module")
 
@@ -137,7 +137,7 @@ def test_on_result_exception(trigger_loader: TriggerLoader, package_ahriman: Pac
     """
     must suppress exception during trigger run
     """
-    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result", side_effect=Exception())
+    upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_result", side_effect=Exception)
     report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_result")
     log_mock = mocker.patch("logging.Logger.exception")
 

@@ -41,7 +41,7 @@ def test_send_failed(telegram: Telegram, mocker: MockerFixture) -> None:
     """
     must reraise generic exception
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     with pytest.raises(Exception):
         telegram._send("a text")
 
@@ -50,7 +50,7 @@ def test_send_failed_http_error(telegram: Telegram, mocker: MockerFixture) -> No
     """
     must reraise http exception
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     with pytest.raises(requests.HTTPError):
         telegram._send("a text")
 

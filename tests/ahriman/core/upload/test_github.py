@@ -172,7 +172,7 @@ def test_release_get_exception(github: GitHub, mocker: MockerFixture) -> None:
     """
     must re-raise non HTTPError exception
     """
-    mocker.patch("ahriman.core.upload.github.GitHub.make_request", side_effect=Exception())
+    mocker.patch("ahriman.core.upload.github.GitHub.make_request", side_effect=Exception)
     with pytest.raises(Exception):
         github.release_get()
 

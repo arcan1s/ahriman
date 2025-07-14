@@ -141,7 +141,7 @@ def test_add_remote_missing(application_packages: ApplicationPackages, mocker: M
     """
     must raise UnknownPackageError if remote package wasn't found
     """
-    mocker.patch("requests.get", side_effect=Exception())
+    mocker.patch("requests.get", side_effect=Exception)
     with pytest.raises(UnknownPackageError):
         application_packages._add_remote("url")
 

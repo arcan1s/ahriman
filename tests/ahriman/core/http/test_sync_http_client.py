@@ -124,7 +124,7 @@ def test_make_request_failed(mocker: MockerFixture) -> None:
     """
     must process request errors
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     with pytest.raises(Exception):
@@ -136,7 +136,7 @@ def test_make_request_suppress_errors(mocker: MockerFixture) -> None:
     """
     must suppress request errors correctly
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     logging_mock = mocker.patch("logging.Logger.exception")
 
     with pytest.raises(Exception):

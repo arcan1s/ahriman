@@ -131,7 +131,7 @@ def test_sync_exception(pacman_database: PacmanDatabase, mocker: MockerFixture) 
     """
     must suppress all exceptions on failure
     """
-    mocker.patch("ahriman.core.alpm.pacman_database.PacmanDatabase.sync_packages", side_effect=Exception())
+    mocker.patch("ahriman.core.alpm.pacman_database.PacmanDatabase.sync_packages", side_effect=Exception)
     pacman_database.sync(force=True)
 
 

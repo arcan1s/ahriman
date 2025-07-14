@@ -230,7 +230,7 @@ def test_clear_close_exception(lock: Lock) -> None:
     must suppress IO exception on file closure
     """
     close_mock = lock._pid_file = MagicMock()
-    close_mock.close.side_effect = IOError()
+    close_mock.close.side_effect = IOError
     lock.clear()
 
 

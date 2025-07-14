@@ -52,7 +52,7 @@ def test_repo_remove_fail_no_file(repo: Repo, mocker: MockerFixture) -> None:
     must fail on missing file
     """
     mocker.patch("pathlib.Path.glob", return_value=[Path("package.pkg.tar.xz")])
-    mocker.patch("pathlib.Path.unlink", side_effect=FileNotFoundError())
+    mocker.patch("pathlib.Path.unlink", side_effect=FileNotFoundError)
 
     with pytest.raises(FileNotFoundError):
         repo.remove("package", Path("package.pkg.tar.xz"))

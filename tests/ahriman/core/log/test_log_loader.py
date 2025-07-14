@@ -61,7 +61,7 @@ def test_load_fallback(configuration: Configuration, mocker: MockerFixture) -> N
     """
     must fall back to stderr without errors
     """
-    mocker.patch("ahriman.core.log.log_loader.fileConfig", side_effect=PermissionError())
+    mocker.patch("ahriman.core.log.log_loader.fileConfig", side_effect=PermissionError)
     _, repository_id = configuration.check_loaded()
     LogLoader.load(repository_id, configuration, LogHandler.Journald, quiet=False, report=False)
 

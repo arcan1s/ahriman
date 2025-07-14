@@ -13,7 +13,7 @@ def test_upload_failure(configuration: Configuration, mocker: MockerFixture) -> 
     """
     must raise SyncFailed on errors
     """
-    mocker.patch("ahriman.core.upload.rsync.Rsync.sync", side_effect=Exception())
+    mocker.patch("ahriman.core.upload.rsync.Rsync.sync", side_effect=Exception)
     _, repository_id = configuration.check_loaded()
 
     with pytest.raises(SynchronizationError):

@@ -108,7 +108,7 @@ def test_aur_request_failed(aur: AUR, mocker: MockerFixture) -> None:
     """
     must reraise generic exception
     """
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     with pytest.raises(Exception):
         aur.aur_request("info", "ahriman")
 
@@ -116,7 +116,7 @@ def test_aur_request_failed(aur: AUR, mocker: MockerFixture) -> None:
 def test_aur_request_failed_http_error(aur: AUR, mocker: MockerFixture) -> None:
     """    must reraise http exception
     """
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     with pytest.raises(requests.HTTPError):
         aur.aur_request("info", "ahriman")
 

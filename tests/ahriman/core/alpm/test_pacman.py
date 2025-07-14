@@ -242,7 +242,7 @@ def test_files_no_entry(pacman: Pacman, pyalpm_package_ahriman: pyalpm.Package, 
     pacman.handle = handle_mock
 
     tar_mock = MagicMock()
-    tar_mock.extractfile.side_effect = KeyError()
+    tar_mock.extractfile.side_effect = KeyError
 
     open_mock = MagicMock()
     open_mock.__enter__.return_value = tar_mock

@@ -67,7 +67,7 @@ def test_process_build_failure(executor: Executor, package_ahriman: Package, moc
     mocker.patch("ahriman.core.repository.executor.Executor.packages_built")
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.task.Task.init")
-    mocker.patch("shutil.move", side_effect=Exception())
+    mocker.patch("shutil.move", side_effect=Exception)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_failed")
 
     executor.process_build([package_ahriman])
@@ -151,7 +151,7 @@ def test_process_remove_failed(executor: Executor, package_ahriman: Package, moc
     must suppress tree clear errors during package base removal
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove", side_effect=Exception())
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove", side_effect=Exception)
     executor.process_remove([package_ahriman.base])
 
 
@@ -160,7 +160,7 @@ def test_process_remove_tree_clear_failed(executor: Executor, package_ahriman: P
     must suppress remove errors
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.alpm.repo.Repo.remove", side_effect=Exception())
+    mocker.patch("ahriman.core.alpm.repo.Repo.remove", side_effect=Exception)
     executor.process_remove([package_ahriman.base])
 
 
@@ -277,7 +277,7 @@ def test_process_update_failed(executor: Executor, package_ahriman: Package, moc
     """
     must process update for failed package
     """
-    mocker.patch("shutil.move", side_effect=Exception())
+    mocker.patch("shutil.move", side_effect=Exception)
     mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_failed")

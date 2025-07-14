@@ -86,7 +86,7 @@ async def test_on_startup_exception(application: Application, watcher: Watcher, 
     must throw exception on load error
     """
     mocker.patch("aiohttp.web.Application.__getitem__", return_value={"": watcher})
-    mocker.patch("ahriman.core.status.watcher.Watcher.load", side_effect=Exception())
+    mocker.patch("ahriman.core.status.watcher.Watcher.load", side_effect=Exception)
 
     with pytest.raises(InitializeError):
         await _on_startup(application)

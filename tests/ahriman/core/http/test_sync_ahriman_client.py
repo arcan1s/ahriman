@@ -51,7 +51,7 @@ def test_login_failed(ahriman_client: SyncAhrimanClient, user: User, mocker: Moc
     must suppress any exception happened during login
     """
     ahriman_client.user = user
-    mocker.patch("requests.Session.request", side_effect=Exception())
+    mocker.patch("requests.Session.request", side_effect=Exception)
     ahriman_client._login(requests.Session())
 
 
@@ -60,7 +60,7 @@ def test_login_failed_http_error(ahriman_client: SyncAhrimanClient, user: User, 
     must suppress HTTP exception happened during login
     """
     ahriman_client.user = user
-    mocker.patch("requests.Session.request", side_effect=requests.HTTPError())
+    mocker.patch("requests.Session.request", side_effect=requests.HTTPError)
     ahriman_client._login(requests.Session())
 
 

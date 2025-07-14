@@ -40,7 +40,7 @@ def test_load_archives_failed(package_info: PackageInfo, mocker: MockerFixture) 
     """
     must skip packages which cannot be loaded
     """
-    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=Exception())
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=Exception)
     assert not package_info.load_archives([Path("a.pkg.tar.xz")])
 
 
