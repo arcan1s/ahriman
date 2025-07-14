@@ -148,8 +148,19 @@
 
         packageAddInput.addEventListener("keyup", _ => {
             clearTimeout(packageAddInput.requestTimeout);
+
+            // do not update datalist if search string didn't change yet
+            const value = packageAddInput.value;
+            const previousValue = packageAddInput.dataset.previousValue;
+            if (value === previousValue) {
+                return;
+            }
+
+            // store current search string in attributes
+            packageAddInput.dataset.previousValue = value;
+
+            // perform data list update
             packageAddInput.requestTimeout = setTimeout(_ => {
-                const value = packageAddInput.value;
 
                 if (value.length >= 3) {
                     makeRequest(
