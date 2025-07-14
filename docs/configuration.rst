@@ -81,7 +81,6 @@ Base configuration settings.
 * ``apply_migrations`` - perform database migrations on the application start, boolean, optional, default ``yes``. Useful if you are using git version. Note, however, that this option must be changed only if you know what to do and going to handle migrations manually.
 * ``database`` - path to the application SQLite database, string, required.
 * ``include`` - path to directory with configuration files overrides, string, optional. Files will be read in alphabetical order.
-* ``keep_last_logs`` - amount of build logs to be kept for each package, integer, optional ,default ``0``. Logs will be cleared at the end of each process.
 * ``logging`` - path to logging configuration, string, required. Check ``logging.ini`` for reference.
 
 ``alpm:*`` groups
@@ -180,7 +179,7 @@ Web server settings. This feature requires ``aiohttp`` libraries to be installed
 * ``wait_timeout`` - wait timeout in seconds, maximum amount of time to be waited before lock will be free, integer, optional.
 
 ``keyring`` group
---------------------
+-----------------
 
 Keyring package generator plugin.
 
@@ -197,6 +196,13 @@ Keyring generator plugin
 * ``packagers`` - list of packagers keys, space separated list of strings, optional, if not set, the user keys from database will be used.
 * ``revoked`` - list of revoked packagers keys, space separated list of strings, optional.
 * ``trusted`` - list of master keys, space separated list of strings, optional, if not set, the ``key`` option from ``sign`` group will be used.
+
+``housekeeping`` group
+----------------------
+
+This section describes settings for the ``ahriman.core.housekeeping.LogsRotationTrigger`` plugin.
+
+* ``keep_last_logs`` - amount of build logs to be kept for each package, integer, optional ,default ``0``. Logs will be cleared at the end of each process.
 
 ``mirrorlist`` group
 --------------------

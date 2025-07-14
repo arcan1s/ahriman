@@ -45,11 +45,6 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
                 "path_exists": True,
                 "path_type": "dir",
             },
-            "keep_last_logs": {
-                "type": "integer",
-                "coerce": "integer",
-                "min": 0,
-            },
             "logging": {
                 "type": "path",
                 "coerce": "absolute_path",

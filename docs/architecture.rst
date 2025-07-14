@@ -40,6 +40,7 @@ This package contains everything required for the most of application actions an
 * ``ahriman.core.distributed`` package with triggers and helpers for distributed build system.
 * ``ahriman.core.formatters`` package provides ``Printer`` sub-classes for printing data (e.g. package properties) to stdout which are used by some handlers.
 * ``ahriman.core.gitremote`` is a package with remote PKGBUILD triggers. Should not be called directly.
+* ``ahriman.core.housekeeping`` package provides few triggers for removing old data.
 * ``ahriman.core.http`` package provides HTTP clients which can be used later by other classes.
 * ``ahriman.core.log`` is a log utils package. It includes logger loader class, custom HTTP based logger and some wrappers.
 * ``ahriman.core.report`` is a package with reporting triggers. Should not be called directly.

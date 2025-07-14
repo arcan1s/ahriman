@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import atexit
 import logging
 import uuid
 
@@ -37,7 +36,6 @@ class HttpLogHandler(logging.Handler):
     method
 
     Attributes:
-        keep_last_records(int): number of last records to keep
         reporter(Client): build status reporter instance
         suppress_errors(bool): suppress logging errors (e.g. if no web server available)
     """
@@ -56,7 +54,6 @@ class HttpLogHandler(logging.Handler):
 
         self.reporter = Client.load(repository_id, configuration, report=report)
         self.suppress_errors = suppress_errors
-        self.keep_last_records = configuration.getint("settings", "keep_last_logs", fallback=0)
 
     @classmethod
     def load(cls, repository_id: RepositoryId, configuration: Configuration, *, report: bool) -> Self:
@@ -83,7 +80,6 @@ class HttpLogHandler(logging.Handler):
         root.addHandler(handler)
 
         LogRecordId.DEFAULT_PROCESS_ID = str(uuid.uuid4())  # assign default process identifier for log records
-        atexit.register(handler.rotate)
 
         return handler
 
@@ -104,9 +100,3 @@ class HttpLogHandler(logging.Handler):
             if self.suppress_errors:
                 return
             self.handleError(record)
-
-    def rotate(self) -> None:
-        """
-        rotate log records, removing older ones
-        """
-        self.reporter.logs_rotate(self.keep_last_records)

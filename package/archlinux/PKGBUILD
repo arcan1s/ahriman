@@ -40,6 +40,7 @@ package_ahriman-core() {
                 'rsync: sync by using rsync')
     install="$pkgbase.install"
     backup=('etc/ahriman.ini'
+            'etc/ahriman.ini.d/00-housekeeping.ini'
             'etc/ahriman.ini.d/logging.ini')
 
     cd "$pkgbase-$pkgver"
@@ -49,6 +50,7 @@ package_ahriman-core() {
 
     # keep usr/share configs as reference and copy them to /etc
     install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini" "$pkgdir/etc/ahriman.ini"
+    install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini.d/00-housekeeping.ini" "$pkgdir/etc/ahriman.ini.d/00-housekeeping.ini"
     install -Dm644 "$pkgdir/usr/share/$pkgbase/settings/ahriman.ini.d/logging.ini" "$pkgdir/etc/ahriman.ini.d/logging.ini"
 
     install -Dm644 "$srcdir/$pkgbase.sysusers" "$pkgdir/usr/lib/sysusers.d/$pkgbase.conf"
