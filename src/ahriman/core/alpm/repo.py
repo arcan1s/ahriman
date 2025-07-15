@@ -49,6 +49,16 @@ class Repo(LazyLogging):
         self.sign_args = sign_args
 
     @property
+    def repo_archive_path(self) -> Path:
+        """
+        get full path to the repository archive
+
+        Returns:
+            Path: path to repository archive
+        """
+        return self.paths.archive / f"{self.name}.db.tar.gz"
+
+    @property
     def repo_path(self) -> Path:
         """
         get full path to the repository database
@@ -65,19 +75,38 @@ class Repo(LazyLogging):
         Args:
             path(Path): path to archive to add
         """
+        # add to archive first
         check_output(
-            "repo-add", *self.sign_args, "-R", str(self.repo_path), str(path),
+            "repo-add", *self.sign_args, str(self.repo_archive_path), str(path),
+            exception=BuildError.from_process(path.name),
+            cwd=self.paths.archive,
+            logger=self.logger,
+            user=self.uid,
+        )
+
+        # create symlinks to the main repository
+        for full_path in path.parent.glob(f"{path.name}*"):  # grab both packages and signatures
+            symlink = self.paths.repository / full_path.name
+            if symlink.exists():
+                continue  # skip already created symlinks (or files)
+            symlink.symlink_to(full_path.relative_to(symlink.parent, walk_up=True))
+
+        # add to repository
+        check_output(
+            "repo-add", *self.sign_args, "--remove", str(self.repo_path), str(path),
             exception=BuildError.from_process(path.name),
             cwd=self.paths.repository,
             logger=self.logger,
-            user=self.uid)
+            user=self.uid,
+        )
 
     def init(self) -> None:
         """
         create empty repository database. It just calls add with empty arguments
         """
-        check_output("repo-add", *self.sign_args, str(self.repo_path),
-                     cwd=self.paths.repository, logger=self.logger, user=self.uid)
+        for root in (self.repo_path, self.repo_archive_path):
+            check_output("repo-add", *self.sign_args, str(root),
+                         cwd=root, logger=self.logger, user=self.uid)
 
     def remove(self, package: str, filename: Path) -> None:
         """
@@ -88,7 +117,7 @@ class Repo(LazyLogging):
             filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
-        for full_path in self.paths.repository.glob(f"{filename}*"):
+        for full_path in self.paths.repository.glob(f"**/{filename}*"):
             full_path.unlink()
 
         # remove package from registry
@@ -97,4 +126,5 @@ class Repo(LazyLogging):
             exception=BuildError.from_process(package),
             cwd=self.paths.repository,
             logger=self.logger,
-            user=self.uid)
+            user=self.uid,
+        )

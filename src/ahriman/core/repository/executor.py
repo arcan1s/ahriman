@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import shutil
+import shutil  # shutil.move is used here to ensure cross fs file movement
 
 from collections.abc import Iterable
 from pathlib import Path
@@ -187,10 +187,13 @@ class Executor(PackageInfo, Cleaner):
             # in theory, it might be NOT packages directory, but we suppose it is
             full_path = self.paths.packages / name
             files = self.sign.process_sign_package(full_path, packager_key)
+
             for src in files:
-                dst = self.paths.repository / safe_filename(src.name)
-                shutil.move(src, dst)
-            package_path = self.paths.repository / safe_filename(name)
+                archive = self.paths.archive_for(package_base) / safe_filename(src.name)
+                shutil.move(src, archive)
+                if not (symlink := self.paths.repository / archive.name).exists():
+                    symlink.symlink_to(archive.relative_to(symlink.parent, walk_up=True))
+            package_path = self.paths.archive / safe_filename(name)
             self.repo.add(package_path)
 
         current_packages = {package.base: package for package in self.packages()}
