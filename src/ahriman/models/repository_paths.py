@@ -86,6 +86,16 @@ class RepositoryPaths(LazyLogging):
         return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
+    def archive(self) -> Path:
+        """
+        archive directory root
+
+        Returns:
+            Path: archive directory root
+        """
+        return self.root / "archive" / self._suffix
+
+    @property
     def build_root(self) -> Path:
         """
         same as :attr:`chroot`, but exactly build chroot
@@ -208,6 +218,23 @@ class RepositoryPaths(LazyLogging):
 
         return set(walk(instance))
 
+    def archive_for(self, package_base: str) -> Path:
+        """
+        get path to archive specified search criteria
+
+        Args:
+            package_base(str): package base name
+
+        Returns:
+            Path: path to archive directory for package base
+        """
+        directory = self.archive / "packages" / package_base[0] / package_base
+        if not directory.is_dir():  # create if not exists
+            with self.preserve_owner():
+                directory.mkdir(mode=0o755, parents=True)
+
+        return directory
+
     def cache_for(self, package_base: str) -> Path:
         """
         get path to cached PKGBUILD and package sources for the package base
@@ -277,6 +304,7 @@ class RepositoryPaths(LazyLogging):
 
         with self.preserve_owner():
             for directory in (
+                    self.archive,
                     self.cache,
                     self.chroot,
                     self.packages,

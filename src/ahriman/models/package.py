@@ -357,7 +357,7 @@ class Package(LazyLogging):
         if local_version is None:
             return None  # local version not found, keep upstream pkgrel
 
-        if vercmp(self.version, local_version) > 0:
+        if self.vercmp(local_version) > 0:
             return None  # upstream version is newer than local one, keep upstream pkgrel
 
         *_, local_pkgrel = parse_version(local_version)
@@ -377,6 +377,19 @@ class Package(LazyLogging):
         """
         details = "" if self.is_single_package else f""" ({" ".join(sorted(self.packages.keys()))})"""
         return f"{self.base}{details}"
+
+    def vercmp(self, version: str) -> int:
+        """
+        typed wrapper around :func:`pyalpm.vercmp()`
+
+        Args:
+            version(str): version to compare
+
+        Returns:
+            int: negative if current version is less than provided, positive if greater than and zero if equals
+        """
+        result: int = vercmp(self.version, version)
+        return result
 
     def view(self) -> dict[str, Any]:
         """
