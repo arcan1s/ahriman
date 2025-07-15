@@ -1,8 +1,10 @@
 import datetime
 import pytest
 
+from dataclasses import replace
 from pathlib import Path
 from pytest_mock import MockerFixture
+from sqlite3 import Cursor
 from typing import Any, TypeVar
 from unittest.mock import MagicMock, PropertyMock
 
@@ -11,12 +13,14 @@ from ahriman.core.alpm.remote import AUR
 from ahriman.core.auth import Auth
 from ahriman.core.configuration import Configuration
 from ahriman.core.database import SQLite
+from ahriman.core.database.migrations import Migrations
 from ahriman.core.repository import Repository
 from ahriman.core.spawn import Spawn
 from ahriman.core.status import Client
 from ahriman.core.status.watcher import Watcher
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
+from ahriman.models.migration import Migration
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.package_source import PackageSource
@@ -48,7 +52,9 @@ def anyvar(cls: type[T], strict: bool = False) -> T:
         T: any wrapper
     """
     class AnyVar(cls):
-        """any value wrapper"""
+        """
+        any value wrapper
+        """
 
         def __eq__(self, other: Any) -> bool:
             """
@@ -271,16 +277,23 @@ def configuration(repository_id: RepositoryId, tmp_path: Path, resource_path_roo
 
 
 @pytest.fixture
-def database(configuration: Configuration) -> SQLite:
+def database(configuration: Configuration, mocker: MockerFixture) -> SQLite:
     """
     database fixture
 
     Args:
         configuration(Configuration): configuration fixture
+        mocker(MockerFixture): mocker object
 
     Returns:
         SQLite: database test instance
     """
+    original_method = Migrations.perform_migration
+
+    def perform_migration(self: Migrations, cursor: Cursor, migration: Migration) -> None:
+        original_method(self, cursor, replace(migration, migrate_data=lambda *args: None))
+
+    mocker.patch.object(Migrations, "perform_migration", side_effect=perform_migration, autospec=True)
     return SQLite.load(configuration)
 
 
