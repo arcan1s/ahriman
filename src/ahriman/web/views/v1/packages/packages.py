@@ -23,6 +23,7 @@ from aiohttp.web import HTTPNoContent, Response, json_response
 from collections.abc import Callable
 from typing import ClassVar
 
+from ahriman.core.types import Comparable
 from ahriman.models.build_status import BuildStatus
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
@@ -68,7 +69,7 @@ class PackagesView(StatusViewGuard, BaseView):
         repository_id = self.repository_id()
         packages = self.service(repository_id).packages
 
-        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda items: items[0].base
+        comparator: Callable[[tuple[Package, BuildStatus]], Comparable] = lambda items: items[0].base
         response = [
             {
                 "package": package.view(),

@@ -26,6 +26,7 @@ from typing import Any
 
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
+from ahriman.core.types import Comparable
 from ahriman.core.utils import pretty_datetime, pretty_size, utcnow
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
@@ -111,7 +112,7 @@ class JinjaTemplate:
         Returns:
             list[dict[str, str]]: sorted content according to comparator defined
         """
-        comparator: Callable[[dict[str, str]], str] = lambda item: item["filename"]
+        comparator: Callable[[dict[str, str]], Comparable] = lambda item: item["filename"]
         return sorted(content, key=comparator)
 
     def make_html(self, result: Result, template_name: Path | str) -> str:

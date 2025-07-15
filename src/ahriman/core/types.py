@@ -17,7 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from typing import Protocol
+from typing import Any, Protocol
+
+
+class Comparable(Protocol):
+    """
+    class which supports :func:`__lt__` operation`
+    """
+
+    def __lt__(self, other: Any) -> bool: ...
 
 
 class HasBool(Protocol):

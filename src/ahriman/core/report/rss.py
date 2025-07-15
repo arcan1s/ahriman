@@ -28,6 +28,7 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.report.jinja_template import JinjaTemplate
 from ahriman.core.report.report import Report
 from ahriman.core.status import Client
+from ahriman.core.types import Comparable
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.repository_id import RepositoryId
@@ -86,7 +87,7 @@ class RSS(Report, JinjaTemplate):
         Returns:
             list[dict[str, str]]: sorted content according to comparator defined
         """
-        comparator: Callable[[dict[str, str]], datetime.datetime] = \
+        comparator: Callable[[dict[str, str]], Comparable] = \
             lambda item: parsedate_to_datetime(item["build_date"])
         return sorted(content, key=comparator, reverse=True)
 

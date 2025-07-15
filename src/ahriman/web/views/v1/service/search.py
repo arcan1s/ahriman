@@ -22,6 +22,7 @@ from collections.abc import Callable
 from typing import ClassVar
 
 from ahriman.core.alpm.remote import AUR
+from ahriman.core.types import Comparable
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -70,10 +71,11 @@ class SearchView(BaseView):
         if not packages:
             raise HTTPNotFound(reason=f"No packages found for terms: {search}")
 
-        comparator: Callable[[AURPackage], tuple[bool, bool, str]] = lambda item: (
-            item.package_base not in search,  # inverted because False < True
-            not any(item.package_base.startswith(term) for term in search),  # same as above
-            item.package_base,
+        comparator: Callable[[AURPackage], Comparable] = \
+            lambda item: (
+                item.package_base not in search,  # inverted because False < True
+                not any(item.package_base.startswith(term) for term in search),  # same as above
+                item.package_base,
         )
         response = [
             {

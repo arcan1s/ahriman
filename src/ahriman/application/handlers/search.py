@@ -28,6 +28,7 @@ from ahriman.core.alpm.remote import AUR, Official
 from ahriman.core.configuration import Configuration
 from ahriman.core.exceptions import OptionError
 from ahriman.core.formatters import AurPrinter
+from ahriman.core.types import Comparable
 from ahriman.models.aur_package import AURPackage
 from ahriman.models.repository_id import RepositoryId
 
@@ -115,7 +116,7 @@ class Search(Handler):
             raise OptionError(sort_by)
         # always sort by package name at the last
         # well technically it is not a string, but we can deal with it
-        comparator: Callable[[AURPackage], tuple[str, str]] =\
+        comparator: Callable[[AURPackage], Comparable] = \
             lambda package: (getattr(package, sort_by), package.name)
         return sorted(packages, key=comparator)
 

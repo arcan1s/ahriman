@@ -25,6 +25,7 @@ from ahriman.application.application import Application
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
 from ahriman.core.formatters import PackagePrinter, StatusPrinter
+from ahriman.core.types import Comparable
 from ahriman.core.utils import enum_values
 from ahriman.models.build_status import BuildStatus, BuildStatusEnum
 from ahriman.models.package import Package
@@ -64,7 +65,7 @@ class Status(Handler):
 
         Status.check_status(args.exit_code, packages)
 
-        comparator: Callable[[tuple[Package, BuildStatus]], str] = lambda item: item[0].base
+        comparator: Callable[[tuple[Package, BuildStatus]], Comparable] = lambda item: item[0].base
         filter_fn: Callable[[tuple[Package, BuildStatus]], bool] =\
             lambda item: args.status is None or item[1].status == args.status
         for package, package_status in sorted(filter(filter_fn, packages), key=comparator):

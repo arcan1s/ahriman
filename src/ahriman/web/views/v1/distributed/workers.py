@@ -21,6 +21,7 @@ from aiohttp.web import HTTPBadRequest, HTTPNoContent, Response, json_response
 from collections.abc import Callable
 from typing import ClassVar
 
+from ahriman.core.types import Comparable
 from ahriman.models.user_access import UserAccess
 from ahriman.models.worker import Worker
 from ahriman.web.apispec.decorators import apidocs
@@ -74,7 +75,7 @@ class WorkersView(BaseView):
         """
         workers = self.workers.workers
 
-        comparator: Callable[[Worker], str] = lambda item: item.identifier
+        comparator: Callable[[Worker], Comparable] = lambda item: item.identifier
         response = [worker.view() for worker in sorted(workers, key=comparator)]
 
         return json_response(response)
