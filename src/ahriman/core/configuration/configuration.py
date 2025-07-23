@@ -19,6 +19,7 @@
 #
 # pylint: disable=too-many-public-methods
 import configparser
+import os
 import shlex
 import sys
 
@@ -164,6 +165,7 @@ class Configuration(configparser.RawConfigParser):
         """
         configuration = cls()
         configuration.load(path)
+        configuration.load_environment()
         configuration.merge_sections(repository_id)
         return configuration
 
@@ -288,6 +290,16 @@ class Configuration(configparser.RawConfigParser):
         self.read(self.path)
         self.load_includes()  # load includes
 
+    def load_environment(self) -> None:
+        """
+        load environment variables into configuration
+        """
+        for name, value in os.environ.items():
+            if ":" not in name:
+                continue
+            section, key = name.rsplit(":", maxsplit=1)
+            self.set_option(section, key, value)
+
     def load_includes(self, path: Path | None = None) -> None:
         """
         load configuration includes from specified path
@@ -356,11 +368,16 @@ class Configuration(configparser.RawConfigParser):
         """
         reload configuration if possible or raise exception otherwise
         """
+        # get current properties and validate input
         path, repository_id = self.check_loaded()
-        for section in self.sections():  # clear current content
+
+        # clear current content
+        for section in self.sections():
             self.remove_section(section)
-        self.load(path)
-        self.merge_sections(repository_id)
+
+        # create another instance and copy values from there
+        instance = self.from_path(path, repository_id)
+        self.copy_from(instance)
 
     def set_option(self, section: str, option: str, value: str) -> None:
         """

@@ -1,8 +1,8 @@
 import configparser
-from io import StringIO
-
 import pytest
+import os
 
+from io import StringIO
 from pathlib import Path
 from pytest_mock import MockerFixture
 from unittest.mock import call as MockCall
@@ -42,12 +42,16 @@ def test_from_path(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     mocker.patch("ahriman.core.configuration.Configuration.get", return_value="ahriman.ini.d")
     read_mock = mocker.patch("ahriman.core.configuration.Configuration.read")
     load_includes_mock = mocker.patch("ahriman.core.configuration.Configuration.load_includes")
+    merge_mock = mocker.patch("ahriman.core.configuration.Configuration.merge_sections")
+    environment_mock = mocker.patch("ahriman.core.configuration.Configuration.load_environment")
     path = Path("path")
 
     configuration = Configuration.from_path(path, repository_id)
     assert configuration.path == path
     read_mock.assert_called_once_with(path)
     load_includes_mock.assert_called_once_with()
+    merge_mock.assert_called_once_with(repository_id)
+    environment_mock.assert_called_once_with()
 
 
 def test_from_path_file_missing(repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -324,6 +328,18 @@ def test_gettype_from_section_no_section(configuration: Configuration) -> None:
         configuration.gettype("rsync:x86_64", configuration.repository_id)
 
 
+def test_load_environment(configuration: Configuration) -> None:
+    """
+    must load environment variables
+    """
+    os.environ["section:key"] = "value1"
+    os.environ["section:identifier:key"] = "value2"
+
+    configuration.load_environment()
+    assert configuration.get("section", "key") == "value1"
+    assert configuration.get("section:identifier", "key") == "value2"
+
+
 def test_load_includes(mocker: MockerFixture) -> None:
     """
     must load includes
@@ -444,10 +460,12 @@ def test_reload(configuration: Configuration, mocker: MockerFixture) -> None:
     """
     load_mock = mocker.patch("ahriman.core.configuration.Configuration.load")
     merge_mock = mocker.patch("ahriman.core.configuration.Configuration.merge_sections")
+    environment_mock = mocker.patch("ahriman.core.configuration.Configuration.load_environment")
 
     configuration.reload()
     load_mock.assert_called_once_with(configuration.path)
     merge_mock.assert_called_once_with(configuration.repository_id)
+    environment_mock.assert_called_once_with()
 
 
 def test_reload_clear(configuration: Configuration, mocker: MockerFixture) -> None:

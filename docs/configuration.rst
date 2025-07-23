@@ -65,6 +65,8 @@ will try to read value from ``SECRET`` environment variable. In case if the requ
 
 will eventually lead ``key`` option in section ``section1`` to be set to the value of ``HOME`` environment variable (if available).
 
+Moreover, configuration can be read from environment variables directly by following the same naming convention, e.g. in the example above, one can have environment variable named ``section1:key`` (e.g. ``section1:key=$HOME``) and it will be substituted to the configuration with the highest priority.
+
 There is also additional subcommand which will allow to validate configuration and print found errors. In order to do so, run ``service-config-validate`` subcommand, e.g.:
 
 .. code-block:: shell
