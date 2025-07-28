@@ -41,7 +41,7 @@ class Executor(PackageInfo, Cleaner):
     trait for common repository update processes
     """
 
-    def _archive_remove(self, description: PackageDescription, package_base: str) -> None:
+    def _archive_rename(self, description: PackageDescription, package_base: str) -> None:
         """
         rename package archive removing special symbols
 
@@ -259,7 +259,7 @@ class Executor(PackageInfo, Cleaner):
                     packager = self.packager(packagers, local.base)
 
                     for description in local.packages.values():
-                        self._archive_remove(description, local.base)
+                        self._archive_rename(description, local.base)
                         self._package_update(description.filename, local.base, packager.key)
                     self.reporter.set_success(local)
                     result.add_updated(local)
