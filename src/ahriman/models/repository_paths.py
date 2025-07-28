@@ -309,6 +309,9 @@ class RepositoryPaths(LazyLogging):
         path = path or self.root
 
         def walk(root: Path) -> Iterator[Path]:
+            if not root.exists():
+                return
+
             # basically walk, but skipping some content
             for child in root.iterdir():
                 yield child
