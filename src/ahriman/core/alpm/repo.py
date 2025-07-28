@@ -59,7 +59,7 @@ class Repo(LazyLogging):
         """
         return self.root / f"{self.name}.db.tar.gz"
 
-    def add(self, path: Path, remove: bool = True) -> None:
+    def add(self, path: Path, *, remove: bool = True) -> None:
         """
         add new package to repository
 
@@ -97,7 +97,7 @@ class Repo(LazyLogging):
             filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
-        for full_path in self.root.glob(f"**/{filename}*"):
+        for full_path in self.root.glob(f"**/{filename.name}*"):
             full_path.unlink()
 
         # remove package from registry
