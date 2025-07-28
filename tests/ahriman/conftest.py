@@ -293,7 +293,7 @@ def database(configuration: Configuration, mocker: MockerFixture) -> SQLite:
     def perform_migration(self: Migrations, cursor: Cursor, migration: Migration) -> None:
         original_method(self, cursor, replace(migration, migrate_data=lambda *args: None))
 
-    mocker.patch.object(Migrations, "perform_migration", side_effect=perform_migration, autospec=True)
+    mocker.patch.object(Migrations, "perform_migration", autospec=True, side_effect=perform_migration)
     return SQLite.load(configuration)
 
 
