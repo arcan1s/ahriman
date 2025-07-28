@@ -13,34 +13,139 @@ from ahriman.models.packagers import Packagers
 from ahriman.models.user import User
 
 
+def test_archive_rename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must correctly remove package archive
+    """
+    path = "gconf-3.2.6+11+g07808097-10-x86_64.pkg.tar.zst"
+    safe_path = "gconf-3.2.6-11-g07808097-10-x86_64.pkg.tar.zst"
+    package_ahriman.packages[package_ahriman.base].filename = path
+    rename_mock = mocker.patch("pathlib.Path.rename")
+
+    executor._archive_rename(package_ahriman.packages[package_ahriman.base], package_ahriman.base)
+    rename_mock.assert_called_once_with(executor.paths.packages / safe_path)
+    assert package_ahriman.packages[package_ahriman.base].filename == safe_path
+
+
+def test_archive_rename_empty_filename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip renaming if filename is not set
+    """
+    package_ahriman.packages[package_ahriman.base].filename = None
+    rename_mock = mocker.patch("pathlib.Path.rename")
+
+    executor._archive_rename(package_ahriman.packages[package_ahriman.base], package_ahriman.base)
+    rename_mock.assert_not_called()
+
+
+def test_package_build(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must build single package
+    """
+    mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
+    status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
+    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
+    with_packages_mock = mocker.patch("ahriman.models.package.Package.with_packages")
+    move_mock = mocker.patch("shutil.move")
+
+    assert executor._package_build(package_ahriman, Path("local"), "packager", None) == "sha"
+    status_client_mock.assert_called_once_with(package_ahriman.base)
+    init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
+    with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
+    move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
+
+
+def test_package_remove(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run remove for packages
+    """
+    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
+    executor._package_remove(package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
+    repo_remove_mock.assert_called_once_with(
+        package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
+
+
+def test_package_remove_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress errors during archive removal
+    """
+    mocker.patch("ahriman.core.alpm.repo.Repo.remove", side_effect=Exception)
+    executor._package_remove(package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
+
+
+def test_package_remove_base(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must run remove base from status client
+    """
+    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
+    executor._package_remove_base(package_ahriman.base)
+    status_client_mock.assert_called_once_with(package_ahriman.base)
+
+
+def test_package_remove_base_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must suppress errors during base removal
+    """
+    mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove", side_effect=Exception)
+    executor._package_remove_base(package_ahriman.base)
+
+
+def test_package_update(executor: Executor, package_ahriman: Package, user: User, mocker: MockerFixture) -> None:
+    """
+    must update built package in repository
+    """
+    rename_mock = mocker.patch("pathlib.Path.rename")
+    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
+    repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
+    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
+    filepath = next(package.filepath for package in package_ahriman.packages.values())
+
+    executor._package_update(filepath, package_ahriman.base, user.key)
+    # must move files (once)
+    rename_mock.assert_called_once_with(executor.paths.archive_for(package_ahriman.base) / filepath)
+    # must sign package
+    sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, user.key)
+    # symlink to the archive
+    symlink_mock.assert_called_once_with(
+        Path("..") /
+        ".." /
+        ".." /
+        executor.paths.archive_for(
+            package_ahriman.base).relative_to(
+            executor.paths.root) /
+        filepath)
+    # must add package
+    repo_add_mock.assert_called_once_with(executor.paths.repository / filepath)
+
+
+def test_package_update_empty_filename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must skip update for package which does not have path
+    """
+    rename_mock = mocker.patch("pathlib.Path.rename")
+    executor._package_update(None, package_ahriman.base, None)
+    rename_mock.assert_not_called()
+
+
 def test_process_build(executor: Executor, package_ahriman: Package, passwd: Any, mocker: MockerFixture) -> None:
     """
     must run build process
     """
     mocker.patch("ahriman.models.repository_paths.getpwuid", return_value=passwd)
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
-    init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
-    move_mock = mocker.patch("shutil.move")
-    status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
     changes_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_get",
                                 return_value=Changes("commit", "change"))
     commit_sha_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_changes_update")
     depends_on_mock = mocker.patch("ahriman.core.build_tools.package_archive.PackageArchive.depends_on",
                                    return_value=Dependencies())
     dependencies_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_dependencies_update")
-    with_packages_mock = mocker.patch("ahriman.models.package.Package.with_packages")
+    build_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_build", return_value="sha")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=False)
-    init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
-    with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
     changes_mock.assert_called_once_with(package_ahriman.base)
+    build_mock.assert_called_once_with(package_ahriman, pytest.helpers.anyvar(Path, strict=True), None, None)
     depends_on_mock.assert_called_once_with()
     dependencies_mock.assert_called_once_with(package_ahriman.base, Dependencies())
-    # must move files (once)
-    move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
-    # must update status
-    status_client_mock.assert_called_once_with(package_ahriman.base)
     commit_sha_mock.assert_called_once_with(package_ahriman.base, Changes("sha", "change"))
 
 
@@ -79,15 +184,15 @@ def test_process_remove_base(executor: Executor, package_ahriman: Package, mocke
     must run remove process for whole base
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
+    base_remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove_base")
 
     executor.process_remove([package_ahriman.base])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_called_once_with(
+    remove_mock.assert_called_once_with(
         package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath)
     # must update status and remove package files
-    status_client_mock.assert_called_once_with(package_ahriman.base)
+    base_remove_mock.assert_called_once_with(package_ahriman.base)
 
 
 def test_process_remove_with_debug(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -99,12 +204,12 @@ def test_process_remove_with_debug(executor: Executor, package_ahriman: Package,
         f"{package_ahriman.base}-debug": package_ahriman.packages[package_ahriman.base],
     }
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
+    mocker.patch("ahriman.core.repository.executor.Executor._package_remove_base")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
 
     executor.process_remove([package_ahriman.base])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_has_calls([
+    remove_mock.assert_has_calls([
         MockCall(package_ahriman.base, package_ahriman.packages[package_ahriman.base].filepath),
         MockCall(f"{package_ahriman.base}-debug", package_ahriman.packages[package_ahriman.base].filepath),
     ])
@@ -116,12 +221,12 @@ def test_process_remove_base_multiple(executor: Executor, package_python_schedul
     must run remove process for whole base with multiple packages
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
+    status_client_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove_base")
 
     executor.process_remove([package_python_schedule.base])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_has_calls([
+    remove_mock.assert_has_calls([
         MockCall(package, props.filepath)
         for package, props in package_python_schedule.packages.items()
     ], any_order=True)
@@ -135,33 +240,15 @@ def test_process_remove_base_single(executor: Executor, package_python_schedule:
     must run remove process for single package in base
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
+    status_client_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove_base")
 
     executor.process_remove(["python2-schedule"])
     # must remove via alpm wrapper
-    repo_remove_mock.assert_called_once_with(
+    remove_mock.assert_called_once_with(
         "python2-schedule", package_python_schedule.packages["python2-schedule"].filepath)
     # must not update status
     status_client_mock.assert_not_called()
-
-
-def test_process_remove_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must suppress tree clear errors during package base removal
-    """
-    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove", side_effect=Exception)
-    executor.process_remove([package_ahriman.base])
-
-
-def test_process_remove_tree_clear_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must suppress remove errors
-    """
-    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.alpm.repo.Repo.remove", side_effect=Exception)
-    executor.process_remove([package_ahriman.base])
 
 
 def test_process_remove_nothing(executor: Executor, package_ahriman: Package, package_python_schedule: Package,
@@ -170,10 +257,10 @@ def test_process_remove_nothing(executor: Executor, package_ahriman: Package, pa
     must not remove anything if it was not requested
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
 
     executor.process_remove([package_python_schedule.base])
-    repo_remove_mock.assert_not_called()
+    remove_mock.assert_not_called()
 
 
 def test_process_remove_unknown(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -181,11 +268,11 @@ def test_process_remove_unknown(executor: Executor, package_ahriman: Package, mo
     must remove unknown package base
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[])
-    repo_remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
-    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_remove")
+    remove_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove")
+    status_client_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_remove_base")
 
     executor.process_remove([package_ahriman.base])
-    repo_remove_mock.assert_not_called()
+    remove_mock.assert_not_called()
     status_client_mock.assert_called_once_with(package_ahriman.base)
 
 
@@ -195,9 +282,8 @@ def test_process_update(executor: Executor, package_ahriman: Package, user: User
     """
     mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    move_mock = mocker.patch("shutil.move")
-    repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
-    sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
+    rename_mock = mocker.patch("ahriman.core.repository.executor.Executor._archive_rename")
+    update_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_update")
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_success")
     remove_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
     packager_mock = mocker.patch("ahriman.core.repository.executor.Executor.packager", return_value=user)
@@ -206,12 +292,8 @@ def test_process_update(executor: Executor, package_ahriman: Package, user: User
     # must return complete
     assert executor.process_update([filepath], Packagers("packager"))
     packager_mock.assert_called_once_with(Packagers("packager"), "ahriman")
-    # must move files (once)
-    move_mock.assert_called_once_with(executor.paths.packages / filepath, executor.paths.repository / filepath)
-    # must sign package
-    sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, user.key)
-    # must add package
-    repo_add_mock.assert_called_once_with(executor.paths.repository / filepath)
+    rename_mock.assert_called_once_with(package_ahriman.packages[package_ahriman.base], package_ahriman.base)
+    update_mock.assert_called_once_with(filepath.name, package_ahriman.base, user.key)
     # must update status
     status_client_mock.assert_called_once_with(package_ahriman)
     # must clear directory
@@ -226,58 +308,26 @@ def test_process_update_group(executor: Executor, package_python_schedule: Packa
     """
     must group single packages under one base
     """
-    mocker.patch("shutil.move")
     mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_python_schedule])
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
-    repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
+    update_mock = mocker.patch("ahriman.core.repository.executor.Executor._package_update")
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_success")
     remove_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")
 
     executor.process_update([package.filepath for package in package_python_schedule.packages.values()])
-    repo_add_mock.assert_has_calls([
-        MockCall(executor.paths.repository / package.filepath)
+    update_mock.assert_has_calls([
+        MockCall(package.filename, package_python_schedule.base, None)
         for package in package_python_schedule.packages.values()
     ], any_order=True)
     status_client_mock.assert_called_once_with(package_python_schedule)
     remove_mock.assert_called_once_with([])
 
 
-def test_process_update_unsafe(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must encode file name
-    """
-    path = "gconf-3.2.6+11+g07808097-10-x86_64.pkg.tar.zst"
-    safe_path = "gconf-3.2.6-11-g07808097-10-x86_64.pkg.tar.zst"
-    package_ahriman.packages[package_ahriman.base].filename = path
-
-    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    move_mock = mocker.patch("shutil.move")
-    repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
-
-    executor.process_update([Path(path)])
-    move_mock.assert_has_calls([
-        MockCall(executor.paths.packages / path, executor.paths.packages / safe_path),
-        MockCall(executor.paths.packages / safe_path, executor.paths.repository / safe_path)
-    ])
-    repo_add_mock.assert_called_once_with(executor.paths.repository / safe_path)
-
-
-def test_process_empty_filename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must skip update for package which does not have path
-    """
-    package_ahriman.packages[package_ahriman.base].filename = None
-    mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
-    mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
-    executor.process_update([package.filepath for package in package_ahriman.packages.values()])
-
-
 def test_process_update_failed(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must process update for failed package
     """
-    mocker.patch("shutil.move", side_effect=Exception)
+    mocker.patch("ahriman.core.repository.executor.Executor._package_update", side_effect=Exception)
     mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[package_ahriman])
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_failed")
@@ -294,8 +344,7 @@ def test_process_update_removed_package(executor: Executor, package_python_sched
     without_python2 = Package.from_json(package_python_schedule.view())
     del without_python2.packages["python2-schedule"]
 
-    mocker.patch("shutil.move")
-    mocker.patch("ahriman.core.alpm.repo.Repo.add")
+    mocker.patch("ahriman.core.repository.executor.Executor._package_update")
     mocker.patch("ahriman.core.repository.executor.Executor.load_archives", return_value=[without_python2])
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_python_schedule])
     remove_mock = mocker.patch("ahriman.core.repository.executor.Executor.process_remove")

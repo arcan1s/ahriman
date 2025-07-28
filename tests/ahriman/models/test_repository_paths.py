@@ -185,6 +185,28 @@ def test_known_repositories_empty(repository_paths: RepositoryPaths, mocker: Moc
     iterdir_mock.assert_not_called()
 
 
+def test_archive_for(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must correctly define archive path
+    """
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    path = repository_paths.archive_for(package_ahriman.base)
+    assert path == repository_paths.archive / "packages" / "a" / package_ahriman.base
+
+
+def test_archive_for_create_tree(repository_paths: RepositoryPaths, package_ahriman: Package,
+                                 mocker: MockerFixture) -> None:
+    """
+    must create archive directory if it doesn't exist
+    """
+    owner_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mkdir_mock = mocker.patch("pathlib.Path.mkdir")
+
+    repository_paths.archive_for(package_ahriman.base)
+    owner_mock.assert_called_once_with(repository_paths.archive)
+    mkdir_mock.assert_called_once_with(mode=0o755, parents=True)
+
+
 def test_cache_for(repository_paths: RepositoryPaths, package_ahriman: Package) -> None:
     """
     must return correct path for cache directory
@@ -243,13 +265,24 @@ def test_preserve_owner_non_root(tmp_path: Path, repository_id: RepositoryId, mo
     setegid_mock.assert_not_called()
 
 
+def test_preserve_owner_no_directory(tmp_path: Path, repository_id: RepositoryId, mocker: MockerFixture) -> None:
+    """
+    must skip directory scan if it does not exist
+    """
+    repository_paths = RepositoryPaths(tmp_path, repository_id)
+    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths._chown")
+
+    with repository_paths.preserve_owner(Path("empty")):
+        (repository_paths.root / "created1").touch()
+    chown_mock.assert_not_called()
+
+
 def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must remove any package related files
     """
     paths = {
-        getattr(repository_paths, prop)(package_ahriman.base)
-        for prop in dir(repository_paths) if prop.endswith("_for")
+        repository_paths.cache_for(package_ahriman.base),
     }
     rmtree_mock = mocker.patch("shutil.rmtree")
 
@@ -269,6 +302,7 @@ def test_tree_create(repository_paths: RepositoryPaths, mocker: MockerFixture) -
         for prop in dir(repository_paths)
         if not prop.startswith("_")
         and prop not in (
+            "archive_for",
             "build_root",
             "logger_name",
             "logger",

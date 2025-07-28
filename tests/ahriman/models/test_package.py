@@ -353,6 +353,15 @@ def test_build_status_pretty_print(package_ahriman: Package) -> None:
     assert isinstance(package_ahriman.pretty_print(), str)
 
 
+def test_vercmp(package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must call vercmp
+    """
+    vercmp_mock = mocker.patch("ahriman.models.package.vercmp")
+    package_ahriman.vercmp("version")
+    vercmp_mock.assert_called_once_with(package_ahriman.version, "version")
+
+
 def test_with_packages(package_ahriman: Package, package_python_schedule: Package, pacman: Pacman,
                        mocker: MockerFixture) -> None:
     """

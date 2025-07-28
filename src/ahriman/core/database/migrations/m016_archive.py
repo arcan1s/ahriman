@@ -52,7 +52,7 @@ def migrate_data(connection: Connection, configuration: Configuration) -> None:
 
         # create archive directory if required
         if not paths.archive.is_dir():
-            with paths.preserve_owner(paths.root / "archive"):
+            with paths.preserve_owner():
                 paths.archive.mkdir(mode=0o755, parents=True)
 
         move_packages(paths, pacman)
