@@ -93,7 +93,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: archive directory root
         """
-        return self.root / "archive" / self._suffix
+        return self.root / "archive"
 
     @property
     def build_root(self) -> Path:
