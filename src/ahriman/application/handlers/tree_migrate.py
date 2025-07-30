@@ -95,7 +95,6 @@ class TreeMigrate(Handler):
         """
         # we don't care about devtools chroot
         for attribute in (
-            RepositoryPaths.archive,
             RepositoryPaths.packages,
             RepositoryPaths.pacman,
             RepositoryPaths.repository,
