@@ -165,6 +165,11 @@ Again, the most checks can be performed by `tox` command, though some additional
 
     # Blank line again and package imports
     from ahriman.core.configuration import Configuration
+    # Multiline import example
+    from ahriman.core.database.operations import (
+        AuthOperations,
+        BuildOperations,
+    )
     ```
 
 * One file should define only one class, exception is class satellites in case if file length remains less than 400 lines.
