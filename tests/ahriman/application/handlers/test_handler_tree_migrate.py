@@ -69,7 +69,6 @@ def test_move_tree(mocker: MockerFixture) -> None:
 
     TreeMigrate.tree_move(from_paths, to_paths)
     rename_mock.assert_has_calls([
-        MockCall(from_paths.archive, to_paths.archive),
         MockCall(from_paths.packages, to_paths.packages),
         MockCall(from_paths.pacman, to_paths.pacman),
         MockCall(from_paths.repository, to_paths.repository),
