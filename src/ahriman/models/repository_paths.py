@@ -93,7 +93,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: archive directory root
         """
-        return self.root / "archive" / self._suffix
+        return self.root / "archive"
 
     @property
     def build_root(self) -> Path:
@@ -309,6 +309,7 @@ class RepositoryPaths(LazyLogging):
         path = path or self.root
 
         def walk(root: Path) -> Generator[Path, None, None]:
+            yield root
             if not root.exists():
                 return
 
