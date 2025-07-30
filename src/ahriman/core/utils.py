@@ -19,12 +19,14 @@
 #
 # pylint: disable=too-many-lines
 import datetime
+import fcntl
 import io
 import itertools
 import logging
 import os
 import re
 import selectors
+import shutil
 import subprocess
 
 from collections.abc import Callable, Iterable, Iterator, Mapping
@@ -39,6 +41,7 @@ from ahriman.core.types import Comparable
 
 
 __all__ = [
+    "atomic_move",
     "check_output",
     "check_user",
     "dataclass_view",
@@ -66,6 +69,34 @@ __all__ = [
 
 R = TypeVar("R", bound=Comparable)
 T = TypeVar("T")
+
+
+def atomic_move(src: Path, dst: Path) -> None:
+    """
+    move file from ``source`` location to ``destination``. This method uses lock and :func:`shutil.move` to ensure that
+    file will be copied (if not rename) atomically. This method blocks execution until lock is available
+
+    Args:
+        src(Path): path to the source file
+        dst(Path): path to the destination
+
+    Examples:
+        This method is a drop-in replacement for :func:`shutil.move` (except it doesn't allow to override copy method)
+        which first locking destination file. To use it simply call method with arguments::
+
+            >>> atomic_move(src, dst)
+    """
+    lock_path = dst.with_name(f".{dst.name}")
+    try:
+        with lock_path.open("ab") as lock_file:
+            fd = lock_file.fileno()
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX)  # lock file and wait lock is until available
+                shutil.move(src, dst)
+            finally:
+                fcntl.flock(fd, fcntl.LOCK_UN)  # unlock file first
+    finally:
+        lock_path.unlink(missing_ok=True)  # remove lock file at the end
 
 
 # pylint: disable=too-many-locals

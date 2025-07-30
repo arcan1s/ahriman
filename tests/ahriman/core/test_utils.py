@@ -1,4 +1,5 @@
 import datetime
+import fcntl
 import logging
 import os
 import pytest
@@ -14,6 +15,53 @@ from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
+
+
+def test_atomic_move(mocker: MockerFixture) -> None:
+    """
+    must move file with locking
+    """
+    lock_mock = mocker.patch("fcntl.flock")
+    open_mock = mocker.patch("pathlib.Path.open", autospec=True)
+    move_mock = mocker.patch("shutil.move")
+    unlink_mock = mocker.patch("pathlib.Path.unlink")
+
+    atomic_move(Path("source"), Path("destination"))
+    open_mock.assert_called_once_with(Path(".destination"), "ab")
+    lock_mock.assert_has_calls([
+        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_EX),
+        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_UN),
+    ])
+    move_mock.assert_called_once_with(Path("source"), Path("destination"))
+    unlink_mock.assert_called_once_with(missing_ok=True)
+
+
+def test_atomic_move_remove_lock(mocker: MockerFixture) -> None:
+    """
+    must remove lock file in case of exception
+    """
+    mocker.patch("pathlib.Path.open", side_effect=Exception)
+    unlink_mock = mocker.patch("pathlib.Path.unlink")
+
+    with pytest.raises(Exception):
+        atomic_move(Path("source"), Path("destination"))
+    unlink_mock.assert_called_once_with(missing_ok=True)
+
+
+def test_atomic_move_unlock(mocker: MockerFixture) -> None:
+    """
+    must unlock file in case of exception
+    """
+    mocker.patch("pathlib.Path.open")
+    mocker.patch("shutil.move", side_effect=Exception)
+    lock_mock = mocker.patch("fcntl.flock")
+
+    with pytest.raises(Exception):
+        atomic_move(Path("source"), Path("destination"))
+    lock_mock.assert_has_calls([
+        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_EX),
+        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_UN),
+    ])
 
 
 def test_check_output(mocker: MockerFixture) -> None:

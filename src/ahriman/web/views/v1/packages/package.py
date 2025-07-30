@@ -25,8 +25,12 @@ from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.package import Package
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
-from ahriman.web.schemas import PackageNameSchema, PackageStatusSchema, PackageStatusSimplifiedSchema, \
-    RepositoryIdSchema
+from ahriman.web.schemas import (
+    PackageNameSchema,
+    PackageStatusSchema,
+    PackageStatusSimplifiedSchema,
+    RepositoryIdSchema,
+)
 from ahriman.web.views.base import BaseView
 from ahriman.web.views.status_view_guard import StatusViewGuard
 

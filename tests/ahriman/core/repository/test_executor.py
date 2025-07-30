@@ -20,10 +20,10 @@ def test_archive_rename(executor: Executor, package_ahriman: Package, mocker: Mo
     path = "gconf-3.2.6+11+g07808097-10-x86_64.pkg.tar.zst"
     safe_path = "gconf-3.2.6-11-g07808097-10-x86_64.pkg.tar.zst"
     package_ahriman.packages[package_ahriman.base].filename = path
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
 
     executor._archive_rename(package_ahriman.packages[package_ahriman.base], package_ahriman.base)
-    rename_mock.assert_called_once_with(executor.paths.packages / safe_path)
+    rename_mock.assert_called_once_with(executor.paths.packages / path, executor.paths.packages / safe_path)
     assert package_ahriman.packages[package_ahriman.base].filename == safe_path
 
 
@@ -32,7 +32,7 @@ def test_archive_rename_empty_filename(executor: Executor, package_ahriman: Pack
     must skip renaming if filename is not set
     """
     package_ahriman.packages[package_ahriman.base].filename = None
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
 
     executor._archive_rename(package_ahriman.packages[package_ahriman.base], package_ahriman.base)
     rename_mock.assert_not_called()
@@ -46,13 +46,13 @@ def test_package_build(executor: Executor, package_ahriman: Package, mocker: Moc
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
     with_packages_mock = mocker.patch("ahriman.models.package.Package.with_packages")
-    move_mock = mocker.patch("shutil.move")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
 
     assert executor._package_build(package_ahriman, Path("local"), "packager", None) == "sha"
     status_client_mock.assert_called_once_with(package_ahriman.base)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
     with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
-    move_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
+    rename_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
 
 
 def test_package_remove(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -94,7 +94,7 @@ def test_package_update(executor: Executor, package_ahriman: Package, user: User
     """
     must update built package in repository
     """
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
     repo_add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
     sign_package_mock = mocker.patch("ahriman.core.sign.gpg.GPG.process_sign_package", side_effect=lambda fn, _: [fn])
@@ -102,7 +102,8 @@ def test_package_update(executor: Executor, package_ahriman: Package, user: User
 
     executor._package_update(filepath, package_ahriman.base, user.key)
     # must move files (once)
-    rename_mock.assert_called_once_with(executor.paths.archive_for(package_ahriman.base) / filepath)
+    rename_mock.assert_called_once_with(
+        executor.paths.packages / filepath, executor.paths.archive_for(package_ahriman.base) / filepath)
     # must sign package
     sign_package_mock.assert_called_once_with(executor.paths.packages / filepath, user.key)
     # symlink to the archive
@@ -122,7 +123,7 @@ def test_package_update_empty_filename(executor: Executor, package_ahriman: Pack
     """
     must skip update for package which does not have path
     """
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
     executor._package_update(None, package_ahriman.base, None)
     rename_mock.assert_not_called()
 
@@ -155,7 +156,7 @@ def test_process_build_bump_pkgrel(executor: Executor, package_ahriman: Package,
     """
     mocker.patch("ahriman.core.repository.executor.Executor.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
-    mocker.patch("shutil.move")
+    mocker.patch("ahriman.core.repository.executor.atomic_move")
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init")
 
     executor.process_build([package_ahriman], Packagers("packager"), bump_pkgrel=True)
@@ -172,7 +173,7 @@ def test_process_build_failure(executor: Executor, package_ahriman: Package, moc
     mocker.patch("ahriman.core.repository.executor.Executor.packages_built")
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.task.Task.init")
-    mocker.patch("shutil.move", side_effect=Exception)
+    mocker.patch("ahriman.core.repository.executor.atomic_move", side_effect=Exception)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_failed")
 
     executor.process_build([package_ahriman])

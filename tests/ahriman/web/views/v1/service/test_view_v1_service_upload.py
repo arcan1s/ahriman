@@ -109,7 +109,7 @@ async def test_post(client: TestClient, repository_paths: RepositoryPaths, mocke
     local = Path("local")
     save_mock = pytest.helpers.patch_view(client.app, "save_file",
                                           AsyncMock(return_value=("filename", local / ".filename")))
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.web.views.v1.service.upload.atomic_move")
     # no content validation here because it has invalid schema
 
     data = FormData()
@@ -118,7 +118,7 @@ async def test_post(client: TestClient, repository_paths: RepositoryPaths, mocke
     response = await client.post("/api/v1/service/upload", data=data)
     assert response.ok
     save_mock.assert_called_once_with(pytest.helpers.anyvar(int), repository_paths.packages, max_body_size=None)
-    rename_mock.assert_called_once_with(local / "filename")
+    rename_mock.assert_called_once_with(local / ".filename", local / "filename")
 
 
 async def test_post_with_sig(client: TestClient, repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -131,7 +131,7 @@ async def test_post_with_sig(client: TestClient, repository_paths: RepositoryPat
                                               ("filename", local / ".filename"),
                                               ("filename.sig", local / ".filename.sig"),
                                           ]))
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    rename_mock = mocker.patch("ahriman.web.views.v1.service.upload.atomic_move")
     # no content validation here because it has invalid schema
 
     data = FormData()
@@ -145,8 +145,8 @@ async def test_post_with_sig(client: TestClient, repository_paths: RepositoryPat
         MockCall(pytest.helpers.anyvar(int), repository_paths.packages, max_body_size=None),
     ])
     rename_mock.assert_has_calls([
-        MockCall(local / "filename"),
-        MockCall(local / "filename.sig"),
+        MockCall(local / ".filename", local / "filename"),
+        MockCall(local / ".filename.sig", local / "filename.sig"),
     ])
 
 

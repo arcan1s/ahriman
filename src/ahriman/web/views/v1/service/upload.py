@@ -26,6 +26,7 @@ from tempfile import NamedTemporaryFile
 from typing import ClassVar
 
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import atomic_move
 from ahriman.models.repository_paths import RepositoryPaths
 from ahriman.models.user_access import UserAccess
 from ahriman.web.apispec.decorators import apidocs
@@ -152,10 +153,8 @@ class UploadView(BaseView):
 
             files.append(await self.save_file(part, target, max_body_size=max_body_size))
 
-        # and now we can rename files, which is relatively fast operation
-        # it is probably good way to call lock here, however
         for filename, current_location in files:
             target_location = current_location.parent / filename
-            current_location.rename(target_location)
+            atomic_move(current_location, target_location)
 
         raise HTTPCreated

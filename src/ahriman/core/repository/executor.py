@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import shutil  # shutil.move is used here to ensure cross fs file movement
-
 from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -27,7 +25,7 @@ from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.utils import safe_filename
+from ahriman.core.utils import atomic_move, safe_filename
 from ahriman.models.changes import Changes
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -54,7 +52,7 @@ class Executor(PackageInfo, Cleaner):
             return  # suppress type checking, it never can be none actually
 
         if (safe := safe_filename(description.filename)) != description.filename:
-            (self.paths.packages / description.filename).rename(self.paths.packages / safe)
+            atomic_move(self.paths.packages / description.filename, self.paths.packages / safe)
             description.filename = safe
 
     def _package_build(self, package: Package, path: Path, packager: str | None,
@@ -81,7 +79,7 @@ class Executor(PackageInfo, Cleaner):
         package.with_packages(built, self.pacman)
         for src in built:
             dst = self.paths.packages / src.name
-            shutil.move(src, dst)
+            atomic_move(src, dst)
 
         return commit_sha
 
@@ -130,7 +128,7 @@ class Executor(PackageInfo, Cleaner):
 
         for src in files:
             dst = self.paths.archive_for(package_base) / src.name
-            src.rename(dst)  # move package to archive directory
+            atomic_move(src, dst)  # move package to archive directory
             if not (symlink := self.paths.repository / dst.name).exists():
                 symlink.symlink_to(dst.relative_to(symlink.parent, walk_up=True))  # create link to archive
 
