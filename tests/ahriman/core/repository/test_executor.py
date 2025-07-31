@@ -1,5 +1,6 @@
 import pytest
 
+from dataclasses import replace
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
@@ -11,6 +12,57 @@ from ahriman.models.dependencies import Dependencies
 from ahriman.models.package import Package
 from ahriman.models.packagers import Packagers
 from ahriman.models.user import User
+
+
+def test_archive_lookup(executor: Executor, package_ahriman: Package, package_python_schedule: Package,
+                        mocker: MockerFixture) -> None:
+    """
+    must existing packages which match the version
+    """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+        Path("2.pkg.tar.zst"),
+        Path("3.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", side_effect=[
+        package_ahriman,
+        package_python_schedule,
+        replace(package_ahriman, version="1"),
+    ])
+    glob_mock = mocker.patch("pathlib.Path.glob", return_value=[Path("1.pkg.tar.xz")])
+
+    assert list(executor._archive_lookup(package_ahriman)) == [Path("1.pkg.tar.xz")]
+    glob_mock.assert_called_once_with(f"{package_ahriman.packages[package_ahriman.base].filename}*")
+
+
+def test_archive_lookup_version_mismatch(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must return nothing if no packages found with the same version
+    """
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", return_value=replace(package_ahriman, version="1"))
+
+    assert list(executor._archive_lookup(package_ahriman)) == []
+
+
+def test_archive_lookup_architecture_mismatch(executor: Executor, package_ahriman: Package,
+                                              mocker: MockerFixture) -> None:
+    """
+    must return nothing if architecture doesn't match
+    """
+    package_ahriman.packages[package_ahriman.base].architecture = "x86_64"
+    mocker.patch("ahriman.core.repository.executor.Executor.architecture", return_value="i686")
+    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.preserve_owner")
+    mocker.patch("pathlib.Path.iterdir", return_value=[
+        Path("1.pkg.tar.zst"),
+    ])
+    mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
+
+    assert list(executor._archive_lookup(package_ahriman)) == []
 
 
 def test_archive_rename(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
@@ -45,14 +97,37 @@ def test_package_build(executor: Executor, package_ahriman: Package, mocker: Moc
     mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_building")
     init_mock = mocker.patch("ahriman.core.build_tools.task.Task.init", return_value="sha")
+    package_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+    lookup_mock = mocker.patch("ahriman.core.repository.executor.Executor._archive_lookup", return_value=[])
     with_packages_mock = mocker.patch("ahriman.models.package.Package.with_packages")
     rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
 
     assert executor._package_build(package_ahriman, Path("local"), "packager", None) == "sha"
     status_client_mock.assert_called_once_with(package_ahriman.base)
     init_mock.assert_called_once_with(pytest.helpers.anyvar(int), pytest.helpers.anyvar(int), None)
+    package_mock.assert_called_once_with(Path("local"), executor.architecture, None)
+    lookup_mock.assert_called_once_with(package_ahriman)
     with_packages_mock.assert_called_once_with([Path(package_ahriman.base)], executor.pacman)
     rename_mock.assert_called_once_with(Path(package_ahriman.base), executor.paths.packages / package_ahriman.base)
+
+
+def test_package_build_copy(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
+    """
+    must copy package from archive if there are already built ones
+    """
+    path = package_ahriman.packages[package_ahriman.base].filepath
+    mocker.patch("ahriman.core.build_tools.task.Task.build", return_value=[Path(package_ahriman.base)])
+    mocker.patch("ahriman.core.build_tools.task.Task.init")
+    mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
+    mocker.patch("ahriman.core.repository.executor.Executor._archive_lookup", return_value=[path])
+    mocker.patch("ahriman.core.repository.executor.atomic_move")
+    mocker.patch("ahriman.models.package.Package.with_packages")
+    copy_mock = mocker.patch("shutil.copy")
+    rename_mock = mocker.patch("ahriman.core.repository.executor.atomic_move")
+
+    executor._package_build(package_ahriman, Path("local"), "packager", None)
+    copy_mock.assert_called_once_with(path, Path("local"))
+    rename_mock.assert_called_once_with(Path("local") / path, executor.paths.packages / path)
 
 
 def test_package_remove(executor: Executor, package_ahriman: Package, mocker: MockerFixture) -> None:
