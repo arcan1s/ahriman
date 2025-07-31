@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # pylint: disable=too-many-lines
+import contextlib
 import datetime
 import fcntl
 import io
@@ -47,6 +48,7 @@ __all__ = [
     "dataclass_view",
     "enum_values",
     "extract_user",
+    "filelock",
     "filter_json",
     "full_version",
     "list_flatmap",
@@ -86,17 +88,8 @@ def atomic_move(src: Path, dst: Path) -> None:
 
             >>> atomic_move(src, dst)
     """
-    lock_path = dst.with_name(f".{dst.name}")
-    try:
-        with lock_path.open("ab") as lock_file:
-            fd = lock_file.fileno()
-            try:
-                fcntl.flock(fd, fcntl.LOCK_EX)  # lock file and wait lock is until available
-                shutil.move(src, dst)
-            finally:
-                fcntl.flock(fd, fcntl.LOCK_UN)  # unlock file first
-    finally:
-        lock_path.unlink(missing_ok=True)  # remove lock file at the end
+    with filelock(dst):
+        shutil.move(src, dst)
 
 
 # pylint: disable=too-many-locals
@@ -268,6 +261,27 @@ def extract_user() -> str | None:
         cleared before application start
     """
     return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
+
+
+@contextlib.contextmanager
+def filelock(path: Path) -> Generator[None, None, None]:
+    """
+    lock on file passed as argument
+
+    Args:
+        path(Path): path object on which lock must be performed
+    """
+    lock_path = path.with_name(f".{path.name}")
+    try:
+        with lock_path.open("ab") as lock_file:
+            fd = lock_file.fileno()
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX)  # lock file and wait lock is until available
+                yield
+            finally:
+                fcntl.flock(fd, fcntl.LOCK_UN)  # unlock file first
+    finally:
+        lock_path.unlink(missing_ok=True)  # remove lock file at the end
 
 
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:

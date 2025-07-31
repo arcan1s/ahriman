@@ -79,7 +79,7 @@ def test_run_repo_specific_triggers(args: argparse.Namespace, configuration: Con
     _, repository_id = configuration.check_loaded()
 
     # remove unused sections
-    for section in ("customs3", "github:x86_64", "logs-rotation", "mirrorlist"):
+    for section in ("archive", "customs3", "github:x86_64", "logs-rotation", "mirrorlist"):
         configuration.remove_section(section)
 
     configuration.set_option("report", "target", "test")
