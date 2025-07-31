@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Iterable
+import shutil
+
+from collections.abc import Generator, Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -25,7 +27,7 @@ from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.utils import atomic_move, safe_filename
+from ahriman.core.utils import atomic_move, filelock, package_like, safe_filename
 from ahriman.models.changes import Changes
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -38,6 +40,28 @@ class Executor(PackageInfo, Cleaner):
     """
     trait for common repository update processes
     """
+
+    def _archive_lookup(self, package: Package) -> Generator[Path, None, None]:
+        """
+        check if there is a rebuilt package already
+
+        Args:
+            package(Package): package to check
+
+        Yields:
+            Path: list of built packages and signatures if available, empty list otherwise
+        """
+        archive = self.paths.archive_for(package.base)
+        for path in filter(package_like, archive.iterdir()):
+            built = Package.from_archive(path, self.pacman)
+            # check if there is an archive with exact same version
+            if built.version != package.version:
+                continue
+            for single in built.packages.values():
+                # we allow packages with either same architecture or any
+                if single.architecture not in ("any", self.architecture):
+                    continue
+                yield from archive.glob(f"{single.filename}*")
 
     def _archive_rename(self, description: PackageDescription, package_base: str) -> None:
         """
@@ -74,7 +98,16 @@ class Executor(PackageInfo, Cleaner):
         task = Task(package, self.configuration, self.architecture, self.paths)
         patches = self.reporter.package_patches_get(package.base, None)
         commit_sha = task.init(path, patches, local_version)
-        built = task.build(path, PACKAGER=packager)
+
+        loaded_package = Package.from_build(path, self.architecture, None)
+        if prebuilt := list(self._archive_lookup(loaded_package)):
+            built = []
+            for artefact in prebuilt:
+                with filelock(artefact):
+                    shutil.copy(artefact, path)
+                built.append(path / artefact.name)
+        else:
+            built = task.build(path, PACKAGER=packager)
 
         package.with_packages(built, self.pacman)
         for src in built:
