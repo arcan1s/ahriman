@@ -254,6 +254,10 @@ CONFIGURATION_SCHEMA: ConfigurationSchema = {
     "repository": {
         "type": "dict",
         "schema": {
+            "architecture": {
+                "type": "string",
+                "empty": False,
+            },
             "name": {
                 "type": "string",
                 "empty": False,

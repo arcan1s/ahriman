@@ -20,6 +20,40 @@ def test_architecture(configuration: Configuration) -> None:
     assert configuration.architecture == "x86_64"
 
 
+def test_repository_id(configuration: Configuration, repository_id: RepositoryId) -> None:
+    """
+    must return repository identifier
+    """
+    assert configuration.repository_id == repository_id
+    assert configuration.get("repository", "name") == repository_id.name
+    assert configuration.get("repository", "architecture") == repository_id.architecture
+
+
+def test_repository_id_erase(configuration: Configuration) -> None:
+    """
+    must remove repository identifier properties if empty identifier supplied
+    """
+    configuration.repository_id = None
+    assert configuration.get("repository", "name", fallback=None) is None
+    assert configuration.get("repository", "architecture", fallback=None) is None
+
+    configuration.repository_id = RepositoryId("", "")
+    assert configuration.get("repository", "name", fallback=None) is None
+    assert configuration.get("repository", "architecture", fallback=None) is None
+
+
+def test_repository_id_update(configuration: Configuration, repository_id: RepositoryId) -> None:
+    """
+    must update repository identifier and related configuration options
+    """
+    repository_id = RepositoryId("i686", repository_id.name)
+
+    configuration.repository_id = repository_id
+    assert configuration.repository_id == repository_id
+    assert configuration.get("repository", "name") == repository_id.name
+    assert configuration.get("repository", "architecture") == repository_id.architecture
+
+
 def test_repository_name(configuration: Configuration) -> None:
     """
     must return valid repository name

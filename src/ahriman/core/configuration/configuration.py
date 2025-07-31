@@ -41,7 +41,6 @@ class Configuration(configparser.RawConfigParser):
         SYSTEM_CONFIGURATION_PATH(Path): (class attribute) default system configuration path distributed by package
         includes(list[Path]): list of includes which were read
         path(Path | None): path to root configuration file
-        repository_id(RepositoryId | None): repository unique identifier
 
     Examples:
         Configuration class provides additional method in order to handle application configuration. Since this class is
@@ -91,7 +90,7 @@ class Configuration(configparser.RawConfigParser):
             },
         )
 
-        self.repository_id: RepositoryId | None = None
+        self._repository_id: RepositoryId | None = None
         self.path: Path | None = None
         self.includes: list[Path] = []
 
@@ -125,6 +124,32 @@ class Configuration(configparser.RawConfigParser):
             Path: path to logging configuration
         """
         return self.getpath("settings", "logging")
+
+    @property
+    def repository_id(self) -> RepositoryId | None:
+        """
+        repository identifier
+
+        Returns:
+            RepositoryId: repository unique identifier
+        """
+        return self._repository_id
+
+    @repository_id.setter
+    def repository_id(self, repository_id: RepositoryId | None) -> None:
+        """
+        setter for repository identifier
+
+        Args:
+            repository_id(RepositoryId | None): repository unique identifier
+        """
+        self._repository_id = repository_id
+        if repository_id is None or repository_id.is_empty:
+            self.remove_option("repository", "name")
+            self.remove_option("repository", "architecture")
+        else:
+            self.set_option("repository", "name", repository_id.name)
+            self.set_option("repository", "architecture", repository_id.architecture)
 
     @property
     def repository_name(self) -> str:

@@ -138,6 +138,8 @@ Build related configuration. Group name can refer to architecture, e.g. ``build:
 
 Base repository settings.
 
+* ``architecture`` - repository architecture, string. This field is read-only and generated automatically from run options if possible.
+* ``name`` - repository name, string. This field is read-only and generated automatically from run options if possible.
 * ``root`` - root path for application, string, required.
 
 ``sign:*`` groups
