@@ -80,8 +80,7 @@ class Trigger(LazyLogging):
         return self.repository_id.architecture
 
     @classmethod
-    def configuration_schema(cls, repository_id: RepositoryId,
-                             configuration: Configuration | None) -> ConfigurationSchema:
+    def configuration_schema(cls, configuration: Configuration | None) -> ConfigurationSchema:
         """
         configuration schema based on supplied service configuration
 
@@ -89,7 +88,6 @@ class Trigger(LazyLogging):
             Schema must be in cerberus format, for details and examples you can check built-in triggers.
 
         Args:
-            repository_id(str): repository unique identifier
             configuration(Configuration | None): configuration instance. If set to None, the default schema
                 should be returned
 
@@ -101,13 +99,15 @@ class Trigger(LazyLogging):
 
         result: ConfigurationSchema = {}
         for target in cls.configuration_sections(configuration):
-            if not configuration.has_section(target):
-                continue
-            section, schema_name = configuration.gettype(
-                target, repository_id, fallback=cls.CONFIGURATION_SCHEMA_FALLBACK)
-            if schema_name not in cls.CONFIGURATION_SCHEMA:
-                continue
-            result[section] = cls.CONFIGURATION_SCHEMA[schema_name]
+            for section in configuration.sections():
+                if not (section == target or section.startswith(f"{target}:")):
+                    # either repository specific or exact name
+                    continue
+                schema_name = configuration.get(section, "type", fallback=section)
+
+                if schema_name not in cls.CONFIGURATION_SCHEMA:
+                    continue
+                result[section] = cls.CONFIGURATION_SCHEMA[schema_name]
 
         return result
 

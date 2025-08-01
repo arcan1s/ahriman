@@ -52,7 +52,7 @@ class Validate(Handler):
         """
         from ahriman.core.configuration.validator import Validator
 
-        schema = Validate.schema(repository_id, configuration)
+        schema = Validate.schema(configuration)
         validator = Validator(configuration=configuration, schema=schema)
 
         if validator.validate(configuration.dump()):
@@ -83,12 +83,11 @@ class Validate(Handler):
         return parser
 
     @staticmethod
-    def schema(repository_id: RepositoryId, configuration: Configuration) -> ConfigurationSchema:
+    def schema(configuration: Configuration) -> ConfigurationSchema:
         """
         get schema with triggers
 
         Args:
-            repository_id(RepositoryId): repository unique identifier
             configuration(Configuration): configuration instance
 
         Returns:
@@ -107,12 +106,12 @@ class Validate(Handler):
                 continue
 
             # default settings if any
-            for schema_name, schema in trigger_class.configuration_schema(repository_id, None).items():
+            for schema_name, schema in trigger_class.configuration_schema(None).items():
                 erased = Validate.schema_erase_required(copy.deepcopy(schema))
                 root[schema_name] = Validate.schema_merge(root.get(schema_name, {}), erased)
 
             # settings according to enabled triggers
-            for schema_name, schema in trigger_class.configuration_schema(repository_id, configuration).items():
+            for schema_name, schema in trigger_class.configuration_schema(configuration).items():
                 root[schema_name] = Validate.schema_merge(root.get(schema_name, {}), copy.deepcopy(schema))
 
         return root
