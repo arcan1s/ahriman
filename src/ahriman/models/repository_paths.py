@@ -86,6 +86,16 @@ class RepositoryPaths(LazyLogging):
         return Path(self.repository_id.name) / self.repository_id.architecture
 
     @property
+    def archive(self) -> Path:
+        """
+        archive directory root
+
+        Returns:
+            Path: archive directory root
+        """
+        return self.root / "archive"
+
+    @property
     def build_root(self) -> Path:
         """
         same as :attr:`chroot`, but exactly build chroot
@@ -227,7 +237,7 @@ class RepositoryPaths(LazyLogging):
         set owner of path recursively (from root) to root owner
 
         Notes:
-            More likely you don't want to call this method explicitly, consider using :func:`preserve_owner`
+            More likely you don't want to call this method explicitly, consider using :func:`preserve_owner()`
             as context manager instead
 
         Args:
@@ -248,6 +258,23 @@ class RepositoryPaths(LazyLogging):
         while path != self.root:
             set_owner(path)
             path = path.parent
+
+    def archive_for(self, package_base: str) -> Path:
+        """
+        get path to archive specified search criteria
+
+        Args:
+            package_base(str): package base name
+
+        Returns:
+            Path: path to archive directory for package base
+        """
+        directory = self.archive / "packages" / package_base[0] / package_base
+        if not directory.is_dir():  # create if not exists
+            with self.preserve_owner(self.archive):
+                directory.mkdir(mode=0o755, parents=True)
+
+        return directory
 
     def cache_for(self, package_base: str) -> Path:
         """
@@ -282,6 +309,10 @@ class RepositoryPaths(LazyLogging):
         path = path or self.root
 
         def walk(root: Path) -> Generator[Path, None, None]:
+            yield root
+            if not root.exists():
+                return
+
             # basically walk, but skipping some content
             for child in root.iterdir():
                 yield child
@@ -320,6 +351,7 @@ class RepositoryPaths(LazyLogging):
 
         with self.preserve_owner():
             for directory in (
+                    self.archive,
                     self.cache,
                     self.chroot,
                     self.packages,
