@@ -19,10 +19,9 @@ def test_configuration_schema(configuration: Configuration) -> None:
     """
     section = "console"
     configuration.set_option("report", "target", section)
-    _, repository_id = configuration.check_loaded()
 
     expected = {section: ReportTrigger.CONFIGURATION_SCHEMA[section]}
-    assert ReportTrigger.configuration_schema(repository_id, configuration) == expected
+    assert ReportTrigger.configuration_schema(configuration) == expected
 
 
 def test_configuration_schema_no_section(configuration: Configuration) -> None:
@@ -31,9 +30,7 @@ def test_configuration_schema_no_section(configuration: Configuration) -> None:
     """
     section = "abracadabra"
     configuration.set_option("report", "target", section)
-    _, repository_id = configuration.check_loaded()
-
-    assert ReportTrigger.configuration_schema(repository_id, configuration) == {}
+    assert ReportTrigger.configuration_schema(configuration) == {}
 
 
 def test_configuration_schema_no_schema(configuration: Configuration) -> None:
@@ -43,17 +40,15 @@ def test_configuration_schema_no_schema(configuration: Configuration) -> None:
     section = "abracadabra"
     configuration.set_option("report", "target", section)
     configuration.set_option(section, "key", "value")
-    _, repository_id = configuration.check_loaded()
 
-    assert ReportTrigger.configuration_schema(repository_id, configuration) == {}
+    assert ReportTrigger.configuration_schema(configuration) == {}
 
 
 def test_configuration_schema_empty(configuration: Configuration) -> None:
     """
     must return default schema if no configuration set
     """
-    _, repository_id = configuration.check_loaded()
-    assert ReportTrigger.configuration_schema(repository_id, None) == ReportTrigger.CONFIGURATION_SCHEMA
+    assert ReportTrigger.configuration_schema(None) == ReportTrigger.CONFIGURATION_SCHEMA
 
 
 def test_configuration_schema_variables() -> None:
