@@ -153,38 +153,12 @@ def test_on_start(trigger_loader: TriggerLoader, mocker: MockerFixture) -> None:
     """
     upload_mock = mocker.patch("ahriman.core.upload.UploadTrigger.on_start")
     report_mock = mocker.patch("ahriman.core.report.ReportTrigger.on_start")
+    atexit_mock = mocker.patch("atexit.register")
 
     trigger_loader.on_start()
-    assert trigger_loader._on_stop_requested
     report_mock.assert_called_once_with()
     upload_mock.assert_called_once_with()
-
-
-def test_on_stop_with_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must call on_stop on exit if on_start was called
-    """
-    mocker.patch("ahriman.core.upload.UploadTrigger.on_start")
-    mocker.patch("ahriman.core.report.ReportTrigger.on_start")
-    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
-    _, repository_id = configuration.check_loaded()
-
-    trigger_loader = TriggerLoader.load(repository_id, configuration)
-    trigger_loader.on_start()
-    del trigger_loader
-    on_stop_mock.assert_called_once_with()
-
-
-def test_on_stop_without_on_start(configuration: Configuration, mocker: MockerFixture) -> None:
-    """
-    must call not on_stop on exit if on_start wasn't called
-    """
-    on_stop_mock = mocker.patch("ahriman.core.triggers.trigger_loader.TriggerLoader.on_stop")
-    _, repository_id = configuration.check_loaded()
-
-    trigger_loader = TriggerLoader.load(repository_id, configuration)
-    del trigger_loader
-    on_stop_mock.assert_not_called()
+    atexit_mock.assert_called_once_with(trigger_loader.on_stop)
 
 
 def test_on_stop(trigger_loader: TriggerLoader, mocker: MockerFixture) -> None:
