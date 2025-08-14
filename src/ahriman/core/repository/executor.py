@@ -80,7 +80,7 @@ class Executor(PackageInfo, Cleaner):
             package_base(str): package base name
         """
         if description.filename is None:
-            self.logger.warning("received empty package name for base %s", package_base)
+            self.logger.warning("received empty package filename for base %s", package_base)
             return  # suppress type checking, it never can be none actually
 
         if (safe := safe_filename(description.filename)) != description.filename:
@@ -161,7 +161,7 @@ class Executor(PackageInfo, Cleaner):
             packager_key(str | None): packager key identifier
         """
         if filename is None:
-            self.logger.warning("received empty package name for base %s", package_base)
+            self.logger.warning("received empty package filename for base %s", package_base)
             return  # suppress type checking, it never can be none actually
 
         # in theory, it might be NOT packages directory, but we suppose it is

@@ -66,7 +66,7 @@ class Status(Handler):
         Status.check_status(args.exit_code, packages)
 
         comparator: Callable[[tuple[Package, BuildStatus]], Comparable] = lambda item: item[0].base
-        filter_fn: Callable[[tuple[Package, BuildStatus]], bool] =\
+        filter_fn: Callable[[tuple[Package, BuildStatus]], bool] = \
             lambda item: args.status is None or item[1].status == args.status
         for package, package_status in sorted(filter(filter_fn, packages), key=comparator):
             PackagePrinter(package, package_status)(verbose=args.info)
