@@ -186,9 +186,7 @@ def test_package_update(executor: Executor, package_ahriman: Package, user: User
         Path("..") /
         ".." /
         ".." /
-        executor.paths.archive_for(
-            package_ahriman.base).relative_to(
-            executor.paths.root) /
+        executor.paths.archive_for(package_ahriman.base).relative_to(executor.paths.root) /
         filepath)
     # must add package
     repo_add_mock.assert_called_once_with(executor.paths.repository / filepath)
