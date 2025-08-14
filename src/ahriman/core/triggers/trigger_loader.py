@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import atexit
 import contextlib
 import os
 
@@ -60,16 +61,7 @@ class TriggerLoader(LazyLogging):
 
     def __init__(self) -> None:
         """"""
-        self._on_stop_requested = False
         self.triggers: list[Trigger] = []
-
-    def __del__(self) -> None:
-        """
-        custom destructor object which calls on_stop in case if it was requested
-        """
-        if not self._on_stop_requested:
-            return
-        self.on_stop()
 
     @classmethod
     def load(cls, repository_id: RepositoryId, configuration: Configuration) -> Self:
@@ -250,10 +242,11 @@ class TriggerLoader(LazyLogging):
         run triggers on load
         """
         self.logger.debug("executing triggers on start")
-        self._on_stop_requested = True
         for trigger in self.triggers:
             with self.__execute_trigger(trigger):
                 trigger.on_start()
+        # register on_stop call
+        atexit.register(self.on_stop)
 
     def on_stop(self) -> None:
         """
