@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    ahriman.core.alpm
+   ahriman.core.archive
    ahriman.core.auth
    ahriman.core.build_tools
    ahriman.core.configuration
