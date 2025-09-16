@@ -36,6 +36,7 @@ class Trigger(LazyLogging):
         CONFIGURATION_SCHEMA(ConfigurationSchema): (class attribute) configuration schema template
         CONFIGURATION_SCHEMA_FALLBACK(str | None): (class attribute) optional fallback option for defining
             configuration schema type used
+        REQUIRES_REPOSITORY(bool): (class attribute) either trigger requires loaded repository or not
         configuration(Configuration): configuration instance
         repository_id(RepositoryId): repository unique identifier
 
@@ -59,6 +60,7 @@ class Trigger(LazyLogging):
 
     CONFIGURATION_SCHEMA: ClassVar[ConfigurationSchema] = {}
     CONFIGURATION_SCHEMA_FALLBACK: ClassVar[str | None] = None
+    REQUIRES_REPOSITORY: ClassVar[bool] = True
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
@@ -78,6 +80,16 @@ class Trigger(LazyLogging):
             str: repository architecture
         """
         return self.repository_id.architecture
+
+    @property
+    def is_allowed_to_run(self) -> bool:
+        """
+        whether trigger allowed to run or not
+
+        Returns:
+            bool: ``True`` in case if trigger allowed to run and ``False`` otherwise
+        """
+        return not (self.REQUIRES_REPOSITORY and self.repository_id.is_empty)
 
     @classmethod
     def configuration_schema(cls, configuration: Configuration | None) -> ConfigurationSchema:

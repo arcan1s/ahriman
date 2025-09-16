@@ -47,6 +47,7 @@ class LogsRotationTrigger(Trigger):
             },
         },
     }
+    REQUIRES_REPOSITORY = True
 
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """

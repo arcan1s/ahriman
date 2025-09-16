@@ -77,8 +77,9 @@ class TriggerLoader(LazyLogging):
         """
         instance = cls()
         instance.triggers = [
-            instance.load_trigger(trigger, repository_id, configuration)
-            for trigger in instance.selected_triggers(configuration)
+            trigger
+            for trigger_name in instance.selected_triggers(configuration)
+            if (trigger := instance.load_trigger(trigger_name, repository_id, configuration)).is_allowed_to_run
         ]
 
         return instance

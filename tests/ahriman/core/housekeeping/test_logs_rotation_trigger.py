@@ -7,6 +7,13 @@ from ahriman.core.status import Client
 from ahriman.models.result import Result
 
 
+def test_requires_repository() -> None:
+    """
+    must require repository identifier to be set to start
+    """
+    assert LogsRotationTrigger.REQUIRES_REPOSITORY
+
+
 def test_configuration_sections(configuration: Configuration) -> None:
     """
     must correctly parse target list

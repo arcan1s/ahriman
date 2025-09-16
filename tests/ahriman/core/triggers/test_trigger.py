@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 from ahriman.core.configuration import Configuration
 from ahriman.core.report import ReportTrigger
 from ahriman.core.triggers import Trigger
+from ahriman.models.repository_id import RepositoryId
 from ahriman.models.result import Result
 
 
@@ -11,6 +12,19 @@ def test_architecture(trigger: Trigger) -> None:
     must return repository architecture for backward compatibility
     """
     assert trigger.architecture == trigger.repository_id.architecture
+
+
+def test_is_allowed_to_run(trigger: Trigger) -> None:
+    """
+    must return flag correctly
+    """
+    assert trigger.is_allowed_to_run
+
+    trigger.repository_id = RepositoryId("", "")
+    assert not trigger.is_allowed_to_run
+
+    trigger.REQUIRES_REPOSITORY = False
+    assert trigger.is_allowed_to_run
 
 
 def test_configuration_schema(configuration: Configuration) -> None:
