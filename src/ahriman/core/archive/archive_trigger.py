@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from ahriman.core import context
 from ahriman.core.archive.archive_tree import ArchiveTree
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
@@ -45,9 +44,7 @@ class ArchiveTrigger(Trigger):
         Trigger.__init__(self, repository_id, configuration)
 
         self.paths = configuration.repository_paths
-
-        ctx = context.get()
-        self.tree = ArchiveTree(self.paths, ctx.get(GPG).repository_sign_args)
+        self.tree = ArchiveTree(self.paths, GPG(configuration).repository_sign_args)
 
     def on_result(self, result: Result, packages: list[Package]) -> None:
         """
