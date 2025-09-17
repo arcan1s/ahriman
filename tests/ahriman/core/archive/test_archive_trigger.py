@@ -5,6 +5,13 @@ from ahriman.models.package import Package
 from ahriman.models.result import Result
 
 
+def test_requires_repository() -> None:
+    """
+    must require repository identifier to be set to start
+    """
+    assert ArchiveTrigger.REQUIRES_REPOSITORY
+
+
 def test_on_result(archive_trigger: ArchiveTrigger, package_ahriman: Package, mocker: MockerFixture) -> None:
     """
     must create symlinks for actual repository

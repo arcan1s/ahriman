@@ -35,6 +35,8 @@ class ArchiveTrigger(Trigger):
         tree(ArchiveTree): archive tree wrapper
     """
 
+    REQUIRES_REPOSITORY = True
+
     def __init__(self, repository_id: RepositoryId, configuration: Configuration) -> None:
         """
         Args:
