@@ -57,7 +57,7 @@ class ConfigurationMultiDict(dict[str, Any]):
             OptionError: if the key already exists in the dictionary, but not a single value list or a string
         """
         match self.get(key):
-            case [current_value] | str(current_value):
+            case [current_value] | (str() as current_value):
                 value = f"{current_value} {value}"
             case None:
                 pass
