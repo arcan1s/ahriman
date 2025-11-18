@@ -18,11 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import importlib
-import shlex
 import sys
 
 from tox.config.sets import EnvConfigSet
-from tox.config.types import Command
 from tox.plugin import impl
 from tox.session.state import State
 from tox.tox_env.api import ToxEnv
@@ -56,35 +54,6 @@ def _extract_version(env_conf: EnvConfigSet, python_path: str | None = None) -> 
     return {"VERSION": version}
 
 
-def _wrap_commands(env_conf: EnvConfigSet, shell: str = "bash") -> None:
-    """
-    wrap commands into shell if there is redirect
-
-    Args:
-        env_conf(EnvConfigSet): the core configuration object
-        shell(str, optional): shell command to use (Default value = "bash")
-    """
-    if not env_conf["handle_redirect"]:
-        return
-
-    # append shell just in case
-    env_conf["allowlist_externals"].append(shell)
-
-    for command in env_conf["commands"]:
-        if len(command.args) < 3:  # command itself, redirect and output
-            continue
-
-        redirect, output = command.args[-2:]
-        if redirect not in (">", "2>", "&>"):
-            continue
-
-        command.args = [
-            shell,
-            "-c",
-            f"{Command(command.args[:-2]).shell} {redirect} {shlex.quote(output)}",
-        ]
-
-
 @impl
 def tox_add_env_config(env_conf: EnvConfigSet, state: State) -> None:
     """
@@ -103,12 +72,6 @@ def tox_add_env_config(env_conf: EnvConfigSet, state: State) -> None:
         default="",
         desc="import path for the version variable",
     )
-    env_conf.add_config(
-        keys=["handle_redirect"],
-        of_type=bool,
-        default=False,
-        desc="wrap commands to handle redirects if any",
-    )
 
 
 @impl
@@ -124,5 +87,3 @@ def tox_before_run_commands(tox_env: ToxEnv) -> None:
 
     python_path = set_env.load("PYTHONPATH") if "PYTHONPATH" in set_env else None
     set_env.update(_extract_version(env_conf, python_path))
-
-    _wrap_commands(env_conf)

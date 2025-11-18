@@ -140,8 +140,6 @@ dynamic_version = "{[project]name}.__version__"
 extras = [
     { replace = "ref", of = ["project", "extras"], extend = true },
 ]
-# TODO: steamline shlex usage after https://github.com/iterative/shtab/pull/192 merge
-handle_redirect = true
 pip_pre = true
 set_env.PYTHONPATH = "src"
 set_env.SPHINX_APIDOC_OPTIONS = "members,no-undoc-members,show-inheritance"
@@ -149,18 +147,14 @@ commands = [
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell",
-        "bash",
-        ">",
-        "package/share/bash-completion/completions/_ahriman",
+        "--shell", "bash",
+        "--output", "package/share/bash-completion/completions/_ahriman",
     ],
     [
         "shtab",
         { replace = "ref", of = ["flags", "shtab"], extend = true },
-        "--shell",
-        "zsh",
-        ">",
-        "package/share/zsh/site-functions/_ahriman",
+        "--shell", "zsh",
+        "--output", "package/share/zsh/site-functions/_ahriman",
     ],
     [
         "argparse-manpage",
