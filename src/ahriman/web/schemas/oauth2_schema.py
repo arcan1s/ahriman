@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2025 ahriman team.
+# Copyright (c) 2021-2026 ahriman team.
 #
 # This file is part of ahriman
 # (see https://github.com/arcan1s/ahriman).
