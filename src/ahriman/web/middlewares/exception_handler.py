@@ -21,8 +21,18 @@ import aiohttp_jinja2
 import logging
 
 from aiohttp.typedefs import Middleware
-from aiohttp.web import HTTPClientError, HTTPException, HTTPMethodNotAllowed, HTTPNoContent, HTTPServerError, \
-    HTTPUnauthorized, Request, StreamResponse, json_response, middleware
+from aiohttp.web import (
+    HTTPClientError,
+    HTTPException,
+    HTTPMethodNotAllowed,
+    HTTPNoContent,
+    HTTPServerError,
+    HTTPUnauthorized,
+    Request,
+    StreamResponse,
+    json_response,
+    middleware,
+)
 
 from ahriman.web.middlewares import HandlerType
 
