@@ -25,7 +25,7 @@ def test_on_start(archive_trigger: ArchiveTrigger, mocker: MockerFixture) -> Non
 
 def test_on_stop(archive_trigger: ArchiveTrigger, mocker: MockerFixture) -> None:
     """
-    must create repository tree on load
+    must fix broken symlinks on stop
     """
     symlinks_mock = mocker.patch("ahriman.core.archive.archive_tree.ArchiveTree.symlinks_fix")
     archive_trigger.on_stop()

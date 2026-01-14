@@ -91,10 +91,11 @@ class ArchiveTree(LazyLogging):
                 has_file = False
                 for file in archive.glob(f"{single.filename}*"):
                     symlink = root / file.name
-                    if symlink.exists():
+                    try:
+                        symlink.symlink_to(file.relative_to(symlink.parent, walk_up=True))
+                        has_file = True
+                    except FileExistsError:
                         continue  # symlink is already created, skip processing
-                    has_file = True
-                    symlink.symlink_to(file.relative_to(symlink.parent, walk_up=True))
 
                 if has_file:
                     repo.add(root / single.filename)
