@@ -110,7 +110,7 @@ class Remote(SyncHttpClient):
         """
         generate remote git url from the package base
 
-        Args
+        Args:
             package_base(str): package base
             repository(str): repository name
 
@@ -127,7 +127,7 @@ class Remote(SyncHttpClient):
         """
         generate remote web url from the package base
 
-        Args
+        Args:
             package_base(str): package base
 
         Returns:

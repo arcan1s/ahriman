@@ -50,7 +50,7 @@ class AURPackage:
         url_path(str): AUR package path
         repository(str): repository name of the package
         depends(list[str]): list of package dependencies
-        make_depends(l[str]): list of package make dependencies
+        make_depends(list[str]): list of package make dependencies
         opt_depends(list[str]): list of package optional dependencies
         check_depends(list[str]): list of package test dependencies
         conflicts(list[str]): conflicts list for the package

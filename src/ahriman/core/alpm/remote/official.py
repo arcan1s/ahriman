@@ -46,7 +46,7 @@ class Official(Remote):
         """
         generate remote git url from the package base
 
-        Args
+        Args:
             package_base(str): package base
             repository(str): repository name
 
@@ -60,7 +60,7 @@ class Official(Remote):
         """
         generate remote web url from the package base
 
-        Args
+        Args:
             package_base(str): package base
 
         Returns:

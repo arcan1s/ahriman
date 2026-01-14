@@ -81,7 +81,7 @@ class Spawn(Thread, LazyLogging):
         helper to run external process
 
         Args:
-            callback(Callable[[argparse.Namespace, str], bool]): application run function
+            callback(Callable[[argparse.Namespace, RepositoryId], bool]): application run function
                 (i.e. :func:`ahriman.application.handlers.handler.Handler.call()` method)
             args(argparse.Namespace): command line arguments
             repository_id(RepositoryId): repository unique identifier

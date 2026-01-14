@@ -109,7 +109,7 @@ class Validator(RootValidator):
         Args:
             constraint(list[str]): optional list of allowed special words (e.g. ``localhost``)
             field(str): field name to be checked
-            value(Path): value to be checked
+            value(str): value to be checked
 
         Examples:
             The rule's arguments are validated against this schema:
