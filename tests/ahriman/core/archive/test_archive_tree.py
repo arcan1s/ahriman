@@ -1,5 +1,6 @@
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import call as MockCall
 
 from ahriman.core.archive.archive_tree import ArchiveTree
 from ahriman.core.utils import utcnow
@@ -23,29 +24,26 @@ def test_symlinks_create(archive_tree: ArchiveTree, package_ahriman: Package, pa
     """
     _original_exists = Path.exists
 
-    def exists_mock(path: Path) -> bool:
-        if path.name in (package.filename for package in package_python_schedule.packages.values()):
-            return True
-        return _original_exists(path)
-
-    symlinks_mock = mocker.patch("pathlib.Path.symlink_to")
+    symlinks_mock = mocker.patch("pathlib.Path.symlink_to", side_effect=(None, FileExistsError, FileExistsError))
     add_mock = mocker.patch("ahriman.core.alpm.repo.Repo.add")
     mocker.patch("pathlib.Path.glob", autospec=True, side_effect=lambda path, name: [path / name[:-1]])
-    mocker.patch("pathlib.Path.exists", autospec=True, side_effect=exists_mock)
 
     archive_tree.symlinks_create([package_ahriman, package_python_schedule])
-    symlinks_mock.assert_called_once_with(
-        Path("..") /
-        ".." /
-        ".." /
-        ".." /
-        ".." /
-        ".." /
-        archive_tree.paths.archive_for(package_ahriman.base)
-        .relative_to(archive_tree.paths.root)
-        .relative_to("archive") /
-        package_ahriman.packages[package_ahriman.base].filename
-    )
+    symlinks_mock.assert_has_calls([
+        MockCall(Path("..") /
+                 ".." /
+                 ".." /
+                 ".." /
+                 ".." /
+                 ".." /
+                 archive_tree.paths.archive_for(package.base)
+                 .relative_to(archive_tree.paths.root)
+                 .relative_to("archive") /
+                 single.filename
+        )
+        for package in (package_ahriman, package_python_schedule)
+        for single in package.packages.values()
+    ])
     add_mock.assert_called_once_with(
         archive_tree.repository_for() / package_ahriman.packages[package_ahriman.base].filename
     )
