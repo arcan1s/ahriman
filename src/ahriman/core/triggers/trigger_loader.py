@@ -184,8 +184,8 @@ class TriggerLoader(LazyLogging):
         trigger_type = self.load_trigger_class(module_path)
         try:
             trigger = trigger_type(repository_id, configuration)
-        except Exception:
-            raise ExtensionError(f"Could not load instance of trigger from {trigger_type} loaded from {module_path}")
+        except Exception as ex:
+            raise ExtensionError(f"Could not load trigger from {trigger_type} loaded from {module_path}") from ex
 
         return trigger
 
