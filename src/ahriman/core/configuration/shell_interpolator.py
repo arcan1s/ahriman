@@ -21,7 +21,7 @@ import configparser
 import os
 import sys
 
-from collections.abc import Generator, Mapping, MutableMapping
+from collections.abc import Iterator, Mapping, MutableMapping
 from string import Template
 from typing import Any, ClassVar
 
@@ -37,7 +37,7 @@ class ShellInterpolator(configparser.Interpolation):
 
     @staticmethod
     def _extract_variables(parser: MutableMapping[str, Mapping[str, str]], value: str,
-                           defaults: Mapping[str, str]) -> Generator[tuple[str, str], None, None]:
+                           defaults: Mapping[str, str]) -> Iterator[tuple[str, str]]:
         """
         extract keys and values (if available) from the configuration. In case if a key is not available, it will be
         silently skipped from the result
@@ -50,7 +50,7 @@ class ShellInterpolator(configparser.Interpolation):
         Yields:
             tuple[str, str]: variable name used for substitution and its value
         """
-        def identifiers() -> Generator[tuple[str | None, str], None, None]:
+        def identifiers() -> Iterator[tuple[str | None, str]]:
             # extract all found identifiers and parse them
             for identifier in ShellTemplate(value).get_identifiers():
                 match identifier.rsplit(":", maxsplit=1):

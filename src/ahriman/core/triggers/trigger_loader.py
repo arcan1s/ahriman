@@ -21,7 +21,7 @@ import atexit
 import contextlib
 import os
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from importlib import import_module, machinery
 from pathlib import Path
 from types import ModuleType
@@ -112,7 +112,7 @@ class TriggerLoader(LazyLogging):
         return configuration.getlist("build", "triggers", fallback=[])
 
     @contextlib.contextmanager
-    def __execute_trigger(self, trigger: Trigger) -> Generator[None, None, None]:
+    def __execute_trigger(self, trigger: Trigger) -> Iterator[None]:
         """
         decorator for calling triggers
 

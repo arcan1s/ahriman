@@ -20,7 +20,7 @@
 import re
 
 from aiohttp.web import Application, View
-from collections.abc import Generator
+from collections.abc import Iterator
 
 import ahriman.web.views
 
@@ -32,7 +32,7 @@ from ahriman.web.views.base import BaseView
 __all__ = ["setup_routes"]
 
 
-def _dynamic_routes(configuration: Configuration) -> Generator[tuple[str, type[View]], None, None]:
+def _dynamic_routes(configuration: Configuration) -> Iterator[tuple[str, type[View]]]:
     """
     extract dynamic routes based on views
 

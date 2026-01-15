@@ -19,7 +19,7 @@
 #
 import argparse
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
 
 from ahriman.application.handlers.handler import Handler, SubParserAction
@@ -86,7 +86,7 @@ class Web(Handler):
         return parser
 
     @staticmethod
-    def extract_arguments(args: argparse.Namespace, configuration: Configuration) -> Generator[str, None, None]:
+    def extract_arguments(args: argparse.Namespace, configuration: Configuration) -> Iterator[str]:
         """
         extract list of arguments used for current command, except for command specific ones
 

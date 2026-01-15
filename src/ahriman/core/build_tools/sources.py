@@ -19,7 +19,7 @@
 #
 import shutil
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import ClassVar
 
@@ -347,7 +347,7 @@ class Sources(LazyLogging):
         """
         gitconfig = gitconfig or {}
 
-        def configuration_flags() -> Generator[str, None, None]:
+        def configuration_flags() -> Iterator[str]:
             for option, value in (self.GITCONFIG | gitconfig).items():
                 yield "-c"
                 yield f"{option}=\"{value}\""

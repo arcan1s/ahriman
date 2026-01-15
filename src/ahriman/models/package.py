@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import copy
 
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from pyalpm import vercmp  # type: ignore[import-not-found]
@@ -346,7 +346,7 @@ class Package(LazyLogging):
         )
 
     @staticmethod
-    def local_files(path: Path) -> Generator[Path, None, None]:
+    def local_files(path: Path) -> Iterator[Path]:
         """
         extract list of local files
 
@@ -407,7 +407,7 @@ class Package(LazyLogging):
         Returns:
             list[str]: combined list of unique entries in properties list
         """
-        def generator() -> Generator[str, None, None]:
+        def generator() -> Iterator[str]:
             for package in self.packages.values():
                 yield from extractor(package)
 
@@ -570,7 +570,7 @@ class Package(LazyLogging):
         """
         return dataclass_view(self)
 
-    def with_packages(self, packages: list[Path], pacman: Pacman) -> None:
+    def with_packages(self, packages: Iterable[Path], pacman: Pacman) -> None:
         """
         replace packages descriptions with ones from archives
 

@@ -21,7 +21,7 @@ import itertools
 import shutil
 import tarfile
 
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable, Iterator
 from functools import cached_property
 from pathlib import Path
 from pyalpm import DB, Handle, Package, SIG_DATABASE_OPTIONAL, SIG_PACKAGE_OPTIONAL  # type: ignore[import-not-found]
@@ -188,7 +188,7 @@ class Pacman(LazyLogging):
         Returns:
             dict[str, set[str]]: map of package name to its list of files
         """
-        def extract(tar: tarfile.TarFile, versions: dict[str, str]) -> Generator[tuple[str, set[str]], None, None]:
+        def extract(tar: tarfile.TarFile, versions: dict[str, str]) -> Iterator[tuple[str, set[str]]]:
             for package_name, version in versions.items():
                 path = Path(f"{package_name}-{version}") / "files"
                 try:
@@ -223,7 +223,7 @@ class Pacman(LazyLogging):
 
         return result
 
-    def package(self, package_name: str) -> Generator[Package, None, None]:
+    def package(self, package_name: str) -> Iterator[Package]:
         """
         retrieve list of the packages from the repository by name
 
@@ -256,7 +256,7 @@ class Pacman(LazyLogging):
 
         return result
 
-    def provided_by(self, package_name: str) -> Generator[Package, None, None]:
+    def provided_by(self, package_name: str) -> Iterator[Package]:
         """
         search through databases and emit packages which provides the ``package_name``
 

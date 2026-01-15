@@ -19,7 +19,7 @@
 #
 import shutil
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -96,7 +96,7 @@ class RemotePush(LazyLogging):
         # ...and finally return path to the copied directory
         return package.base
 
-    def packages_update(self, result: Result, target_dir: Path) -> Generator[str, None, None]:
+    def packages_update(self, result: Result, target_dir: Path) -> Iterator[str]:
         """
         update all packages from the build result
 

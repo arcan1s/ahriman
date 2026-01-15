@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Generator
+from collections.abc import Iterator
 from typing import Any
 
 from ahriman.core.formatters.string_printer import StringPrinter
@@ -44,8 +44,7 @@ class ValidationPrinter(StringPrinter):
         self.errors = errors
 
     @staticmethod
-    def get_error_messages(node: str, errors: list[str | dict[str, Any]],
-                           current_level: int = 1) -> Generator[Property, None, None]:
+    def get_error_messages(node: str, errors: list[str | dict[str, Any]], current_level: int = 1) -> Iterator[Property]:
         """
         extract default error message from cerberus class
 

@@ -19,7 +19,7 @@
 #
 import contextlib
 
-from typing import Generator
+from collections.abc import Iterator
 
 from ahriman.core.status import Client
 from ahriman.models.event import Event, EventType
@@ -55,7 +55,7 @@ class EventLogger:
 
     @contextlib.contextmanager
     def in_event(self, package_base: str, event: EventType, message: str | None = None,
-                 failure: EventType | None = None) -> Generator[None, None, None]:
+                 failure: EventType | None = None) -> Iterator[None]:
         """
         perform action in package context and log event with time elapsed
 

@@ -21,7 +21,7 @@ import argparse
 import re
 import sys
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from importlib import metadata
 from typing import ClassVar
 
@@ -77,7 +77,7 @@ class Versions(Handler):
         return parser
 
     @staticmethod
-    def package_dependencies(root: str) -> Generator[tuple[str, str], None, None]:
+    def package_dependencies(root: str) -> Iterator[tuple[str, str]]:
         """
         extract list of ahriman package dependencies installed into system with their versions
 
@@ -87,7 +87,7 @@ class Versions(Handler):
         Yields:
             tuple[str, str]: map of installed dependency to its version
         """
-        def dependencies_by_key(key: str) -> Generator[str, None, None]:
+        def dependencies_by_key(key: str) -> Iterator[str]:
             # in importlib it returns requires in the following format
             # ["pytest (>=3.0.0) ; extra == 'test'", "pytest-cov ; extra == 'test'"]
             try:

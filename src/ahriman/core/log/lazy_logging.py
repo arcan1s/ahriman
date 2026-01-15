@@ -20,7 +20,7 @@
 import contextlib
 import logging
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from functools import cached_property
 from typing import Any
 
@@ -80,7 +80,7 @@ class LazyLogging:
         logging.setLogRecordFactory(package_record_factory)
 
     @contextlib.contextmanager
-    def in_package_context(self, package_base: str, version: str | None) -> Generator[None, None, None]:
+    def in_package_context(self, package_base: str, version: str | None) -> Iterator[None]:
         """
         execute function while setting package context
 

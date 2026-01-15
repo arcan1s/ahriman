@@ -19,7 +19,7 @@
 #
 import inspect
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from importlib import import_module
 from pathlib import Path
 from pkgutil import ModuleInfo, walk_packages
@@ -33,7 +33,7 @@ __all__ = ["implementations"]
 T = TypeVar("T")
 
 
-def _modules(module_root: Path, prefix: str) -> Generator[ModuleInfo, None, None]:
+def _modules(module_root: Path, prefix: str) -> Iterator[ModuleInfo]:
     """
     extract available modules from package
 
@@ -52,7 +52,7 @@ def _modules(module_root: Path, prefix: str) -> Generator[ModuleInfo, None, None
             yield module_info
 
 
-def implementations(root_module: ModuleType, base_class: type[T]) -> Generator[type[T], None, None]:
+def implementations(root_module: ModuleType, base_class: type[T]) -> Iterator[type[T]]:
     """
     extract implementations of the ``base_class`` from the module
 
