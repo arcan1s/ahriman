@@ -21,7 +21,7 @@ import contextlib
 import os
 import shutil
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -170,7 +170,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             set[str]: list of repository architectures for which there is created tree
         """
-        def walk(repository_dir: Path) -> Generator[str, None, None]:
+        def walk(repository_dir: Path) -> Iterator[str]:
             for architecture in filter(lambda path: path.is_dir(), repository_dir.iterdir()):
                 yield architecture.name
 
@@ -197,7 +197,7 @@ class RepositoryPaths(LazyLogging):
             is loaded in legacy mode
         """
         # simply walk through the root. In case if there are subdirectories, emit the name
-        def walk(paths: RepositoryPaths) -> Generator[str, None, None]:
+        def walk(paths: RepositoryPaths) -> Iterator[str]:
             for repository in filter(lambda path: path.is_dir(), paths._repository_root.iterdir()):
                 if any(path.is_dir() for path in repository.iterdir()):
                     yield repository.name
@@ -262,7 +262,7 @@ class RepositoryPaths(LazyLogging):
         return self.cache / package_base
 
     @contextlib.contextmanager
-    def preserve_owner(self, path: Path | None = None) -> Generator[None, None, None]:
+    def preserve_owner(self, path: Path | None = None) -> Iterator[None]:
         """
         perform any action preserving owner for any newly created file or directory
 
@@ -281,7 +281,7 @@ class RepositoryPaths(LazyLogging):
         """
         path = path or self.root
 
-        def walk(root: Path) -> Generator[Path, None, None]:
+        def walk(root: Path) -> Iterator[Path]:
             # basically walk, but skipping some content
             for child in root.iterdir():
                 yield child

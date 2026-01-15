@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable, Iterator
 from sqlite3 import Connection
 
 from ahriman.core.database.operations.operations import Operations
@@ -263,7 +263,7 @@ class PackageOperations(Operations):
         """
         repository_id = repository_id or self._repository_id
 
-        def run(connection: Connection) -> Generator[tuple[Package, BuildStatus], None, None]:
+        def run(connection: Connection) -> Iterator[tuple[Package, BuildStatus]]:
             packages = self._packages_get_select_package_bases(connection, repository_id)
             statuses = self._packages_get_select_statuses(connection, repository_id)
             per_package_base = self._packages_get_select_packages(connection, packages, repository_id)

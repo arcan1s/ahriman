@@ -20,7 +20,7 @@
 import hashlib
 import itertools
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import ClassVar
 
@@ -187,7 +187,7 @@ class PkgbuildGenerator:
         Returns:
             list[PkgbuildPatch]: list of patches to be applied to the PKGBUILD
         """
-        def sources_generator() -> Generator[tuple[str, str], None, None]:
+        def sources_generator() -> Iterator[tuple[str, str]]:
             for source, generator in sorted(self.sources().items()):
                 source_path = source_dir / source
                 generator(source_path)

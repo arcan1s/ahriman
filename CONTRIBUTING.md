@@ -215,6 +215,7 @@ Again, the most checks can be performed by `tox` command, though some additional
 * It is allowed to change web API to add new fields or remove optional ones. However, in case of model changes, new API version must be introduced.
 * On the other hand, it is allowed to change method signatures, however, it is recommended to add new parameters as optional if possible. Deprecated API can be dropped during major release.
 * Enumerations (`Enum` classes) are allowed and recommended. However, it is recommended to use `StrEnum` class if there are from/to string conversions and `IntEnum` otherwise.
+* `Generator` return type is not allowed. Generator functions must return generic `Iterator` object. Documentation should be described as `Yields`, however, because of pylint checks. Unfortunately, `Iterable` return type is not available for generators also, because of specific `contextlib.contextmanager` case.
 
 ### Other checks
 

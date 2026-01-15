@@ -27,7 +27,7 @@ import re
 import selectors
 import subprocess
 
-from collections.abc import Callable, Generator, Iterable, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import asdict
 from enum import Enum
 from pathlib import Path
@@ -112,7 +112,7 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
         return channel if channel is not None else io.StringIO()
 
     # wrapper around selectors polling
-    def poll(sel: selectors.BaseSelector) -> Generator[tuple[str, str], None, None]:
+    def poll(sel: selectors.BaseSelector) -> Iterator[tuple[str, str]]:
         for key, _ in sel.select():  # we don't need to check mask here because we have only subscribed on reading
             line = key.fileobj.readline()  # type: ignore[union-attr]
             if not line:  # in case of empty line we remove selector as there is no data here anymore
@@ -476,7 +476,7 @@ def utcnow() -> datetime.datetime:
     return datetime.datetime.now(datetime.UTC)
 
 
-def walk(directory_path: Path) -> Generator[Path, None, None]:
+def walk(directory_path: Path) -> Iterator[Path]:
     """
     list all file paths in given directory
 

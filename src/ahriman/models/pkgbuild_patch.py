@@ -22,7 +22,7 @@ import shlex
 
 from dataclasses import dataclass, fields
 from pathlib import Path
-from typing import Any, Generator, Self
+from typing import Any, Iterator, Self
 
 from ahriman.core.configuration.shell_template import ShellTemplate
 from ahriman.core.utils import dataclass_view, filter_json
@@ -166,7 +166,7 @@ class PkgbuildPatch:
             ValueError: if no closing quotation
         """
 
-        def generator() -> Generator[str, None, None]:
+        def generator() -> Iterator[str]:
             token = None
             for char in source:
                 if token is not None:

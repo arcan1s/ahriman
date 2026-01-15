@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
 
 from ahriman.core.build_tools.sources import Sources
@@ -77,7 +77,7 @@ class Task(LazyLogging):
         Returns:
             list[Path]: list of file paths which looks like freshly generated archives
         """
-        def files() -> Generator[Path, None, None]:
+        def files() -> Iterator[Path]:
             for filepath in sources_dir.iterdir():
                 if filepath in source_files:
                     continue  # skip files which were already there

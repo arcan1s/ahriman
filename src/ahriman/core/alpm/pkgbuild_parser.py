@@ -21,7 +21,7 @@ import itertools
 import re
 import shlex
 
-from collections.abc import Generator
+from collections.abc import Iterator
 from enum import StrEnum
 from typing import IO
 
@@ -209,7 +209,7 @@ class PkgbuildParser(shlex.shlex):
         Raises:
             PkgbuildParserError: if array is not closed
         """
-        def extract() -> Generator[str, None, None]:
+        def extract() -> Iterator[str]:
             while token := self.get_token():
                 match token:
                     case _ if self._is_escaped():
@@ -276,7 +276,7 @@ class PkgbuildParser(shlex.shlex):
 
         return content
 
-    def _parse_token(self, token: str) -> Generator[PkgbuildPatch, None, None]:
+    def _parse_token(self, token: str) -> Iterator[PkgbuildPatch]:
         """
         parse single token to the PKGBUILD field
 
@@ -360,7 +360,7 @@ class PkgbuildParser(shlex.shlex):
 
         raise PkgbuildParserError("reached starting position, no valid symbols found")
 
-    def parse(self) -> Generator[PkgbuildPatch, None, None]:
+    def parse(self) -> Iterator[PkgbuildPatch]:
         """
         parse source stream and yield parsed entries
 

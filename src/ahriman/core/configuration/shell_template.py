@@ -20,7 +20,7 @@
 import fnmatch
 import re
 
-from collections.abc import Generator, Mapping
+from collections.abc import Iterator, Mapping
 from string import Template
 
 
@@ -132,7 +132,7 @@ class ShellTemplate(Template):
             (self._REPLACE, self._replace, "/"),
         )
 
-        def generator(variables: dict[str, str]) -> Generator[tuple[str, str], None, None]:
+        def generator(variables: dict[str, str]) -> Iterator[tuple[str, str]]:
             for identifier in self.get_identifiers():
                 for regex, function, greediness in substitutions:
                     if m := regex.match(identifier):
