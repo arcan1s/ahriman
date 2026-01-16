@@ -264,7 +264,7 @@ def extract_user() -> str | None:
 
 
 @contextlib.contextmanager
-def filelock(path: Path) -> Generator[None, None, None]:
+def filelock(path: Path) -> Iterator[None]:
     """
     lock on file passed as argument
 

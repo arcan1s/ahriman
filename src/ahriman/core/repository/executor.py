@@ -19,7 +19,7 @@
 #
 import shutil
 
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -41,7 +41,7 @@ class Executor(PackageInfo, Cleaner):
     trait for common repository update processes
     """
 
-    def _archive_lookup(self, package: Package) -> Generator[Path, None, None]:
+    def _archive_lookup(self, package: Package) -> Iterator[Path]:
         """
         check if there is a rebuilt package already
 
