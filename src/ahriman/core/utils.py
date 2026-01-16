@@ -18,13 +18,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # pylint: disable=too-many-lines
+import contextlib
 import datetime
+import fcntl
 import io
 import itertools
 import logging
 import os
 import re
 import selectors
+import shutil
 import subprocess
 
 from collections.abc import Callable, Iterable, Iterator, Mapping
@@ -39,11 +42,13 @@ from ahriman.models.repository_paths import RepositoryPaths
 
 
 __all__ = [
+    "atomic_move",
     "check_output",
     "check_user",
     "dataclass_view",
     "enum_values",
     "extract_user",
+    "filelock",
     "filter_json",
     "full_version",
     "minmax",
@@ -63,6 +68,25 @@ __all__ = [
 
 
 T = TypeVar("T")
+
+
+def atomic_move(src: Path, dst: Path) -> None:
+    """
+    move file from ``source`` location to ``destination``. This method uses lock and :func:`shutil.move` to ensure that
+    file will be copied (if not rename) atomically. This method blocks execution until lock is available
+
+    Args:
+        src(Path): path to the source file
+        dst(Path): path to the destination
+
+    Examples:
+        This method is a drop-in replacement for :func:`shutil.move` (except it doesn't allow to override copy method)
+        which first locking destination file. To use it simply call method with arguments::
+
+            >>> atomic_move(src, dst)
+    """
+    with filelock(dst):
+        shutil.move(src, dst)
 
 
 # pylint: disable=too-many-locals
@@ -231,6 +255,27 @@ def extract_user() -> str | None:
         cleared before application start
     """
     return os.getenv("SUDO_USER") or os.getenv("DOAS_USER") or os.getenv("USER")
+
+
+@contextlib.contextmanager
+def filelock(path: Path) -> Iterator[None]:
+    """
+    lock on file passed as argument
+
+    Args:
+        path(Path): path object on which lock must be performed
+    """
+    lock_path = path.with_name(f".{path.name}")
+    try:
+        with lock_path.open("ab") as lock_file:
+            fd = lock_file.fileno()
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX)  # lock file and wait lock is until available
+                yield
+            finally:
+                fcntl.flock(fd, fcntl.LOCK_UN)  # unlock file first
+    finally:
+        lock_path.unlink(missing_ok=True)  # remove lock file at the end
 
 
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:

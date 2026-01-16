@@ -132,6 +132,14 @@ ahriman.core.database.migrations.m015\_logs\_process\_id module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.database.migrations.m016\_archive module
+-----------------------------------------------------
+
+.. automodule:: ahriman.core.database.migrations.m016_archive
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

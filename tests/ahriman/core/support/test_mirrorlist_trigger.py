@@ -4,13 +4,6 @@ from ahriman.core.configuration import Configuration
 from ahriman.core.support import MirrorlistTrigger
 
 
-def test_requires_repository() -> None:
-    """
-    must require repository identifier to be set to start
-    """
-    assert MirrorlistTrigger.REQUIRES_REPOSITORY
-
-
 def test_configuration_sections(configuration: Configuration) -> None:
     """
     must correctly parse target list
