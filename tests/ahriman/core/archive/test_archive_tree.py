@@ -40,7 +40,7 @@ def test_symlinks_create(archive_tree: ArchiveTree, package_ahriman: Package, pa
                  .relative_to(archive_tree.paths.root)
                  .relative_to("archive") /
                  single.filename
-        )
+                 )
         for package in (package_ahriman, package_python_schedule)
         for single in package.packages.values()
     ])
