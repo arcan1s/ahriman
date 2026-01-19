@@ -21,7 +21,7 @@ import argparse
 
 from ahriman.application.handlers.handler import Handler, SubParserAction
 from ahriman.core.configuration import Configuration
-from ahriman.core.utils import walk
+from ahriman.core.utils import symlink_relative, walk
 from ahriman.models.repository_id import RepositoryId
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -82,7 +82,7 @@ class TreeMigrate(Handler):
                 continue
             if (source_archive := archives.get(symlink.name)) is not None:
                 symlink.unlink()
-                symlink.symlink_to(source_archive.relative_to(symlink.parent, walk_up=True))
+                symlink_relative(symlink, source_archive)
 
     @staticmethod
     def tree_move(from_tree: RepositoryPaths, to_tree: RepositoryPaths) -> None:

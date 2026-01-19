@@ -555,6 +555,17 @@ def srcinfo_property_list(key: str, srcinfo: Mapping[str, Any], package_srcinfo:
     return values
 
 
+def symlink_relative(symlink: Path, source: Path) -> None:
+    """
+    create symlink with relative path to the target directory
+
+    Args:
+        symlink(Path): path to symlink to create
+        source(Path): source file to be symlinked
+    """
+    symlink.symlink_to(source.relative_to(symlink.parent, walk_up=True))
+
+
 def trim_package(package_name: str) -> str:
     """
     remove version bound and description from package name. Pacman allows to specify version bound (=, <=, >= etc.) for
