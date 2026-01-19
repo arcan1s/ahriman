@@ -23,7 +23,7 @@ from pathlib import Path
 
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.log import LazyLogging
-from ahriman.core.utils import utcnow, walk
+from ahriman.core.utils import symlink_relative, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.repository_paths import RepositoryPaths
 
@@ -92,7 +92,7 @@ class ArchiveTree(LazyLogging):
                 for file in archive.glob(f"{single.filename}*"):
                     symlink = root / file.name
                     try:
-                        symlink.symlink_to(file.relative_to(symlink.parent, walk_up=True))
+                        symlink_relative(symlink, file)
                         has_file = True
                     except FileExistsError:
                         continue  # symlink is already created, skip processing

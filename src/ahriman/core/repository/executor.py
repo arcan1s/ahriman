@@ -27,7 +27,7 @@ from ahriman.core.build_tools.package_archive import PackageArchive
 from ahriman.core.build_tools.task import Task
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
-from ahriman.core.utils import atomic_move, filelock, package_like, safe_filename
+from ahriman.core.utils import atomic_move, filelock, package_like, safe_filename, symlink_relative
 from ahriman.models.changes import Changes
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -172,7 +172,7 @@ class Executor(PackageInfo, Cleaner):
             dst = self.paths.archive_for(package_base) / src.name
             atomic_move(src, dst)  # move package to archive directory
             if not (symlink := self.paths.repository / dst.name).exists():
-                symlink.symlink_to(dst.relative_to(symlink.parent, walk_up=True))  # create link to archive
+                symlink_relative(symlink, dst)  # create link to archive
 
         self.repo.add(self.paths.repository / filename)
 

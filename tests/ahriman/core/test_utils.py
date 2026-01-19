@@ -30,6 +30,7 @@ from ahriman.core.utils import (
     safe_filename,
     srcinfo_property,
     srcinfo_property_list,
+    symlink_relative,
     trim_package,
     utcnow,
     walk,
@@ -530,6 +531,23 @@ def test_srcinfo_property_list() -> None:
         "root", "overrides"
     ]
     assert srcinfo_property_list("key", {"key_x86_64": ["overrides"]}, {}, architecture="x86_64") == ["overrides"]
+
+
+def test_symlink_relative(mocker: MockerFixture) -> None:
+    """
+    must create symlinks with relative paths
+    """
+    symlink_mock = mocker.patch("pathlib.Path.symlink_to")
+
+    symlink_relative(Path("a"), Path("b"))
+    symlink_relative(Path("root/a"), Path("root/c"))
+    symlink_relative(Path("root/sub/a"), Path("root/c"))
+
+    symlink_mock.assert_has_calls([
+        MockCall(Path("b")),
+        MockCall(Path("c")),
+        MockCall(Path("../c")),
+    ])
 
 
 def test_trim_package() -> None:
