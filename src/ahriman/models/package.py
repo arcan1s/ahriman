@@ -205,7 +205,7 @@ class Package(LazyLogging):
         package = pacman.handle.load_pkg(str(path))
         description = PackageDescription.from_package(package, path)
         return cls(
-            base=package.base,
+            base=package.base or package.name,
             version=package.version,
             remote=RemoteSource(source=PackageSource.Archive),
             packages={package.name: description},

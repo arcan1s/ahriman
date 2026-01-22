@@ -2,7 +2,7 @@ import copy
 
 from pathlib import Path
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock, call as MockCall
+from unittest.mock import MagicMock, PropertyMock, call as MockCall
 
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
@@ -155,6 +155,23 @@ def test_from_archive(package_ahriman: Package, pyalpm_handle: MagicMock, mocker
     """
     must construct package from alpm library
     """
+    mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
+                 return_value=package_ahriman.packages[package_ahriman.base])
+    generated = Package.from_archive(Path("path"), pyalpm_handle)
+    generated.remote = package_ahriman.remote
+
+    assert generated == package_ahriman
+
+
+def test_from_archive_empty_base(package_ahriman: Package, pyalpm_package_ahriman: MagicMock,
+                                 mocker: MockerFixture) -> None:
+    """
+    must construct package with empty base from alpm library
+    """
+    pyalpm_handle = MagicMock()
+    type(pyalpm_package_ahriman).base = PropertyMock(return_value=None)
+    pyalpm_handle.handle.load_pkg.return_value = pyalpm_package_ahriman
+
     mocker.patch("ahriman.models.package_description.PackageDescription.from_package",
                  return_value=package_ahriman.packages[package_ahriman.base])
     generated = Package.from_archive(Path("path"), pyalpm_handle)
