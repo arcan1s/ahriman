@@ -99,6 +99,9 @@ _shtab_ahriman_options=(
   "--wait-timeout[wait for lock to be free. Negative value will lead to immediate application run even if there is lock file. In case of zero value, the application will wait infinitely (default\: -1)]:wait_timeout:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_defaults_added=0
+
 _shtab_ahriman_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--changes,--no-changes}"[calculate changes from the latest known commit if available (default\: True)]:changes:"
@@ -113,6 +116,9 @@ _shtab_ahriman_add_options=(
   "(*):package source (base name, path to local files, remote URL):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_add_defaults_added=0
+
 _shtab_ahriman_aur_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
@@ -120,6 +126,9 @@ _shtab_ahriman_aur_search_options=(
   "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name (default\: name)]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_aur_search_defaults_added=0
 
 _shtab_ahriman_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -131,6 +140,9 @@ _shtab_ahriman_check_options=(
   "(*)::filter check by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_check_defaults_added=0
+
 _shtab_ahriman_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--cache,--no-cache}"[clear directory with package caches (default\: False)]:cache:"
@@ -140,6 +152,9 @@ _shtab_ahriman_clean_options=(
   {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_clean_defaults_added=0
+
 _shtab_ahriman_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--info,--no-info}"[show additional information, e.g. configuration files (default\: True)]:info:"
@@ -148,10 +163,16 @@ _shtab_ahriman_config_options=(
   ":filter settings by key (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_config_defaults_added=0
+
 _shtab_ahriman_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_config_validate_defaults_added=0
 
 _shtab_ahriman_copy_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -160,6 +181,9 @@ _shtab_ahriman_copy_options=(
   ":source repository name:"
   "(*):package base:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_copy_defaults_added=0
 
 _shtab_ahriman_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -178,24 +202,39 @@ _shtab_ahriman_daemon_options=(
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_daemon_defaults_added=0
+
 _shtab_ahriman_help_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":show help message for specific command (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_help_defaults_added=0
 
 _shtab_ahriman_help_commands_unsafe_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*)::instead of showing commands, just test command line for unsafe subcommand and return 0 in case if command is safe and 1 otherwise (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_help_commands_unsafe_defaults_added=0
+
 _shtab_ahriman_help_updates_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit code if updates available (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_help_updates_defaults_added=0
+
 _shtab_ahriman_help_version_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_help_version_defaults_added=0
 
 _shtab_ahriman_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -213,11 +252,17 @@ _shtab_ahriman_init_options=(
   "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_init_defaults_added=0
+
 _shtab_ahriman_key_import_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--key-server[key server for key import (default\: keyserver.ubuntu.com)]:key_server:"
   ":PGP key to import from public server:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_key_import_defaults_added=0
 
 _shtab_ahriman_package_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -233,16 +278,25 @@ _shtab_ahriman_package_add_options=(
   "(*):package source (base name, path to local files, remote URL):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_add_defaults_added=0
+
 _shtab_ahriman_package_changes_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
   ":package base:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_changes_defaults_added=0
+
 _shtab_ahriman_package_changes_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":package base:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_changes_remove_defaults_added=0
 
 _shtab_ahriman_package_copy_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -252,10 +306,16 @@ _shtab_ahriman_package_copy_options=(
   "(*):package base:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_copy_defaults_added=0
+
 _shtab_ahriman_package_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):package name or base:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_remove_defaults_added=0
 
 _shtab_ahriman_package_status_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -266,16 +326,25 @@ _shtab_ahriman_package_status_options=(
   "(*)::filter status by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_status_defaults_added=0
+
 _shtab_ahriman_package_status_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):remove specified packages from status page:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_status_remove_defaults_added=0
 
 _shtab_ahriman_package_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-s,--status}"[new package build status (default\: success)]:status:(unknown pending building failed success)"
   "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_status_update_defaults_added=0
 
 _shtab_ahriman_package_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -291,12 +360,18 @@ _shtab_ahriman_package_update_options=(
   "(*):package source (base name, path to local files, remote URL):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_package_update_defaults_added=0
+
 _shtab_ahriman_patch_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":package base:"
   ":PKGBUILD variable or function name. If variable is a function, it must end with ():"
   ":path to file which contains function or variable value. If not set, the value will be read from stdin (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_patch_add_defaults_added=0
 
 _shtab_ahriman_patch_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -305,17 +380,26 @@ _shtab_ahriman_patch_list_options=(
   ":package base:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_patch_list_defaults_added=0
+
 _shtab_ahriman_patch_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "*"{-v,--variable}"[should be used for single-function patches in case if you wold like to remove only specified PKGBUILD variables. In case if not set, it will remove all patches related to the package (default\: None)]:variable:"
   ":package base:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_patch_remove_defaults_added=0
+
 _shtab_ahriman_patch_set_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "*"{-t,--track}"[files which has to be tracked (default\: \[\'\*.diff\', \'\*.patch\'\])]:track:"
   ":path to directory with changed files for patch addition\/update:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_patch_set_add_defaults_added=0
 
 _shtab_ahriman_rebuild_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -328,20 +412,32 @@ _shtab_ahriman_rebuild_options=(
   {-u,--username}"[build as user (default\: None)]:username:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_rebuild_defaults_added=0
+
 _shtab_ahriman_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):package name or base:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_remove_defaults_added=0
 
 _shtab_ahriman_remove_unknown_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--dry-run[just perform check for packages without removal (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_remove_unknown_defaults_added=0
+
 _shtab_ahriman_repo_backup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":path of the output archive:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_backup_defaults_added=0
 
 _shtab_ahriman_repo_check_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -353,6 +449,9 @@ _shtab_ahriman_repo_check_options=(
   "(*)::filter check by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_check_defaults_added=0
+
 _shtab_ahriman_repo_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--cache,--no-cache}"[clear directory with package caches (default\: False)]:cache:"
@@ -362,6 +461,9 @@ _shtab_ahriman_repo_clean_options=(
   {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_clean_defaults_added=0
+
 _shtab_ahriman_repo_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--info,--no-info}"[show additional information, e.g. configuration files (default\: True)]:info:"
@@ -370,18 +472,30 @@ _shtab_ahriman_repo_config_options=(
   ":filter settings by key (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_config_defaults_added=0
+
 _shtab_ahriman_repo_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_config_validate_defaults_added=0
+
 _shtab_ahriman_repo_create_keyring_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_create_keyring_defaults_added=0
+
 _shtab_ahriman_repo_create_mirrorlist_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_create_mirrorlist_defaults_added=0
 
 _shtab_ahriman_repo_daemon_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -400,6 +514,9 @@ _shtab_ahriman_repo_daemon_options=(
   "*"{-y,--refresh}"[download fresh package databases from the mirror before actions, -yy to force refresh even if up to date (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_daemon_defaults_added=0
+
 _shtab_ahriman_repo_init_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--build-as-user[force makepkg user to the specific one (default\: None)]:build_as_user:"
@@ -416,6 +533,9 @@ _shtab_ahriman_repo_init_options=(
   "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_init_defaults_added=0
+
 _shtab_ahriman_repo_rebuild_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "*--depends-on[only rebuild packages that depend on specified packages (default\: None)]:depends_on:"
@@ -427,20 +547,32 @@ _shtab_ahriman_repo_rebuild_options=(
   {-u,--username}"[build as user (default\: None)]:username:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_rebuild_defaults_added=0
+
 _shtab_ahriman_repo_remove_unknown_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--dry-run[just perform check for packages without removal (default\: False)]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_remove_unknown_defaults_added=0
+
 _shtab_ahriman_repo_report_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_report_defaults_added=0
 
 _shtab_ahriman_repo_restore_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-o,--output}"[root path of the extracted files (default\: \/)]:output:"
   ":path of the input archive:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_restore_defaults_added=0
 
 _shtab_ahriman_repo_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -458,10 +590,16 @@ _shtab_ahriman_repo_setup_options=(
   "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_setup_defaults_added=0
+
 _shtab_ahriman_repo_sign_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*)::sign only specified packages (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_sign_defaults_added=0
 
 _shtab_ahriman_repo_statistics_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -474,24 +612,39 @@ _shtab_ahriman_repo_statistics_options=(
   ":fetch only events for the specified package (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_statistics_defaults_added=0
+
 _shtab_ahriman_repo_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-s,--status}"[new status (default\: success)]:status:(unknown pending building failed success)"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_status_update_defaults_added=0
+
 _shtab_ahriman_repo_sync_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_sync_defaults_added=0
 
 _shtab_ahriman_repo_tree_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-p,--partitions}"[also divide packages by independent partitions (default\: 1)]:partitions:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_tree_defaults_added=0
+
 _shtab_ahriman_repo_triggers_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*)::instead of running all triggers as set by configuration, just process specified ones in order of mention (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_triggers_defaults_added=0
 
 _shtab_ahriman_repo_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -510,14 +663,23 @@ _shtab_ahriman_repo_update_options=(
   "(*)::filter check by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_repo_update_defaults_added=0
+
 _shtab_ahriman_report_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_report_defaults_added=0
 
 _shtab_ahriman_run_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):command to be run (quoted) without \`\`ahriman\`\`:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_run_defaults_added=0
 
 _shtab_ahriman_search_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -526,6 +688,9 @@ _shtab_ahriman_search_options=(
   "--sort-by[sort field by this field. In case if two packages have the same value of the specified field, they will be always sorted by name (default\: name)]:sort_by:(description first_submitted id last_modified maintainer name num_votes out_of_date package_base package_base_id popularity repository submitter url url_path version)"
   "(*):search terms, can be specified multiple times, the result will match all terms:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_search_defaults_added=0
 
 _shtab_ahriman_service_clean_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -536,6 +701,9 @@ _shtab_ahriman_service_clean_options=(
   {--pacman,--no-pacman}"[clear directory with pacman local database cache (default\: False)]:pacman:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_clean_defaults_added=0
+
 _shtab_ahriman_service_config_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--info,--no-info}"[show additional information, e.g. configuration files (default\: True)]:info:"
@@ -544,10 +712,16 @@ _shtab_ahriman_service_config_options=(
   ":filter settings by key (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_config_defaults_added=0
+
 _shtab_ahriman_service_config_validate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if configuration is invalid (default\: False)]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_config_validate_defaults_added=0
 
 _shtab_ahriman_service_key_import_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -555,15 +729,24 @@ _shtab_ahriman_service_key_import_options=(
   ":PGP key to import from public server:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_key_import_defaults_added=0
+
 _shtab_ahriman_service_repositories_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {--id-only,--no-id-only}"[show machine readable identifier instead (default\: False)]:id_only:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_repositories_defaults_added=0
+
 _shtab_ahriman_service_run_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*):command to be run (quoted) without \`\`ahriman\`\`:"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_run_defaults_added=0
 
 _shtab_ahriman_service_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -581,15 +764,24 @@ _shtab_ahriman_service_setup_options=(
   "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_setup_defaults_added=0
+
 _shtab_ahriman_service_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-o,--output}"[output commands and result to the file (default\: None)]:output:"
   ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_shell_defaults_added=0
+
 _shtab_ahriman_service_tree_migrate_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_service_tree_migrate_defaults_added=0
 
 _shtab_ahriman_setup_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -607,16 +799,25 @@ _shtab_ahriman_setup_options=(
   "--web-unix-socket[path to unix socket used for interprocess communications (default\: None)]:web_unix_socket:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_setup_defaults_added=0
+
 _shtab_ahriman_shell_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-o,--output}"[output commands and result to the file (default\: None)]:output:"
   ":instead of dropping into shell, just execute the specified code (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_shell_defaults_added=0
+
 _shtab_ahriman_sign_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "(*)::sign only specified packages (default\: None):"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_sign_defaults_added=0
 
 _shtab_ahriman_status_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -627,15 +828,24 @@ _shtab_ahriman_status_options=(
   "(*)::filter status by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_status_defaults_added=0
+
 _shtab_ahriman_status_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-s,--status}"[new package build status (default\: success)]:status:(unknown pending building failed success)"
   "(*)::set status for specified packages. If no packages supplied, service status will be updated (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_status_update_defaults_added=0
+
 _shtab_ahriman_sync_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_sync_defaults_added=0
 
 _shtab_ahriman_update_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
@@ -654,6 +864,9 @@ _shtab_ahriman_update_options=(
   "(*)::filter check by package base (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_update_defaults_added=0
+
 _shtab_ahriman_user_add_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   "--key[optional PGP key used by this user. The private key must be imported (default\: None)]:key:"
@@ -663,6 +876,9 @@ _shtab_ahriman_user_add_options=(
   ":username for web service:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_user_add_defaults_added=0
+
 _shtab_ahriman_user_list_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   {-e,--exit-code}"[return non-zero exit status if result is empty (default\: False)]"
@@ -670,25 +886,41 @@ _shtab_ahriman_user_list_options=(
   ":filter users by username (default\: None):"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_user_list_defaults_added=0
+
 _shtab_ahriman_user_remove_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
   ":username for web service:"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_user_remove_defaults_added=0
+
 _shtab_ahriman_version_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
+
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_version_defaults_added=0
 
 _shtab_ahriman_web_options=(
   "(- : *)"{-h,--help}"[show this help message and exit]"
 )
 
+# guard to ensure default positional specs are added only once per session
+_shtab_ahriman_web_defaults_added=0
+
 
 _shtab_ahriman() {
-  local context state line curcontext="$curcontext" one_or_more='(-)*' remainder='(*)'
+  local context state line curcontext="$curcontext" one_or_more='(*)' remainder='(-)*' default='*::: :->ahriman'
 
-  if ((${_shtab_ahriman_options[(I)${(q)one_or_more}*]} + ${_shtab_ahriman_options[(I)${(q)remainder}*]} == 0)); then  # noqa: E501
-    _shtab_ahriman_options+=(': :_shtab_ahriman_commands' '*::: :->ahriman')
+  # Add default positional/remainder specs only if none exist, and only once per session
+  if (( ! _shtab_ahriman_defaults_added )); then
+    if (( ${_shtab_ahriman_options[(I)${(q)one_or_more}*]} +          ${_shtab_ahriman_options[(I)${(q)remainder}*]} +          ${_shtab_ahriman_options[(I)${(q)default}]} == 0 )); then
+      _shtab_ahriman_options+=(': :_shtab_ahriman_commands' '*::: :->ahriman')
+    fi
+    _shtab_ahriman_defaults_added=1
   fi
   _arguments -C -s $_shtab_ahriman_options
 
