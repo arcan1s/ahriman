@@ -23,6 +23,7 @@ from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
 from ahriman.core.repository.package_info import PackageInfo
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
@@ -71,6 +72,8 @@ class UpdateHandler(PackageInfo, Cleaner):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Remote version is newer than local")
                         result.append(remote)
+                    else:
+                        self.reporter.package_status_update(local.base, BuildStatusEnum.Success)
                 except Exception:
                     self.reporter.set_failed(local.base)
                     self.logger.exception("could not load remote package %s", local.base)
@@ -79,7 +82,8 @@ class UpdateHandler(PackageInfo, Cleaner):
 
     def updates_dependencies(self, filter_packages: Iterable[str]) -> list[Package]:
         """
-        check packages which ae required to be rebuilt based on dynamic dependencies (e.g. linking, modules paths, etc.)
+        check packages which are required to be rebuilt based on dynamic dependencies
+        (e.g. linking, modules paths, etc.)
 
         Args:
             filter_packages(Iterable[str]): do not check every package just specified in the list

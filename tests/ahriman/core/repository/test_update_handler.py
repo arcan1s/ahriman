@@ -6,6 +6,7 @@ from typing import Any
 
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.update_handler import UpdateHandler
+from ahriman.models.build_status import BuildStatusEnum
 from ahriman.models.dependencies import Dependencies
 from ahriman.models.event import EventType
 from ahriman.models.package import Package
@@ -64,6 +65,20 @@ def test_updates_aur_failed(update_handler: UpdateHandler, package_ahriman: Pack
 
     update_handler.updates_aur([], vcs=True)
     status_client_mock.assert_called_once_with(package_ahriman.base)
+
+
+def test_updates_aur_up_to_date(update_handler: UpdateHandler, package_ahriman: Package,
+                                mocker: MockerFixture) -> None:
+    """
+    must set success status for packages which are not out-of-dated
+    """
+    mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
+    mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
+    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
+
+    assert update_handler.updates_aur([], vcs=True) == []
+    status_client_mock.assert_called_once_with(package_ahriman.base, BuildStatusEnum.Success)
 
 
 def test_updates_aur_local(update_handler: UpdateHandler, package_ahriman: Package,
