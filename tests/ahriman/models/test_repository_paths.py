@@ -55,7 +55,7 @@ def test_root_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) ->
     """
     must correctly define root directory owner
     """
-    mocker.patch("ahriman.models.repository_paths.RepositoryPaths.owner", return_value=(42, 142))
+    mocker.patch("ahriman.models.repository_paths.owner", return_value=(42, 142))
     assert repository_paths.root_owner == (42, 142)
 
 
@@ -186,23 +186,11 @@ def test_known_repositories_empty(repository_paths: RepositoryPaths, mocker: Moc
     iterdir_mock.assert_not_called()
 
 
-def test_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
-    """
-    must correctly retrieve owner of the path
-    """
-    stat_mock = MagicMock()
-    stat_mock.st_uid = 42
-    stat_mock.st_gid = 142
-    mocker.patch("pathlib.Path.stat", return_value=stat_mock)
-
-    assert RepositoryPaths.owner(repository_paths.root) == (42, 142)
-
-
 def test_chown(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
     """
     must correctly set owner for the directory
     """
-    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=False))
+    mocker.patch("ahriman.models.repository_paths.owner", _get_owner(repository_paths.root, same=False))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 
@@ -215,7 +203,7 @@ def test_chown_parent(repository_paths: RepositoryPaths, mocker: MockerFixture) 
     """
     must correctly set owner for the directory including parents
     """
-    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=False))
+    mocker.patch("ahriman.models.repository_paths.owner", _get_owner(repository_paths.root, same=False))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 
@@ -231,7 +219,7 @@ def test_chown_skip(repository_paths: RepositoryPaths, mocker: MockerFixture) ->
     """
     must skip ownership set in case if it is same as root
     """
-    object.__setattr__(repository_paths, "owner", _get_owner(repository_paths.root, same=True))
+    mocker.patch("ahriman.models.repository_paths.owner", _get_owner(repository_paths.root, same=True))
     mocker.patch.object(RepositoryPaths, "root_owner", (42, 42))
     chown_mock = mocker.patch("os.chown")
 

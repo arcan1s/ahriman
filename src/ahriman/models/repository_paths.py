@@ -29,6 +29,7 @@ from pwd import getpwuid
 
 from ahriman.core.exceptions import PathError
 from ahriman.core.log import LazyLogging
+from ahriman.core.utils import owner, safe_iterdir
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -93,7 +94,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             Path: path to directory in which build process is run
         """
-        uid, _ = self.owner(self.root)
+        uid, _ = owner(self.root)
         return self.chroot / f"{self.repository_id.name}-{self.repository_id.architecture}" / getpwuid(uid).pw_name
 
     @property
@@ -155,7 +156,7 @@ class RepositoryPaths(LazyLogging):
         Returns:
             tuple[int, int]: owner user and group of the root directory
         """
-        return self.owner(self.root)
+        return owner(self.root)
 
     # pylint: disable=protected-access
     @classmethod
@@ -208,20 +209,6 @@ class RepositoryPaths(LazyLogging):
 
         return set(walk(instance))
 
-    @staticmethod
-    def owner(path: Path) -> tuple[int, int]:
-        """
-        retrieve owner information by path
-
-        Args:
-            path(Path): path for which extract ids
-
-        Returns:
-            tuple[int, int]: owner user and group ids of the directory
-        """
-        stat = path.stat()
-        return stat.st_uid, stat.st_gid
-
     def _chown(self, path: Path) -> None:
         """
         set owner of path recursively (from root) to root owner
@@ -237,7 +224,7 @@ class RepositoryPaths(LazyLogging):
             PathError: if path does not belong to root
         """
         def set_owner(current: Path) -> None:
-            uid, gid = self.owner(current)
+            uid, gid = owner(current)
             if uid == root_uid and gid == root_gid:
                 return
             os.chown(current, root_uid, root_gid, follow_symlinks=False)
@@ -283,10 +270,10 @@ class RepositoryPaths(LazyLogging):
 
         def walk(root: Path) -> Iterator[Path]:
             # basically walk, but skipping some content
-            for child in root.iterdir():
+            for child in safe_iterdir(root):
                 yield child
                 if child in (self.chroot.parent,):
-                    yield from child.iterdir()  # we only yield top-level in chroot directory
+                    yield from safe_iterdir(child)  # we only yield top-level in chroot directory
                 elif child.is_dir():
                     yield from walk(child)
 

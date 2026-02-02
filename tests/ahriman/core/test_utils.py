@@ -6,12 +6,10 @@ import pytest
 from pathlib import Path
 from pytest_mock import MockerFixture
 from typing import Any
-from unittest.mock import call as MockCall
+from unittest.mock import MagicMock, call as MockCall
 
 from ahriman.core.exceptions import BuildError, CalledProcessError, OptionError, UnsafeRunError
-from ahriman.core.utils import check_output, check_user, dataclass_view, enum_values, extract_user, filter_json, \
-    full_version, minmax, package_like, parse_version, partition, pretty_datetime, pretty_interval, pretty_size, \
-    safe_filename, srcinfo_property, srcinfo_property_list, trim_package, utcnow, walk
+from ahriman.core.utils import *
 from ahriman.models.package import Package
 from ahriman.models.package_source import PackageSource
 from ahriman.models.repository_id import RepositoryId
@@ -163,7 +161,7 @@ def test_check_user(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     """
     paths = RepositoryPaths(Path.cwd(), repository_id)
     mocker.patch("os.getuid", return_value=paths.root_owner[0])
-    check_user(paths, unsafe=False)
+    check_user(paths.root, unsafe=False)
 
 
 def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
@@ -171,7 +169,7 @@ def test_check_user_no_directory(repository_paths: RepositoryPaths, mocker: Mock
     must not fail in case if no directory found
     """
     mocker.patch("pathlib.Path.exists", return_value=False)
-    check_user(repository_paths, unsafe=False)
+    check_user(repository_paths.root, unsafe=False)
 
 
 def test_check_user_exception(repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -182,7 +180,7 @@ def test_check_user_exception(repository_id: RepositoryId, mocker: MockerFixture
     mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
 
     with pytest.raises(UnsafeRunError):
-        check_user(paths, unsafe=False)
+        check_user(paths.root, unsafe=False)
 
 
 def test_check_user_unsafe(repository_id: RepositoryId, mocker: MockerFixture) -> None:
@@ -191,7 +189,7 @@ def test_check_user_unsafe(repository_id: RepositoryId, mocker: MockerFixture) -
     """
     paths = RepositoryPaths(Path.cwd(), repository_id)
     mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
-    check_user(paths, unsafe=True)
+    check_user(paths.root, unsafe=True)
 
 
 def test_dataclass_view(package_ahriman: Package) -> None:
@@ -273,6 +271,18 @@ def test_minmax() -> None:
     """
     assert minmax([1, 4, 3, 2]) == (1, 4)
     assert minmax([[1, 2, 3], [4, 5], [6, 7, 8, 9]], key=len) == ([4, 5], [6, 7, 8, 9])
+
+
+def test_owner(repository_paths: RepositoryPaths, mocker: MockerFixture) -> None:
+    """
+    must correctly retrieve owner of the path
+    """
+    stat_mock = MagicMock()
+    stat_mock.st_uid = 42
+    stat_mock.st_gid = 142
+    mocker.patch("pathlib.Path.stat", return_value=stat_mock)
+
+    assert owner(repository_paths.root) == (42, 142)
 
 
 def test_package_like(package_ahriman: Package) -> None:
@@ -424,6 +434,17 @@ def test_safe_filename() -> None:
         "netkit-telnet-ssl-0.17.41+0.2-6-x86_64.pkg.tar.zst") == "netkit-telnet-ssl-0.17.41-0.2-6-x86_64.pkg.tar.zst"
     assert safe_filename("spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst") == "spotify-1:1.1.84.716-2-x86_64.pkg.tar.zst"
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
+
+
+def test_safe_iterdir(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must suppress PermissionError
+    """
+    assert list(safe_iterdir(resource_path_root))
+
+    iterdir_mock = mocker.patch("pathlib.Path.iterdir", side_effect=PermissionError)
+    assert list(safe_iterdir(Path("root"))) == []
+    iterdir_mock.assert_called_once_with()
 
 
 def test_srcinfo_property() -> None:

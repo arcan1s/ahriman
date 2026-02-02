@@ -142,7 +142,7 @@ def test_check_user(lock: Lock, mocker: MockerFixture) -> None:
     tree_create = mocker.patch("ahriman.models.repository_paths.RepositoryPaths.tree_create")
 
     lock.check_user()
-    check_user_patch.assert_called_once_with(lock.paths, unsafe=False)
+    check_user_patch.assert_called_once_with(lock.paths.root, unsafe=False)
     tree_create.assert_called_once_with()
 
 
