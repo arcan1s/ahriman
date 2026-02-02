@@ -158,7 +158,7 @@ class Lock(LazyLogging):
         """
         check if current user is actually owner of ahriman root
         """
-        check_user(self.paths, unsafe=self.unsafe)
+        check_user(self.paths.root, unsafe=self.unsafe)
         self.paths.tree_create()
 
     def check_version(self) -> None:

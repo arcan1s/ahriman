@@ -35,7 +35,6 @@ from pwd import getpwuid
 from typing import Any, IO, TypeVar
 
 from ahriman.core.exceptions import CalledProcessError, OptionError, UnsafeRunError
-from ahriman.models.repository_paths import RepositoryPaths
 
 
 __all__ = [
@@ -47,12 +46,14 @@ __all__ = [
     "filter_json",
     "full_version",
     "minmax",
+    "owner",
     "package_like",
     "parse_version",
     "partition",
     "pretty_datetime",
     "pretty_size",
     "safe_filename",
+    "safe_iterdir",
     "srcinfo_property",
     "srcinfo_property_list",
     "trim_package",
@@ -169,12 +170,13 @@ def check_output(*args: str, exception: Exception | Callable[[int, list[str], st
         return stdout
 
 
-def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
+def check_user(root: Path, *, unsafe: bool) -> None:
     """
     check if current user is the owner of the root
 
     Args:
-        paths(RepositoryPaths): repository paths object
+        root(Path): path to root directory (e.g. repository root
+            :attr:`ahriman.models.repository_paths.RepositoryPaths.root`)
         unsafe(bool): if set no user check will be performed before path creation
 
     Raises:
@@ -183,14 +185,16 @@ def check_user(paths: RepositoryPaths, *, unsafe: bool) -> None:
     Examples:
         Simply run function with arguments::
 
-            >>> check_user(paths, unsafe=False)
+            >>> check_user(root, unsafe=False)
     """
-    if not paths.root.exists():
+    if not root.exists():
         return  # no directory found, skip check
     if unsafe:
         return  # unsafe flag is enabled, no check performed
+
     current_uid = os.getuid()
-    root_uid, _ = paths.root_owner
+    root_uid, _ = owner(root)
+
     if current_uid != root_uid:
         raise UnsafeRunError(current_uid, root_uid)
 
@@ -286,6 +290,20 @@ def minmax(source: Iterable[T], *, key: Callable[[T], Any] | None = None) -> tup
     first_iter, second_iter = itertools.tee(source)
     # typing doesn't expose SupportLessThan, so we just ignore this in typecheck
     return min(first_iter, key=key), max(second_iter, key=key)  # type: ignore
+
+
+def owner(path: Path) -> tuple[int, int]:
+    """
+    retrieve owner information by path
+
+    Args:
+        path(Path): path for which extract ids
+
+    Returns:
+        tuple[int, int]: owner user and group ids of the directory
+    """
+    stat = path.stat()
+    return stat.st_uid, stat.st_gid
 
 
 def package_like(filename: Path) -> bool:
@@ -406,6 +424,22 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
+
+
+def safe_iterdir(path: Path) -> Iterator[Path]:
+    """
+    wrapper around :func:`pathlib.Path.iterdir`, which suppresses :exc:`PermissionError`
+
+    Args:
+        path(Path): path to iterate
+
+    Yields:
+        Path: content of the directory
+    """
+    try:
+        yield from path.iterdir()
+    except PermissionError:
+        pass
 
 
 def srcinfo_property(key: str, srcinfo: Mapping[str, Any], package_srcinfo: Mapping[str, Any], *,
