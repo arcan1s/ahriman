@@ -1,9 +1,9 @@
-.TH AHRIMAN "1" "2026\-01\-25" "ahriman 2.19.3" "ArcH linux ReposItory MANager"
+.TH AHRIMAN "1" "2026\-02\-02" "ahriman 2.19.4" "ArcH linux ReposItory MANager"
 .SH NAME
 ahriman \- ArcH linux ReposItory MANager
 .SH SYNOPSIS
-.B ahriman
-[-h] [-a ARCHITECTURE] [-c CONFIGURATION] [--force] [-l LOCK] [--log-handler {console,syslog,journald}] [-q] [--report | --no-report] [-r REPOSITORY] [--unsafe] [-V] [--wait-timeout WAIT_TIMEOUT] {add,aur-search,check,clean,config,config-validate,copy,daemon,help,help-commands-unsafe,help-updates,help-version,init,key-import,package-add,package-changes,package-changes-remove,package-copy,package-remove,package-status,package-status-remove,package-status-update,package-update,patch-add,patch-list,patch-remove,patch-set-add,rebuild,remove,remove-unknown,repo-backup,repo-check,repo-clean,repo-config,repo-config-validate,repo-create-keyring,repo-create-mirrorlist,repo-daemon,repo-init,repo-rebuild,repo-remove-unknown,repo-report,repo-restore,repo-setup,repo-sign,repo-statistics,repo-status-update,repo-sync,repo-tree,repo-triggers,repo-update,report,run,search,service-clean,service-config,service-config-validate,service-key-import,service-repositories,service-run,service-setup,service-shell,service-tree-migrate,setup,shell,sign,status,status-update,sync,update,user-add,user-list,user-remove,version,web} ...
+.B [0m[1;35mahriman[0m
+[[32m-h[0m] [[32m-a [33mARCHITECTURE[0m] [[32m-c [33mCONFIGURATION[0m] [[36m--force[0m] [[32m-l [33mLOCK[0m] [[36m--log-handler [33m{console,syslog,journald}[0m] [[32m-q[0m] [[36m--report | --no-report[0m] [[32m-r [33mREPOSITORY[0m] [[36m--unsafe[0m] [[32m-V[0m] [[36m--wait-timeout [33mWAIT_TIMEOUT[0m] [32m{add,aur-search,check,clean,config,config-validate,copy,daemon,help,help-commands-unsafe,help-updates,help-version,init,key-import,package-add,package-changes,package-changes-remove,package-copy,package-remove,package-status,package-status-remove,package-status-update,package-update,patch-add,patch-list,patch-remove,patch-set-add,rebuild,remove,remove-unknown,repo-backup,repo-check,repo-clean,repo-config,repo-config-validate,repo-create-keyring,repo-create-mirrorlist,repo-daemon,repo-init,repo-rebuild,repo-remove-unknown,repo-report,repo-restore,repo-setup,repo-sign,repo-statistics,repo-status-update,repo-sync,repo-tree,repo-triggers,repo-update,report,run,search,service-clean,service-config,service-config-validate,service-key-import,service-repositories,service-run,service-setup,service-shell,service-tree-migrate,setup,shell,sign,status,status-update,sync,update,user-add,user-list,user-remove,version,web} ...[0m
 .SH DESCRIPTION
 ArcH linux ReposItory MANager
 
@@ -195,9 +195,9 @@ remove user
 web server
 
 .SH COMMAND \fI\,'ahriman aur\-search'\/\fR
-usage: ahriman aur\-search [\-h] [\-e] [\-\-info | \-\-no\-info]
-                          [\-\-sort\-by {description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,submitter,url,url_path,version}]
-                          search [search ...]
+[1;34musage: [0m[1;35mahriman aur\-search[0m [[32m\-h[0m] [[32m\-e[0m] [[36m\-\-info | \-\-no\-info[0m]
+                          [[36m\-\-sort\-by [33m{description,first_submitted,id,last_modified,maintainer,name,num_votes,out_of_date,package_base,package_base_id,popularity,repository,submitter,url,url_path,version}[0m]
+                          [32msearch [search ...][0m
 
 search for package in AUR using API
 
@@ -220,7 +220,7 @@ sort field by this field. In case if two packages have the same value of the spe
 by name
 
 .SH COMMAND \fI\,'ahriman help'\/\fR
-usage: ahriman help [\-h] [subcommand]
+[1;34musage: [0m[1;35mahriman help[0m [[32m\-h[0m] [32m[subcommand][0m
 
 show help message for application or command and exit
 
@@ -229,7 +229,7 @@ show help message for application or command and exit
 show help message for specific command
 
 .SH COMMAND \fI\,'ahriman help\-commands\-unsafe'\/\fR
-usage: ahriman help\-commands\-unsafe [\-h] [subcommand ...]
+[1;34musage: [0m[1;35mahriman help\-commands\-unsafe[0m [[32m\-h[0m] [32m[subcommand ...][0m
 
 list unsafe commands as defined in default args
 
@@ -239,7 +239,7 @@ instead of showing commands, just test command line for unsafe subcommand and re
 otherwise
 
 .SH COMMAND \fI\,'ahriman help\-updates'\/\fR
-usage: ahriman help\-updates [\-h] [\-e]
+[1;34musage: [0m[1;35mahriman help\-updates[0m [[32m\-h[0m] [[32m\-e[0m]
 
 request AUR for current version and compare with current service version
 
@@ -249,15 +249,15 @@ request AUR for current version and compare with current service version
 return non\-zero exit code if updates available
 
 .SH COMMAND \fI\,'ahriman help\-version'\/\fR
-usage: ahriman help\-version [\-h]
+[1;34musage: [0m[1;35mahriman help\-version[0m [[32m\-h[0m]
 
 print application and its dependencies versions
 
 .SH COMMAND \fI\,'ahriman package\-add'\/\fR
-usage: ahriman package\-add [\-h] [\-\-changes | \-\-no\-changes] [\-\-dependencies | \-\-no\-dependencies] [\-e]
-                           [\-\-increment | \-\-no\-increment] [\-n] [\-y]
-                           [\-s {auto,archive,aur,directory,local,remote,repository}] [\-u USERNAME] [\-v VARIABLE]
-                           package [package ...]
+[1;34musage: [0m[1;35mahriman package\-add[0m [[32m\-h[0m] [[36m\-\-changes | \-\-no\-changes[0m] [[36m\-\-dependencies | \-\-no\-dependencies[0m] [[32m\-e[0m]
+                           [[36m\-\-increment | \-\-no\-increment[0m] [[32m\-n[0m] [[32m\-y[0m]
+                           [[32m\-s [33m{auto,archive,aur,directory,local,remote,repository}[0m] [[32m\-u [33mUSERNAME[0m] [[32m\-v [33mVARIABLE[0m]
+                           [32mpackage [package ...][0m
 
 add existing or new package to the build queue
 
@@ -303,7 +303,7 @@ build as user
 apply specified makepkg variables to the next build
 
 .SH COMMAND \fI\,'ahriman package\-changes'\/\fR
-usage: ahriman package\-changes [\-h] [\-e] package
+[1;34musage: [0m[1;35mahriman package\-changes[0m [[32m\-h[0m] [[32m\-e[0m] [32mpackage[0m
 
 retrieve package changes stored in database
 
@@ -317,7 +317,7 @@ package base
 return non\-zero exit status if result is empty
 
 .SH COMMAND \fI\,'ahriman package\-changes\-remove'\/\fR
-usage: ahriman package\-changes\-remove [\-h] package
+[1;34musage: [0m[1;35mahriman package\-changes\-remove[0m [[32m\-h[0m] [32mpackage[0m
 
 remove the package changes stored remotely
 
@@ -326,7 +326,7 @@ remove the package changes stored remotely
 package base
 
 .SH COMMAND \fI\,'ahriman package\-copy'\/\fR
-usage: ahriman package\-copy [\-h] [\-e] [\-\-remove] source package [package ...]
+[1;34musage: [0m[1;35mahriman package\-copy[0m [[32m\-h[0m] [[32m\-e[0m] [[36m\-\-remove[0m] [32msource[0m [32mpackage [package ...][0m
 
 copy package and its metadata from another repository
 
@@ -348,7 +348,7 @@ return non\-zero exit status if result is empty
 remove package from the source repository after
 
 .SH COMMAND \fI\,'ahriman package\-remove'\/\fR
-usage: ahriman package\-remove [\-h] package [package ...]
+[1;34musage: [0m[1;35mahriman package\-remove[0m [[32m\-h[0m] [32mpackage [package ...][0m
 
 remove package from the repository
 
@@ -357,8 +357,8 @@ remove package from the repository
 package name or base
 
 .SH COMMAND \fI\,'ahriman package\-status'\/\fR
-usage: ahriman package\-status [\-h] [\-\-ahriman] [\-e] [\-\-info | \-\-no\-info] [\-s {unknown,pending,building,failed,success}]
-                              [package ...]
+[1;34musage: [0m[1;35mahriman package\-status[0m [[32m\-h[0m] [[36m\-\-ahriman[0m] [[32m\-e[0m] [[36m\-\-info | \-\-no\-info[0m] [[32m\-s [33m{unknown,pending,building,failed,success}[0m]
+                              [32m[package ...][0m
 
 request status of the package
 
@@ -384,7 +384,7 @@ show additional package information
 filter packages by status
 
 .SH COMMAND \fI\,'ahriman package\-status\-remove'\/\fR
-usage: ahriman package\-status\-remove [\-h] package [package ...]
+[1;34musage: [0m[1;35mahriman package\-status\-remove[0m [[32m\-h[0m] [32mpackage [package ...][0m
 
 remove the package from the status page
 
@@ -393,7 +393,7 @@ remove the package from the status page
 remove specified packages from status page
 
 .SH COMMAND \fI\,'ahriman package\-status\-update'\/\fR
-usage: ahriman package\-status\-update [\-h] [\-s {unknown,pending,building,failed,success}] [package ...]
+[1;34musage: [0m[1;35mahriman package\-status\-update[0m [[32m\-h[0m] [[32m\-s [33m{unknown,pending,building,failed,success}[0m] [32m[package ...][0m
 
 update package status on the status page
 
@@ -407,7 +407,7 @@ set status for specified packages. If no packages supplied, service status will 
 new package build status
 
 .SH COMMAND \fI\,'ahriman patch\-add'\/\fR
-usage: ahriman patch\-add [\-h] package variable [patch]
+[1;34musage: [0m[1;35mahriman patch\-add[0m [[32m\-h[0m] [32mpackage[0m [32mvariable[0m [32m[patch][0m
 
 create or update patched PKGBUILD function or variable
 
@@ -424,7 +424,7 @@ PKGBUILD variable or function name. If variable is a function, it must end with 
 path to file which contains function or variable value. If not set, the value will be read from stdin
 
 .SH COMMAND \fI\,'ahriman patch\-list'\/\fR
-usage: ahriman patch\-list [\-h] [\-e] [\-v VARIABLE] package
+[1;34musage: [0m[1;35mahriman patch\-list[0m [[32m\-h[0m] [[32m\-e[0m] [[32m\-v [33mVARIABLE[0m] [32mpackage[0m
 
 list available patches for the package
 
@@ -442,7 +442,7 @@ return non\-zero exit status if result is empty
 if set, show only patches for specified PKGBUILD variables
 
 .SH COMMAND \fI\,'ahriman patch\-remove'\/\fR
-usage: ahriman patch\-remove [\-h] [\-v VARIABLE] package
+[1;34musage: [0m[1;35mahriman patch\-remove[0m [[32m\-h[0m] [[32m\-v [33mVARIABLE[0m] [32mpackage[0m
 
 remove patches for the package
 
@@ -457,7 +457,7 @@ should be used for single\-function patches in case if you wold like to remove o
 if not set, it will remove all patches related to the package
 
 .SH COMMAND \fI\,'ahriman patch\-set\-add'\/\fR
-usage: ahriman patch\-set\-add [\-h] [\-t TRACK] package
+[1;34musage: [0m[1;35mahriman patch\-set\-add[0m [[32m\-h[0m] [[32m\-t [33mTRACK[0m] [32mpackage[0m
 
 create or update source patches
 
@@ -471,7 +471,7 @@ path to directory with changed files for patch addition/update
 files which has to be tracked
 
 .SH COMMAND \fI\,'ahriman repo\-backup'\/\fR
-usage: ahriman repo\-backup [\-h] path
+[1;34musage: [0m[1;35mahriman repo\-backup[0m [[32m\-h[0m] [32mpath[0m
 
 backup repository settings and database
 
@@ -480,9 +480,9 @@ backup repository settings and database
 path of the output archive
 
 .SH COMMAND \fI\,'ahriman repo\-check'\/\fR
-usage: ahriman repo\-check [\-h] [\-\-changes | \-\-no\-changes] [\-\-check\-files | \-\-no\-check\-files] [\-e] [\-\-vcs | \-\-no\-vcs]
-                          [\-y]
-                          [package ...]
+[1;34musage: [0m[1;35mahriman repo\-check[0m [[32m\-h[0m] [[36m\-\-changes | \-\-no\-changes[0m] [[36m\-\-check\-files | \-\-no\-check\-files[0m] [[32m\-e[0m] [[36m\-\-vcs | \-\-no\-vcs[0m]
+                          [[32m\-y[0m]
+                          [32m[package ...][0m
 
 check for packages updates. Same as repo\-update \-\-dry\-run \-\-no\-manual
 
@@ -512,20 +512,20 @@ fetch actual version of VCS packages
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman repo\-create\-keyring'\/\fR
-usage: ahriman repo\-create\-keyring [\-h]
+[1;34musage: [0m[1;35mahriman repo\-create\-keyring[0m [[32m\-h[0m]
 
 create package which contains list of trusted keys as set by configuration. Note, that this action will only create package, the package itself has to be built manually
 
 .SH COMMAND \fI\,'ahriman repo\-create\-mirrorlist'\/\fR
-usage: ahriman repo\-create\-mirrorlist [\-h]
+[1;34musage: [0m[1;35mahriman repo\-create\-mirrorlist[0m [[32m\-h[0m]
 
 create package which contains list of available mirrors as set by configuration. Note, that this action will only create package, the package itself has to be built manually
 
 .SH COMMAND \fI\,'ahriman repo\-daemon'\/\fR
-usage: ahriman repo\-daemon [\-h] [\-i INTERVAL] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes]
-                           [\-\-check\-files | \-\-no\-check\-files] [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run]
-                           [\-\-increment | \-\-no\-increment] [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual]
-                           [\-\-partitions | \-\-no\-partitions] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
+[1;34musage: [0m[1;35mahriman repo\-daemon[0m [[32m\-h[0m] [[32m\-i [33mINTERVAL[0m] [[36m\-\-aur | \-\-no\-aur[0m] [[36m\-\-changes | \-\-no\-changes[0m]
+                           [[36m\-\-check\-files | \-\-no\-check\-files[0m] [[36m\-\-dependencies | \-\-no\-dependencies[0m] [[36m\-\-dry\-run[0m]
+                           [[36m\-\-increment | \-\-no\-increment[0m] [[36m\-\-local | \-\-no\-local[0m] [[36m\-\-manual | \-\-no\-manual[0m]
+                           [[36m\-\-partitions | \-\-no\-partitions[0m] [[32m\-u [33mUSERNAME[0m] [[36m\-\-vcs | \-\-no\-vcs[0m] [[32m\-y[0m]
 
 start process which periodically will run update process
 
@@ -583,8 +583,8 @@ fetch actual version of VCS packages
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman repo\-rebuild'\/\fR
-usage: ahriman repo\-rebuild [\-h] [\-\-depends\-on DEPENDS_ON] [\-\-dry\-run] [\-\-from\-database] [\-\-increment | \-\-no\-increment]
-                            [\-e] [\-s {unknown,pending,building,failed,success}] [\-u USERNAME]
+[1;34musage: [0m[1;35mahriman repo\-rebuild[0m [[32m\-h[0m] [[36m\-\-depends\-on [33mDEPENDS_ON[0m] [[36m\-\-dry\-run[0m] [[36m\-\-from\-database[0m] [[36m\-\-increment | \-\-no\-increment[0m]
+                            [[32m\-e[0m] [[32m\-s [33m{unknown,pending,building,failed,success}[0m] [[32m\-u [33mUSERNAME[0m]
 
 force rebuild whole repository
 
@@ -620,7 +620,7 @@ filter packages by status. Requires \-\-from\-database to be set
 build as user
 
 .SH COMMAND \fI\,'ahriman repo\-remove\-unknown'\/\fR
-usage: ahriman repo\-remove\-unknown [\-h] [\-\-dry\-run]
+[1;34musage: [0m[1;35mahriman repo\-remove\-unknown[0m [[32m\-h[0m] [[36m\-\-dry\-run[0m]
 
 remove packages which are missing in AUR and do not have local PKGBUILDs
 
@@ -630,12 +630,12 @@ remove packages which are missing in AUR and do not have local PKGBUILDs
 just perform check for packages without removal
 
 .SH COMMAND \fI\,'ahriman repo\-report'\/\fR
-usage: ahriman repo\-report [\-h]
+[1;34musage: [0m[1;35mahriman repo\-report[0m [[32m\-h[0m]
 
 generate repository report according to current settings
 
 .SH COMMAND \fI\,'ahriman repo\-restore'\/\fR
-usage: ahriman repo\-restore [\-h] [\-o OUTPUT] path
+[1;34musage: [0m[1;35mahriman repo\-restore[0m [[32m\-h[0m] [[32m\-o [33mOUTPUT[0m] [32mpath[0m
 
 restore settings and database
 
@@ -649,7 +649,7 @@ path of the input archive
 root path of the extracted files
 
 .SH COMMAND \fI\,'ahriman repo\-sign'\/\fR
-usage: ahriman repo\-sign [\-h] [package ...]
+[1;34musage: [0m[1;35mahriman repo\-sign[0m [[32m\-h[0m] [32m[package ...][0m
 
 (re\-)sign packages and repository database according to current settings
 
@@ -658,10 +658,10 @@ usage: ahriman repo\-sign [\-h] [package ...]
 sign only specified packages
 
 .SH COMMAND \fI\,'ahriman repo\-statistics'\/\fR
-usage: ahriman repo\-statistics [\-h] [\-\-chart CHART]
-                               [\-e {package\-outdated,package\-removed,package\-update\-failed,package\-updated}]
-                               [\-\-from\-date FROM_DATE] [\-\-limit LIMIT] [\-\-offset OFFSET] [\-\-to\-date TO_DATE]
-                               [package]
+[1;34musage: [0m[1;35mahriman repo\-statistics[0m [[32m\-h[0m] [[36m\-\-chart [33mCHART[0m]
+                               [[32m\-e [33m{package\-outdated,package\-removed,package\-update\-failed,package\-updated}[0m]
+                               [[36m\-\-from\-date [33mFROM_DATE[0m] [[36m\-\-limit [33mLIMIT[0m] [[36m\-\-offset [33mOFFSET[0m] [[36m\-\-to\-date [33mTO_DATE[0m]
+                               [32m[package][0m
 
 fetch repository statistics
 
@@ -695,7 +695,7 @@ skip specified amount of events
 only fetch events which are older than the date
 
 .SH COMMAND \fI\,'ahriman repo\-status\-update'\/\fR
-usage: ahriman repo\-status\-update [\-h] [\-s {unknown,pending,building,failed,success}]
+[1;34musage: [0m[1;35mahriman repo\-status\-update[0m [[32m\-h[0m] [[32m\-s [33m{unknown,pending,building,failed,success}[0m]
 
 update repository status on the status page
 
@@ -705,12 +705,12 @@ update repository status on the status page
 new status
 
 .SH COMMAND \fI\,'ahriman repo\-sync'\/\fR
-usage: ahriman repo\-sync [\-h]
+[1;34musage: [0m[1;35mahriman repo\-sync[0m [[32m\-h[0m]
 
 sync repository files to remote server according to current settings
 
 .SH COMMAND \fI\,'ahriman repo\-tree'\/\fR
-usage: ahriman repo\-tree [\-h] [\-p PARTITIONS]
+[1;34musage: [0m[1;35mahriman repo\-tree[0m [[32m\-h[0m] [[32m\-p [33mPARTITIONS[0m]
 
 dump repository tree based on packages dependencies
 
@@ -720,7 +720,7 @@ dump repository tree based on packages dependencies
 also divide packages by independent partitions
 
 .SH COMMAND \fI\,'ahriman repo\-triggers'\/\fR
-usage: ahriman repo\-triggers [\-h] [trigger ...]
+[1;34musage: [0m[1;35mahriman repo\-triggers[0m [[32m\-h[0m] [32m[trigger ...][0m
 
 run triggers on empty build result as configured by settings
 
@@ -729,10 +729,10 @@ run triggers on empty build result as configured by settings
 instead of running all triggers as set by configuration, just process specified ones in order of mention
 
 .SH COMMAND \fI\,'ahriman repo\-update'\/\fR
-usage: ahriman repo\-update [\-h] [\-\-aur | \-\-no\-aur] [\-\-changes | \-\-no\-changes] [\-\-check\-files | \-\-no\-check\-files]
-                           [\-\-dependencies | \-\-no\-dependencies] [\-\-dry\-run] [\-e] [\-\-increment | \-\-no\-increment]
-                           [\-\-local | \-\-no\-local] [\-\-manual | \-\-no\-manual] [\-u USERNAME] [\-\-vcs | \-\-no\-vcs] [\-y]
-                           [package ...]
+[1;34musage: [0m[1;35mahriman repo\-update[0m [[32m\-h[0m] [[36m\-\-aur | \-\-no\-aur[0m] [[36m\-\-changes | \-\-no\-changes[0m] [[36m\-\-check\-files | \-\-no\-check\-files[0m]
+                           [[36m\-\-dependencies | \-\-no\-dependencies[0m] [[36m\-\-dry\-run[0m] [[32m\-e[0m] [[36m\-\-increment | \-\-no\-increment[0m]
+                           [[36m\-\-local | \-\-no\-local[0m] [[36m\-\-manual | \-\-no\-manual[0m] [[32m\-u [33mUSERNAME[0m] [[36m\-\-vcs | \-\-no\-vcs[0m] [[32m\-y[0m]
+                           [32m[package ...][0m
 
 check for packages updates and run build process if requested
 
@@ -790,8 +790,8 @@ fetch actual version of VCS packages
 download fresh package databases from the mirror before actions, \-yy to force refresh even if up to date
 
 .SH COMMAND \fI\,'ahriman service\-clean'\/\fR
-usage: ahriman service\-clean [\-h] [\-\-cache | \-\-no\-cache] [\-\-chroot | \-\-no\-chroot] [\-\-manual | \-\-no\-manual]
-                             [\-\-packages | \-\-no\-packages] [\-\-pacman | \-\-no\-pacman]
+[1;34musage: [0m[1;35mahriman service\-clean[0m [[32m\-h[0m] [[36m\-\-cache | \-\-no\-cache[0m] [[36m\-\-chroot | \-\-no\-chroot[0m] [[36m\-\-manual | \-\-no\-manual[0m]
+                             [[36m\-\-packages | \-\-no\-packages[0m] [[36m\-\-pacman | \-\-no\-pacman[0m]
 
 remove local caches
 
@@ -817,7 +817,7 @@ clear directory with built packages
 clear directory with pacman local database cache
 
 .SH COMMAND \fI\,'ahriman service\-config'\/\fR
-usage: ahriman service\-config [\-h] [\-\-info | \-\-no\-info] [\-\-secure | \-\-no\-secure] [section] [key]
+[1;34musage: [0m[1;35mahriman service\-config[0m [[32m\-h[0m] [[36m\-\-info | \-\-no\-info[0m] [[36m\-\-secure | \-\-no\-secure[0m] [32m[section][0m [32m[key][0m
 
 dump configuration for the specified architecture
 
@@ -839,7 +839,7 @@ show additional information, e.g. configuration files
 hide passwords and secrets from output
 
 .SH COMMAND \fI\,'ahriman service\-config\-validate'\/\fR
-usage: ahriman service\-config\-validate [\-h] [\-e]
+[1;34musage: [0m[1;35mahriman service\-config\-validate[0m [[32m\-h[0m] [[32m\-e[0m]
 
 validate configuration and print found errors
 
@@ -849,7 +849,7 @@ validate configuration and print found errors
 return non\-zero exit status if configuration is invalid
 
 .SH COMMAND \fI\,'ahriman service\-key\-import'\/\fR
-usage: ahriman service\-key\-import [\-h] [\-\-key\-server KEY_SERVER] key
+[1;34musage: [0m[1;35mahriman service\-key\-import[0m [[32m\-h[0m] [[36m\-\-key\-server [33mKEY_SERVER[0m] [32mkey[0m
 
 import PGP key from public sources to the repository user
 
@@ -863,7 +863,7 @@ PGP key to import from public server
 key server for key import
 
 .SH COMMAND \fI\,'ahriman service\-repositories'\/\fR
-usage: ahriman service\-repositories [\-h] [\-\-id\-only | \-\-no\-id\-only]
+[1;34musage: [0m[1;35mahriman service\-repositories[0m [[32m\-h[0m] [[36m\-\-id\-only | \-\-no\-id\-only[0m]
 
 list all available repositories
 
@@ -873,7 +873,7 @@ list all available repositories
 show machine readable identifier instead
 
 .SH COMMAND \fI\,'ahriman service\-run'\/\fR
-usage: ahriman service\-run [\-h] command [command ...]
+[1;34musage: [0m[1;35mahriman service\-run[0m [[32m\-h[0m] [32mcommand [command ...][0m
 
 run multiple commands on success run of the previous command
 
@@ -882,11 +882,11 @@ run multiple commands on success run of the previous command
 command to be run (quoted) without ``ahriman``
 
 .SH COMMAND \fI\,'ahriman service\-setup'\/\fR
-usage: ahriman service\-setup [\-h] [\-\-build\-as\-user BUILD_AS_USER] [\-\-from\-configuration FROM_CONFIGURATION]
-                             [\-\-generate\-salt | \-\-no\-generate\-salt] [\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs]
-                             [\-\-mirror MIRROR] [\-\-multilib | \-\-no\-multilib] \-\-packager PACKAGER [\-\-server SERVER]
-                             [\-\-sign\-key SIGN_KEY] [\-\-sign\-target {disabled,packages,repository}] [\-\-web\-port WEB_PORT]
-                             [\-\-web\-unix\-socket WEB_UNIX_SOCKET]
+[1;34musage: [0m[1;35mahriman service\-setup[0m [[32m\-h[0m] [[36m\-\-build\-as\-user [33mBUILD_AS_USER[0m] [[36m\-\-from\-configuration [33mFROM_CONFIGURATION[0m]
+                             [[36m\-\-generate\-salt | \-\-no\-generate\-salt[0m] [[36m\-\-makeflags\-jobs | \-\-no\-makeflags\-jobs[0m]
+                             [[36m\-\-mirror [33mMIRROR[0m] [[36m\-\-multilib | \-\-no\-multilib[0m] [36m\-\-packager [33mPACKAGER[0m [[36m\-\-server [33mSERVER[0m]
+                             [[36m\-\-sign\-key [33mSIGN_KEY[0m] [[36m\-\-sign\-target [33m{disabled,packages,repository}[0m] [[36m\-\-web\-port [33mWEB_PORT[0m]
+                             [[36m\-\-web\-unix\-socket [33mWEB_UNIX_SOCKET[0m]
 
 create initial service configuration, requires root
 
@@ -940,7 +940,7 @@ port of the web service
 path to unix socket used for interprocess communications
 
 .SH COMMAND \fI\,'ahriman service\-shell'\/\fR
-usage: ahriman service\-shell [\-h] [\-o OUTPUT] [code]
+[1;34musage: [0m[1;35mahriman service\-shell[0m [[32m\-h[0m] [[32m\-o [33mOUTPUT[0m] [32m[code][0m
 
 drop into python shell
 
@@ -954,13 +954,13 @@ instead of dropping into shell, just execute the specified code
 output commands and result to the file
 
 .SH COMMAND \fI\,'ahriman service\-tree\-migrate'\/\fR
-usage: ahriman service\-tree\-migrate [\-h]
+[1;34musage: [0m[1;35mahriman service\-tree\-migrate[0m [[32m\-h[0m]
 
 migrate repository tree between versions
 
 .SH COMMAND \fI\,'ahriman user\-add'\/\fR
-usage: ahriman user\-add [\-h] [\-\-key KEY] [\-\-packager PACKAGER] [\-p PASSWORD] [\-R {unauthorized,read,reporter,full}]
-                        username
+[1;34musage: [0m[1;35mahriman user\-add[0m [[32m\-h[0m] [[36m\-\-key [33mKEY[0m] [[36m\-\-packager [33mPACKAGER[0m] [[32m\-p [33mPASSWORD[0m] [[32m\-R [33m{unauthorized,read,reporter,full}[0m]
+                        [32musername[0m
 
 update user for web services with the given password and role. In case if password was not entered it will be asked interactively
 
@@ -987,7 +987,7 @@ authorization type.
 user access level
 
 .SH COMMAND \fI\,'ahriman user\-list'\/\fR
-usage: ahriman user\-list [\-h] [\-e] [\-R {unauthorized,read,reporter,full}] [username]
+[1;34musage: [0m[1;35mahriman user\-list[0m [[32m\-h[0m] [[32m\-e[0m] [[32m\-R [33m{unauthorized,read,reporter,full}[0m] [32m[username][0m
 
 list users from the user mapping and their roles
 
@@ -1005,7 +1005,7 @@ return non\-zero exit status if result is empty
 filter users by role
 
 .SH COMMAND \fI\,'ahriman user\-remove'\/\fR
-usage: ahriman user\-remove [\-h] username
+[1;34musage: [0m[1;35mahriman user\-remove[0m [[32m\-h[0m] [32musername[0m
 
 remove user from the user mapping and update the configuration
 
@@ -1014,7 +1014,7 @@ remove user from the user mapping and update the configuration
 username for web service
 
 .SH COMMAND \fI\,'ahriman web'\/\fR
-usage: ahriman web [\-h]
+[1;34musage: [0m[1;35mahriman web[0m [[32m\-h[0m]
 
 start web server
 
