@@ -198,8 +198,8 @@ def test_preserve_owner(tmp_path: Path, repository_id: RepositoryId, mocker: Moc
     """
     must preserve file owner during operations
     """
-    mocker.patch("os.getuid", return_value=0)
-    mocker.patch("os.getgid", return_value=0)
+    mocker.patch("os.geteuid", return_value=0)
+    mocker.patch("os.getegid", return_value=0)
     seteuid_mock = mocker.patch("os.seteuid")
     setegid_mock = mocker.patch("os.setegid")
 
@@ -214,8 +214,8 @@ def test_preserve_owner_exception(tmp_path: Path, repository_id: RepositoryId, m
     """
     must return to original uid and gid even during exception
     """
-    mocker.patch("os.getuid", return_value=0)
-    mocker.patch("os.getgid", return_value=0)
+    mocker.patch("os.geteuid", return_value=0)
+    mocker.patch("os.getegid", return_value=0)
     mocker.patch("pathlib.Path.mkdir", side_effect=Exception)
     seteuid_mock = mocker.patch("os.seteuid")
     setegid_mock = mocker.patch("os.setegid")
@@ -232,8 +232,8 @@ def test_preserve_owner_non_root(tmp_path: Path, repository_id: RepositoryId, mo
     """
     must skip processing if user is not root
     """
-    mocker.patch("os.getuid", return_value=42)
-    mocker.patch("os.getgid", return_value=42)
+    mocker.patch("os.geteuid", return_value=42)
+    mocker.patch("os.getegid", return_value=42)
     repository_paths = RepositoryPaths(tmp_path, repository_id)
     seteuid_mock = mocker.patch("os.seteuid")
     setegid_mock = mocker.patch("os.setegid")

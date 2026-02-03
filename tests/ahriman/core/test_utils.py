@@ -160,7 +160,7 @@ def test_check_user(repository_id: RepositoryId, mocker: MockerFixture) -> None:
     must check user correctly
     """
     paths = RepositoryPaths(Path.cwd(), repository_id)
-    mocker.patch("os.getuid", return_value=paths.root_owner[0])
+    mocker.patch("os.geteuid", return_value=paths.root_owner[0])
     check_user(paths.root, unsafe=False)
 
 
@@ -177,7 +177,7 @@ def test_check_user_exception(repository_id: RepositoryId, mocker: MockerFixture
     must raise exception if user differs
     """
     paths = RepositoryPaths(Path.cwd(), repository_id)
-    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
+    mocker.patch("os.geteuid", return_value=paths.root_owner[0] + 1)
 
     with pytest.raises(UnsafeRunError):
         check_user(paths.root, unsafe=False)
@@ -188,7 +188,7 @@ def test_check_user_unsafe(repository_id: RepositoryId, mocker: MockerFixture) -
     must skip check if unsafe flag is set
     """
     paths = RepositoryPaths(Path.cwd(), repository_id)
-    mocker.patch("os.getuid", return_value=paths.root_owner[0] + 1)
+    mocker.patch("os.geteuid", return_value=paths.root_owner[0] + 1)
     check_user(paths.root, unsafe=True)
 
 

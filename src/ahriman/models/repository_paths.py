@@ -239,7 +239,7 @@ class RepositoryPaths(LazyLogging):
         # the reason we do this is that it only works if permissions can be actually changed. Hence,
         # non-privileged user (e.g. personal user or ahriman user) can't change permissions.
         # The only one who can do so is root, so if user is not root we just terminate function
-        current_uid, current_gid = os.getuid(), os.getgid()
+        current_uid, current_gid = os.geteuid(), os.getegid()
         if current_uid != 0:
             yield
             return

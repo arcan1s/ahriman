@@ -192,7 +192,7 @@ def check_user(root: Path, *, unsafe: bool) -> None:
     if unsafe:
         return  # unsafe flag is enabled, no check performed
 
-    current_uid = os.getuid()
+    current_uid = os.geteuid()
     root_uid, _ = owner(root)
 
     if current_uid != root_uid:
