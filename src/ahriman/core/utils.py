@@ -54,7 +54,6 @@ __all__ = [
     "pretty_interval",
     "pretty_size",
     "safe_filename",
-    "safe_iterdir",
     "srcinfo_property",
     "srcinfo_property_list",
     "trim_package",
@@ -447,22 +446,6 @@ def safe_filename(source: str) -> str:
     #     "[" and "]" - used for host part
     #     "@" - used as separator between host and userinfo
     return re.sub(r"[^A-Za-z\d\-._~:\[\]@]", "-", source)
-
-
-def safe_iterdir(path: Path) -> Iterator[Path]:
-    """
-    wrapper around :func:`pathlib.Path.iterdir`, which suppresses :exc:`PermissionError`
-
-    Args:
-        path(Path): path to iterate
-
-    Yields:
-        Path: content of the directory
-    """
-    try:
-        yield from path.iterdir()
-    except PermissionError:
-        pass
 
 
 def srcinfo_property(key: str, srcinfo: Mapping[str, Any], package_srcinfo: Mapping[str, Any], *,

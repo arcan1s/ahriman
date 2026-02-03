@@ -130,7 +130,7 @@ class Pacman(LazyLogging):
             return  # database for some reason deos not exist
 
         self.logger.info("copy pacman database %s from operating system root to ahriman's home %s", src, dst)
-        with self.repository_paths.preserve_owner(dst.parent):
+        with self.repository_paths.preserve_owner():
             shutil.copy(src, dst)
 
     def database_init(self, handle: Handle, repository: str, architecture: str) -> DB:

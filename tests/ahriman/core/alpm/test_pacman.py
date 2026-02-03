@@ -67,7 +67,7 @@ def test_database_copy(pacman: Pacman, mocker: MockerFixture) -> None:
     pacman.database_copy(pacman.handle, database, path, use_ahriman_cache=True)
     mkdir_mock.assert_called_once_with(mode=0o755, exist_ok=True)
     copy_mock.assert_called_once_with(path / "sync" / "core.db", dst_path)
-    owner_guard_mock.assert_called_once_with(dst_path.parent)
+    owner_guard_mock.assert_called_once_with()
 
 
 def test_database_copy_skip(pacman: Pacman, mocker: MockerFixture) -> None:

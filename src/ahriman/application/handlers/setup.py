@@ -72,14 +72,16 @@ class Setup(Handler):
 
         application = Application(repository_id, configuration, report=report)
 
-        with application.repository.paths.preserve_owner():
-            Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
-            Setup.executable_create(application.repository.paths, repository_id)
-            repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
-            Setup.configuration_create_devtools(
-                repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
-            Setup.configuration_create_sudo(application.repository.paths, repository_id)
+        # basically we create configuration here as root, but it is ok, because those files are only used for reading
+        Setup.configuration_create_makepkg(args.packager, args.makeflags_jobs, application.repository.paths)
+        Setup.executable_create(application.repository.paths, repository_id)
+        repository_server = f"file://{application.repository.paths.repository}" if args.server is None else args.server
+        Setup.configuration_create_devtools(
+            repository_id, args.from_configuration, args.mirror, args.multilib, repository_server)
+        Setup.configuration_create_sudo(application.repository.paths, repository_id)
 
+        # finish initialization
+        with application.repository.paths.preserve_owner():
             application.repository.repo.init()
             # lazy database sync
             application.repository.pacman.handle  # pylint: disable=pointless-statement

@@ -20,7 +20,6 @@
 import subprocess
 
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any, Self
 
 from ahriman.models.repository_id import RepositoryId
@@ -227,20 +226,6 @@ class PkgbuildParserError(ValueError):
         if source is not None:
             message += f", source: `{source}`"
         ValueError.__init__(self, message)
-
-
-class PathError(ValueError):
-    """
-    exception which will be raised on path which is not belong to root directory
-    """
-
-    def __init__(self, path: Path, root: Path) -> None:
-        """
-        Args:
-            path(Path): path which raised an exception
-            root(Path): repository root (i.e. ahriman home)
-        """
-        ValueError.__init__(self, f"Path `{path}` does not belong to repository root `{root}`")
 
 
 class PasswordError(ValueError):

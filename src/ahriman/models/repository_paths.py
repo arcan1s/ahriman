@@ -27,9 +27,8 @@ from functools import cached_property
 from pathlib import Path
 from pwd import getpwuid
 
-from ahriman.core.exceptions import PathError
 from ahriman.core.log import LazyLogging
-from ahriman.core.utils import owner, safe_iterdir
+from ahriman.core.utils import owner
 from ahriman.models.repository_id import RepositoryId
 
 
@@ -209,33 +208,6 @@ class RepositoryPaths(LazyLogging):
 
         return set(walk(instance))
 
-    def _chown(self, path: Path) -> None:
-        """
-        set owner of path recursively (from root) to root owner
-
-        Notes:
-            More likely you don't want to call this method explicitly, consider using :func:`preserve_owner`
-            as context manager instead
-
-        Args:
-            path(Path): path to be chown
-
-        Raises:
-            PathError: if path does not belong to root
-        """
-        def set_owner(current: Path) -> None:
-            uid, gid = owner(current)
-            if uid == root_uid and gid == root_gid:
-                return
-            os.chown(current, root_uid, root_gid, follow_symlinks=False)
-
-        if self.root not in path.parents:
-            raise PathError(path, self.root)
-        root_uid, root_gid = self.root_owner
-        while path != self.root:
-            set_owner(path)
-            path = path.parent
-
     def cache_for(self, package_base: str) -> Path:
         """
         get path to cached PKGBUILD and package sources for the package base
@@ -249,12 +221,9 @@ class RepositoryPaths(LazyLogging):
         return self.cache / package_base
 
     @contextlib.contextmanager
-    def preserve_owner(self, path: Path | None = None) -> Iterator[None]:
+    def preserve_owner(self) -> Iterator[None]:
         """
         perform any action preserving owner for any newly created file or directory
-
-        Args:
-            path(Path | None, optional): use this path as root instead of repository root (Default value = None)
 
         Examples:
             This method is designed to use as context manager when you are going to perform operations which might
@@ -266,25 +235,26 @@ class RepositoryPaths(LazyLogging):
             Note, however, that this method doesn't handle any exceptions and will eventually interrupt
             if there will be any.
         """
-        path = path or self.root
+        # guard non-root
+        # the reason we do this is that it only works if permissions can be actually changed. Hence,
+        # non-privileged user (e.g. personal user or ahriman user) can't change permissions.
+        # The only one who can do so is root, so if user is not root we just terminate function
+        current_uid, current_gid = os.getuid(), os.getgid()
+        if current_uid != 0:
+            yield
+            return
 
-        def walk(root: Path) -> Iterator[Path]:
-            # basically walk, but skipping some content
-            for child in safe_iterdir(root):
-                yield child
-                if child in (self.chroot.parent,):
-                    yield from safe_iterdir(child)  # we only yield top-level in chroot directory
-                elif child.is_dir():
-                    yield from walk(child)
+        # set uid and gid to root owner
+        target_uid, target_gid = self.root_owner
+        os.setegid(target_gid)
+        os.seteuid(target_uid)
 
-        # get current filesystem and run action
-        previous_snapshot = set(walk(path))
-        yield
-
-        # get newly created files and directories and chown them
-        new_entries = set(walk(path)).difference(previous_snapshot)
-        for entry in new_entries:
-            self._chown(entry)
+        try:
+            yield
+        finally:
+            # reset uid and gid
+            os.seteuid(current_uid)
+            os.setegid(current_gid)
 
     def tree_clear(self, package_base: str) -> None:
         """

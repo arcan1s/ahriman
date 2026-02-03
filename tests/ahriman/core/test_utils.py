@@ -436,17 +436,6 @@ def test_safe_filename() -> None:
     assert safe_filename("tolua++-1.0.93-4-x86_64.pkg.tar.zst") == "tolua---1.0.93-4-x86_64.pkg.tar.zst"
 
 
-def test_safe_iterdir(mocker: MockerFixture, resource_path_root: Path) -> None:
-    """
-    must suppress PermissionError
-    """
-    assert list(safe_iterdir(resource_path_root))
-
-    iterdir_mock = mocker.patch("pathlib.Path.iterdir", side_effect=PermissionError)
-    assert list(safe_iterdir(Path("root"))) == []
-    iterdir_mock.assert_called_once_with()
-
-
 def test_srcinfo_property() -> None:
     """
     must correctly extract properties
