@@ -203,7 +203,7 @@ def test_archive_for_create_tree(repository_paths: RepositoryPaths, package_ahri
     mkdir_mock = mocker.patch("pathlib.Path.mkdir")
 
     repository_paths.archive_for(package_ahriman.base)
-    owner_mock.assert_called_once_with(repository_paths.archive)
+    owner_mock.assert_called_once_with()
     mkdir_mock.assert_called_once_with(mode=0o755, parents=True)
 
 
@@ -263,18 +263,6 @@ def test_preserve_owner_non_root(tmp_path: Path, repository_id: RepositoryId, mo
     repository_paths.tree_create()
     seteuid_mock.assert_not_called()
     setegid_mock.assert_not_called()
-
-
-def test_preserve_owner_no_directory(tmp_path: Path, repository_id: RepositoryId, mocker: MockerFixture) -> None:
-    """
-    must skip directory scan if it does not exist
-    """
-    repository_paths = RepositoryPaths(tmp_path, repository_id)
-    chown_mock = mocker.patch("ahriman.models.repository_paths.RepositoryPaths._chown")
-
-    with repository_paths.preserve_owner(Path("empty")):
-        (repository_paths.root / "created1").touch()
-    chown_mock.assert_not_called()
 
 
 def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package, mocker: MockerFixture) -> None:

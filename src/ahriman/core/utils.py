@@ -63,6 +63,7 @@ __all__ = [
     "safe_filename",
     "srcinfo_property",
     "srcinfo_property_list",
+    "symlink_relative",
     "trim_package",
     "utcnow",
     "walk",

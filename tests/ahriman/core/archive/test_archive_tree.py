@@ -117,7 +117,7 @@ def test_tree_create(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
     init_mock = mocker.patch("ahriman.core.alpm.repo.Repo.init")
 
     archive_tree.tree_create()
-    owner_guard_mock.assert_called_once_with(archive_tree.paths.archive)
+    owner_guard_mock.assert_called_once_with()
     mkdir_mock.assert_called_once_with(0o755, parents=True)
     init_mock.assert_called_once_with()
 

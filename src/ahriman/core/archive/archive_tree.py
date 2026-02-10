@@ -125,7 +125,7 @@ class ArchiveTree(LazyLogging):
         if root.exists():
             return
 
-        with self.paths.preserve_owner(self.paths.archive):
+        with self.paths.preserve_owner():
             root.mkdir(0o755, parents=True)
             # init empty repository here
             Repo(self.repository_id.name, self.paths, self.sign_args, root).init()
