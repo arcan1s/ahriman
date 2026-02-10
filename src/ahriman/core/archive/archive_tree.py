@@ -25,6 +25,7 @@ from ahriman.core.alpm.repo import Repo
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import symlink_relative, utcnow, walk
 from ahriman.models.package import Package
+from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
 
 
@@ -47,6 +48,40 @@ class ArchiveTree(LazyLogging):
         self.paths = repository_path
         self.repository_id = repository_path.repository_id
         self.sign_args = sign_args
+
+    def _package_symlinks_create(self, package_description: PackageDescription, root: Path, archive: Path) -> bool:
+        """
+        process symlinks creation for single package
+
+        Args:
+            package_description(PackageDescription): archive descriptor
+            root(Path): path to the archive repository root
+            archive(Path): path to directory with archives
+
+        Returns:
+            bool: ``True`` if symlinks were created and ``False`` otherwise
+        """
+        symlinks_created = False
+        # here we glob for archive itself and signature if any
+        for file in archive.glob(f"{package_description.filename}*"):
+            try:
+                symlink_relative(root / file.name, file)
+                symlinks_created = True
+            except FileExistsError:
+                continue  # symlink is already created, skip processing
+
+        return symlinks_created
+
+    def _repo(self, root: Path) -> Repo:
+        """
+        constructs :class:`ahriman.core.alpm.repo.Repo` object for given path
+        Args:
+            root(Path): root of the repository
+
+        Returns:
+            Repo: constructed object with correct properties
+        """
+        return Repo(self.repository_id.name, self.paths, self.sign_args, root)
 
     def repository_for(self, date: datetime.date | None = None) -> Path:
         """
@@ -78,7 +113,7 @@ class ArchiveTree(LazyLogging):
             packages(list[Package]): list of packages to be updated
         """
         root = self.repository_for()
-        repo = Repo(self.repository_id.name, self.paths, self.sign_args, root)
+        repo = self._repo(root)
 
         for package in packages:
             archive = self.paths.archive_for(package.base)
@@ -88,16 +123,7 @@ class ArchiveTree(LazyLogging):
                     self.logger.warning("received empty package filename for %s", package_name)
                     continue
 
-                has_file = False
-                for file in archive.glob(f"{single.filename}*"):
-                    symlink = root / file.name
-                    try:
-                        symlink_relative(symlink, file)
-                        has_file = True
-                    except FileExistsError:
-                        continue  # symlink is already created, skip processing
-
-                if has_file:
+                if self._package_symlinks_create(single, root, archive):
                     repo.add(root / single.filename)
 
     def symlinks_fix(self) -> None:
@@ -115,7 +141,7 @@ class ArchiveTree(LazyLogging):
             if path.exists():
                 continue  # filter out not broken symlinks
 
-            Repo(self.repository_id.name, self.paths, self.sign_args, root).remove(None, path)
+            self._repo(root).remove(None, path)
 
     def tree_create(self) -> None:
         """
@@ -128,4 +154,4 @@ class ArchiveTree(LazyLogging):
         with self.paths.preserve_owner():
             root.mkdir(0o755, parents=True)
             # init empty repository here
-            Repo(self.repository_id.name, self.paths, self.sign_args, root).init()
+            self._repo(root).init()
