@@ -94,6 +94,7 @@ class ArchiveRotationTrigger(Trigger):
 
         comparator: Callable[[Package, Package], int] = lambda left, right: left.vercmp(right.version)
         to_remove = sorted(packages.values(), key=cmp_to_key(comparator))
+        # 0 will imlicitly be tranlsated into [:0], meaning we keep all packages
         for single in to_remove[:-self.keep_built_packages]:
             self.logger.info("removing version %s of package %s", single.version, single.base)
             for archive in single.packages.values():
