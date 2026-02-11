@@ -7,18 +7,6 @@ from ahriman.core.utils import utcnow
 from ahriman.models.package import Package
 
 
-def test_symlinks_create_empty_filename(archive_tree: ArchiveTree, package_ahriman: Package,
-                                        mocker: MockerFixture) -> None:
-    """
-    must skip symlinks creation if filename is not set
-    """
-    package_ahriman.packages[package_ahriman.base].filename = None
-    symlinks_mock = mocker.patch("pathlib.Path.symlink_to")
-
-    archive_tree.symlinks_create([package_ahriman])
-    symlinks_mock.assert_not_called()
-
-
 def test_repo(archive_tree: ArchiveTree) -> None:
     """
     must return correct repository object

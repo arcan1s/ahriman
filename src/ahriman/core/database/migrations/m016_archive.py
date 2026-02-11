@@ -25,6 +25,7 @@ from sqlite3 import Connection
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
+from ahriman.core.utils import symlink_relative
 from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
@@ -81,4 +82,4 @@ def move_packages(repository_paths: RepositoryPaths, pacman: Pacman) -> None:
         source.rename(target)
 
         # create symlink to the archive
-        source.symlink_to(target.relative_to(source.parent, walk_up=True))
+        symlink_relative(source, target)
