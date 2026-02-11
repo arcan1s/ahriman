@@ -55,7 +55,8 @@ def test_extend_architectures(mocker: MockerFixture) -> None:
     must update available architecture list
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
-    architectures_mock = mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"x86_64"})
+    architectures_mock = mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures",
+                                      return_value={"x86_64"})
 
     assert Sources.extend_architectures(Path("local"), "i686") == [PkgbuildPatch("arch", list({"x86_64", "i686"}))]
     architectures_mock.assert_called_once_with(Path("local"))
@@ -66,7 +67,7 @@ def test_extend_architectures_any(mocker: MockerFixture) -> None:
     must skip architecture patching in case if there is any architecture
     """
     mocker.patch("pathlib.Path.is_file", return_value=True)
-    mocker.patch("ahriman.models.package.Package.supported_architectures", return_value={"any"})
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value={"any"})
     assert Sources.extend_architectures(Path("local"), "i686") == []
 
 
@@ -191,7 +192,7 @@ def test_init(sources: Sources, mocker: MockerFixture) -> None:
     """
     must create empty repository at the specified path
     """
-    mocker.patch("ahriman.models.package.Package.local_files", return_value=[Path("local")])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.local_files", return_value=[Path("local")])
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     add_mock = mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     check_output_mock = mocker.patch("ahriman.core.build_tools.sources.check_output")
@@ -209,7 +210,7 @@ def test_init_skip(mocker: MockerFixture) -> None:
     """
     must skip git init if it was already
     """
-    mocker.patch("ahriman.models.package.Package.local_files", return_value=[Path("local")])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.local_files", return_value=[Path("local")])
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.add")
     mocker.patch("ahriman.core.build_tools.sources.Sources.commit")

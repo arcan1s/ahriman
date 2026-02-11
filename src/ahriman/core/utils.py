@@ -35,6 +35,7 @@ from pwd import getpwuid
 from typing import Any, IO, TypeVar
 
 from ahriman.core.exceptions import CalledProcessError, OptionError, UnsafeRunError
+from ahriman.core.types import Comparable
 
 
 __all__ = [
@@ -45,6 +46,7 @@ __all__ = [
     "extract_user",
     "filter_json",
     "full_version",
+    "list_flatmap",
     "minmax",
     "owner",
     "package_like",
@@ -62,6 +64,7 @@ __all__ = [
 ]
 
 
+R = TypeVar("R", bound=Comparable)
 T = TypeVar("T")
 
 
@@ -274,6 +277,24 @@ def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:
     """
     prefix = f"{epoch}:" if epoch else ""
     return f"{prefix}{pkgver}-{pkgrel}"
+
+
+def list_flatmap(source: Iterable[T], extractor: Callable[[T], list[R]]) -> list[R]:
+    """
+    extract elements from list of lists, flatten them and apply ``extractor``
+
+    Args:
+        source(Iterable[T]): source list
+        extractor(Callable[[T], list[R]): property extractor
+
+    Returns:
+        list[T]: combined list of unique entries in properties list
+    """
+    def generator() -> Iterator[R]:
+        for inner in source:
+            yield from extractor(inner)
+
+    return sorted(set(generator()))
 
 
 def minmax(source: Iterable[T], *, key: Callable[[T], Any] | None = None) -> tuple[T, T]:

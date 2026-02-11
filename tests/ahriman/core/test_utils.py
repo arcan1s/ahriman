@@ -265,6 +265,15 @@ def test_full_version() -> None:
     assert full_version(1, "0.12.1", "1") == "1:0.12.1-1"
 
 
+def test_list_flatmap() -> None:
+    """
+    must flat map iterable correctly
+    """
+    assert list_flatmap([], lambda e: [e * 2]) == []
+    assert list_flatmap([3, 1, 2], lambda e: [e * 2]) == [2, 4, 6]
+    assert list_flatmap([1, 2, 1], lambda e: [e * 2]) == [2, 4]
+
+
 def test_minmax() -> None:
     """
     must correctly define minimal and maximal value

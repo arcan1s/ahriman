@@ -12,6 +12,14 @@ ahriman.core.build\_tools.package\_archive module
    :no-undoc-members:
    :show-inheritance:
 
+ahriman.core.build\_tools.package\_version module
+-------------------------------------------------
+
+.. automodule:: ahriman.core.build_tools.package_version
+   :members:
+   :no-undoc-members:
+   :show-inheritance:
+
 ahriman.core.build\_tools.sources module
 ----------------------------------------
 

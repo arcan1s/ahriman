@@ -24,7 +24,8 @@ def test_updates_aur(update_handler: UpdateHandler, package_ahriman: Package,
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
     event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
-    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    package_is_outdated_mock = mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated",
+                                            return_value=True)
 
     assert update_handler.updates_aur([], vcs=True) == [package_ahriman]
     packages_mock.assert_called_once_with([])
@@ -43,7 +44,7 @@ def test_updates_aur_official(update_handler: UpdateHandler, package_ahriman: Pa
     """
     package_ahriman.remote = RemoteSource(source=PackageSource.Repository)
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     mocker.patch("ahriman.models.package.Package.from_official", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
     event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
@@ -74,7 +75,7 @@ def test_updates_aur_up_to_date(update_handler: UpdateHandler, package_ahriman: 
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=False)
     status_client_mock = mocker.patch("ahriman.core.status.local_client.LocalClient.package_status_update")
 
     assert update_handler.updates_aur([], vcs=True) == []
@@ -100,7 +101,7 @@ def test_updates_aur_filter(update_handler: UpdateHandler, package_ahriman: Pack
     """
     packages_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
                                  return_value=[package_ahriman])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
 
     assert update_handler.updates_aur([package_ahriman.base], vcs=True) == [package_ahriman]
@@ -129,7 +130,8 @@ def test_updates_aur_ignore_vcs(update_handler: UpdateHandler, package_ahriman: 
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("ahriman.models.package.Package.from_aur", return_value=package_ahriman)
     mocker.patch("ahriman.models.package.Package.is_vcs", return_value=True)
-    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    package_is_outdated_mock = mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated",
+                                            return_value=False)
 
     assert not update_handler.updates_aur([], vcs=False)
     package_is_outdated_mock.assert_called_once_with(
@@ -150,7 +152,7 @@ def test_updates_aur_load_by_package(update_handler: UpdateHandler, package_pyth
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages",
                  return_value=[package_python_schedule])
     mocker.patch("ahriman.models.package.Package.from_aur", side_effect=package_selector)
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     assert update_handler.updates_aur([], vcs=True) == [package_python_schedule]
 
 
@@ -232,7 +234,8 @@ def test_updates_local(update_handler: UpdateHandler, package_ahriman: Package, 
     package_load_mock = mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
     status_client_mock = mocker.patch("ahriman.core.status.Client.set_pending")
     event_mock = mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.event")
-    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    package_is_outdated_mock = mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated",
+                                            return_value=True)
 
     assert update_handler.updates_local(vcs=True) == [package_ahriman]
     fetch_mock.assert_called_once_with(Path(package_ahriman.base), pytest.helpers.anyvar(int))
@@ -255,7 +258,8 @@ def test_updates_local_ignore_vcs(update_handler: UpdateHandler, package_ahriman
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
-    package_is_outdated_mock = mocker.patch("ahriman.models.package.Package.is_outdated", return_value=False)
+    package_is_outdated_mock = mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated",
+                                            return_value=False)
 
     assert not update_handler.updates_local(vcs=False)
     package_is_outdated_mock.assert_called_once_with(
@@ -269,7 +273,7 @@ def test_updates_local_unknown(update_handler: UpdateHandler, package_ahriman: P
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
 
@@ -282,7 +286,7 @@ def test_updates_local_remote(update_handler: UpdateHandler, package_ahriman: Pa
     """
     mocker.patch("ahriman.core.repository.update_handler.UpdateHandler.packages", return_value=[package_ahriman])
     mocker.patch("pathlib.Path.iterdir", return_value=[Path(package_ahriman.base)])
-    mocker.patch("ahriman.models.package.Package.is_outdated", return_value=True)
+    mocker.patch("ahriman.core.build_tools.package_version.PackageVersion.is_outdated", return_value=True)
     mocker.patch("ahriman.core.build_tools.sources.Sources.fetch")
     mocker.patch("ahriman.models.package.Package.from_build", return_value=package_ahriman)
 

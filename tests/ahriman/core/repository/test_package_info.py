@@ -2,10 +2,30 @@ import pytest
 
 from pathlib import Path
 from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
 
 from ahriman.core.repository.package_info import PackageInfo
 from ahriman.models.changes import Changes
 from ahriman.models.package import Package
+
+
+def test_full_depends(package_info: PackageInfo, package_ahriman: Package, package_python_schedule: Package,
+                      pyalpm_package_ahriman: MagicMock) -> None:
+    """
+    must extract all dependencies from the package
+    """
+    package_python_schedule.packages[package_python_schedule.base].provides = ["python3-schedule"]
+
+    database_mock = MagicMock()
+    database_mock.pkgcache = [pyalpm_package_ahriman]
+    package_info.pacman = MagicMock()
+    package_info.pacman.handle.get_syncdbs.return_value = [database_mock]
+
+    assert package_info.full_depends(package_ahriman, [package_python_schedule]) == package_ahriman.depends
+
+    package_python_schedule.packages[package_python_schedule.base].depends = [package_ahriman.base]
+    expected = sorted(set(package_python_schedule.depends + package_ahriman.depends))
+    assert package_info.full_depends(package_python_schedule, [package_python_schedule]) == expected
 
 
 def test_load_archives(package_ahriman: Package, package_python_schedule: Package,

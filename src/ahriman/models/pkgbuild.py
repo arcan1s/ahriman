@@ -22,8 +22,10 @@ from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from typing import Any, ClassVar, IO, Self
+from urllib.parse import urlparse
 
 from ahriman.core.alpm.pkgbuild_parser import PkgbuildParser, PkgbuildToken
+from ahriman.core.utils import srcinfo_property_list
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 
 
@@ -102,6 +104,54 @@ class Pkgbuild(Mapping[str, Any]):
             fields["pkgbase"] = PkgbuildPatch("pkgbase", fields["pkgname"].value)
 
         return cls({key: value for key, value in fields.items() if key})
+
+    @staticmethod
+    def local_files(path: Path) -> Iterator[Path]:
+        """
+        extract list of local files
+
+        Args:
+            path(Path): path to package sources directory
+
+        Yields:
+            Path: list of paths of files which belong to the package and distributed together with this tarball.
+            All paths are relative to the ``path``
+
+        Raises:
+            PackageInfoError: if there are parsing errors
+        """
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
+        # we could use arch property, but for consistency it is better to call special method
+        architectures = Pkgbuild.supported_architectures(path)
+
+        for architecture in architectures:
+            for source in srcinfo_property_list("source", pkgbuild, {}, architecture=architecture):
+                if "::" in source:
+                    _, source = source.split("::", maxsplit=1)  # in case if filename is specified, remove it
+
+                if urlparse(source).scheme:
+                    # basically file schema should use absolute path which is impossible if we are distributing
+                    # files together with PKGBUILD. In this case we are going to skip it also
+                    continue
+
+                yield Path(source)
+
+        if (install := pkgbuild.get("install")) is not None:
+            yield Path(install)
+
+    @staticmethod
+    def supported_architectures(path: Path) -> set[str]:
+        """
+        load supported architectures from package sources
+
+        Args:
+            path(Path): path to package sources directory
+
+        Returns:
+            set[str]: list of package supported architectures
+        """
+        pkgbuild = Pkgbuild.from_file(path / "PKGBUILD")
+        return set(pkgbuild.get("arch", []))
 
     def packages(self) -> dict[str, Self]:
         """

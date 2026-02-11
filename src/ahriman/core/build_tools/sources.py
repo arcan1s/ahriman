@@ -27,6 +27,7 @@ from ahriman.core.exceptions import CalledProcessError
 from ahriman.core.log import LazyLogging
 from ahriman.core.utils import check_output, utcnow, walk
 from ahriman.models.package import Package
+from ahriman.models.pkgbuild import Pkgbuild
 from ahriman.models.pkgbuild_patch import PkgbuildPatch
 from ahriman.models.remote_source import RemoteSource
 from ahriman.models.repository_paths import RepositoryPaths
@@ -81,7 +82,7 @@ class Sources(LazyLogging):
         Returns:
             list[PkgbuildPatch]: generated patch for PKGBUILD architectures if required
         """
-        architectures = Package.supported_architectures(sources_dir)
+        architectures = Pkgbuild.supported_architectures(sources_dir)
         if "any" in architectures:  # makepkg does not like when there is any other arch except for any
             return []
         architectures.add(architecture)
@@ -161,7 +162,7 @@ class Sources(LazyLogging):
                          cwd=sources_dir, logger=instance.logger)
 
         # extract local files...
-        files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Package.local_files(sources_dir)]
+        files = ["PKGBUILD", ".SRCINFO"] + [str(path) for path in Pkgbuild.local_files(sources_dir)]
         instance.add(sources_dir, *files)
         # ...and commit them
         instance.commit(sources_dir)

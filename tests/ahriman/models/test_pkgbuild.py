@@ -78,6 +78,66 @@ def test_from_io_empty(pkgbuild_ahriman: Pkgbuild, mocker: MockerFixture) -> Non
     assert Pkgbuild.from_io(StringIO("mock")) == pkgbuild_ahriman
 
 
+def test_local_files(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract local file sources
+    """
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["source"] = PkgbuildPatch("source", ["local-file.tar.gz"])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value=["any"])
+
+    assert list(Pkgbuild.local_files(Path("path"))) == [Path("local-file.tar.gz")]
+
+
+def test_local_files_empty(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract empty local files list when there are no local files
+    """
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value=["any"])
+
+    assert not list(Pkgbuild.local_files(Path("path")))
+
+
+def test_local_files_schema(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must skip local file source when file schema is used
+    """
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["source"] = PkgbuildPatch("source", ["file:///local-file.tar.gz"])
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value=["any"])
+
+    assert not list(Pkgbuild.local_files(Path("path")))
+
+
+def test_local_files_with_install(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must extract local file sources with install file
+    """
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    parsed_pkgbuild = Pkgbuild.from_file(pkgbuild)
+    parsed_pkgbuild.fields["install"] = PkgbuildPatch("install", "install")
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=parsed_pkgbuild)
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.supported_architectures", return_value=["any"])
+
+    assert list(Pkgbuild.local_files(Path("path"))) == [Path("install")]
+
+
+def test_supported_architectures(mocker: MockerFixture, resource_path_root: Path) -> None:
+    """
+    must generate list of available architectures
+    """
+    pkgbuild = resource_path_root / "models" / "package_yay_pkgbuild"
+    mocker.patch("ahriman.models.pkgbuild.Pkgbuild.from_file", return_value=Pkgbuild.from_file(pkgbuild))
+    assert Pkgbuild.supported_architectures(Path("path")) == \
+        {"i686", "pentium4", "x86_64", "arm", "armv7h", "armv6h", "aarch64", "riscv64"}
+
+
 def test_packages(pkgbuild_ahriman: Pkgbuild) -> None:
     """
     must correctly load package function

@@ -19,6 +19,7 @@
 #
 from collections.abc import Iterable
 
+from ahriman.core.build_tools.package_version import PackageVersion
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.exceptions import UnknownPackageError
 from ahriman.core.repository.cleaner import Cleaner
@@ -68,7 +69,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                 try:
                     remote = load_remote(local)
 
-                    if local.is_outdated(remote, self.configuration, calculate_version=vcs):
+                    if PackageVersion(local).is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Remote version is newer than local")
                         result.append(remote)
@@ -157,7 +158,7 @@ class UpdateHandler(PackageInfo, Cleaner):
                     if local.remote.is_remote:
                         continue  # avoid checking AUR packages
 
-                    if local.is_outdated(remote, self.configuration, calculate_version=vcs):
+                    if PackageVersion(local).is_outdated(remote, self.configuration, calculate_version=vcs):
                         self.reporter.set_pending(local.base)
                         self.event(local.base, EventType.PackageOutdated, "Locally pulled sources are outdated")
                         result.append(remote)

@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import copy
+
 from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from ahriman.core.build_tools.package_version import PackageVersion
 from ahriman.core.build_tools.sources import Sources
 from ahriman.core.repository.repository_properties import RepositoryProperties
 from ahriman.core.utils import package_like
@@ -32,6 +35,40 @@ class PackageInfo(RepositoryProperties):
     """
     handler for the package information
     """
+
+    def full_depends(self, package: Package, packages: Iterable[Package]) -> list[str]:
+        """
+        generate full dependencies list including transitive dependencies
+
+        Args:
+            package(Package): package to check dependencies for
+            packages(Iterable[Package]): repository package list
+
+        Returns:
+            list[str]: all dependencies of the package
+        """
+        dependencies = {}
+        # load own package dependencies
+        for package_base in packages:
+            for name, repo_package in package_base.packages.items():
+                dependencies[name] = repo_package.depends
+                for provides in repo_package.provides:
+                    dependencies[provides] = repo_package.depends
+        # load repository dependencies
+        for database in self.pacman.handle.get_syncdbs():
+            for pacman_package in database.pkgcache:
+                dependencies[pacman_package.name] = pacman_package.depends
+                for provides in pacman_package.provides:
+                    dependencies[provides] = pacman_package.depends
+
+        result = set(package.depends)
+        current_depends: set[str] = set()
+        while result != current_depends:
+            current_depends = copy.deepcopy(result)
+            for package_name in current_depends:
+                result.update(dependencies.get(package_name, []))
+
+        return sorted(result)
 
     def load_archives(self, packages: Iterable[Path]) -> list[Package]:
         """
@@ -58,7 +95,7 @@ class PackageInfo(RepositoryProperties):
                     # force version to max of them
                     self.logger.warning("version of %s differs, found %s and %s",
                                         current.base, current.version, local.version)
-                    if current.is_outdated(local, self.configuration, calculate_version=False):
+                    if PackageVersion(current).is_outdated(local, self.configuration, calculate_version=False):
                         current.version = local.version
                 current.packages.update(local.packages)
             except Exception:
@@ -130,5 +167,5 @@ class PackageInfo(RepositoryProperties):
         return [
             package
             for package in packages
-            if depends_on.intersection(package.full_depends(self.pacman, packages))
+            if depends_on.intersection(self.full_depends(package, packages))
         ]

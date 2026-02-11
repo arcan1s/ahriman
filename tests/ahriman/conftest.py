@@ -353,6 +353,27 @@ def package_python_schedule(
 
 
 @pytest.fixture
+def package_tpacpi_bat_git() -> Package:
+    """
+    git package fixture
+
+    Returns:
+        Package: git package test instance
+    """
+    return Package(
+        base="tpacpi-bat-git",
+        version="3.1.r12.g4959b52-1",
+        remote=RemoteSource(
+            source=PackageSource.AUR,
+            git_url=AUR.remote_git_url("tpacpi-bat-git", "aur"),
+            web_url=AUR.remote_web_url("tpacpi-bat-git"),
+            path=".",
+            branch="master",
+        ),
+        packages={"tpacpi-bat-git": PackageDescription()})
+
+
+@pytest.fixture
 def package_description_ahriman() -> PackageDescription:
     """
     package description fixture
