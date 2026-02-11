@@ -111,10 +111,10 @@ class Executor(PackageInfo, Cleaner):
         if prebuilt := list(self._archive_lookup(loaded_package)):
             self.logger.info("using prebuilt packages for %s-%s", loaded_package.base, loaded_package.version)
             built = []
-            for artefact in prebuilt:
-                with filelock(artefact):
-                    shutil.copy(artefact, path)
-                built.append(path / artefact.name)
+            for artifact in prebuilt:
+                with filelock(artifact):
+                    shutil.copy(artifact, path)
+                built.append(path / artifact.name)
         else:
             built = task.build(path, PACKAGER=packager)
 
