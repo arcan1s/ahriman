@@ -282,7 +282,9 @@ def filelock(path: Path) -> Iterator[None]:
             finally:
                 fcntl.flock(fd, fcntl.LOCK_UN)  # unlock file first
     finally:
-        lock_path.unlink(missing_ok=True)  # remove lock file at the end
+        # remove lock file at the end
+        # there might be a race condition here, but we don't care about this case
+        lock_path.unlink(missing_ok=True)
 
 
 def filter_json(source: dict[str, Any], known_fields: Iterable[str]) -> dict[str, Any]:

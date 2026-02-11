@@ -47,10 +47,12 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
         repository_paths.repository / "directory",
         repository_paths.repository / "file.pkg.tar.xz",
         repository_paths.repository / "file.pkg.tar.xz.sig",
+        repository_paths.repository / "file2.pkg.tar.xz",
         repository_paths.repository / "symlink.pkg.tar.xz",
     ])
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=is_file)
+    mocker.patch("pathlib.Path.exists", return_value=True)
     archive_mock = mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
     rename_mock = mocker.patch("pathlib.Path.rename")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
@@ -58,11 +60,12 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
     move_packages(repository_paths, pacman)
     archive_mock.assert_has_calls([
         MockCall(repository_paths.repository / "file.pkg.tar.xz", pacman),
-        MockCall(repository_paths.repository / "file.pkg.tar.xz.sig", pacman),
+        MockCall(repository_paths.repository / "file2.pkg.tar.xz", pacman),
     ])
     rename_mock.assert_has_calls([
         MockCall(repository_paths.archive_for(package_ahriman.base) / "file.pkg.tar.xz"),
         MockCall(repository_paths.archive_for(package_ahriman.base) / "file.pkg.tar.xz.sig"),
+        MockCall(repository_paths.archive_for(package_ahriman.base) / "file2.pkg.tar.xz"),
     ])
     symlink_mock.assert_has_calls([
         MockCall(
@@ -78,5 +81,12 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
             ".." /
             repository_paths.archive_for(package_ahriman.base).relative_to(repository_paths.root) /
             "file.pkg.tar.xz.sig"
+        ),
+        MockCall(
+            Path("..") /
+            ".." /
+            ".." /
+            repository_paths.archive_for(package_ahriman.base).relative_to(repository_paths.root) /
+            "file2.pkg.tar.xz"
         ),
     ])

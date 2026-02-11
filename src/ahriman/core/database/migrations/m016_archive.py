@@ -25,7 +25,8 @@ from sqlite3 import Connection
 from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
-from ahriman.core.utils import symlink_relative
+from ahriman.core.sign.gpg import GPG
+from ahriman.core.utils import package_like, symlink_relative
 from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
@@ -67,19 +68,19 @@ def move_packages(repository_paths: RepositoryPaths, pacman: Pacman) -> None:
         repository_paths(RepositoryPaths): repository paths instance
         pacman(Pacman): alpm wrapper instance
     """
-    for source in repository_paths.repository.iterdir():
-        if not source.is_file(follow_symlinks=False):
+    for archive in filter(package_like, repository_paths.repository.iterdir()):
+        if not archive.is_file(follow_symlinks=False):
             continue  # skip symbolic links if any
 
-        filename = source.name
-        if filename.startswith(".") or ".pkg." not in filename:
-            # we don't use package_like method here, because it also filters out signatures
-            continue
-        package = Package.from_archive(source, pacman)
+        package = Package.from_archive(archive, pacman)
+        artifacts = [archive]
+        # check if there are signatures for this package and append it here too
+        if (signature := GPG.signature(archive)).exists():
+            artifacts.append(signature)
 
-        # move package to the archive directory
-        target = repository_paths.archive_for(package.base) / filename
-        source.rename(target)
-
-        # create symlink to the archive
-        symlink_relative(source, target)
+        for source in artifacts:
+            # move package to the archive directory
+            target = repository_paths.archive_for(package.base) / source.name
+            source.rename(target)
+            # create symlink to the archive
+            symlink_relative(source, target)
