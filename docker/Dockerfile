@@ -24,7 +24,8 @@ RUN pacman -S --noconfirm --asdeps \
         devtools \
         git \
         pyalpm \
-        python-bcrypt  \
+        python-bcrypt \
+        python-filelock \
         python-inflection \
         python-pyelftools \
         python-requests \

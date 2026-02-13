@@ -1,5 +1,4 @@
 import datetime
-import fcntl
 import logging
 import os
 import pytest
@@ -21,11 +20,11 @@ def test_atomic_move(mocker: MockerFixture) -> None:
     """
     must move file with locking
     """
-    filelock_mock = mocker.patch("ahriman.core.utils.filelock")
+    filelock_mock = mocker.patch("ahriman.core.utils.FileLock")
     move_mock = mocker.patch("shutil.move")
 
     atomic_move(Path("source"), Path("destination"))
-    filelock_mock.assert_called_once_with(Path("destination"))
+    filelock_mock.assert_called_once_with(Path(".destination.lock"))
     move_mock.assert_called_once_with(Path("source"), Path("destination"))
 
 
@@ -246,53 +245,6 @@ def test_extract_user() -> None:
 
     del os.environ["SUDO_USER"]
     assert extract_user() == "doas"
-
-
-def test_filelock(mocker: MockerFixture) -> None:
-    """
-    must perform file locking
-    """
-    lock_mock = mocker.patch("fcntl.flock")
-    open_mock = mocker.patch("pathlib.Path.open", autospec=True)
-    unlink_mock = mocker.patch("pathlib.Path.unlink")
-
-    with filelock(Path("local")):
-        pass
-    open_mock.assert_called_once_with(Path(".local"), "ab")
-    lock_mock.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_EX),
-        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_UN),
-    ])
-    unlink_mock.assert_called_once_with(missing_ok=True)
-
-
-def test_filelock_remove_lock(mocker: MockerFixture) -> None:
-    """
-    must remove lock file in case of exception
-    """
-    mocker.patch("pathlib.Path.open", side_effect=Exception)
-    unlink_mock = mocker.patch("pathlib.Path.unlink")
-
-    with pytest.raises(Exception):
-        with filelock(Path("local")):
-            pass
-    unlink_mock.assert_called_once_with(missing_ok=True)
-
-
-def test_filelock_unlock(mocker: MockerFixture) -> None:
-    """
-    must unlock file in case of exception
-    """
-    mocker.patch("pathlib.Path.open")
-    lock_mock = mocker.patch("fcntl.flock")
-
-    with pytest.raises(Exception):
-        with filelock(Path("local")):
-            raise Exception
-    lock_mock.assert_has_calls([
-        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_EX),
-        MockCall(pytest.helpers.anyvar(int), fcntl.LOCK_UN),
-    ])
 
 
 def test_filter_json(package_ahriman: Package) -> None:

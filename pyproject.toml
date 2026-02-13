@@ -18,6 +18,7 @@ authors = [
 
 dependencies = [
     "bcrypt",
+    "filelock",
     "inflection",
     "pyelftools",
     "requests",
