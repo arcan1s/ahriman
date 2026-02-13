@@ -327,7 +327,7 @@ def full_version(epoch: str | int | None, pkgver: str, pkgrel: str) -> str:
     return f"{prefix}{pkgver}-{pkgrel}"
 
 
-def list_flatmap(source: Iterable[T], extractor: Callable[[T], list[R]]) -> list[R]:
+def list_flatmap(source: Iterable[T], extractor: Callable[[T], Iterable[R]]) -> list[R]:
     """
     extract elements from list of lists, flatten them and apply ``extractor``
 
