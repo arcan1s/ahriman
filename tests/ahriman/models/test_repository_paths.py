@@ -271,6 +271,7 @@ def test_tree_clear(repository_paths: RepositoryPaths, package_ahriman: Package,
     """
     paths = {
         repository_paths.cache_for(package_ahriman.base),
+        repository_paths.archive_for(package_ahriman.base),
     }
     rmtree_mock = mocker.patch("shutil.rmtree")
 

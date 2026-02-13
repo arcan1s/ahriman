@@ -29,6 +29,25 @@ def test_repository_for(archive_tree: ArchiveTree) -> None:
     assert set(map("{:02d}".format, utcnow().timetuple()[:3])).issubset(path.parts)
 
 
+def test_directories_fix(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
+    """
+    must remove empty directories recursively
+    """
+    root = archive_tree.paths.archive / "repos"
+    (root / "a" / "b").mkdir(parents=True, exist_ok=True)
+    (root / "a" / "b" / "file").touch()
+    (root / "a" / "b" / "c" / "d").mkdir(parents=True, exist_ok=True)
+
+    _original_rmdir = Path.rmdir
+    rmdir_mock = mocker.patch("pathlib.Path.rmdir", autospec=True, side_effect=_original_rmdir)
+
+    archive_tree.directories_fix({Path("a") / "b" / "c" / "d"})
+    rmdir_mock.assert_has_calls([
+        MockCall(root / "a" / "b" / "c" / "d"),
+        MockCall(root / "a" / "b" / "c"),
+    ])
+
+
 def test_symlinks_create(archive_tree: ArchiveTree, package_ahriman: Package, package_python_schedule: Package,
                          mocker: MockerFixture) -> None:
     """
@@ -96,7 +115,9 @@ def test_symlinks_fix(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
     ])
     remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
 
-    archive_tree.symlinks_fix()
+    assert list(archive_tree.symlinks_fix()) == [
+        archive_tree.repository_for().relative_to(archive_tree.paths.archive / "repos"),
+    ]
     walk_mock.assert_called_once_with(archive_tree.paths.archive / "repos")
     remove_mock.assert_called_once_with(
         "broken_symlink", archive_tree.repository_for() / "broken_symlink-1.0.0-1-x86_64.pkg.tar.zst")
@@ -125,7 +146,7 @@ def test_symlinks_fix_foreign_repository(archive_tree: ArchiveTree, mocker: Mock
     ])
     remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
 
-    archive_tree.symlinks_fix()
+    assert list(archive_tree.symlinks_fix()) == []
     remove_mock.assert_not_called()
 
 

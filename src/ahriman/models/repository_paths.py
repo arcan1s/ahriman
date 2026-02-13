@@ -292,6 +292,7 @@ class RepositoryPaths(LazyLogging):
         """
         for directory in (
                 self.cache_for(package_base),
+                self.archive_for(package_base),
         ):
             shutil.rmtree(directory, ignore_errors=True)
 

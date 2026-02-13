@@ -66,4 +66,5 @@ class ArchiveTrigger(Trigger):
         """
         trigger action which will be called before the stop of the application
         """
-        self.tree.symlinks_fix()
+        repositories = set(self.tree.symlinks_fix())
+        self.tree.directories_fix(repositories)

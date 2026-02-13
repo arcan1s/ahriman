@@ -1,3 +1,4 @@
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 from ahriman.core.archive import ArchiveTrigger
@@ -27,6 +28,10 @@ def test_on_stop(archive_trigger: ArchiveTrigger, mocker: MockerFixture) -> None
     """
     must fix broken symlinks on stop
     """
-    symlinks_mock = mocker.patch("ahriman.core.archive.archive_tree.ArchiveTree.symlinks_fix")
+    local = Path("local")
+    symlinks_mock = mocker.patch("ahriman.core.archive.archive_tree.ArchiveTree.symlinks_fix", return_value=[local])
+    directories_mock = mocker.patch("ahriman.core.archive.archive_tree.ArchiveTree.directories_fix")
+
     archive_trigger.on_stop()
     symlinks_mock.assert_called_once_with()
+    directories_mock.assert_called_once_with({local})

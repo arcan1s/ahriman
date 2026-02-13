@@ -19,6 +19,7 @@
 #
 import datetime
 
+from collections.abc import Iterator
 from pathlib import Path
 
 from ahriman.core.alpm.repo import Repo
@@ -84,6 +85,21 @@ class ArchiveTree(LazyLogging):
         """
         return Repo(self.repository_id.name, self.paths, self.sign_args, root)
 
+    def directories_fix(self, paths: set[Path]) -> None:
+        """
+        remove empty repository directories recursively
+
+        Args:
+            paths(set[Path]): repositories to check
+        """
+        root = self.paths.archive / "repos"
+        for repository in paths:
+            parents = [repository] + list(repository.parents[:-1])
+            for parent in parents:
+                path = root / parent
+                if not list(path.iterdir()):
+                    path.rmdir()
+
     def repository_for(self, date: datetime.date | None = None) -> Path:
         """
         get full path to repository at the specified date
@@ -127,9 +143,12 @@ class ArchiveTree(LazyLogging):
                 if self._package_symlinks_create(single, root, archive):
                     repo.add(root / single.filename)
 
-    def symlinks_fix(self) -> None:
+    def symlinks_fix(self) -> Iterator[Path]:
         """
         remove broken symlinks across repositories for all dates
+
+        Yields:
+            Path: path of the sub-repository with removed symlinks
         """
         for path in walk(self.paths.archive / "repos"):
             root = path.parent
@@ -146,6 +165,7 @@ class ArchiveTree(LazyLogging):
             # normally it should be fine to do so
             package_name = path.name.rsplit("-", maxsplit=3)[0]
             self._repo(root).remove(package_name, path)
+            yield path.parent.relative_to(self.paths.archive / "repos")
 
     def tree_create(self) -> None:
         """
