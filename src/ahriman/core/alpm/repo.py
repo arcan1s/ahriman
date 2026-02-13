@@ -88,16 +88,14 @@ class Repo(LazyLogging):
         check_output("repo-add", *self.sign_args, str(self.repo_path),
                      cwd=self.root, logger=self.logger, user=self.uid)
 
-    def remove(self, package_name: str | None, filename: Path) -> None:
+    def remove(self, package_name: str, filename: Path) -> None:
         """
         remove package from repository
 
         Args:
-            package_name(str | None): package name to remove. If none set, it will be guessed from filename
+            package_name(str): package name to remove
             filename(Path): package filename to remove
         """
-        package_name = package_name or filename.name.rsplit("-", maxsplit=3)[0]
-
         # remove package and signature (if any) from filesystem
         for full_path in self.root.glob(f"**/{filename.name}*"):
             full_path.unlink()

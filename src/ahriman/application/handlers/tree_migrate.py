@@ -71,7 +71,7 @@ class TreeMigrate(Handler):
     @staticmethod
     def fix_symlinks(paths: RepositoryPaths) -> None:
         """
-        fix packages archives symlinks
+        fix package archive symlinks
 
         Args:
             paths(RepositoryPaths): new repository paths

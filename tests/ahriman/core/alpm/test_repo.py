@@ -71,20 +71,6 @@ def test_repo_remove(repo: Repo, package_ahriman: Package, mocker: MockerFixture
     assert package_ahriman.base in check_output_mock.call_args[0]
 
 
-def test_repo_remove_guess_package(repo: Repo, package_ahriman: Package, mocker: MockerFixture) -> None:
-    """
-    must call repo-remove on package removal if no package name set
-    """
-    filepath = package_ahriman.packages[package_ahriman.base].filepath
-    mocker.patch("pathlib.Path.glob", return_value=[])
-    check_output_mock = mocker.patch("ahriman.core.alpm.repo.check_output")
-
-    repo.remove(None, filepath)
-    check_output_mock.assert_called_once()  # it will be checked later
-    assert check_output_mock.call_args[0][0] == "repo-remove"
-    assert package_ahriman.base in check_output_mock.call_args[0]
-
-
 def test_repo_remove_fail_no_file(repo: Repo, mocker: MockerFixture) -> None:
     """
     must fail removal on missing file

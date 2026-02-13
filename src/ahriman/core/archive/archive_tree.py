@@ -75,6 +75,7 @@ class ArchiveTree(LazyLogging):
     def _repo(self, root: Path) -> Repo:
         """
         constructs :class:`ahriman.core.alpm.repo.Repo` object for given path
+
         Args:
             root(Path): root of the repository
 
@@ -141,7 +142,10 @@ class ArchiveTree(LazyLogging):
             if path.exists():
                 continue  # filter out not broken symlinks
 
-            self._repo(root).remove(None, path)
+            # here we don't have access to original archive, so we have to guess name based on archive name
+            # normally it should be fine to do so
+            package_name = path.name.rsplit("-", maxsplit=3)[0]
+            self._repo(root).remove(package_name, path)
 
     def tree_create(self) -> None:
         """

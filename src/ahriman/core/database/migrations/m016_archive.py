@@ -26,7 +26,7 @@ from ahriman.application.handlers.handler import Handler
 from ahriman.core.alpm.pacman import Pacman
 from ahriman.core.configuration import Configuration
 from ahriman.core.sign.gpg import GPG
-from ahriman.core.utils import package_like, symlink_relative
+from ahriman.core.utils import atomic_move, package_like, symlink_relative
 from ahriman.models.package import Package
 from ahriman.models.pacman_synchronization import PacmanSynchronization
 from ahriman.models.repository_paths import RepositoryPaths
@@ -81,6 +81,6 @@ def move_packages(repository_paths: RepositoryPaths, pacman: Pacman) -> None:
         for source in artifacts:
             # move package to the archive directory
             target = repository_paths.archive_for(package.base) / source.name
-            source.rename(target)
+            atomic_move(source, target)
             # create symlink to the archive
             symlink_relative(source, target)

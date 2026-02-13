@@ -54,18 +54,17 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
     mocker.patch("pathlib.Path.is_file", autospec=True, side_effect=is_file)
     mocker.patch("pathlib.Path.exists", return_value=True)
     archive_mock = mocker.patch("ahriman.models.package.Package.from_archive", return_value=package_ahriman)
-    rename_mock = mocker.patch("pathlib.Path.rename")
+    move_mock = mocker.patch("ahriman.core.database.migrations.m016_archive.atomic_move")
     symlink_mock = mocker.patch("pathlib.Path.symlink_to")
 
     move_packages(repository_paths, pacman)
     archive_mock.assert_has_calls([
-        MockCall(repository_paths.repository / "file.pkg.tar.xz", pacman),
-        MockCall(repository_paths.repository / "file2.pkg.tar.xz", pacman),
+        MockCall(repository_paths.repository / filename, pacman)
+        for filename in ("file.pkg.tar.xz", "file2.pkg.tar.xz")
     ])
-    rename_mock.assert_has_calls([
-        MockCall(repository_paths.archive_for(package_ahriman.base) / "file.pkg.tar.xz"),
-        MockCall(repository_paths.archive_for(package_ahriman.base) / "file.pkg.tar.xz.sig"),
-        MockCall(repository_paths.archive_for(package_ahriman.base) / "file2.pkg.tar.xz"),
+    move_mock.assert_has_calls([
+        MockCall(repository_paths.repository / filename, repository_paths.archive_for(package_ahriman.base) / filename)
+        for filename in ("file.pkg.tar.xz", "file.pkg.tar.xz.sig", "file2.pkg.tar.xz")
     ])
     symlink_mock.assert_has_calls([
         MockCall(
@@ -73,20 +72,7 @@ def test_move_packages(repository_paths: RepositoryPaths, pacman: Pacman, packag
             ".." /
             ".." /
             repository_paths.archive_for(package_ahriman.base).relative_to(repository_paths.root) /
-            "file.pkg.tar.xz"
-        ),
-        MockCall(
-            Path("..") /
-            ".." /
-            ".." /
-            repository_paths.archive_for(package_ahriman.base).relative_to(repository_paths.root) /
-            "file.pkg.tar.xz.sig"
-        ),
-        MockCall(
-            Path("..") /
-            ".." /
-            ".." /
-            repository_paths.archive_for(package_ahriman.base).relative_to(repository_paths.root) /
-            "file2.pkg.tar.xz"
-        ),
+            filename
+        )
+        for filename in ("file.pkg.tar.xz", "file.pkg.tar.xz.sig", "file2.pkg.tar.xz")
     ])

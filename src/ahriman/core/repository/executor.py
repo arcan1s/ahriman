@@ -143,7 +143,7 @@ class Executor(PackageInfo, Cleaner):
         remove package base from repository
 
         Args:
-            package_base(str): package base name:
+            package_base(str): package base name
         """
         try:
             with self.in_event(package_base, EventType.PackageRemoved):

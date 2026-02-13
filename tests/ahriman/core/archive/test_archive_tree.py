@@ -80,7 +80,7 @@ def test_symlinks_fix(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
     _original_exists = Path.exists
 
     def exists_mock(path: Path) -> bool:
-        if path.name == "symlink":
+        if path.name.startswith("symlink"):
             return True
         return _original_exists(path)
 
@@ -88,13 +88,18 @@ def test_symlinks_fix(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
     mocker.patch("pathlib.Path.exists", autospec=True, side_effect=exists_mock)
     walk_mock = mocker.patch("ahriman.core.archive.archive_tree.walk", return_value=[
         archive_tree.repository_for() / filename
-        for filename in ("symlink", "broken_symlink", "file")
+        for filename in (
+            "symlink-1.0.0-1-x86_64.pkg.tar.zst",
+            "broken_symlink-1.0.0-1-x86_64.pkg.tar.zst",
+            "file-1.0.0-1-x86_64.pkg.tar.zst",
+        )
     ])
     remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
 
     archive_tree.symlinks_fix()
     walk_mock.assert_called_once_with(archive_tree.paths.archive / "repos")
-    remove_mock.assert_called_once_with(None, archive_tree.repository_for() / "broken_symlink")
+    remove_mock.assert_called_once_with(
+        "broken_symlink", archive_tree.repository_for() / "broken_symlink-1.0.0-1-x86_64.pkg.tar.zst")
 
 
 def test_symlinks_fix_foreign_repository(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
@@ -104,7 +109,7 @@ def test_symlinks_fix_foreign_repository(archive_tree: ArchiveTree, mocker: Mock
     _original_exists = Path.exists
 
     def exists_mock(path: Path) -> bool:
-        if path.name == "symlink":
+        if path.name.startswith("symlink"):
             return True
         return _original_exists(path)
 
@@ -112,7 +117,11 @@ def test_symlinks_fix_foreign_repository(archive_tree: ArchiveTree, mocker: Mock
     mocker.patch("pathlib.Path.exists", autospec=True, side_effect=exists_mock)
     mocker.patch("ahriman.core.archive.archive_tree.walk", return_value=[
         archive_tree.repository_for().with_name("i686") / filename
-        for filename in ("symlink", "broken_symlink", "file")
+        for filename in (
+            "symlink-1.0.0-1-x86_64.pkg.tar.zst",
+            "broken_symlink-1.0.0-1-x86_64.pkg.tar.zst",
+            "file-1.0.0-1-x86_64.pkg.tar.zst",
+        )
     ])
     remove_mock = mocker.patch("ahriman.core.alpm.repo.Repo.remove")
 
