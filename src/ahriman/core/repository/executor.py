@@ -171,7 +171,7 @@ class Executor(PackageInfo, Cleaner):
         files = self.sign.process_sign_package(full_path, packager_key)
 
         for src in files:
-            dst = self.paths.ensure_exists(self.paths.archive_for, package_base) / src.name
+            dst = self.paths.ensure_exists(self.paths.archive_for(package_base)) / src.name
             atomic_move(src, dst)  # move package to archive directory
             if not (symlink := self.paths.repository / dst.name).exists():
                 symlink_relative(symlink, dst)  # create link to archive

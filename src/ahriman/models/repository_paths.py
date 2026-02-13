@@ -21,7 +21,7 @@ import contextlib
 import os
 import shutil
 
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -246,15 +246,12 @@ class RepositoryPaths(LazyLogging):
         """
         return self.cache / package_base
 
-    def ensure_exists(self, directory: Callable[Params, Path] | Path, *args: Params.args,
-                      **kwargs: Params.kwargs) -> Path:
+    def ensure_exists(self, directory: Path) -> Path:
         """
         get path based on ``directory`` callable provided and ensure it exists
 
         Args:
-            directory(Callable[Params, Path] | Path): either directory extractor or path to directory to check
-            args(Params.args): positional arguments for directory call
-            kwargs(Params.kwargs): keyword arguments for directory call
+            directory(Path): path to directory to check
 
         Returns:
             Path: original path based on extractor provided. Directory will always exist
@@ -262,11 +259,8 @@ class RepositoryPaths(LazyLogging):
         Examples:
             This method calls directory accessor and then checks if there is a directory and - otherwise - creates it::
 
-                >>> paths.ensure_exists(paths.archive_for, package_base)
+                >>> paths.ensure_exists(paths.archive_for(package_base))
         """
-        if callable(directory):
-            directory = directory(*args, **kwargs)
-
         if not directory.is_dir():
             with self.preserve_owner():
                 directory.mkdir(mode=0o755, parents=True)
