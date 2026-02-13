@@ -97,7 +97,7 @@ class Repo(LazyLogging):
             filename(Path): package filename to remove
         """
         # remove package and signature (if any) from filesystem
-        for full_path in self.root.glob(f"**/{filename.name}*"):
+        for full_path in self.root.glob(f"{filename.name}*"):
             full_path.unlink()
 
         # remove package from registry
