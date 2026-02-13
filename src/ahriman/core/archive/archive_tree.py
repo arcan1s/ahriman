@@ -24,7 +24,7 @@ from pathlib import Path
 
 from ahriman.core.alpm.repo import Repo
 from ahriman.core.log import LazyLogging
-from ahriman.core.utils import symlink_relative, utcnow, walk
+from ahriman.core.utils import package_like, symlink_relative, utcnow, walk
 from ahriman.models.package import Package
 from ahriman.models.package_description import PackageDescription
 from ahriman.models.repository_paths import RepositoryPaths
@@ -156,6 +156,8 @@ class ArchiveTree(LazyLogging):
             if self.repository_id.name != name or self.repository_id.architecture != architecture:
                 continue  # we only process same name repositories
 
+            if not package_like(path):
+                continue
             if not path.is_symlink():
                 continue  # find symlinks only
             if path.exists():

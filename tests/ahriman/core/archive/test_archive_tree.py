@@ -109,6 +109,7 @@ def test_symlinks_fix(archive_tree: ArchiveTree, mocker: MockerFixture) -> None:
         archive_tree.repository_for() / filename
         for filename in (
             "symlink-1.0.0-1-x86_64.pkg.tar.zst",
+            "symlink-1.0.0-1-x86_64.pkg.tar.zst.sig",
             "broken_symlink-1.0.0-1-x86_64.pkg.tar.zst",
             "file-1.0.0-1-x86_64.pkg.tar.zst",
         )
